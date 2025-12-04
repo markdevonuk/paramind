@@ -43,14 +43,14 @@
                         <form id="registerForm" class="auth-form">
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email address</label>
-                                <input type="email" class="form-control" id="email" placeholder="you@nhs.net" required>
+                                <input type="email" class="form-control" id="email" placeholder="you@nhs.net" required autocomplete="email">
                             </div>
                             
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password</label>
                                 <div class="password-input-wrapper">
-                                    <input type="password" class="form-control" id="password" placeholder="Create a password" required minlength="8">
-                                    <button type="button" class="password-toggle" onclick="togglePassword('password', 'passwordIcon')">
+                                    <input type="password" class="form-control" id="password" placeholder="Create a password" required minlength="8" autocomplete="new-password">
+                                    <button type="button" class="password-toggle" id="togglePassword">
                                         <i class="bi bi-eye" id="passwordIcon"></i>
                                     </button>
                                 </div>
@@ -60,8 +60,8 @@
                             <div class="mb-3">
                                 <label for="confirmPassword" class="form-label">Confirm password</label>
                                 <div class="password-input-wrapper">
-                                    <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm your password" required>
-                                    <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword', 'confirmPasswordIcon')">
+                                    <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm your password" required autocomplete="new-password">
+                                    <button type="button" class="password-toggle" id="toggleConfirmPassword">
                                         <i class="bi bi-eye" id="confirmPasswordIcon"></i>
                                     </button>
                                 </div>
@@ -128,24 +128,52 @@
         </div>
     </main>
 
-    <!-- Firebase SDK (compat version for simpler setup) -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Paramind Scripts -->
-    <script src="js/app.js"></script>
-    <script src="js/firebase-config.js"></script>
-    <script src="js/auth.js"></script>
-    
-    <script>
+    <!-- Firebase & App Scripts (using modules like the working project) -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { firebaseConfig } from './js/firebase-config.js';
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Trust lookup data
+        const TRUSTS = {
+            "BHL": "Bristow Group",
+            "EEAST": "East of England Ambulance Service NHS Trust",
+            "EMAS": "East Midlands Ambulance Service NHS Trust",
+            "JAS": "States of Jersey Ambulance Service",
+            "NEAS": "North East Ambulance Service NHS Foundation Trust",
+            "NIAS": "Northern Ireland Ambulance Service",
+            "NWAS": "North West Ambulance Service NHS Trust",
+            "SAS": "Scottish Ambulance Service",
+            "SCAS": "South Central Ambulance Service NHS Foundation Trust",
+            "SECAmb": "South East Coast Ambulance Service NHS Foundation Trust",
+            "SJA": "St John Ambulance",
+            "SWAST": "South Western Ambulance Service NHS Foundation Trust",
+            "WAST": "Welsh Ambulance Services NHS Trust",
+            "WMAS": "West Midlands Ambulance Service NHS Foundation Trust",
+            "YAS": "Yorkshire Ambulance Service NHS Trust"
+        };
+
+        // Check if user is already logged in
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in, redirect to chat
+                window.location.href = 'chat.html';
+            }
+        });
+
         // Toggle password visibility
-        function togglePassword(inputId, iconId) {
-            const passwordInput = document.getElementById(inputId);
-            const passwordIcon = document.getElementById(iconId);
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const passwordIcon = document.getElementById('passwordIcon');
             
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
@@ -156,8 +184,23 @@
                 passwordIcon.classList.remove('bi-eye-slash');
                 passwordIcon.classList.add('bi-eye');
             }
-        }
-        
+        });
+
+        document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('confirmPassword');
+            const passwordIcon = document.getElementById('confirmPasswordIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordIcon.classList.remove('bi-eye');
+                passwordIcon.classList.add('bi-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                passwordIcon.classList.remove('bi-eye-slash');
+                passwordIcon.classList.add('bi-eye');
+            }
+        });
+
         // Show error message
         function showError(message) {
             const errorEl = document.getElementById('errorMessage');
@@ -166,7 +209,7 @@
             errorEl.textContent = message;
             errorEl.classList.remove('d-none');
         }
-        
+
         // Show success message
         function showSuccess(message) {
             const errorEl = document.getElementById('errorMessage');
@@ -175,13 +218,13 @@
             successEl.textContent = message;
             successEl.classList.remove('d-none');
         }
-        
+
         // Hide messages
         function hideMessages() {
             document.getElementById('errorMessage').classList.add('d-none');
             document.getElementById('successMessage').classList.add('d-none');
         }
-        
+
         // Set loading state
         function setLoading(isLoading) {
             const submitBtn = document.getElementById('submitBtn');
@@ -192,7 +235,24 @@
             submitSpinner.classList.toggle('d-none', !isLoading);
             submitText.textContent = isLoading ? 'Creating account...' : 'Create Account';
         }
-        
+
+        // Get user-friendly error message
+        function getErrorMessage(errorCode) {
+            const errorMessages = {
+                'auth/email-already-in-use': 'An account with this email already exists.',
+                'auth/invalid-email': 'Please enter a valid email address.',
+                'auth/operation-not-allowed': 'Email/password accounts are not enabled.',
+                'auth/weak-password': 'Password should be at least 6 characters.',
+                'auth/user-disabled': 'This account has been disabled.',
+                'auth/user-not-found': 'No account found with this email address.',
+                'auth/wrong-password': 'Incorrect password. Please try again.',
+                'auth/invalid-credential': 'Invalid email or password. Please try again.',
+                'auth/too-many-requests': 'Too many failed attempts. Please try again later.',
+                'auth/network-request-failed': 'Network error. Please check your connection.'
+            };
+            return errorMessages[errorCode] || 'An error occurred. Please try again.';
+        }
+
         // Form submission handler
         document.getElementById('registerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -203,37 +263,59 @@
             const trust = document.getElementById('trust').value;
             
             hideMessages();
-            
+
             // Validate passwords match
             if (password !== confirmPassword) {
                 showError('Passwords do not match');
                 return;
             }
-            
+
             // Validate password length
             if (password.length < 8) {
                 showError('Password must be at least 8 characters long');
                 return;
             }
-            
+
             // Validate trust selected
             if (!trust) {
                 showError('Please select your ambulance trust');
                 return;
             }
-            
+
             setLoading(true);
-            
-            // Use Firebase authentication
-            const result = await window.paramindAuth.registerUser(email, password, trust);
-            
-            setLoading(false);
-            
-            if (result.success) {
-                // Redirect will happen automatically via auth state listener
+
+            try {
+                // Create user account with Firebase Authentication
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Get trust full name
+                const trustFullName = TRUSTS[trust] || trust;
+
+                // Save user data to Firestore
+                await setDoc(doc(db, 'users', user.uid), {
+                    uid: user.uid,
+                    email: email,
+                    trust: trust,
+                    trustFullName: trustFullName,
+                    subscriptionStatus: 'free',
+                    stripeCustomerId: null,
+                    dailyMessageCount: 0,
+                    lastMessageDate: null,
+                    createdAt: serverTimestamp()
+                });
+
                 showSuccess('Account created! Redirecting to chat...');
-            } else {
-                showError(result.error);
+                
+                // Redirect to chat
+                setTimeout(() => {
+                    window.location.href = 'chat.html';
+                }, 1500);
+
+            } catch (error) {
+                setLoading(false);
+                showError(getErrorMessage(error.code));
+                console.error('Registration error:', error);
             }
         });
     </script>

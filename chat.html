@@ -200,62 +200,91 @@
         </div>
     </div>
 
-    <!-- Firebase SDK (compat version for simpler setup) -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Paramind Scripts -->
-    <script src="js/app.js"></script>
-    <script src="js/firebase-config.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/chat.js"></script>
-    
-    <script>
-        // Sign out handler
-        document.getElementById('signOutBtn').addEventListener('click', async function(e) {
-            e.preventDefault();
-            await window.paramindAuth.logoutUser();
-            // Redirect happens automatically via auth state listener
-        });
-        
-        // Update UI with user info when auth state changes
-        firebase.auth().onAuthStateChanged(async (user) => {
+    <!-- Firebase & App Scripts (using modules like the working project) -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, getDoc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { firebaseConfig } from './js/firebase-config.js';
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Scenario definitions
+        const SCENARIOS = {
+            "patient-assessment": {
+                title: "Patient Assessment Practice",
+                description: "The AI will present as a patient with symptoms. Ask assessment questions to gather information and formulate a differential diagnosis.",
+                prompt: "You are now a patient presenting to a paramedic. You have chest pain that started 2 hours ago while gardening. It feels like pressure in the centre of your chest. You also feel a bit sweaty and nauseous. Answer the paramedic's questions as a realistic patient would - you may not know medical terminology. Do not reveal your diagnosis. After the paramedic offers their differential diagnosis, confirm if correct or explain what they may have missed."
+            },
+            "differential-diagnosis": {
+                title: "Differential Diagnosis Challenge",
+                description: "Test your diagnostic reasoning skills with a complex case presentation.",
+                prompt: "Present me with a complex patient case (appropriate for paramedic level) including: patient demographics, chief complaint, history of presenting complaint, and relevant observations. After I provide my differential diagnoses, give me feedback on my clinical reasoning."
+            },
+            "drug-calculation": {
+                title: "Drug Calculation Practice",
+                description: "Practice medication calculations with realistic scenarios.",
+                prompt: "Give me a drug calculation question appropriate for a paramedic. Include the patient's weight, the drug, the dose per kg or fixed dose, and the concentration available. After I answer, confirm if I'm correct and explain the working if needed."
+            },
+            "ecg-interpretation": {
+                title: "ECG Interpretation",
+                description: "Learn to identify key ECG abnormalities relevant to pre-hospital care.",
+                prompt: "Describe an ECG in text format for me to interpret. Include rate, rhythm, axis, intervals, and any abnormalities. After I provide my interpretation, give feedback and explain the clinical significance."
+            }
+        };
+
+        // Chat state
+        let chatState = {
+            messages: [],
+            isLoading: false,
+            currentScenario: null,
+            messagesUsed: 0,
+            isPro: false,
+            userTrust: 'SWAST',
+            userData: null
+        };
+
+        // Check authentication state
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // Update email display
+                // User is signed in
                 document.getElementById('userEmail').textContent = user.email;
-                
-                // Get user data from Firestore for trust info
-                const userDoc = await firebase.firestore()
-                    .collection('users')
-                    .doc(user.uid)
-                    .get();
-                
-                if (userDoc.exists) {
-                    const userData = userDoc.data();
-                    document.getElementById('userTrust').textContent = userData.trust || 'Unknown';
+
+                // Get user data from Firestore
+                try {
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
                     
-                    // Update chat state with user's trust
-                    if (typeof chatState !== 'undefined') {
-                        chatState.userTrust = userData.trust;
-                        chatState.isPro = userData.subscriptionStatus === 'active';
+                    if (userDoc.exists()) {
+                        chatState.userData = userDoc.data();
+                        chatState.userTrust = chatState.userData.trust || 'SWAST';
+                        chatState.isPro = chatState.userData.subscriptionStatus === 'active';
+                        
+                        document.getElementById('userTrust').textContent = chatState.userTrust;
+                        
+                        // Update message counter
+                        updateMessageCounterFromFirestore(chatState.userData);
+                        
+                        // Hide message counter for Pro users
+                        if (chatState.isPro) {
+                            document.getElementById('messageCounter').style.display = 'none';
+                            document.getElementById('proOnlyBadge').style.display = 'none';
+                        }
                     }
-                    
-                    // Update message counter from Firestore
-                    updateMessageCounterFromFirestore(userData);
-                    
-                    // Hide message counter for Pro users
-                    if (userData.subscriptionStatus === 'active') {
-                        document.getElementById('messageCounter').style.display = 'none';
-                        document.getElementById('proOnlyBadge').style.display = 'none';
-                    }
+                } catch (error) {
+                    console.error('Error loading user data:', error);
                 }
+            } else {
+                // User is signed out, redirect to login
+                window.location.href = 'login.html';
             }
         });
-        
+
         // Update message counter from Firestore data
         function updateMessageCounterFromFirestore(userData) {
             const today = new Date();
@@ -272,7 +301,7 @@
                 }
             }
             
-            // Update display
+            chatState.messagesUsed = count;
             document.getElementById('messagesUsed').textContent = count;
             
             const percentage = (count / 5) * 100;
@@ -286,12 +315,366 @@
                 progressBar.classList.remove('bg-warning');
                 progressBar.classList.add('bg-danger');
             }
-            
-            // Update chat state
-            if (typeof chatState !== 'undefined') {
-                chatState.messagesUsed = count;
+        }
+
+        // Update message count in Firestore
+        async function updateMessageCount() {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            try {
+                const userRef = doc(db, 'users', user.uid);
+                const userDoc = await getDoc(userRef);
+                const userData = userDoc.data();
+
+                let newCount = 1;
+                if (userData.lastMessageDate) {
+                    const lastDate = userData.lastMessageDate.toDate();
+                    lastDate.setHours(0, 0, 0, 0);
+
+                    if (lastDate.getTime() === today.getTime()) {
+                        newCount = (userData.dailyMessageCount || 0) + 1;
+                    }
+                }
+
+                await updateDoc(userRef, {
+                    dailyMessageCount: newCount,
+                    lastMessageDate: serverTimestamp()
+                });
+
+                chatState.messagesUsed = newCount;
+                document.getElementById('messagesUsed').textContent = newCount;
+                
+                const percentage = (newCount / 5) * 100;
+                const progressBar = document.getElementById('messageProgress');
+                progressBar.style.width = Math.min(percentage, 100) + '%';
+
+            } catch (error) {
+                console.error('Error updating message count:', error);
             }
         }
+
+        // Sign out handler
+        document.getElementById('signOutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                await signOut(auth);
+                // Redirect happens via onAuthStateChanged
+            } catch (error) {
+                console.error('Sign out error:', error);
+            }
+        });
+
+        // Mobile sidebar toggle
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const chatSidebar = document.getElementById('chatSidebar');
+            chatSidebar.classList.toggle('open');
+            
+            let overlay = document.querySelector('.sidebar-overlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.className = 'sidebar-overlay';
+                document.body.appendChild(overlay);
+                overlay.addEventListener('click', function() {
+                    chatSidebar.classList.remove('open');
+                    overlay.classList.remove('open');
+                });
+            }
+            overlay.classList.toggle('open');
+        });
+
+        // Auto-resize textarea
+        const messageInput = document.getElementById('messageInput');
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+        });
+
+        // Submit on Enter (but allow Shift+Enter for new lines)
+        messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                document.getElementById('chatForm').dispatchEvent(new Event('submit'));
+            }
+        });
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Format message with basic markdown
+        function formatMessage(text) {
+            let formatted = escapeHtml(text);
+            formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            formatted = formatted.replace(/\n/g, '<br>');
+            return formatted;
+        }
+
+        // Add message to chat
+        function addMessage(role, content) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            const avatarIcon = role === 'user' ? 'bi-person' : 'bi-robot';
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="bi ${avatarIcon}"></i>
+                </div>
+                <div class="message-content">
+                    ${formatMessage(content)}
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatState.messages.push({ role, content, timestamp: new Date() });
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Show loading indicator
+        function showLoading() {
+            chatState.isLoading = true;
+            document.getElementById('sendBtn').disabled = true;
+            
+            const chatMessages = document.getElementById('chatMessages');
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message assistant';
+            loadingDiv.id = 'loadingMessage';
+            
+            loadingDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(loadingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Hide loading indicator
+        function hideLoading() {
+            chatState.isLoading = false;
+            document.getElementById('sendBtn').disabled = false;
+            
+            const loadingMsg = document.getElementById('loadingMessage');
+            if (loadingMsg) {
+                loadingMsg.remove();
+            }
+        }
+
+        // Send message to AI (simulated for demo)
+        async function sendToAI(message) {
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            const lowerMessage = message.toLowerCase();
+            
+            if (lowerMessage.includes('chest pain')) {
+                return `**Based on ${chatState.userTrust} guidelines:**\n\nFor a patient presenting with chest pain, follow your primary survey (ABCDE approach):\n\n1. **Airway** - Ensure patent airway\n2. **Breathing** - Assess respiratory rate, SpO2, breath sounds\n3. **Circulation** - HR, BP, 12-lead ECG, skin colour/temperature\n4. **Disability** - GCS, blood glucose, pupils\n5. **Exposure** - Full assessment as appropriate\n\nFor chest pain specifically, consider the ACS pathway:\n- Aspirin 300mg (if not contraindicated)\n- GTN if SBP >90mmHg\n- Pain assessment and management\n- Continuous monitoring\n\nWhat specific aspect would you like to explore further?`;
+            }
+            
+            if (lowerMessage.includes('gtn') || lowerMessage.includes('contraindication')) {
+                return `**GTN Contraindications (${chatState.userTrust} JRCALC guidelines):**\n\n• Systolic BP <90mmHg\n• Heart rate <50 or >150 bpm\n• Right ventricular infarction (suspected or confirmed)\n• Phosphodiesterase inhibitor use within:\n  - 24 hours for sildenafil/vardenafil\n  - 48 hours for tadalafil\n• Severe aortic stenosis\n• Hypertrophic obstructive cardiomyopathy\n• Constrictive pericarditis\n• Raised intracranial pressure\n\nRemember: Always check your trust's specific guidelines as there may be local variations.`;
+            }
+            
+            if (lowerMessage.includes('stemi') || lowerMessage.includes('nstemi')) {
+                return `**STEMI vs NSTEMI - Key Differences:**\n\n**STEMI (ST-Elevation MI):**\n• Complete coronary artery occlusion\n• ST elevation ≥1mm in 2+ contiguous leads (or ≥2mm in V2-V3)\n• Often associated with reciprocal changes\n• Requires immediate PPCI pathway activation\n• Time-critical: door-to-balloon <90 minutes\n\n**NSTEMI (Non-ST-Elevation MI):**\n• Partial coronary occlusion\n• ST depression, T-wave inversion, or no ECG changes\n• Elevated troponin confirms diagnosis\n• Risk-stratified management\n• May not require immediate intervention\n\n**Pre-hospital management for both:**\n• High-flow oxygen only if SpO2 <94%\n• Aspirin 300mg PO\n• Pain management (GTN, morphine as per guidelines)\n• 12-lead ECG and pre-alert if appropriate`;
+            }
+            
+            return `Thank you for your question. As your ${chatState.userTrust} clinical assistant, I'm here to help with your learning.\n\nCould you provide more details about what you'd like to know? I can help with:\n• Patient assessment approaches\n• Differential diagnoses\n• Medication queries\n• Clinical pathways and protocols\n• Scenario-based learning\n\nRemember: Always verify information against your trust's current guidelines.`;
+        }
+
+        // Show limit reached message
+        function showLimitReached() {
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            if (welcomeMessage) {
+                welcomeMessage.style.display = 'none';
+            }
+            
+            const chatMessages = document.getElementById('chatMessages');
+            const limitDiv = document.createElement('div');
+            limitDiv.className = 'message assistant';
+            
+            limitDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <div class="message-content">
+                    <strong>Daily message limit reached</strong><br><br>
+                    You've used all 5 free messages for today. Your limit will reset at midnight.<br><br>
+                    <a href="#" class="btn btn-primary btn-sm" onclick="alert('Stripe integration coming soon!')">
+                        <i class="bi bi-star me-1"></i>Upgrade to Paramind Pro
+                    </a>
+                    <br><br>
+                    <small class="text-muted">Unlimited messages for just £4.99/month</small>
+                </div>
+            `;
+            
+            chatMessages.appendChild(limitDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Handle sending a message
+        document.getElementById('chatForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const message = messageInput.value.trim();
+            if (!message || chatState.isLoading) return;
+            
+            // Check message limit for free users
+            if (!chatState.isPro && chatState.messagesUsed >= 5) {
+                showLimitReached();
+                return;
+            }
+            
+            // Clear input
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            
+            // Hide welcome message
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            if (welcomeMessage) {
+                welcomeMessage.style.display = 'none';
+            }
+            
+            // Add user message
+            addMessage('user', message);
+            
+            // Update message count for free users
+            if (!chatState.isPro) {
+                await updateMessageCount();
+            }
+            
+            // Show loading and get response
+            showLoading();
+            
+            try {
+                const response = await sendToAI(message);
+                hideLoading();
+                addMessage('assistant', response);
+            } catch (error) {
+                hideLoading();
+                addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+                console.error('Chat error:', error);
+            }
+        });
+
+        // New chat button
+        document.getElementById('newChatBtn').addEventListener('click', function() {
+            chatState.messages = [];
+            chatState.currentScenario = null;
+            
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = '';
+            
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            if (welcomeMessage) {
+                welcomeMessage.style.display = 'block';
+                chatMessages.appendChild(welcomeMessage);
+            }
+        });
+
+        // Scenario buttons
+        document.querySelectorAll('.scenario-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const scenarioId = this.dataset.scenario;
+                const scenario = SCENARIOS[scenarioId];
+                if (!scenario) return;
+                
+                chatState.currentScenario = scenarioId;
+                
+                document.getElementById('scenarioDescription').innerHTML = `
+                    <h6>${scenario.title}</h6>
+                    <p>${scenario.description}</p>
+                `;
+                
+                const modal = new bootstrap.Modal(document.getElementById('scenarioModal'));
+                modal.show();
+            });
+        });
+
+        // Start scenario button
+        document.getElementById('startScenarioBtn').addEventListener('click', function() {
+            if (!chatState.currentScenario) return;
+            
+            const scenario = SCENARIOS[chatState.currentScenario];
+            if (!scenario) return;
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('scenarioModal'));
+            modal.hide();
+            
+            // Clear chat
+            chatState.messages = [];
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = '';
+            
+            // Hide welcome
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            if (welcomeMessage) {
+                welcomeMessage.style.display = 'none';
+            }
+            
+            // Add scenario header
+            const systemDiv = document.createElement('div');
+            systemDiv.className = 'alert alert-info mx-3 my-3';
+            systemDiv.innerHTML = `
+                <i class="bi bi-mortarboard me-2"></i>
+                <strong>Scenario: ${scenario.title}</strong>
+                <p class="mb-0 mt-1 small">${scenario.description}</p>
+            `;
+            chatMessages.appendChild(systemDiv);
+            
+            // Start scenario
+            showLoading();
+            
+            setTimeout(() => {
+                hideLoading();
+                
+                let starterMessage = '';
+                
+                switch(chatState.currentScenario) {
+                    case 'patient-assessment':
+                        starterMessage = "Hello... I've called the ambulance because I've got this terrible pain in my chest. It started about two hours ago when I was doing some gardening. I feel a bit sick and sweaty too. I'm quite worried about it.";
+                        break;
+                    case 'differential-diagnosis':
+                        starterMessage = "**Case Presentation:**\n\n72-year-old female, called by care home staff.\n\n**Chief Complaint:** Found on floor, confused\n\n**HPC:** Patient found by staff during routine check. Unsure how long on floor. Normally mobile with frame. Usually alert and oriented. Staff report she seemed 'not quite right' yesterday.\n\n**PMH:** Type 2 diabetes, hypertension, previous TIA (2019), osteoarthritis\n\n**Medications:** Metformin, Amlodipine, Aspirin\n\n**Observations:**\n- RR: 22\n- SpO2: 94% on air\n- HR: 102 irregular\n- BP: 168/94\n- Temp: 37.9°C\n- BM: 14.2\n- GCS: 14 (E4 V4 M6)\n\nWhat are your differential diagnoses?";
+                        break;
+                    case 'drug-calculation':
+                        starterMessage = "**Drug Calculation Question:**\n\nYou need to administer Adrenaline IV for anaphylaxis.\n\nThe patient weighs 70kg.\n\nYour trust protocol requires a 50 microgram bolus (as per JRCalc).\n\nYou have Adrenaline 1:10,000 (1mg in 10ml).\n\n**How many millilitres do you need to draw up for this single bolus dose?**";
+                        break;
+                    case 'ecg-interpretation':
+                        starterMessage = "**ECG Description:**\n\n- Rate: 150 bpm\n- Rhythm: Regular\n- P waves: Not clearly visible, possible flutter waves in inferior leads\n- PR interval: Unable to measure\n- QRS duration: 80ms (narrow)\n- QT interval: Difficult to assess\n- ST segments: 2mm depression in V4-V6 and leads I, aVL\n- T waves: Inverted in lateral leads\n- Other: Sawtooth pattern visible in lead II at 300/min\n\n**What is your interpretation and what would be your management priorities?**";
+                        break;
+                    default:
+                        starterMessage = "Let's begin the scenario. What would you like to explore?";
+                }
+                
+                addMessage('assistant', starterMessage);
+            }, 1000);
+        });
+
+        // Quick prompt buttons
+        document.querySelectorAll('.quick-prompt-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const prompt = this.dataset.prompt;
+                messageInput.value = prompt;
+                document.getElementById('chatForm').dispatchEvent(new Event('submit'));
+            });
+        });
     </script>
 </body>
 </html>
