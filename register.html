@@ -32,13 +32,13 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="index.html#features" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">Features</a>
+                        <a class="nav-link" href="index.html#features">Features</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="index.html#pricing" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">Pricing</a>
+                        <a class="nav-link" href="index.html#pricing">Pricing</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="login.html" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">Login</a>
+                        <a class="nav-link" href="login.html">Login</a>
                     </li>
                     <li class="nav-item ms-lg-2">
                         <a class="btn btn-primary active" href="register.html">Get Started Free</a>
@@ -188,6 +188,16 @@
             
             // For now, redirect to chat (will be replaced with Firebase auth)
             window.location.href = 'chat.html';
+        });
+        
+        // Close mobile menu when a nav link is clicked
+        document.querySelectorAll('.navbar-nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                const navbarCollapse = document.querySelector('.navbar-collapse');
+                if (navbarCollapse && navbarCollapse.classList.contains('show')) {
+                    new bootstrap.Collapse(navbarCollapse).hide();
+                }
+            });
         });
     </script>
 </body>
