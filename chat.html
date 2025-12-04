@@ -42,8 +42,8 @@
         
         .scenario-dropdown-menu {
             display: none;
-            background: var(--color-gray-50);
-            border-radius: var(--radius-md);
+            background: #f8f9fa;
+            border-radius: 0.5rem;
             margin-top: 0.5rem;
             padding: 0.5rem;
             max-height: 300px;
@@ -60,17 +60,17 @@
             padding: 0.5rem 0.75rem;
             background: none;
             border: none;
-            border-radius: var(--radius-sm);
+            border-radius: 0.375rem;
             font-size: 0.85rem;
-            color: var(--color-gray-700);
+            color: #495057;
             text-align: left;
             cursor: pointer;
-            transition: all var(--transition-fast);
+            transition: all 0.15s ease;
         }
         
         .scenario-dropdown-item:hover {
-            background: var(--color-white);
-            color: var(--color-teal);
+            background: #ffffff;
+            color: #2B8A9C;
         }
         
         /* Mobile Back Button */
@@ -79,21 +79,21 @@
             position: fixed;
             bottom: 100px;
             right: 1rem;
-            width: 50px;
-            height: 50px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-teal-dark) 100%);
+            background: linear-gradient(135deg, #2B8A9C 0%, #237282 100%);
             color: white;
             border: none;
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             z-index: 1000;
             align-items: center;
             justify-content: center;
-            font-size: 1.25rem;
+            font-size: 1.5rem;
         }
         
-        .mobile-back-btn:hover {
-            transform: scale(1.05);
+        .mobile-back-btn:active {
+            transform: scale(0.95);
         }
         
         @media (max-width: 767.98px) {
@@ -109,7 +109,7 @@
         <div class="container-fluid px-3">
             <div class="d-flex align-items-center justify-content-between w-100">
                 <div class="d-flex align-items-center">
-                    <button class="btn btn-link text-dark d-md-none me-2" id="sidebarToggle">
+                    <button class="btn btn-link text-dark d-md-none me-2" id="sidebarToggle" type="button">
                         <i class="bi bi-list fs-4"></i>
                     </button>
                     <a class="navbar-brand" href="index.html">
@@ -144,7 +144,7 @@
         <!-- Sidebar -->
         <aside class="chat-sidebar" id="chatSidebar">
             <div class="sidebar-header">
-                <button class="btn btn-primary w-100" id="newChatBtn">
+                <button class="btn btn-primary w-100" id="newChatBtn" type="button">
                     <i class="bi bi-plus-lg me-2"></i>New Chat
                 </button>
             </div>
@@ -163,31 +163,31 @@
                             <i class="bi bi-chevron-down ms-auto dropdown-arrow"></i>
                         </button>
                         <div class="scenario-dropdown-menu" id="scenariosDropdownMenu">
-                            <button class="scenario-dropdown-item" data-scenario="abdominal-pain">Abdominal Pain</button>
-                            <button class="scenario-dropdown-item" data-scenario="chest-pain">Chest Pain</button>
-                            <button class="scenario-dropdown-item" data-scenario="neck-pain">Neck Pain</button>
-                            <button class="scenario-dropdown-item" data-scenario="back-pain">Back Pain</button>
-                            <button class="scenario-dropdown-item" data-scenario="headache">Headache</button>
-                            <button class="scenario-dropdown-item" data-scenario="shortness-of-breath">Shortness of Breath</button>
-                            <button class="scenario-dropdown-item" data-scenario="seizure">Seizure</button>
-                            <button class="scenario-dropdown-item" data-scenario="stroke">Stroke / CVA</button>
-                            <button class="scenario-dropdown-item" data-scenario="cardiac-arrest">Cardiac Arrest</button>
-                            <button class="scenario-dropdown-item" data-scenario="anaphylaxis">Anaphylaxis</button>
-                            <button class="scenario-dropdown-item" data-scenario="diabetic-emergency">Diabetic Emergency</button>
-                            <button class="scenario-dropdown-item" data-scenario="overdose">Overdose / Poisoning</button>
-                            <button class="scenario-dropdown-item" data-scenario="trauma">Major Trauma</button>
-                            <button class="scenario-dropdown-item" data-scenario="burns">Burns</button>
-                            <button class="scenario-dropdown-item" data-scenario="falls-elderly">Falls in Elderly</button>
-                            <button class="scenario-dropdown-item" data-scenario="paediatric">Paediatric Emergency</button>
-                            <button class="scenario-dropdown-item" data-scenario="obstetric">Obstetric Emergency</button>
-                            <button class="scenario-dropdown-item" data-scenario="mental-health">Mental Health Crisis</button>
-                            <button class="scenario-dropdown-item" data-scenario="sepsis">Sepsis</button>
-                            <button class="scenario-dropdown-item" data-scenario="hypothermia">Hypothermia / Hyperthermia</button>
+                            <button type="button" class="scenario-dropdown-item" data-scenario="abdominal-pain">Abdominal Pain</button>
+                            <button type="button" class="scenario-dropdown-item" data-scenario="chest-pain">Chest Pain</button>
+                            <button type="button" class="scenario-dropdown-item" data-scenario="neck-pain">Neck Pain</button>
+                            <button type="button" class="scenario-dropdown-item" data-scenario="back-pain">Back Pain</button>
+                            <button type="button" class="scenario-dropdown-item" data-scenario="headache">Headache</button>
+                            <button type="button" class="scenario-dropdown-item" data-scenario="shortness-of-breath">Shortness of Breath</button>
+                            <button type="button" class="scenario-dropdown-item" data-scenario="seizure">Seizure</button>
+                            <button type="button" class="scenario-dropdown-item" data-scenario="stroke">Stroke / CVA</button>
+                            <button type="button" class="scenario-dropdown-item" data-scenario="cardiac-arrest">Cardiac Arrest</button>
+                            <button type="button" class="scenario-dropdown-item" data-scenario="anaphylaxis">Anaphylaxis</button>
+                            <button type="button" class="scenario-dropdown-item" data-scenario="diabetic-emergency">Diabetic Emergency</button>
+                            <button type="button" class="scenario-dropdown-item" data-scenario="overdose">Overdose / Poisoning</button>
+                            <button type="button" class="scenario-dropdown-item" data-scenario="trauma">Major Trauma</button>
+                            <button type="button" class="scenario-dropdown-item" data-scenario="burns">Burns</button>
+                            <button type="button" class="scenario-dropdown-item" data-scenario="falls-elderly">Falls in Elderly</button>
+                            <button type="button" class="scenario-dropdown-item" data-scenario="paediatric">Paediatric Emergency</button>
+                            <button type="button" class="scenario-dropdown-item" data-scenario="obstetric">Obstetric Emergency</button>
+                            <button type="button" class="scenario-dropdown-item" data-scenario="mental-health">Mental Health Crisis</button>
+                            <button type="button" class="scenario-dropdown-item" data-scenario="sepsis">Sepsis</button>
+                            <button type="button" class="scenario-dropdown-item" data-scenario="hypothermia">Hypothermia / Hyperthermia</button>
                         </div>
                     </div>
                     
                     <!-- Differential Diagnosis Checker -->
-                    <button class="scenario-btn" id="diffDiagnosisBtn" data-scenario="differential-diagnosis">
+                    <button type="button" class="scenario-btn" id="diffDiagnosisBtn">
                         <i class="bi bi-search"></i>
                         <span>Differential Diagnosis Checker</span>
                     </button>
@@ -241,22 +241,20 @@
                     
                     <!-- Quick Start Prompts -->
                     <div class="quick-prompts">
-                        <button class="quick-prompt-btn" data-prompt="What are the key steps in assessing a patient with chest pain?">
+                        <button type="button" class="quick-prompt-btn" data-prompt="What are the key steps in assessing a patient with chest pain?">
                             <i class="bi bi-heart-pulse"></i>
                             Chest pain assessment
                         </button>
-                        <button class="quick-prompt-btn" data-prompt="Explain the differences between STEMI and NSTEMI">
+                        <button type="button" class="quick-prompt-btn" data-prompt="Explain the differences between STEMI and NSTEMI">
                             <i class="bi bi-activity"></i>
                             STEMI vs NSTEMI
                         </button>
-                        <button class="quick-prompt-btn" data-prompt="What are the contraindications for GTN administration?">
+                        <button type="button" class="quick-prompt-btn" data-prompt="What are the contraindications for GTN administration?">
                             <i class="bi bi-capsule"></i>
                             GTN contraindications
                         </button>
                     </div>
                 </div>
-                
-                <!-- Messages will be inserted here -->
             </div>
 
             <!-- Chat Input -->
@@ -285,8 +283,8 @@
         </main>
     </div>
     
-    <!-- Mobile Back/Menu Button -->
-    <button class="mobile-back-btn" id="mobileBackBtn" title="Open Menu">
+    <!-- Mobile Menu Button -->
+    <button type="button" class="mobile-back-btn" id="mobileBackBtn" title="Open Menu">
         <i class="bi bi-list"></i>
     </button>
 
@@ -311,61 +309,474 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/app.js"></script>
-    <script src="js/chat.js"></script>
+    
+    <!-- All Chat JavaScript Inline -->
     <script>
-        // Scenarios Dropdown Toggle
-        const scenariosDropdownBtn = document.getElementById('scenariosDropdownBtn');
-        const scenariosDropdownMenu = document.getElementById('scenariosDropdownMenu');
+    (function() {
+        'use strict';
         
-        scenariosDropdownBtn.addEventListener('click', function() {
-            this.classList.toggle('active');
-            scenariosDropdownMenu.classList.toggle('show');
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!scenariosDropdownBtn.contains(e.target) && !scenariosDropdownMenu.contains(e.target)) {
-                scenariosDropdownBtn.classList.remove('active');
-                scenariosDropdownMenu.classList.remove('show');
+        // ========== SCENARIO DATA ==========
+        var SCENARIOS = {
+            "abdominal-pain": {
+                title: "Abdominal Pain",
+                description: "The AI will present as a patient with abdominal pain. Conduct a systematic assessment to determine the likely cause.",
+                starterMessage: "Hello... I've been having this really bad stomach pain since last night. It started around my belly button but now it's moved to my right side, lower down. I feel a bit sick too and I haven't been able to eat anything."
+            },
+            "chest-pain": {
+                title: "Chest Pain",
+                description: "The AI will present as a patient with chest pain. Assess the patient to differentiate between cardiac and non-cardiac causes.",
+                starterMessage: "I've got this horrible pain in my chest. It started about two hours ago when I was doing the gardening. It feels like pressure, right in the centre. I'm feeling a bit sweaty and sick too. I'm quite worried about it."
+            },
+            "neck-pain": {
+                title: "Neck Pain",
+                description: "The AI will present as a patient with neck pain. Assess for red flags and determine if immobilisation is required.",
+                starterMessage: "I've hurt my neck. I was in a car accident about an hour ago - someone went into the back of my car. My neck is really stiff and sore. I've got a bit of a headache too."
+            },
+            "back-pain": {
+                title: "Back Pain",
+                description: "The AI will present as a patient with back pain. Screen for red flags including cauda equina syndrome.",
+                starterMessage: "My back's gone again. I was just bending down to pick something up this morning and felt it go. The pain goes down my left leg too. It's really hard to move."
+            },
+            "headache": {
+                title: "Headache",
+                description: "The AI will present as a patient with headache. Differentiate between primary and secondary causes.",
+                starterMessage: "I've got the worst headache of my life. It came on really suddenly about an hour ago, like someone hit me on the back of the head. I've never had anything like this before."
+            },
+            "shortness-of-breath": {
+                title: "Shortness of Breath",
+                description: "The AI will present as a patient with breathing difficulties. Assess and identify the likely cause.",
+                starterMessage: "I can't... catch my breath properly. It's been getting worse... over the last few hours. I've got asthma... but my inhaler isn't helping."
+            },
+            "seizure": {
+                title: "Seizure",
+                description: "The AI will present as a witness to a seizure or post-ictal patient. Gather history and manage appropriately.",
+                starterMessage: "My husband just had a fit. He's never had one before. He was just watching TV and then he went all stiff and started shaking. It lasted about two minutes. He's awake now but he's really confused and doesn't know what happened."
+            },
+            "stroke": {
+                title: "Stroke / CVA",
+                description: "The AI will present as a patient with stroke symptoms. Conduct a rapid assessment for time-critical intervention.",
+                starterMessage: "Something's wrong with me. I woke up this morning and my face feels funny on one side. My arm won't work properly either. My wife says I'm talking strangely."
+            },
+            "cardiac-arrest": {
+                title: "Cardiac Arrest",
+                description: "The AI will act as a bystander at a cardiac arrest scene. You'll need to guide them and manage the situation.",
+                starterMessage: "Please help! My dad's collapsed! He's not breathing! I don't know what to do! We're at home, he was just watching TV and suddenly he grabbed his chest and fell off the chair!"
+            },
+            "anaphylaxis": {
+                title: "Anaphylaxis",
+                description: "The AI will present as a patient experiencing anaphylaxis. Rapidly assess and manage this time-critical emergency.",
+                starterMessage: "I can't breathe properly... my throat feels tight... I just ate something with nuts in it... I'm allergic... I feel really dizzy..."
+            },
+            "diabetic-emergency": {
+                title: "Diabetic Emergency",
+                description: "The AI will present as a patient with a diabetic emergency. Assess and differentiate between hypo and hyperglycaemia.",
+                starterMessage: "I feel really strange... shaky... sweaty... I'm diabetic... I think I might have taken too much insulin... everything seems a bit fuzzy..."
+            },
+            "overdose": {
+                title: "Overdose / Poisoning",
+                description: "The AI will present as a patient or relative in an overdose situation. Gather information and manage safely.",
+                starterMessage: "It's my daughter... she's taken something... I found her in her room with some empty packets... she's really drowsy and won't wake up properly... she's only 17..."
+            },
+            "trauma": {
+                title: "Major Trauma",
+                description: "The AI will present as a trauma patient. Conduct a primary survey and identify life-threatening injuries.",
+                starterMessage: "I've been hit by a car... I was crossing the road... my leg hurts really badly... I can't move it... there's blood everywhere... I feel dizzy..."
+            },
+            "burns": {
+                title: "Burns",
+                description: "The AI will present as a patient with burns. Assess the severity and extent of the burns.",
+                starterMessage: "I've burnt myself... I was cooking and the chip pan caught fire... I tried to put it out with water and it went everywhere... my arms and chest are really painful..."
+            },
+            "falls-elderly": {
+                title: "Falls in Elderly",
+                description: "The AI will present as an elderly patient who has fallen. Conduct a falls assessment and look for underlying causes.",
+                starterMessage: "I've had a fall dear. I was getting up to make a cup of tea and my legs just gave way. I've been on the floor for about an hour. My hip hurts quite a lot."
+            },
+            "paediatric": {
+                title: "Paediatric Emergency",
+                description: "The AI will present as a parent with a sick child. Assess using paediatric-specific approaches.",
+                starterMessage: "It's my little boy, he's only 2. He's been poorly for a couple of days with a temperature. Now he's gone really floppy and he's got this rash that doesn't go away when I press it."
+            },
+            "obstetric": {
+                title: "Obstetric Emergency",
+                description: "The AI will present as a pregnant patient with a complication. Assess both maternal and foetal wellbeing.",
+                starterMessage: "I'm 34 weeks pregnant and I'm having really bad stomach pains. They keep coming and going. I've also noticed some bleeding. This is my first baby, I'm really scared."
+            },
+            "mental-health": {
+                title: "Mental Health Crisis",
+                description: "The AI will present as a patient in mental health crisis. Conduct a sensitive assessment and risk evaluation.",
+                starterMessage: "I don't want to be here anymore. Everything's too much. I can't cope with it all. My family would be better off without me. I've been thinking about ending it."
+            },
+            "sepsis": {
+                title: "Sepsis",
+                description: "The AI will present as a patient with possible sepsis. Screen using sepsis criteria and manage appropriately.",
+                starterMessage: "I've been feeling really unwell for a couple of days. I had a water infection last week. Now I feel hot and cold, I'm shivering but sweating, and I just feel really confused about things."
+            },
+            "hypothermia": {
+                title: "Hypothermia / Hyperthermia",
+                description: "The AI will present as a patient with temperature-related emergency. Assess severity and manage appropriately.",
+                starterMessage: "We found this gentleman outside. He's homeless and he's been out all night. It was freezing last night. He's shivering really badly and he seems confused about where he is."
+            },
+            "differential-diagnosis": {
+                title: "Differential Diagnosis Checker",
+                description: "Describe your patient's symptoms and presentation. I'll help you work through a systematic differential diagnosis.",
+                starterMessage: "I'm ready to help you work through a differential diagnosis. Please describe your patient's presenting complaint, relevant history, and any observations you've taken. I'll help you systematically consider the possibilities and key differentiating features."
             }
-        });
+        };
         
-        // Mobile Back Button - Opens sidebar
-        const mobileBackBtn = document.getElementById('mobileBackBtn');
-        const chatSidebar = document.getElementById('chatSidebar');
+        // ========== STATE ==========
+        var currentScenario = null;
+        var messages = [];
+        var isLoading = false;
+        var messagesUsed = 0;
+        var userTrust = 'SWAST';
         
-        mobileBackBtn.addEventListener('click', function() {
-            chatSidebar.classList.add('open');
+        // ========== DOM ELEMENTS ==========
+        var chatMessages, chatForm, messageInput, sendBtn, welcomeMessage;
+        var scenarioModal, scenarioModalTitle, scenarioDescription, startScenarioBtn;
+        var scenariosDropdownBtn, scenariosDropdownMenu;
+        var chatSidebar, mobileBackBtn, sidebarToggle;
+        
+        // ========== INIT ==========
+        function init() {
+            // Get DOM elements
+            chatMessages = document.getElementById('chatMessages');
+            chatForm = document.getElementById('chatForm');
+            messageInput = document.getElementById('messageInput');
+            sendBtn = document.getElementById('sendBtn');
+            welcomeMessage = document.getElementById('welcomeMessage');
+            scenarioModal = document.getElementById('scenarioModal');
+            scenarioModalTitle = document.getElementById('scenarioModalTitle');
+            scenarioDescription = document.getElementById('scenarioDescription');
+            startScenarioBtn = document.getElementById('startScenarioBtn');
+            scenariosDropdownBtn = document.getElementById('scenariosDropdownBtn');
+            scenariosDropdownMenu = document.getElementById('scenariosDropdownMenu');
+            chatSidebar = document.getElementById('chatSidebar');
+            mobileBackBtn = document.getElementById('mobileBackBtn');
+            sidebarToggle = document.getElementById('sidebarToggle');
             
-            // Create/show overlay
-            let overlay = document.querySelector('.sidebar-overlay');
-            if (!overlay) {
-                overlay = document.createElement('div');
-                overlay.className = 'sidebar-overlay';
-                document.body.appendChild(overlay);
-                overlay.addEventListener('click', function() {
-                    chatSidebar.classList.remove('open');
-                    overlay.classList.remove('open');
-                });
-            }
-            overlay.classList.add('open');
-        });
+            // Set up event listeners
+            setupEventListeners();
+            
+            console.log('Paramind Chat initialized successfully');
+        }
         
-        // Close sidebar when clicking a scenario or New Chat
-        document.querySelectorAll('.scenario-dropdown-item, #newChatBtn, #diffDiagnosisBtn').forEach(item => {
-            item.addEventListener('click', function() {
-                // Close sidebar on mobile
-                if (window.innerWidth < 768) {
-                    chatSidebar.classList.remove('open');
-                    const overlay = document.querySelector('.sidebar-overlay');
-                    if (overlay) overlay.classList.remove('open');
+        // ========== EVENT LISTENERS ==========
+        function setupEventListeners() {
+            // Scenarios dropdown toggle
+            if (scenariosDropdownBtn) {
+                scenariosDropdownBtn.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.classList.toggle('active');
+                    scenariosDropdownMenu.classList.toggle('show');
+                    console.log('Dropdown toggled');
+                };
+            }
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (scenariosDropdownBtn && scenariosDropdownMenu) {
+                    if (!scenariosDropdownBtn.contains(e.target) && !scenariosDropdownMenu.contains(e.target)) {
+                        scenariosDropdownBtn.classList.remove('active');
+                        scenariosDropdownMenu.classList.remove('show');
+                    }
                 }
-                // Close dropdown
+            });
+            
+            // Scenario dropdown items
+            var scenarioItems = document.querySelectorAll('.scenario-dropdown-item');
+            for (var i = 0; i < scenarioItems.length; i++) {
+                scenarioItems[i].onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var scenarioId = this.getAttribute('data-scenario');
+                    console.log('Scenario clicked:', scenarioId);
+                    openScenarioModal(scenarioId);
+                    closeMobileSidebar();
+                };
+            }
+            
+            // Differential diagnosis button
+            var diffBtn = document.getElementById('diffDiagnosisBtn');
+            if (diffBtn) {
+                diffBtn.onclick = function(e) {
+                    e.preventDefault();
+                    console.log('Diff diagnosis clicked');
+                    openScenarioModal('differential-diagnosis');
+                    closeMobileSidebar();
+                };
+            }
+            
+            // New chat button
+            var newChatBtn = document.getElementById('newChatBtn');
+            if (newChatBtn) {
+                newChatBtn.onclick = function(e) {
+                    e.preventDefault();
+                    console.log('New chat clicked');
+                    handleNewChat();
+                    closeMobileSidebar();
+                };
+            }
+            
+            // Start scenario button in modal
+            if (startScenarioBtn) {
+                startScenarioBtn.onclick = function(e) {
+                    e.preventDefault();
+                    console.log('Start scenario clicked');
+                    startScenario();
+                };
+            }
+            
+            // Chat form submission
+            if (chatForm) {
+                chatForm.onsubmit = function(e) {
+                    e.preventDefault();
+                    handleSendMessage();
+                };
+            }
+            
+            // Quick prompt buttons
+            var quickBtns = document.querySelectorAll('.quick-prompt-btn');
+            for (var j = 0; j < quickBtns.length; j++) {
+                quickBtns[j].onclick = function(e) {
+                    e.preventDefault();
+                    var prompt = this.getAttribute('data-prompt');
+                    if (messageInput) {
+                        messageInput.value = prompt;
+                        handleSendMessage();
+                    }
+                };
+            }
+            
+            // Mobile back button
+            if (mobileBackBtn) {
+                mobileBackBtn.onclick = function(e) {
+                    e.preventDefault();
+                    openMobileSidebar();
+                };
+            }
+            
+            // Sidebar toggle (hamburger menu)
+            if (sidebarToggle) {
+                sidebarToggle.onclick = function(e) {
+                    e.preventDefault();
+                    openMobileSidebar();
+                };
+            }
+            
+            // Auto-resize textarea
+            if (messageInput) {
+                messageInput.oninput = function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+                };
+                
+                messageInput.onkeydown = function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSendMessage();
+                    }
+                };
+            }
+        }
+        
+        // ========== MOBILE SIDEBAR ==========
+        function openMobileSidebar() {
+            if (chatSidebar) {
+                chatSidebar.classList.add('open');
+                
+                var overlay = document.querySelector('.sidebar-overlay');
+                if (!overlay) {
+                    overlay = document.createElement('div');
+                    overlay.className = 'sidebar-overlay';
+                    document.body.appendChild(overlay);
+                    overlay.onclick = function() {
+                        closeMobileSidebar();
+                    };
+                }
+                overlay.classList.add('open');
+            }
+        }
+        
+        function closeMobileSidebar() {
+            if (chatSidebar) {
+                chatSidebar.classList.remove('open');
+            }
+            var overlay = document.querySelector('.sidebar-overlay');
+            if (overlay) {
+                overlay.classList.remove('open');
+            }
+            // Close dropdown too
+            if (scenariosDropdownBtn && scenariosDropdownMenu) {
                 scenariosDropdownBtn.classList.remove('active');
                 scenariosDropdownMenu.classList.remove('show');
-            });
-        });
+            }
+        }
+        
+        // ========== SCENARIO MODAL ==========
+        function openScenarioModal(scenarioId) {
+            console.log('Opening modal for:', scenarioId);
+            var scenario = SCENARIOS[scenarioId];
+            if (!scenario) {
+                console.error('Scenario not found:', scenarioId);
+                return;
+            }
+            
+            currentScenario = scenarioId;
+            
+            if (scenarioModalTitle) {
+                scenarioModalTitle.textContent = scenario.title;
+            }
+            if (scenarioDescription) {
+                scenarioDescription.textContent = scenario.description;
+            }
+            
+            if (scenarioModal) {
+                var modal = new bootstrap.Modal(scenarioModal);
+                modal.show();
+            }
+        }
+        
+        function startScenario() {
+            console.log('Starting scenario:', currentScenario);
+            if (!currentScenario) return;
+            
+            var scenario = SCENARIOS[currentScenario];
+            if (!scenario) return;
+            
+            // Close modal
+            if (scenarioModal) {
+                var modalInstance = bootstrap.Modal.getInstance(scenarioModal);
+                if (modalInstance) modalInstance.hide();
+            }
+            
+            // Reset chat
+            handleNewChat();
+            
+            // Hide welcome
+            if (welcomeMessage) {
+                welcomeMessage.style.display = 'none';
+            }
+            
+            // Add scenario banner
+            var banner = document.createElement('div');
+            banner.className = 'alert alert-info mx-3 my-3';
+            banner.innerHTML = '<i class="bi bi-mortarboard me-2"></i><strong>Scenario: ' + scenario.title + '</strong><p class="mb-0 mt-1 small">' + scenario.description + '</p>';
+            chatMessages.appendChild(banner);
+            
+            // Show loading then message
+            showLoading();
+            setTimeout(function() {
+                hideLoading();
+                addMessage('assistant', scenario.starterMessage);
+            }, 1000);
+        }
+        
+        // ========== CHAT FUNCTIONS ==========
+        function handleNewChat() {
+            messages = [];
+            currentScenario = null;
+            
+            if (chatMessages) {
+                chatMessages.innerHTML = '';
+                if (welcomeMessage) {
+                    welcomeMessage.style.display = 'block';
+                    chatMessages.appendChild(welcomeMessage);
+                }
+            }
+        }
+        
+        function handleSendMessage() {
+            if (!messageInput) return;
+            
+            var message = messageInput.value.trim();
+            if (!message || isLoading) return;
+            
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            
+            if (welcomeMessage) {
+                welcomeMessage.style.display = 'none';
+            }
+            
+            addMessage('user', message);
+            
+            showLoading();
+            
+            // Simulate AI response
+            setTimeout(function() {
+                hideLoading();
+                var response = generateResponse(message);
+                addMessage('assistant', response);
+            }, 1500);
+        }
+        
+        function generateResponse(message) {
+            var lower = message.toLowerCase();
+            
+            if (lower.indexOf('chest pain') !== -1) {
+                return '<strong>Based on ' + userTrust + ' guidelines:</strong><br><br>For chest pain, follow ABCDE approach:<br><br>1. <strong>Airway</strong> - Ensure patent airway<br>2. <strong>Breathing</strong> - Assess RR, SpO2, breath sounds<br>3. <strong>Circulation</strong> - HR, BP, 12-lead ECG<br>4. <strong>Disability</strong> - GCS, BM, pupils<br>5. <strong>Exposure</strong> - Full assessment<br><br>Consider ACS pathway: Aspirin 300mg, GTN if SBP >90mmHg.';
+            }
+            
+            if (lower.indexOf('gtn') !== -1 || lower.indexOf('contraindication') !== -1) {
+                return '<strong>GTN Contraindications (' + userTrust + '):</strong><br><br>• Systolic BP &lt;90mmHg<br>• HR &lt;50 or &gt;150 bpm<br>• Right ventricular infarction<br>• PDE5 inhibitor use (24-48hrs)<br>• Severe aortic stenosis<br>• Raised ICP';
+            }
+            
+            if (lower.indexOf('stemi') !== -1 || lower.indexOf('nstemi') !== -1) {
+                return '<strong>STEMI vs NSTEMI:</strong><br><br><strong>STEMI:</strong> Complete occlusion, ST elevation ≥1mm in 2+ leads, requires immediate PPCI.<br><br><strong>NSTEMI:</strong> Partial occlusion, ST depression or T-wave inversion, risk-stratified management.';
+            }
+            
+            return 'Thank you for your question. As your ' + userTrust + ' clinical assistant, I can help with patient assessments, differential diagnoses, medications, and clinical pathways.<br><br>Could you provide more details about what you\'d like to know?';
+        }
+        
+        function addMessage(role, content) {
+            var div = document.createElement('div');
+            div.className = 'message ' + role;
+            
+            var icon = role === 'user' ? 'bi-person' : 'bi-robot';
+            
+            div.innerHTML = '<div class="message-avatar"><i class="bi ' + icon + '"></i></div><div class="message-content">' + content + '</div>';
+            
+            chatMessages.appendChild(div);
+            messages.push({ role: role, content: content });
+            scrollToBottom();
+        }
+        
+        function showLoading() {
+            isLoading = true;
+            if (sendBtn) sendBtn.disabled = true;
+            
+            var div = document.createElement('div');
+            div.className = 'message assistant';
+            div.id = 'loadingMessage';
+            div.innerHTML = '<div class="message-avatar"><i class="bi bi-robot"></i></div><div class="message-content"><div class="typing-indicator"><span></span><span></span><span></span></div></div>';
+            
+            chatMessages.appendChild(div);
+            scrollToBottom();
+        }
+        
+        function hideLoading() {
+            isLoading = false;
+            if (sendBtn) sendBtn.disabled = false;
+            
+            var loading = document.getElementById('loadingMessage');
+            if (loading) loading.remove();
+        }
+        
+        function scrollToBottom() {
+            if (chatMessages) {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
+        
+        // ========== START ==========
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
     </script>
 </body>
 </html>

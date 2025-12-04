@@ -274,11 +274,19 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 0;
 }
 
+.trust-badges-section {
+    margin-top: 1rem;
+}
+
 .trust-logos {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
     max-width: 100%;
+}
+
+.trust-logos.justify-content-center {
+    justify-content: center;
 }
 
 .trust-logos .badge {
@@ -922,6 +930,58 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--color-teal);
 }
 
+/* Scenarios Dropdown */
+.scenario-dropdown {
+    position: relative;
+}
+
+.dropdown-toggle-btn {
+    justify-content: flex-start;
+}
+
+.dropdown-toggle-btn .dropdown-arrow {
+    transition: transform var(--transition-fast);
+}
+
+.dropdown-toggle-btn.open .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.scenario-dropdown-menu {
+    display: none;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+    background: var(--color-gray-100);
+    border-radius: var(--radius-md);
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.scenario-dropdown-menu.open {
+    display: flex;
+}
+
+.scenario-dropdown-item {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background: var(--color-white);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-sm);
+    font-size: 0.813rem;
+    color: var(--color-gray-700);
+    text-align: left;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.scenario-dropdown-item:hover {
+    background: var(--color-teal);
+    border-color: var(--color-teal);
+    color: var(--color-white);
+}
+
 .saved-chats-list {
     max-height: 200px;
     overflow-y: auto;
@@ -1183,15 +1243,6 @@ h1, h2, h3, h4, h5, h6 {
     }
     
     .hero-cta {
-        justify-content: center;
-    }
-    
-    .hero-trust-badges {
-        margin-left: auto;
-        margin-right: auto;
-    }
-    
-    .trust-logos {
         justify-content: center;
     }
     
