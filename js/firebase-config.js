@@ -20,12 +20,12 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
 // Initialize Firestore with Safari fix
-// Safari blocks WebChannel, so we use auto-detect for long polling
+// Safari blocks WebChannel, so we force long polling
 const db = firebase.firestore();
 
-// Enable auto-detect long polling for Safari compatibility
+// Force long polling for Safari compatibility
 db.settings({
-    experimentalAutoDetectLongPolling: true
+    experimentalForceLongPolling: true
 });
 
 // Export for use in other files
