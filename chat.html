@@ -203,39 +203,44 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Firebase & App Scripts (using modules like the working project) -->
+    <!-- Firebase & App Scripts -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getFirestore, doc, getDoc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { initializeFirestore, doc, getDoc, updateDoc, serverTimestamp, CACHE_SIZE_UNLIMITED } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
         import { firebaseConfig } from './js/firebase-config.js';
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
+        
+        // Initialize Firestore with Safari-compatible settings
+        // Using experimentalForceLongPolling for Safari compatibility
+        const db = initializeFirestore(app, {
+            experimentalForceLongPolling: true
+        });
 
         // Scenario definitions
         const SCENARIOS = {
             "patient-assessment": {
                 title: "Patient Assessment Practice",
                 description: "The AI will present as a patient with symptoms. Ask assessment questions to gather information and formulate a differential diagnosis.",
-                prompt: "You are now a patient presenting to a paramedic. You have chest pain that started 2 hours ago while gardening. It feels like pressure in the centre of your chest. You also feel a bit sweaty and nauseous. Answer the paramedic's questions as a realistic patient would - you may not know medical terminology. Do not reveal your diagnosis. After the paramedic offers their differential diagnosis, confirm if correct or explain what they may have missed."
+                prompt: "You are now a patient presenting to a paramedic..."
             },
             "differential-diagnosis": {
                 title: "Differential Diagnosis Challenge",
                 description: "Test your diagnostic reasoning skills with a complex case presentation.",
-                prompt: "Present me with a complex patient case (appropriate for paramedic level) including: patient demographics, chief complaint, history of presenting complaint, and relevant observations. After I provide my differential diagnoses, give me feedback on my clinical reasoning."
+                prompt: "Present me with a complex patient case..."
             },
             "drug-calculation": {
                 title: "Drug Calculation Practice",
                 description: "Practice medication calculations with realistic scenarios.",
-                prompt: "Give me a drug calculation question appropriate for a paramedic. Include the patient's weight, the drug, the dose per kg or fixed dose, and the concentration available. After I answer, confirm if I'm correct and explain the working if needed."
+                prompt: "Give me a drug calculation question..."
             },
             "ecg-interpretation": {
                 title: "ECG Interpretation",
                 description: "Learn to identify key ECG abnormalities relevant to pre-hospital care.",
-                prompt: "Describe an ECG in text format for me to interpret. Include rate, rhythm, axis, intervals, and any abnormalities. After I provide my interpretation, give feedback and explain the clinical significance."
+                prompt: "Describe an ECG in text format..."
             }
         };
 
@@ -250,40 +255,99 @@
             userData: null
         };
 
+        // Helper function to save user data to localStorage
+        function saveUserDataLocally(userData) {
+            try {
+                localStorage.setItem('paramind_userData', JSON.stringify(userData));
+            } catch (e) {
+                console.log('Could not save to localStorage');
+            }
+        }
+
+        // Helper function to get user data from localStorage
+        function getUserDataLocally() {
+            try {
+                const data = localStorage.getItem('paramind_userData');
+                return data ? JSON.parse(data) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
         // Check authentication state
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 // User is signed in
                 document.getElementById('userEmail').textContent = user.email;
 
-                // Get user data from Firestore
+                // Try to get cached data first for instant display
+                const cachedData = getUserDataLocally();
+                if (cachedData && cachedData.uid === user.uid) {
+                    chatState.userData = cachedData;
+                    chatState.userTrust = cachedData.trust || 'SWAST';
+                    chatState.isPro = cachedData.subscriptionStatus === 'active';
+                    document.getElementById('userTrust').textContent = chatState.userTrust;
+                    updateMessageCounterUI(cachedData.dailyMessageCount || 0);
+                }
+
+                // Get fresh user data from Firestore
                 try {
-                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    const userDocRef = doc(db, 'users', user.uid);
+                    const userDoc = await getDoc(userDocRef);
                     
                     if (userDoc.exists()) {
-                        chatState.userData = userDoc.data();
-                        chatState.userTrust = chatState.userData.trust || 'SWAST';
-                        chatState.isPro = chatState.userData.subscriptionStatus === 'active';
+                        const userData = userDoc.data();
+                        chatState.userData = userData;
+                        chatState.userTrust = userData.trust || 'SWAST';
+                        chatState.isPro = userData.subscriptionStatus === 'active';
                         
                         document.getElementById('userTrust').textContent = chatState.userTrust;
                         
+                        // Save to localStorage for next time
+                        saveUserDataLocally({...userData, uid: user.uid});
+                        
                         // Update message counter
-                        updateMessageCounterFromFirestore(chatState.userData);
+                        updateMessageCounterFromFirestore(userData);
                         
                         // Hide message counter for Pro users
                         if (chatState.isPro) {
                             document.getElementById('messageCounter').style.display = 'none';
                             document.getElementById('proOnlyBadge').style.display = 'none';
                         }
+                    } else {
+                        // User document doesn't exist - show default
+                        document.getElementById('userTrust').textContent = 'Not Set';
                     }
                 } catch (error) {
                     console.error('Error loading user data:', error);
+                    // If Firestore fails, use cached data or show error
+                    if (!cachedData) {
+                        document.getElementById('userTrust').textContent = 'Error';
+                    }
                 }
             } else {
                 // User is signed out, redirect to login
                 window.location.href = 'login.html';
             }
         });
+
+        // Update message counter UI only
+        function updateMessageCounterUI(count) {
+            chatState.messagesUsed = count;
+            document.getElementById('messagesUsed').textContent = count;
+            
+            const percentage = (count / 5) * 100;
+            const progressBar = document.getElementById('messageProgress');
+            progressBar.style.width = Math.min(percentage, 100) + '%';
+            
+            if (percentage >= 80) {
+                progressBar.classList.add('bg-warning');
+            }
+            if (percentage >= 100) {
+                progressBar.classList.remove('bg-warning');
+                progressBar.classList.add('bg-danger');
+            }
+        }
 
         // Update message counter from Firestore data
         function updateMessageCounterFromFirestore(userData) {
@@ -301,20 +365,7 @@
                 }
             }
             
-            chatState.messagesUsed = count;
-            document.getElementById('messagesUsed').textContent = count;
-            
-            const percentage = (count / 5) * 100;
-            const progressBar = document.getElementById('messageProgress');
-            progressBar.style.width = Math.min(percentage, 100) + '%';
-            
-            if (percentage >= 80) {
-                progressBar.classList.add('bg-warning');
-            }
-            if (percentage >= 100) {
-                progressBar.classList.remove('bg-warning');
-                progressBar.classList.add('bg-danger');
-            }
+            updateMessageCounterUI(count);
         }
 
         // Update message count in Firestore
@@ -345,15 +396,13 @@
                     lastMessageDate: serverTimestamp()
                 });
 
-                chatState.messagesUsed = newCount;
-                document.getElementById('messagesUsed').textContent = newCount;
-                
-                const percentage = (newCount / 5) * 100;
-                const progressBar = document.getElementById('messageProgress');
-                progressBar.style.width = Math.min(percentage, 100) + '%';
+                updateMessageCounterUI(newCount);
 
             } catch (error) {
                 console.error('Error updating message count:', error);
+                // Still increment locally even if Firestore fails
+                chatState.messagesUsed++;
+                updateMessageCounterUI(chatState.messagesUsed);
             }
         }
 
@@ -361,8 +410,9 @@
         document.getElementById('signOutBtn').addEventListener('click', async (e) => {
             e.preventDefault();
             try {
+                // Clear local storage
+                localStorage.removeItem('paramind_userData');
                 await signOut(auth);
-                // Redirect happens via onAuthStateChanged
             } catch (error) {
                 console.error('Sign out error:', error);
             }
