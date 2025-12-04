@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat | Paramind</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="chat-page">
+    <!-- Top Navigation -->
+    <nav class="chat-navbar">
+        <div class="container-fluid px-3">
+            <div class="d-flex align-items-center justify-content-between w-100">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-link text-dark d-md-none me-2" id="sidebarToggle">
+                        <i class="bi bi-list fs-4"></i>
+                    </button>
+                    <a class="navbar-brand" href="index.html">
+                        <span class="brand-text"><span class="brand-para">para</span><span class="brand-mind">mind</span></span>
+                    </a>
+                </div>
+                
+                <div class="d-flex align-items-center">
+                    <span class="trust-badge me-3 d-none d-sm-inline">
+                        <i class="bi bi-hospital me-1"></i>
+                        <span id="userTrust">SWAST</span>
+                    </span>
+                    <div class="dropdown">
+                        <button class="btn btn-link text-dark dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle fs-5"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><span class="dropdown-item-text text-muted" id="userEmail">user@nhs.net</span></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
+                            <li><a class="dropdown-item" href="#" id="upgradeBtn"><i class="bi bi-star me-2"></i>Upgrade to Pro</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="index.html"><i class="bi bi-box-arrow-right me-2"></i>Sign Out</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="chat-layout">
+        <!-- Sidebar -->
+        <aside class="chat-sidebar" id="chatSidebar">
+            <div class="sidebar-header">
+                <button class="btn btn-primary w-100" id="newChatBtn">
+                    <i class="bi bi-plus-lg me-2"></i>New Chat
+                </button>
+            </div>
+            
+            <!-- Scenarios Menu -->
+            <div class="sidebar-section">
+                <h6 class="sidebar-title">
+                    <i class="bi bi-mortarboard me-2"></i>Learning Scenarios
+                </h6>
+                <div class="scenario-list">
+                    <button class="scenario-btn" data-scenario="patient-assessment">
+                        <i class="bi bi-clipboard-pulse"></i>
+                        <span>Patient Assessment</span>
+                    </button>
+                    <button class="scenario-btn" data-scenario="differential-diagnosis">
+                        <i class="bi bi-search"></i>
+                        <span>Differential Diagnosis</span>
+                    </button>
+                    <button class="scenario-btn" data-scenario="drug-calculation">
+                        <i class="bi bi-calculator"></i>
+                        <span>Drug Calculations</span>
+                    </button>
+                    <button class="scenario-btn" data-scenario="ecg-interpretation">
+                        <i class="bi bi-activity"></i>
+                        <span>ECG Interpretation</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Saved Conversations -->
+            <div class="sidebar-section">
+                <h6 class="sidebar-title">
+                    <i class="bi bi-bookmark me-2"></i>Saved Chats
+                    <span class="badge bg-secondary ms-auto" id="proOnlyBadge">Pro</span>
+                </h6>
+                <div class="saved-chats-list" id="savedChatsList">
+                    <p class="text-muted small px-3">Upgrade to Pro to save conversations</p>
+                </div>
+            </div>
+            
+            <!-- Message Counter (Free Users) -->
+            <div class="sidebar-footer" id="messageCounter">
+                <div class="message-count-box">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <small>Daily messages</small>
+                        <small><span id="messagesUsed">0</span>/5</small>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar" id="messageProgress" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <a href="#" class="upgrade-link mt-2 d-block" id="upgradeLink">
+                        <i class="bi bi-star-fill me-1"></i>Upgrade for unlimited
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-main">
+            <!-- Chat Messages Container -->
+            <div class="chat-messages" id="chatMessages">
+                <!-- Welcome Message -->
+                <div class="welcome-message" id="welcomeMessage">
+                    <div class="welcome-icon">
+                        <i class="bi bi-chat-heart"></i>
+                    </div>
+                    <h2>Welcome to Paramind</h2>
+                    <p>I'm here to help with your clinical learning. Ask me about patient assessments, 
+                       differential diagnoses, medications, or try one of the learning scenarios.</p>
+                    <div class="welcome-disclaimer">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <small>Educational tool only. Always verify information and follow your trust's guidelines.</small>
+                    </div>
+                    
+                    <!-- Quick Start Prompts -->
+                    <div class="quick-prompts">
+                        <button class="quick-prompt-btn" data-prompt="What are the key steps in assessing a patient with chest pain?">
+                            <i class="bi bi-heart-pulse"></i>
+                            Chest pain assessment
+                        </button>
+                        <button class="quick-prompt-btn" data-prompt="Explain the differences between STEMI and NSTEMI">
+                            <i class="bi bi-activity"></i>
+                            STEMI vs NSTEMI
+                        </button>
+                        <button class="quick-prompt-btn" data-prompt="What are the contraindications for GTN administration?">
+                            <i class="bi bi-capsule"></i>
+                            GTN contraindications
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Messages will be inserted here -->
+            </div>
+
+            <!-- Chat Input -->
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <form id="chatForm">
+                        <div class="input-group">
+                            <textarea 
+                                class="form-control" 
+                                id="messageInput" 
+                                placeholder="Ask a clinical question..." 
+                                rows="1"
+                                required
+                            ></textarea>
+                            <button class="btn btn-primary" type="submit" id="sendBtn">
+                                <i class="bi bi-send-fill"></i>
+                            </button>
+                        </div>
+                    </form>
+                    <small class="input-disclaimer">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Never enter real patient data. All advice requires clinical verification.
+                    </small>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scenario Modal -->
+    <div class="modal fade" id="scenarioModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Start Learning Scenario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="scenarioDescription">Loading scenario...</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="startScenarioBtn">Start Scenario</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/chat.js"></script>
+</body>
+</html>
