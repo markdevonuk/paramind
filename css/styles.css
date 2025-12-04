@@ -228,7 +228,7 @@ h1, h2, h3, h4, h5, h6 {
 .hero-row {
     min-height: calc(100vh - 140px);
     padding-top: 1rem !important;
-    padding-bottom: 2rem !important;
+    padding-bottom: 1rem !important;
 }
 
 .hero-badge {
@@ -240,6 +240,7 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: var(--radius-full);
     font-size: 0.875rem;
     font-weight: 600;
+    margin-top: 10px; /* Added 10px spacing above the pill */
 }
 
 .hero-title {
@@ -265,6 +266,25 @@ h1, h2, h3, h4, h5, h6 {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
+}
+
+/* Trust badges - full width on larger screens */
+.hero-trust-badges {
+    margin-top: 1.5rem;
+    margin-bottom: 0;
+}
+
+.trust-logos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    max-width: 100%;
+}
+
+.trust-logos .badge {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+    font-weight: 500;
 }
 
 /* Chat Preview Animation */
@@ -352,6 +372,11 @@ h1, h2, h3, h4, h5, h6 {
    -------------------- */
 .features-section {
     background: var(--color-white);
+    padding-top: 2rem; /* Reduced top padding to decrease gap from trusts list */
+}
+
+.features-section .container {
+    padding-top: 1rem;
 }
 
 .section-title {
@@ -615,6 +640,90 @@ h1, h2, h3, h4, h5, h6 {
 
 .footer-link:hover {
     color: var(--color-white);
+}
+
+/* -------------------- 
+   Legal Pages 
+   -------------------- */
+.legal-page {
+    padding-top: 100px;
+    padding-bottom: 3rem;
+    min-height: 100vh;
+}
+
+.legal-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.legal-content h1 {
+    margin-bottom: 0.5rem;
+}
+
+.legal-content .last-updated {
+    color: var(--color-gray-500);
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+}
+
+.legal-content h2 {
+    font-size: 1.5rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: var(--color-teal);
+}
+
+.legal-content p {
+    margin-bottom: 1rem;
+    color: var(--color-gray-700);
+}
+
+.legal-content ul {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+}
+
+.legal-content li {
+    margin-bottom: 0.5rem;
+    color: var(--color-gray-700);
+}
+
+/* Contact Page */
+.contact-page {
+    padding-top: 100px;
+    padding-bottom: 3rem;
+    min-height: 100vh;
+    background: linear-gradient(180deg, var(--color-gray-50) 0%, var(--color-white) 100%);
+}
+
+.contact-card {
+    background: var(--color-white);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    padding: 2.5rem;
+}
+
+.contact-info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.contact-info-item i {
+    font-size: 1.5rem;
+    color: var(--color-teal);
+    margin-top: 0.25rem;
+}
+
+.contact-info-item h3 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.contact-info-item p {
+    color: var(--color-gray-600);
+    margin-bottom: 0;
 }
 
 /* -------------------- 
@@ -1082,6 +1191,10 @@ h1, h2, h3, h4, h5, h6 {
         margin-right: auto;
     }
     
+    .trust-logos {
+        justify-content: center;
+    }
+    
     /* Show chat preview on tablets - scaled down */
     .chat-preview {
         max-width: 360px;
@@ -1199,5 +1312,15 @@ h1, h2, h3, h4, h5, h6 {
     .trust-logos .badge {
         font-size: 0.7rem;
         padding: 0.3rem 0.5rem;
+    }
+    
+    /* Legal pages mobile */
+    .legal-page,
+    .contact-page {
+        padding-top: 80px;
+    }
+    
+    .contact-card {
+        padding: 1.5rem;
     }
 }
