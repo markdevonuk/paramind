@@ -16,9 +16,18 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-// Initialize Firebase services
+// Initialize Firebase Authentication
 const auth = firebase.auth();
+
+// Initialize Firestore with Safari fix
+// Safari blocks WebChannel, so we use long polling instead
 const db = firebase.firestore();
+
+// Enable long polling for Safari compatibility
+db.settings({
+    experimentalForceLongPolling: true,
+    merge: true
+});
 
 // Export for use in other files
 window.firebaseAuth = auth;
