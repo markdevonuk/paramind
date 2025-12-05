@@ -43,13 +43,13 @@
                         <form id="registerForm" class="auth-form">
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email address</label>
-                                <input type="email" class="form-control" id="email" placeholder="you@nhs.net" required autocomplete="email">
+                                <input type="email" class="form-control" id="email" placeholder="you@nhs.net" required>
                             </div>
                             
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password</label>
                                 <div class="password-input-wrapper">
-                                    <input type="password" class="form-control" id="password" placeholder="Create a password" required minlength="8" autocomplete="new-password">
+                                    <input type="password" class="form-control" id="password" placeholder="Create a password" required minlength="8">
                                     <button type="button" class="password-toggle" id="togglePassword">
                                         <i class="bi bi-eye" id="passwordIcon"></i>
                                     </button>
@@ -60,7 +60,7 @@
                             <div class="mb-3">
                                 <label for="confirmPassword" class="form-label">Confirm password</label>
                                 <div class="password-input-wrapper">
-                                    <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm your password" required autocomplete="new-password">
+                                    <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm your password" required>
                                     <button type="button" class="password-toggle" id="toggleConfirmPassword">
                                         <i class="bi bi-eye" id="confirmPasswordIcon"></i>
                                     </button>
@@ -131,7 +131,7 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Firebase & App Scripts -->
+    <!-- Firebase -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
@@ -142,7 +142,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         
-        // Initialize Firestore with Safari-compatible settings
+        // Initialize Firestore with long polling (fixes Safari issues)
         const db = initializeFirestore(app, {
             experimentalForceLongPolling: true
         });
@@ -169,7 +169,6 @@
         // Check if user is already logged in
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // User is signed in, redirect to chat
                 window.location.href = 'chat.html';
             }
         });
@@ -205,7 +204,7 @@
             }
         });
 
-        // Show error message
+        // Helper functions
         function showError(message) {
             const errorEl = document.getElementById('errorMessage');
             const successEl = document.getElementById('successMessage');
@@ -214,7 +213,6 @@
             errorEl.classList.remove('d-none');
         }
 
-        // Show success message
         function showSuccess(message) {
             const errorEl = document.getElementById('errorMessage');
             const successEl = document.getElementById('successMessage');
@@ -223,13 +221,6 @@
             successEl.classList.remove('d-none');
         }
 
-        // Hide messages
-        function hideMessages() {
-            document.getElementById('errorMessage').classList.add('d-none');
-            document.getElementById('successMessage').classList.add('d-none');
-        }
-
-        // Set loading state
         function setLoading(isLoading) {
             const submitBtn = document.getElementById('submitBtn');
             const submitText = document.getElementById('submitText');
@@ -240,17 +231,12 @@
             submitText.textContent = isLoading ? 'Creating account...' : 'Create Account';
         }
 
-        // Get user-friendly error message
         function getErrorMessage(errorCode) {
             const errorMessages = {
                 'auth/email-already-in-use': 'An account with this email already exists.',
                 'auth/invalid-email': 'Please enter a valid email address.',
                 'auth/operation-not-allowed': 'Email/password accounts are not enabled.',
                 'auth/weak-password': 'Password should be at least 6 characters.',
-                'auth/user-disabled': 'This account has been disabled.',
-                'auth/user-not-found': 'No account found with this email address.',
-                'auth/wrong-password': 'Incorrect password. Please try again.',
-                'auth/invalid-credential': 'Invalid email or password. Please try again.',
                 'auth/too-many-requests': 'Too many failed attempts. Please try again later.',
                 'auth/network-request-failed': 'Network error. Please check your connection.'
             };
@@ -266,7 +252,9 @@
             const confirmPassword = document.getElementById('confirmPassword').value;
             const trust = document.getElementById('trust').value;
             
-            hideMessages();
+            // Clear previous messages
+            document.getElementById('errorMessage').classList.add('d-none');
+            document.getElementById('successMessage').classList.add('d-none');
 
             // Validate passwords match
             if (password !== confirmPassword) {
@@ -280,7 +268,7 @@
                 return;
             }
 
-            // Validate trust selected
+            // Validate trust selection
             if (!trust) {
                 showError('Please select your ambulance trust');
                 return;
@@ -293,11 +281,13 @@
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
+                console.log('User created in Firebase Auth:', user.uid);
+
                 // Get trust full name
                 const trustFullName = TRUSTS[trust] || trust;
 
-                // Save user data to Firestore
-                await setDoc(doc(db, 'users', user.uid), {
+                // Create user document in Firestore
+                const userData = {
                     uid: user.uid,
                     email: email,
                     trust: trust,
@@ -307,33 +297,33 @@
                     dailyMessageCount: 0,
                     lastMessageDate: null,
                     createdAt: serverTimestamp()
-                });
+                };
 
-                // Also save to localStorage for Safari fallback
-                try {
-                    localStorage.setItem('paramind_userData', JSON.stringify({
-                        uid: user.uid,
-                        email: email,
-                        trust: trust,
-                        trustFullName: trustFullName,
-                        subscriptionStatus: 'free',
-                        dailyMessageCount: 0
-                    }));
-                } catch (e) {
-                    console.log('Could not save to localStorage');
-                }
+                await setDoc(doc(db, 'users', user.uid), userData);
+                console.log('User document created in Firestore');
 
-                showSuccess('Account created! Redirecting to chat...');
+                // Also save to localStorage as backup
+                localStorage.setItem('paramind_user', JSON.stringify({
+                    uid: user.uid,
+                    email: email,
+                    trust: trust,
+                    trustFullName: trustFullName,
+                    subscriptionStatus: 'free',
+                    dailyMessageCount: 0,
+                    lastMessageDate: null
+                }));
+
+                showSuccess('Account created successfully! Redirecting...');
                 
-                // Redirect to chat
+                // Redirect to chat after short delay
                 setTimeout(() => {
                     window.location.href = 'chat.html';
                 }, 1500);
 
             } catch (error) {
+                console.error('Registration error:', error);
                 setLoading(false);
                 showError(getErrorMessage(error.code));
-                console.error('Registration error:', error);
             }
         });
     </script>
