@@ -308,8 +308,8 @@ const elements = {
     // Patient form
     patientForm: document.getElementById('patientForm'),
     
-    // Quick prompts
-    quickPromptBtns: document.querySelectorAll('.quick-prompt-btn')
+    // Random scenario button
+    randomScenarioBtn: document.getElementById('randomScenarioBtn')
 };
 
 // ==================== INITIALIZATION ====================
@@ -370,15 +370,6 @@ function setupEventListeners() {
         });
     }
     
-    // Quick prompts
-    elements.quickPromptBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const prompt = this.dataset.prompt;
-            elements.messageInput.value = prompt;
-            elements.chatForm.dispatchEvent(new Event('submit'));
-        });
-    });
-    
     // Scenario category cards
     document.querySelectorAll('[data-category]').forEach(card => {
         card.addEventListener('click', () => {
@@ -419,6 +410,11 @@ function setupEventListeners() {
     // Patient form
     if (elements.patientForm) {
         elements.patientForm.addEventListener('submit', handlePatientForm);
+    }
+    
+    // Random scenario button
+    if (elements.randomScenarioBtn) {
+        elements.randomScenarioBtn.addEventListener('click', startRandomScenario);
     }
 }
 
@@ -552,10 +548,65 @@ function getScenarioStarterMessage(scenarioId) {
         "cardiac-stemi": "I don't know what's wrong with me... I've been feeling awful for the past hour. My stomach hurts and I feel really sick. I keep sweating but I don't have a temperature. My husband made me call because he says I look grey.",
         "resp-asthma": "*wheeze* I can't... catch my breath... *wheeze* My inhaler isn't helping...",
         "neuro-stroke": "*slurred speech* I... my arm... it won't work properly. My wife says my face looks funny. What's happening to me?",
-        "abdo-appendicitis": "The pain started around my belly button last night but now it's moved down here to my right side. It really hurts when I move. I've been sick twice."
+        "abdo-appendicitis": "The pain started around my belly button last night but now it's moved down here to my right side. It really hurts when I move. I've been sick twice.",
+        "resp-anaphylaxis": "*distressed* I can't breathe properly... my throat feels tight... I just ate some prawns at a restaurant... *scratching* I'm so itchy everywhere...",
+        "neuro-seizure": "*confused, slightly agitated* Where am I? What happened? My head hurts... I feel really tired and my tongue is sore...",
+        "trauma-rtc": "*groaning* My neck hurts... I can't move my legs properly... the car came out of nowhere...",
+        "paed-croup": "*parent speaking* She's making this horrible barking noise when she coughs and she's really struggling to breathe. It started in the night. She's only 2.",
+        "cardiac-af": "My heart keeps going really fast and then slowing down... it feels like it's fluttering in my chest. I feel a bit dizzy and short of breath.",
+        "abdo-aaa": "*pale, sweating* I've got this terrible pain in my back and stomach... it came on suddenly about an hour ago. I feel really unwell... *clutching abdomen*"
     };
     
     return starters[scenarioId] || "Hello, thank you for coming. I'm not feeling well at all. Where would you like to start?";
+}
+
+// Start a random scenario
+function startRandomScenario() {
+    // Get all categories
+    const categories = Object.keys(SCENARIO_DATA);
+    
+    // Pick a random category
+    const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+    
+    // Get items from that category
+    const categoryItems = SCENARIO_DATA[randomCategory].items;
+    
+    // Pick a random scenario from that category
+    const randomScenario = categoryItems[Math.floor(Math.random() * categoryItems.length)];
+    
+    // Set the current scenario
+    chatState.currentScenario = randomScenario.id;
+    
+    // Clear current chat
+    clearChat();
+    
+    // Hide welcome message
+    if (elements.welcomeMessage) {
+        elements.welcomeMessage.style.display = 'none';
+    }
+    
+    // Add scenario banner
+    const bannerDiv = document.createElement('div');
+    bannerDiv.className = 'alert alert-info mx-2 my-2';
+    bannerDiv.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="bi bi-mortarboard me-2"></i>
+            <div>
+                <strong>Scenario: ${randomScenario.title}</strong>
+                <div class="small">${randomScenario.description}</div>
+            </div>
+        </div>
+    `;
+    elements.chatMessages.appendChild(bannerDiv);
+    
+    // Start the scenario with AI response
+    showLoading();
+    
+    setTimeout(() => {
+        hideLoading();
+        const starterMessage = getScenarioStarterMessage(chatState.currentScenario);
+        addMessage('assistant', starterMessage);
+    }, 1000);
 }
 
 // ==================== DIFFERENTIAL NAVIGATION ====================
