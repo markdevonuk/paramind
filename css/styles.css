@@ -67,7 +67,7 @@
     /* Layout */
     --header-height: 60px;
     --bottom-nav-height: 64px;
-    --chat-input-height: 80px;
+    --sidebar-width: 220px;
 }
 
 /* -------------------- 
@@ -625,11 +625,11 @@ h1, h2, h3, h4, h5, h6 {
 
 .chat-page {
     height: 100vh;
-    height: 100dvh; /* Dynamic viewport height for mobile browsers */
-    overflow: hidden;
-    background: var(--color-gray-50);
+    height: 100dvh;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+    background: var(--color-gray-50);
 }
 
 /* Top Navigation */
@@ -640,6 +640,7 @@ h1, h2, h3, h4, h5, h6 {
     border-bottom: 1px solid var(--color-gray-200);
     display: flex;
     align-items: center;
+    flex-shrink: 0;
     z-index: 100;
 }
 
@@ -656,21 +657,49 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--color-teal);
 }
 
+/* Message Limit Banner */
+.message-limit-banner {
+    background: linear-gradient(135deg, rgba(43, 138, 156, 0.1) 0%, rgba(92, 184, 92, 0.1) 100%);
+    border-bottom: 1px solid var(--color-gray-200);
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.message-limit-banner .count {
+    font-weight: 600;
+    color: var(--color-teal);
+}
+
+.message-limit-banner .upgrade-link {
+    color: var(--color-teal);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.message-limit-banner .upgrade-link:hover {
+    text-decoration: underline;
+}
+
 /* Main Content Area */
 .chat-main-container {
     flex: 1;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    position: relative;
+    min-height: 0;
 }
 
-/* Content Views - Only one visible at a time */
+/* Content Views */
 .content-view {
     display: none;
     flex-direction: column;
-    height: 100%;
+    flex: 1;
     overflow: hidden;
+    min-height: 0;
 }
 
 .content-view.active {
@@ -681,14 +710,21 @@ h1, h2, h3, h4, h5, h6 {
    Chat View 
    -------------------- */
 #chatView {
+    display: none;
+    flex-direction: column;
     flex: 1;
+    min-height: 0;
+}
+
+#chatView.active {
+    display: flex;
 }
 
 .chat-messages {
     flex: 1;
     overflow-y: auto;
     padding: 1rem;
-    padding-bottom: 1rem;
+    min-height: 0;
 }
 
 /* Welcome Message */
@@ -828,6 +864,7 @@ h1, h2, h3, h4, h5, h6 {
     padding: 0.75rem 1rem;
     background: var(--color-white);
     border-top: 1px solid var(--color-gray-200);
+    flex-shrink: 0;
 }
 
 .chat-input-wrapper .input-group {
@@ -890,7 +927,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* -------------------- 
-   Section Views (Scenarios, Differentials, Your Patient)
+   Section Views 
    -------------------- */
 .section-view {
     flex: 1;
@@ -1101,7 +1138,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* -------------------- 
-   Bottom Navigation Bar
+   Bottom Navigation Bar (Mobile)
    -------------------- */
 .bottom-nav {
     height: var(--bottom-nav-height);
@@ -1112,7 +1149,8 @@ h1, h2, h3, h4, h5, h6 {
     align-items: center;
     justify-content: space-around;
     padding: 0 0.5rem;
-    padding-bottom: env(safe-area-inset-bottom); /* For iPhone notch */
+    padding-bottom: env(safe-area-inset-bottom);
+    flex-shrink: 0;
     z-index: 100;
 }
 
@@ -1156,16 +1194,6 @@ h1, h2, h3, h4, h5, h6 {
     transform: scale(1.1);
 }
 
-/* Message count badge on chat icon */
-.nav-item .badge {
-    position: absolute;
-    top: 2px;
-    right: calc(50% - 20px);
-    font-size: 0.6rem;
-    padding: 0.15rem 0.35rem;
-    background: var(--color-danger);
-}
-
 .nav-item-wrapper {
     position: relative;
     flex: 1;
@@ -1173,9 +1201,7 @@ h1, h2, h3, h4, h5, h6 {
     justify-content: center;
 }
 
-/* -------------------- 
-   Pro Badge
-   -------------------- */
+/* Pro Badge */
 .pro-badge {
     background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-green) 100%);
     color: white;
@@ -1187,71 +1213,91 @@ h1, h2, h3, h4, h5, h6 {
     margin-left: 0.5rem;
 }
 
-/* -------------------- 
-   Message Limit Banner
-   -------------------- */
-.message-limit-banner {
-    background: linear-gradient(135deg, rgba(43, 138, 156, 0.1) 0%, rgba(92, 184, 92, 0.1) 100%);
+/* Alerts in Chat */
+.chat-messages .alert {
+    max-width: 90%;
+    margin: 1rem auto;
+}
+
+/* Modal */
+.modal-content {
+    border-radius: var(--radius-xl);
+}
+
+.modal-header {
     border-bottom: 1px solid var(--color-gray-200);
-    padding: 0.5rem 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 0.8rem;
 }
 
-.message-limit-banner .count {
-    font-weight: 600;
-    color: var(--color-teal);
+.modal-footer {
+    border-top: 1px solid var(--color-gray-200);
 }
 
-.message-limit-banner .upgrade-link {
-    color: var(--color-teal);
-    font-weight: 600;
-    text-decoration: none;
+/* Utilities */
+.text-teal {
+    color: var(--color-teal) !important;
 }
 
-.message-limit-banner .upgrade-link:hover {
-    text-decoration: underline;
+.bg-teal-light {
+    background: linear-gradient(135deg, rgba(43, 138, 156, 0.1) 0%, rgba(92, 184, 92, 0.1) 100%) !important;
 }
 
 /* ============================================
-   DESKTOP/TABLET RESPONSIVE
+   DESKTOP/TABLET RESPONSIVE (768px+)
    ============================================ */
 @media (min-width: 768px) {
-    :root {
-        --bottom-nav-height: 0px;
-    }
-    
+    /* Wrap everything below header in a flex row */
     .chat-page {
-        flex-direction: row;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-rows: auto auto 1fr;
+        grid-template-columns: var(--sidebar-width) 1fr;
+        grid-template-areas:
+            "header header"
+            "banner banner"
+            "sidebar main";
     }
     
     .chat-navbar {
-        width: 100%;
+        grid-area: header;
     }
     
-    /* Convert bottom nav to sidebar on desktop */
+    .message-limit-banner {
+        grid-area: banner;
+    }
+    
+    /* Sidebar Navigation */
     .bottom-nav {
-        position: fixed;
-        left: 0;
-        top: var(--header-height);
-        bottom: 0;
-        width: 80px;
+        grid-area: sidebar;
         height: auto;
         flex-direction: column;
         justify-content: flex-start;
-        padding: 1rem 0.5rem;
+        align-items: stretch;
+        padding: 1rem;
         gap: 0.5rem;
         border-top: none;
         border-right: 1px solid var(--color-gray-200);
+        background: var(--color-white);
+    }
+    
+    .nav-item-wrapper {
+        flex: none;
     }
     
     .nav-item {
-        width: 100%;
-        padding: 0.75rem 0.5rem;
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 0.875rem 1rem;
         border-radius: var(--radius-md);
+        gap: 0.75rem;
+    }
+    
+    .nav-item i {
+        font-size: 1.25rem;
+    }
+    
+    .nav-item span {
+        font-size: 0.875rem;
+        text-transform: none;
+        letter-spacing: 0;
     }
     
     .nav-item:hover {
@@ -1262,89 +1308,80 @@ h1, h2, h3, h4, h5, h6 {
         background: linear-gradient(135deg, rgba(43, 138, 156, 0.1) 0%, rgba(92, 184, 92, 0.1) 100%);
     }
     
-    .nav-item i {
-        font-size: 1.5rem;
-    }
-    
-    .nav-item span {
-        font-size: 0.6rem;
-    }
-    
-    .nav-item-wrapper {
-        width: 100%;
-        flex: none;
-    }
-    
-    /* Adjust main content for sidebar */
+    /* Main content area */
     .chat-main-container {
-        margin-left: 80px;
-        width: calc(100% - 80px);
+        grid-area: main;
+        overflow: hidden;
     }
     
-    /* Wider chat area */
-    .chat-messages {
-        padding: 1.5rem;
-    }
-    
+    /* Wider messages on desktop */
     .message {
         max-width: 70%;
     }
     
+    .chat-messages {
+        padding: 1.5rem 2rem;
+    }
+    
     .welcome-message {
-        padding: 2rem;
+        padding: 3rem 2rem;
     }
     
     .quick-prompts {
         flex-direction: row;
         flex-wrap: wrap;
         justify-content: center;
+        gap: 0.75rem;
     }
     
     .quick-prompt-btn {
         flex: 0 0 auto;
     }
     
-    /* Category grid on larger screens */
+    /* Better grid on larger screens */
     .category-grid {
         grid-template-columns: repeat(3, 1fr);
         gap: 1rem;
     }
     
     .section-content {
-        padding: 1.5rem;
-        max-width: 900px;
+        padding: 1.5rem 2rem;
+        max-width: 1000px;
         margin: 0 auto;
     }
     
     .section-header {
-        padding: 1.5rem;
+        padding: 1.5rem 2rem;
     }
     
     .section-header h1 {
         font-size: 1.5rem;
     }
+    
+    /* Vital signs 4 columns on desktop */
+    .vital-signs-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .patient-form {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
 }
 
-@media (min-width: 1024px) {
-    .bottom-nav {
-        width: 100px;
-    }
-    
-    .chat-main-container {
-        margin-left: 100px;
-        width: calc(100% - 100px);
-    }
-    
-    .nav-item i {
-        font-size: 1.6rem;
-    }
-    
-    .nav-item span {
-        font-size: 0.7rem;
+/* Large desktop */
+@media (min-width: 1200px) {
+    :root {
+        --sidebar-width: 260px;
     }
     
     .category-grid {
         grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .chat-messages {
+        padding: 2rem 3rem;
     }
 }
 
@@ -1379,38 +1416,4 @@ h1, h2, h3, h4, h5, h6 {
     .pricing-card.featured {
         transform: none;
     }
-}
-
-/* -------------------- 
-   Scenario Modal 
-   -------------------- */
-.modal-content {
-    border-radius: var(--radius-xl);
-}
-
-.modal-header {
-    border-bottom: 1px solid var(--color-gray-200);
-}
-
-.modal-footer {
-    border-top: 1px solid var(--color-gray-200);
-}
-
-/* -------------------- 
-   Alerts in Chat
-   -------------------- */
-.chat-messages .alert {
-    max-width: 90%;
-    margin: 1rem auto;
-}
-
-/* -------------------- 
-   Utilities
-   -------------------- */
-.text-teal {
-    color: var(--color-teal) !important;
-}
-
-.bg-teal-light {
-    background: linear-gradient(135deg, rgba(43, 138, 156, 0.1) 0%, rgba(92, 184, 92, 0.1) 100%) !important;
 }
