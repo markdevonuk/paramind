@@ -45,7 +45,7 @@ const TRUSTS = {
     "YAS": "Yorkshire Ambulance Service NHS Trust"
 };
 
-// Scenario definitions
+// Scenario definitions (legacy - now in chat.js)
 const SCENARIOS = {
     "patient-assessment": {
         title: "Patient Assessment Practice",
@@ -114,6 +114,9 @@ const utils = {
         // Bold text: **text** -> <strong>text</strong>
         formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         
+        // Bullet points: • at start of line
+        formatted = formatted.replace(/^• (.*)$/gm, '<li>$1</li>');
+        
         // Line breaks
         formatted = formatted.replace(/\n/g, '<br>');
         
@@ -171,43 +174,12 @@ const storage = {
 
 // Initialize page-specific functionality
 document.addEventListener('DOMContentLoaded', function() {
-    // Mobile sidebar toggle
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const chatSidebar = document.getElementById('chatSidebar');
-    
-    if (sidebarToggle && chatSidebar) {
-        sidebarToggle.addEventListener('click', function() {
-            chatSidebar.classList.toggle('open');
-            
-            // Create/toggle overlay
-            let overlay = document.querySelector('.sidebar-overlay');
-            if (!overlay) {
-                overlay = document.createElement('div');
-                overlay.className = 'sidebar-overlay';
-                document.body.appendChild(overlay);
-                overlay.addEventListener('click', function() {
-                    chatSidebar.classList.remove('open');
-                    overlay.classList.remove('open');
-                });
-            }
-            overlay.classList.toggle('open');
-        });
-    }
-    
-    // Auto-resize textarea
+    // Auto-resize textarea (for pages that have it)
     const messageInput = document.getElementById('messageInput');
     if (messageInput) {
         messageInput.addEventListener('input', function() {
             this.style.height = 'auto';
             this.style.height = Math.min(this.scrollHeight, 150) + 'px';
-        });
-        
-        // Submit on Enter (but allow Shift+Enter for new lines)
-        messageInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                document.getElementById('chatForm').dispatchEvent(new Event('submit'));
-            }
         });
     }
 });

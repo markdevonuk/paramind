@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Chat | Paramind</title>
     
     <!-- Bootstrap CSS -->
@@ -24,19 +26,14 @@
     <nav class="chat-navbar">
         <div class="container-fluid px-3">
             <div class="d-flex align-items-center justify-content-between w-100">
-                <div class="d-flex align-items-center">
-                    <button class="btn btn-link text-dark d-md-none me-2" id="sidebarToggle">
-                        <i class="bi bi-list fs-4"></i>
-                    </button>
-                    <a class="navbar-brand" href="index.html">
-                        <span class="brand-text"><span class="brand-para">para</span><span class="brand-mind">mind</span></span>
-                    </a>
-                </div>
+                <a class="navbar-brand" href="index.html">
+                    <span class="brand-text"><span class="brand-para">para</span><span class="brand-mind">mind</span></span>
+                </a>
                 
                 <div class="d-flex align-items-center">
-                    <span class="trust-badge me-3 d-none d-sm-inline">
+                    <span class="trust-badge me-2">
                         <i class="bi bi-hospital me-1"></i>
-                        <span id="userTrust">Loading...</span>
+                        <span id="userTrust">SWAST</span>
                     </span>
                     <div class="dropdown">
                         <button class="btn btn-link text-dark dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -48,7 +45,7 @@
                             <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
                             <li><a class="dropdown-item" href="#" id="upgradeBtn"><i class="bi bi-star me-2"></i>Upgrade to Pro</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="#" id="logoutBtn"><i class="bi bi-box-arrow-right me-2"></i>Sign Out</a></li>
+                            <li><a class="dropdown-item text-danger" href="index.html"><i class="bi bi-box-arrow-right me-2"></i>Sign Out</a></li>
                         </ul>
                     </div>
                 </div>
@@ -56,71 +53,19 @@
         </div>
     </nav>
 
-    <div class="chat-layout">
-        <!-- Sidebar -->
-        <aside class="chat-sidebar" id="chatSidebar">
-            <div class="sidebar-header">
-                <button class="btn btn-primary w-100" id="newChatBtn">
-                    <i class="bi bi-plus-lg me-2"></i>New Chat
-                </button>
-            </div>
-            
-            <!-- Scenarios Menu -->
-            <div class="sidebar-section">
-                <h6 class="sidebar-title">
-                    <i class="bi bi-mortarboard me-2"></i>Learning Scenarios
-                </h6>
-                <div class="scenario-list">
-                    <button class="scenario-btn" data-scenario="patient-assessment">
-                        <i class="bi bi-clipboard-pulse"></i>
-                        <span>Patient Assessment</span>
-                    </button>
-                    <button class="scenario-btn" data-scenario="differential-diagnosis">
-                        <i class="bi bi-search"></i>
-                        <span>Differential Diagnosis</span>
-                    </button>
-                    <button class="scenario-btn" data-scenario="drug-calculation">
-                        <i class="bi bi-calculator"></i>
-                        <span>Drug Calculations</span>
-                    </button>
-                    <button class="scenario-btn" data-scenario="ecg-interpretation">
-                        <i class="bi bi-activity"></i>
-                        <span>ECG Interpretation</span>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Saved Conversations -->
-            <div class="sidebar-section">
-                <h6 class="sidebar-title">
-                    <i class="bi bi-bookmark me-2"></i>Saved Chats
-                    <span class="badge bg-secondary ms-auto" id="proOnlyBadge">Pro</span>
-                </h6>
-                <div class="saved-chats-list" id="savedChatsList">
-                    <p class="text-muted small px-3">Upgrade to Pro to save conversations</p>
-                </div>
-            </div>
-            
-            <!-- Message Counter (Free Users) -->
-            <div class="sidebar-footer" id="messageCounter">
-                <div class="message-count-box">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <small>Daily messages</small>
-                        <small><span id="messagesUsed">0</span>/5</small>
-                    </div>
-                    <div class="progress" style="height: 6px;">
-                        <div class="progress-bar" id="messageProgress" role="progressbar" style="width: 0%"></div>
-                    </div>
-                    <a href="#" class="upgrade-link mt-2 d-block" id="upgradeLink">
-                        <i class="bi bi-star-fill me-1"></i>Upgrade for unlimited
-                    </a>
-                </div>
-            </div>
-        </aside>
+    <!-- Message Limit Banner (Free Users) -->
+    <div class="message-limit-banner" id="messageLimitBanner">
+        <span>Daily messages: <span class="count"><span id="messagesUsed">0</span>/5</span></span>
+        <a href="#" class="upgrade-link" id="upgradeLinkBanner">
+            <i class="bi bi-star-fill me-1"></i>Upgrade for unlimited
+        </a>
+    </div>
 
-        <!-- Main Chat Area -->
-        <main class="chat-main">
-            <!-- Chat Messages Container -->
+    <!-- Main Content Container -->
+    <div class="chat-main-container">
+        
+        <!-- ==================== CHAT VIEW ==================== -->
+        <div id="chatView" class="content-view active">
             <div class="chat-messages" id="chatMessages">
                 <!-- Welcome Message -->
                 <div class="welcome-message" id="welcomeMessage">
@@ -128,8 +73,7 @@
                         <i class="bi bi-chat-heart"></i>
                     </div>
                     <h2>Welcome to Paramind</h2>
-                    <p>I'm here to help with your clinical learning. Ask me about patient assessments, 
-                       differential diagnoses, medications, or try one of the learning scenarios.</p>
+                    <p>I'm here to help with your clinical learning. Ask me anything or explore the sections below.</p>
                     <div class="welcome-disclaimer">
                         <i class="bi bi-exclamation-triangle me-2"></i>
                         <small>Educational tool only. Always verify information and follow your trust's guidelines.</small>
@@ -151,8 +95,6 @@
                         </button>
                     </div>
                 </div>
-                
-                <!-- Messages will be inserted here -->
             </div>
 
             <!-- Chat Input -->
@@ -174,27 +116,299 @@
                     </form>
                     <small class="input-disclaimer">
                         <i class="bi bi-shield-check me-1"></i>
-                        Never enter real patient data. All advice requires clinical verification.
+                        Never enter real patient data.
                     </small>
                 </div>
             </div>
-        </main>
+        </div>
+
+        <!-- ==================== SCENARIOS VIEW ==================== -->
+        <div id="scenariosView" class="content-view">
+            <div class="section-view">
+                <!-- Main Categories -->
+                <div id="scenarioCategories">
+                    <div class="section-header">
+                        <h1><i class="bi bi-mortarboard me-2"></i>Learning Scenarios</h1>
+                        <p>Practice with interactive patient cases</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="category-grid">
+                            <div class="category-card" data-category="cardiac">
+                                <div class="icon"><i class="bi bi-heart-pulse"></i></div>
+                                <h3>Cardiac</h3>
+                                <span class="count">8 scenarios</span>
+                            </div>
+                            <div class="category-card" data-category="respiratory">
+                                <div class="icon"><i class="bi bi-lungs"></i></div>
+                                <h3>Respiratory</h3>
+                                <span class="count">6 scenarios</span>
+                            </div>
+                            <div class="category-card" data-category="abdominal">
+                                <div class="icon"><i class="bi bi-bandaid"></i></div>
+                                <h3>Abdominal</h3>
+                                <span class="count">7 scenarios</span>
+                            </div>
+                            <div class="category-card" data-category="neuro">
+                                <div class="icon"><i class="bi bi-brain"></i></div>
+                                <h3>Neurological</h3>
+                                <span class="count">5 scenarios</span>
+                            </div>
+                            <div class="category-card" data-category="trauma">
+                                <div class="icon"><i class="bi bi-bandaid"></i></div>
+                                <h3>Trauma</h3>
+                                <span class="count">6 scenarios</span>
+                            </div>
+                            <div class="category-card" data-category="paediatric">
+                                <div class="icon"><i class="bi bi-emoji-smile"></i></div>
+                                <h3>Paediatric</h3>
+                                <span class="count">5 scenarios</span>
+                            </div>
+                            <div class="category-card" data-category="obstetric">
+                                <div class="icon"><i class="bi bi-heart"></i></div>
+                                <h3>Obstetric</h3>
+                                <span class="count">4 scenarios</span>
+                            </div>
+                            <div class="category-card" data-category="mental-health">
+                                <div class="icon"><i class="bi bi-chat-heart"></i></div>
+                                <h3>Mental Health</h3>
+                                <span class="count">4 scenarios</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subcategory View (hidden by default) -->
+                <div id="scenarioSubcategory" style="display: none;">
+                    <div class="section-header">
+                        <a href="#" class="back-btn" id="backToScenarioCategories">
+                            <i class="bi bi-arrow-left"></i> Back
+                        </a>
+                        <h1 id="subcategoryTitle">Cardiac Scenarios</h1>
+                        <p id="subcategoryDescription">Select a scenario to begin</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="subcategory-list" id="scenarioList">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== DIFFERENTIALS VIEW ==================== -->
+        <div id="differentialsView" class="content-view">
+            <div class="section-view">
+                <!-- Main Categories -->
+                <div id="diffCategories">
+                    <div class="section-header">
+                        <h1><i class="bi bi-search me-2"></i>Differentials</h1>
+                        <p>Explore conditions by body system</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="category-grid">
+                            <div class="category-card" data-diff-category="chest-pain">
+                                <div class="icon"><i class="bi bi-heart-pulse"></i></div>
+                                <h3>Chest Pain</h3>
+                                <span class="count">12 conditions</span>
+                            </div>
+                            <div class="category-card" data-diff-category="sob">
+                                <div class="icon"><i class="bi bi-lungs"></i></div>
+                                <h3>Shortness of Breath</h3>
+                                <span class="count">10 conditions</span>
+                            </div>
+                            <div class="category-card" data-diff-category="abdo-pain">
+                                <div class="icon"><i class="bi bi-bandaid"></i></div>
+                                <h3>Abdominal Pain</h3>
+                                <span class="count">15 conditions</span>
+                            </div>
+                            <div class="category-card" data-diff-category="headache">
+                                <div class="icon"><i class="bi bi-emoji-dizzy"></i></div>
+                                <h3>Headache</h3>
+                                <span class="count">8 conditions</span>
+                            </div>
+                            <div class="category-card" data-diff-category="altered-loc">
+                                <div class="icon"><i class="bi bi-brain"></i></div>
+                                <h3>Altered Consciousness</h3>
+                                <span class="count">11 conditions</span>
+                            </div>
+                            <div class="category-card" data-diff-category="collapse">
+                                <div class="icon"><i class="bi bi-person-dash"></i></div>
+                                <h3>Collapse / Syncope</h3>
+                                <span class="count">9 conditions</span>
+                            </div>
+                            <div class="category-card" data-diff-category="back-pain">
+                                <div class="icon"><i class="bi bi-person"></i></div>
+                                <h3>Back Pain</h3>
+                                <span class="count">7 conditions</span>
+                            </div>
+                            <div class="category-card" data-diff-category="leg-pain">
+                                <div class="icon"><i class="bi bi-bandaid"></i></div>
+                                <h3>Leg Pain/Swelling</h3>
+                                <span class="count">6 conditions</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subcategory View (hidden by default) -->
+                <div id="diffSubcategory" style="display: none;">
+                    <div class="section-header">
+                        <a href="#" class="back-btn" id="backToDiffCategories">
+                            <i class="bi bi-arrow-left"></i> Back
+                        </a>
+                        <h1 id="diffSubcategoryTitle">Chest Pain Differentials</h1>
+                        <p id="diffSubcategoryDescription">Tap a condition to learn more</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="subcategory-list" id="diffList">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== YOUR PATIENT VIEW ==================== -->
+        <div id="patientView" class="content-view">
+            <div class="section-view">
+                <div class="section-header">
+                    <h1><i class="bi bi-clipboard2-pulse me-2"></i>Your Patient</h1>
+                    <p>Enter details for guidance on current presentation</p>
+                </div>
+                <div class="section-content">
+                    <form id="patientForm" class="patient-form">
+                        <div class="form-group">
+                            <label for="patientAge">Age</label>
+                            <input type="number" class="form-control" id="patientAge" placeholder="e.g., 65">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="patientSex">Sex</label>
+                            <select class="form-select" id="patientSex">
+                                <option value="" disabled selected>Select...</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="chiefComplaint">Chief Complaint</label>
+                            <input type="text" class="form-control" id="chiefComplaint" placeholder="e.g., Chest pain, Shortness of breath">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="historyPresenting">History of Presenting Complaint</label>
+                            <textarea class="form-control" id="historyPresenting" rows="3" placeholder="When did it start? What makes it better/worse?"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="pmh">Past Medical History</label>
+                            <input type="text" class="form-control" id="pmh" placeholder="e.g., Hypertension, Diabetes, COPD">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Vital Signs</label>
+                            <div class="vital-signs-grid">
+                                <div class="vital-input">
+                                    <label>RR</label>
+                                    <input type="number" id="vitalRR" placeholder="--">
+                                </div>
+                                <div class="vital-input">
+                                    <label>SpO2 %</label>
+                                    <input type="number" id="vitalSpO2" placeholder="--">
+                                </div>
+                                <div class="vital-input">
+                                    <label>HR</label>
+                                    <input type="number" id="vitalHR" placeholder="--">
+                                </div>
+                                <div class="vital-input">
+                                    <label>BP</label>
+                                    <input type="text" id="vitalBP" placeholder="--/--">
+                                </div>
+                                <div class="vital-input">
+                                    <label>Temp °C</label>
+                                    <input type="number" step="0.1" id="vitalTemp" placeholder="--">
+                                </div>
+                                <div class="vital-input">
+                                    <label>GCS</label>
+                                    <input type="number" id="vitalGCS" placeholder="--">
+                                </div>
+                                <div class="vital-input">
+                                    <label>BM</label>
+                                    <input type="number" step="0.1" id="vitalBM" placeholder="--">
+                                </div>
+                                <div class="vital-input">
+                                    <label>Pain /10</label>
+                                    <input type="number" id="vitalPain" placeholder="--">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="additionalNotes">Additional Notes</label>
+                            <textarea class="form-control" id="additionalNotes" rows="2" placeholder="Any other relevant findings..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100 btn-lg mt-3">
+                            <i class="bi bi-chat-dots me-2"></i>Get Guidance
+                        </button>
+                        
+                        <div class="text-center mt-3">
+                            <small class="text-muted">
+                                <i class="bi bi-shield-lock me-1"></i>
+                                This data is not stored. Never enter identifiable patient information.
+                            </small>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Scenario Modal -->
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <div class="nav-item-wrapper">
+            <button class="nav-item active" data-view="chatView">
+                <i class="bi bi-chat-dots"></i>
+                <span>Chat</span>
+            </button>
+        </div>
+        <div class="nav-item-wrapper">
+            <button class="nav-item" data-view="scenariosView">
+                <i class="bi bi-mortarboard"></i>
+                <span>Scenarios</span>
+            </button>
+        </div>
+        <div class="nav-item-wrapper">
+            <button class="nav-item" data-view="differentialsView">
+                <i class="bi bi-search"></i>
+                <span>Differentials</span>
+            </button>
+        </div>
+        <div class="nav-item-wrapper">
+            <button class="nav-item" data-view="patientView">
+                <i class="bi bi-clipboard2-pulse"></i>
+                <span>Your Patient</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Scenario Start Modal -->
     <div class="modal fade" id="scenarioModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Start Learning Scenario</h5>
+                    <h5 class="modal-title" id="scenarioModalTitle">Start Scenario</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p id="scenarioDescription">Loading scenario...</p>
+                    <p id="scenarioModalDescription">Description loading...</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="startScenarioBtn">Start Scenario</button>
+                    <button type="button" class="btn btn-primary" id="startScenarioBtn">
+                        <i class="bi bi-play-fill me-1"></i>Start Scenario
+                    </button>
                 </div>
             </div>
         </div>
@@ -202,547 +416,7 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Firebase and Chat Logic -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { initializeFirestore, doc, getDoc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-        import { firebaseConfig } from './js/firebase-config.js';
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        
-        // Initialize Firestore with long polling (fixes Safari issues)
-        const db = initializeFirestore(app, {
-            experimentalForceLongPolling: true
-        });
-
-        // Scenario definitions
-        const SCENARIOS = {
-            "patient-assessment": {
-                title: "Patient Assessment Practice",
-                description: "The AI will present as a patient with symptoms. Ask assessment questions to gather information and formulate a differential diagnosis.",
-                prompt: "You are now a patient presenting to a paramedic. You have chest pain that started 2 hours ago while gardening. It feels like pressure in the centre of your chest. You also feel a bit sweaty and nauseous. Answer the paramedic's questions as a realistic patient would - you may not know medical terminology. Do not reveal your diagnosis. After the paramedic offers their differential diagnosis, confirm if correct or explain what they may have missed."
-            },
-            "differential-diagnosis": {
-                title: "Differential Diagnosis Challenge",
-                description: "Test your diagnostic reasoning skills with a complex case presentation.",
-                prompt: "Present me with a complex patient case (appropriate for paramedic level) including: patient demographics, chief complaint, history of presenting complaint, and relevant observations. After I provide my differential diagnoses, give me feedback on my clinical reasoning."
-            },
-            "drug-calculation": {
-                title: "Drug Calculation Practice",
-                description: "Practice medication calculations with realistic scenarios.",
-                prompt: "Give me a drug calculation question appropriate for a paramedic. Include the patient's weight, the drug, the dose per kg or fixed dose, and the concentration available. After I answer, confirm if I'm correct and explain the working if needed."
-            },
-            "ecg-interpretation": {
-                title: "ECG Interpretation",
-                description: "Learn to identify key ECG abnormalities relevant to pre-hospital care.",
-                prompt: "Describe an ECG in text format for me to interpret. Include rate, rhythm, axis, intervals, and any abnormalities. After I provide my interpretation, give feedback and explain the clinical significance."
-            }
-        };
-
-        // Chat state
-        const chatState = {
-            messages: [],
-            isLoading: false,
-            currentScenario: null,
-            messagesUsed: 0,
-            isPro: false,
-            userTrust: 'SWAST',
-            userData: null
-        };
-
-        // Check authentication state
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                // User is signed in
-                document.getElementById('userEmail').textContent = user.email;
-
-                // First, try to load from localStorage (instant)
-                const cachedData = localStorage.getItem('paramind_user');
-                if (cachedData) {
-                    try {
-                        const userData = JSON.parse(cachedData);
-                        if (userData.uid === user.uid) {
-                            chatState.userData = userData;
-                            chatState.userTrust = userData.trust || 'SWAST';
-                            chatState.isPro = userData.subscriptionStatus === 'active';
-                            document.getElementById('userTrust').textContent = chatState.userTrust;
-                            
-                            // Check if we need to reset daily message count
-                            const today = new Date().toDateString();
-                            const lastMessageDate = userData.lastMessageDate ? new Date(userData.lastMessageDate).toDateString() : null;
-                            
-                            if (lastMessageDate !== today) {
-                                chatState.messagesUsed = 0;
-                            } else {
-                                chatState.messagesUsed = userData.dailyMessageCount || 0;
-                            }
-                            
-                            updateMessageCounter();
-                            
-                            if (chatState.isPro) {
-                                document.getElementById('messageCounter').style.display = 'none';
-                                document.getElementById('proOnlyBadge').style.display = 'none';
-                            }
-                            
-                            console.log('Loaded user data from localStorage');
-                        }
-                    } catch (e) {
-                        console.warn('Could not parse cached user data');
-                    }
-                }
-
-                // Then try to get fresh data from Firestore
-                try {
-                    const userDocRef = doc(db, 'users', user.uid);
-                    const userDoc = await getDoc(userDocRef);
-                    
-                    if (userDoc.exists()) {
-                        const userData = userDoc.data();
-                        chatState.userData = userData;
-                        chatState.userTrust = userData.trust || 'SWAST';
-                        chatState.isPro = userData.subscriptionStatus === 'active';
-                        
-                        document.getElementById('userTrust').textContent = chatState.userTrust;
-                        
-                        // Check if we need to reset daily message count
-                        const today = new Date().toDateString();
-                        let lastMessageDate = null;
-                        
-                        if (userData.lastMessageDate) {
-                            // Handle Firestore timestamp
-                            if (userData.lastMessageDate.toDate) {
-                                lastMessageDate = userData.lastMessageDate.toDate().toDateString();
-                            } else {
-                                lastMessageDate = new Date(userData.lastMessageDate).toDateString();
-                            }
-                        }
-                        
-                        if (lastMessageDate !== today) {
-                            chatState.messagesUsed = 0;
-                        } else {
-                            chatState.messagesUsed = userData.dailyMessageCount || 0;
-                        }
-                        
-                        updateMessageCounter();
-                        
-                        // Update localStorage with fresh data
-                        localStorage.setItem('paramind_user', JSON.stringify({
-                            uid: user.uid,
-                            email: userData.email,
-                            trust: userData.trust,
-                            trustFullName: userData.trustFullName,
-                            subscriptionStatus: userData.subscriptionStatus,
-                            dailyMessageCount: chatState.messagesUsed,
-                            lastMessageDate: new Date().toISOString()
-                        }));
-                        
-                        if (chatState.isPro) {
-                            document.getElementById('messageCounter').style.display = 'none';
-                            document.getElementById('proOnlyBadge').style.display = 'none';
-                        }
-                        
-                        console.log('Loaded user data from Firestore');
-                    } else {
-                        console.warn('No user document found in Firestore');
-                        // If no Firestore doc but we have cached data, continue with that
-                        if (!cachedData) {
-                            document.getElementById('userTrust').textContent = 'Not Set';
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error fetching user data from Firestore:', error);
-                    // Continue with cached data if available
-                    if (!cachedData) {
-                        document.getElementById('userTrust').textContent = 'Not Set';
-                    }
-                }
-            } else {
-                // User is signed out
-                localStorage.removeItem('paramind_user');
-                window.location.href = 'login.html';
-            }
-        });
-
-        // Update message counter display
-        function updateMessageCounter() {
-            document.getElementById('messagesUsed').textContent = chatState.messagesUsed;
-            
-            const percentage = (chatState.messagesUsed / 5) * 100;
-            const progressBar = document.getElementById('messageProgress');
-            progressBar.style.width = Math.min(percentage, 100) + '%';
-            
-            // Remove existing color classes
-            progressBar.classList.remove('bg-warning', 'bg-danger');
-            
-            if (percentage >= 100) {
-                progressBar.classList.add('bg-danger');
-            } else if (percentage >= 80) {
-                progressBar.classList.add('bg-warning');
-            }
-        }
-
-        // Increment message count in Firestore
-        async function incrementMessageCount() {
-            if (chatState.isPro) return; // Pro users don't have limits
-            
-            chatState.messagesUsed++;
-            updateMessageCounter();
-            
-            // Update localStorage
-            const cachedData = localStorage.getItem('paramind_user');
-            if (cachedData) {
-                try {
-                    const userData = JSON.parse(cachedData);
-                    userData.dailyMessageCount = chatState.messagesUsed;
-                    userData.lastMessageDate = new Date().toISOString();
-                    localStorage.setItem('paramind_user', JSON.stringify(userData));
-                } catch (e) {
-                    console.warn('Could not update localStorage');
-                }
-            }
-            
-            // Update Firestore
-            try {
-                const user = auth.currentUser;
-                if (user) {
-                    await updateDoc(doc(db, 'users', user.uid), {
-                        dailyMessageCount: chatState.messagesUsed,
-                        lastMessageDate: serverTimestamp()
-                    });
-                }
-            } catch (error) {
-                console.warn('Could not update Firestore message count:', error);
-            }
-        }
-
-        // Logout handler
-        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
-            e.preventDefault();
-            try {
-                await signOut(auth);
-                localStorage.removeItem('paramind_user');
-                window.location.href = 'login.html';
-            } catch (error) {
-                console.error('Logout error:', error);
-                alert('Error signing out. Please try again.');
-            }
-        });
-
-        // Mobile sidebar toggle
-        document.getElementById('sidebarToggle').addEventListener('click', function() {
-            const sidebar = document.getElementById('chatSidebar');
-            sidebar.classList.toggle('open');
-            
-            // Create/toggle overlay
-            let overlay = document.querySelector('.sidebar-overlay');
-            if (!overlay) {
-                overlay = document.createElement('div');
-                overlay.className = 'sidebar-overlay';
-                document.body.appendChild(overlay);
-                overlay.addEventListener('click', function() {
-                    sidebar.classList.remove('open');
-                    overlay.classList.remove('open');
-                });
-            }
-            overlay.classList.toggle('open');
-        });
-
-        // Auto-resize textarea
-        const messageInput = document.getElementById('messageInput');
-        messageInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 150) + 'px';
-        });
-
-        // Submit on Enter (but allow Shift+Enter for new lines)
-        messageInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                document.getElementById('chatForm').dispatchEvent(new Event('submit'));
-            }
-        });
-
-        // Utility functions
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function formatMessage(text) {
-            let formatted = escapeHtml(text);
-            formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            formatted = formatted.replace(/\n/g, '<br>');
-            return formatted;
-        }
-
-        // Add message to chat
-        function addMessage(role, content) {
-            const chatMessages = document.getElementById('chatMessages');
-            const welcomeMessage = document.getElementById('welcomeMessage');
-            
-            // Hide welcome message
-            if (welcomeMessage) {
-                welcomeMessage.style.display = 'none';
-            }
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${role}`;
-            
-            const avatarIcon = role === 'user' ? 'bi-person' : 'bi-robot';
-            
-            messageDiv.innerHTML = `
-                <div class="message-avatar">
-                    <i class="bi ${avatarIcon}"></i>
-                </div>
-                <div class="message-content">
-                    ${formatMessage(content)}
-                </div>
-            `;
-            
-            chatMessages.appendChild(messageDiv);
-            chatState.messages.push({ role, content, timestamp: new Date() });
-            
-            // Scroll to bottom
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        // Show loading indicator
-        function showLoading() {
-            chatState.isLoading = true;
-            document.getElementById('sendBtn').disabled = true;
-            
-            const chatMessages = document.getElementById('chatMessages');
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'message assistant';
-            loadingDiv.id = 'loadingMessage';
-            
-            loadingDiv.innerHTML = `
-                <div class="message-avatar">
-                    <i class="bi bi-robot"></i>
-                </div>
-                <div class="message-content">
-                    <div class="typing-indicator">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </div>
-                </div>
-            `;
-            
-            chatMessages.appendChild(loadingDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        // Hide loading indicator
-        function hideLoading() {
-            chatState.isLoading = false;
-            document.getElementById('sendBtn').disabled = false;
-            
-            const loadingMsg = document.getElementById('loadingMessage');
-            if (loadingMsg) {
-                loadingMsg.remove();
-            }
-        }
-
-        // Show limit reached message
-        function showLimitReached() {
-            const chatMessages = document.getElementById('chatMessages');
-            const welcomeMessage = document.getElementById('welcomeMessage');
-            
-            if (welcomeMessage) {
-                welcomeMessage.style.display = 'none';
-            }
-            
-            const limitDiv = document.createElement('div');
-            limitDiv.className = 'message assistant';
-            
-            limitDiv.innerHTML = `
-                <div class="message-avatar">
-                    <i class="bi bi-robot"></i>
-                </div>
-                <div class="message-content">
-                    <strong>Daily message limit reached</strong><br><br>
-                    You've used all 5 free messages for today. Your limit will reset at midnight.<br><br>
-                    <a href="#" class="btn btn-primary btn-sm" onclick="alert('Stripe integration coming soon!')">
-                        <i class="bi bi-star me-1"></i>Upgrade to Paramind Pro
-                    </a>
-                    <br><br>
-                    <small class="text-muted">Unlimited messages for just £4.99/month</small>
-                </div>
-            `;
-            
-            chatMessages.appendChild(limitDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        // Simulated AI response (will be replaced with actual API call)
-        async function sendToAI(message) {
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
-            const lowerMessage = message.toLowerCase();
-            
-            if (lowerMessage.includes('chest pain')) {
-                return `**Based on ${chatState.userTrust} guidelines:**\n\nFor a patient presenting with chest pain, follow your primary survey (ABCDE approach):\n\n1. **Airway** - Ensure patent airway\n2. **Breathing** - Assess respiratory rate, SpO2, breath sounds\n3. **Circulation** - HR, BP, 12-lead ECG, skin colour/temperature\n4. **Disability** - GCS, blood glucose, pupils\n5. **Exposure** - Full assessment as appropriate\n\nFor chest pain specifically, consider the ACS pathway:\n- Aspirin 300mg (if not contraindicated)\n- GTN if SBP >90mmHg\n- Pain assessment and management\n- Continuous monitoring\n\nWhat specific aspect would you like to explore further?`;
-            }
-            
-            if (lowerMessage.includes('gtn') || lowerMessage.includes('contraindication')) {
-                return `**GTN Contraindications (${chatState.userTrust} JRCALC guidelines):**\n\n• Systolic BP <90mmHg\n• Heart rate <50 or >150 bpm\n• Right ventricular infarction (suspected or confirmed)\n• Phosphodiesterase inhibitor use within:\n  - 24 hours for sildenafil/vardenafil\n  - 48 hours for tadalafil\n• Severe aortic stenosis\n• Hypertrophic obstructive cardiomyopathy\n• Constrictive pericarditis\n• Raised intracranial pressure\n\nRemember: Always check your trust's specific guidelines as there may be local variations.`;
-            }
-            
-            if (lowerMessage.includes('stemi') || lowerMessage.includes('nstemi')) {
-                return `**STEMI vs NSTEMI - Key Differences:**\n\n**STEMI (ST-Elevation MI):**\n• Complete coronary artery occlusion\n• ST elevation ≥1mm in 2+ contiguous leads (or ≥2mm in V2-V3)\n• Often associated with reciprocal changes\n• Requires immediate PPCI pathway activation\n• Time-critical: door-to-balloon <90 minutes\n\n**NSTEMI (Non-ST-Elevation MI):**\n• Partial coronary occlusion\n• ST depression, T-wave inversion, or no ECG changes\n• Elevated troponin confirms diagnosis\n• Risk-stratified management\n• May not require immediate intervention\n\n**Pre-hospital management for both:**\n• High-flow oxygen only if SpO2 <94%\n• Aspirin 300mg PO\n• Pain management (GTN, morphine as per guidelines)\n• 12-lead ECG and pre-alert if appropriate`;
-            }
-            
-            return `Thank you for your question. As your ${chatState.userTrust} clinical assistant, I'm here to help with your learning.\n\nCould you provide more details about what you'd like to know? I can help with:\n• Patient assessment approaches\n• Differential diagnoses\n• Medication queries\n• Clinical pathways and protocols\n• Scenario-based learning\n\nRemember: Always verify information against your trust's current guidelines.`;
-        }
-
-        // Handle chat form submission
-        document.getElementById('chatForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const message = messageInput.value.trim();
-            if (!message || chatState.isLoading) return;
-            
-            // Check message limit for free users
-            if (!chatState.isPro && chatState.messagesUsed >= 5) {
-                showLimitReached();
-                return;
-            }
-            
-            // Clear input
-            messageInput.value = '';
-            messageInput.style.height = 'auto';
-            
-            // Add user message
-            addMessage('user', message);
-            
-            // Increment message count
-            await incrementMessageCount();
-            
-            // Show loading
-            showLoading();
-            
-            // Get AI response
-            try {
-                const response = await sendToAI(message);
-                hideLoading();
-                addMessage('assistant', response);
-            } catch (error) {
-                hideLoading();
-                addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
-                console.error('Chat error:', error);
-            }
-        });
-
-        // New chat button
-        document.getElementById('newChatBtn').addEventListener('click', function() {
-            chatState.messages = [];
-            chatState.currentScenario = null;
-            
-            const chatMessages = document.getElementById('chatMessages');
-            chatMessages.innerHTML = '';
-            
-            const welcomeMessage = document.getElementById('welcomeMessage');
-            if (welcomeMessage) {
-                welcomeMessage.style.display = 'block';
-                chatMessages.appendChild(welcomeMessage);
-            }
-        });
-
-        // Quick prompt buttons
-        document.querySelectorAll('.quick-prompt-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const prompt = this.dataset.prompt;
-                messageInput.value = prompt;
-                document.getElementById('chatForm').dispatchEvent(new Event('submit'));
-            });
-        });
-
-        // Scenario buttons
-        document.querySelectorAll('.scenario-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const scenarioId = this.dataset.scenario;
-                const scenario = SCENARIOS[scenarioId];
-                
-                if (!scenario) return;
-                
-                chatState.currentScenario = scenarioId;
-                
-                document.getElementById('scenarioDescription').innerHTML = `
-                    <h6>${scenario.title}</h6>
-                    <p>${scenario.description}</p>
-                `;
-                
-                const modal = new bootstrap.Modal(document.getElementById('scenarioModal'));
-                modal.show();
-            });
-        });
-
-        // Start scenario button
-        document.getElementById('startScenarioBtn').addEventListener('click', function() {
-            if (!chatState.currentScenario) return;
-            
-            const scenario = SCENARIOS[chatState.currentScenario];
-            if (!scenario) return;
-            
-            // Close modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('scenarioModal'));
-            modal.hide();
-            
-            // Clear chat
-            chatState.messages = [];
-            const chatMessages = document.getElementById('chatMessages');
-            chatMessages.innerHTML = '';
-            
-            // Hide welcome message
-            const welcomeMessage = document.getElementById('welcomeMessage');
-            if (welcomeMessage) {
-                welcomeMessage.style.display = 'none';
-            }
-            
-            // Add scenario system message
-            const systemDiv = document.createElement('div');
-            systemDiv.className = 'alert alert-info mx-3 my-3';
-            systemDiv.innerHTML = `
-                <i class="bi bi-mortarboard me-2"></i>
-                <strong>Scenario: ${scenario.title}</strong>
-                <p class="mb-0 mt-1 small">${scenario.description}</p>
-            `;
-            chatMessages.appendChild(systemDiv);
-            
-            // Start scenario
-            showLoading();
-            
-            setTimeout(() => {
-                hideLoading();
-                
-                let starterMessage = '';
-                
-                switch(chatState.currentScenario) {
-                    case 'patient-assessment':
-                        starterMessage = "Hello... I've called the ambulance because I've got this terrible pain in my chest. It started about two hours ago when I was doing some gardening. I feel a bit sick and sweaty too. I'm quite worried about it.";
-                        break;
-                    case 'differential-diagnosis':
-                        starterMessage = "**Case Presentation:**\n\n72-year-old female, called by care home staff.\n\n**Chief Complaint:** Found on floor, confused\n\n**HPC:** Patient found by staff during routine check. Unsure how long on floor. Normally mobile with frame. Usually alert and oriented. Staff report she seemed 'not quite right' yesterday.\n\n**PMH:** Type 2 diabetes, hypertension, previous TIA (2019), osteoarthritis\n\n**Medications:** Metformin, Amlodipine, Aspirin\n\n**Observations:**\n- RR: 22\n- SpO2: 94% on air\n- HR: 102 irregular\n- BP: 168/94\n- Temp: 37.9°C\n- BM: 14.2\n- GCS: 14 (E4 V4 M6)\n\nWhat are your differential diagnoses?";
-                        break;
-                    case 'drug-calculation':
-                        starterMessage = "**Drug Calculation Question:**\n\nYou need to administer Adrenaline IV for anaphylaxis.\n\nThe patient weighs 70kg.\n\nYour trust protocol requires a 50 microgram bolus (as per JRCalc).\n\nYou have Adrenaline 1:10,000 (1mg in 10ml).\n\n**How many millilitres do you need to draw up for this single bolus dose?**";
-                        break;
-                    case 'ecg-interpretation':
-                        starterMessage = "**ECG Description:**\n\n- Rate: 150 bpm\n- Rhythm: Regular\n- P waves: Not clearly visible, possible flutter waves in inferior leads\n- PR interval: Unable to measure\n- QRS duration: 80ms (narrow)\n- QT interval: Difficult to assess\n- ST segments: 2mm depression in V4-V6 and leads I, aVL\n- T waves: Inverted in lateral leads\n- Other: Sawtooth pattern visible in lead II at 300/min\n\n**What is your interpretation and what would be your management priorities?**";
-                        break;
-                    default:
-                        starterMessage = "Let's begin the scenario. What would you like to explore?";
-                }
-                
-                addMessage('assistant', starterMessage);
-            }, 1000);
-        });
-    </script>
+    <script src="js/app.js"></script>
+    <script src="js/chat.js"></script>
 </body>
 </html>
