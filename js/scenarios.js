@@ -1466,7 +1466,7 @@ ROLEPLAY INSTRUCTIONS:
 
 
 QUESTIONS THE USER MAY ASK
-1. If the user selects an assessment from the predefined list, give them the results of that assessment rather than respomding as if you are the patient
+1. If the user selects an assessment from the predefined list or asks for one, give them the results of that assessment specific to the patient in this scenario. 
 
 
 
