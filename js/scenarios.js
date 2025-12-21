@@ -1473,7 +1473,7 @@ MODE: ROLEPLAY (default)
 
 MODE: DEBRIEF
 Triggered ONLY when the learner message begins with:
-DIAGNOSIS_SUBMISSION:
+"My XYZ is "
 
 In DEBRIEF:
 - Confirm if their diagnosis matches ${p.condition}.
