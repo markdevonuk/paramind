@@ -1,251 +1,8 @@
 /* ============================================
    PARAMIND - Chat Functionality
    Connected to Firebase Backend
+   Scenarios loaded from scenarios.js
    ============================================ */
-
-// ==================== DATA ====================
-
-// Scenario Categories and Items
-const SCENARIO_DATA = {
-    cardiac: {
-        title: "Cardiac Scenarios",
-        description: "Practice cardiac-related patient assessments",
-        items: [
-            { id: "cardiac-chest-pain", title: "Chest Pain - ACS", description: "65-year-old with crushing chest pain" },
-            { id: "cardiac-palpitations", title: "Palpitations", description: "45-year-old with racing heart" },
-            { id: "cardiac-syncope", title: "Cardiac Syncope", description: "70-year-old collapsed at home" },
-            { id: "cardiac-heart-failure", title: "Heart Failure", description: "78-year-old with worsening breathlessness" },
-            { id: "cardiac-af", title: "Atrial Fibrillation", description: "62-year-old with irregular pulse" },
-            { id: "cardiac-bradycardia", title: "Symptomatic Bradycardia", description: "80-year-old dizzy and pale" },
-            { id: "cardiac-stemi", title: "Inferior STEMI", description: "58-year-old with nausea and sweating" },
-            { id: "cardiac-arrest", title: "Cardiac Arrest", description: "Witnessed collapse scenario" }
-        ]
-    },
-    respiratory: {
-        title: "Respiratory Scenarios",
-        description: "Practice respiratory assessments",
-        items: [
-            { id: "resp-asthma", title: "Acute Asthma", description: "28-year-old with severe wheeze" },
-            { id: "resp-copd", title: "COPD Exacerbation", description: "72-year-old struggling to breathe" },
-            { id: "resp-pneumonia", title: "Community Acquired Pneumonia", description: "65-year-old with productive cough" },
-            { id: "resp-pe", title: "Pulmonary Embolism", description: "35-year-old with pleuritic chest pain" },
-            { id: "resp-covid", title: "COVID-19 Pneumonitis", description: "55-year-old with worsening SpO2" },
-            { id: "resp-anaphylaxis", title: "Anaphylaxis", description: "25-year-old with bee sting reaction" }
-        ]
-    },
-    abdominal: {
-        title: "Abdominal Scenarios",
-        description: "Practice abdominal assessments",
-        items: [
-            { id: "abdo-appendicitis", title: "Appendicitis", description: "22-year-old with RIF pain" },
-            { id: "abdo-cholecystitis", title: "Cholecystitis", description: "48-year-old with RUQ pain after eating" },
-            { id: "abdo-aaa", title: "Ruptured AAA", description: "75-year-old with back pain and collapse" },
-            { id: "abdo-bowel-obstruction", title: "Bowel Obstruction", description: "68-year-old with vomiting and distension" },
-            { id: "abdo-gi-bleed", title: "GI Bleed", description: "60-year-old with melaena" },
-            { id: "abdo-renal-colic", title: "Renal Colic", description: "40-year-old with severe loin pain" },
-            { id: "abdo-pancreatitis", title: "Acute Pancreatitis", description: "50-year-old with epigastric pain" }
-        ]
-    },
-    neuro: {
-        title: "Neurological Scenarios",
-        description: "Practice neurological assessments",
-        items: [
-            { id: "neuro-stroke", title: "Acute Stroke", description: "72-year-old with facial droop and arm weakness" },
-            { id: "neuro-seizure", title: "Seizure", description: "35-year-old post-ictal in public" },
-            { id: "neuro-meningitis", title: "Meningitis", description: "20-year-old with headache and neck stiffness" },
-            { id: "neuro-head-injury", title: "Head Injury", description: "45-year-old fallen from ladder" },
-            { id: "neuro-hypoglycaemia", title: "Hypoglycaemia", description: "58-year-old diabetic found confused" }
-        ]
-    },
-    trauma: {
-        title: "Trauma Scenarios",
-        description: "Practice trauma assessments",
-        items: [
-            { id: "trauma-rtc", title: "Road Traffic Collision", description: "Multi-vehicle RTC with entrapment" },
-            { id: "trauma-fall", title: "Fall from Height", description: "Builder fallen from scaffolding" },
-            { id: "trauma-stabbing", title: "Penetrating Trauma", description: "25-year-old stabbed in chest" },
-            { id: "trauma-burns", title: "Major Burns", description: "House fire victim" },
-            { id: "trauma-fracture", title: "Open Fracture", description: "Cyclist with open tibial fracture" },
-            { id: "trauma-spinal", title: "Spinal Injury", description: "Diving accident with neck pain" }
-        ]
-    },
-    paediatric: {
-        title: "Paediatric Scenarios",
-        description: "Practice paediatric assessments",
-        items: [
-            { id: "paed-croup", title: "Croup", description: "2-year-old with barking cough" },
-            { id: "paed-bronchiolitis", title: "Bronchiolitis", description: "6-month-old with breathing difficulty" },
-            { id: "paed-febrile-convulsion", title: "Febrile Convulsion", description: "18-month-old post-seizure" },
-            { id: "paed-sepsis", title: "Paediatric Sepsis", description: "4-year-old with fever and rash" },
-            { id: "paed-nai", title: "Safeguarding Concerns", description: "Child with unexplained injuries" }
-        ]
-    },
-    obstetric: {
-        title: "Obstetric Scenarios",
-        description: "Practice obstetric emergencies",
-        items: [
-            { id: "obs-labour", title: "Imminent Delivery", description: "Full term with urge to push" },
-            { id: "obs-pph", title: "Postpartum Haemorrhage", description: "Heavy bleeding after delivery" },
-            { id: "obs-eclampsia", title: "Eclampsia", description: "38 weeks pregnant with seizure" },
-            { id: "obs-cord-prolapse", title: "Cord Prolapse", description: "Visible cord after waters breaking" }
-        ]
-    },
-    "mental-health": {
-        title: "Mental Health Scenarios",
-        description: "Practice mental health assessments",
-        items: [
-            { id: "mh-self-harm", title: "Self Harm", description: "18-year-old with lacerations" },
-            { id: "mh-suicidal", title: "Suicidal Ideation", description: "45-year-old expressing suicidal thoughts" },
-            { id: "mh-psychosis", title: "Acute Psychosis", description: "30-year-old with paranoid delusions" },
-            { id: "mh-overdose", title: "Intentional Overdose", description: "25-year-old taken paracetamol" }
-        ]
-    }
-};
-
-// Differential Diagnosis Data
-const DIFFERENTIAL_DATA = {
-    "chest-pain": {
-        title: "Chest Pain Differentials",
-        description: "Common causes of chest pain",
-        items: [
-            { id: "acs", title: "Acute Coronary Syndrome", description: "STEMI, NSTEMI, Unstable Angina" },
-            { id: "pe", title: "Pulmonary Embolism", description: "Pleuritic, sudden onset, risk factors" },
-            { id: "pneumothorax", title: "Pneumothorax", description: "Sudden onset, reduced air entry" },
-            { id: "aortic-dissection", title: "Aortic Dissection", description: "Tearing pain, BP differential" },
-            { id: "pericarditis", title: "Pericarditis", description: "Sharp, positional, recent viral illness" },
-            { id: "oesophageal", title: "Oesophageal Spasm/Reflux", description: "Burning, worse after eating" },
-            { id: "msk-chest", title: "Musculoskeletal", description: "Reproducible on palpation" },
-            { id: "anxiety-chest", title: "Anxiety/Panic Attack", description: "Tingling, hyperventilation" },
-            { id: "pneumonia-chest", title: "Pneumonia/Pleurisy", description: "Fever, cough, pleuritic" },
-            { id: "shingles", title: "Herpes Zoster", description: "Dermatomal pain, rash" },
-            { id: "cholecystitis-chest", title: "Biliary Colic", description: "RUQ, referred to shoulder" },
-            { id: "costochondritis", title: "Costochondritis", description: "Tender costochondral joints" }
-        ]
-    },
-    "sob": {
-        title: "Shortness of Breath Differentials",
-        description: "Common causes of dyspnoea",
-        items: [
-            { id: "asthma-diff", title: "Acute Asthma", description: "Wheeze, previous history" },
-            { id: "copd-diff", title: "COPD Exacerbation", description: "Smoker, chronic history" },
-            { id: "heart-failure-diff", title: "Heart Failure", description: "Orthopnoea, peripheral oedema" },
-            { id: "pe-diff", title: "Pulmonary Embolism", description: "Risk factors, pleuritic pain" },
-            { id: "pneumonia-diff", title: "Pneumonia", description: "Fever, productive cough" },
-            { id: "pneumothorax-diff", title: "Pneumothorax", description: "Sudden onset, reduced air entry" },
-            { id: "anaphylaxis-diff", title: "Anaphylaxis", description: "Trigger, swelling, rash" },
-            { id: "anxiety-sob", title: "Anxiety/Panic", description: "No physical cause, tingling" },
-            { id: "metabolic-acidosis", title: "Metabolic Acidosis", description: "DKA, sepsis, overdose" },
-            { id: "anaemia", title: "Severe Anaemia", description: "Gradual onset, pallor" }
-        ]
-    },
-    "abdo-pain": {
-        title: "Abdominal Pain Differentials",
-        description: "Common causes by location",
-        items: [
-            { id: "appendicitis-diff", title: "Appendicitis", description: "RIF pain, migration from umbilicus" },
-            { id: "cholecystitis-diff", title: "Cholecystitis", description: "RUQ, worse after fatty food" },
-            { id: "pancreatitis-diff", title: "Pancreatitis", description: "Epigastric, radiating to back" },
-            { id: "aaa-diff", title: "AAA Rupture", description: "Pulsatile mass, back pain, shock" },
-            { id: "bowel-obstruction-diff", title: "Bowel Obstruction", description: "Vomiting, distension, no flatus" },
-            { id: "renal-colic-diff", title: "Renal Colic", description: "Loin to groin, colicky" },
-            { id: "uti-diff", title: "UTI/Pyelonephritis", description: "Dysuria, frequency, loin pain" },
-            { id: "diverticulitis", title: "Diverticulitis", description: "LIF pain, elderly, fever" },
-            { id: "gi-bleed-diff", title: "GI Bleed", description: "Melaena, haematemesis, shock" },
-            { id: "ectopic", title: "Ectopic Pregnancy", description: "Female, missed period, bleeding" },
-            { id: "ovarian-torsion", title: "Ovarian Torsion/Cyst", description: "Sudden onset, female" },
-            { id: "testicular-torsion", title: "Testicular Torsion", description: "Young male, severe pain" },
-            { id: "hernia", title: "Strangulated Hernia", description: "Irreducible, tender" },
-            { id: "peptic-ulcer", title: "Peptic Ulcer/Perforation", description: "Epigastric, rigid abdomen" },
-            { id: "mesenteric-ischaemia", title: "Mesenteric Ischaemia", description: "AF, pain out of proportion" }
-        ]
-    },
-    "headache": {
-        title: "Headache Differentials",
-        description: "Common causes of headache",
-        items: [
-            { id: "tension-headache", title: "Tension Headache", description: "Band-like, bilateral" },
-            { id: "migraine", title: "Migraine", description: "Unilateral, aura, photophobia" },
-            { id: "sah", title: "Subarachnoid Haemorrhage", description: "Thunderclap, worst ever" },
-            { id: "meningitis-diff", title: "Meningitis", description: "Fever, neck stiffness, photophobia" },
-            { id: "temporal-arteritis", title: "Temporal Arteritis", description: ">50, scalp tenderness, jaw claudication" },
-            { id: "raised-icp", title: "Raised ICP", description: "Worse on waking, vomiting" },
-            { id: "cluster-headache", title: "Cluster Headache", description: "Unilateral, eye watering, restless" },
-            { id: "sinusitis", title: "Sinusitis", description: "Facial pain, worse bending forward" }
-        ]
-    },
-    "altered-loc": {
-        title: "Altered Consciousness Differentials",
-        description: "Causes of reduced GCS",
-        items: [
-            { id: "hypoglycaemia-diff", title: "Hypoglycaemia", description: "Diabetic, sweaty, tremor" },
-            { id: "stroke-diff", title: "Stroke/TIA", description: "Focal neurology, sudden onset" },
-            { id: "head-injury-diff", title: "Head Injury", description: "History of trauma" },
-            { id: "seizure-diff", title: "Post-ictal", description: "Witnessed seizure, confusion" },
-            { id: "overdose-diff", title: "Drug/Alcohol Overdose", description: "Toxidrome, history" },
-            { id: "sepsis-diff", title: "Sepsis", description: "Infection source, fever/hypothermia" },
-            { id: "dka-diff", title: "DKA/HHS", description: "Diabetic, high BM, dehydration" },
-            { id: "hepatic-enceph", title: "Hepatic Encephalopathy", description: "Liver disease, asterixis" },
-            { id: "hyponatraemia", title: "Hyponatraemia", description: "Elderly, diuretics, confusion" },
-            { id: "hypothermia-diff", title: "Hypothermia", description: "Cold, bradycardia, elderly" },
-            { id: "co-poisoning", title: "Carbon Monoxide", description: "Multiple casualties, headache" }
-        ]
-    },
-    "collapse": {
-        title: "Collapse / Syncope Differentials",
-        description: "Causes of transient LOC",
-        items: [
-            { id: "vasovagal", title: "Vasovagal Syncope", description: "Trigger, prodrome, rapid recovery" },
-            { id: "cardiac-syncope-diff", title: "Cardiac Syncope", description: "No warning, exertional, palpitations" },
-            { id: "orthostatic", title: "Orthostatic Hypotension", description: "On standing, medications" },
-            { id: "seizure-collapse", title: "Seizure", description: "Witnessed convulsions, post-ictal" },
-            { id: "hypoglycaemia-collapse", title: "Hypoglycaemia", description: "Diabetic, missed meal" },
-            { id: "pe-collapse", title: "Massive PE", description: "Sudden, SOB, risk factors" },
-            { id: "aortic-stenosis", title: "Aortic Stenosis", description: "Exertional, murmur" },
-            { id: "arrhythmia", title: "Arrhythmia", description: "Palpitations before collapse" },
-            { id: "situational", title: "Situational Syncope", description: "Cough, micturition, defecation" }
-        ]
-    },
-    "back-pain": {
-        title: "Back Pain Differentials",
-        description: "Serious and common causes",
-        items: [
-            { id: "mechanical", title: "Mechanical Back Pain", description: "Movement related, no red flags" },
-            { id: "disc-prolapse", title: "Disc Prolapse", description: "Radicular pain, dermatomal" },
-            { id: "cauda-equina", title: "Cauda Equina Syndrome", description: "Saddle anaesthesia, urinary symptoms" },
-            { id: "aaa-back", title: "AAA Rupture", description: "Elderly, pulsatile mass, shock" },
-            { id: "spinal-cord-comp", title: "Spinal Cord Compression", description: "Cancer history, bilateral leg symptoms" },
-            { id: "vertebral-fracture", title: "Vertebral Fracture", description: "Trauma, osteoporosis, point tender" },
-            { id: "infection-spine", title: "Spinal Infection/Abscess", description: "Fever, IVDU, recent procedure" }
-        ]
-    },
-    "leg-pain": {
-        title: "Leg Pain/Swelling Differentials",
-        description: "Vascular and other causes",
-        items: [
-            { id: "dvt", title: "Deep Vein Thrombosis", description: "Unilateral swelling, Wells score" },
-            { id: "cellulitis", title: "Cellulitis", description: "Erythema, warmth, spreading" },
-            { id: "peripheral-arterial", title: "Acute Limb Ischaemia", description: "6 Ps, pulseless, cold" },
-            { id: "compartment", title: "Compartment Syndrome", description: "Trauma, tense, severe pain" },
-            { id: "ruptured-bakers", title: "Ruptured Baker's Cyst", description: "Calf swelling, known cyst" },
-            { id: "msk-leg", title: "Musculoskeletal Strain", description: "Activity related, localised" }
-        ]
-    }
-};
-
-// Scenario starter messages
-const SCENARIO_STARTERS = {
-    "cardiac-chest-pain": "Hello... I've called the ambulance because I've got this terrible pain in my chest. It started about 45 minutes ago. I was just sitting watching telly and it came on suddenly. It's really quite bad... I feel a bit sick too.",
-    "cardiac-stemi": "I don't know what's wrong with me... I've been feeling awful for the past hour. My stomach hurts and I feel really sick. I keep sweating but I don't have a temperature. My husband made me call because he says I look grey.",
-    "resp-asthma": "*wheeze* I can't... catch my breath... *wheeze* My inhaler isn't helping...",
-    "neuro-stroke": "*slurred speech* I... my arm... it won't work properly. My wife says my face looks funny. What's happening to me?",
-    "abdo-appendicitis": "The pain started around my belly button last night but now it's moved down here to my right side. It really hurts when I move. I've been sick twice.",
-    "resp-anaphylaxis": "*distressed* I can't breathe properly... my throat feels tight... I just ate some prawns at a restaurant... *scratching* I'm so itchy everywhere...",
-    "neuro-seizure": "*confused, slightly agitated* Where am I? What happened? My head hurts... I feel really tired and my tongue is sore...",
-    "trauma-rtc": "*groaning* My neck hurts... I can't move my legs properly... the car came out of nowhere...",
-    "paed-croup": "*parent speaking* She's making this horrible barking noise when she coughs and she's really struggling to breathe. It started in the night. She's only 2.",
-    "cardiac-af": "My heart keeps going really fast and then slowing down... it feels like it's fluttering in my chest. I feel a bit dizzy and short of breath.",
-    "abdo-aaa": "*pale, sweating* I've got this terrible pain in my back and stomach... it came on suddenly about an hour ago. I feel really unwell... *clutching abdomen*"
-};
 
 // ==================== STATE ====================
 
@@ -267,7 +24,6 @@ const elements = {
     // Views
     chatView: document.getElementById('chatView'),
     scenariosView: document.getElementById('scenariosView'),
-    differentialsView: document.getElementById('differentialsView'),
     patientView: document.getElementById('patientView'),
     
     // Chat elements
@@ -292,23 +48,19 @@ const elements = {
     scenarioCategories: document.getElementById('scenarioCategories'),
     scenarioSubcategory: document.getElementById('scenarioSubcategory'),
     scenarioList: document.getElementById('scenarioList'),
+    categoryGrid: document.getElementById('categoryGrid'),
     backToScenarioCategories: document.getElementById('backToScenarioCategories'),
     subcategoryTitle: document.getElementById('subcategoryTitle'),
     subcategoryDescription: document.getElementById('subcategoryDescription'),
     
-    // Differential elements
-    diffCategories: document.getElementById('diffCategories'),
-    diffSubcategory: document.getElementById('diffSubcategory'),
-    diffList: document.getElementById('diffList'),
-    backToDiffCategories: document.getElementById('backToDiffCategories'),
-    diffSubcategoryTitle: document.getElementById('diffSubcategoryTitle'),
-    diffSubcategoryDescription: document.getElementById('diffSubcategoryDescription'),
-    
     // Modal
     scenarioModal: document.getElementById('scenarioModal'),
-    scenarioModalTitle: document.getElementById('scenarioModalTitle'),
-    scenarioModalDescription: document.getElementById('scenarioModalDescription'),
     startScenarioBtn: document.getElementById('startScenarioBtn'),
+    modalPatient: document.getElementById('modalPatient'),
+    modalCategory: document.getElementById('modalCategory'),
+    modalComplaint: document.getElementById('modalComplaint'),
+    modalDetails: document.getElementById('modalDetails'),
+    mdtAlertBanner: document.getElementById('mdtAlertBanner'),
     
     // Patient form
     patientForm: document.getElementById('patientForm'),
@@ -323,12 +75,10 @@ const elements = {
 
 // ==================== FIREBASE AUTH ====================
 
-// Import Firebase modules (these are loaded from CDN in chat.html)
 let auth = null;
 let currentUser = null;
 
 async function initializeAuth() {
-    // Wait for Firebase to be ready
     const { getAuth, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
     const { firebaseConfig } = await import('./firebase-config.js');
@@ -342,16 +92,13 @@ async function initializeAuth() {
                 currentUser = user;
                 chatState.authToken = await user.getIdToken();
                 
-                // Update UI with user info
                 if (elements.userEmail) {
                     elements.userEmail.textContent = user.email;
                 }
                 
-                // Fetch user profile from API
                 await fetchUserProfile();
                 resolve(true);
             } else {
-                // Not logged in, redirect to login
                 window.location.href = 'login.html';
                 resolve(false);
             }
@@ -386,19 +133,16 @@ async function fetchUserProfile() {
         
         const data = await response.json();
         
-        // Update state
         chatState.userTrust = data.trust;
         chatState.isPro = data.isPro;
         chatState.messagesRemaining = data.messagesRemaining;
         
-        // Update UI
         if (elements.userTrust) {
             elements.userTrust.textContent = data.trust;
         }
         
         updateMessageCounter();
         
-        // Hide limit banner for pro users
         if (chatState.isPro && elements.messageLimitBanner) {
             elements.messageLimitBanner.style.display = 'none';
         }
@@ -406,7 +150,6 @@ async function fetchUserProfile() {
         return data;
     } catch (error) {
         console.error('Error fetching user profile:', error);
-        // Fall back to cached data
         const cached = window.paramind.storage.getUser();
         if (cached) {
             chatState.userTrust = cached.trust || 'SWAST';
@@ -426,7 +169,8 @@ async function sendMessageToAPI(message) {
         },
         body: JSON.stringify({
             message: message,
-            conversationHistory: chatState.conversationHistory.slice(-10)
+            conversationHistory: chatState.conversationHistory.slice(-10),
+            scenarioId: chatState.currentScenario || null
         })
     });
     
@@ -434,13 +178,11 @@ async function sendMessageToAPI(message) {
     
     if (!response.ok) {
         if (response.status === 429) {
-            // Rate limited
             throw new Error('LIMIT_REACHED');
         }
         throw new Error(data.error || 'Failed to send message');
     }
     
-    // Update remaining messages
     if (data.remaining !== undefined && data.remaining >= 0) {
         chatState.messagesRemaining = data.remaining;
         updateMessageCounter();
@@ -467,7 +209,6 @@ async function createCheckoutSession() {
             throw new Error(data.error || 'Failed to create checkout session');
         }
         
-        // Redirect to Stripe Checkout
         window.location.href = data.url;
     } catch (error) {
         console.error('Checkout error:', error);
@@ -478,9 +219,11 @@ async function createCheckoutSession() {
 // ==================== INITIALIZATION ====================
 
 async function initChat() {
-    // Initialize Firebase Auth
     const isAuthenticated = await initializeAuth();
     if (!isAuthenticated) return;
+    
+    // Build the category grid from scenarios.js data
+    buildCategoryGrid();
     
     setupEventListeners();
     
@@ -488,9 +231,36 @@ async function initChat() {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('success') === 'true') {
         showPaymentSuccess();
-        // Clean URL
         window.history.replaceState({}, document.title, 'chat.html');
     }
+}
+
+function buildCategoryGrid() {
+    if (!elements.categoryGrid || !window.scenarioData) return;
+    
+    const categories = window.scenarioData.SCENARIO_CATEGORIES;
+    const counts = window.scenarioData.getScenarioCountByCategory();
+    
+    let html = '';
+    for (const [key, cat] of Object.entries(categories)) {
+        html += `
+            <div class="category-card" data-category="${key}">
+                <div class="icon"><i class="bi ${cat.icon}"></i></div>
+                <h3>${cat.title}</h3>
+                <span class="count">${counts[key]} scenarios</span>
+            </div>
+        `;
+    }
+    
+    elements.categoryGrid.innerHTML = html;
+    
+    // Add click listeners
+    elements.categoryGrid.querySelectorAll('.category-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const category = card.dataset.category;
+            showScenarioSubcategory(category);
+        });
+    });
 }
 
 function showPaymentSuccess() {
@@ -506,8 +276,6 @@ function showPaymentSuccess() {
         </div>
     `;
     elements.chatMessages.insertBefore(successDiv, elements.chatMessages.firstChild);
-    
-    // Refresh user profile
     fetchUserProfile();
 }
 
@@ -534,7 +302,6 @@ function setupEventListeners() {
             this.style.height = Math.min(this.scrollHeight, 120) + 'px';
         });
         
-        // Submit on Enter (Shift+Enter for new line)
         elements.messageInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -543,35 +310,11 @@ function setupEventListeners() {
         });
     }
     
-    // Scenario category cards
-    document.querySelectorAll('[data-category]').forEach(card => {
-        card.addEventListener('click', () => {
-            const category = card.dataset.category;
-            showScenarioSubcategory(category);
-        });
-    });
-    
     // Back button for scenarios
     if (elements.backToScenarioCategories) {
         elements.backToScenarioCategories.addEventListener('click', (e) => {
             e.preventDefault();
             hideScenarioSubcategory();
-        });
-    }
-    
-    // Differential category cards
-    document.querySelectorAll('[data-diff-category]').forEach(card => {
-        card.addEventListener('click', () => {
-            const category = card.dataset.diffCategory;
-            showDiffSubcategory(category);
-        });
-    });
-    
-    // Back button for differentials
-    if (elements.backToDiffCategories) {
-        elements.backToDiffCategories.addEventListener('click', (e) => {
-            e.preventDefault();
-            hideDiffSubcategory();
         });
     }
     
@@ -609,17 +352,14 @@ function setupEventListeners() {
 // ==================== VIEW NAVIGATION ====================
 
 function switchView(viewId) {
-    // Update navigation active state
     elements.navItems.forEach(item => {
         item.classList.toggle('active', item.dataset.view === viewId);
     });
     
-    // Hide all views
     document.querySelectorAll('.content-view').forEach(view => {
         view.classList.remove('active');
     });
     
-    // Show selected view
     const targetView = document.getElementById(viewId);
     if (targetView) {
         targetView.classList.add('active');
@@ -627,37 +367,56 @@ function switchView(viewId) {
     
     chatState.currentView = viewId;
     
-    // Reset subcategory views when switching
     if (viewId === 'scenariosView') {
         hideScenarioSubcategory();
-    } else if (viewId === 'differentialsView') {
-        hideDiffSubcategory();
     }
 }
 
 // ==================== SCENARIO NAVIGATION ====================
 
-function showScenarioSubcategory(category) {
-    const data = SCENARIO_DATA[category];
-    if (!data) return;
+function showScenarioSubcategory(categoryId) {
+    const category = window.scenarioData.SCENARIO_CATEGORIES[categoryId];
+    const scenarios = window.scenarioData.getScenariosByCategory(categoryId);
     
-    elements.subcategoryTitle.textContent = data.title;
-    elements.subcategoryDescription.textContent = data.description;
+    if (!category || !scenarios.length) return;
     
-    elements.scenarioList.innerHTML = data.items.map(item => `
-        <div class="subcategory-item" data-scenario-id="${item.id}">
-            <div class="info">
-                <h4>${item.title}</h4>
-                <p>${item.description}</p>
+    elements.subcategoryTitle.textContent = category.title + ' Scenarios';
+    elements.subcategoryDescription.textContent = 'Respond to incoming calls';
+    
+    // Build MDT-style cards
+    elements.scenarioList.innerHTML = scenarios.map((scenario, index) => {
+        const d = scenario.dispatch;
+        const genderDisplay = d.gender === 'M' ? 'Male' : d.gender === 'F' ? 'Female' : '';
+        const ageDisplay = d.age ? `${d.age}y` : '';
+        const patientDisplay = d.name ? `${d.name} (${ageDisplay} ${genderDisplay})` : 'Multiple Patients';
+        const incidentNum = `INC-${Date.now().toString().slice(-6)}-${(index + 1).toString().padStart(2, '0')}`;
+        
+        const catClass = d.category === 1 ? 'cat-1' : d.category === 2 ? 'cat-2' : 'cat-3';
+        
+        return `
+            <div class="mdt-card" data-scenario-id="${scenario.id}">
+                <div class="mdt-header">
+                    <span class="mdt-incident">${incidentNum}</span>
+                    <span class="mdt-category ${catClass}">CAT ${d.category}</span>
+                </div>
+                <div class="mdt-body">
+                    <div class="mdt-patient">${patientDisplay}</div>
+                    <div class="mdt-complaint">${d.chiefComplaint}</div>
+                    <div class="mdt-details">${d.details}</div>
+                </div>
+                <div class="mdt-footer">
+                    <span class="mdt-status">AWAITING RESPONSE</span>
+                    <span class="mdt-respond"><i class="bi bi-chevron-right"></i></span>
+                </div>
             </div>
-            <i class="bi bi-chevron-right arrow"></i>
-        </div>
-    `).join('');
+        `;
+    }).join('');
     
-    elements.scenarioList.querySelectorAll('.subcategory-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const scenarioId = item.dataset.scenarioId;
-            openScenarioModal(scenarioId, item.querySelector('h4').textContent, item.querySelector('p').textContent);
+    // Add click listeners to MDT cards
+    elements.scenarioList.querySelectorAll('.mdt-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const scenarioId = card.dataset.scenarioId;
+            openScenarioModal(scenarioId);
         });
     });
     
@@ -670,180 +429,140 @@ function hideScenarioSubcategory() {
     elements.scenarioSubcategory.style.display = 'none';
 }
 
-function openScenarioModal(scenarioId, title, description) {
+function openScenarioModal(scenarioId) {
+    const scenario = window.scenarioData.getScenarioById(scenarioId);
+    if (!scenario) return;
+    
     chatState.currentScenario = scenarioId;
     
-    elements.scenarioModalTitle.textContent = title;
-    elements.scenarioModalDescription.textContent = description + " This interactive scenario will test your assessment skills.";
+    const d = scenario.dispatch;
+    const genderDisplay = d.gender === 'M' ? 'Male' : d.gender === 'F' ? 'Female' : '';
+    const ageDisplay = d.age ? `${d.age}y` : '';
+    const patientDisplay = d.name ? `${d.name} (${ageDisplay} ${genderDisplay})` : 'Multiple Patients';
+    
+    elements.modalPatient.textContent = patientDisplay;
+    elements.modalCategory.innerHTML = `<span class="mdt-category ${d.category === 1 ? 'cat-1' : d.category === 2 ? 'cat-2' : 'cat-3'}">CATEGORY ${d.category}</span>`;
+    elements.modalComplaint.textContent = d.chiefComplaint;
+    elements.modalDetails.textContent = d.details;
+    
+    // Reset and show alert banner animation
+    if (elements.mdtAlertBanner) {
+        elements.mdtAlertBanner.style.animation = 'none';
+        elements.mdtAlertBanner.offsetHeight; // Trigger reflow
+        elements.mdtAlertBanner.style.animation = 'flash 0.5s ease-in-out 3';
+    }
     
     const modal = new bootstrap.Modal(elements.scenarioModal);
     modal.show();
 }
 
 function startScenario() {
-    console.log("=== startScenario CALLED ===");
-    console.log("chatState.currentScenario:", chatState.currentScenario);
+    if (!chatState.currentScenario) return;
     
-    if (!chatState.currentScenario) {
-        console.log("No scenario set, returning early");
-        return;
-    }
+    const scenario = window.scenarioData.getScenarioById(chatState.currentScenario);
+    if (!scenario) return;
     
     const modal = bootstrap.Modal.getInstance(elements.scenarioModal);
     modal.hide();
     
-switchView('chatView');
+    switchView('chatView');
     
-    // Save scenario ID before clearChat() resets it
     const scenarioId = chatState.currentScenario;
-    
     clearChat();
-    
-    // Restore the scenario ID
     chatState.currentScenario = scenarioId;
     
     if (elements.welcomeMessage) {
         elements.welcomeMessage.style.display = 'none';
     }
     
-    const scenarioTitle = elements.scenarioModalTitle.textContent;
+    // Create scenario banner
+    const d = scenario.dispatch;
+    const genderDisplay = d.gender === 'M' ? 'Male' : d.gender === 'F' ? 'Female' : '';
+    const ageDisplay = d.age ? `${d.age}y` : '';
+    const patientDisplay = d.name ? `${d.name} (${ageDisplay} ${genderDisplay})` : 'Multiple Patients';
+    
     const bannerDiv = document.createElement('div');
     bannerDiv.className = 'alert alert-info mx-2 my-2';
+    bannerDiv.style.background = 'linear-gradient(145deg, #1a1a2e 0%, #16213e 100%)';
+    bannerDiv.style.border = '1px solid #0f3460';
+    bannerDiv.style.color = '#ffffff';
+    bannerDiv.style.fontFamily = "'JetBrains Mono', monospace";
     bannerDiv.innerHTML = `
-        <div class="d-flex align-items-center">
-            <i class="bi bi-mortarboard me-2"></i>
+        <div class="d-flex align-items-center justify-content-between">
             <div>
-                <strong>Scenario: ${scenarioTitle}</strong>
-                <div class="small">Assess the patient and provide your working diagnosis</div>
+                <strong style="color: #00d9ff;">📟 ACTIVE INCIDENT</strong>
+                <div class="small" style="color: #e94560;">${patientDisplay} - ${d.chiefComplaint}</div>
             </div>
+            <span class="mdt-category ${d.category === 1 ? 'cat-1' : d.category === 2 ? 'cat-2' : 'cat-3'}" style="font-size: 0.7rem;">CAT ${d.category}</span>
         </div>
+        <div class="small mt-2" style="color: #8892b0;">Assess the patient and provide your working diagnosis</div>
     `;
     elements.chatMessages.appendChild(bannerDiv);
     
-    // Debug what we're looking for
-    console.log("Looking for scenario:", chatState.currentScenario);
-    console.log("Available scenarios:", Object.keys(window.scenarioPrompts.SCENARIO_PATIENT_DATA));
-    console.log("Match found:", window.scenarioPrompts.SCENARIO_PATIENT_DATA[chatState.currentScenario]);
-    
-    // Get starter message from scenario-prompts.js
-    const starterMessage = window.scenarioPrompts.getScenarioStarterMessage(chatState.currentScenario);
-    console.log("Starter message returned:", starterMessage);
-    
+    // Get and display starter message
+    const starterMessage = scenario.starterMessage;
     addMessage('assistant', starterMessage);
     
-    // Add to conversation history for context
     chatState.conversationHistory.push({
         role: 'assistant',
         content: starterMessage
     });
-}
     
-
+    // Add system prompt context (this will be used by the API)
+    chatState.conversationHistory.push({
+        role: 'system',
+        content: window.scenarioData.getScenarioSystemPrompt(scenarioId)
+    });
+}
 
 function startRandomScenario() {
-    const categories = Object.keys(SCENARIO_DATA);
-    const randomCategory = categories[Math.floor(Math.random() * categories.length)];
-    const categoryItems = SCENARIO_DATA[randomCategory].items;
-    const randomScenario = categoryItems[Math.floor(Math.random() * categoryItems.length)];
+    const scenario = window.scenarioData.getRandomScenario();
+    if (!scenario) return;
     
-    chatState.currentScenario = randomScenario.id;
+    chatState.currentScenario = scenario.id;
     
     clearChat();
+    chatState.currentScenario = scenario.id;
     
     if (elements.welcomeMessage) {
         elements.welcomeMessage.style.display = 'none';
     }
+    
+    const d = scenario.dispatch;
+    const genderDisplay = d.gender === 'M' ? 'Male' : d.gender === 'F' ? 'Female' : '';
+    const ageDisplay = d.age ? `${d.age}y` : '';
+    const patientDisplay = d.name ? `${d.name} (${ageDisplay} ${genderDisplay})` : 'Multiple Patients';
     
     const bannerDiv = document.createElement('div');
     bannerDiv.className = 'alert alert-info mx-2 my-2';
+    bannerDiv.style.background = 'linear-gradient(145deg, #1a1a2e 0%, #16213e 100%)';
+    bannerDiv.style.border = '1px solid #0f3460';
+    bannerDiv.style.color = '#ffffff';
+    bannerDiv.style.fontFamily = "'JetBrains Mono', monospace";
     bannerDiv.innerHTML = `
-        <div class="d-flex align-items-center">
-            <i class="bi bi-mortarboard me-2"></i>
+        <div class="d-flex align-items-center justify-content-between">
             <div>
-                <strong>Scenario: ${randomScenario.title}</strong>
-                <div class="small">${randomScenario.description}</div>
+                <strong style="color: #00d9ff;">📟 RANDOM INCIDENT</strong>
+                <div class="small" style="color: #e94560;">${patientDisplay} - ${d.chiefComplaint}</div>
             </div>
+            <span class="mdt-category ${d.category === 1 ? 'cat-1' : d.category === 2 ? 'cat-2' : 'cat-3'}" style="font-size: 0.7rem;">CAT ${d.category}</span>
         </div>
+        <div class="small mt-2" style="color: #8892b0;">Assess the patient and provide your working diagnosis</div>
     `;
     elements.chatMessages.appendChild(bannerDiv);
     
-    
-    // Get starter message from scenario-prompts.js
-console.log("Current scenario ID:", chatState.currentScenario);
-console.log("scenarioPrompts object:", window.scenarioPrompts);
-console.log("SCENARIO_PATIENT_DATA:", window.scenarioPrompts?.SCENARIO_PATIENT_DATA);
-console.log("This scenario data:", window.scenarioPrompts?.SCENARIO_PATIENT_DATA?.[chatState.currentScenario]);
-
-const starterMessage = window.scenarioPrompts.getScenarioStarterMessage(chatState.currentScenario);
-console.log("Starter message:", starterMessage);
-    
-    
-     addMessage('assistant', starterMessage);
+    const starterMessage = scenario.starterMessage;
+    addMessage('assistant', starterMessage);
     
     chatState.conversationHistory.push({
         role: 'assistant',
         content: starterMessage
     });
-}
-
-// ==================== DIFFERENTIAL NAVIGATION ====================
-
-function showDiffSubcategory(category) {
-    const data = DIFFERENTIAL_DATA[category];
-    if (!data) return;
     
-    elements.diffSubcategoryTitle.textContent = data.title;
-    elements.diffSubcategoryDescription.textContent = data.description;
-    
-    elements.diffList.innerHTML = data.items.map(item => `
-        <div class="subcategory-item" data-diff-id="${item.id}">
-            <div class="info">
-                <h4>${item.title}</h4>
-                <p>${item.description}</p>
-            </div>
-            <i class="bi bi-chevron-right arrow"></i>
-        </div>
-    `).join('');
-    
-    elements.diffList.querySelectorAll('.subcategory-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const title = item.querySelector('h4').textContent;
-            askAboutCondition(title);
-        });
+    chatState.conversationHistory.push({
+        role: 'system',
+        content: window.scenarioData.getScenarioSystemPrompt(scenario.id)
     });
-    
-    elements.diffCategories.style.display = 'none';
-    elements.diffSubcategory.style.display = 'block';
-}
-
-function hideDiffSubcategory() {
-    elements.diffCategories.style.display = 'block';
-    elements.diffSubcategory.style.display = 'none';
-}
-
-async function askAboutCondition(conditionName) {
-    switchView('chatView');
-    
-    if (elements.welcomeMessage) {
-        elements.welcomeMessage.style.display = 'none';
-    }
-    
-    const prompt = `Tell me about ${conditionName} for a paramedic: key features, red flags, and pre-hospital management.`;
-    
-    addMessage('user', prompt);
-    chatState.conversationHistory.push({ role: 'user', content: prompt });
-    
-    showLoading();
-    
-    try {
-        const response = await sendMessageToAPI(prompt);
-        hideLoading();
-        addMessage('assistant', response);
-        chatState.conversationHistory.push({ role: 'assistant', content: response });
-    } catch (error) {
-        hideLoading();
-        handleChatError(error);
-    }
 }
 
 // ==================== YOUR PATIENT FORM ====================
@@ -952,7 +671,6 @@ async function handleSendMessage(e) {
     const message = elements.messageInput.value.trim();
     if (!message || chatState.isLoading) return;
     
-    // Check message limit for free users
     if (!chatState.isPro && chatState.messagesRemaining <= 0) {
         showLimitReached();
         return;
@@ -1097,7 +815,7 @@ function scrollToBottom() {
     elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
 }
 
-// Make createCheckoutSession available globally for the button onclick
+// Make createCheckoutSession available globally
 window.createCheckoutSession = createCheckoutSession;
 
 // ==================== INITIALIZE ====================
