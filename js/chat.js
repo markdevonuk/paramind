@@ -18,6 +18,71 @@ const chatState = {
     authToken: null
 };
 
+// ==================== ASSESSMENT PROMPTS ====================
+
+const ASSESSMENT_PROMPTS = {
+    obs: {
+        name: "Observations",
+        prompt: "I'm taking a full set of observations. Please provide the vital signs: heart rate, blood pressure, respiratory rate, SpO2, temperature, GCS, blood glucose, and pain score."
+    },
+    ecg: {
+        name: "ECG",
+        prompt: "I'm performing a 12-lead ECG. What does it show? Describe the rate, rhythm, axis, intervals, and any abnormalities."
+    },
+    chest: {
+        name: "Chest Examination",
+        prompt: "I'm examining the chest. What do I find on inspection, palpation, percussion, and auscultation? Include breath sounds, chest expansion, and any abnormalities."
+    },
+    abdo: {
+        name: "Abdominal Assessment",
+        prompt: "I'm examining the abdomen. What do I find on inspection, auscultation, and palpation? Include any tenderness, guarding, masses, or organomegaly."
+    },
+    neuro: {
+        name: "Neurological Exam",
+        prompt: "I'm performing a neurological examination. Please provide GCS breakdown, pupil response, limb power and sensation, and any focal neurological findings."
+    },
+    skin: {
+        name: "Skin Assessment",
+        prompt: "I'm assessing the skin. What do I observe regarding colour, temperature, moisture, turgor, and any rashes, wounds or abnormalities?"
+    },
+    fast: {
+        name: "FAST Assessment",
+        prompt: "I'm performing a FAST stroke assessment. What are the findings for Facial drooping, Arm weakness, Speech abnormalities, and what is the Time of onset?"
+    },
+    mend: {
+        name: "MEND Assessment",
+        prompt: "I'm performing a MEND assessment. What are the findings for Mental status, Eyes, Neglect, and Deficits in speech/motor function?"
+    },
+    pain: {
+        name: "Pain Assessment",
+        prompt: "I'm taking a full pain history using SOCRATES. Please describe: Site, Onset, Character, Radiation, Associated symptoms, Timing, Exacerbating/relieving factors, and Severity."
+    },
+    wound: {
+        name: "Wound Assessment",
+        prompt: "I'm assessing the wound(s). Please describe location, size, depth, edges, bleeding status, contamination, and any underlying structures involved."
+    },
+    mobility: {
+        name: "Mobility Assessment",
+        prompt: "I'm assessing the patient's mobility. Can they walk? Stand? Sit up? Move all limbs? What is their normal baseline mobility?"
+    },
+    history: {
+        name: "Full History",
+        prompt: "I'm taking a full SAMPLE history. Please provide: Signs/symptoms, Allergies, Medications, Past medical history, Last oral intake, and Events leading up to this."
+    },
+    meds: {
+        name: "Medications",
+        prompt: "What medications is the patient taking? Include dose and frequency if known, and any recent changes to medications."
+    },
+    social: {
+        name: "Social History",
+        prompt: "Tell me about the patient's social situation. Where do they live? Do they live alone? Any carers? How do they normally manage day-to-day? Any stairs at home?"
+    },
+    scene: {
+        name: "Scene Assessment",
+        prompt: "I'm looking around the scene. What can I observe in the environment? Any medications visible? Hazards? Clues about what happened?"
+    }
+};
+
 // ==================== DOM ELEMENTS ====================
 
 const elements = {
@@ -61,6 +126,9 @@ const elements = {
     modalComplaint: document.getElementById('modalComplaint'),
     modalDetails: document.getElementById('modalDetails'),
     mdtAlertBanner: document.getElementById('mdtAlertBanner'),
+    
+    // Assessment toolbar
+    assessmentToolbar: document.getElementById('assessmentToolbar'),
     
     // Patient form
     patientForm: document.getElementById('patientForm'),
@@ -347,6 +415,15 @@ function setupEventListeners() {
             createCheckoutSession();
         });
     }
+    
+    // Assessment dropdown items
+    document.querySelectorAll('[data-assessment]').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const assessmentType = item.dataset.assessment;
+            handleAssessment(assessmentType);
+        });
+    });
 }
 
 // ==================== VIEW NAVIGATION ====================
@@ -513,6 +590,9 @@ function startScenario() {
         role: 'system',
         content: window.scenarioData.getScenarioSystemPrompt(scenarioId)
     });
+    
+    // Show assessment toolbar for scenarios
+    showAssessmentToolbar();
 }
 
 function startRandomScenario() {
@@ -563,6 +643,59 @@ function startRandomScenario() {
         role: 'system',
         content: window.scenarioData.getScenarioSystemPrompt(scenario.id)
     });
+    
+    // Show assessment toolbar for scenarios
+    showAssessmentToolbar();
+}
+
+// ==================== ASSESSMENT FUNCTIONS ====================
+
+function showAssessmentToolbar() {
+    if (elements.assessmentToolbar) {
+        elements.assessmentToolbar.style.display = 'block';
+    }
+}
+
+function hideAssessmentToolbar() {
+    if (elements.assessmentToolbar) {
+        elements.assessmentToolbar.style.display = 'none';
+    }
+}
+
+async function handleAssessment(assessmentType) {
+    const assessment = ASSESSMENT_PROMPTS[assessmentType];
+    if (!assessment || !chatState.currentScenario) return;
+    
+    if (chatState.isLoading) return;
+    
+    // Check message limit for free users
+    if (!chatState.isPro && chatState.messagesRemaining <= 0) {
+        showLimitReached();
+        return;
+    }
+    
+    // Add to conversation history (but don't display as user message)
+    chatState.conversationHistory.push({ role: 'user', content: assessment.prompt });
+    
+    showLoading();
+    
+    try {
+        const response = await sendMessageToAPI(assessment.prompt);
+        hideLoading();
+        
+        // Show a subtle indicator of what was requested
+        const assessmentIndicator = document.createElement('div');
+        assessmentIndicator.className = 'assessment-indicator';
+        assessmentIndicator.innerHTML = `<small><i class="bi bi-clipboard2-pulse me-1"></i>${assessment.name}</small>`;
+        assessmentIndicator.style.cssText = 'color: #17a2b8; font-size: 0.75rem; margin: 4px 0 0 50px; font-style: italic;';
+        elements.chatMessages.appendChild(assessmentIndicator);
+        
+        addMessage('assistant', response);
+        chatState.conversationHistory.push({ role: 'assistant', content: response });
+    } catch (error) {
+        hideLoading();
+        handleChatError(error);
+    }
 }
 
 // ==================== YOUR PATIENT FORM ====================
@@ -807,8 +940,11 @@ function clearChat() {
     chatState.conversationHistory = [];
     chatState.currentScenario = null;
     
-    const messages = elements.chatMessages.querySelectorAll('.message, .alert');
+    const messages = elements.chatMessages.querySelectorAll('.message, .alert, .assessment-indicator');
     messages.forEach(msg => msg.remove());
+    
+    // Hide assessment toolbar when clearing chat
+    hideAssessmentToolbar();
 }
 
 function scrollToBottom() {
