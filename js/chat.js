@@ -23,63 +23,63 @@ const chatState = {
 const ASSESSMENT_PROMPTS = {
     obs: {
         name: "Observations",
-        prompt: "I'm taking a full set of observations. Please provide the vital signs: heart rate, blood pressure, respiratory rate, SpO2, temperature, GCS, blood glucose, and pain score."
+        prompt: "The paramedic is now taking a full set of vital signs observations on this patient. Based on the patient's condition, provide the following in a clear format: Heart Rate, Blood Pressure, Respiratory Rate, SpO2, Temperature, GCS (with breakdown E/V/M), Blood Glucose, and Pain Score out of 10. Present these as realistic findings that match the patient's underlying condition. Respond as the findings the paramedic would see/measure, not as dialogue."
     },
     ecg: {
         name: "ECG",
-        prompt: "I'm performing a 12-lead ECG. What does it show? Describe the rate, rhythm, axis, intervals, and any abnormalities."
+        prompt: "The paramedic is performing a 12-lead ECG on this patient. Based on the patient's underlying condition, describe what the ECG shows including: rate, rhythm (regular/irregular), P waves, PR interval, QRS width, ST segments (elevation/depression in which leads), T waves, QTc, and overall interpretation. Present this as what the paramedic would see on the monitor/printout."
     },
     chest: {
         name: "Chest Examination",
-        prompt: "I'm examining the chest. What do I find on inspection, palpation, percussion, and auscultation? Include breath sounds, chest expansion, and any abnormalities."
+        prompt: "The paramedic is performing a systematic chest examination on this patient. Based on the patient's condition, describe findings for: INSPECTION (respiratory effort, chest wall movement, symmetry, accessory muscle use, scars, deformity), PALPATION (trachea position, chest expansion, tenderness, crepitus), PERCUSSION (resonance/dullness and where), AUSCULTATION (breath sounds in all zones - are they normal vesicular, reduced, absent? Any added sounds like wheeze, crackles, stridor?). Present as clinical findings, not dialogue."
     },
     abdo: {
         name: "Abdominal Assessment",
-        prompt: "I'm examining the abdomen. What do I find on inspection, auscultation, and palpation? Include any tenderness, guarding, masses, or organomegaly."
+        prompt: "The paramedic is performing an abdominal examination on this patient. Based on the patient's condition, describe findings for: INSPECTION (distension, scars, bruising, pulsation), AUSCULTATION (bowel sounds - present/absent/hyperactive), PALPATION (soft/rigid, tenderness location, guarding, rebound, masses, organomegaly, pulsatile mass). Include relevant special signs if applicable (Murphy's, Rovsing's, etc). Present as clinical findings the paramedic would observe."
     },
     neuro: {
         name: "Neurological Exam",
-        prompt: "I'm performing a neurological examination. Please provide GCS breakdown, pupil response, limb power and sensation, and any focal neurological findings."
+        prompt: "The paramedic is performing a neurological examination on this patient. Based on the patient's condition, provide: GCS breakdown (Eye/Verbal/Motor with specific responses), pupil size and reactivity (PERRLA or abnormality), limb power (grade 0-5 for each limb), sensation, tone, coordination if testable, and any focal neurological deficits. Present as clinical findings, not patient dialogue."
     },
     skin: {
         name: "Skin Assessment",
-        prompt: "I'm assessing the skin. What do I observe regarding colour, temperature, moisture, turgor, and any rashes, wounds or abnormalities?"
+        prompt: "The paramedic is assessing the patient's skin. Based on the patient's condition, describe: colour (pink, pale, flushed, cyanosed, mottled, jaundiced), temperature (warm, cool, cold), moisture (dry, clammy, diaphoretic), capillary refill time, turgor, and any visible rashes, wounds, track marks, or skin abnormalities. Present as what the paramedic observes."
     },
     fast: {
         name: "FAST Assessment",
-        prompt: "I'm performing a FAST stroke assessment. What are the findings for Facial drooping, Arm weakness, Speech abnormalities, and what is the Time of onset?"
+        prompt: "The paramedic is performing a FAST stroke assessment on this patient. Respond in character as the patient attempting each test. For FACE: describe what happens when asked to smile (symmetrical or drooping, which side?). For ARMS: describe what happens when asked to hold both arms out with eyes closed for 10 seconds (drift? which side?). For SPEECH: describe what happens when asked to repeat 'you can't teach an old dog new tricks' (normal, slurred, garbled, unable?). Also state the TIME when symptoms were first noticed. Stay in character throughout."
     },
     mend: {
         name: "MEND Assessment",
-        prompt: "I'm performing a MEND assessment. What are the findings for Mental status, Eyes, Neglect, and Deficits in speech/motor function?"
+        prompt: "The paramedic is performing a MEND (Miami Emergency Neurologic Deficit) assessment on this patient. Based on the patient's condition, provide findings for: MENTAL STATUS (alert, confused, obtunded), EYES (gaze deviation, visual field defect, pupil abnormality), NEGLECT (does patient ignore one side?), DEFICITS in speech (aphasia type) and motor function (face, arm, leg weakness with laterality). Present as clinical findings matching the patient's underlying condition."
     },
     pain: {
         name: "Pain Assessment",
-        prompt: "I'm taking a full pain history using SOCRATES. Please describe: Site, Onset, Character, Radiation, Associated symptoms, Timing, Exacerbating/relieving factors, and Severity."
+        prompt: "The paramedic is asking about the patient's pain using SOCRATES. Respond in character as the patient answering questions about: SITE (where exactly is the pain? point to it), ONSET (when did it start? what were you doing?), CHARACTER (what does it feel like - sharp, dull, burning, crushing, colicky?), RADIATION (does it go anywhere else?), ASSOCIATED symptoms (anything else - nausea, sweating, SOB?), TIMING (constant or comes and goes? how long does it last?), EXACERBATING/RELIEVING (what makes it better or worse?), SEVERITY (out of 10, where 10 is worst imaginable). Answer naturally as the patient would, not using medical terminology."
     },
     wound: {
         name: "Wound Assessment",
-        prompt: "I'm assessing the wound(s). Please describe location, size, depth, edges, bleeding status, contamination, and any underlying structures involved."
+        prompt: "The paramedic is assessing any wounds on this patient. Based on the patient's condition, describe: location and number of wounds, size (length x width x depth), wound type (laceration, abrasion, puncture, avulsion, incision), edges (clean, ragged, contused), bleeding status (arterial spurting, venous oozing, controlled, not bleeding), contamination, visible structures (fat, muscle, tendon, bone), and neurovascular status distal to the wound. Present as clinical findings."
     },
     mobility: {
         name: "Mobility Assessment",
-        prompt: "I'm assessing the patient's mobility. Can they walk? Stand? Sit up? Move all limbs? What is their normal baseline mobility?"
+        prompt: "The paramedic is assessing the patient's mobility. Respond in character as the patient (or describe what happens when the patient attempts movement). Can they: move all four limbs voluntarily? grip with both hands equally? lift legs off the bed? sit up independently? stand with assistance? stand independently? walk with assistance? walk independently? Also describe their BASELINE mobility before this incident - do they normally use any aids? Are they normally housebound? Present responses naturally."
     },
     history: {
         name: "Full History",
-        prompt: "I'm taking a full SAMPLE history. Please provide: Signs/symptoms, Allergies, Medications, Past medical history, Last oral intake, and Events leading up to this."
+        prompt: "The paramedic is taking a SAMPLE history. Respond in character as the patient (or relative/bystander if patient cannot communicate) providing: SIGNS & SYMPTOMS (what's wrong today in their own words), ALLERGIES (any known allergies to medications, foods, or other substances), MEDICATIONS (what tablets/medicines do they take - they may not know exact names), PAST MEDICAL HISTORY (what illnesses, operations, or hospital admissions have they had), LAST ORAL INTAKE (when did they last eat and drink, and what), EVENTS (what were they doing when this started, what happened leading up to calling 999). Answer naturally as the patient would."
     },
     meds: {
         name: "Medications",
-        prompt: "What medications is the patient taking? Include dose and frequency if known, and any recent changes to medications."
+        prompt: "The paramedic is asking about medications. Respond in character as the patient (or describe what medication boxes/dosette boxes are visible). What regular medications do they take? Include the name (patient may only know colours or shapes), dose if known, frequency, and what it's for if they know. Any recent changes to medications? Are they compliant or do they forget doses? Any over-the-counter medications, inhalers, or supplements? Do they have a medications list or repeat prescription form available?"
     },
     social: {
         name: "Social History",
-        prompt: "Tell me about the patient's social situation. Where do they live? Do they live alone? Any carers? How do they normally manage day-to-day? Any stairs at home?"
+        prompt: "The paramedic is asking about the patient's social situation. Respond in character as the patient (or relative if present). Where do they live - house, flat, bungalow, care home? Do they live alone or with someone? Any stairs to access or inside the property? How do they normally manage day-to-day - independent, need help with washing/dressing, carers visit? If carers, how often? Any family nearby? Do they drive? What's their occupation or are they retired? Any recent life events or stressors? Smoking and alcohol history?"
     },
     scene: {
         name: "Scene Assessment",
-        prompt: "I'm looking around the scene. What can I observe in the environment? Any medications visible? Hazards? Clues about what happened?"
+        prompt: "The paramedic is looking around the scene/environment. Based on the patient's condition and scenario context, describe what the paramedic might observe: Is the environment safe? Is it clean/cluttered? Any medication packets, pill bottles, or dosette boxes visible (what medications)? Any alcohol bottles or drug paraphernalia? Any medical equipment like oxygen concentrators, hospital bed, walking aids? Any hazards? Any signs of a fall or struggle? Any clues about what happened? Any other people present? Present as observations the paramedic would make on scene."
     }
 };
 
