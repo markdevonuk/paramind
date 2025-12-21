@@ -212,20 +212,43 @@
                     if (userDoc.exists()) {
                         const userData = userDoc.data();
                         // Cache user data in localStorage
+                        // IMPORTANT: Use user.email from Firebase Auth (always available)
+                        // not userData.email from Firestore (might be undefined)
                         localStorage.setItem('paramind_user', JSON.stringify({
                             uid: user.uid,
-                            email: userData.email,
+                            email: user.email,  // <-- FIXED: Using user.email from Firebase Auth
                             trust: userData.trust,
                             trustFullName: userData.trustFullName,
-                            subscriptionStatus: userData.subscriptionStatus,
+                            subscriptionStatus: userData.subscriptionStatus || 'free',
                             dailyMessageCount: userData.dailyMessageCount || 0,
                             lastMessageDate: userData.lastMessageDate
                         }));
                         console.log('User data cached from Firestore');
+                    } else {
+                        // User exists in Auth but not in Firestore - cache basic info
+                        localStorage.setItem('paramind_user', JSON.stringify({
+                            uid: user.uid,
+                            email: user.email,
+                            trust: 'SWAST',
+                            trustFullName: 'South Western Ambulance Service NHS Foundation Trust',
+                            subscriptionStatus: 'free',
+                            dailyMessageCount: 0,
+                            lastMessageDate: null
+                        }));
+                        console.log('User data cached with defaults (no Firestore doc found)');
                     }
                 } catch (firestoreError) {
                     console.warn('Could not fetch Firestore data:', firestoreError);
-                    // Continue anyway - chat.html will handle this
+                    // Still cache what we can from Firebase Auth
+                    localStorage.setItem('paramind_user', JSON.stringify({
+                        uid: user.uid,
+                        email: user.email,
+                        trust: 'SWAST',
+                        trustFullName: 'South Western Ambulance Service NHS Foundation Trust',
+                        subscriptionStatus: 'free',
+                        dailyMessageCount: 0,
+                        lastMessageDate: null
+                    }));
                 }
 
                 showSuccess('Signed in successfully! Redirecting...');

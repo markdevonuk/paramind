@@ -1,18 +1,26 @@
 /* ============================================
    PARAMIND - Main JavaScript
+   With Firebase Database Sync
    ============================================ */
 
 // Configuration
 const CONFIG = {
-    // API endpoints (Firebase Cloud Functions)
+    // Will be replaced with actual Firebase config
+    firebase: {
+        apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
+        authDomain: "paramind-64b8e.firebaseapp.com",
+        projectId: "paramind-64b8e",
+        storageBucket: "paramind-64b8e.firebasestorage.app",
+        messagingSenderId: "452173393964",
+        appId: "1:452173393964:web:8599c0fe1983a6f441e189",
+        measurementId: "G-GW385S6L0L"
+    },
+    // API endpoints (will point to Firebase Cloud Functions)
     api: {
-        baseUrl: "https://europe-west2-paramind-64b8e.cloudfunctions.net",
+        baseUrl: "https://your-region-your-project.cloudfunctions.net",
         chat: "/chat",
         createCheckout: "/createCheckoutSession",
-        user: "/user",
-        saveConversation: "/saveConversation",
-        conversations: "/conversations",
-        deleteConversation: "/deleteConversation"
+        user: "/user"
     },
     // Free tier limits
     freeTier: {
@@ -123,8 +131,19 @@ const utils = {
     }
 };
 
-// Local Storage Helper (for demo/development)
+// Storage Helper - Syncs with localStorage AND prepares for Firebase
 const storage = {
+    // Firebase references (will be set by chat.js when Firebase is initialized)
+    db: null,
+    auth: null,
+    
+    // Set Firebase references
+    setFirebase: function(db, auth) {
+        this.db = db;
+        this.auth = auth;
+        console.log('Firebase references set in storage helper');
+    },
+    
     // Get user data
     getUser: function() {
         const userData = localStorage.getItem('paramind_user');
@@ -139,30 +158,116 @@ const storage = {
     // Clear user data (logout)
     clearUser: function() {
         localStorage.removeItem('paramind_user');
+        localStorage.removeItem('paramind_messages');
     },
     
-    // Get message count for today
+    // Get today's date string for comparison
+    getTodayString: function() {
+        return new Date().toDateString();
+    },
+    
+    // Get message count for today (from localStorage, synced with Firebase)
     getMessageCount: function() {
-        const today = new Date().toDateString();
+        const today = this.getTodayString();
         const stored = localStorage.getItem('paramind_messages');
+        
         if (stored) {
-            const data = JSON.parse(stored);
-            if (data.date === today) {
-                return data.count;
+            try {
+                const data = JSON.parse(stored);
+                if (data.date === today) {
+                    return data.count;
+                }
+            } catch (e) {
+                console.error('Error parsing message count:', e);
             }
         }
         return 0;
     },
     
-    // Increment message count
+    // Increment message count - updates localStorage AND syncs to Firebase
     incrementMessageCount: function() {
-        const today = new Date().toDateString();
+        const today = this.getTodayString();
         const count = this.getMessageCount() + 1;
+        
+        // Update localStorage immediately
         localStorage.setItem('paramind_messages', JSON.stringify({
             date: today,
             count: count
         }));
+        
+        // Sync to Firebase if available
+        this.syncToFirebase(count, today);
+        
         return count;
+    },
+    
+    // Sync message count to Firebase
+    syncToFirebase: async function(count, date) {
+        try {
+            const user = this.getUser();
+            if (!user || !user.uid) {
+                console.log('No user UID available for Firebase sync');
+                return;
+            }
+            
+            // Check if Firebase modules are loaded
+            if (typeof firebase !== 'undefined' && firebase.firestore) {
+                const db = firebase.firestore();
+                await db.collection('users').doc(user.uid).update({
+                    dailyMessageCount: count,
+                    lastMessageDate: date
+                });
+                console.log('Message count synced to Firebase:', count);
+            } else {
+                // Try using global Firestore if available
+                console.log('Firebase sync not available - using localStorage only');
+            }
+        } catch (error) {
+            console.error('Error syncing to Firebase:', error);
+            // Continue anyway - localStorage has the data
+        }
+    },
+    
+    // Sync FROM Firebase (call on page load to get accurate count)
+    syncFromFirebase: async function() {
+        try {
+            const user = this.getUser();
+            if (!user || !user.uid) {
+                console.log('No user for Firebase sync');
+                return;
+            }
+            
+            // Update localStorage with user's current data from Firestore
+            const today = this.getTodayString();
+            const storedDate = user.lastMessageDate;
+            
+            // If the stored date matches today, use the Firebase count
+            if (storedDate === today && user.dailyMessageCount) {
+                localStorage.setItem('paramind_messages', JSON.stringify({
+                    date: today,
+                    count: user.dailyMessageCount
+                }));
+                console.log('Synced message count from user data:', user.dailyMessageCount);
+            } else {
+                // Different day, reset count
+                localStorage.setItem('paramind_messages', JSON.stringify({
+                    date: today,
+                    count: 0
+                }));
+                console.log('New day - message count reset to 0');
+            }
+        } catch (error) {
+            console.error('Error syncing from Firebase:', error);
+        }
+    },
+    
+    // Reset message count (for new day)
+    resetMessageCount: function() {
+        const today = this.getTodayString();
+        localStorage.setItem('paramind_messages', JSON.stringify({
+            date: today,
+            count: 0
+        }));
     }
 };
 
@@ -176,6 +281,9 @@ document.addEventListener('DOMContentLoaded', function() {
             this.style.height = Math.min(this.scrollHeight, 150) + 'px';
         });
     }
+    
+    // Sync from Firebase on page load
+    storage.syncFromFirebase();
 });
 
 // Export for use in other files
@@ -186,3 +294,5 @@ window.paramind = {
     utils,
     storage
 };
+
+console.log('app.js loaded - window.paramind available');
