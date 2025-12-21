@@ -132,200 +132,208 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Firebase -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { initializeFirestore, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-        import { firebaseConfig } from './js/firebase-config.js';
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    import { getFirestore, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+    import { firebaseConfig } from './js/firebase-config.js';
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Trust lookup data
+    const TRUSTS = {
+        "BHL": "Bristow Group",
+        "EEAST": "East of England Ambulance Service NHS Trust",
+        "EMAS": "East Midlands Ambulance Service NHS Trust",
+        "JAS": "States of Jersey Ambulance Service",
+        "NEAS": "North East Ambulance Service NHS Foundation Trust",
+        "NIAS": "Northern Ireland Ambulance Service",
+        "NWAS": "North West Ambulance Service NHS Trust",
+        "SAS": "Scottish Ambulance Service",
+        "SCAS": "South Central Ambulance Service NHS Foundation Trust",
+        "SECAmb": "South East Coast Ambulance Service NHS Foundation Trust",
+        "SJA": "St John Ambulance",
+        "SWAST": "South Western Ambulance Service NHS Foundation Trust",
+        "WAST": "Welsh Ambulance Services NHS Trust",
+        "WMAS": "West Midlands Ambulance Service NHS Foundation Trust",
+        "YAS": "Yorkshire Ambulance Service NHS Trust"
+    };
+
+    // Check if user is already logged in
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            window.location.href = 'chat.html';
+        }
+    });
+
+    // Toggle password visibility
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        const passwordInput = document.getElementById('password');
+        const passwordIcon = document.getElementById('passwordIcon');
         
-        // Initialize Firestore with long polling (fixes Safari issues)
-        const db = initializeFirestore(app, {
-            experimentalForceLongPolling: true
-        });
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            passwordIcon.classList.remove('bi-eye');
+            passwordIcon.classList.add('bi-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            passwordIcon.classList.remove('bi-eye-slash');
+            passwordIcon.classList.add('bi-eye');
+        }
+    });
 
-        // Trust lookup data
-        const TRUSTS = {
-            "BHL": "Bristow Group",
-            "EEAST": "East of England Ambulance Service NHS Trust",
-            "EMAS": "East Midlands Ambulance Service NHS Trust",
-            "JAS": "States of Jersey Ambulance Service",
-            "NEAS": "North East Ambulance Service NHS Foundation Trust",
-            "NIAS": "Northern Ireland Ambulance Service",
-            "NWAS": "North West Ambulance Service NHS Trust",
-            "SAS": "Scottish Ambulance Service",
-            "SCAS": "South Central Ambulance Service NHS Foundation Trust",
-            "SECAmb": "South East Coast Ambulance Service NHS Foundation Trust",
-            "SJA": "St John Ambulance",
-            "SWAST": "South Western Ambulance Service NHS Foundation Trust",
-            "WAST": "Welsh Ambulance Services NHS Trust",
-            "WMAS": "West Midlands Ambulance Service NHS Foundation Trust",
-            "YAS": "Yorkshire Ambulance Service NHS Trust"
+    document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+        const passwordInput = document.getElementById('confirmPassword');
+        const passwordIcon = document.getElementById('confirmPasswordIcon');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            passwordIcon.classList.remove('bi-eye');
+            passwordIcon.classList.add('bi-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            passwordIcon.classList.remove('bi-eye-slash');
+            passwordIcon.classList.add('bi-eye');
+        }
+    });
+
+    // Helper functions
+    function showError(message) {
+        const errorEl = document.getElementById('errorMessage');
+        const successEl = document.getElementById('successMessage');
+        successEl.classList.add('d-none');
+        errorEl.textContent = message;
+        errorEl.classList.remove('d-none');
+    }
+
+    function showSuccess(message) {
+        const errorEl = document.getElementById('errorMessage');
+        const successEl = document.getElementById('successMessage');
+        errorEl.classList.add('d-none');
+        successEl.textContent = message;
+        successEl.classList.remove('d-none');
+    }
+
+    function setLoading(isLoading) {
+        const submitBtn = document.getElementById('submitBtn');
+        const submitText = document.getElementById('submitText');
+        const submitSpinner = document.getElementById('submitSpinner');
+        
+        submitBtn.disabled = isLoading;
+        submitSpinner.classList.toggle('d-none', !isLoading);
+        submitText.textContent = isLoading ? 'Creating account...' : 'Create Account';
+    }
+
+    function getErrorMessage(errorCode) {
+        const errorMessages = {
+            'auth/email-already-in-use': 'An account with this email already exists.',
+            'auth/invalid-email': 'Please enter a valid email address.',
+            'auth/operation-not-allowed': 'Email/password accounts are not enabled.',
+            'auth/weak-password': 'Password should be at least 6 characters.',
+            'auth/too-many-requests': 'Too many failed attempts. Please try again later.',
+            'auth/network-request-failed': 'Network error. Please check your connection.'
         };
+        return errorMessages[errorCode] || 'An error occurred. Please try again.';
+    }
 
-        // Check if user is already logged in
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                window.location.href = 'chat.html';
-            }
-        });
+    // Form submission handler
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const trust = document.getElementById('trust').value;
+        
+        // Clear previous messages
+        document.getElementById('errorMessage').classList.add('d-none');
+        document.getElementById('successMessage').classList.add('d-none');
 
-        // Toggle password visibility
-        document.getElementById('togglePassword').addEventListener('click', function() {
-            const passwordInput = document.getElementById('password');
-            const passwordIcon = document.getElementById('passwordIcon');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                passwordIcon.classList.remove('bi-eye');
-                passwordIcon.classList.add('bi-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                passwordIcon.classList.remove('bi-eye-slash');
-                passwordIcon.classList.add('bi-eye');
-            }
-        });
-
-        document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
-            const passwordInput = document.getElementById('confirmPassword');
-            const passwordIcon = document.getElementById('confirmPasswordIcon');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                passwordIcon.classList.remove('bi-eye');
-                passwordIcon.classList.add('bi-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                passwordIcon.classList.remove('bi-eye-slash');
-                passwordIcon.classList.add('bi-eye');
-            }
-        });
-
-        // Helper functions
-        function showError(message) {
-            const errorEl = document.getElementById('errorMessage');
-            const successEl = document.getElementById('successMessage');
-            successEl.classList.add('d-none');
-            errorEl.textContent = message;
-            errorEl.classList.remove('d-none');
+        // Validate passwords match
+        if (password !== confirmPassword) {
+            showError('Passwords do not match');
+            return;
         }
 
-        function showSuccess(message) {
-            const errorEl = document.getElementById('errorMessage');
-            const successEl = document.getElementById('successMessage');
-            errorEl.classList.add('d-none');
-            successEl.textContent = message;
-            successEl.classList.remove('d-none');
+        // Validate password length
+        if (password.length < 8) {
+            showError('Password must be at least 8 characters long');
+            return;
         }
 
-        function setLoading(isLoading) {
-            const submitBtn = document.getElementById('submitBtn');
-            const submitText = document.getElementById('submitText');
-            const submitSpinner = document.getElementById('submitSpinner');
+        // Validate trust selection
+        if (!trust) {
+            showError('Please select your ambulance trust');
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            console.log('Starting registration...');
             
-            submitBtn.disabled = isLoading;
-            submitSpinner.classList.toggle('d-none', !isLoading);
-            submitText.textContent = isLoading ? 'Creating account...' : 'Create Account';
-        }
+            // Create user account with Firebase Authentication
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
 
-        function getErrorMessage(errorCode) {
-            const errorMessages = {
-                'auth/email-already-in-use': 'An account with this email already exists.',
-                'auth/invalid-email': 'Please enter a valid email address.',
-                'auth/operation-not-allowed': 'Email/password accounts are not enabled.',
-                'auth/weak-password': 'Password should be at least 6 characters.',
-                'auth/too-many-requests': 'Too many failed attempts. Please try again later.',
-                'auth/network-request-failed': 'Network error. Please check your connection.'
+            console.log('User created in Firebase Auth:', user.uid);
+
+            // Get trust full name
+            const trustFullName = TRUSTS[trust] || trust;
+
+            // Create user document in Firestore
+            const userData = {
+                uid: user.uid,
+                email: email,
+                trust: trust,
+                trustFullName: trustFullName,
+                subscriptionStatus: 'free',
+                stripeCustomerId: null,
+                dailyMessageCount: 0,
+                lastMessageDate: null,
+                createdAt: serverTimestamp()
             };
-            return errorMessages[errorCode] || 'An error occurred. Please try again.';
-        }
 
-        // Form submission handler
-        document.getElementById('registerForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+            console.log('Attempting to create Firestore document...');
             
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const trust = document.getElementById('trust').value;
-            
-            // Clear previous messages
-            document.getElementById('errorMessage').classList.add('d-none');
-            document.getElementById('successMessage').classList.add('d-none');
-
-            // Validate passwords match
-            if (password !== confirmPassword) {
-                showError('Passwords do not match');
-                return;
-            }
-
-            // Validate password length
-            if (password.length < 8) {
-                showError('Password must be at least 8 characters long');
-                return;
-            }
-
-            // Validate trust selection
-            if (!trust) {
-                showError('Please select your ambulance trust');
-                return;
-            }
-
-            setLoading(true);
-
             try {
-                // Create user account with Firebase Authentication
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-
-                console.log('User created in Firebase Auth:', user.uid);
-
-                // Get trust full name
-                const trustFullName = TRUSTS[trust] || trust;
-
-                // Create user document in Firestore
-                const userData = {
-                    uid: user.uid,
-                    email: email,
-                    trust: trust,
-                    trustFullName: trustFullName,
-                    subscriptionStatus: 'free',
-                    stripeCustomerId: null,
-                    dailyMessageCount: 0,
-                    lastMessageDate: null,
-                    createdAt: serverTimestamp()
-                };
-
                 await setDoc(doc(db, 'users', user.uid), userData);
-                console.log('User document created in Firestore');
-
-                // Also save to localStorage as backup
-                localStorage.setItem('paramind_user', JSON.stringify({
-                    uid: user.uid,
-                    email: email,
-                    trust: trust,
-                    trustFullName: trustFullName,
-                    subscriptionStatus: 'free',
-                    dailyMessageCount: 0,
-                    lastMessageDate: null
-                }));
-
-                showSuccess('Account created successfully! Redirecting...');
-                
-                // Redirect to chat after short delay
-                setTimeout(() => {
-                    window.location.href = 'chat.html';
-                }, 1500);
-
-            } catch (error) {
-                console.error('Registration error:', error);
-                setLoading(false);
-                showError(getErrorMessage(error.code));
+                console.log('Firestore document created successfully');
+            } catch (firestoreError) {
+                console.error('Firestore error:', firestoreError);
+                // Don't fail registration - we'll create the doc later if needed
+                // But log it so we can debug
+                showError('Account created but profile setup failed. Please contact support.');
             }
-        });
+
+            // Save to localStorage as backup
+            localStorage.setItem('paramind_user', JSON.stringify({
+                uid: user.uid,
+                email: email,
+                trust: trust,
+                trustFullName: trustFullName,
+                subscriptionStatus: 'free',
+                dailyMessageCount: 0,
+                lastMessageDate: null
+            }));
+
+            showSuccess('Account created successfully! Redirecting...');
+            
+            // Redirect to chat after short delay
+            setTimeout(() => {
+                window.location.href = 'chat.html';
+            }, 1500);
+
+        } catch (error) {
+            console.error('Registration error:', error);
+            setLoading(false);
+            showError(getErrorMessage(error.code));
+        }
+    });
+</script>
     </script>
 </body>
 </html>
