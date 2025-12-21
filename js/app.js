@@ -39,30 +39,6 @@ const TRUSTS = {
     "YAS": "Yorkshire Ambulance Service NHS Trust"
 };
 
-// Scenario definitions (legacy - now in chat.js)
-const SCENARIOS = {
-    "patient-assessment": {
-        title: "Patient Assessment Practice",
-        description: "The AI will present as a patient with symptoms. Ask assessment questions to gather information and formulate a differential diagnosis.",
-        prompt: "You are now a patient presenting to a paramedic. You have chest pain that started 2 hours ago while gardening. It feels like pressure in the centre of your chest. You also feel a bit sweaty and nauseous. Answer the paramedic's questions as a realistic patient would - you may not know medical terminology. Do not reveal your diagnosis. After the paramedic offers their differential diagnosis, confirm if correct or explain what they may have missed."
-    },
-    "differential-diagnosis": {
-        title: "Differential Diagnosis Challenge",
-        description: "Test your diagnostic reasoning skills with a complex case presentation.",
-        prompt: "Present me with a complex patient case (appropriate for paramedic level) including: patient demographics, chief complaint, history of presenting complaint, and relevant observations. After I provide my differential diagnoses, give me feedback on my clinical reasoning."
-    },
-    "drug-calculation": {
-        title: "Drug Calculation Practice",
-        description: "Practice medication calculations with realistic scenarios.",
-        prompt: "Give me a drug calculation question appropriate for a paramedic. Include the patient's weight, the drug, the dose per kg or fixed dose, and the concentration available. After I answer, confirm if I'm correct and explain the working if needed."
-    },
-    "ecg-interpretation": {
-        title: "ECG Interpretation",
-        description: "Learn to identify key ECG abnormalities relevant to pre-hospital care.",
-        prompt: "Describe an ECG in text format for me to interpret. Include rate, rhythm, axis, intervals, and any abnormalities. After I provide my interpretation, give feedback and explain the clinical significance."
-    }
-};
-
 // Utility Functions
 const utils = {
     // Show error message
@@ -182,7 +158,6 @@ document.addEventListener('DOMContentLoaded', function() {
 window.paramind = {
     CONFIG,
     TRUSTS,
-    SCENARIOS,
     utils,
     storage
 };
