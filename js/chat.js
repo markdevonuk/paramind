@@ -455,6 +455,9 @@ function startScenario() {
         return;
     }
     
+    // IMPORTANT: Save the scenario ID before clearChat() resets it
+    const scenarioId = chatState.currentScenario;
+    
     // Close modal
     const modalElement = document.getElementById('scenarioModal');
     if (modalElement) {
@@ -467,8 +470,11 @@ function startScenario() {
     // Switch to chat view
     switchView('chatView');
     
-    // Clear current messages
+    // Clear current messages (this resets currentScenario to null)
     clearChat();
+    
+    // Restore the scenario ID after clearing
+    chatState.currentScenario = scenarioId;
     
     // Hide welcome message
     if (elements.welcomeMessage) {
@@ -478,7 +484,7 @@ function startScenario() {
     // Build the system prompt for this scenario
     if (window.scenarioPrompts && window.scenarioPrompts.buildScenarioSystemPrompt) {
         chatState.currentScenarioPrompt = window.scenarioPrompts.buildScenarioSystemPrompt(
-            chatState.currentScenario, 
+            scenarioId, 
             chatState.userTrust
         );
     }
@@ -486,7 +492,7 @@ function startScenario() {
     // Get scenario info - with fallback
     let scenarioTitle = 'Scenario';
     if (window.scenarioPrompts && window.scenarioPrompts.getScenarioInfo) {
-        const scenarioInfo = window.scenarioPrompts.getScenarioInfo(chatState.currentScenario);
+        const scenarioInfo = window.scenarioPrompts.getScenarioInfo(scenarioId);
         if (scenarioInfo && scenarioInfo.title) {
             scenarioTitle = scenarioInfo.title;
         }
@@ -518,7 +524,7 @@ function startScenario() {
         // Get the starter message from scenario prompts
         let starterMessage = "Hello, thank you for coming. I'm not feeling well at all.";
         if (window.scenarioPrompts && window.scenarioPrompts.getScenarioStarterMessage) {
-            starterMessage = window.scenarioPrompts.getScenarioStarterMessage(chatState.currentScenario);
+            starterMessage = window.scenarioPrompts.getScenarioStarterMessage(scenarioId);
         }
         
         addMessage('assistant', starterMessage);
@@ -563,14 +569,15 @@ function startRandomScenario() {
     
     // Pick a random scenario
     const randomScenario = allScenarios[Math.floor(Math.random() * allScenarios.length)];
+    const scenarioId = randomScenario.id;
     
-    console.log('Starting random scenario:', randomScenario.id); // Debug log
+    console.log('Starting random scenario:', scenarioId); // Debug log
     
-    // Set the current scenario
-    chatState.currentScenario = randomScenario.id;
-    
-    // Clear current chat
+    // Clear current chat FIRST (this resets currentScenario)
     clearChat();
+    
+    // THEN set the scenario ID
+    chatState.currentScenario = scenarioId;
     
     // Hide welcome message
     if (elements.welcomeMessage) {
@@ -580,7 +587,7 @@ function startRandomScenario() {
     // Build the system prompt
     if (window.scenarioPrompts && window.scenarioPrompts.buildScenarioSystemPrompt) {
         chatState.currentScenarioPrompt = window.scenarioPrompts.buildScenarioSystemPrompt(
-            chatState.currentScenario, 
+            scenarioId, 
             chatState.userTrust
         );
     }
@@ -612,7 +619,7 @@ function startRandomScenario() {
         hideLoading();
         let starterMessage = "Hello, thank you for coming. I'm not feeling well.";
         if (window.scenarioPrompts && window.scenarioPrompts.getScenarioStarterMessage) {
-            starterMessage = window.scenarioPrompts.getScenarioStarterMessage(chatState.currentScenario);
+            starterMessage = window.scenarioPrompts.getScenarioStarterMessage(scenarioId);
         }
         addMessage('assistant', starterMessage);
     }, 1000);
