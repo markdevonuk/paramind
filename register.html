@@ -135,13 +135,17 @@
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
     import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-    import { getFirestore, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+    import { initializeFirestore, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
     import { firebaseConfig } from './js/firebase-config.js';
 
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
+    
+    // Initialize Firestore with settings that work better across browsers
+    const db = initializeFirestore(app, {
+        experimentalForceLongPolling: true
+    });
 
     // Trust lookup data
     const TRUSTS = {
@@ -273,16 +277,20 @@
         setLoading(true);
 
         try {
-            console.log('Starting registration...');
+            console.log('1. Starting registration for:', email);
             
             // Create user account with Firebase Authentication
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            console.log('User created in Firebase Auth:', user.uid);
+            console.log('2. User created in Firebase Auth:', user.uid);
+            console.log('3. User is signed in:', auth.currentUser ? 'Yes' : 'No');
 
             // Get trust full name
             const trustFullName = TRUSTS[trust] || trust;
+
+            // Small delay to ensure auth state is fully propagated
+            await new Promise(resolve => setTimeout(resolve, 500));
 
             // Create user document in Firestore
             const userData = {
@@ -297,17 +305,12 @@
                 createdAt: serverTimestamp()
             };
 
-            console.log('Attempting to create Firestore document...');
+            console.log('4. Attempting to create Firestore document...');
+            console.log('5. Document path: users/' + user.uid);
             
-            try {
-                await setDoc(doc(db, 'users', user.uid), userData);
-                console.log('Firestore document created successfully');
-            } catch (firestoreError) {
-                console.error('Firestore error:', firestoreError);
-                // Don't fail registration - we'll create the doc later if needed
-                // But log it so we can debug
-                showError('Account created but profile setup failed. Please contact support.');
-            }
+            await setDoc(doc(db, 'users', user.uid), userData);
+            
+            console.log('6. Firestore document created successfully!');
 
             // Save to localStorage as backup
             localStorage.setItem('paramind_user', JSON.stringify({
@@ -329,6 +332,8 @@
 
         } catch (error) {
             console.error('Registration error:', error);
+            console.error('Error code:', error.code);
+            console.error('Error message:', error.message);
             setLoading(false);
             showError(getErrorMessage(error.code));
         }
