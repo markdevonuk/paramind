@@ -707,10 +707,8 @@ function startScenario() {
     `;
     elements.chatMessages.appendChild(bannerDiv);
     
-    // Get starter message
-    const starterMessage = SCENARIO_STARTERS[chatState.currentScenario] || 
-        "Hello, thank you for coming. I'm not feeling well at all. Where would you like to start?";
-    
+   // Get starter message from scenario-prompts.js
+const starterMessage = window.scenarioPrompts.getScenarioStarterMessage(chatState.currentScenario); 
     addMessage('assistant', starterMessage);
     
     // Add to conversation history for context
@@ -747,9 +745,8 @@ function startRandomScenario() {
     `;
     elements.chatMessages.appendChild(bannerDiv);
     
-    const starterMessage = SCENARIO_STARTERS[chatState.currentScenario] || 
-        "Hello, thank you for coming. I'm not feeling well at all. Where would you like to start?";
-    
+    // Get starter message from scenario-prompts.js
+const starterMessage = window.scenarioPrompts.getScenarioStarterMessage(chatState.currentScenario);
     addMessage('assistant', starterMessage);
     
     chatState.conversationHistory.push({
