@@ -745,9 +745,18 @@ function startRandomScenario() {
     `;
     elements.chatMessages.appendChild(bannerDiv);
     
+    
     // Get starter message from scenario-prompts.js
+console.log("Current scenario ID:", chatState.currentScenario);
+console.log("scenarioPrompts object:", window.scenarioPrompts);
+console.log("SCENARIO_PATIENT_DATA:", window.scenarioPrompts?.SCENARIO_PATIENT_DATA);
+console.log("This scenario data:", window.scenarioPrompts?.SCENARIO_PATIENT_DATA?.[chatState.currentScenario]);
+
 const starterMessage = window.scenarioPrompts.getScenarioStarterMessage(chatState.currentScenario);
-    addMessage('assistant', starterMessage);
+console.log("Starter message:", starterMessage);
+    
+    
+     addMessage('assistant', starterMessage);
     
     chatState.conversationHistory.push({
         role: 'assistant',
