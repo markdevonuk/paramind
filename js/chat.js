@@ -681,7 +681,55 @@ function openScenarioModal(scenarioId, title, description) {
 }
 
 function startScenario() {
-    if (!chatState.currentScenario) return;
+    console.log("=== startScenario CALLED ===");
+    console.log("chatState.currentScenario:", chatState.currentScenario);
+    
+    if (!chatState.currentScenario) {
+        console.log("No scenario set, returning early");
+        return;
+    }
+    
+    const modal = bootstrap.Modal.getInstance(elements.scenarioModal);
+    modal.hide();
+    
+    switchView('chatView');
+    clearChat();
+    
+    if (elements.welcomeMessage) {
+        elements.welcomeMessage.style.display = 'none';
+    }
+    
+    const scenarioTitle = elements.scenarioModalTitle.textContent;
+    const bannerDiv = document.createElement('div');
+    bannerDiv.className = 'alert alert-info mx-2 my-2';
+    bannerDiv.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="bi bi-mortarboard me-2"></i>
+            <div>
+                <strong>Scenario: ${scenarioTitle}</strong>
+                <div class="small">Assess the patient and provide your working diagnosis</div>
+            </div>
+        </div>
+    `;
+    elements.chatMessages.appendChild(bannerDiv);
+    
+    // Debug what we're looking for
+    console.log("Looking for scenario:", chatState.currentScenario);
+    console.log("Available scenarios:", Object.keys(window.scenarioPrompts.SCENARIO_PATIENT_DATA));
+    console.log("Match found:", window.scenarioPrompts.SCENARIO_PATIENT_DATA[chatState.currentScenario]);
+    
+    // Get starter message from scenario-prompts.js
+    const starterMessage = window.scenarioPrompts.getScenarioStarterMessage(chatState.currentScenario);
+    console.log("Starter message returned:", starterMessage);
+    
+    addMessage('assistant', starterMessage);
+    
+    // Add to conversation history for context
+    chatState.conversationHistory.push({
+        role: 'assistant',
+        content: starterMessage
+    });
+}
     
     const modal = bootstrap.Modal.getInstance(elements.scenarioModal);
     modal.hide();
