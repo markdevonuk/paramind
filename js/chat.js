@@ -692,8 +692,15 @@ function startScenario() {
     const modal = bootstrap.Modal.getInstance(elements.scenarioModal);
     modal.hide();
     
-    switchView('chatView');
+switchView('chatView');
+    
+    // Save scenario ID before clearChat() resets it
+    const scenarioId = chatState.currentScenario;
+    
     clearChat();
+    
+    // Restore the scenario ID
+    chatState.currentScenario = scenarioId;
     
     if (elements.welcomeMessage) {
         elements.welcomeMessage.style.display = 'none';
