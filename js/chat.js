@@ -1,6 +1,6 @@
 /* ============================================
    PARAMIND - Chat Functionality
-   With Bottom Navigation & Section Views
+   Connected to Firebase Backend
    ============================================ */
 
 // ==================== DATA ====================
@@ -232,29 +232,33 @@ const DIFFERENTIAL_DATA = {
     }
 };
 
-// Scenario prompts for AI conversation
-const SCENARIO_PROMPTS = {
-    "cardiac-chest-pain": {
-        title: "Chest Pain - ACS",
-        prompt: "You are now a 65-year-old male patient named John presenting to a paramedic. You have crushing central chest pain that started 45 minutes ago while watching TV. The pain radiates to your left arm and jaw. You feel sweaty, nauseous, and anxious. You have a history of hypertension and high cholesterol. Answer the paramedic's questions as a realistic patient would - you may not know medical terminology. Do not reveal your diagnosis. After the paramedic offers their assessment and treatment plan, provide feedback on what they did well and what they might have missed."
-    },
-    "cardiac-stemi": {
-        title: "Inferior STEMI",
-        prompt: "You are a 58-year-old female patient named Margaret. You have been feeling unwell for the past hour with nausea, sweating, and discomfort in your upper abdomen and back. You don't have typical chest pain but feel very unwell. You have type 2 diabetes. Answer the paramedic's questions realistically. After their assessment, provide feedback on their recognition of atypical MI presentation."
-    }
-    // Add more scenario prompts as needed
+// Scenario starter messages
+const SCENARIO_STARTERS = {
+    "cardiac-chest-pain": "Hello... I've called the ambulance because I've got this terrible pain in my chest. It started about 45 minutes ago. I was just sitting watching telly and it came on suddenly. It's really quite bad... I feel a bit sick too.",
+    "cardiac-stemi": "I don't know what's wrong with me... I've been feeling awful for the past hour. My stomach hurts and I feel really sick. I keep sweating but I don't have a temperature. My husband made me call because he says I look grey.",
+    "resp-asthma": "*wheeze* I can't... catch my breath... *wheeze* My inhaler isn't helping...",
+    "neuro-stroke": "*slurred speech* I... my arm... it won't work properly. My wife says my face looks funny. What's happening to me?",
+    "abdo-appendicitis": "The pain started around my belly button last night but now it's moved down here to my right side. It really hurts when I move. I've been sick twice.",
+    "resp-anaphylaxis": "*distressed* I can't breathe properly... my throat feels tight... I just ate some prawns at a restaurant... *scratching* I'm so itchy everywhere...",
+    "neuro-seizure": "*confused, slightly agitated* Where am I? What happened? My head hurts... I feel really tired and my tongue is sore...",
+    "trauma-rtc": "*groaning* My neck hurts... I can't move my legs properly... the car came out of nowhere...",
+    "paed-croup": "*parent speaking* She's making this horrible barking noise when she coughs and she's really struggling to breathe. It started in the night. She's only 2.",
+    "cardiac-af": "My heart keeps going really fast and then slowing down... it feels like it's fluttering in my chest. I feel a bit dizzy and short of breath.",
+    "abdo-aaa": "*pale, sweating* I've got this terrible pain in my back and stomach... it came on suddenly about an hour ago. I feel really unwell... *clutching abdomen*"
 };
 
 // ==================== STATE ====================
 
 const chatState = {
     messages: [],
+    conversationHistory: [], // For API calls
     isLoading: false,
     currentScenario: null,
-    messagesUsed: 0,
+    messagesRemaining: 5,
     isPro: false,
     userTrust: 'SWAST',
-    currentView: 'chatView'
+    currentView: 'chatView',
+    authToken: null
 };
 
 // ==================== DOM ELEMENTS ====================
@@ -282,6 +286,7 @@ const elements = {
     
     // User info
     userTrust: document.getElementById('userTrust'),
+    userEmail: document.getElementById('userEmail'),
     
     // Scenario elements
     scenarioCategories: document.getElementById('scenarioCategories'),
@@ -309,33 +314,201 @@ const elements = {
     patientForm: document.getElementById('patientForm'),
     
     // Random scenario button
-    randomScenarioBtn: document.getElementById('randomScenarioBtn')
+    randomScenarioBtn: document.getElementById('randomScenarioBtn'),
+    
+    // Upgrade buttons
+    upgradeBtn: document.getElementById('upgradeBtn'),
+    upgradeLinkBanner: document.getElementById('upgradeLinkBanner')
 };
 
-// ==================== INITIALIZATION ====================
+// ==================== FIREBASE AUTH ====================
 
-function initChat() {
-    // Load message count
-    chatState.messagesUsed = window.paramind.storage.getMessageCount();
-    updateMessageCounter();
+// Import Firebase modules (these are loaded from CDN in chat.html)
+let auth = null;
+let currentUser = null;
+
+async function initializeAuth() {
+    // Wait for Firebase to be ready
+    const { getAuth, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+    const { firebaseConfig } = await import('./firebase-config.js');
     
-    // Load user data
-    const user = window.paramind.storage.getUser();
-    if (user) {
-        chatState.userTrust = user.trust || 'SWAST';
-        chatState.isPro = user.subscriptionStatus === 'active';
+    const app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    
+    return new Promise((resolve) => {
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                chatState.authToken = await user.getIdToken();
+                
+                // Update UI with user info
+                if (elements.userEmail) {
+                    elements.userEmail.textContent = user.email;
+                }
+                
+                // Fetch user profile from API
+                await fetchUserProfile();
+                resolve(true);
+            } else {
+                // Not logged in, redirect to login
+                window.location.href = 'login.html';
+                resolve(false);
+            }
+        });
+    });
+}
+
+async function getAuthToken() {
+    if (currentUser) {
+        chatState.authToken = await currentUser.getIdToken(true);
+        return chatState.authToken;
+    }
+    throw new Error('Not authenticated');
+}
+
+// ==================== API FUNCTIONS ====================
+
+async function fetchUserProfile() {
+    try {
+        const token = await getAuthToken();
+        const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}${window.paramind.CONFIG.api.user}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
         
-        if (elements.userTrust) {
-            elements.userTrust.textContent = chatState.userTrust;
+        if (!response.ok) {
+            throw new Error('Failed to fetch user profile');
         }
         
-        // Hide message limit banner for pro users
+        const data = await response.json();
+        
+        // Update state
+        chatState.userTrust = data.trust;
+        chatState.isPro = data.isPro;
+        chatState.messagesRemaining = data.messagesRemaining;
+        
+        // Update UI
+        if (elements.userTrust) {
+            elements.userTrust.textContent = data.trust;
+        }
+        
+        updateMessageCounter();
+        
+        // Hide limit banner for pro users
         if (chatState.isPro && elements.messageLimitBanner) {
             elements.messageLimitBanner.style.display = 'none';
         }
+        
+        return data;
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        // Fall back to cached data
+        const cached = window.paramind.storage.getUser();
+        if (cached) {
+            chatState.userTrust = cached.trust || 'SWAST';
+            chatState.isPro = cached.subscriptionStatus === 'active';
+        }
+    }
+}
+
+async function sendMessageToAPI(message) {
+    const token = await getAuthToken();
+    
+    const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}${window.paramind.CONFIG.api.chat}`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            message: message,
+            conversationHistory: chatState.conversationHistory.slice(-10)
+        })
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+        if (response.status === 429) {
+            // Rate limited
+            throw new Error('LIMIT_REACHED');
+        }
+        throw new Error(data.error || 'Failed to send message');
     }
     
+    // Update remaining messages
+    if (data.remaining !== undefined && data.remaining >= 0) {
+        chatState.messagesRemaining = data.remaining;
+        updateMessageCounter();
+    }
+    
+    return data.message;
+}
+
+async function createCheckoutSession() {
+    try {
+        const token = await getAuthToken();
+        
+        const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}${window.paramind.CONFIG.api.createCheckout}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to create checkout session');
+        }
+        
+        // Redirect to Stripe Checkout
+        window.location.href = data.url;
+    } catch (error) {
+        console.error('Checkout error:', error);
+        alert('Failed to start checkout. Please try again.');
+    }
+}
+
+// ==================== INITIALIZATION ====================
+
+async function initChat() {
+    // Initialize Firebase Auth
+    const isAuthenticated = await initializeAuth();
+    if (!isAuthenticated) return;
+    
     setupEventListeners();
+    
+    // Check for successful payment
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+        showPaymentSuccess();
+        // Clean URL
+        window.history.replaceState({}, document.title, 'chat.html');
+    }
+}
+
+function showPaymentSuccess() {
+    const successDiv = document.createElement('div');
+    successDiv.className = 'alert alert-success mx-2 my-2';
+    successDiv.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <div>
+                <strong>Welcome to Paramind Pro!</strong>
+                <div class="small">Your subscription is now active. Enjoy unlimited messages!</div>
+            </div>
+        </div>
+    `;
+    elements.chatMessages.insertBefore(successDiv, elements.chatMessages.firstChild);
+    
+    // Refresh user profile
+    fetchUserProfile();
 }
 
 // ==================== EVENT LISTENERS ====================
@@ -416,6 +589,21 @@ function setupEventListeners() {
     if (elements.randomScenarioBtn) {
         elements.randomScenarioBtn.addEventListener('click', startRandomScenario);
     }
+    
+    // Upgrade buttons
+    if (elements.upgradeBtn) {
+        elements.upgradeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            createCheckoutSession();
+        });
+    }
+    
+    if (elements.upgradeLinkBanner) {
+        elements.upgradeLinkBanner.addEventListener('click', (e) => {
+            e.preventDefault();
+            createCheckoutSession();
+        });
+    }
 }
 
 // ==================== VIEW NAVIGATION ====================
@@ -453,11 +641,9 @@ function showScenarioSubcategory(category) {
     const data = SCENARIO_DATA[category];
     if (!data) return;
     
-    // Update title and description
     elements.subcategoryTitle.textContent = data.title;
     elements.subcategoryDescription.textContent = data.description;
     
-    // Populate scenario list
     elements.scenarioList.innerHTML = data.items.map(item => `
         <div class="subcategory-item" data-scenario-id="${item.id}">
             <div class="info">
@@ -468,7 +654,6 @@ function showScenarioSubcategory(category) {
         </div>
     `).join('');
     
-    // Add click handlers to scenario items
     elements.scenarioList.querySelectorAll('.subcategory-item').forEach(item => {
         item.addEventListener('click', () => {
             const scenarioId = item.dataset.scenarioId;
@@ -476,7 +661,6 @@ function showScenarioSubcategory(category) {
         });
     });
     
-    // Show subcategory view
     elements.scenarioCategories.style.display = 'none';
     elements.scenarioSubcategory.style.display = 'block';
 }
@@ -499,22 +683,16 @@ function openScenarioModal(scenarioId, title, description) {
 function startScenario() {
     if (!chatState.currentScenario) return;
     
-    // Close modal
     const modal = bootstrap.Modal.getInstance(elements.scenarioModal);
     modal.hide();
     
-    // Switch to chat view
     switchView('chatView');
-    
-    // Clear current messages
     clearChat();
     
-    // Hide welcome message
     if (elements.welcomeMessage) {
         elements.welcomeMessage.style.display = 'none';
     }
     
-    // Add scenario banner
     const scenarioTitle = elements.scenarioModalTitle.textContent;
     const bannerDiv = document.createElement('div');
     bannerDiv.className = 'alert alert-info mx-2 my-2';
@@ -529,63 +707,33 @@ function startScenario() {
     `;
     elements.chatMessages.appendChild(bannerDiv);
     
-    // Start the scenario with AI response
-    showLoading();
+    // Get starter message
+    const starterMessage = SCENARIO_STARTERS[chatState.currentScenario] || 
+        "Hello, thank you for coming. I'm not feeling well at all. Where would you like to start?";
     
-    setTimeout(() => {
-        hideLoading();
-        
-        // Get appropriate starter message
-        const starterMessage = getScenarioStarterMessage(chatState.currentScenario);
-        addMessage('assistant', starterMessage);
-    }, 1000);
+    addMessage('assistant', starterMessage);
+    
+    // Add to conversation history for context
+    chatState.conversationHistory.push({
+        role: 'assistant',
+        content: starterMessage
+    });
 }
 
-function getScenarioStarterMessage(scenarioId) {
-    // Default starter messages based on scenario type
-    const starters = {
-        "cardiac-chest-pain": "Hello... I've called the ambulance because I've got this terrible pain in my chest. It started about 45 minutes ago. I was just sitting watching telly and it came on suddenly. It's really quite bad... I feel a bit sick too.",
-        "cardiac-stemi": "I don't know what's wrong with me... I've been feeling awful for the past hour. My stomach hurts and I feel really sick. I keep sweating but I don't have a temperature. My husband made me call because he says I look grey.",
-        "resp-asthma": "*wheeze* I can't... catch my breath... *wheeze* My inhaler isn't helping...",
-        "neuro-stroke": "*slurred speech* I... my arm... it won't work properly. My wife says my face looks funny. What's happening to me?",
-        "abdo-appendicitis": "The pain started around my belly button last night but now it's moved down here to my right side. It really hurts when I move. I've been sick twice.",
-        "resp-anaphylaxis": "*distressed* I can't breathe properly... my throat feels tight... I just ate some prawns at a restaurant... *scratching* I'm so itchy everywhere...",
-        "neuro-seizure": "*confused, slightly agitated* Where am I? What happened? My head hurts... I feel really tired and my tongue is sore...",
-        "trauma-rtc": "*groaning* My neck hurts... I can't move my legs properly... the car came out of nowhere...",
-        "paed-croup": "*parent speaking* She's making this horrible barking noise when she coughs and she's really struggling to breathe. It started in the night. She's only 2.",
-        "cardiac-af": "My heart keeps going really fast and then slowing down... it feels like it's fluttering in my chest. I feel a bit dizzy and short of breath.",
-        "abdo-aaa": "*pale, sweating* I've got this terrible pain in my back and stomach... it came on suddenly about an hour ago. I feel really unwell... *clutching abdomen*"
-    };
-    
-    return starters[scenarioId] || "Hello, thank you for coming. I'm not feeling well at all. Where would you like to start?";
-}
-
-// Start a random scenario
 function startRandomScenario() {
-    // Get all categories
     const categories = Object.keys(SCENARIO_DATA);
-    
-    // Pick a random category
     const randomCategory = categories[Math.floor(Math.random() * categories.length)];
-    
-    // Get items from that category
     const categoryItems = SCENARIO_DATA[randomCategory].items;
-    
-    // Pick a random scenario from that category
     const randomScenario = categoryItems[Math.floor(Math.random() * categoryItems.length)];
     
-    // Set the current scenario
     chatState.currentScenario = randomScenario.id;
     
-    // Clear current chat
     clearChat();
     
-    // Hide welcome message
     if (elements.welcomeMessage) {
         elements.welcomeMessage.style.display = 'none';
     }
     
-    // Add scenario banner
     const bannerDiv = document.createElement('div');
     bannerDiv.className = 'alert alert-info mx-2 my-2';
     bannerDiv.innerHTML = `
@@ -599,14 +747,15 @@ function startRandomScenario() {
     `;
     elements.chatMessages.appendChild(bannerDiv);
     
-    // Start the scenario with AI response
-    showLoading();
+    const starterMessage = SCENARIO_STARTERS[chatState.currentScenario] || 
+        "Hello, thank you for coming. I'm not feeling well at all. Where would you like to start?";
     
-    setTimeout(() => {
-        hideLoading();
-        const starterMessage = getScenarioStarterMessage(chatState.currentScenario);
-        addMessage('assistant', starterMessage);
-    }, 1000);
+    addMessage('assistant', starterMessage);
+    
+    chatState.conversationHistory.push({
+        role: 'assistant',
+        content: starterMessage
+    });
 }
 
 // ==================== DIFFERENTIAL NAVIGATION ====================
@@ -615,11 +764,9 @@ function showDiffSubcategory(category) {
     const data = DIFFERENTIAL_DATA[category];
     if (!data) return;
     
-    // Update title and description
     elements.diffSubcategoryTitle.textContent = data.title;
     elements.diffSubcategoryDescription.textContent = data.description;
     
-    // Populate differential list
     elements.diffList.innerHTML = data.items.map(item => `
         <div class="subcategory-item" data-diff-id="${item.id}">
             <div class="info">
@@ -630,7 +777,6 @@ function showDiffSubcategory(category) {
         </div>
     `).join('');
     
-    // Add click handlers - ask AI about the condition
     elements.diffList.querySelectorAll('.subcategory-item').forEach(item => {
         item.addEventListener('click', () => {
             const title = item.querySelector('h4').textContent;
@@ -638,7 +784,6 @@ function showDiffSubcategory(category) {
         });
     });
     
-    // Show subcategory view
     elements.diffCategories.style.display = 'none';
     elements.diffSubcategory.style.display = 'block';
 }
@@ -648,11 +793,9 @@ function hideDiffSubcategory() {
     elements.diffSubcategory.style.display = 'none';
 }
 
-function askAboutCondition(conditionName) {
-    // Switch to chat view and ask about the condition
+async function askAboutCondition(conditionName) {
     switchView('chatView');
     
-    // Hide welcome message
     if (elements.welcomeMessage) {
         elements.welcomeMessage.style.display = 'none';
     }
@@ -660,31 +803,26 @@ function askAboutCondition(conditionName) {
     const prompt = `Tell me about ${conditionName} for a paramedic: key features, red flags, and pre-hospital management.`;
     
     addMessage('user', prompt);
+    chatState.conversationHistory.push({ role: 'user', content: prompt });
     
-    // Increment message count
-    if (!chatState.isPro) {
-        chatState.messagesUsed = window.paramind.storage.incrementMessageCount();
-        updateMessageCounter();
-    }
-    
-    // Get AI response
     showLoading();
     
-    sendToAI(prompt).then(response => {
+    try {
+        const response = await sendMessageToAPI(prompt);
         hideLoading();
         addMessage('assistant', response);
-    }).catch(error => {
+        chatState.conversationHistory.push({ role: 'assistant', content: response });
+    } catch (error) {
         hideLoading();
-        addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
-    });
+        handleChatError(error);
+    }
 }
 
 // ==================== YOUR PATIENT FORM ====================
 
-function handlePatientForm(e) {
+async function handlePatientForm(e) {
     e.preventDefault();
     
-    // Gather form data
     const patientData = {
         age: document.getElementById('patientAge').value,
         sex: document.getElementById('patientSex').value,
@@ -704,37 +842,29 @@ function handlePatientForm(e) {
         notes: document.getElementById('additionalNotes').value
     };
     
-    // Build prompt from patient data
     const prompt = buildPatientPrompt(patientData);
+    const summaryMessage = formatPatientSummary(patientData);
     
-    // Switch to chat view
     switchView('chatView');
     
-    // Hide welcome message
     if (elements.welcomeMessage) {
         elements.welcomeMessage.style.display = 'none';
     }
     
-    // Add a summary message
-    const summaryMessage = formatPatientSummary(patientData);
     addMessage('user', summaryMessage);
+    chatState.conversationHistory.push({ role: 'user', content: prompt });
     
-    // Increment message count
-    if (!chatState.isPro) {
-        chatState.messagesUsed = window.paramind.storage.incrementMessageCount();
-        updateMessageCounter();
-    }
-    
-    // Get AI response
     showLoading();
     
-    sendToAI(prompt).then(response => {
+    try {
+        const response = await sendMessageToAPI(prompt);
         hideLoading();
         addMessage('assistant', response);
-    }).catch(error => {
+        chatState.conversationHistory.push({ role: 'assistant', content: response });
+    } catch (error) {
         hideLoading();
-        addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
-    });
+        handleChatError(error);
+    }
 }
 
 function buildPatientPrompt(data) {
@@ -758,7 +888,7 @@ function buildPatientPrompt(data) {
     
     if (data.notes) prompt += `\nAdditional Notes: ${data.notes}\n`;
     
-    prompt += `\nBased on ${chatState.userTrust} guidelines, what are the key differential diagnoses, red flags to consider, and recommended pre-hospital management?`;
+    prompt += `\nBased on my trust guidelines, what are the key differential diagnoses, red flags to consider, and recommended pre-hospital management?`;
     
     return prompt;
 }
@@ -795,69 +925,41 @@ async function handleSendMessage(e) {
     if (!message || chatState.isLoading) return;
     
     // Check message limit for free users
-    if (!chatState.isPro && chatState.messagesUsed >= window.paramind.CONFIG.freeTier.dailyMessages) {
+    if (!chatState.isPro && chatState.messagesRemaining <= 0) {
         showLimitReached();
         return;
     }
     
-    // Clear input
     elements.messageInput.value = '';
     elements.messageInput.style.height = 'auto';
     
-    // Hide welcome message
     if (elements.welcomeMessage) {
         elements.welcomeMessage.style.display = 'none';
     }
     
-    // Add user message
     addMessage('user', message);
+    chatState.conversationHistory.push({ role: 'user', content: message });
     
-    // Increment message count
-    if (!chatState.isPro) {
-        chatState.messagesUsed = window.paramind.storage.incrementMessageCount();
-        updateMessageCounter();
-    }
-    
-    // Show loading
     showLoading();
     
-    // Get AI response
     try {
-        const response = await sendToAI(message);
+        const response = await sendMessageToAPI(message);
         hideLoading();
         addMessage('assistant', response);
+        chatState.conversationHistory.push({ role: 'assistant', content: response });
     } catch (error) {
         hideLoading();
-        addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
-        console.error('Chat error:', error);
+        handleChatError(error);
     }
 }
 
-async function sendToAI(message) {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    const lowerMessage = message.toLowerCase();
-    
-    // Demo responses based on keywords
-    if (lowerMessage.includes('chest pain')) {
-        return `**Based on ${chatState.userTrust} guidelines:**\n\nFor chest pain assessment, use your systematic ABCDE approach:\n\n**Key Assessment Points:**\n• Onset, character, radiation, severity (0-10)\n• Associated symptoms: SOB, sweating, nausea, palpitations\n• Cardiac risk factors: smoking, diabetes, hypertension, family history, cholesterol\n• Previous cardiac history\n\n**Red Flags:**\n• Crushing/pressure sensation\n• Radiation to arm, jaw, or back\n• Diaphoresis\n• Associated breathlessness\n• Haemodynamic instability\n\n**Immediate Actions:**\n• 12-lead ECG\n• Aspirin 300mg (if not contraindicated)\n• GTN if SBP >90mmHg (and no contraindications)\n• IV access\n• Consider pain management\n\nWould you like me to go into more detail on any specific aspect?`;
+function handleChatError(error) {
+    if (error.message === 'LIMIT_REACHED') {
+        showLimitReached();
+    } else {
+        addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+        console.error('Chat error:', error);
     }
-    
-    if (lowerMessage.includes('stemi') || lowerMessage.includes('nstemi')) {
-        return `**STEMI vs NSTEMI:**\n\n**STEMI (ST-Elevation MI):**\n• Complete coronary artery occlusion\n• ST elevation ≥1mm in 2+ contiguous leads\n• Requires immediate PPCI pathway activation\n• Time-critical: door-to-balloon <90 minutes\n\n**NSTEMI (Non-ST-Elevation MI):**\n• Partial coronary occlusion\n• ST depression, T-wave inversion, or no ECG changes\n• Elevated troponin confirms diagnosis\n• Risk-stratified management\n\n**Pre-hospital Management (Both):**\n• Aspirin 300mg PO\n• GTN if SBP >90mmHg\n• Morphine for pain (with antiemetic)\n• Oxygen only if SpO2 <94%\n• Pre-alert receiving hospital\n\nRemember to follow your ${chatState.userTrust} specific pathways.`;
-    }
-    
-    if (lowerMessage.includes('gtn') || lowerMessage.includes('contraindication')) {
-        return `**GTN Contraindications (${chatState.userTrust} JRCALC):**\n\n**Absolute Contraindications:**\n• SBP <90mmHg\n• HR <50 or >150 bpm\n• Right ventricular infarction (suspected/confirmed)\n• Severe aortic stenosis\n• Hypertrophic obstructive cardiomyopathy\n\n**Phosphodiesterase Inhibitors:**\n• Sildenafil/Vardenafil - within 24 hours\n• Tadalafil - within 48 hours\n\n**Relative Cautions:**\n• Raised intracranial pressure\n• Constrictive pericarditis\n• Already hypotensive\n\n**Administration:**\n• 400mcg sublingual spray\n• Can repeat after 5 minutes if pain persists\n• Monitor BP before and after`;
-    }
-    
-    if (lowerMessage.includes('differential') || lowerMessage.includes('diagnosis')) {
-        return `I'd be happy to help with differential diagnoses. To give you the most relevant guidance, could you tell me:\n\n1. What is the patient's main presenting complaint?\n2. Any key vital signs abnormalities?\n3. Relevant medical history?\n\nAlternatively, you can use the **Your Patient** section in the bottom menu to input the full clinical picture, and I'll provide structured guidance based on ${chatState.userTrust} protocols.`;
-    }
-    
-    // Default response
-    return `Thank you for your question. As your ${chatState.userTrust} clinical assistant, I'm here to help.\n\nI can assist with:\n• Patient assessment approaches\n• Differential diagnoses\n• Medication queries and calculations\n• Clinical pathways and protocols\n• Interactive learning scenarios\n\nTry the **Scenarios** section for interactive practice, or **Differentials** to explore conditions by body system.\n\nWhat would you like to know more about?`;
 }
 
 function addMessage(role, content) {
@@ -918,12 +1020,12 @@ function hideLoading() {
 
 function updateMessageCounter() {
     if (elements.messagesUsed) {
-        elements.messagesUsed.textContent = chatState.messagesUsed;
+        const used = Math.max(0, 5 - chatState.messagesRemaining);
+        elements.messagesUsed.textContent = used;
     }
     
-    // Update banner styling based on usage
     if (elements.messageLimitBanner && !chatState.isPro) {
-        if (chatState.messagesUsed >= window.paramind.CONFIG.freeTier.dailyMessages) {
+        if (chatState.messagesRemaining <= 0) {
             elements.messageLimitBanner.style.background = 'rgba(220, 53, 69, 0.1)';
         }
     }
@@ -944,9 +1046,9 @@ function showLimitReached() {
         <div class="message-content">
             <strong>Daily message limit reached</strong><br><br>
             You've used all 5 free messages for today. Your limit resets at midnight.<br><br>
-            <a href="#" class="btn btn-primary btn-sm">
+            <button class="btn btn-primary btn-sm" onclick="createCheckoutSession()">
                 <i class="bi bi-star me-1"></i>Upgrade to Pro - £4.99/month
-            </a>
+            </button>
         </div>
     `;
     
@@ -956,9 +1058,9 @@ function showLimitReached() {
 
 function clearChat() {
     chatState.messages = [];
+    chatState.conversationHistory = [];
     chatState.currentScenario = null;
     
-    // Remove all messages except welcome
     const messages = elements.chatMessages.querySelectorAll('.message, .alert');
     messages.forEach(msg => msg.remove());
 }
@@ -966,6 +1068,9 @@ function clearChat() {
 function scrollToBottom() {
     elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
 }
+
+// Make createCheckoutSession available globally for the button onclick
+window.createCheckoutSession = createCheckoutSession;
 
 // ==================== INITIALIZE ====================
 

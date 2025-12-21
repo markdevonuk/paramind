@@ -4,21 +4,15 @@
 
 // Configuration
 const CONFIG = {
-    // Will be replaced with actual Firebase config
-    firebase: {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_PROJECT.firebaseapp.com",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_PROJECT.appspot.com",
-        messagingSenderId: "YOUR_SENDER_ID",
-        appId: "YOUR_APP_ID"
-    },
-    // API endpoints (will point to Firebase Cloud Functions)
+    // API endpoints (Firebase Cloud Functions)
     api: {
-        baseUrl: "https://your-region-your-project.cloudfunctions.net",
+        baseUrl: "https://europe-west2-paramind-64b8e.cloudfunctions.net",
         chat: "/chat",
         createCheckout: "/createCheckoutSession",
-        user: "/user"
+        user: "/user",
+        saveConversation: "/saveConversation",
+        conversations: "/conversations",
+        deleteConversation: "/deleteConversation"
     },
     // Free tier limits
     freeTier: {
