@@ -1,979 +1,1222 @@
 /* ============================================
-   PARAMIND - Chat Functionality
-   With Bottom Navigation & Section Views
+   PARAMIND - Scenario Prompts & Patient Data
+   This file contains all the AI instructions and
+   patient data for interactive learning scenarios
    ============================================ */
 
-// ==================== DATA ====================
+// ==================== SYSTEM PROMPT TEMPLATE ====================
+// This is the main instruction that tells the AI how to behave as a patient
 
-// Scenario Categories and Items
-const SCENARIO_DATA = {
-    cardiac: {
-        title: "Cardiac Scenarios",
-        description: "Practice cardiac-related patient assessments",
-        items: [
-            { id: "cardiac-chest-pain", title: "Chest Pain - ACS", description: "65-year-old with crushing chest pain" },
-            { id: "cardiac-palpitations", title: "Palpitations", description: "45-year-old with racing heart" },
-            { id: "cardiac-syncope", title: "Cardiac Syncope", description: "70-year-old collapsed at home" },
-            { id: "cardiac-heart-failure", title: "Heart Failure", description: "78-year-old with worsening breathlessness" },
-            { id: "cardiac-af", title: "Atrial Fibrillation", description: "62-year-old with irregular pulse" },
-            { id: "cardiac-bradycardia", title: "Symptomatic Bradycardia", description: "80-year-old dizzy and pale" },
-            { id: "cardiac-stemi", title: "Inferior STEMI", description: "58-year-old with nausea and sweating" },
-            { id: "cardiac-arrest", title: "Cardiac Arrest", description: "Witnessed collapse scenario" }
-        ]
-    },
-    respiratory: {
-        title: "Respiratory Scenarios",
-        description: "Practice respiratory assessments",
-        items: [
-            { id: "resp-asthma", title: "Acute Asthma", description: "28-year-old with severe wheeze" },
-            { id: "resp-copd", title: "COPD Exacerbation", description: "72-year-old struggling to breathe" },
-            { id: "resp-pneumonia", title: "Community Acquired Pneumonia", description: "65-year-old with productive cough" },
-            { id: "resp-pe", title: "Pulmonary Embolism", description: "35-year-old with pleuritic chest pain" },
-            { id: "resp-covid", title: "COVID-19 Pneumonitis", description: "55-year-old with worsening SpO2" },
-            { id: "resp-anaphylaxis", title: "Anaphylaxis", description: "25-year-old with bee sting reaction" }
-        ]
-    },
-    abdominal: {
-        title: "Abdominal Scenarios",
-        description: "Practice abdominal assessments",
-        items: [
-            { id: "abdo-appendicitis", title: "Appendicitis", description: "22-year-old with RIF pain" },
-            { id: "abdo-cholecystitis", title: "Cholecystitis", description: "48-year-old with RUQ pain after eating" },
-            { id: "abdo-aaa", title: "Ruptured AAA", description: "75-year-old with back pain and collapse" },
-            { id: "abdo-bowel-obstruction", title: "Bowel Obstruction", description: "68-year-old with vomiting and distension" },
-            { id: "abdo-gi-bleed", title: "GI Bleed", description: "60-year-old with melaena" },
-            { id: "abdo-renal-colic", title: "Renal Colic", description: "40-year-old with severe loin pain" },
-            { id: "abdo-pancreatitis", title: "Acute Pancreatitis", description: "50-year-old with epigastric pain" }
-        ]
-    },
-    neuro: {
-        title: "Neurological Scenarios",
-        description: "Practice neurological assessments",
-        items: [
-            { id: "neuro-stroke", title: "Acute Stroke", description: "72-year-old with facial droop and arm weakness" },
-            { id: "neuro-seizure", title: "Seizure", description: "35-year-old post-ictal in public" },
-            { id: "neuro-meningitis", title: "Meningitis", description: "20-year-old with headache and neck stiffness" },
-            { id: "neuro-head-injury", title: "Head Injury", description: "45-year-old fallen from ladder" },
-            { id: "neuro-hypoglycaemia", title: "Hypoglycaemia", description: "58-year-old diabetic found confused" }
-        ]
-    },
-    trauma: {
-        title: "Trauma Scenarios",
-        description: "Practice trauma assessments",
-        items: [
-            { id: "trauma-rtc", title: "Road Traffic Collision", description: "Multi-vehicle RTC with entrapment" },
-            { id: "trauma-fall", title: "Fall from Height", description: "Builder fallen from scaffolding" },
-            { id: "trauma-stabbing", title: "Penetrating Trauma", description: "25-year-old stabbed in chest" },
-            { id: "trauma-burns", title: "Major Burns", description: "House fire victim" },
-            { id: "trauma-fracture", title: "Open Fracture", description: "Cyclist with open tibial fracture" },
-            { id: "trauma-spinal", title: "Spinal Injury", description: "Diving accident with neck pain" }
-        ]
-    },
-    paediatric: {
-        title: "Paediatric Scenarios",
-        description: "Practice paediatric assessments",
-        items: [
-            { id: "paed-croup", title: "Croup", description: "2-year-old with barking cough" },
-            { id: "paed-bronchiolitis", title: "Bronchiolitis", description: "6-month-old with breathing difficulty" },
-            { id: "paed-febrile-convulsion", title: "Febrile Convulsion", description: "18-month-old post-seizure" },
-            { id: "paed-sepsis", title: "Paediatric Sepsis", description: "4-year-old with fever and rash" },
-            { id: "paed-nai", title: "Safeguarding Concerns", description: "Child with unexplained injuries" }
-        ]
-    },
-    obstetric: {
-        title: "Obstetric Scenarios",
-        description: "Practice obstetric emergencies",
-        items: [
-            { id: "obs-labour", title: "Imminent Delivery", description: "Full term with urge to push" },
-            { id: "obs-pph", title: "Postpartum Haemorrhage", description: "Heavy bleeding after delivery" },
-            { id: "obs-eclampsia", title: "Eclampsia", description: "38 weeks pregnant with seizure" },
-            { id: "obs-cord-prolapse", title: "Cord Prolapse", description: "Visible cord after waters breaking" }
-        ]
-    },
-    "mental-health": {
-        title: "Mental Health Scenarios",
-        description: "Practice mental health assessments",
-        items: [
-            { id: "mh-self-harm", title: "Self Harm", description: "18-year-old with lacerations" },
-            { id: "mh-suicidal", title: "Suicidal Ideation", description: "45-year-old expressing suicidal thoughts" },
-            { id: "mh-psychosis", title: "Acute Psychosis", description: "30-year-old with paranoid delusions" },
-            { id: "mh-overdose", title: "Intentional Overdose", description: "25-year-old taken paracetamol" }
-        ]
-    }
-};
+const SCENARIO_SYSTEM_PROMPT = `You are playing the role of a patient in a paramedic training scenario. Your job is to help the paramedic student learn by responding realistically to their questions.
 
-// Differential Diagnosis Data
-const DIFFERENTIAL_DATA = {
-    "chest-pain": {
-        title: "Chest Pain Differentials",
-        description: "Common causes of chest pain",
-        items: [
-            { id: "acs", title: "Acute Coronary Syndrome", description: "STEMI, NSTEMI, Unstable Angina" },
-            { id: "pe", title: "Pulmonary Embolism", description: "Pleuritic, sudden onset, risk factors" },
-            { id: "pneumothorax", title: "Pneumothorax", description: "Sudden onset, reduced air entry" },
-            { id: "aortic-dissection", title: "Aortic Dissection", description: "Tearing pain, BP differential" },
-            { id: "pericarditis", title: "Pericarditis", description: "Sharp, positional, recent viral illness" },
-            { id: "oesophageal", title: "Oesophageal Spasm/Reflux", description: "Burning, worse after eating" },
-            { id: "msk-chest", title: "Musculoskeletal", description: "Reproducible on palpation" },
-            { id: "anxiety-chest", title: "Anxiety/Panic Attack", description: "Tingling, hyperventilation" },
-            { id: "pneumonia-chest", title: "Pneumonia/Pleurisy", description: "Fever, cough, pleuritic" },
-            { id: "shingles", title: "Herpes Zoster", description: "Dermatomal pain, rash" },
-            { id: "cholecystitis-chest", title: "Biliary Colic", description: "RUQ, referred to shoulder" },
-            { id: "costochondritis", title: "Costochondritis", description: "Tender costochondral joints" }
-        ]
-    },
-    "sob": {
-        title: "Shortness of Breath Differentials",
-        description: "Common causes of dyspnoea",
-        items: [
-            { id: "asthma-diff", title: "Acute Asthma", description: "Wheeze, previous history" },
-            { id: "copd-diff", title: "COPD Exacerbation", description: "Smoker, chronic history" },
-            { id: "heart-failure-diff", title: "Heart Failure", description: "Orthopnoea, peripheral oedema" },
-            { id: "pe-diff", title: "Pulmonary Embolism", description: "Risk factors, pleuritic pain" },
-            { id: "pneumonia-diff", title: "Pneumonia", description: "Fever, productive cough" },
-            { id: "pneumothorax-diff", title: "Pneumothorax", description: "Sudden onset, reduced air entry" },
-            { id: "anaphylaxis-diff", title: "Anaphylaxis", description: "Trigger, swelling, rash" },
-            { id: "anxiety-sob", title: "Anxiety/Panic", description: "No physical cause, tingling" },
-            { id: "metabolic-acidosis", title: "Metabolic Acidosis", description: "DKA, sepsis, overdose" },
-            { id: "anaemia", title: "Severe Anaemia", description: "Gradual onset, pallor" }
-        ]
-    },
-    "abdo-pain": {
-        title: "Abdominal Pain Differentials",
-        description: "Common causes by location",
-        items: [
-            { id: "appendicitis-diff", title: "Appendicitis", description: "RIF pain, migration from umbilicus" },
-            { id: "cholecystitis-diff", title: "Cholecystitis", description: "RUQ, worse after fatty food" },
-            { id: "pancreatitis-diff", title: "Pancreatitis", description: "Epigastric, radiating to back" },
-            { id: "aaa-diff", title: "AAA Rupture", description: "Pulsatile mass, back pain, shock" },
-            { id: "bowel-obstruction-diff", title: "Bowel Obstruction", description: "Vomiting, distension, no flatus" },
-            { id: "renal-colic-diff", title: "Renal Colic", description: "Loin to groin, colicky" },
-            { id: "uti-diff", title: "UTI/Pyelonephritis", description: "Dysuria, frequency, loin pain" },
-            { id: "diverticulitis", title: "Diverticulitis", description: "LIF pain, elderly, fever" },
-            { id: "gi-bleed-diff", title: "GI Bleed", description: "Melaena, haematemesis, shock" },
-            { id: "ectopic", title: "Ectopic Pregnancy", description: "Female, missed period, bleeding" },
-            { id: "ovarian-torsion", title: "Ovarian Torsion/Cyst", description: "Sudden onset, female" },
-            { id: "testicular-torsion", title: "Testicular Torsion", description: "Young male, severe pain" },
-            { id: "hernia", title: "Strangulated Hernia", description: "Irreducible, tender" },
-            { id: "peptic-ulcer", title: "Peptic Ulcer/Perforation", description: "Epigastric, rigid abdomen" },
-            { id: "mesenteric-ischaemia", title: "Mesenteric Ischaemia", description: "AF, pain out of proportion" }
-        ]
-    },
-    "headache": {
-        title: "Headache Differentials",
-        description: "Common causes of headache",
-        items: [
-            { id: "tension-headache", title: "Tension Headache", description: "Band-like, bilateral" },
-            { id: "migraine", title: "Migraine", description: "Unilateral, aura, photophobia" },
-            { id: "sah", title: "Subarachnoid Haemorrhage", description: "Thunderclap, worst ever" },
-            { id: "meningitis-diff", title: "Meningitis", description: "Fever, neck stiffness, photophobia" },
-            { id: "temporal-arteritis", title: "Temporal Arteritis", description: ">50, scalp tenderness, jaw claudication" },
-            { id: "raised-icp", title: "Raised ICP", description: "Worse on waking, vomiting" },
-            { id: "cluster-headache", title: "Cluster Headache", description: "Unilateral, eye watering, restless" },
-            { id: "sinusitis", title: "Sinusitis", description: "Facial pain, worse bending forward" }
-        ]
-    },
-    "altered-loc": {
-        title: "Altered Consciousness Differentials",
-        description: "Causes of reduced GCS",
-        items: [
-            { id: "hypoglycaemia-diff", title: "Hypoglycaemia", description: "Diabetic, sweaty, tremor" },
-            { id: "stroke-diff", title: "Stroke/TIA", description: "Focal neurology, sudden onset" },
-            { id: "head-injury-diff", title: "Head Injury", description: "History of trauma" },
-            { id: "seizure-diff", title: "Post-ictal", description: "Witnessed seizure, confusion" },
-            { id: "overdose-diff", title: "Drug/Alcohol Overdose", description: "Toxidrome, history" },
-            { id: "sepsis-diff", title: "Sepsis", description: "Infection source, fever/hypothermia" },
-            { id: "dka-diff", title: "DKA/HHS", description: "Diabetic, high BM, dehydration" },
-            { id: "hepatic-enceph", title: "Hepatic Encephalopathy", description: "Liver disease, asterixis" },
-            { id: "hyponatraemia", title: "Hyponatraemia", description: "Elderly, diuretics, confusion" },
-            { id: "hypothermia-diff", title: "Hypothermia", description: "Cold, bradycardia, elderly" },
-            { id: "co-poisoning", title: "Carbon Monoxide", description: "Multiple casualties, headache" }
-        ]
-    },
-    "collapse": {
-        title: "Collapse / Syncope Differentials",
-        description: "Causes of transient LOC",
-        items: [
-            { id: "vasovagal", title: "Vasovagal Syncope", description: "Trigger, prodrome, rapid recovery" },
-            { id: "cardiac-syncope-diff", title: "Cardiac Syncope", description: "No warning, exertional, palpitations" },
-            { id: "orthostatic", title: "Orthostatic Hypotension", description: "On standing, medications" },
-            { id: "seizure-collapse", title: "Seizure", description: "Witnessed convulsions, post-ictal" },
-            { id: "hypoglycaemia-collapse", title: "Hypoglycaemia", description: "Diabetic, missed meal" },
-            { id: "pe-collapse", title: "Massive PE", description: "Sudden, SOB, risk factors" },
-            { id: "aortic-stenosis", title: "Aortic Stenosis", description: "Exertional, murmur" },
-            { id: "arrhythmia", title: "Arrhythmia", description: "Palpitations before collapse" },
-            { id: "situational", title: "Situational Syncope", description: "Cough, micturition, defecation" }
-        ]
-    },
-    "back-pain": {
-        title: "Back Pain Differentials",
-        description: "Serious and common causes",
-        items: [
-            { id: "mechanical", title: "Mechanical Back Pain", description: "Movement related, no red flags" },
-            { id: "disc-prolapse", title: "Disc Prolapse", description: "Radicular pain, dermatomal" },
-            { id: "cauda-equina", title: "Cauda Equina Syndrome", description: "Saddle anaesthesia, urinary symptoms" },
-            { id: "aaa-back", title: "AAA Rupture", description: "Elderly, pulsatile mass, shock" },
-            { id: "spinal-cord-comp", title: "Spinal Cord Compression", description: "Cancer history, bilateral leg symptoms" },
-            { id: "vertebral-fracture", title: "Vertebral Fracture", description: "Trauma, osteoporosis, point tender" },
-            { id: "infection-spine", title: "Spinal Infection/Abscess", description: "Fever, IVDU, recent procedure" }
-        ]
-    },
-    "leg-pain": {
-        title: "Leg Pain/Swelling Differentials",
-        description: "Vascular and other causes",
-        items: [
-            { id: "dvt", title: "Deep Vein Thrombosis", description: "Unilateral swelling, Wells score" },
-            { id: "cellulitis", title: "Cellulitis", description: "Erythema, warmth, spreading" },
-            { id: "peripheral-arterial", title: "Acute Limb Ischaemia", description: "6 Ps, pulseless, cold" },
-            { id: "compartment", title: "Compartment Syndrome", description: "Trauma, tense, severe pain" },
-            { id: "ruptured-bakers", title: "Ruptured Baker's Cyst", description: "Calf swelling, known cyst" },
-            { id: "msk-leg", title: "Musculoskeletal Strain", description: "Activity related, localised" }
-        ]
-    }
-};
+## YOUR ROLE:
+- You ARE the patient described below
+- You speak as a real patient would - you don't know medical terminology
+- You only answer the questions the paramedic asks you
+- You don't volunteer information they haven't asked for
+- You express emotions appropriately (pain, fear, confusion, etc.)
 
-// Scenario prompts for AI conversation
-const SCENARIO_PROMPTS = {
+## IMPORTANT RULES:
+
+### When asked for observations/vitals:
+- If they say "what are your obs?" or "can I do your observations?" - ask them "Which observations would you like?"
+- If they ask for SPECIFIC observations (like "what's your blood pressure?"), give them that value
+- Only give observations they specifically ask for
+- You can say things like "I don't know my blood pressure, but you can check it" and then provide the value
+
+### How to respond:
+- Use everyday language, not medical terms
+- If you don't understand a medical term, ask them to explain
+- Show appropriate symptoms (shortness of breath = speak in short sentences, pain = wince/pause)
+- Be consistent with your symptoms throughout
+
+### The goal:
+- Wait for the paramedic to ask questions and assess you
+- When they give you a working diagnosis/provisional diagnosis/impression, tell them:
+  - If they are CORRECT: Confirm they got it right and praise their assessment
+  - If they are PARTIALLY CORRECT: Tell them what they got right and hint at what they missed
+  - If they are INCORRECT: Gently explain why and give them another chance to think about it
+  
+### At the end:
+- Provide constructive feedback on their assessment approach
+- Highlight any red flags they identified or missed
+- Suggest any questions they should have asked
+
+## YOUR PATIENT DETAILS:
+{PATIENT_DATA}
+
+Remember: Stay in character as the patient. Only break character to give feedback when they provide their diagnosis.`;
+
+
+// ==================== DETAILED SCENARIO DATA ====================
+// Each scenario contains complete patient information
+
+const SCENARIO_PATIENT_DATA = {
+    
+    // ========== CARDIAC SCENARIOS ==========
+    
     "cardiac-chest-pain": {
         title: "Chest Pain - ACS",
-        prompt: "You are now a 65-year-old male patient named John presenting to a paramedic. You have crushing central chest pain that started 45 minutes ago while watching TV. The pain radiates to your left arm and jaw. You feel sweaty, nauseous, and anxious. You have a history of hypertension and high cholesterol. Answer the paramedic's questions as a realistic patient would - you may not know medical terminology. Do not reveal your diagnosis. After the paramedic offers their assessment and treatment plan, provide feedback on what they did well and what they might have missed."
+        category: "cardiac",
+        difficulty: "intermediate",
+        patient: {
+            name: "John Thompson",
+            age: 65,
+            gender: "Male",
+            occupation: "Retired accountant"
+        },
+        condition: "STEMI - Anterior MI",
+        presentation: {
+            chiefComplaint: "Crushing chest pain",
+            onsetTime: "45 minutes ago",
+            location: "Central chest, radiating to left arm and jaw",
+            character: "Heavy, crushing, like an elephant sitting on my chest",
+            severity: "9/10",
+            onset: "Sudden, while watching TV",
+            duration: "Constant since onset",
+            aggravating: "Nothing specific, maybe breathing deeply",
+            relieving: "Nothing helps, tried antacids thinking it was indigestion",
+            associated: ["Sweating", "Nausea", "Anxious", "Slightly breathless"]
+        },
+        history: {
+            pastMedical: ["Hypertension - on medication", "High cholesterol - on statins", "Type 2 Diabetes - diet controlled"],
+            medications: ["Ramipril 5mg", "Atorvastatin 20mg", "Aspirin 75mg"],
+            allergies: "None known",
+            familyHistory: "Father died of heart attack at 62",
+            socialHistory: "Ex-smoker (quit 5 years ago, 30 pack-years), occasional alcohol, lives with wife"
+        },
+        observations: {
+            heartRate: 92,
+            bloodPressure: "158/94",
+            respiratoryRate: 22,
+            oxygenSaturation: 96,
+            temperature: 36.8,
+            bloodGlucose: 8.2,
+            gcs: 15,
+            painScore: 9,
+            capRefill: "2 seconds",
+            skinColour: "Pale, diaphoretic (sweaty)"
+        },
+        examination: {
+            general: "Pale, sweaty, clutching chest, appears distressed",
+            chest: "Clear to auscultation bilaterally",
+            heart: "Regular rhythm, no murmurs audible",
+            abdomen: "Soft, non-tender",
+            legs: "No swelling, pulses present"
+        },
+        ecgFindings: "ST elevation in leads V1-V4, reciprocal changes in inferior leads",
+        redFlags: [
+            "Crushing central chest pain",
+            "Radiation to arm and jaw",
+            "Diaphoresis (sweating)",
+            "Cardiac risk factors",
+            "Family history"
+        ],
+        correctDiagnosis: ["STEMI", "ST-elevation MI", "Anterior MI", "Heart attack", "Myocardial infarction", "ACS"],
+        differentials: ["NSTEMI", "Unstable angina", "Aortic dissection"],
+        keyQuestions: [
+            "When did the pain start?",
+            "What does the pain feel like?",
+            "Does it go anywhere else?",
+            "Any other symptoms?",
+            "Medical history?",
+            "Medications?",
+            "Any allergies?"
+        ],
+        patientBehaviour: "Anxious, clutching chest, speaking in slightly short sentences, occasionally pausing due to discomfort"
     },
+
     "cardiac-stemi": {
         title: "Inferior STEMI",
-        prompt: "You are a 58-year-old female patient named Margaret. You have been feeling unwell for the past hour with nausea, sweating, and discomfort in your upper abdomen and back. You don't have typical chest pain but feel very unwell. You have type 2 diabetes. Answer the paramedic's questions realistically. After their assessment, provide feedback on their recognition of atypical MI presentation."
-    }
-    // Add more scenario prompts as needed
-};
-
-// ==================== STATE ====================
-
-const chatState = {
-    messages: [],
-    isLoading: false,
-    currentScenario: null,
-    messagesUsed: 0,
-    isPro: false,
-    userTrust: 'SWAST',
-    currentView: 'chatView'
-};
-
-// ==================== DOM ELEMENTS ====================
-
-const elements = {
-    // Views
-    chatView: document.getElementById('chatView'),
-    scenariosView: document.getElementById('scenariosView'),
-    differentialsView: document.getElementById('differentialsView'),
-    patientView: document.getElementById('patientView'),
-    
-    // Chat elements
-    chatMessages: document.getElementById('chatMessages'),
-    chatForm: document.getElementById('chatForm'),
-    messageInput: document.getElementById('messageInput'),
-    sendBtn: document.getElementById('sendBtn'),
-    welcomeMessage: document.getElementById('welcomeMessage'),
-    
-    // Navigation
-    navItems: document.querySelectorAll('.nav-item'),
-    
-    // Message counter
-    messagesUsed: document.getElementById('messagesUsed'),
-    messageLimitBanner: document.getElementById('messageLimitBanner'),
-    
-    // User info
-    userTrust: document.getElementById('userTrust'),
-    userEmail: document.getElementById('userEmail'),
-    
-    // Scenario elements
-    scenarioCategories: document.getElementById('scenarioCategories'),
-    scenarioSubcategory: document.getElementById('scenarioSubcategory'),
-    scenarioList: document.getElementById('scenarioList'),
-    backToScenarioCategories: document.getElementById('backToScenarioCategories'),
-    subcategoryTitle: document.getElementById('subcategoryTitle'),
-    subcategoryDescription: document.getElementById('subcategoryDescription'),
-    
-    // Differential elements
-    diffCategories: document.getElementById('diffCategories'),
-    diffSubcategory: document.getElementById('diffSubcategory'),
-    diffList: document.getElementById('diffList'),
-    backToDiffCategories: document.getElementById('backToDiffCategories'),
-    diffSubcategoryTitle: document.getElementById('diffSubcategoryTitle'),
-    diffSubcategoryDescription: document.getElementById('diffSubcategoryDescription'),
-    
-    // Modal
-    scenarioModal: document.getElementById('scenarioModal'),
-    scenarioModalTitle: document.getElementById('scenarioModalTitle'),
-    scenarioModalDescription: document.getElementById('scenarioModalDescription'),
-    startScenarioBtn: document.getElementById('startScenarioBtn'),
-    
-    // Patient form
-    patientForm: document.getElementById('patientForm'),
-    
-    // Random scenario button
-    randomScenarioBtn: document.getElementById('randomScenarioBtn')
-};
-
-// ==================== INITIALIZATION ====================
-
-function initChat() {
-    // Load message count
-    chatState.messagesUsed = window.paramind.storage.getMessageCount();
-    updateMessageCounter();
-    
-    // Load user data
-    const user = window.paramind.storage.getUser();
-    if (user) {
-        chatState.userTrust = user.trust || 'SWAST';
-        chatState.isPro = user.subscriptionStatus === 'active';
-        
-        // Update trust badge
-        if (elements.userTrust) {
-            elements.userTrust.textContent = chatState.userTrust;
-        }
-        
-        // Update email display
-        if (elements.userEmail && user.email) {
-            elements.userEmail.textContent = user.email;
-        }
-        
-        // Hide message limit banner for pro users
-        if (chatState.isPro && elements.messageLimitBanner) {
-            elements.messageLimitBanner.style.display = 'none';
-        }
-    }
-    
-    setupEventListeners();
-}
-
-// ==================== EVENT LISTENERS ====================
-
-function setupEventListeners() {
-    // Bottom navigation
-    elements.navItems.forEach(item => {
-        item.addEventListener('click', () => {
-            const viewId = item.dataset.view;
-            switchView(viewId);
-        });
-    });
-    
-    // Chat form
-    if (elements.chatForm) {
-        elements.chatForm.addEventListener('submit', handleSendMessage);
-    }
-    
-    // Auto-resize textarea
-    if (elements.messageInput) {
-        elements.messageInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-        });
-        
-        // Submit on Enter (Shift+Enter for new line)
-        elements.messageInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                elements.chatForm.dispatchEvent(new Event('submit'));
-            }
-        });
-    }
-    
-    // Scenario category cards
-    document.querySelectorAll('[data-category]').forEach(card => {
-        card.addEventListener('click', () => {
-            const category = card.dataset.category;
-            showScenarioSubcategory(category);
-        });
-    });
-    
-    // Back button for scenarios
-    if (elements.backToScenarioCategories) {
-        elements.backToScenarioCategories.addEventListener('click', (e) => {
-            e.preventDefault();
-            hideScenarioSubcategory();
-        });
-    }
-    
-    // Differential category cards
-    document.querySelectorAll('[data-diff-category]').forEach(card => {
-        card.addEventListener('click', () => {
-            const category = card.dataset.diffCategory;
-            showDiffSubcategory(category);
-        });
-    });
-    
-    // Back button for differentials
-    if (elements.backToDiffCategories) {
-        elements.backToDiffCategories.addEventListener('click', (e) => {
-            e.preventDefault();
-            hideDiffSubcategory();
-        });
-    }
-    
-    // Start scenario button in modal
-    if (elements.startScenarioBtn) {
-        elements.startScenarioBtn.addEventListener('click', startScenario);
-    }
-    
-    // Patient form
-    if (elements.patientForm) {
-        elements.patientForm.addEventListener('submit', handlePatientForm);
-    }
-    
-    // Random scenario button
-    if (elements.randomScenarioBtn) {
-        elements.randomScenarioBtn.addEventListener('click', startRandomScenario);
-    }
-}
-
-// ==================== VIEW NAVIGATION ====================
-
-function switchView(viewId) {
-    // Update navigation active state
-    elements.navItems.forEach(item => {
-        item.classList.toggle('active', item.dataset.view === viewId);
-    });
-    
-    // Hide all views
-    document.querySelectorAll('.content-view').forEach(view => {
-        view.classList.remove('active');
-    });
-    
-    // Show selected view
-    const targetView = document.getElementById(viewId);
-    if (targetView) {
-        targetView.classList.add('active');
-    }
-    
-    chatState.currentView = viewId;
-    
-    // Reset subcategory views when switching
-    if (viewId === 'scenariosView') {
-        hideScenarioSubcategory();
-    } else if (viewId === 'differentialsView') {
-        hideDiffSubcategory();
-    }
-}
-
-// ==================== SCENARIO NAVIGATION ====================
-
-function showScenarioSubcategory(category) {
-    const data = SCENARIO_DATA[category];
-    if (!data) return;
-    
-    // Update title and description
-    elements.subcategoryTitle.textContent = data.title;
-    elements.subcategoryDescription.textContent = data.description;
-    
-    // Populate scenario list
-    elements.scenarioList.innerHTML = data.items.map(item => `
-        <div class="subcategory-item" data-scenario-id="${item.id}">
-            <div class="info">
-                <h4>${item.title}</h4>
-                <p>${item.description}</p>
-            </div>
-            <i class="bi bi-chevron-right arrow"></i>
-        </div>
-    `).join('');
-    
-    // Add click handlers to scenario items
-    elements.scenarioList.querySelectorAll('.subcategory-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const scenarioId = item.dataset.scenarioId;
-            openScenarioModal(scenarioId, item.querySelector('h4').textContent, item.querySelector('p').textContent);
-        });
-    });
-    
-    // Show subcategory view
-    elements.scenarioCategories.style.display = 'none';
-    elements.scenarioSubcategory.style.display = 'block';
-}
-
-function hideScenarioSubcategory() {
-    elements.scenarioCategories.style.display = 'block';
-    elements.scenarioSubcategory.style.display = 'none';
-}
-
-function openScenarioModal(scenarioId, title, description) {
-    chatState.currentScenario = scenarioId;
-    
-    elements.scenarioModalTitle.textContent = title;
-    elements.scenarioModalDescription.textContent = description + " This interactive scenario will test your assessment skills.";
-    
-    const modal = new bootstrap.Modal(elements.scenarioModal);
-    modal.show();
-}
-
-function startScenario() {
-    if (!chatState.currentScenario) return;
-    
-    // Close modal
-    const modal = bootstrap.Modal.getInstance(elements.scenarioModal);
-    modal.hide();
-    
-    // Switch to chat view
-    switchView('chatView');
-    
-    // Clear current messages
-    clearChat();
-    
-    // Hide welcome message
-    if (elements.welcomeMessage) {
-        elements.welcomeMessage.style.display = 'none';
-    }
-    
-    // Add scenario banner
-    const scenarioTitle = elements.scenarioModalTitle.textContent;
-    const bannerDiv = document.createElement('div');
-    bannerDiv.className = 'alert alert-info mx-2 my-2';
-    bannerDiv.innerHTML = `
-        <div class="d-flex align-items-center">
-            <i class="bi bi-mortarboard me-2"></i>
-            <div>
-                <strong>Scenario: ${scenarioTitle}</strong>
-                <div class="small">Assess the patient and provide your working diagnosis</div>
-            </div>
-        </div>
-    `;
-    elements.chatMessages.appendChild(bannerDiv);
-    
-    // Start the scenario with AI response
-    showLoading();
-    
-    setTimeout(() => {
-        hideLoading();
-        
-        // Get appropriate starter message
-        const starterMessage = getScenarioStarterMessage(chatState.currentScenario);
-        addMessage('assistant', starterMessage);
-    }, 1000);
-}
-
-function getScenarioStarterMessage(scenarioId) {
-    // Default starter messages based on scenario type
-    const starters = {
-        "cardiac-chest-pain": "Hello... I've called the ambulance because I've got this terrible pain in my chest. It started about 45 minutes ago. I was just sitting watching telly and it came on suddenly. It's really quite bad... I feel a bit sick too.",
-        "cardiac-stemi": "I don't know what's wrong with me... I've been feeling awful for the past hour. My stomach hurts and I feel really sick. I keep sweating but I don't have a temperature. My husband made me call because he says I look grey.",
-        "resp-asthma": "*wheeze* I can't... catch my breath... *wheeze* My inhaler isn't helping...",
-        "neuro-stroke": "*slurred speech* I... my arm... it won't work properly. My wife says my face looks funny. What's happening to me?",
-        "abdo-appendicitis": "The pain started around my belly button last night but now it's moved down here to my right side. It really hurts when I move. I've been sick twice.",
-        "resp-anaphylaxis": "*distressed* I can't breathe properly... my throat feels tight... I just ate some prawns at a restaurant... *scratching* I'm so itchy everywhere...",
-        "neuro-seizure": "*confused, slightly agitated* Where am I? What happened? My head hurts... I feel really tired and my tongue is sore...",
-        "trauma-rtc": "*groaning* My neck hurts... I can't move my legs properly... the car came out of nowhere...",
-        "paed-croup": "*parent speaking* She's making this horrible barking noise when she coughs and she's really struggling to breathe. It started in the night. She's only 2.",
-        "cardiac-af": "My heart keeps going really fast and then slowing down... it feels like it's fluttering in my chest. I feel a bit dizzy and short of breath.",
-        "abdo-aaa": "*pale, sweating* I've got this terrible pain in my back and stomach... it came on suddenly about an hour ago. I feel really unwell... *clutching abdomen*"
-    };
-    
-    return starters[scenarioId] || "Hello, thank you for coming. I'm not feeling well at all. Where would you like to start?";
-}
-
-// Start a random scenario
-function startRandomScenario() {
-    // Get all categories
-    const categories = Object.keys(SCENARIO_DATA);
-    
-    // Pick a random category
-    const randomCategory = categories[Math.floor(Math.random() * categories.length)];
-    
-    // Get items from that category
-    const categoryItems = SCENARIO_DATA[randomCategory].items;
-    
-    // Pick a random scenario from that category
-    const randomScenario = categoryItems[Math.floor(Math.random() * categoryItems.length)];
-    
-    // Set the current scenario
-    chatState.currentScenario = randomScenario.id;
-    
-    // Clear current chat
-    clearChat();
-    
-    // Hide welcome message
-    if (elements.welcomeMessage) {
-        elements.welcomeMessage.style.display = 'none';
-    }
-    
-    // Add scenario banner
-    const bannerDiv = document.createElement('div');
-    bannerDiv.className = 'alert alert-info mx-2 my-2';
-    bannerDiv.innerHTML = `
-        <div class="d-flex align-items-center">
-            <i class="bi bi-mortarboard me-2"></i>
-            <div>
-                <strong>Scenario: ${randomScenario.title}</strong>
-                <div class="small">${randomScenario.description}</div>
-            </div>
-        </div>
-    `;
-    elements.chatMessages.appendChild(bannerDiv);
-    
-    // Start the scenario with AI response
-    showLoading();
-    
-    setTimeout(() => {
-        hideLoading();
-        const starterMessage = getScenarioStarterMessage(chatState.currentScenario);
-        addMessage('assistant', starterMessage);
-    }, 1000);
-}
-
-// ==================== DIFFERENTIAL NAVIGATION ====================
-
-function showDiffSubcategory(category) {
-    const data = DIFFERENTIAL_DATA[category];
-    if (!data) return;
-    
-    // Update title and description
-    elements.diffSubcategoryTitle.textContent = data.title;
-    elements.diffSubcategoryDescription.textContent = data.description;
-    
-    // Populate differential list
-    elements.diffList.innerHTML = data.items.map(item => `
-        <div class="subcategory-item" data-diff-id="${item.id}">
-            <div class="info">
-                <h4>${item.title}</h4>
-                <p>${item.description}</p>
-            </div>
-            <i class="bi bi-chevron-right arrow"></i>
-        </div>
-    `).join('');
-    
-    // Add click handlers - ask AI about the condition
-    elements.diffList.querySelectorAll('.subcategory-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const title = item.querySelector('h4').textContent;
-            askAboutCondition(title);
-        });
-    });
-    
-    // Show subcategory view
-    elements.diffCategories.style.display = 'none';
-    elements.diffSubcategory.style.display = 'block';
-}
-
-function hideDiffSubcategory() {
-    elements.diffCategories.style.display = 'block';
-    elements.diffSubcategory.style.display = 'none';
-}
-
-function askAboutCondition(conditionName) {
-    // Switch to chat view and ask about the condition
-    switchView('chatView');
-    
-    // Hide welcome message
-    if (elements.welcomeMessage) {
-        elements.welcomeMessage.style.display = 'none';
-    }
-    
-    const prompt = `Tell me about ${conditionName} for a paramedic: key features, red flags, and pre-hospital management.`;
-    
-    addMessage('user', prompt);
-    
-    // Increment message count
-    if (!chatState.isPro) {
-        chatState.messagesUsed = window.paramind.storage.incrementMessageCount();
-        updateMessageCounter();
-    }
-    
-    // Get AI response
-    showLoading();
-    
-    sendToAI(prompt).then(response => {
-        hideLoading();
-        addMessage('assistant', response);
-    }).catch(error => {
-        hideLoading();
-        addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
-    });
-}
-
-// ==================== YOUR PATIENT FORM ====================
-
-function handlePatientForm(e) {
-    e.preventDefault();
-    
-    // Gather form data
-    const patientData = {
-        age: document.getElementById('patientAge').value,
-        sex: document.getElementById('patientSex').value,
-        chiefComplaint: document.getElementById('chiefComplaint').value,
-        history: document.getElementById('historyPresenting').value,
-        pmh: document.getElementById('pmh').value,
-        vitals: {
-            rr: document.getElementById('vitalRR').value,
-            spo2: document.getElementById('vitalSpO2').value,
-            hr: document.getElementById('vitalHR').value,
-            bp: document.getElementById('vitalBP').value,
-            temp: document.getElementById('vitalTemp').value,
-            gcs: document.getElementById('vitalGCS').value,
-            bm: document.getElementById('vitalBM').value,
-            pain: document.getElementById('vitalPain').value
+        category: "cardiac",
+        difficulty: "advanced",
+        patient: {
+            name: "Margaret Wilson",
+            age: 58,
+            gender: "Female",
+            occupation: "Primary school teacher"
         },
-        notes: document.getElementById('additionalNotes').value
-    };
-    
-    // Build prompt from patient data
-    const prompt = buildPatientPrompt(patientData);
-    
-    // Switch to chat view
-    switchView('chatView');
-    
-    // Hide welcome message
-    if (elements.welcomeMessage) {
-        elements.welcomeMessage.style.display = 'none';
-    }
-    
-    // Add a summary message
-    const summaryMessage = formatPatientSummary(patientData);
-    addMessage('user', summaryMessage);
-    
-    // Increment message count
-    if (!chatState.isPro) {
-        chatState.messagesUsed = window.paramind.storage.incrementMessageCount();
-        updateMessageCounter();
-    }
-    
-    // Get AI response
-    showLoading();
-    
-    sendToAI(prompt).then(response => {
-        hideLoading();
-        addMessage('assistant', response);
-    }).catch(error => {
-        hideLoading();
-        addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
-    });
-}
+        condition: "Inferior STEMI - Atypical presentation",
+        presentation: {
+            chiefComplaint: "Feeling unwell with nausea and upper abdominal discomfort",
+            onsetTime: "1 hour ago",
+            location: "Upper abdomen and between shoulder blades",
+            character: "Dull ache, pressure-like",
+            severity: "6/10",
+            onset: "Gradual onset while doing housework",
+            duration: "Constant, maybe getting slightly worse",
+            aggravating: "Moving around",
+            relieving: "Nothing seems to help",
+            associated: ["Profuse sweating", "Nausea (vomited once)", "Feeling 'doom'", "Slightly dizzy"]
+        },
+        history: {
+            pastMedical: ["Type 2 Diabetes - 10 years", "Hypothyroidism"],
+            medications: ["Metformin 500mg twice daily", "Levothyroxine 100mcg"],
+            allergies: "Penicillin - causes rash",
+            familyHistory: "Mother had stroke at 70",
+            socialHistory: "Non-smoker, rare alcohol, lives alone, independent"
+        },
+        observations: {
+            heartRate: 52,
+            bloodPressure: "98/62",
+            respiratoryRate: 18,
+            oxygenSaturation: 97,
+            temperature: 36.4,
+            bloodGlucose: 11.4,
+            gcs: 15,
+            painScore: 6,
+            capRefill: "3 seconds",
+            skinColour: "Grey, clammy"
+        },
+        examination: {
+            general: "Looks grey, sweaty, anxious",
+            chest: "Clear",
+            heart: "Bradycardic, regular",
+            abdomen: "Soft, mild epigastric tenderness",
+            legs: "No oedema, cool peripheries"
+        },
+        ecgFindings: "ST elevation in leads II, III, aVF with reciprocal changes in aVL. Bradycardia.",
+        redFlags: [
+            "Atypical presentation in diabetic female",
+            "Bradycardia with hypotension (think RV involvement)",
+            "Diaphoresis",
+            "Sense of doom",
+            "Diabetic - may mask typical chest pain"
+        ],
+        correctDiagnosis: ["Inferior STEMI", "Inferior MI", "STEMI", "Heart attack", "Myocardial infarction"],
+        differentials: ["Gastritis", "Biliary colic", "Pancreatitis", "Aortic dissection"],
+        keyQuestions: [
+            "Any chest pain at all?",
+            "Diabetic?",
+            "How do you feel in yourself?",
+            "Any arm pain or jaw pain?"
+        ],
+        patientBehaviour: "Looks unwell, keeps saying 'something isn't right', may not complain of chest pain unless specifically asked"
+    },
 
-function buildPatientPrompt(data) {
-    let prompt = `I have a patient and need guidance on differential diagnoses and management:\n\n`;
+    "cardiac-af": {
+        title: "Atrial Fibrillation",
+        category: "cardiac",
+        difficulty: "intermediate",
+        patient: {
+            name: "Robert Davies",
+            age: 72,
+            gender: "Male",
+            occupation: "Retired builder"
+        },
+        condition: "New onset Atrial Fibrillation with fast ventricular response",
+        presentation: {
+            chiefComplaint: "Heart racing and feeling palpitations",
+            onsetTime: "Started about 3 hours ago",
+            location: "Feels it in chest and can feel pulse in neck",
+            character: "Fluttering, irregular, racing",
+            severity: "Uncomfortable but not painful",
+            onset: "Sudden onset while gardening",
+            duration: "Constant since onset",
+            aggravating: "Activity makes it worse",
+            relieving: "Sitting still helps a bit",
+            associated: ["Slight breathlessness", "Feeling lightheaded when standing", "Bit tired"]
+        },
+        history: {
+            pastMedical: ["Hypertension", "Osteoarthritis", "No previous heart problems"],
+            medications: ["Amlodipine 10mg", "Ibuprofen when needed for joints"],
+            allergies: "None",
+            familyHistory: "Nothing significant",
+            socialHistory: "Ex-smoker, drinks 2-3 pints at weekend, lives with wife"
+        },
+        observations: {
+            heartRate: 142,
+            bloodPressure: "132/78",
+            respiratoryRate: 20,
+            oxygenSaturation: 97,
+            temperature: 36.6,
+            bloodGlucose: 6.1,
+            gcs: 15,
+            painScore: 0,
+            capRefill: "2 seconds",
+            skinColour: "Normal",
+            pulseRhythm: "Irregularly irregular"
+        },
+        examination: {
+            general: "Alert, slightly anxious about heart racing",
+            chest: "Clear",
+            heart: "Irregularly irregular, no murmurs, rate fast",
+            abdomen: "Soft, non-tender",
+            legs: "No oedema"
+        },
+        ecgFindings: "Atrial fibrillation with fast ventricular response (rate ~140), no ST changes",
+        redFlags: [
+            "New onset AF",
+            "Fast ventricular rate",
+            "Needs anticoagulation assessment (stroke risk)"
+        ],
+        correctDiagnosis: ["Atrial fibrillation", "AF", "Fast AF", "New AF"],
+        differentials: ["SVT", "Atrial flutter", "Sinus tachycardia"],
+        keyQuestions: [
+            "Is the heart regular or irregular?",
+            "Have you had this before?",
+            "Any chest pain?",
+            "Any signs of stroke?"
+        ],
+        patientBehaviour: "Aware of heart racing, can feel it's irregular, worried but not in distress"
+    },
+
+    "cardiac-heart-failure": {
+        title: "Heart Failure",
+        category: "cardiac",
+        difficulty: "intermediate",
+        patient: {
+            name: "Dorothy Collins",
+            age: 78,
+            gender: "Female",
+            occupation: "Retired nurse"
+        },
+        condition: "Acute decompensated heart failure",
+        presentation: {
+            chiefComplaint: "Can't catch my breath, getting worse over 3 days",
+            onsetTime: "Gradually worse over 3 days, worst today",
+            location: "Chest feels tight",
+            character: "Can't get enough air",
+            severity: "Bad, struggling to speak full sentences",
+            onset: "Gradual worsening",
+            duration: "Worst overnight, couldn't lie flat",
+            aggravating: "Lying down, any exertion",
+            relieving: "Sitting upright, sleeping propped up on pillows",
+            associated: ["Swollen ankles", "Coughing at night", "Frothy sputum", "Can't walk far without stopping"]
+        },
+        history: {
+            pastMedical: ["Heart failure diagnosed 2 years ago", "Previous MI 5 years ago", "AF - on warfarin", "Hypertension"],
+            medications: ["Bisoprolol 5mg", "Ramipril 5mg", "Furosemide 40mg", "Warfarin", "Atorvastatin 80mg"],
+            allergies: "None",
+            familyHistory: "Father had heart problems",
+            socialHistory: "Non-smoker, no alcohol, lives alone, carers visit twice daily"
+        },
+        observations: {
+            heartRate: 98,
+            bloodPressure: "152/88",
+            respiratoryRate: 28,
+            oxygenSaturation: 88,
+            temperature: 36.9,
+            bloodGlucose: 7.2,
+            gcs: 15,
+            painScore: 0,
+            capRefill: "3 seconds",
+            skinColour: "Pale, slightly cyanosed lips",
+            pulseRhythm: "Irregularly irregular"
+        },
+        examination: {
+            general: "Sitting forward, tripod position, using accessory muscles, speaks in short sentences",
+            chest: "Bilateral basal crackles, reduced air entry bases",
+            heart: "AF, displaced apex beat",
+            abdomen: "Soft, mild hepatomegaly",
+            legs: "Significant bilateral pitting oedema to knees"
+        },
+        ecgFindings: "AF, rate controlled, old Q waves anteriorly",
+        redFlags: [
+            "Acute deterioration of chronic condition",
+            "Hypoxia",
+            "Orthopnoea and PND",
+            "Significant peripheral oedema",
+            "Pulmonary oedema (crackles)"
+        ],
+        correctDiagnosis: ["Heart failure", "Acute heart failure", "Decompensated heart failure", "Pulmonary oedema", "CHF", "LVF"],
+        differentials: ["Pneumonia", "COPD exacerbation", "Pulmonary embolism"],
+        keyQuestions: [
+            "How many pillows do you sleep with?",
+            "Do you wake up breathless at night?",
+            "Any swelling in your legs?",
+            "Known heart problems?",
+            "Taking your water tablets?"
+        ],
+        patientBehaviour: "Breathless, speaking in short sentences, keeps sitting forward, distressed about not being able to breathe"
+    },
+
+    // ========== RESPIRATORY SCENARIOS ==========
+
+    "resp-asthma": {
+        title: "Acute Asthma",
+        category: "respiratory",
+        difficulty: "intermediate",
+        patient: {
+            name: "Sarah Mitchell",
+            age: 28,
+            gender: "Female",
+            occupation: "Marketing executive"
+        },
+        condition: "Acute severe asthma",
+        presentation: {
+            chiefComplaint: "Can't breathe, inhaler not working",
+            onsetTime: "Started 2 hours ago, rapidly worse in last 30 minutes",
+            location: "Chest feels tight",
+            character: "Wheezy, tight, like breathing through a straw",
+            severity: "Very bad, struggling",
+            onset: "Was around a friend's cat, started wheezing",
+            duration: "Getting worse despite using inhaler",
+            aggravating: "Trying to talk, any movement",
+            relieving: "Salbutamol helped initially, now not working",
+            associated: ["Wheezing", "Unable to complete sentences", "Exhausted", "Scared"]
+        },
+        history: {
+            pastMedical: ["Asthma since childhood", "Hayfever", "Eczema", "Previous hospital admission for asthma 2 years ago", "Never ITU"],
+            medications: ["Salbutamol inhaler PRN", "Beclometasone inhaler (admits not taking regularly)"],
+            allergies: "Cats, pollen, dust",
+            familyHistory: "Mother has asthma",
+            socialHistory: "Non-smoker, occasional alcohol, lives with partner"
+        },
+        observations: {
+            heartRate: 118,
+            bloodPressure: "128/82",
+            respiratoryRate: 32,
+            oxygenSaturation: 91,
+            temperature: 36.7,
+            bloodGlucose: 5.8,
+            gcs: 15,
+            painScore: 0,
+            capRefill: "2 seconds",
+            skinColour: "Pale",
+            peakFlow: "180 (best is 450)"
+        },
+        examination: {
+            general: "Sitting upright, tripod position, using accessory muscles, speaking 2-3 words at a time",
+            chest: "Widespread expiratory wheeze bilaterally, reduced air entry throughout",
+            heart: "Tachycardic, regular",
+            abdomen: "Soft",
+            legs: "Normal"
+        },
+        ecgFindings: "Sinus tachycardia",
+        redFlags: [
+            "Unable to complete sentences",
+            "Peak flow <50% best/predicted",
+            "Tachycardia >110",
+            "Tachypnoea >25",
+            "Previous hospital admission",
+            "Not responding to bronchodilators"
+        ],
+        correctDiagnosis: ["Acute asthma", "Severe asthma", "Asthma attack", "Acute severe asthma"],
+        differentials: ["Anaphylaxis", "Pulmonary embolism", "Pneumothorax"],
+        keyQuestions: [
+            "Can you speak in full sentences?",
+            "What's your best peak flow?",
+            "How much salbutamol have you taken?",
+            "Ever been in hospital with asthma?",
+            "Ever been on a ventilator/ITU?"
+        ],
+        patientBehaviour: "Speaking in 2-3 word bursts, clearly distressed, keeps trying to use inhaler, exhausted"
+    },
+
+    "resp-copd": {
+        title: "COPD Exacerbation",
+        category: "respiratory",
+        difficulty: "intermediate",
+        patient: {
+            name: "Frank Harris",
+            age: 72,
+            gender: "Male",
+            occupation: "Retired factory worker"
+        },
+        condition: "Infective exacerbation of COPD",
+        presentation: {
+            chiefComplaint: "Chest worse than usual, can't catch my breath",
+            onsetTime: "Been getting worse over 4 days",
+            location: "Whole chest",
+            character: "Tight, can't get air in, coughing lots",
+            severity: "Worse than normal, this isn't my usual",
+            onset: "Started after a cold",
+            duration: "4 days, worst today",
+            aggravating: "Coughing, trying to move",
+            relieving: "Nebuliser helps a bit, sitting upright",
+            associated: ["Productive cough - green sputum", "Fever yesterday", "More tired than usual", "Hardly sleeping"]
+        },
+        history: {
+            pastMedical: ["COPD - diagnosed 8 years ago", "Previous exacerbations requiring hospital", "Never been on a ventilator", "Hypertension"],
+            medications: ["Tiotropium inhaler", "Fostair inhaler", "Salbutamol nebuliser at home", "Carbocisteine", "Ramipril", "Rescue pack - amoxicillin and prednisolone (not started yet)"],
+            allergies: "None",
+            familyHistory: "Nothing relevant",
+            socialHistory: "Current smoker - 50 pack years, lives with wife"
+        },
+        observations: {
+            heartRate: 102,
+            bloodPressure: "142/86",
+            respiratoryRate: 26,
+            oxygenSaturation: 86,
+            temperature: 37.8,
+            bloodGlucose: 7.1,
+            gcs: 15,
+            painScore: 0,
+            capRefill: "2 seconds",
+            skinColour: "Slightly cyanosed lips"
+        },
+        examination: {
+            general: "Pursed lip breathing, using accessory muscles, barrel chest",
+            chest: "Widespread wheeze and coarse crackles, prolonged expiration",
+            heart: "Regular, no murmurs",
+            abdomen: "Soft",
+            legs: "Mild ankle oedema"
+        },
+        ecgFindings: "Sinus tachycardia, P pulmonale",
+        redFlags: [
+            "Hypoxia on air",
+            "Infective exacerbation (green sputum, fever)",
+            "Increased work of breathing",
+            "Previous hospital admissions"
+        ],
+        correctDiagnosis: ["COPD exacerbation", "Infective exacerbation of COPD", "Acute exacerbation COPD", "AECOPD"],
+        differentials: ["Pneumonia", "Heart failure", "Pulmonary embolism"],
+        keyQuestions: [
+            "What's your normal oxygen level?",
+            "What colour is your sputum?",
+            "Do you have a rescue pack at home?",
+            "Have you been in hospital before with your chest?",
+            "Do you have home oxygen?"
+        ],
+        patientBehaviour: "Breathless, pausing mid-sentence, coughing frequently, producing sputum"
+    },
+
+    "resp-anaphylaxis": {
+        title: "Anaphylaxis",
+        category: "respiratory",
+        difficulty: "advanced",
+        patient: {
+            name: "Emma Turner",
+            age: 25,
+            gender: "Female",
+            occupation: "University student"
+        },
+        condition: "Anaphylaxis - peanut allergy",
+        presentation: {
+            chiefComplaint: "Can't breathe, throat closing up, covered in rash",
+            onsetTime: "Started 10 minutes ago",
+            location: "Throat feels swollen, whole body itchy",
+            character: "Throat tight, can't swallow, struggling to breathe",
+            severity: "Really bad, scared",
+            onset: "Just ate a brownie at a cafe, didn't know it had peanuts",
+            duration: "Getting worse quickly",
+            aggravating: "Everything",
+            relieving: "Nothing, used my EpiPen but dropped it",
+            associated: ["Widespread rash/hives", "Lips and tongue swollen", "Itchy all over", "Feeling faint", "Stomach cramps"]
+        },
+        history: {
+            pastMedical: ["Peanut allergy - diagnosed age 5", "Previous anaphylaxis aged 12 (required adrenaline)", "Asthma (mild)", "Eczema"],
+            medications: ["Carries EpiPen (but dropped it and couldn't use it)", "Salbutamol inhaler", "Cetirizine when needed"],
+            allergies: "PEANUTS - anaphylaxis",
+            familyHistory: "Brother has nut allergy",
+            socialHistory: "Non-smoker, occasional alcohol, lives in student accommodation"
+        },
+        observations: {
+            heartRate: 128,
+            bloodPressure: "88/52",
+            respiratoryRate: 30,
+            oxygenSaturation: 92,
+            temperature: 36.9,
+            bloodGlucose: 5.4,
+            gcs: 15,
+            painScore: "N/A",
+            capRefill: "3 seconds",
+            skinColour: "Widespread urticaria, angioedema of lips and tongue"
+        },
+        examination: {
+            general: "Acutely unwell, widespread urticarial rash, visible swelling of lips and tongue, stridor audible",
+            chest: "Wheeze bilaterally, poor air entry",
+            heart: "Tachycardic, regular",
+            abdomen: "Soft, says it's cramping",
+            legs: "Rash present, no oedema"
+        },
+        ecgFindings: "Sinus tachycardia",
+        redFlags: [
+            "Airway compromise (stridor, angioedema)",
+            "Hypotension",
+            "Known severe allergy with previous anaphylaxis",
+            "Rapid deterioration",
+            "Unable to use own adrenaline"
+        ],
+        correctDiagnosis: ["Anaphylaxis", "Anaphylactic reaction", "Allergic reaction with anaphylaxis"],
+        differentials: ["Severe allergic reaction without anaphylaxis", "Panic attack", "Acute asthma"],
+        keyQuestions: [
+            "What did you eat/touch/get stung by?",
+            "Do you have your adrenaline?",
+            "Have you had this before?",
+            "Are you having trouble breathing?",
+            "Do you feel faint?"
+        ],
+        patientBehaviour: "Frightened, scratching at skin, voice sounds hoarse/strained, restless, trying to sit up"
+    },
+
+    // ========== NEUROLOGICAL SCENARIOS ==========
+
+    "neuro-stroke": {
+        title: "Acute Stroke",
+        category: "neuro",
+        difficulty: "intermediate",
+        patient: {
+            name: "William Peters",
+            age: 72,
+            gender: "Male",
+            occupation: "Retired solicitor"
+        },
+        condition: "Left MCA territory stroke",
+        presentation: {
+            chiefComplaint: "Wife called - says his face looks droopy and he can't move his arm",
+            onsetTime: "Wife noticed 30 minutes ago when he tried to get up from his chair",
+            location: "Right side of face and arm affected",
+            character: "Suddenly couldn't lift arm, face looks different",
+            severity: "Wife says he's not himself at all",
+            onset: "Sudden - was fine one moment, then this happened",
+            duration: "Started 30 minutes ago, hasn't improved",
+            aggravating: "N/A",
+            relieving: "N/A",
+            associated: ["Speech slurred/confused", "Not understanding properly", "Right arm completely weak", "Facial droop right side"]
+        },
+        history: {
+            pastMedical: ["Atrial fibrillation", "Hypertension", "Type 2 Diabetes", "High cholesterol"],
+            medications: ["Warfarin (says INR check was 2 weeks ago)", "Metformin", "Amlodipine", "Atorvastatin"],
+            allergies: "None known",
+            familyHistory: "Father had stroke",
+            socialHistory: "Ex-smoker, occasional wine, lives with wife, normally independent"
+        },
+        observations: {
+            heartRate: 88,
+            bloodPressure: "178/102",
+            respiratoryRate: 16,
+            oxygenSaturation: 97,
+            temperature: 36.6,
+            bloodGlucose: 8.4,
+            gcs: "13 (E4 V3 M6)",
+            painScore: "N/A",
+            capRefill: "2 seconds",
+            skinColour: "Normal",
+            pulseRhythm: "Irregularly irregular"
+        },
+        examination: {
+            general: "Confused, not answering questions appropriately",
+            face: "Right-sided facial droop, unable to smile symmetrically",
+            arms: "Right arm - no movement, drifts when raised; Left arm - normal",
+            speech: "Slurred, using wrong words (expressive dysphasia)",
+            legs: "Right leg appears weaker than left"
+        },
+        fastTest: {
+            face: "Positive - right facial droop",
+            arms: "Positive - right arm drift/weakness",
+            speech: "Positive - slurred and confused",
+            time: "Onset 30 minutes ago - WITHIN THROMBOLYSIS WINDOW"
+        },
+        redFlags: [
+            "FAST positive",
+            "Within thrombolysis window",
+            "AF patient - consider cardioembolic stroke",
+            "On anticoagulation - bleeding risk considerations"
+        ],
+        correctDiagnosis: ["Stroke", "Acute stroke", "CVA", "Cerebrovascular accident", "Left MCA stroke"],
+        differentials: ["TIA (but not resolving)", "Hypoglycaemia", "Todd's paresis (post-seizure)", "Intracranial bleed"],
+        keyQuestions: [
+            "Exactly what time did this start?",
+            "FAST test?",
+            "Any headache?",
+            "Has this ever happened before?",
+            "What blood thinners are they on?",
+            "What was their last INR?"
+        ],
+        patientBehaviour: "Confused, trying to speak but words come out wrong, frustrated, right side of body not working"
+    },
+
+    "neuro-hypoglycaemia": {
+        title: "Hypoglycaemia",
+        category: "neuro",
+        difficulty: "basic",
+        patient: {
+            name: "David Clarke",
+            age: 58,
+            gender: "Male",
+            occupation: "Taxi driver"
+        },
+        condition: "Severe hypoglycaemia",
+        presentation: {
+            chiefComplaint: "Passenger called 999 - driver acting confused and sweaty",
+            onsetTime: "Passenger noticed 15 minutes ago",
+            location: "N/A",
+            character: "Confused, not making sense, sweating profusely",
+            severity: "Very confused",
+            onset: "Gradual onset of confusion",
+            duration: "15 minutes",
+            aggravating: "N/A",
+            relieving: "N/A",
+            associated: ["Sweating", "Tremor", "Confusion", "Aggressive when passenger tried to help"]
+        },
+        history: {
+            pastMedical: ["Type 1 Diabetes - 25 years", "Hypertension"],
+            medications: ["Insulin - NovoRapid and Lantus", "Ramipril"],
+            allergies: "None",
+            familyHistory: "Not known",
+            socialHistory: "Non-smoker, no alcohol, lives alone, works long shifts as taxi driver"
+        },
+        observations: {
+            heartRate: 104,
+            bloodPressure: "138/84",
+            respiratoryRate: 18,
+            oxygenSaturation: 99,
+            temperature: 36.4,
+            bloodGlucose: 1.8,
+            gcs: "12 (E3 V4 M5)",
+            painScore: "N/A",
+            capRefill: "2 seconds",
+            skinColour: "Pale, diaphoretic"
+        },
+        examination: {
+            general: "Confused, sweaty, tremulous, becomes agitated when approached",
+            chest: "Clear",
+            heart: "Tachycardic, regular",
+            abdomen: "Soft",
+            legs: "Normal",
+            neuro: "Confusion, no focal neurology"
+        },
+        redFlags: [
+            "Severely low blood glucose (1.8)",
+            "Reduced GCS",
+            "Unable to treat orally",
+            "Insulin-dependent diabetic"
+        ],
+        correctDiagnosis: ["Hypoglycaemia", "Hypo", "Low blood sugar", "Hypoglycemic episode"],
+        differentials: ["Stroke", "Post-ictal", "Drug/alcohol intoxication", "Head injury"],
+        keyQuestions: [
+            "What's the blood sugar?",
+            "Are they diabetic?",
+            "What medications/insulin?",
+            "When did they last eat?",
+            "Can they swallow safely?"
+        ],
+        patientBehaviour: "Confused, may be combative, sweating, trembling, may not cooperate initially"
+    },
+
+    // ========== ABDOMINAL SCENARIOS ==========
+
+    "abdo-appendicitis": {
+        title: "Appendicitis",
+        category: "abdominal",
+        difficulty: "basic",
+        patient: {
+            name: "James Morgan",
+            age: 22,
+            gender: "Male",
+            occupation: "University student"
+        },
+        condition: "Acute appendicitis",
+        presentation: {
+            chiefComplaint: "Really bad pain in my stomach, now it's moved to my right side",
+            onsetTime: "Started yesterday evening",
+            location: "Started around belly button, now in right lower area",
+            character: "Sharp, constant, stabbing",
+            severity: "8/10, worst pain ever",
+            onset: "Gradual onset last night, woke up worse this morning",
+            duration: "About 18 hours",
+            aggravating: "Moving, walking, coughing, bumps in the car",
+            relieving: "Lying still, paracetamol took the edge off briefly",
+            associated: ["Nausea", "Vomited twice", "No appetite", "Felt a bit feverish"]
+        },
+        history: {
+            pastMedical: ["None - fit and healthy"],
+            medications: ["None regular, took paracetamol last night"],
+            allergies: "None",
+            familyHistory: "Nothing relevant",
+            socialHistory: "Non-smoker, drinks alcohol at weekends, lives in student halls"
+        },
+        observations: {
+            heartRate: 98,
+            bloodPressure: "122/74",
+            respiratoryRate: 18,
+            oxygenSaturation: 99,
+            temperature: 38.2,
+            bloodGlucose: 5.6,
+            gcs: 15,
+            painScore: 8,
+            capRefill: "2 seconds",
+            skinColour: "Pale, looks unwell"
+        },
+        examination: {
+            general: "Lying very still, guarding right side, looks uncomfortable",
+            abdomen: "Tender right iliac fossa, guarding, rebound tenderness, Rovsing's positive",
+            legs: "Normal",
+            other: "Walks bent over, doesn't want to move"
+        },
+        redFlags: [
+            "Classic migratory pain (periumbilical to RIF)",
+            "Fever",
+            "Guarding and rebound tenderness",
+            "Risk of perforation if delayed"
+        ],
+        correctDiagnosis: ["Appendicitis", "Acute appendicitis"],
+        differentials: ["Mesenteric adenitis", "Gastroenteritis", "Testicular torsion (in males)", "Renal colic"],
+        keyQuestions: [
+            "Where did the pain start?",
+            "Where is it now?",
+            "Does it hurt to move/cough?",
+            "Any vomiting or diarrhoea?",
+            "Last time you opened your bowels?"
+        ],
+        patientBehaviour: "Lying still, doesn't want to move, guards abdomen if you approach, winces when ambulance goes over bumps"
+    },
+
+    "abdo-aaa": {
+        title: "Ruptured AAA",
+        category: "abdominal",
+        difficulty: "advanced",
+        patient: {
+            name: "Gerald Thompson",
+            age: 75,
+            gender: "Male",
+            occupation: "Retired electrician"
+        },
+        condition: "Ruptured Abdominal Aortic Aneurysm",
+        presentation: {
+            chiefComplaint: "Terrible pain in my back and stomach, came on suddenly, feel awful",
+            onsetTime: "About 1 hour ago",
+            location: "Lower back and abdomen, goes into my groin",
+            character: "Tearing, constant, severe",
+            severity: "10/10, worst pain imaginable",
+            onset: "Sudden onset while getting out of chair",
+            duration: "Constant since onset, maybe getting worse",
+            aggravating: "Everything, can't get comfortable",
+            relieving: "Nothing helps at all",
+            associated: ["Feels faint", "Sweaty", "Cold", "Nauseous"]
+        },
+        history: {
+            pastMedical: ["Known AAA - told 5cm last scan", "Hypertension", "High cholesterol", "Ex-smoker", "Peripheral vascular disease"],
+            medications: ["Aspirin", "Ramipril", "Atorvastatin", "Amlodipine"],
+            allergies: "None",
+            familyHistory: "Father died suddenly - heart attack",
+            socialHistory: "Ex-smoker (40 pack years), occasional alcohol, lives with wife"
+        },
+        observations: {
+            heartRate: 118,
+            bloodPressure: "88/60",
+            respiratoryRate: 24,
+            oxygenSaturation: 95,
+            temperature: 36.2,
+            bloodGlucose: 6.8,
+            gcs: "14 (E4 V4 M6)",
+            painScore: 10,
+            capRefill: "4 seconds",
+            skinColour: "Grey, mottled, cold peripheries"
+        },
+        examination: {
+            general: "Looks very unwell, grey, sweaty, restless with pain",
+            abdomen: "Tender, pulsatile mass palpable in abdomen, guarding",
+            back: "Flank bruising developing (Grey Turner's sign)",
+            legs: "Cold, mottled, weak pulses"
+        },
+        redFlags: [
+            "Known AAA",
+            "Sudden severe back/abdominal pain",
+            "Hypotension and tachycardia (shocked)",
+            "Pulsatile abdominal mass",
+            "TIME CRITICAL - needs emergency surgery"
+        ],
+        correctDiagnosis: ["Ruptured AAA", "Leaking AAA", "Ruptured abdominal aortic aneurysm", "AAA rupture"],
+        differentials: ["Renal colic", "Aortic dissection", "Pancreatitis", "Perforated ulcer"],
+        keyQuestions: [
+            "Any known aneurysm?",
+            "Do you feel faint?",
+            "Any pulsation you can feel in your tummy?",
+            "Sudden or gradual onset?"
+        ],
+        patientBehaviour: "Extremely distressed with pain, may be confused, looks shocked, greyish colour"
+    },
+
+    // ========== TRAUMA SCENARIOS ==========
+
+    "trauma-fall": {
+        title: "Fall from Height",
+        category: "trauma",
+        difficulty: "advanced",
+        patient: {
+            name: "Michael O'Brien",
+            age: 45,
+            gender: "Male",
+            occupation: "Builder"
+        },
+        condition: "Fall from height - multiple injuries including spinal injury",
+        presentation: {
+            chiefComplaint: "Fell from scaffolding, about 4 metres, landed on my back",
+            onsetTime: "10 minutes ago",
+            location: "Back hurts, neck hurts, legs feel strange",
+            character: "Pain in back and neck, tingling in legs",
+            severity: "Back pain 8/10",
+            onset: "Immediate after fall",
+            duration: "Since the fall",
+            aggravating: "Any movement",
+            relieving: "Keeping still",
+            associated: ["Tingling in both legs", "Can't feel toes properly", "Difficulty taking deep breaths"]
+        },
+        history: {
+            pastMedical: ["None significant"],
+            medications: ["None"],
+            allergies: "None",
+            familyHistory: "Not relevant",
+            socialHistory: "Smoker, drinks socially, married with children"
+        },
+        observations: {
+            heartRate: 68,
+            bloodPressure: "92/58",
+            respiratoryRate: 22,
+            oxygenSaturation: 96,
+            temperature: 36.5,
+            bloodGlucose: 6.2,
+            gcs: 15,
+            painScore: 8,
+            capRefill: "3 seconds peripherally",
+            skinColour: "Pale, warm trunk, cool legs"
+        },
+        examination: {
+            general: "Lying still, doesn't want to move, alert and orientated",
+            spine: "Midline tenderness thoracolumbar region, no obvious step deformity",
+            neuro: "Decreased sensation below umbilicus, weak leg movements, absent reflexes in legs",
+            chest: "Reduced expansion, tenderness ribs left side",
+            abdomen: "Soft but diminished sensation",
+            pelvis: "Stable on gentle springing"
+        },
+        redFlags: [
+            "Significant mechanism (4m fall)",
+            "Neurological deficit (sensory and motor)",
+            "Neurogenic shock (low BP, relatively low HR)",
+            "Potential spinal cord injury",
+            "Chest injury affecting breathing"
+        ],
+        correctDiagnosis: ["Spinal cord injury", "Spinal injury", "Thoracolumbar fracture with cord compression", "SCI"],
+        differentials: ["Spinal fracture without cord injury", "Other internal injuries"],
+        keyQuestions: [
+            "Can you feel your legs?",
+            "Can you wiggle your toes?",
+            "How high did you fall from?",
+            "How did you land?",
+            "Any weakness in your legs?",
+            "Any problems passing urine?"
+        ],
+        patientBehaviour: "Lying still, frightened, knows something is wrong with legs, may be calm despite severity"
+    },
+
+    // ========== PAEDIATRIC SCENARIOS ==========
+
+    "paed-croup": {
+        title: "Croup",
+        category: "paediatric",
+        difficulty: "basic",
+        patient: {
+            name: "Oliver (Parent: Lisa Evans)",
+            age: 2,
+            gender: "Male",
+            occupation: "Child"
+        },
+        condition: "Moderate croup",
+        presentation: {
+            chiefComplaint: "Parent: He has this terrible barking cough and is making a horrible noise when he breathes in",
+            onsetTime: "Started last night, worse in the early hours",
+            location: "Throat/breathing",
+            character: "Barking cough, noisy breathing when upset",
+            severity: "Parent: Really scared, never seen him like this",
+            onset: "Had a cold for 2 days, then this started",
+            duration: "12 hours, worst in night, slightly better this morning but still bad",
+            aggravating: "Getting upset, crying",
+            relieving: "Cold air seemed to help a bit earlier",
+            associated: ["Runny nose for 2 days", "Mild fever", "Hoarse voice", "Stridor when crying or upset"]
+        },
+        history: {
+            pastMedical: ["Born full term, no ongoing problems", "No previous croup"],
+            medications: ["None", "Calpol given at 3am (paracetamol)"],
+            allergies: "None known",
+            familyHistory: "Dad had asthma as child",
+            socialHistory: "Lives with both parents and older sister, attends nursery"
+        },
+        observations: {
+            heartRate: 132,
+            bloodPressure: "N/A",
+            respiratoryRate: 36,
+            oxygenSaturation: 95,
+            temperature: 38.1,
+            bloodGlucose: "N/A",
+            gcs: 15,
+            painScore: "N/A",
+            capRefill: "2 seconds",
+            skinColour: "Slightly flushed"
+        },
+        examination: {
+            general: "Alert, sitting on mum's lap, barking cough intermittently, stridor when upset",
+            chest: "Mild subcostal recession when upset, stridor on inspiration, lungs clear",
+            heart: "Regular, no murmurs",
+            abdomen: "Soft",
+            other: "Drinking well between coughing episodes, no drooling"
+        },
+        redFlags: [
+            "Stridor at rest (not just when upset) - indicates severe",
+            "Increasing work of breathing",
+            "Cyanosis",
+            "Exhaustion",
+            "Drooling (think epiglottitis)"
+        ],
+        correctDiagnosis: ["Croup", "Laryngotracheobronchitis", "Moderate croup"],
+        differentials: ["Epiglottitis (but no drooling, not toxic)", "Inhaled foreign body", "Bacterial tracheitis"],
+        keyQuestions: [
+            "Any stridor at rest when calm?",
+            "Is he drinking?",
+            "Any drooling?",
+            "What colour is he?",
+            "Does he get better when calm?"
+        ],
+        patientBehaviour: "(Parent speaks for child) Child is clingy to parent, cries have stridor, barking cough, calmer when cuddled"
+    },
+
+    "paed-febrile-convulsion": {
+        title: "Febrile Convulsion",
+        category: "paediatric",
+        difficulty: "intermediate",
+        patient: {
+            name: "Amelia (Parent: Sarah Brown)",
+            age: "18 months",
+            gender: "Female",
+            occupation: "Child"
+        },
+        condition: "Simple febrile convulsion - now post-ictal",
+        presentation: {
+            chiefComplaint: "Parent: She had a fit! She was shaking all over and went blue!",
+            onsetTime: "Seizure was 10 minutes ago, lasted about 3 minutes",
+            location: "Whole body shaking",
+            character: "Stiff then shaking, eyes rolled back",
+            severity: "Parent: Terrifying, I thought she was dying",
+            onset: "She's had a cold and fever today, then suddenly started fitting",
+            duration: "Mum timed it - about 3 minutes, has stopped now",
+            aggravating: "N/A",
+            relieving: "Stopped on its own",
+            associated: ["High fever", "Cold symptoms for 2 days", "Now very sleepy", "Was crying before it started"]
+        },
+        history: {
+            pastMedical: ["Born 36 weeks but no ongoing problems", "No previous seizures", "No epilepsy"],
+            medications: ["Calpol 2.5ml given at lunchtime"],
+            allergies: "None known",
+            familyHistory: "Dad's sister had febrile convulsions as child",
+            socialHistory: "Lives with parents, goes to childminder"
+        },
+        observations: {
+            heartRate: 140,
+            bloodPressure: "N/A",
+            respiratoryRate: 28,
+            oxygenSaturation: 98,
+            temperature: 39.2,
+            bloodGlucose: 5.8,
+            gcs: "14 (E3 V4 M6) - drowsy post-ictal",
+            painScore: "N/A",
+            capRefill: "2 seconds",
+            skinColour: "Flushed, warm"
+        },
+        examination: {
+            general: "Drowsy, post-ictal, responds to voice, pink colour now",
+            chest: "Clear, mild runny nose",
+            heart: "Regular, fast",
+            abdomen: "Soft",
+            fontanelle: "Soft, not bulging",
+            rash: "None - checked for non-blanching",
+            neuro: "Drowsy but moving all limbs, no focal signs"
+        },
+        redFlags: [
+            "Complex features (focal, prolonged >15 min, recurrent)",
+            "Non-blanching rash",
+            "Bulging fontanelle",
+            "Neck stiffness",
+            "Petechiae"
+        ],
+        correctDiagnosis: ["Febrile convulsion", "Febrile seizure", "Simple febrile convulsion"],
+        differentials: ["Meningitis/encephalitis", "Epilepsy", "Complex febrile convulsion"],
+        keyQuestions: [
+            "How long did it last?",
+            "Did it affect the whole body or just one side?",
+            "Has she had one before?",
+            "Any rash?",
+            "Is she waking up now?"
+        ],
+        patientBehaviour: "(Parent speaks) Child is drowsy, sleeping on parent, rousable to voice, temperature high"
+    }
+};
+
+
+// ==================== HELPER FUNCTIONS ====================
+
+/**
+ * Builds the complete system prompt for a scenario
+ * @param {string} scenarioId - The scenario ID
+ * @param {string} userTrust - The user's ambulance trust (e.g., 'SWAST')
+ * @returns {string} - The complete system prompt
+ */
+function buildScenarioSystemPrompt(scenarioId, userTrust) {
+    const scenario = SCENARIO_PATIENT_DATA[scenarioId];
+    if (!scenario) {
+        console.error(`Scenario not found: ${scenarioId}`);
+        return null;
+    }
+
+    // Build patient data string
+    const patientData = formatPatientDataForPrompt(scenario);
     
-    if (data.age) prompt += `Age: ${data.age}\n`;
-    if (data.sex) prompt += `Sex: ${data.sex}\n`;
-    if (data.chiefComplaint) prompt += `Chief Complaint: ${data.chiefComplaint}\n`;
-    if (data.history) prompt += `History: ${data.history}\n`;
-    if (data.pmh) prompt += `PMH: ${data.pmh}\n`;
+    // Replace placeholder in system prompt
+    let prompt = SCENARIO_SYSTEM_PROMPT.replace('{PATIENT_DATA}', patientData);
     
-    prompt += `\nVital Signs:\n`;
-    if (data.vitals.rr) prompt += `RR: ${data.vitals.rr}\n`;
-    if (data.vitals.spo2) prompt += `SpO2: ${data.vitals.spo2}%\n`;
-    if (data.vitals.hr) prompt += `HR: ${data.vitals.hr}\n`;
-    if (data.vitals.bp) prompt += `BP: ${data.vitals.bp}\n`;
-    if (data.vitals.temp) prompt += `Temp: ${data.vitals.temp}°C\n`;
-    if (data.vitals.gcs) prompt += `GCS: ${data.vitals.gcs}\n`;
-    if (data.vitals.bm) prompt += `BM: ${data.vitals.bm}\n`;
-    if (data.vitals.pain) prompt += `Pain: ${data.vitals.pain}/10\n`;
-    
-    if (data.notes) prompt += `\nAdditional Notes: ${data.notes}\n`;
-    
-    prompt += `\nBased on ${chatState.userTrust} guidelines, what are the key differential diagnoses, red flags to consider, and recommended pre-hospital management?`;
+    // Add trust-specific note
+    prompt += `\n\n## Trust Context:\nThe paramedic works for ${userTrust}. They will be expected to follow ${userTrust} guidelines.`;
     
     return prompt;
 }
 
-function formatPatientSummary(data) {
-    let summary = `**Patient Presentation:**\n`;
+/**
+ * Formats the patient data into a readable string for the AI
+ */
+function formatPatientDataForPrompt(scenario) {
+    const p = scenario;
     
-    if (data.age || data.sex) {
-        summary += `${data.age || '?'} year old ${data.sex || 'patient'}\n`;
-    }
-    if (data.chiefComplaint) {
-        summary += `Chief complaint: ${data.chiefComplaint}\n`;
-    }
-    
-    const vitals = [];
-    if (data.vitals.hr) vitals.push(`HR ${data.vitals.hr}`);
-    if (data.vitals.bp) vitals.push(`BP ${data.vitals.bp}`);
-    if (data.vitals.rr) vitals.push(`RR ${data.vitals.rr}`);
-    if (data.vitals.spo2) vitals.push(`SpO2 ${data.vitals.spo2}%`);
-    
-    if (vitals.length > 0) {
-        summary += `Vitals: ${vitals.join(', ')}`;
-    }
-    
-    return summary;
+    return `
+### Patient Identity
+- Name: ${p.patient.name}
+- Age: ${p.patient.age} years old
+- Gender: ${p.patient.gender}
+- Occupation: ${p.patient.occupation}
+
+### Your Condition (KEEP SECRET - DO NOT REVEAL)
+${p.condition}
+
+### What Happened / Presenting Complaint
+${p.presentation.chiefComplaint}
+- Started: ${p.presentation.onsetTime}
+- Location: ${p.presentation.location}
+- Character: ${p.presentation.character}
+- Severity: ${p.presentation.severity}
+- Onset: ${p.presentation.onset}
+- Duration: ${p.presentation.duration}
+- Worse with: ${p.presentation.aggravating}
+- Better with: ${p.presentation.relieving}
+- Other symptoms: ${p.presentation.associated.join(', ')}
+
+### Your Medical History (tell if asked)
+- Past problems: ${p.history.pastMedical.join(', ')}
+- Medications: ${p.history.medications.join(', ')}
+- Allergies: ${p.history.allergies}
+- Family history: ${p.history.familyHistory}
+- Social: ${p.history.socialHistory}
+
+### Your Observations (give ONLY when specific ones are requested)
+- Heart rate: ${p.observations.heartRate} bpm
+- Blood pressure: ${p.observations.bloodPressure}
+- Respiratory rate: ${p.observations.respiratoryRate}
+- Oxygen saturation: ${p.observations.oxygenSaturation}%
+- Temperature: ${p.observations.temperature}°C
+- Blood glucose: ${p.observations.bloodGlucose} mmol/L
+- GCS: ${p.observations.gcs}
+- Pain score: ${p.observations.painScore}/10
+- Cap refill: ${p.observations.capRefill}
+- Appearance: ${p.observations.skinColour}
+${p.observations.pulseRhythm ? `- Pulse rhythm: ${p.observations.pulseRhythm}` : ''}
+${p.observations.peakFlow ? `- Peak flow: ${p.observations.peakFlow}` : ''}
+
+### How You Look/Examination Findings (describe if they examine you)
+- General appearance: ${p.examination.general}
+- Chest: ${p.examination.chest || 'N/A'}
+- Heart: ${p.examination.heart || 'N/A'}
+- Abdomen: ${p.examination.abdomen || 'N/A'}
+- Legs: ${p.examination.legs || 'N/A'}
+${p.examination.face ? `- Face: ${p.examination.face}` : ''}
+${p.examination.arms ? `- Arms: ${p.examination.arms}` : ''}
+${p.examination.speech ? `- Speech: ${p.examination.speech}` : ''}
+${p.examination.neuro ? `- Neurology: ${p.examination.neuro}` : ''}
+${p.examination.spine ? `- Spine: ${p.examination.spine}` : ''}
+
+${p.ecgFindings ? `### ECG (if they do one): ${p.ecgFindings}` : ''}
+${p.fastTest ? `### FAST Test Results: Face: ${p.fastTest.face}, Arms: ${p.fastTest.arms}, Speech: ${p.fastTest.speech}, Time: ${p.fastTest.time}` : ''}
+
+### CORRECT DIAGNOSES (accept any of these):
+${p.correctDiagnosis.join(', ')}
+
+### Other reasonable differentials they might consider:
+${p.differentials.join(', ')}
+
+### How You Should Behave:
+${p.patientBehaviour}
+`;
 }
 
-// ==================== CHAT FUNCTIONS ====================
-
-async function handleSendMessage(e) {
-    e.preventDefault();
-    
-    const message = elements.messageInput.value.trim();
-    if (!message || chatState.isLoading) return;
-    
-    // Check message limit for free users
-    if (!chatState.isPro && chatState.messagesUsed >= window.paramind.CONFIG.freeTier.dailyMessages) {
-        showLimitReached();
-        return;
+/**
+ * Gets the starter message for a scenario
+ * @param {string} scenarioId - The scenario ID
+ * @returns {string} - The patient's opening statement
+ */
+function getScenarioStarterMessage(scenarioId) {
+    const scenario = SCENARIO_PATIENT_DATA[scenarioId];
+    if (!scenario) {
+        return "Hello, thank you for coming. I'm not feeling well at all. How can I help you?";
     }
     
-    // Clear input
-    elements.messageInput.value = '';
-    elements.messageInput.style.height = 'auto';
+    // Generate a realistic opening based on the patient's condition
+    const openers = {
+        "cardiac-chest-pain": `*clutching chest, looking pale and sweaty* 
+Oh thank goodness you're here... I've got this terrible pain in my chest. It started about ${scenario.presentation.onsetTime}. It's really bad... I feel sick too.`,
+        
+        "cardiac-stemi": `*looking grey and unwell, hand on stomach* 
+I don't know what's wrong with me... I've been feeling awful for the past hour. My stomach hurts and I feel really sick. I keep sweating. My husband made me call because he says I look terrible.`,
+        
+        "cardiac-af": `*sitting up, looking worried* 
+My heart's going crazy! It's been racing and fluttering for about 3 hours now. It doesn't feel right - like it's skipping beats. I feel a bit dizzy too.`,
+        
+        "cardiac-heart-failure": `*sitting forward, breathing heavily, speaking in short phrases* 
+I can't... catch my breath... It's been getting worse... over the last few days... I couldn't lie down... last night at all...`,
+        
+        "resp-asthma": `*sitting upright, struggling to breathe, speaking 2-3 words at a time* 
+Can't... breathe... inhaler... not working... please help...`,
+        
+        "resp-copd": `*breathing heavily with pursed lips, coughing* 
+*cough cough* My chest is... worse than normal... *cough* Been coughing up green stuff for days...`,
+        
+        "resp-anaphylaxis": `*scratching frantically, voice hoarse* 
+I can't breathe! My throat's closing up! I just ate a brownie... I think it had peanuts... I'm allergic! *scratching at hives* Help me!`,
+        
+        "neuro-stroke": `*slurred speech, one side of face drooping* 
+I... don't know... what's... *tries to lift right arm but can't* ...my arm won't... work...`,
+        
+        "neuro-hypoglycaemia": `*confused, sweating, agitated* 
+What? Who are you? Where am I? I was just... I don't... *looking around confused* ...I need to get my taxi...`,
+        
+        "abdo-appendicitis": `*lying very still, guarding right side of abdomen* 
+It really hurts! Started around my belly button last night but now it's down here *points to right lower abdomen*. It hurts so much when I move. Please don't press on it!`,
+        
+        "abdo-aaa": `*pale, grey, sweating profusely, grimacing* 
+Something's really wrong... the pain is unbelievable... my back and stomach... came on suddenly... I feel like I'm going to pass out...`,
+        
+        "trauma-fall": `*lying on ground, not moving, looking frightened* 
+Don't move me! I fell off the scaffolding... my back really hurts... and my legs feel strange... tingly... please don't move me...`,
+        
+        "paed-croup": `*Parent speaking, holding crying toddler* 
+Please help us! Listen to that cough! *child gives barking cough* He's been like this since last night. And that noise when he breathes in - that's not normal is it? *child has stridor when crying*`,
+        
+        "paed-febrile-convulsion": `*Parent speaking, holding drowsy child, clearly distressed* 
+She had a fit! About 10 minutes ago. She was shaking all over and went blue! She's still really hot and sleepy. Is she going to be okay? She's never done this before!`
+    };
     
-    // Hide welcome message
-    if (elements.welcomeMessage) {
-        elements.welcomeMessage.style.display = 'none';
-    }
-    
-    // Add user message
-    addMessage('user', message);
-    
-    // Increment message count
-    if (!chatState.isPro) {
-        chatState.messagesUsed = window.paramind.storage.incrementMessageCount();
-        updateMessageCounter();
-    }
-    
-    // Show loading
-    showLoading();
-    
-    // Get AI response
-    try {
-        const response = await sendToAI(message);
-        hideLoading();
-        addMessage('assistant', response);
-    } catch (error) {
-        hideLoading();
-        addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
-        console.error('Chat error:', error);
-    }
+    return openers[scenarioId] || `*looking unwell* 
+Thank you for coming. I'm ${scenario.patient.name}. ${scenario.presentation.chiefComplaint}. It started ${scenario.presentation.onsetTime}.`;
 }
 
-async function sendToAI(message) {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
+/**
+ * Gets basic scenario info for display
+ */
+function getScenarioInfo(scenarioId) {
+    const scenario = SCENARIO_PATIENT_DATA[scenarioId];
+    if (!scenario) return null;
     
-    const lowerMessage = message.toLowerCase();
-    
-    // Demo responses based on keywords
-    if (lowerMessage.includes('chest pain')) {
-        return `**Based on ${chatState.userTrust} guidelines:**\n\nFor chest pain assessment, use your systematic ABCDE approach:\n\n**Key Assessment Points:**\n• Onset, character, radiation, severity (0-10)\n• Associated symptoms: SOB, sweating, nausea, palpitations\n• Cardiac risk factors: smoking, diabetes, hypertension, family history, cholesterol\n• Previous cardiac history\n\n**Red Flags:**\n• Crushing/pressure sensation\n• Radiation to arm, jaw, or back\n• Diaphoresis\n• Associated breathlessness\n• Haemodynamic instability\n\n**Immediate Actions:**\n• 12-lead ECG\n• Aspirin 300mg (if not contraindicated)\n• GTN if SBP >90mmHg (and no contraindications)\n• IV access\n• Consider pain management\n\nWould you like me to go into more detail on any specific aspect?`;
-    }
-    
-    if (lowerMessage.includes('stemi') || lowerMessage.includes('nstemi')) {
-        return `**STEMI vs NSTEMI:**\n\n**STEMI (ST-Elevation MI):**\n• Complete coronary artery occlusion\n• ST elevation ≥1mm in 2+ contiguous leads\n• Requires immediate PPCI pathway activation\n• Time-critical: door-to-balloon <90 minutes\n\n**NSTEMI (Non-ST-Elevation MI):**\n• Partial coronary occlusion\n• ST depression, T-wave inversion, or no ECG changes\n• Elevated troponin confirms diagnosis\n• Risk-stratified management\n\n**Pre-hospital Management (Both):**\n• Aspirin 300mg PO\n• GTN if SBP >90mmHg\n• Morphine for pain (with antiemetic)\n• Oxygen only if SpO2 <94%\n• Pre-alert receiving hospital\n\nRemember to follow your ${chatState.userTrust} specific pathways.`;
-    }
-    
-    if (lowerMessage.includes('gtn') || lowerMessage.includes('contraindication')) {
-        return `**GTN Contraindications (${chatState.userTrust} JRCALC):**\n\n**Absolute Contraindications:**\n• SBP <90mmHg\n• HR <50 or >150 bpm\n• Right ventricular infarction (suspected/confirmed)\n• Severe aortic stenosis\n• Hypertrophic obstructive cardiomyopathy\n\n**Phosphodiesterase Inhibitors:**\n• Sildenafil/Vardenafil - within 24 hours\n• Tadalafil - within 48 hours\n\n**Relative Cautions:**\n• Raised intracranial pressure\n• Constrictive pericarditis\n• Already hypotensive\n\n**Administration:**\n• 400mcg sublingual spray\n• Can repeat after 5 minutes if pain persists\n• Monitor BP before and after`;
-    }
-    
-    if (lowerMessage.includes('differential') || lowerMessage.includes('diagnosis')) {
-        return `I'd be happy to help with differential diagnoses. To give you the most relevant guidance, could you tell me:\n\n1. What is the patient's main presenting complaint?\n2. Any key vital signs abnormalities?\n3. Relevant medical history?\n\nAlternatively, you can use the **Your Patient** section in the bottom menu to input the full clinical picture, and I'll provide structured guidance based on ${chatState.userTrust} protocols.`;
-    }
-    
-    // Default response
-    return `Thank you for your question. As your ${chatState.userTrust} clinical assistant, I'm here to help.\n\nI can assist with:\n• Patient assessment approaches\n• Differential diagnoses\n• Medication queries and calculations\n• Clinical pathways and protocols\n• Interactive learning scenarios\n\nTry the **Scenarios** section for interactive practice, or **Differentials** to explore conditions by body system.\n\nWhat would you like to know more about?`;
+    return {
+        title: scenario.title,
+        category: scenario.category,
+        difficulty: scenario.difficulty,
+        description: `${scenario.patient.age}-year-old ${scenario.patient.gender.toLowerCase()} - ${scenario.presentation.chiefComplaint}`
+    };
 }
 
-function addMessage(role, content) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${role}`;
-    
-    const avatarIcon = role === 'user' ? 'bi-person' : 'bi-robot';
-    
-    messageDiv.innerHTML = `
-        <div class="message-avatar">
-            <i class="bi ${avatarIcon}"></i>
-        </div>
-        <div class="message-content">
-            ${window.paramind.utils.formatMessage(content)}
-        </div>
-    `;
-    
-    elements.chatMessages.appendChild(messageDiv);
-    chatState.messages.push({ role, content, timestamp: new Date() });
-    
-    scrollToBottom();
-}
-
-function showLoading() {
-    chatState.isLoading = true;
-    elements.sendBtn.disabled = true;
-    
-    const loadingDiv = document.createElement('div');
-    loadingDiv.className = 'message assistant';
-    loadingDiv.id = 'loadingMessage';
-    
-    loadingDiv.innerHTML = `
-        <div class="message-avatar">
-            <i class="bi bi-robot"></i>
-        </div>
-        <div class="message-content">
-            <div class="typing-indicator">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </div>
-    `;
-    
-    elements.chatMessages.appendChild(loadingDiv);
-    scrollToBottom();
-}
-
-function hideLoading() {
-    chatState.isLoading = false;
-    elements.sendBtn.disabled = false;
-    
-    const loadingMsg = document.getElementById('loadingMessage');
-    if (loadingMsg) {
-        loadingMsg.remove();
-    }
-}
-
-function updateMessageCounter() {
-    if (elements.messagesUsed) {
-        elements.messagesUsed.textContent = chatState.messagesUsed;
-    }
-    
-    // Update banner styling based on usage
-    if (elements.messageLimitBanner && !chatState.isPro) {
-        if (chatState.messagesUsed >= window.paramind.CONFIG.freeTier.dailyMessages) {
-            elements.messageLimitBanner.style.background = 'rgba(220, 53, 69, 0.1)';
-        }
-    }
-}
-
-function showLimitReached() {
-    if (elements.welcomeMessage) {
-        elements.welcomeMessage.style.display = 'none';
-    }
-    
-    const limitDiv = document.createElement('div');
-    limitDiv.className = 'message assistant';
-    
-    limitDiv.innerHTML = `
-        <div class="message-avatar">
-            <i class="bi bi-robot"></i>
-        </div>
-        <div class="message-content">
-            <strong>Daily message limit reached</strong><br><br>
-            You've used all 5 free messages for today. Your limit resets at midnight.<br><br>
-            <a href="#" class="btn btn-primary btn-sm">
-                <i class="bi bi-star me-1"></i>Upgrade to Pro - £4.99/month
-            </a>
-        </div>
-    `;
-    
-    elements.chatMessages.appendChild(limitDiv);
-    scrollToBottom();
-}
-
-function clearChat() {
-    chatState.messages = [];
-    chatState.currentScenario = null;
-    
-    // Remove all messages except welcome
-    const messages = elements.chatMessages.querySelectorAll('.message, .alert');
-    messages.forEach(msg => msg.remove());
-}
-
-function scrollToBottom() {
-    elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
-}
-
-// ==================== INITIALIZE ====================
-
-document.addEventListener('DOMContentLoaded', initChat);
+// Export for use in other files
+window.scenarioPrompts = {
+    SCENARIO_SYSTEM_PROMPT,
+    SCENARIO_PATIENT_DATA,
+    buildScenarioSystemPrompt,
+    formatPatientDataForPrompt,
+    getScenarioStarterMessage,
+    getScenarioInfo
+};

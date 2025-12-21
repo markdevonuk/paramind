@@ -12,9 +12,13 @@ const SCENARIO_DATA = {
         description: "Practice cardiac-related patient assessments",
         items: [
             { id: "cardiac-chest-pain", title: "Chest Pain - ACS", description: "65-year-old with crushing chest pain" },
-            { id: "cardiac-stemi", title: "Inferior STEMI", description: "58-year-old with atypical presentation" },
-            { id: "cardiac-af", title: "Atrial Fibrillation", description: "72-year-old with palpitations" },
-            { id: "cardiac-heart-failure", title: "Heart Failure", description: "78-year-old with worsening breathlessness" }
+            { id: "cardiac-palpitations", title: "Palpitations", description: "45-year-old with racing heart" },
+            { id: "cardiac-syncope", title: "Cardiac Syncope", description: "70-year-old collapsed at home" },
+            { id: "cardiac-heart-failure", title: "Heart Failure", description: "78-year-old with worsening breathlessness" },
+            { id: "cardiac-af", title: "Atrial Fibrillation", description: "62-year-old with irregular pulse" },
+            { id: "cardiac-bradycardia", title: "Symptomatic Bradycardia", description: "80-year-old dizzy and pale" },
+            { id: "cardiac-stemi", title: "Inferior STEMI", description: "58-year-old with nausea and sweating" },
+            { id: "cardiac-arrest", title: "Cardiac Arrest", description: "Witnessed collapse scenario" }
         ]
     },
     respiratory: {
@@ -23,7 +27,10 @@ const SCENARIO_DATA = {
         items: [
             { id: "resp-asthma", title: "Acute Asthma", description: "28-year-old with severe wheeze" },
             { id: "resp-copd", title: "COPD Exacerbation", description: "72-year-old struggling to breathe" },
-            { id: "resp-anaphylaxis", title: "Anaphylaxis", description: "25-year-old with allergic reaction" }
+            { id: "resp-pneumonia", title: "Community Acquired Pneumonia", description: "65-year-old with productive cough" },
+            { id: "resp-pe", title: "Pulmonary Embolism", description: "35-year-old with pleuritic chest pain" },
+            { id: "resp-covid", title: "COVID-19 Pneumonitis", description: "55-year-old with worsening SpO2" },
+            { id: "resp-anaphylaxis", title: "Anaphylaxis", description: "25-year-old with bee sting reaction" }
         ]
     },
     abdominal: {
@@ -31,7 +38,12 @@ const SCENARIO_DATA = {
         description: "Practice abdominal assessments",
         items: [
             { id: "abdo-appendicitis", title: "Appendicitis", description: "22-year-old with RIF pain" },
-            { id: "abdo-aaa", title: "Ruptured AAA", description: "75-year-old with back pain and collapse" }
+            { id: "abdo-cholecystitis", title: "Cholecystitis", description: "48-year-old with RUQ pain after eating" },
+            { id: "abdo-aaa", title: "Ruptured AAA", description: "75-year-old with back pain and collapse" },
+            { id: "abdo-bowel-obstruction", title: "Bowel Obstruction", description: "68-year-old with vomiting and distension" },
+            { id: "abdo-gi-bleed", title: "GI Bleed", description: "60-year-old with melaena" },
+            { id: "abdo-renal-colic", title: "Renal Colic", description: "40-year-old with severe loin pain" },
+            { id: "abdo-pancreatitis", title: "Acute Pancreatitis", description: "50-year-old with epigastric pain" }
         ]
     },
     neuro: {
@@ -39,6 +51,9 @@ const SCENARIO_DATA = {
         description: "Practice neurological assessments",
         items: [
             { id: "neuro-stroke", title: "Acute Stroke", description: "72-year-old with facial droop and arm weakness" },
+            { id: "neuro-seizure", title: "Seizure", description: "35-year-old post-ictal in public" },
+            { id: "neuro-meningitis", title: "Meningitis", description: "20-year-old with headache and neck stiffness" },
+            { id: "neuro-head-injury", title: "Head Injury", description: "45-year-old fallen from ladder" },
             { id: "neuro-hypoglycaemia", title: "Hypoglycaemia", description: "58-year-old diabetic found confused" }
         ]
     },
@@ -46,7 +61,12 @@ const SCENARIO_DATA = {
         title: "Trauma Scenarios",
         description: "Practice trauma assessments",
         items: [
-            { id: "trauma-fall", title: "Fall from Height", description: "Builder fallen from scaffolding" }
+            { id: "trauma-rtc", title: "Road Traffic Collision", description: "Multi-vehicle RTC with entrapment" },
+            { id: "trauma-fall", title: "Fall from Height", description: "Builder fallen from scaffolding" },
+            { id: "trauma-stabbing", title: "Penetrating Trauma", description: "25-year-old stabbed in chest" },
+            { id: "trauma-burns", title: "Major Burns", description: "House fire victim" },
+            { id: "trauma-fracture", title: "Open Fracture", description: "Cyclist with open tibial fracture" },
+            { id: "trauma-spinal", title: "Spinal Injury", description: "Diving accident with neck pain" }
         ]
     },
     paediatric: {
@@ -54,7 +74,30 @@ const SCENARIO_DATA = {
         description: "Practice paediatric assessments",
         items: [
             { id: "paed-croup", title: "Croup", description: "2-year-old with barking cough" },
-            { id: "paed-febrile-convulsion", title: "Febrile Convulsion", description: "18-month-old post-seizure" }
+            { id: "paed-bronchiolitis", title: "Bronchiolitis", description: "6-month-old with breathing difficulty" },
+            { id: "paed-febrile-convulsion", title: "Febrile Convulsion", description: "18-month-old post-seizure" },
+            { id: "paed-sepsis", title: "Paediatric Sepsis", description: "4-year-old with fever and rash" },
+            { id: "paed-nai", title: "Safeguarding Concerns", description: "Child with unexplained injuries" }
+        ]
+    },
+    obstetric: {
+        title: "Obstetric Scenarios",
+        description: "Practice obstetric emergencies",
+        items: [
+            { id: "obs-labour", title: "Imminent Delivery", description: "Full term with urge to push" },
+            { id: "obs-pph", title: "Postpartum Haemorrhage", description: "Heavy bleeding after delivery" },
+            { id: "obs-eclampsia", title: "Eclampsia", description: "38 weeks pregnant with seizure" },
+            { id: "obs-cord-prolapse", title: "Cord Prolapse", description: "Visible cord after waters breaking" }
+        ]
+    },
+    "mental-health": {
+        title: "Mental Health Scenarios",
+        description: "Practice mental health assessments",
+        items: [
+            { id: "mh-self-harm", title: "Self Harm", description: "18-year-old with lacerations" },
+            { id: "mh-suicidal", title: "Suicidal Ideation", description: "45-year-old expressing suicidal thoughts" },
+            { id: "mh-psychosis", title: "Acute Psychosis", description: "30-year-old with paranoid delusions" },
+            { id: "mh-overdose", title: "Intentional Overdose", description: "25-year-old taken paracetamol" }
         ]
     }
 };
@@ -72,7 +115,11 @@ const DIFFERENTIAL_DATA = {
             { id: "pericarditis", title: "Pericarditis", description: "Sharp, positional, recent viral illness" },
             { id: "oesophageal", title: "Oesophageal Spasm/Reflux", description: "Burning, worse after eating" },
             { id: "msk-chest", title: "Musculoskeletal", description: "Reproducible on palpation" },
-            { id: "anxiety-chest", title: "Anxiety/Panic Attack", description: "Tingling, hyperventilation" }
+            { id: "anxiety-chest", title: "Anxiety/Panic Attack", description: "Tingling, hyperventilation" },
+            { id: "pneumonia-chest", title: "Pneumonia/Pleurisy", description: "Fever, cough, pleuritic" },
+            { id: "shingles", title: "Herpes Zoster", description: "Dermatomal pain, rash" },
+            { id: "cholecystitis-chest", title: "Biliary Colic", description: "RUQ, referred to shoulder" },
+            { id: "costochondritis", title: "Costochondritis", description: "Tender costochondral joints" }
         ]
     },
     "sob": {
@@ -84,7 +131,11 @@ const DIFFERENTIAL_DATA = {
             { id: "heart-failure-diff", title: "Heart Failure", description: "Orthopnoea, peripheral oedema" },
             { id: "pe-diff", title: "Pulmonary Embolism", description: "Risk factors, pleuritic pain" },
             { id: "pneumonia-diff", title: "Pneumonia", description: "Fever, productive cough" },
-            { id: "anaphylaxis-diff", title: "Anaphylaxis", description: "Trigger, swelling, rash" }
+            { id: "pneumothorax-diff", title: "Pneumothorax", description: "Sudden onset, reduced air entry" },
+            { id: "anaphylaxis-diff", title: "Anaphylaxis", description: "Trigger, swelling, rash" },
+            { id: "anxiety-sob", title: "Anxiety/Panic", description: "No physical cause, tingling" },
+            { id: "metabolic-acidosis", title: "Metabolic Acidosis", description: "DKA, sepsis, overdose" },
+            { id: "anaemia", title: "Severe Anaemia", description: "Gradual onset, pallor" }
         ]
     },
     "abdo-pain": {
@@ -95,7 +146,17 @@ const DIFFERENTIAL_DATA = {
             { id: "cholecystitis-diff", title: "Cholecystitis", description: "RUQ, worse after fatty food" },
             { id: "pancreatitis-diff", title: "Pancreatitis", description: "Epigastric, radiating to back" },
             { id: "aaa-diff", title: "AAA Rupture", description: "Pulsatile mass, back pain, shock" },
-            { id: "renal-colic-diff", title: "Renal Colic", description: "Loin to groin, colicky" }
+            { id: "bowel-obstruction-diff", title: "Bowel Obstruction", description: "Vomiting, distension, no flatus" },
+            { id: "renal-colic-diff", title: "Renal Colic", description: "Loin to groin, colicky" },
+            { id: "uti-diff", title: "UTI/Pyelonephritis", description: "Dysuria, frequency, loin pain" },
+            { id: "diverticulitis", title: "Diverticulitis", description: "LIF pain, elderly, fever" },
+            { id: "gi-bleed-diff", title: "GI Bleed", description: "Melaena, haematemesis, shock" },
+            { id: "ectopic", title: "Ectopic Pregnancy", description: "Female, missed period, bleeding" },
+            { id: "ovarian-torsion", title: "Ovarian Torsion/Cyst", description: "Sudden onset, female" },
+            { id: "testicular-torsion", title: "Testicular Torsion", description: "Young male, severe pain" },
+            { id: "hernia", title: "Strangulated Hernia", description: "Irreducible, tender" },
+            { id: "peptic-ulcer", title: "Peptic Ulcer/Perforation", description: "Epigastric, rigid abdomen" },
+            { id: "mesenteric-ischaemia", title: "Mesenteric Ischaemia", description: "AF, pain out of proportion" }
         ]
     },
     "headache": {
@@ -105,7 +166,11 @@ const DIFFERENTIAL_DATA = {
             { id: "tension-headache", title: "Tension Headache", description: "Band-like, bilateral" },
             { id: "migraine", title: "Migraine", description: "Unilateral, aura, photophobia" },
             { id: "sah", title: "Subarachnoid Haemorrhage", description: "Thunderclap, worst ever" },
-            { id: "meningitis-diff", title: "Meningitis", description: "Fever, neck stiffness, photophobia" }
+            { id: "meningitis-diff", title: "Meningitis", description: "Fever, neck stiffness, photophobia" },
+            { id: "temporal-arteritis", title: "Temporal Arteritis", description: ">50, scalp tenderness, jaw claudication" },
+            { id: "raised-icp", title: "Raised ICP", description: "Worse on waking, vomiting" },
+            { id: "cluster-headache", title: "Cluster Headache", description: "Unilateral, eye watering, restless" },
+            { id: "sinusitis", title: "Sinusitis", description: "Facial pain, worse bending forward" }
         ]
     },
     "altered-loc": {
@@ -114,9 +179,15 @@ const DIFFERENTIAL_DATA = {
         items: [
             { id: "hypoglycaemia-diff", title: "Hypoglycaemia", description: "Diabetic, sweaty, tremor" },
             { id: "stroke-diff", title: "Stroke/TIA", description: "Focal neurology, sudden onset" },
+            { id: "head-injury-diff", title: "Head Injury", description: "History of trauma" },
             { id: "seizure-diff", title: "Post-ictal", description: "Witnessed seizure, confusion" },
             { id: "overdose-diff", title: "Drug/Alcohol Overdose", description: "Toxidrome, history" },
-            { id: "sepsis-diff", title: "Sepsis", description: "Infection source, fever/hypothermia" }
+            { id: "sepsis-diff", title: "Sepsis", description: "Infection source, fever/hypothermia" },
+            { id: "dka-diff", title: "DKA/HHS", description: "Diabetic, high BM, dehydration" },
+            { id: "hepatic-enceph", title: "Hepatic Encephalopathy", description: "Liver disease, asterixis" },
+            { id: "hyponatraemia", title: "Hyponatraemia", description: "Elderly, diuretics, confusion" },
+            { id: "hypothermia-diff", title: "Hypothermia", description: "Cold, bradycardia, elderly" },
+            { id: "co-poisoning", title: "Carbon Monoxide", description: "Multiple casualties, headache" }
         ]
     },
     "collapse": {
@@ -126,7 +197,12 @@ const DIFFERENTIAL_DATA = {
             { id: "vasovagal", title: "Vasovagal Syncope", description: "Trigger, prodrome, rapid recovery" },
             { id: "cardiac-syncope-diff", title: "Cardiac Syncope", description: "No warning, exertional, palpitations" },
             { id: "orthostatic", title: "Orthostatic Hypotension", description: "On standing, medications" },
-            { id: "seizure-collapse", title: "Seizure", description: "Witnessed convulsions, post-ictal" }
+            { id: "seizure-collapse", title: "Seizure", description: "Witnessed convulsions, post-ictal" },
+            { id: "hypoglycaemia-collapse", title: "Hypoglycaemia", description: "Diabetic, missed meal" },
+            { id: "pe-collapse", title: "Massive PE", description: "Sudden, SOB, risk factors" },
+            { id: "aortic-stenosis", title: "Aortic Stenosis", description: "Exertional, murmur" },
+            { id: "arrhythmia", title: "Arrhythmia", description: "Palpitations before collapse" },
+            { id: "situational", title: "Situational Syncope", description: "Cough, micturition, defecation" }
         ]
     },
     "back-pain": {
@@ -134,8 +210,12 @@ const DIFFERENTIAL_DATA = {
         description: "Serious and common causes",
         items: [
             { id: "mechanical", title: "Mechanical Back Pain", description: "Movement related, no red flags" },
+            { id: "disc-prolapse", title: "Disc Prolapse", description: "Radicular pain, dermatomal" },
             { id: "cauda-equina", title: "Cauda Equina Syndrome", description: "Saddle anaesthesia, urinary symptoms" },
-            { id: "aaa-back", title: "AAA Rupture", description: "Elderly, pulsatile mass, shock" }
+            { id: "aaa-back", title: "AAA Rupture", description: "Elderly, pulsatile mass, shock" },
+            { id: "spinal-cord-comp", title: "Spinal Cord Compression", description: "Cancer history, bilateral leg symptoms" },
+            { id: "vertebral-fracture", title: "Vertebral Fracture", description: "Trauma, osteoporosis, point tender" },
+            { id: "infection-spine", title: "Spinal Infection/Abscess", description: "Fever, IVDU, recent procedure" }
         ]
     },
     "leg-pain": {
@@ -144,11 +224,26 @@ const DIFFERENTIAL_DATA = {
         items: [
             { id: "dvt", title: "Deep Vein Thrombosis", description: "Unilateral swelling, Wells score" },
             { id: "cellulitis", title: "Cellulitis", description: "Erythema, warmth, spreading" },
-            { id: "peripheral-arterial", title: "Acute Limb Ischaemia", description: "6 Ps, pulseless, cold" }
+            { id: "peripheral-arterial", title: "Acute Limb Ischaemia", description: "6 Ps, pulseless, cold" },
+            { id: "compartment", title: "Compartment Syndrome", description: "Trauma, tense, severe pain" },
+            { id: "ruptured-bakers", title: "Ruptured Baker's Cyst", description: "Calf swelling, known cyst" },
+            { id: "msk-leg", title: "Musculoskeletal Strain", description: "Activity related, localised" }
         ]
     }
 };
 
+// Scenario prompts for AI conversation
+const SCENARIO_PROMPTS = {
+    "cardiac-chest-pain": {
+        title: "Chest Pain - ACS",
+        prompt: "You are now a 65-year-old male patient named John presenting to a paramedic. You have crushing central chest pain that started 45 minutes ago while watching TV. The pain radiates to your left arm and jaw. You feel sweaty, nauseous, and anxious. You have a history of hypertension and high cholesterol. Answer the paramedic's questions as a realistic patient would - you may not know medical terminology. Do not reveal your diagnosis. After the paramedic offers their assessment and treatment plan, provide feedback on what they did well and what they might have missed."
+    },
+    "cardiac-stemi": {
+        title: "Inferior STEMI",
+        prompt: "You are a 58-year-old female patient named Margaret. You have been feeling unwell for the past hour with nausea, sweating, and discomfort in your upper abdomen and back. You don't have typical chest pain but feel very unwell. You have type 2 diabetes. Answer the paramedic's questions realistically. After their assessment, provide feedback on their recognition of atypical MI presentation."
+    }
+    // Add more scenario prompts as needed
+};
 
 // ==================== STATE ====================
 
@@ -156,7 +251,6 @@ const chatState = {
     messages: [],
     isLoading: false,
     currentScenario: null,
-    currentScenarioPrompt: null,  // Stores the system prompt for current scenario
     messagesUsed: 0,
     isPro: false,
     userTrust: 'SWAST',
@@ -188,6 +282,7 @@ const elements = {
     
     // User info
     userTrust: document.getElementById('userTrust'),
+    userEmail: document.getElementById('userEmail'),
     
     // Scenario elements
     scenarioCategories: document.getElementById('scenarioCategories'),
@@ -231,8 +326,14 @@ function initChat() {
         chatState.userTrust = user.trust || 'SWAST';
         chatState.isPro = user.subscriptionStatus === 'active';
         
+        // Update trust badge
         if (elements.userTrust) {
             elements.userTrust.textContent = chatState.userTrust;
+        }
+        
+        // Update email display
+        if (elements.userEmail && user.email) {
+            elements.userEmail.textContent = user.email;
         }
         
         // Hide message limit banner for pro users
@@ -357,148 +458,71 @@ function switchView(viewId) {
 
 function showScenarioSubcategory(category) {
     const data = SCENARIO_DATA[category];
-    if (!data) {
-        console.error('Category not found:', category);
-        return;
-    }
-    
-    // Get the elements
-    const subcategoryTitle = document.getElementById('subcategoryTitle');
-    const subcategoryDescription = document.getElementById('subcategoryDescription');
-    const scenarioList = document.getElementById('scenarioList');
-    const scenarioCategories = document.getElementById('scenarioCategories');
-    const scenarioSubcategory = document.getElementById('scenarioSubcategory');
+    if (!data) return;
     
     // Update title and description
-    if (subcategoryTitle) subcategoryTitle.textContent = data.title;
-    if (subcategoryDescription) subcategoryDescription.textContent = data.description;
+    elements.subcategoryTitle.textContent = data.title;
+    elements.subcategoryDescription.textContent = data.description;
     
     // Populate scenario list
-    if (scenarioList) {
-        scenarioList.innerHTML = data.items.map(item => `
-            <div class="subcategory-item" data-scenario-id="${item.id}">
-                <div class="info">
-                    <h4>${item.title}</h4>
-                    <p>${item.description}</p>
-                </div>
-                <i class="bi bi-chevron-right arrow"></i>
+    elements.scenarioList.innerHTML = data.items.map(item => `
+        <div class="subcategory-item" data-scenario-id="${item.id}">
+            <div class="info">
+                <h4>${item.title}</h4>
+                <p>${item.description}</p>
             </div>
-        `).join('');
-        
-        // Add click handlers to scenario items
-        scenarioList.querySelectorAll('.subcategory-item').forEach(item => {
-            item.addEventListener('click', function() {
-                const scenarioId = this.getAttribute('data-scenario-id');
-                const title = this.querySelector('h4').textContent;
-                const description = this.querySelector('p').textContent;
-                
-                console.log('Clicked scenario:', scenarioId); // Debug log
-                
-                if (scenarioId) {
-                    openScenarioModal(scenarioId, title, description);
-                } else {
-                    console.error('No scenario ID found on element');
-                }
-            });
+            <i class="bi bi-chevron-right arrow"></i>
+        </div>
+    `).join('');
+    
+    // Add click handlers to scenario items
+    elements.scenarioList.querySelectorAll('.subcategory-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const scenarioId = item.dataset.scenarioId;
+            openScenarioModal(scenarioId, item.querySelector('h4').textContent, item.querySelector('p').textContent);
         });
-    }
+    });
     
     // Show subcategory view
-    if (scenarioCategories) scenarioCategories.style.display = 'none';
-    if (scenarioSubcategory) scenarioSubcategory.style.display = 'block';
+    elements.scenarioCategories.style.display = 'none';
+    elements.scenarioSubcategory.style.display = 'block';
 }
 
 function hideScenarioSubcategory() {
-    const scenarioCategories = document.getElementById('scenarioCategories');
-    const scenarioSubcategory = document.getElementById('scenarioSubcategory');
-    
-    if (scenarioCategories) scenarioCategories.style.display = 'block';
-    if (scenarioSubcategory) scenarioSubcategory.style.display = 'none';
+    elements.scenarioCategories.style.display = 'block';
+    elements.scenarioSubcategory.style.display = 'none';
 }
 
 function openScenarioModal(scenarioId, title, description) {
-    console.log('Opening modal for scenario:', scenarioId); // Debug log
-    
-    if (!scenarioId) {
-        console.error('No scenario ID provided to openScenarioModal');
-        return;
-    }
-    
-    // Store the scenario ID
     chatState.currentScenario = scenarioId;
     
-    // Update modal content
-    const modalTitle = document.getElementById('scenarioModalTitle');
-    const modalDesc = document.getElementById('scenarioModalDescription');
+    elements.scenarioModalTitle.textContent = title;
+    elements.scenarioModalDescription.textContent = description + " This interactive scenario will test your assessment skills.";
     
-    if (modalTitle) {
-        modalTitle.textContent = title;
-    }
-    if (modalDesc) {
-        modalDesc.textContent = description + " This interactive scenario will test your assessment skills. Ask questions, gather information, and provide your working diagnosis.";
-    }
-    
-    // Show the modal
-    const modalElement = document.getElementById('scenarioModal');
-    if (modalElement) {
-        const modal = new bootstrap.Modal(modalElement);
-        modal.show();
-    }
+    const modal = new bootstrap.Modal(elements.scenarioModal);
+    modal.show();
 }
 
 function startScenario() {
-    console.log('Starting scenario:', chatState.currentScenario); // Debug log
-    
-    if (!chatState.currentScenario) {
-        console.error('No scenario selected');
-        alert('Please select a scenario first.');
-        return;
-    }
-    
-    // IMPORTANT: Save the scenario ID before clearChat() resets it
-    const scenarioId = chatState.currentScenario;
+    if (!chatState.currentScenario) return;
     
     // Close modal
-    const modalElement = document.getElementById('scenarioModal');
-    if (modalElement) {
-        const modal = bootstrap.Modal.getInstance(modalElement);
-        if (modal) {
-            modal.hide();
-        }
-    }
+    const modal = bootstrap.Modal.getInstance(elements.scenarioModal);
+    modal.hide();
     
     // Switch to chat view
     switchView('chatView');
     
-    // Clear current messages (this resets currentScenario to null)
+    // Clear current messages
     clearChat();
-    
-    // Restore the scenario ID after clearing
-    chatState.currentScenario = scenarioId;
     
     // Hide welcome message
     if (elements.welcomeMessage) {
         elements.welcomeMessage.style.display = 'none';
     }
     
-    // Build the system prompt for this scenario
-    if (window.scenarioPrompts && window.scenarioPrompts.buildScenarioSystemPrompt) {
-        chatState.currentScenarioPrompt = window.scenarioPrompts.buildScenarioSystemPrompt(
-            scenarioId, 
-            chatState.userTrust
-        );
-    }
-    
-    // Get scenario info - with fallback
-    let scenarioTitle = 'Scenario';
-    if (window.scenarioPrompts && window.scenarioPrompts.getScenarioInfo) {
-        const scenarioInfo = window.scenarioPrompts.getScenarioInfo(scenarioId);
-        if (scenarioInfo && scenarioInfo.title) {
-            scenarioTitle = scenarioInfo.title;
-        }
-    }
-    
     // Add scenario banner
+    const scenarioTitle = elements.scenarioModalTitle.textContent;
     const bannerDiv = document.createElement('div');
     bannerDiv.className = 'alert alert-info mx-2 my-2';
     bannerDiv.innerHTML = `
@@ -508,88 +532,64 @@ function startScenario() {
                 <strong>Scenario: ${scenarioTitle}</strong>
                 <div class="small">Assess the patient and provide your working diagnosis</div>
             </div>
-            <button class="btn btn-sm btn-outline-secondary ms-auto" onclick="endScenario()">
-                <i class="bi bi-x-lg"></i> End
-            </button>
         </div>
     `;
     elements.chatMessages.appendChild(bannerDiv);
     
-    // Start the scenario with AI response (patient's opening statement)
+    // Start the scenario with AI response
     showLoading();
     
     setTimeout(() => {
         hideLoading();
         
-        // Get the starter message from scenario prompts
-        let starterMessage = "Hello, thank you for coming. I'm not feeling well at all.";
-        if (window.scenarioPrompts && window.scenarioPrompts.getScenarioStarterMessage) {
-            starterMessage = window.scenarioPrompts.getScenarioStarterMessage(scenarioId);
-        }
-        
+        // Get appropriate starter message
+        const starterMessage = getScenarioStarterMessage(chatState.currentScenario);
         addMessage('assistant', starterMessage);
     }, 1000);
 }
 
-/**
- * End the current scenario and return to normal chat
- */
-function endScenario() {
-    chatState.currentScenario = null;
-    chatState.currentScenarioPrompt = null;
+function getScenarioStarterMessage(scenarioId) {
+    // Default starter messages based on scenario type
+    const starters = {
+        "cardiac-chest-pain": "Hello... I've called the ambulance because I've got this terrible pain in my chest. It started about 45 minutes ago. I was just sitting watching telly and it came on suddenly. It's really quite bad... I feel a bit sick too.",
+        "cardiac-stemi": "I don't know what's wrong with me... I've been feeling awful for the past hour. My stomach hurts and I feel really sick. I keep sweating but I don't have a temperature. My husband made me call because he says I look grey.",
+        "resp-asthma": "*wheeze* I can't... catch my breath... *wheeze* My inhaler isn't helping...",
+        "neuro-stroke": "*slurred speech* I... my arm... it won't work properly. My wife says my face looks funny. What's happening to me?",
+        "abdo-appendicitis": "The pain started around my belly button last night but now it's moved down here to my right side. It really hurts when I move. I've been sick twice.",
+        "resp-anaphylaxis": "*distressed* I can't breathe properly... my throat feels tight... I just ate some prawns at a restaurant... *scratching* I'm so itchy everywhere...",
+        "neuro-seizure": "*confused, slightly agitated* Where am I? What happened? My head hurts... I feel really tired and my tongue is sore...",
+        "trauma-rtc": "*groaning* My neck hurts... I can't move my legs properly... the car came out of nowhere...",
+        "paed-croup": "*parent speaking* She's making this horrible barking noise when she coughs and she's really struggling to breathe. It started in the night. She's only 2.",
+        "cardiac-af": "My heart keeps going really fast and then slowing down... it feels like it's fluttering in my chest. I feel a bit dizzy and short of breath.",
+        "abdo-aaa": "*pale, sweating* I've got this terrible pain in my back and stomach... it came on suddenly about an hour ago. I feel really unwell... *clutching abdomen*"
+    };
     
-    // Add end message
-    addMessage('assistant', `**Scenario ended.** Feel free to ask me any clinical questions or start a new scenario from the menu.`);
+    return starters[scenarioId] || "Hello, thank you for coming. I'm not feeling well at all. Where would you like to start?";
 }
-
-// Make endScenario available globally
-window.endScenario = endScenario;
 
 // Start a random scenario
 function startRandomScenario() {
-    // Get all scenarios from all categories that have patient data
-    const allScenarios = [];
+    // Get all categories
+    const categories = Object.keys(SCENARIO_DATA);
     
-    Object.keys(SCENARIO_DATA).forEach(category => {
-        SCENARIO_DATA[category].items.forEach(item => {
-            // Only add if we have patient data for it
-            if (window.scenarioPrompts && 
-                window.scenarioPrompts.SCENARIO_PATIENT_DATA && 
-                window.scenarioPrompts.SCENARIO_PATIENT_DATA[item.id]) {
-                allScenarios.push(item);
-            }
-        });
-    });
+    // Pick a random category
+    const randomCategory = categories[Math.floor(Math.random() * categories.length)];
     
-    if (allScenarios.length === 0) {
-        console.error('No scenarios with patient data found');
-        addMessage('assistant', 'Sorry, no scenarios are available at the moment. Please try again later.');
-        return;
-    }
+    // Get items from that category
+    const categoryItems = SCENARIO_DATA[randomCategory].items;
     
-    // Pick a random scenario
-    const randomScenario = allScenarios[Math.floor(Math.random() * allScenarios.length)];
-    const scenarioId = randomScenario.id;
+    // Pick a random scenario from that category
+    const randomScenario = categoryItems[Math.floor(Math.random() * categoryItems.length)];
     
-    console.log('Starting random scenario:', scenarioId); // Debug log
+    // Set the current scenario
+    chatState.currentScenario = randomScenario.id;
     
-    // Clear current chat FIRST (this resets currentScenario)
+    // Clear current chat
     clearChat();
-    
-    // THEN set the scenario ID
-    chatState.currentScenario = scenarioId;
     
     // Hide welcome message
     if (elements.welcomeMessage) {
         elements.welcomeMessage.style.display = 'none';
-    }
-    
-    // Build the system prompt
-    if (window.scenarioPrompts && window.scenarioPrompts.buildScenarioSystemPrompt) {
-        chatState.currentScenarioPrompt = window.scenarioPrompts.buildScenarioSystemPrompt(
-            scenarioId, 
-            chatState.userTrust
-        );
     }
     
     // Add scenario banner
@@ -597,30 +597,21 @@ function startRandomScenario() {
     bannerDiv.className = 'alert alert-info mx-2 my-2';
     bannerDiv.innerHTML = `
         <div class="d-flex align-items-center">
-            <i class="bi bi-shuffle me-2"></i>
+            <i class="bi bi-mortarboard me-2"></i>
             <div>
-                <strong>Random Scenario: ${randomScenario.title}</strong>
+                <strong>Scenario: ${randomScenario.title}</strong>
                 <div class="small">${randomScenario.description}</div>
             </div>
-            <button class="btn btn-sm btn-outline-secondary ms-auto" onclick="endScenario()">
-                <i class="bi bi-x-lg"></i> End
-            </button>
         </div>
     `;
-    
-    if (elements.chatMessages) {
-        elements.chatMessages.appendChild(bannerDiv);
-    }
+    elements.chatMessages.appendChild(bannerDiv);
     
     // Start the scenario with AI response
     showLoading();
     
     setTimeout(() => {
         hideLoading();
-        let starterMessage = "Hello, thank you for coming. I'm not feeling well.";
-        if (window.scenarioPrompts && window.scenarioPrompts.getScenarioStarterMessage) {
-            starterMessage = window.scenarioPrompts.getScenarioStarterMessage(scenarioId);
-        }
+        const starterMessage = getScenarioStarterMessage(chatState.currentScenario);
         addMessage('assistant', starterMessage);
     }, 1000);
 }
@@ -629,54 +620,39 @@ function startRandomScenario() {
 
 function showDiffSubcategory(category) {
     const data = DIFFERENTIAL_DATA[category];
-    if (!data) {
-        console.error('Differential category not found:', category);
-        return;
-    }
-    
-    // Get the elements
-    const diffSubcategoryTitle = document.getElementById('diffSubcategoryTitle');
-    const diffSubcategoryDescription = document.getElementById('diffSubcategoryDescription');
-    const diffList = document.getElementById('diffList');
-    const diffCategories = document.getElementById('diffCategories');
-    const diffSubcategory = document.getElementById('diffSubcategory');
+    if (!data) return;
     
     // Update title and description
-    if (diffSubcategoryTitle) diffSubcategoryTitle.textContent = data.title;
-    if (diffSubcategoryDescription) diffSubcategoryDescription.textContent = data.description;
+    elements.diffSubcategoryTitle.textContent = data.title;
+    elements.diffSubcategoryDescription.textContent = data.description;
     
     // Populate differential list
-    if (diffList) {
-        diffList.innerHTML = data.items.map(item => `
-            <div class="subcategory-item" data-diff-id="${item.id}">
-                <div class="info">
-                    <h4>${item.title}</h4>
-                    <p>${item.description}</p>
-                </div>
-                <i class="bi bi-chevron-right arrow"></i>
+    elements.diffList.innerHTML = data.items.map(item => `
+        <div class="subcategory-item" data-diff-id="${item.id}">
+            <div class="info">
+                <h4>${item.title}</h4>
+                <p>${item.description}</p>
             </div>
-        `).join('');
-        
-        // Add click handlers - ask AI about the condition
-        diffList.querySelectorAll('.subcategory-item').forEach(item => {
-            item.addEventListener('click', function() {
-                const title = this.querySelector('h4').textContent;
-                askAboutCondition(title);
-            });
+            <i class="bi bi-chevron-right arrow"></i>
+        </div>
+    `).join('');
+    
+    // Add click handlers - ask AI about the condition
+    elements.diffList.querySelectorAll('.subcategory-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const title = item.querySelector('h4').textContent;
+            askAboutCondition(title);
         });
-    }
+    });
     
     // Show subcategory view
-    if (diffCategories) diffCategories.style.display = 'none';
-    if (diffSubcategory) diffSubcategory.style.display = 'block';
+    elements.diffCategories.style.display = 'none';
+    elements.diffSubcategory.style.display = 'block';
 }
 
 function hideDiffSubcategory() {
-    const diffCategories = document.getElementById('diffCategories');
-    const diffSubcategory = document.getElementById('diffSubcategory');
-    
-    if (diffCategories) diffCategories.style.display = 'block';
-    if (diffSubcategory) diffSubcategory.style.display = 'none';
+    elements.diffCategories.style.display = 'block';
+    elements.diffSubcategory.style.display = 'none';
 }
 
 function askAboutCondition(conditionName) {
@@ -687,10 +663,6 @@ function askAboutCondition(conditionName) {
     if (elements.welcomeMessage) {
         elements.welcomeMessage.style.display = 'none';
     }
-    
-    // End any active scenario
-    chatState.currentScenario = null;
-    chatState.currentScenarioPrompt = null;
     
     const prompt = `Tell me about ${conditionName} for a paramedic: key features, red flags, and pre-hospital management.`;
     
@@ -718,10 +690,6 @@ function askAboutCondition(conditionName) {
 
 function handlePatientForm(e) {
     e.preventDefault();
-    
-    // End any active scenario
-    chatState.currentScenario = null;
-    chatState.currentScenarioPrompt = null;
     
     // Gather form data
     const patientData = {
@@ -872,367 +840,31 @@ async function handleSendMessage(e) {
     }
 }
 
-/**
- * Send message to AI
- * This function will need to be updated when you connect to your actual AI backend
- */
 async function sendToAI(message) {
-    // For now, this is a demo response system
-    // When you have your backend ready, this will call your Firebase Cloud Function
-    
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    // Check if we're in a scenario
-    if (chatState.currentScenario && chatState.currentScenarioPrompt) {
-        return handleScenarioResponse(message);
-    }
-    
-    // Normal chat mode - demo responses
-    return handleNormalChatResponse(message);
-}
-
-/**
- * Handle responses during an active scenario
- * The AI acts as the patient
- */
-function handleScenarioResponse(message) {
-    const lowerMessage = message.toLowerCase();
-    const scenario = window.scenarioPrompts?.SCENARIO_PATIENT_DATA[chatState.currentScenario];
-    
-    if (!scenario) {
-        return "I'm sorry, I seem to have lost track of the scenario. Let's start fresh.";
-    }
-    
-    // Check if user is giving their diagnosis
-    if (lowerMessage.includes('working diagnosis') || 
-        lowerMessage.includes('provisional diagnosis') || 
-        lowerMessage.includes('differential') ||
-        lowerMessage.includes('i think you have') ||
-        lowerMessage.includes('my impression is') ||
-        lowerMessage.includes('i believe this is') ||
-        lowerMessage.includes('my diagnosis')) {
-        return evaluateDiagnosis(message, scenario);
-    }
-    
-    // Check if asking for observations without being specific
-    if ((lowerMessage.includes('obs') || lowerMessage.includes('observations') || lowerMessage.includes('vitals')) &&
-        !lowerMessage.includes('blood pressure') && 
-        !lowerMessage.includes('pulse') && 
-        !lowerMessage.includes('heart rate') &&
-        !lowerMessage.includes('respiratory') &&
-        !lowerMessage.includes('oxygen') &&
-        !lowerMessage.includes('spo2') &&
-        !lowerMessage.includes('temperature') &&
-        !lowerMessage.includes('temp') &&
-        !lowerMessage.includes('gcs') &&
-        !lowerMessage.includes('blood sugar') &&
-        !lowerMessage.includes('bm')) {
-        return `Which observations would you like to check? You can check my pulse, blood pressure, breathing rate, oxygen levels, temperature, GCS, or blood sugar.`;
-    }
-    
-    // Specific observation requests
-    if (lowerMessage.includes('blood pressure') || lowerMessage.includes('bp')) {
-        return `*you check the blood pressure*\nIt's reading ${scenario.observations.bloodPressure}.`;
-    }
-    
-    if (lowerMessage.includes('pulse') || lowerMessage.includes('heart rate') || lowerMessage.includes('hr')) {
-        let response = `*you feel the pulse*\nIt's ${scenario.observations.heartRate} beats per minute.`;
-        if (scenario.observations.pulseRhythm) {
-            response += ` The rhythm is ${scenario.observations.pulseRhythm}.`;
-        }
-        return response;
-    }
-    
-    if (lowerMessage.includes('respiratory rate') || lowerMessage.includes('breathing') || lowerMessage.includes('rr')) {
-        return `*you count the breaths*\n${scenario.observations.respiratoryRate} breaths per minute.`;
-    }
-    
-    if (lowerMessage.includes('oxygen') || lowerMessage.includes('spo2') || lowerMessage.includes('sats')) {
-        return `*you put the probe on*\nOxygen saturation is ${scenario.observations.oxygenSaturation}%.`;
-    }
-    
-    if (lowerMessage.includes('temperature') || lowerMessage.includes('temp')) {
-        return `*you take the temperature*\n${scenario.observations.temperature}°C.`;
-    }
-    
-    if (lowerMessage.includes('gcs') || lowerMessage.includes('conscious level') || lowerMessage.includes('avpu')) {
-        return `GCS is ${scenario.observations.gcs}. ${scenario.observations.gcs === 15 ? "I'm fully alert and oriented." : ""}`;
-    }
-    
-    if (lowerMessage.includes('blood sugar') || lowerMessage.includes('bm') || lowerMessage.includes('glucose')) {
-        return `*you check the blood glucose*\nIt's ${scenario.observations.bloodGlucose} mmol/L.`;
-    }
-    
-    if (lowerMessage.includes('cap refill') || lowerMessage.includes('capillary')) {
-        return `*you press the nail bed*\nCapillary refill is ${scenario.observations.capRefill}.`;
-    }
-    
-    if (lowerMessage.includes('peak flow') && scenario.observations.peakFlow) {
-        return `*you do a peak flow*\nIt's ${scenario.observations.peakFlow}. ${scenario.observations.peakFlow < 200 ? "That's definitely lower than normal for me." : ""}`;
-    }
-    
-    // ECG request
-    if (lowerMessage.includes('ecg') || lowerMessage.includes('12 lead')) {
-        if (scenario.ecgFindings) {
-            return `*you attach the ECG leads and run a 12-lead*\nThe ECG shows: ${scenario.ecgFindings}`;
-        }
-        return `*you run the ECG*\nThe trace is showing. What do you make of it?`;
-    }
-    
-    // FAST test for stroke
-    if (lowerMessage.includes('fast') && scenario.fastTest) {
-        return `*you perform FAST assessment*\n
-**Face:** ${scenario.fastTest.face}
-**Arms:** ${scenario.fastTest.arms}
-**Speech:** ${scenario.fastTest.speech}
-**Time:** ${scenario.fastTest.time}`;
-    }
-    
-    // Pain questions
-    if (lowerMessage.includes('pain') || lowerMessage.includes('hurt')) {
-        if (lowerMessage.includes('where')) {
-            return scenario.presentation.location;
-        }
-        if (lowerMessage.includes('score') || lowerMessage.includes('out of 10') || lowerMessage.includes('1 to 10')) {
-            return `I'd say about ${scenario.observations.painScore} out of 10.`;
-        }
-        if (lowerMessage.includes('what does it feel like') || lowerMessage.includes('describe')) {
-            return scenario.presentation.character;
-        }
-        if (lowerMessage.includes('worse') || lowerMessage.includes('aggravat')) {
-            return `It's worse when ${scenario.presentation.aggravating}.`;
-        }
-        if (lowerMessage.includes('better') || lowerMessage.includes('reliev')) {
-            return scenario.presentation.relieving;
-        }
-        if (lowerMessage.includes('start') || lowerMessage.includes('when did') || lowerMessage.includes('how long')) {
-            return `It started ${scenario.presentation.onsetTime}. ${scenario.presentation.onset}`;
-        }
-        // General pain question
-        return `${scenario.presentation.location}. ${scenario.presentation.character}. It's about a ${scenario.observations.painScore} out of 10.`;
-    }
-    
-    // History questions
-    if (lowerMessage.includes('medical history') || lowerMessage.includes('pmh') || lowerMessage.includes('past history') || lowerMessage.includes('health problems')) {
-        return `I've got ${scenario.history.pastMedical.join(', ')}.`;
-    }
-    
-    if (lowerMessage.includes('medication') || lowerMessage.includes('medicine') || lowerMessage.includes('tablets') || lowerMessage.includes('drugs')) {
-        return `I take ${scenario.history.medications.join(', ')}.`;
-    }
-    
-    if (lowerMessage.includes('allerg')) {
-        return scenario.history.allergies === 'None known' || scenario.history.allergies === 'None' ? 
-            "No, I don't have any allergies." : 
-            `Yes, I'm allergic to ${scenario.history.allergies}.`;
-    }
-    
-    if (lowerMessage.includes('family history') || lowerMessage.includes('family')) {
-        return scenario.history.familyHistory;
-    }
-    
-    if (lowerMessage.includes('smoke') || lowerMessage.includes('smoking') || lowerMessage.includes('cigarette')) {
-        const social = scenario.history.socialHistory.toLowerCase();
-        if (social.includes('non-smoker')) return "No, I don't smoke.";
-        if (social.includes('ex-smoker')) return "I used to smoke but I quit. " + scenario.history.socialHistory;
-        if (social.includes('smoker')) return "Yes, I do smoke. " + scenario.history.socialHistory;
-        return scenario.history.socialHistory;
-    }
-    
-    if (lowerMessage.includes('alcohol') || lowerMessage.includes('drink')) {
-        return scenario.history.socialHistory;
-    }
-    
-    // Onset/timing questions
-    if (lowerMessage.includes('when did') || lowerMessage.includes('how long') || lowerMessage.includes('start')) {
-        return `It started ${scenario.presentation.onsetTime}. ${scenario.presentation.onset}`;
-    }
-    
-    // Associated symptoms
-    if (lowerMessage.includes('other symptoms') || lowerMessage.includes('anything else') || lowerMessage.includes('associated')) {
-        return `Well, I've also had ${scenario.presentation.associated.join(', ')}.`;
-    }
-    
-    // What's wrong / what happened
-    if (lowerMessage.includes('what happened') || lowerMessage.includes('what\'s wrong') || lowerMessage.includes('tell me')) {
-        return `${scenario.presentation.chiefComplaint}. It started ${scenario.presentation.onsetTime}. ${scenario.presentation.onset}`;
-    }
-    
-    // Examination findings
-    if (lowerMessage.includes('examine') || lowerMessage.includes('look at') || lowerMessage.includes('check')) {
-        if (lowerMessage.includes('chest') || lowerMessage.includes('lung') || lowerMessage.includes('listen')) {
-            return `*you examine the chest*\n${scenario.examination.chest || scenario.examination.general}`;
-        }
-        if (lowerMessage.includes('abdomen') || lowerMessage.includes('stomach') || lowerMessage.includes('tummy')) {
-            return `*you examine the abdomen*\n${scenario.examination.abdomen || "Soft"}`;
-        }
-        if (lowerMessage.includes('leg') || lowerMessage.includes('ankle') || lowerMessage.includes('feet')) {
-            return `*you look at the legs*\n${scenario.examination.legs || "Normal"}`;
-        }
-        if (lowerMessage.includes('heart') || lowerMessage.includes('cardiac')) {
-            return `*you listen to the heart*\n${scenario.examination.heart || "Regular heart sounds"}`;
-        }
-        return `*you do a general examination*\n${scenario.examination.general}`;
-    }
-    
-    // Default - give a generic patient response
-    return generatePatientResponse(scenario);
-}
-
-/**
- * Generate a generic patient response based on their condition
- */
-function generatePatientResponse(scenario) {
-    const responses = [
-        `I'm just not feeling right. ${scenario.presentation.chiefComplaint}.`,
-        `Can you help me? ${scenario.presentation.character}.`,
-        `I've never felt like this before. ${scenario.presentation.associated[0]}.`,
-        `Is something wrong with me? I feel awful.`,
-        `*looks at you anxiously* What do you think is going on?`
-    ];
-    
-    return responses[Math.floor(Math.random() * responses.length)];
-}
-
-/**
- * Evaluate the user's diagnosis against the correct answer
- */
-function evaluateDiagnosis(message, scenario) {
-    const lowerMessage = message.toLowerCase();
-    
-    // Check if any correct diagnosis matches
-    const isCorrect = scenario.correctDiagnosis.some(diagnosis => 
-        lowerMessage.includes(diagnosis.toLowerCase())
-    );
-    
-    // Check if they mentioned reasonable differentials
-    const mentionedDifferential = scenario.differentials.some(diff =>
-        lowerMessage.includes(diff.toLowerCase())
-    );
-    
-    if (isCorrect) {
-        return `**Excellent work!** 🎉
-
-You correctly identified this as **${scenario.condition}**.
-
-**Key findings you should have identified:**
-${scenario.redFlags.map(rf => `• ${rf}`).join('\n')}
-
-**Your assessment was good because:**
-• You gathered the relevant history
-• You checked appropriate observations
-• You came to the correct working diagnosis
-
-Would you like to try another scenario, or do you have any questions about this case?`;
-    }
-    
-    if (mentionedDifferential) {
-        return `**Good thinking, but not quite!**
-
-${message.includes('?') ? 'You mentioned' : 'Your diagnosis of'} a reasonable differential, but the primary diagnosis here is actually **${scenario.correctDiagnosis[0]}**.
-
-**Hint:** Look at these key features:
-• ${scenario.redFlags[0]}
-• ${scenario.redFlags[1]}
-${scenario.redFlags[2] ? `• ${scenario.redFlags[2]}` : ''}
-
-Would you like to reconsider, or would you like me to explain why this is ${scenario.correctDiagnosis[0]}?`;
-    }
-    
-    // Incorrect
-    return `**Not quite right, I'm afraid.**
-
-Let me give you some hints:
-• ${scenario.redFlags[0]}
-• ${scenario.redFlags[1]}
-
-Think about what conditions might cause these findings. Would you like to ask me some more questions, or would you like me to tell you what's going on?`;
-}
-
-/**
- * Handle normal chat responses (non-scenario)
- */
-function handleNormalChatResponse(message) {
     const lowerMessage = message.toLowerCase();
     
     // Demo responses based on keywords
     if (lowerMessage.includes('chest pain')) {
-        return `**Based on ${chatState.userTrust} guidelines:**
-
-For chest pain assessment, use your systematic ABCDE approach:
-
-**Key Assessment Points:**
-• Onset, character, radiation, severity (0-10)
-• Associated symptoms: SOB, sweating, nausea, palpitations
-• Cardiac risk factors: smoking, diabetes, hypertension, family history, cholesterol
-• Previous cardiac history
-
-**Red Flags:**
-• Crushing/pressure sensation
-• Radiation to arm, jaw, or back
-• Diaphoresis (sweating)
-• Associated breathlessness
-• Haemodynamic instability
-
-**Immediate Actions:**
-• 12-lead ECG
-• Aspirin 300mg (if not contraindicated)
-• GTN if SBP >90mmHg (and no contraindications)
-• IV access
-• Consider pain management
-
-Would you like me to go into more detail on any specific aspect?`;
+        return `**Based on ${chatState.userTrust} guidelines:**\n\nFor chest pain assessment, use your systematic ABCDE approach:\n\n**Key Assessment Points:**\n• Onset, character, radiation, severity (0-10)\n• Associated symptoms: SOB, sweating, nausea, palpitations\n• Cardiac risk factors: smoking, diabetes, hypertension, family history, cholesterol\n• Previous cardiac history\n\n**Red Flags:**\n• Crushing/pressure sensation\n• Radiation to arm, jaw, or back\n• Diaphoresis\n• Associated breathlessness\n• Haemodynamic instability\n\n**Immediate Actions:**\n• 12-lead ECG\n• Aspirin 300mg (if not contraindicated)\n• GTN if SBP >90mmHg (and no contraindications)\n• IV access\n• Consider pain management\n\nWould you like me to go into more detail on any specific aspect?`;
     }
     
     if (lowerMessage.includes('stemi') || lowerMessage.includes('nstemi')) {
-        return `**STEMI vs NSTEMI:**
-
-**STEMI (ST-Elevation MI):**
-• Complete coronary artery occlusion
-• ST elevation ≥1mm in 2+ contiguous leads
-• Requires immediate PPCI pathway activation
-• Time-critical: door-to-balloon <90 minutes
-
-**NSTEMI (Non-ST-Elevation MI):**
-• Partial coronary occlusion
-• ST depression, T-wave inversion, or no ECG changes
-• Elevated troponin confirms diagnosis
-• Risk-stratified management
-
-**Pre-hospital Management (Both):**
-• Aspirin 300mg PO
-• GTN if SBP >90mmHg
-• Morphine for pain (with antiemetic)
-• Oxygen only if SpO2 <94%
-• Pre-alert receiving hospital
-
-Remember to follow your ${chatState.userTrust} specific pathways.`;
+        return `**STEMI vs NSTEMI:**\n\n**STEMI (ST-Elevation MI):**\n• Complete coronary artery occlusion\n• ST elevation ≥1mm in 2+ contiguous leads\n• Requires immediate PPCI pathway activation\n• Time-critical: door-to-balloon <90 minutes\n\n**NSTEMI (Non-ST-Elevation MI):**\n• Partial coronary occlusion\n• ST depression, T-wave inversion, or no ECG changes\n• Elevated troponin confirms diagnosis\n• Risk-stratified management\n\n**Pre-hospital Management (Both):**\n• Aspirin 300mg PO\n• GTN if SBP >90mmHg\n• Morphine for pain (with antiemetic)\n• Oxygen only if SpO2 <94%\n• Pre-alert receiving hospital\n\nRemember to follow your ${chatState.userTrust} specific pathways.`;
+    }
+    
+    if (lowerMessage.includes('gtn') || lowerMessage.includes('contraindication')) {
+        return `**GTN Contraindications (${chatState.userTrust} JRCALC):**\n\n**Absolute Contraindications:**\n• SBP <90mmHg\n• HR <50 or >150 bpm\n• Right ventricular infarction (suspected/confirmed)\n• Severe aortic stenosis\n• Hypertrophic obstructive cardiomyopathy\n\n**Phosphodiesterase Inhibitors:**\n• Sildenafil/Vardenafil - within 24 hours\n• Tadalafil - within 48 hours\n\n**Relative Cautions:**\n• Raised intracranial pressure\n• Constrictive pericarditis\n• Already hypotensive\n\n**Administration:**\n• 400mcg sublingual spray\n• Can repeat after 5 minutes if pain persists\n• Monitor BP before and after`;
     }
     
     if (lowerMessage.includes('differential') || lowerMessage.includes('diagnosis')) {
-        return `I'd be happy to help with differential diagnoses. To give you the most relevant guidance, could you tell me:
-
-1. What is the patient's main presenting complaint?
-2. Any key vital signs abnormalities?
-3. Relevant medical history?
-
-Alternatively, you can use the **Your Patient** section in the bottom menu to input the full clinical picture, and I'll provide structured guidance based on ${chatState.userTrust} protocols.`;
+        return `I'd be happy to help with differential diagnoses. To give you the most relevant guidance, could you tell me:\n\n1. What is the patient's main presenting complaint?\n2. Any key vital signs abnormalities?\n3. Relevant medical history?\n\nAlternatively, you can use the **Your Patient** section in the bottom menu to input the full clinical picture, and I'll provide structured guidance based on ${chatState.userTrust} protocols.`;
     }
     
     // Default response
-    return `Thank you for your question. As your ${chatState.userTrust} clinical assistant, I'm here to help.
-
-I can assist with:
-• Patient assessment approaches
-• Differential diagnoses
-• Medication queries and calculations
-• Clinical pathways and protocols
-• Interactive learning scenarios
-
-Try the **Scenarios** section for interactive practice, or **Differentials** to explore conditions by body system.
-
-What would you like to know more about?`;
+    return `Thank you for your question. As your ${chatState.userTrust} clinical assistant, I'm here to help.\n\nI can assist with:\n• Patient assessment approaches\n• Differential diagnoses\n• Medication queries and calculations\n• Clinical pathways and protocols\n• Interactive learning scenarios\n\nTry the **Scenarios** section for interactive practice, or **Differentials** to explore conditions by body system.\n\nWhat would you like to know more about?`;
 }
 
 function addMessage(role, content) {
@@ -1332,7 +964,6 @@ function showLimitReached() {
 function clearChat() {
     chatState.messages = [];
     chatState.currentScenario = null;
-    chatState.currentScenarioPrompt = null;
     
     // Remove all messages except welcome
     const messages = elements.chatMessages.querySelectorAll('.message, .alert');
