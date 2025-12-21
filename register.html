@@ -272,41 +272,20 @@
 
         setLoading(true);
 
-        
-        try {
-    console.log('Step 1: Starting registration');
-    
-    // Create user account with Firebase Authentication
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    
-    console.log('Step 2: Auth user created:', user.uid);
-
-    // Get trust full name
-    const trustFullName = TRUSTS[trust] || trust;
-
-    console.log('Step 3: About to write to Firestore');
-    
-    // Save user data to Firestore
-    await setDoc(doc(db, 'users', user.uid), {
-        uid: user.uid,
-        email: email,
-        trust: trust,
-        trustFullName: trustFullName,
-        subscriptionStatus: 'free',
-        stripeCustomerId: null,
-        dailyMessageCount: 0,
-        lastMessageDate: null,
-        createdAt: new Date().toISOString()
-    });
-    
-    console.log('Step 4: Firestore document created!');
-        
-        const user = userCredential.user;
+    try {
+            console.log('Step 1: Starting registration');
+            
+            // Create user account with Firebase Authentication
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            
+            console.log('Step 2: Auth user created:', user.uid);
 
             // Get trust full name
             const trustFullName = TRUSTS[trust] || trust;
 
+            console.log('Step 3: About to write to Firestore');
+            
             // Save user data to Firestore
             await setDoc(doc(db, 'users', user.uid), {
                 uid: user.uid,
@@ -319,6 +298,8 @@
                 lastMessageDate: null,
                 createdAt: new Date().toISOString()
             });
+            
+            console.log('Step 4: Firestore document created!');
 
             // Save to localStorage as backup
             localStorage.setItem('paramind_user', JSON.stringify({
@@ -342,7 +323,8 @@
             console.error('Registration error:', error);
             setLoading(false);
             showError(getErrorMessage(error.code));
-        }
+        }    
+      
     });
 
     </script>
