@@ -357,57 +357,112 @@ function switchView(viewId) {
 
 function showScenarioSubcategory(category) {
     const data = SCENARIO_DATA[category];
-    if (!data) return;
+    if (!data) {
+        console.error('Category not found:', category);
+        return;
+    }
+    
+    // Get the elements
+    const subcategoryTitle = document.getElementById('subcategoryTitle');
+    const subcategoryDescription = document.getElementById('subcategoryDescription');
+    const scenarioList = document.getElementById('scenarioList');
+    const scenarioCategories = document.getElementById('scenarioCategories');
+    const scenarioSubcategory = document.getElementById('scenarioSubcategory');
     
     // Update title and description
-    elements.subcategoryTitle.textContent = data.title;
-    elements.subcategoryDescription.textContent = data.description;
+    if (subcategoryTitle) subcategoryTitle.textContent = data.title;
+    if (subcategoryDescription) subcategoryDescription.textContent = data.description;
     
     // Populate scenario list
-    elements.scenarioList.innerHTML = data.items.map(item => `
-        <div class="subcategory-item" data-scenario-id="${item.id}">
-            <div class="info">
-                <h4>${item.title}</h4>
-                <p>${item.description}</p>
+    if (scenarioList) {
+        scenarioList.innerHTML = data.items.map(item => `
+            <div class="subcategory-item" data-scenario-id="${item.id}">
+                <div class="info">
+                    <h4>${item.title}</h4>
+                    <p>${item.description}</p>
+                </div>
+                <i class="bi bi-chevron-right arrow"></i>
             </div>
-            <i class="bi bi-chevron-right arrow"></i>
-        </div>
-    `).join('');
-    
-    // Add click handlers to scenario items
-    elements.scenarioList.querySelectorAll('.subcategory-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const scenarioId = item.dataset.scenarioId;
-            openScenarioModal(scenarioId, item.querySelector('h4').textContent, item.querySelector('p').textContent);
+        `).join('');
+        
+        // Add click handlers to scenario items
+        scenarioList.querySelectorAll('.subcategory-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const scenarioId = this.getAttribute('data-scenario-id');
+                const title = this.querySelector('h4').textContent;
+                const description = this.querySelector('p').textContent;
+                
+                console.log('Clicked scenario:', scenarioId); // Debug log
+                
+                if (scenarioId) {
+                    openScenarioModal(scenarioId, title, description);
+                } else {
+                    console.error('No scenario ID found on element');
+                }
+            });
         });
-    });
+    }
     
     // Show subcategory view
-    elements.scenarioCategories.style.display = 'none';
-    elements.scenarioSubcategory.style.display = 'block';
+    if (scenarioCategories) scenarioCategories.style.display = 'none';
+    if (scenarioSubcategory) scenarioSubcategory.style.display = 'block';
 }
 
 function hideScenarioSubcategory() {
-    elements.scenarioCategories.style.display = 'block';
-    elements.scenarioSubcategory.style.display = 'none';
+    const scenarioCategories = document.getElementById('scenarioCategories');
+    const scenarioSubcategory = document.getElementById('scenarioSubcategory');
+    
+    if (scenarioCategories) scenarioCategories.style.display = 'block';
+    if (scenarioSubcategory) scenarioSubcategory.style.display = 'none';
 }
 
 function openScenarioModal(scenarioId, title, description) {
+    console.log('Opening modal for scenario:', scenarioId); // Debug log
+    
+    if (!scenarioId) {
+        console.error('No scenario ID provided to openScenarioModal');
+        return;
+    }
+    
+    // Store the scenario ID
     chatState.currentScenario = scenarioId;
     
-    elements.scenarioModalTitle.textContent = title;
-    elements.scenarioModalDescription.textContent = description + " This interactive scenario will test your assessment skills. Ask questions, gather information, and provide your working diagnosis.";
+    // Update modal content
+    const modalTitle = document.getElementById('scenarioModalTitle');
+    const modalDesc = document.getElementById('scenarioModalDescription');
     
-    const modal = new bootstrap.Modal(elements.scenarioModal);
-    modal.show();
+    if (modalTitle) {
+        modalTitle.textContent = title;
+    }
+    if (modalDesc) {
+        modalDesc.textContent = description + " This interactive scenario will test your assessment skills. Ask questions, gather information, and provide your working diagnosis.";
+    }
+    
+    // Show the modal
+    const modalElement = document.getElementById('scenarioModal');
+    if (modalElement) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    }
 }
 
 function startScenario() {
-    if (!chatState.currentScenario) return;
+    console.log('Starting scenario:', chatState.currentScenario); // Debug log
+    
+    if (!chatState.currentScenario) {
+        console.error('No scenario selected');
+        alert('Please select a scenario first.');
+        return;
+    }
     
     // Close modal
-    const modal = bootstrap.Modal.getInstance(elements.scenarioModal);
-    modal.hide();
+    const modalElement = document.getElementById('scenarioModal');
+    if (modalElement) {
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        if (modal) {
+            modal.hide();
+        }
+    }
     
     // Switch to chat view
     switchView('chatView');
@@ -428,10 +483,14 @@ function startScenario() {
         );
     }
     
-    // Get scenario info
-    const scenarioInfo = window.scenarioPrompts ? 
-        window.scenarioPrompts.getScenarioInfo(chatState.currentScenario) : 
-        { title: elements.scenarioModalTitle.textContent };
+    // Get scenario info - with fallback
+    let scenarioTitle = 'Scenario';
+    if (window.scenarioPrompts && window.scenarioPrompts.getScenarioInfo) {
+        const scenarioInfo = window.scenarioPrompts.getScenarioInfo(chatState.currentScenario);
+        if (scenarioInfo && scenarioInfo.title) {
+            scenarioTitle = scenarioInfo.title;
+        }
+    }
     
     // Add scenario banner
     const bannerDiv = document.createElement('div');
@@ -440,7 +499,7 @@ function startScenario() {
         <div class="d-flex align-items-center">
             <i class="bi bi-mortarboard me-2"></i>
             <div>
-                <strong>Scenario: ${scenarioInfo.title}</strong>
+                <strong>Scenario: ${scenarioTitle}</strong>
                 <div class="small">Assess the patient and provide your working diagnosis</div>
             </div>
             <button class="btn btn-sm btn-outline-secondary ms-auto" onclick="endScenario()">
@@ -457,11 +516,9 @@ function startScenario() {
         hideLoading();
         
         // Get the starter message from scenario prompts
-        let starterMessage;
+        let starterMessage = "Hello, thank you for coming. I'm not feeling well at all.";
         if (window.scenarioPrompts && window.scenarioPrompts.getScenarioStarterMessage) {
             starterMessage = window.scenarioPrompts.getScenarioStarterMessage(chatState.currentScenario);
-        } else {
-            starterMessage = "Hello, thank you for coming. I'm not feeling well at all.";
         }
         
         addMessage('assistant', starterMessage);
@@ -484,12 +541,15 @@ window.endScenario = endScenario;
 
 // Start a random scenario
 function startRandomScenario() {
-    // Get all scenarios from all categories
+    // Get all scenarios from all categories that have patient data
     const allScenarios = [];
+    
     Object.keys(SCENARIO_DATA).forEach(category => {
         SCENARIO_DATA[category].items.forEach(item => {
             // Only add if we have patient data for it
-            if (window.scenarioPrompts && window.scenarioPrompts.SCENARIO_PATIENT_DATA[item.id]) {
+            if (window.scenarioPrompts && 
+                window.scenarioPrompts.SCENARIO_PATIENT_DATA && 
+                window.scenarioPrompts.SCENARIO_PATIENT_DATA[item.id]) {
                 allScenarios.push(item);
             }
         });
@@ -497,11 +557,14 @@ function startRandomScenario() {
     
     if (allScenarios.length === 0) {
         console.error('No scenarios with patient data found');
+        addMessage('assistant', 'Sorry, no scenarios are available at the moment. Please try again later.');
         return;
     }
     
     // Pick a random scenario
     const randomScenario = allScenarios[Math.floor(Math.random() * allScenarios.length)];
+    
+    console.log('Starting random scenario:', randomScenario.id); // Debug log
     
     // Set the current scenario
     chatState.currentScenario = randomScenario.id;
@@ -537,16 +600,20 @@ function startRandomScenario() {
             </button>
         </div>
     `;
-    elements.chatMessages.appendChild(bannerDiv);
+    
+    if (elements.chatMessages) {
+        elements.chatMessages.appendChild(bannerDiv);
+    }
     
     // Start the scenario with AI response
     showLoading();
     
     setTimeout(() => {
         hideLoading();
-        const starterMessage = window.scenarioPrompts ? 
-            window.scenarioPrompts.getScenarioStarterMessage(chatState.currentScenario) :
-            "Hello, thank you for coming. I'm not feeling well.";
+        let starterMessage = "Hello, thank you for coming. I'm not feeling well.";
+        if (window.scenarioPrompts && window.scenarioPrompts.getScenarioStarterMessage) {
+            starterMessage = window.scenarioPrompts.getScenarioStarterMessage(chatState.currentScenario);
+        }
         addMessage('assistant', starterMessage);
     }, 1000);
 }
@@ -555,39 +622,54 @@ function startRandomScenario() {
 
 function showDiffSubcategory(category) {
     const data = DIFFERENTIAL_DATA[category];
-    if (!data) return;
+    if (!data) {
+        console.error('Differential category not found:', category);
+        return;
+    }
+    
+    // Get the elements
+    const diffSubcategoryTitle = document.getElementById('diffSubcategoryTitle');
+    const diffSubcategoryDescription = document.getElementById('diffSubcategoryDescription');
+    const diffList = document.getElementById('diffList');
+    const diffCategories = document.getElementById('diffCategories');
+    const diffSubcategory = document.getElementById('diffSubcategory');
     
     // Update title and description
-    elements.diffSubcategoryTitle.textContent = data.title;
-    elements.diffSubcategoryDescription.textContent = data.description;
+    if (diffSubcategoryTitle) diffSubcategoryTitle.textContent = data.title;
+    if (diffSubcategoryDescription) diffSubcategoryDescription.textContent = data.description;
     
     // Populate differential list
-    elements.diffList.innerHTML = data.items.map(item => `
-        <div class="subcategory-item" data-diff-id="${item.id}">
-            <div class="info">
-                <h4>${item.title}</h4>
-                <p>${item.description}</p>
+    if (diffList) {
+        diffList.innerHTML = data.items.map(item => `
+            <div class="subcategory-item" data-diff-id="${item.id}">
+                <div class="info">
+                    <h4>${item.title}</h4>
+                    <p>${item.description}</p>
+                </div>
+                <i class="bi bi-chevron-right arrow"></i>
             </div>
-            <i class="bi bi-chevron-right arrow"></i>
-        </div>
-    `).join('');
-    
-    // Add click handlers - ask AI about the condition
-    elements.diffList.querySelectorAll('.subcategory-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const title = item.querySelector('h4').textContent;
-            askAboutCondition(title);
+        `).join('');
+        
+        // Add click handlers - ask AI about the condition
+        diffList.querySelectorAll('.subcategory-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const title = this.querySelector('h4').textContent;
+                askAboutCondition(title);
+            });
         });
-    });
+    }
     
     // Show subcategory view
-    elements.diffCategories.style.display = 'none';
-    elements.diffSubcategory.style.display = 'block';
+    if (diffCategories) diffCategories.style.display = 'none';
+    if (diffSubcategory) diffSubcategory.style.display = 'block';
 }
 
 function hideDiffSubcategory() {
-    elements.diffCategories.style.display = 'block';
-    elements.diffSubcategory.style.display = 'none';
+    const diffCategories = document.getElementById('diffCategories');
+    const diffSubcategory = document.getElementById('diffSubcategory');
+    
+    if (diffCategories) diffCategories.style.display = 'block';
+    if (diffSubcategory) diffSubcategory.style.display = 'none';
 }
 
 function askAboutCondition(conditionName) {
