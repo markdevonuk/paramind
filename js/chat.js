@@ -28,63 +28,55 @@ const chatState = {
 const ASSESSMENT_PROMPTS = {
     obs: {
         name: "Observations",
-        prompt: "The paramedic is now taking a full set of vital signs observations on this patient. Based on the patient's condition, provide the following in a clear format: Heart Rate, Blood Pressure, Respiratory Rate, SpO2, Temperature, GCS (with breakdown E/V/M), Blood Glucose, and Pain Score out of 10. Present these as realistic findings that match the patient's underlying condition. Respond as the findings the paramedic would see/measure, not as dialogue."
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing observations. Respond ONLY with clinical findings in this format:\n\nCLINICAL DATA:\n• HR: [value] bpm\n• BP: [value] mmHg\n• RR: [value] /min\n• SpO2: [value]%\n• Temp: [value]°C\n• GCS: [value] (E?/V?/M?)\n• BM: [value] mmol/L\n• Pain: [value]/10\n\nDo NOT respond as the patient. Do NOT add dialogue. Just provide the clinical values."
     },
     ecg: {
         name: "ECG",
-        prompt: "The paramedic is performing a 12-lead ECG on this patient. Based on the patient's underlying condition, describe what the ECG shows including: rate, rhythm (regular/irregular), P waves, PR interval, QRS width, ST segments (elevation/depression in which leads), T waves, QTc, and overall interpretation. Present this as what the paramedic would see on the monitor/printout."
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a 12-lead ECG. Respond ONLY with clinical findings:\n\nCLINICAL DATA - ECG:\n• Rate: [value] bpm\n• Rhythm: [regular/irregular]\n• P waves: [description]\n• PR interval: [value]\n• QRS: [value]\n• ST segments: [description with leads]\n• T waves: [description]\n• Interpretation: [finding]\n\nDo NOT respond as the patient. Do NOT add dialogue. Just describe what the ECG shows."
     },
     chest: {
         name: "Chest Examination",
-        prompt: "The paramedic is performing a systematic chest examination on this patient. Based on the patient's condition, describe findings for: INSPECTION (respiratory effort, chest wall movement, symmetry, accessory muscle use, scars, deformity), PALPATION (trachea position, chest expansion, tenderness, crepitus), PERCUSSION (resonance/dullness and where), AUSCULTATION (breath sounds in all zones - are they normal vesicular, reduced, absent? Any added sounds like wheeze, crackles, stridor?). Present as clinical findings, not dialogue."
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a chest examination. Respond ONLY with clinical findings:\n\nCLINICAL DATA - CHEST EXAM:\n• Inspection: [respiratory effort, symmetry, accessory muscle use]\n• Palpation: [trachea position, expansion, tenderness]\n• Percussion: [resonance/dullness]\n• Auscultation: [breath sounds, added sounds]\n\nDo NOT respond as the patient. Do NOT add dialogue. Just provide examination findings."
     },
     abdo: {
         name: "Abdominal Assessment",
-        prompt: "The paramedic is performing an abdominal examination on this patient. Based on the patient's condition, describe findings for: INSPECTION (distension, scars, bruising, pulsation), AUSCULTATION (bowel sounds - present/absent/hyperactive), PALPATION (soft/rigid, tenderness location, guarding, rebound, masses, organomegaly, pulsatile mass). Include relevant special signs if applicable (Murphy's, Rovsing's, etc). Present as clinical findings the paramedic would observe."
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing an abdominal examination. Respond ONLY with clinical findings:\n\nCLINICAL DATA - ABDOMINAL EXAM:\n• Inspection: [distension, scars, bruising]\n• Auscultation: [bowel sounds]\n• Palpation: [soft/rigid, tenderness, guarding, masses]\n• Special signs: [if applicable]\n\nDo NOT respond as the patient. Do NOT add dialogue. Just provide examination findings."
     },
     neuro: {
         name: "Neurological Exam",
-        prompt: "The paramedic is performing a neurological examination on this patient. Based on the patient's condition, provide: GCS breakdown (Eye/Verbal/Motor with specific responses), pupil size and reactivity (PERRLA or abnormality), limb power (grade 0-5 for each limb), sensation, tone, coordination if testable, and any focal neurological deficits. Present as clinical findings, not patient dialogue."
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a neurological examination. Respond ONLY with clinical findings:\n\nCLINICAL DATA - NEURO EXAM:\n• GCS: [value] (E?/V?/M?)\n• Pupils: [size, reactivity, equality]\n• Limb power: [grade 0-5 each limb]\n• Sensation: [intact/reduced]\n• Tone: [normal/increased/decreased]\n• Focal deficits: [any noted]\n\nDo NOT respond as the patient. Do NOT add dialogue. Just provide examination findings."
     },
     skin: {
         name: "Skin Assessment",
-        prompt: "The paramedic is assessing the patient's skin. Based on the patient's condition, describe: colour (pink, pale, flushed, cyanosed, mottled, jaundiced), temperature (warm, cool, cold), moisture (dry, clammy, diaphoretic), capillary refill time, turgor, and any visible rashes, wounds, track marks, or skin abnormalities. Present as what the paramedic observes."
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is assessing the patient's skin. Respond ONLY with clinical findings:\n\nCLINICAL DATA - SKIN:\n• Colour: [pink/pale/cyanosed/mottled/flushed]\n• Temperature: [warm/cool/cold]\n• Moisture: [dry/clammy/diaphoretic]\n• CRT: [value] seconds\n• Other findings: [rashes, wounds, etc.]\n\nDo NOT respond as the patient. Do NOT add dialogue. Just provide what the paramedic observes."
     },
     fast: {
         name: "FAST Assessment",
-        prompt: "The paramedic is performing a FAST stroke assessment on this patient. Respond in character as the patient attempting each test. For FACE: describe what happens when asked to smile (symmetrical or drooping, which side?). For ARMS: describe what happens when asked to hold both arms out with eyes closed for 10 seconds (drift? which side?). For SPEECH: describe what happens when asked to repeat 'you can't teach an old dog new tricks' (normal, slurred, garbled, unable?). Also state the TIME when symptoms were first noticed. Stay in character throughout."
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a FAST stroke assessment. Respond with clinical findings:\n\nCLINICAL DATA - FAST:\n• Face: [symmetrical smile / facial droop - which side?]\n• Arms: [both held equal / drift - which side?]\n• Speech: [normal / slurred / garbled / unable]\n• Time: [when symptoms first noticed]\n\nDo NOT add unnecessary dialogue. Focus on the objective findings."
     },
     mend: {
         name: "MEND Assessment",
-        prompt: "The paramedic is performing a MEND (Miami Emergency Neurologic Deficit) assessment on this patient. Based on the patient's condition, provide findings for: MENTAL STATUS (alert, confused, obtunded), EYES (gaze deviation, visual field defect, pupil abnormality), NEGLECT (does patient ignore one side?), DEFICITS in speech (aphasia type) and motor function (face, arm, leg weakness with laterality). Present as clinical findings matching the patient's underlying condition."
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a MEND assessment. Respond ONLY with clinical findings:\n\nCLINICAL DATA - MEND:\n• Mental status: [alert/confused/obtunded]\n• Eyes: [gaze deviation, visual fields, pupils]\n• Neglect: [present/absent, which side]\n• Deficits - Speech: [normal/aphasia type]\n• Deficits - Motor: [face/arm/leg weakness, laterality]\n\nDo NOT respond as the patient. Just provide clinical findings."
     },
     pain: {
         name: "Pain Assessment",
-        prompt: "The paramedic is asking about the patient's pain using SOCRATES. Respond in character as the patient answering questions about: SITE (where exactly is the pain? point to it), ONSET (when did it start? what were you doing?), CHARACTER (what does it feel like - sharp, dull, burning, crushing, colicky?), RADIATION (does it go anywhere else?), ASSOCIATED symptoms (anything else - nausea, sweating, SOB?), TIMING (constant or comes and goes? how long does it last?), EXACERBATING/RELIEVING (what makes it better or worse?), SEVERITY (out of 10, where 10 is worst imaginable). Answer naturally as the patient would, not using medical terminology."
-    },
-    wound: {
-        name: "Wound Assessment",
-        prompt: "The paramedic is assessing any wounds on this patient. Based on the patient's condition, describe: location and number of wounds, size (length x width x depth), wound type (laceration, abrasion, puncture, avulsion, incision), edges (clean, ragged, contused), bleeding status (arterial spurting, venous oozing, controlled, not bleeding), contamination, visible structures (fat, muscle, tendon, bone), and neurovascular status distal to the wound. Present as clinical findings."
-    },
-    mobility: {
-        name: "Mobility Assessment",
-        prompt: "The paramedic is assessing the patient's mobility. Respond in character as the patient (or describe what happens when the patient attempts movement). Can they: move all four limbs voluntarily? grip with both hands equally? lift legs off the bed? sit up independently? stand with assistance? stand independently? walk with assistance? walk independently? Also describe their BASELINE mobility before this incident - do they normally use any aids? Are they normally housebound? Present responses naturally."
+        prompt: "[CLINICAL ASSESSMENT - PATIENT HISTORY]\n\nThe paramedic is asking about pain using SOCRATES. For this assessment, respond AS THE PATIENT answering each question naturally:\n\n• Site: Where is the pain?\n• Onset: When did it start?\n• Character: What does it feel like?\n• Radiation: Does it spread anywhere?\n• Associated symptoms: Anything else?\n• Timing: Constant or intermittent?\n• Exacerbating/relieving: What makes it better or worse?\n• Severity: Pain score out of 10?\n\nRespond conversationally as the patient would describe their pain."
     },
     history: {
-        name: "Full History",
-        prompt: "The paramedic is taking a SAMPLE history. Respond in character as the patient (or relative/bystander if patient cannot communicate) providing: SIGNS & SYMPTOMS (what's wrong today in their own words), ALLERGIES (any known allergies to medications, foods, or other substances), MEDICATIONS (what tablets/medicines do they take - they may not know exact names), PAST MEDICAL HISTORY (what illnesses, operations, or hospital admissions have they had), LAST ORAL INTAKE (when did they last eat and drink, and what), EVENTS (what were they doing when this started, what happened leading up to calling 999). Answer naturally as the patient would."
+        name: "Medical History",
+        prompt: "[CLINICAL ASSESSMENT - PATIENT HISTORY]\n\nThe paramedic is taking a SAMPLE history. For this assessment, respond AS THE PATIENT:\n\n• Signs/Symptoms: Main complaints\n• Allergies: Any known allergies\n• Medications: Current medications\n• Past medical history: Previous conditions\n• Last oral intake: When did you last eat/drink\n• Events leading up: What happened before this\n\nRespond conversationally as the patient would."
     },
     meds: {
         name: "Medications",
-        prompt: "The paramedic is asking about medications. Respond in character as the patient (or describe what medication boxes/dosette boxes are visible). What regular medications do they take? Include the name (patient may only know colours or shapes), dose if known, frequency, and what it's for if they know. Any recent changes to medications? Are they compliant or do they forget doses? Any over-the-counter medications, inhalers, or supplements? Do they have a medications list or repeat prescription form available?"
+        prompt: "[CLINICAL ASSESSMENT - PATIENT HISTORY]\n\nThe paramedic is asking about medications. Respond AS THE PATIENT listing your regular medications, any recent changes, whether you've taken them today, and any medications you've tried for the current problem."
     },
     social: {
         name: "Social History",
-        prompt: "The paramedic is asking about the patient's social situation. Respond in character as the patient (or relative if present). Where do they live - house, flat, bungalow, care home? Do they live alone or with someone? Any stairs to access or inside the property? How do they normally manage day-to-day - independent, need help with washing/dressing, carers visit? If carers, how often? Any family nearby? Do they drive? What's their occupation or are they retired? Any recent life events or stressors? Smoking and alcohol history?"
+        prompt: "[CLINICAL ASSESSMENT - PATIENT HISTORY]\n\nThe paramedic is asking about social history. Respond AS THE PATIENT describing: who you live with, mobility and baseline function, smoking and alcohol history, and any relevant social circumstances."
     },
     scene: {
         name: "Scene Assessment",
-        prompt: "The paramedic is looking around the scene/environment. Based on the patient's condition and scenario context, describe what the paramedic might observe: Is the environment safe? Is it clean/cluttered? Any medication packets, pill bottles, or dosette boxes visible (what medications)? Any alcohol bottles or drug paraphernalia? Any medical equipment like oxygen concentrators, hospital bed, walking aids? Any hazards? Any signs of a fall or struggle? Any clues about what happened? Any other people present? Present as observations the paramedic would make on scene."
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is assessing the scene. Respond with third-person observations:\n\nSCENE FINDINGS:\n• Location/environment: [description]\n• Safety hazards: [any noted]\n• Clues: [medication boxes, medical equipment, alcohol, etc.]\n• Patient position: [how/where found]\n• Other people present: [who else is there]\n\nDo NOT respond as the patient. Describe what the paramedic would observe on arrival."
     }
 };
 
