@@ -416,6 +416,17 @@ function setupEventListeners() {
         });
     }
     
+    // Working impression button
+    if (elements.workingImpressionBtn) {
+        elements.workingImpressionBtn.addEventListener('click', openWorkingImpressionModal);
+    }
+    
+    // Submit impression button
+    if (elements.submitImpressionBtn) {
+        elements.submitImpressionBtn.addEventListener('click', submitWorkingImpression);
+    }
+    
+    
     // Assessment dropdown items
     document.querySelectorAll('[data-assessment]').forEach(item => {
         item.addEventListener('click', (e) => {
@@ -591,8 +602,9 @@ function startScenario() {
         content: window.scenarioData.getScenarioSystemPrompt(scenarioId)
     });
     
-    // Show assessment toolbar for scenarios
+// Show assessment toolbar and working impression button for scenarios
     showAssessmentToolbar();
+    showWorkingImpressionToolbar();
 }
 
 function startRandomScenario() {
@@ -644,9 +656,89 @@ function startRandomScenario() {
         content: window.scenarioData.getScenarioSystemPrompt(scenario.id)
     });
     
-    // Show assessment toolbar for scenarios
+// Show assessment toolbar and working impression button for scenarios
     showAssessmentToolbar();
+    showWorkingImpressionToolbar();
 }
+
+// ==================== WORKING IMPRESSION FUNCTIONS ====================
+
+function showWorkingImpressionToolbar() {
+    if (elements.workingImpressionToolbar) {
+        elements.workingImpressionToolbar.style.display = 'block';
+    }
+}
+
+function hideWorkingImpressionToolbar() {
+    if (elements.workingImpressionToolbar) {
+        elements.workingImpressionToolbar.style.display = 'none';
+    }
+}
+
+function openWorkingImpressionModal() {
+    // Clear previous inputs
+    if (elements.workingImpressionInput) {
+        elements.workingImpressionInput.value = '';
+    }
+    if (elements.impressionReasoning) {
+        elements.impressionReasoning.value = '';
+    }
+    
+    // Show the modal
+    const modal = new bootstrap.Modal(elements.workingImpressionModal);
+    modal.show();
+}
+
+async function submitWorkingImpression() {
+    const impression = elements.workingImpressionInput.value.trim();
+    
+    if (!impression) {
+        alert('Please enter your working impression');
+        return;
+    }
+    
+    const reasoning = elements.impressionReasoning.value.trim();
+    
+    // Close the modal
+    const modal = bootstrap.Modal.getInstance(elements.workingImpressionModal);
+    modal.hide();
+    
+    // Build the trigger message that the AI will recognise
+    let triggerMessage = `[DEBRIEF MODE] My working impression is: ${impression}`;
+    if (reasoning) {
+        triggerMessage += `\n\nMy reasoning: ${reasoning}`;
+    }
+    
+    // Display a user-friendly version in the chat
+    let displayMessage = `**My Working Impression:** ${impression}`;
+    if (reasoning) {
+        displayMessage += `\n\n**Reasoning:** ${reasoning}`;
+    }
+    
+    // Hide the toolbars as the scenario is ending
+    hideWorkingImpressionToolbar();
+    hideAssessmentToolbar();
+    
+    // Add the message to chat
+    addMessage('user', displayMessage);
+    chatState.conversationHistory.push({ role: 'user', content: triggerMessage });
+    
+    showLoading();
+    
+    try {
+        const response = await sendMessageToAPI(triggerMessage);
+        hideLoading();
+        addMessage('assistant', response);
+        chatState.conversationHistory.push({ role: 'assistant', content: response });
+        
+        // Clear the scenario state after debrief
+        chatState.currentScenario = null;
+    } catch (error) {
+        hideLoading();
+        handleChatError(error);
+    }
+}
+
 
 // ==================== ASSESSMENT FUNCTIONS ====================
 
@@ -943,8 +1035,9 @@ function clearChat() {
     const messages = elements.chatMessages.querySelectorAll('.message, .alert, .assessment-indicator');
     messages.forEach(msg => msg.remove());
     
-    // Hide assessment toolbar when clearing chat
+// Hide toolbars when clearing chat
     hideAssessmentToolbar();
+    hideWorkingImpressionToolbar();
 }
 
 function scrollToBottom() {

@@ -394,12 +394,21 @@
             <!-- Chat Input -->
             <div class="chat-input-container">
                 <div class="chat-input-wrapper">
+                
+                <!-- Working Impression Button (only visible during scenarios) -->
+                    <div class="working-impression-toolbar" id="workingImpressionToolbar" style="display: none;">
+                        <button class="btn btn-success w-100 mb-2" id="workingImpressionBtn" style="border-radius: 20px; font-weight: 600;">
+                            <i class="bi bi-check-circle me-2"></i>I'm ready to offer my working impression
+                        </button>
+                    </div>
+                
+                
                     <!-- Assessment Dropdown (only visible during scenarios) -->
                     <div class="assessment-toolbar" id="assessmentToolbar" style="display: none;">
                         <div class="dropdown">
                             <button class="btn btn-outline-info dropdown-toggle assessment-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-clipboard2-pulse me-1"></i>
-                                Perform Assessment
+                                Choose Assessment to perform
                             </button>
                             <ul class="dropdown-menu assessment-dropdown">
                                 <li><h6 class="dropdown-header">Primary Survey</h6></li>
@@ -432,7 +441,7 @@
                             <textarea 
                                 class="form-control" 
                                 id="messageInput" 
-                                placeholder="Ask a clinical question..." 
+                                placeholder="Or ask the patient a question..." 
                                 rows="1"
                                 required
                             ></textarea>
@@ -631,7 +640,7 @@
                     </div>
                     <p class="text-center" style="color: #8892b0; font-size: 0.85rem;">
                         <i class="bi bi-info-circle me-1"></i>
-                        Assess the patient and provide your working diagnosis
+                        Assess the patient and provide your working impression
                     </p>
                 </div>
                 <div class="modal-footer">
@@ -649,5 +658,35 @@
     <script src="js/app.js"></script>
     <script src="js/scenarios.js"></script>
     <script src="js/chat.js"></script>
+    <!-- Working Impression Modal -->
+    <div class="modal fade" id="workingImpressionModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-clipboard-check me-2"></i>Your Working Impression</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted mb-3">Based on your assessment, what is your working impression/diagnosis for this patient?</p>
+                    <div class="form-group">
+                        <label for="workingImpressionInput" class="form-label">Working Impression</label>
+                        <input type="text" class="form-control form-control-lg" id="workingImpressionInput" 
+                               placeholder="e.g., Acute Coronary Syndrome, Stroke, Sepsis...">
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="impressionReasoning" class="form-label">Brief reasoning (optional)</label>
+                        <textarea class="form-control" id="impressionReasoning" rows="2" 
+                                  placeholder="What findings led you to this impression?"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Go Back</button>
+                    <button type="button" class="btn btn-success" id="submitImpressionBtn">
+                        <i class="bi bi-send me-1"></i>Submit for Feedback
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

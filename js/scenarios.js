@@ -1473,7 +1473,9 @@ MODE: ROLEPLAY (default)
 
 MODE: DEBRIEF
 Triggered ONLY when the learner message begins with:
-"My XYZ is "
+"[DEBRIEF MODE]"
+
+When you see "[DEBRIEF MODE]" at the start of a message, immediately switch to DEBRIEF mode. The learner has submitted their working impression and is ready for feedback.
 
 In DEBRIEF:
 - Confirm if their diagnosis matches ${p.condition}.
