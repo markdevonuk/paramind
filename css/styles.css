@@ -1454,3 +1454,26 @@ h1, h2, h3, h4, h5, h6 {
         width: 100%;
     }
 }
+
+/* ============================================
+   FIX FOR ORPHAN <li> ELEMENTS IN CHAT
+   (li tags not wrapped in ul/ol)
+   ============================================ */
+.message-content > li {
+    display: list-item;
+    list-style-type: disc;
+    list-style-position: inside;
+    margin-left: 1rem;
+    padding-left: 0.25rem;
+}
+
+/* Also fix any properly wrapped lists just in case */
+.message-content ul,
+.message-content ol {
+    margin-left: 1.5rem;
+    padding-left: 0.5rem;
+}
+
+.message-content li {
+    margin-bottom: 0.3rem;
+}
