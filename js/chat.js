@@ -15,7 +15,12 @@ const chatState = {
     isPro: false,
     userTrust: 'SWAST',
     currentView: 'chatView',
-    authToken: null
+    authToken: null,
+    // Scenario progress tracking
+    scenarioProgress: {
+        questionsAsked: 0,
+        assessmentsPerformed: 0
+    }
 };
 
 // ==================== ASSESSMENT PROMPTS ====================
@@ -127,7 +132,7 @@ const elements = {
     modalDetails: document.getElementById('modalDetails'),
     mdtAlertBanner: document.getElementById('mdtAlertBanner'),
     
-// Assessment toolbar
+    // Assessment toolbar
     assessmentToolbar: document.getElementById('assessmentToolbar'),
     
     // Working impression elements
@@ -434,7 +439,6 @@ function setupEventListeners() {
         elements.submitImpressionBtn.addEventListener('click', submitWorkingImpression);
     }
     
-    
     // Assessment dropdown items
     document.querySelectorAll('[data-assessment]').forEach(item => {
         item.addEventListener('click', (e) => {
@@ -565,6 +569,7 @@ function startScenario() {
     
     const scenarioId = chatState.currentScenario;
     clearChat();
+    resetScenarioProgress(); // Reset progress tracking for new scenario
     chatState.currentScenario = scenarioId;
     
     if (elements.welcomeMessage) {
@@ -610,7 +615,7 @@ function startScenario() {
         content: window.scenarioData.getScenarioSystemPrompt(scenarioId)
     });
     
-// Show assessment toolbar and working impression button for scenarios
+    // Show assessment toolbar and working impression button for scenarios
     showAssessmentToolbar();
     showWorkingImpressionToolbar();
 }
@@ -622,6 +627,7 @@ function startRandomScenario() {
     chatState.currentScenario = scenario.id;
     
     clearChat();
+    resetScenarioProgress(); // Reset progress tracking for new scenario
     chatState.currentScenario = scenario.id;
     
     if (elements.welcomeMessage) {
@@ -664,9 +670,62 @@ function startRandomScenario() {
         content: window.scenarioData.getScenarioSystemPrompt(scenario.id)
     });
     
-// Show assessment toolbar and working impression button for scenarios
+    // Show assessment toolbar and working impression button for scenarios
     showAssessmentToolbar();
     showWorkingImpressionToolbar();
+}
+
+// ==================== SCENARIO PROGRESS TRACKING ====================
+
+function resetScenarioProgress() {
+    chatState.scenarioProgress = {
+        questionsAsked: 0,
+        assessmentsPerformed: 0
+    };
+}
+
+function incrementQuestionsAsked() {
+    if (chatState.currentScenario) {
+        chatState.scenarioProgress.questionsAsked++;
+    }
+}
+
+function incrementAssessmentsPerformed() {
+    if (chatState.currentScenario) {
+        chatState.scenarioProgress.assessmentsPerformed++;
+    }
+}
+
+function getTotalInteractions() {
+    return chatState.scenarioProgress.questionsAsked + chatState.scenarioProgress.assessmentsPerformed;
+}
+
+function canSubmitWorkingImpression() {
+    // Require at least 3 total interactions (questions + assessments)
+    // AND at least 1 assessment performed
+    const minTotalInteractions = 3;
+    const minAssessments = 1;
+    
+    return getTotalInteractions() >= minTotalInteractions && 
+           chatState.scenarioProgress.assessmentsPerformed >= minAssessments;
+}
+
+function getProgressFeedback() {
+    const total = getTotalInteractions();
+    const assessments = chatState.scenarioProgress.assessmentsPerformed;
+    
+    let feedback = [];
+    
+    if (assessments < 1) {
+        feedback.push("• Perform at least 1 assessment (e.g., Observations, ECG, Chest Exam)");
+    }
+    
+    if (total < 3) {
+        const needed = 3 - total;
+        feedback.push(`• Complete ${needed} more interaction${needed > 1 ? 's' : ''} (ask questions or perform assessments)`);
+    }
+    
+    return feedback;
 }
 
 // ==================== WORKING IMPRESSION FUNCTIONS ====================
@@ -684,6 +743,39 @@ function hideWorkingImpressionToolbar() {
 }
 
 function openWorkingImpressionModal() {
+    // Check if they've done enough before allowing submission
+    if (!canSubmitWorkingImpression()) {
+        const feedback = getProgressFeedback();
+        const assessments = chatState.scenarioProgress.assessmentsPerformed;
+        const questions = chatState.scenarioProgress.questionsAsked;
+        
+        // Create a friendly alert message
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-warning mx-2 my-2';
+        alertDiv.style.cssText = 'border-left: 4px solid #ffc107;';
+        alertDiv.innerHTML = `
+            <div class="d-flex align-items-start">
+                <i class="bi bi-exclamation-triangle me-2 mt-1"></i>
+                <div>
+                    <strong>Not so fast!</strong>
+                    <p class="mb-2 mt-1">A good paramedic gathers information before forming an impression. You've done:</p>
+                    <ul class="mb-2" style="margin-left: -15px;">
+                        <li>Questions asked: ${questions}</li>
+                        <li>Assessments performed: ${assessments}</li>
+                    </ul>
+                    <p class="mb-1"><strong>Before submitting, please:</strong></p>
+                    <ul class="mb-0" style="margin-left: -15px;">
+                        ${feedback.map(f => `<li>${f.substring(2)}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+        `;
+        
+        elements.chatMessages.appendChild(alertDiv);
+        alertDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+    }
+    
     // Clear previous inputs
     if (elements.workingImpressionInput) {
         elements.workingImpressionInput.value = '';
@@ -747,7 +839,6 @@ async function submitWorkingImpression() {
     }
 }
 
-
 // ==================== ASSESSMENT FUNCTIONS ====================
 
 function showAssessmentToolbar() {
@@ -773,6 +864,9 @@ async function handleAssessment(assessmentType) {
         showLimitReached();
         return;
     }
+    
+    // Track that an assessment was performed
+    incrementAssessmentsPerformed();
     
     // Add to conversation history (but don't display as user message)
     chatState.conversationHistory.push({ role: 'user', content: assessment.prompt });
@@ -919,6 +1013,9 @@ async function handleSendMessage(e) {
     addMessage('user', message);
     chatState.conversationHistory.push({ role: 'user', content: message });
     
+    // Track that a question was asked (if in a scenario)
+    incrementQuestionsAsked();
+    
     showLoading();
     
     try {
@@ -1049,7 +1146,7 @@ function clearChat() {
     const messages = elements.chatMessages.querySelectorAll('.message, .alert, .assessment-indicator');
     messages.forEach(msg => msg.remove());
     
-// Hide toolbars when clearing chat
+    // Hide toolbars when clearing chat
     hideAssessmentToolbar();
     hideWorkingImpressionToolbar();
 }
