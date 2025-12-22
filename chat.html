@@ -402,40 +402,49 @@
                         </button>
                     </div>
                 
-                
-                    <!-- Assessment Dropdown (only visible during scenarios) -->
-                    <div class="assessment-toolbar" id="assessmentToolbar" style="display: none;">
-                        <div class="dropdown">
-                            <button class="btn btn-outline-info dropdown-toggle assessment-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-clipboard2-pulse me-1"></i>
-                                Choose Assessment to perform
-                            </button>
-                            <ul class="dropdown-menu assessment-dropdown">
-                                <li><h6 class="dropdown-header">Primary Survey</h6></li>
-                                <li><a class="dropdown-item" href="#" data-assessment="obs"><i class="bi bi-heart-pulse me-2"></i>Observations (Vital Signs)</a></li>
-                                <li><a class="dropdown-item" href="#" data-assessment="ecg"><i class="bi bi-activity me-2"></i>ECG / Rhythm Check</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><h6 class="dropdown-header">Systematic Examination</h6></li>
-                                <li><a class="dropdown-item" href="#" data-assessment="chest"><i class="bi bi-lungs me-2"></i>Chest Examination</a></li>
-                                <li><a class="dropdown-item" href="#" data-assessment="abdo"><i class="bi bi-circle me-2"></i>Abdominal Assessment</a></li>
-                                <li><a class="dropdown-item" href="#" data-assessment="neuro"><i class="bi bi-lightning me-2"></i>Neurological Exam</a></li>
-                                <li><a class="dropdown-item" href="#" data-assessment="skin"><i class="bi bi-hand-index me-2"></i>Skin Assessment</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><h6 class="dropdown-header">Specific Tools</h6></li>
-                                <li><a class="dropdown-item" href="#" data-assessment="fast"><i class="bi bi-speedometer me-2"></i>FAST Assessment (Stroke)</a></li>
-                                <li><a class="dropdown-item" href="#" data-assessment="mend"><i class="bi bi-person-check me-2"></i>MEND Assessment</a></li>
-                                <li><a class="dropdown-item" href="#" data-assessment="pain"><i class="bi bi-exclamation-triangle me-2"></i>Pain Assessment (SOCRATES)</a></li>
-                                <li><a class="dropdown-item" href="#" data-assessment="wound"><i class="bi bi-bandaid me-2"></i>Wound Assessment</a></li>
-                                <li><a class="dropdown-item" href="#" data-assessment="mobility"><i class="bi bi-person-walking me-2"></i>Mobility Assessment</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><h6 class="dropdown-header">History Taking</h6></li>
-                                <li><a class="dropdown-item" href="#" data-assessment="history"><i class="bi bi-card-list me-2"></i>Full History (SAMPLE)</a></li>
-                                <li><a class="dropdown-item" href="#" data-assessment="meds"><i class="bi bi-capsule me-2"></i>Medications</a></li>
-                                <li><a class="dropdown-item" href="#" data-assessment="social"><i class="bi bi-house me-2"></i>Social History</a></li>
-                                <li><a class="dropdown-item" href="#" data-assessment="scene"><i class="bi bi-eye me-2"></i>Scene Assessment</a></li>
-                            </ul>
-                        </div>
-                    </div>
+<!-- Assessment Toolbar (only visible during scenarios) -->
+<div class="assessment-toolbar" id="assessmentToolbar" style="display: none;">
+    <div class="d-flex gap-2 align-items-center flex-wrap">
+        <!-- Assessment Dropdown -->
+        <div class="dropdown">
+            <button class="btn btn-outline-info dropdown-toggle assessment-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-clipboard2-pulse me-1"></i>
+                Perform Assessment
+            </button>
+            <ul class="dropdown-menu assessment-dropdown">
+                <li><h6 class="dropdown-header">Primary Survey</h6></li>
+                <li><a class="dropdown-item" href="#" data-assessment="obs"><i class="bi bi-heart-pulse me-2"></i>Observations (Vital Signs)</a></li>
+                <li><a class="dropdown-item" href="#" data-assessment="ecg"><i class="bi bi-activity me-2"></i>ECG / Rhythm Check</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Physical Examination</h6></li>
+                <li><a class="dropdown-item" href="#" data-assessment="chest"><i class="bi bi-lungs me-2"></i>Chest Examination</a></li>
+                <li><a class="dropdown-item" href="#" data-assessment="abdo"><i class="bi bi-bandaid me-2"></i>Abdominal Examination</a></li>
+                <li><a class="dropdown-item" href="#" data-assessment="neuro"><i class="bi bi-lightning me-2"></i>Neurological Exam</a></li>
+                <li><a class="dropdown-item" href="#" data-assessment="skin"><i class="bi bi-droplet me-2"></i>Skin Assessment</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Stroke Assessment</h6></li>
+                <li><a class="dropdown-item" href="#" data-assessment="fast"><i class="bi bi-speedometer me-2"></i>FAST Assessment</a></li>
+                <li><a class="dropdown-item" href="#" data-assessment="mend"><i class="bi bi-diagram-3 me-2"></i>MEND Assessment</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">History Taking</h6></li>
+                <li><a class="dropdown-item" href="#" data-assessment="history"><i class="bi bi-card-list me-2"></i>Full History (SAMPLE)</a></li>
+                <li><a class="dropdown-item" href="#" data-assessment="pain"><i class="bi bi-thermometer-half me-2"></i>Pain Assessment (SOCRATES)</a></li>
+                <li><a class="dropdown-item" href="#" data-assessment="meds"><i class="bi bi-capsule me-2"></i>Medications</a></li>
+                <li><a class="dropdown-item" href="#" data-assessment="social"><i class="bi bi-house me-2"></i>Social History</a></li>
+                <li><a class="dropdown-item" href="#" data-assessment="scene"><i class="bi bi-eye me-2"></i>Scene Assessment</a></li>
+            </ul>
+        </div>
+        
+        <!-- Hint Button - NEW -->
+        <button class="btn btn-outline-warning hint-btn" id="hintBtn" title="Get a hint if you're stuck">
+            <i class="bi bi-lightbulb me-1"></i>
+            Hint
+        </button>
+    </div>
+</div>                
+
+
+
                     <form id="chatForm">
                         <div class="input-group">
                             <textarea 

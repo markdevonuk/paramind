@@ -1417,3 +1417,39 @@ h1, h2, h3, h4, h5, h6 {
         transform: none;
     }
 }
+
+/* Hint Button Styling */
+.hint-btn {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+    border-color: #ffc107;
+    color: #ffc107;
+    transition: all 0.2s ease;
+}
+
+.hint-btn:hover {
+    background-color: #ffc107;
+    color: #1a1a2e;
+    border-color: #ffc107;
+}
+
+.hint-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Make the toolbar wrap nicely on mobile */
+.assessment-toolbar .d-flex {
+    justify-content: center;
+}
+
+@media (max-width: 400px) {
+    .assessment-toolbar .d-flex {
+        flex-direction: column;
+        gap: 0.5rem !important;
+    }
+    
+    .hint-btn, .assessment-btn {
+        width: 100%;
+    }
+}

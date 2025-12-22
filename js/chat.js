@@ -102,6 +102,7 @@ const elements = {
     messageInput: document.getElementById('messageInput'),
     sendBtn: document.getElementById('sendBtn'),
     welcomeMessage: document.getElementById('welcomeMessage'),
+    hintBtn: document.getElementById('hintBtn'),
     
     // Navigation
     navItems: document.querySelectorAll('.nav-item'),
@@ -307,6 +308,11 @@ async function initChat() {
     buildCategoryGrid();
     
     setupEventListeners();
+    
+    // Hint button
+    if (elements.hintBtn) {
+        elements.hintBtn.addEventListener('click', handleHint);
+    }
     
     // Check for successful payment
     const urlParams = new URLSearchParams(window.location.search);
@@ -886,12 +892,59 @@ async function handleAssessment(assessmentType) {
         
         addMessage('assistant', response);
         chatState.conversationHistory.push({ role: 'assistant', content: response });
-    } catch (error) {
+   } catch (error) {
         hideLoading();
         handleChatError(error);
     }
 }
 
+// ==================== HINT FUNCTION ====================
+
+async function handleHint() {
+    if (!chatState.currentScenario) {
+        return;
+    }
+    
+    if (chatState.isLoading) return;
+    
+    if (!chatState.isPro && chatState.messagesRemaining <= 0) {
+        showLimitReached();
+        return;
+    }
+    
+    if (elements.hintBtn) {
+        elements.hintBtn.disabled = true;
+    }
+    
+    const hintPrompt = "[HINT] I'm stuck and need a hint about what to ask or assess next.";
+    
+    chatState.conversationHistory.push({ role: 'user', content: hintPrompt });
+    
+    showLoading();
+    
+    try {
+        const response = await sendMessageToAPI(hintPrompt);
+        hideLoading();
+        
+        const hintIndicator = document.createElement('div');
+        hintIndicator.className = 'hint-indicator';
+        hintIndicator.innerHTML = `<small><i class="bi bi-lightbulb me-1"></i>Hint requested</small>`;
+        hintIndicator.style.cssText = 'color: #ffc107; font-size: 0.75rem; margin: 4px 0 0 50px; font-style: italic;';
+        elements.chatMessages.appendChild(hintIndicator);
+        
+        addMessage('assistant', response);
+        chatState.conversationHistory.push({ role: 'assistant', content: response });
+    } catch (error) {
+        hideLoading();
+        handleChatError(error);
+    } finally {
+        if (elements.hintBtn) {
+            elements.hintBtn.disabled = false;
+        }
+    }
+}
+
+// ==================== YOUR PATIENT FORM ====================
 // ==================== YOUR PATIENT FORM ====================
 
 async function handlePatientForm(e) {
