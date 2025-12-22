@@ -321,6 +321,270 @@
         .assessment-dropdown .dropdown-divider {
             margin: 4px 0;
         }
+
+        /* ============================================
+           DISPATCHER SCREEN STYLES
+           ============================================ */
+
+        .dispatcher-screen {
+            background: linear-gradient(180deg, #0a0a0f 0%, #1a1a2e 100%);
+            min-height: calc(100vh - 140px);
+            padding: 0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .dispatcher-header {
+            background: linear-gradient(90deg, #0f3460 0%, #16213e 100%);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #00d9ff;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .dispatcher-header .back-btn {
+            color: #00d9ff;
+            text-decoration: none;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 12px;
+            border: 1px solid #00d9ff;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .dispatcher-header .back-btn:hover {
+            background: #00d9ff;
+            color: #0a0a0f;
+        }
+
+        .dispatcher-title-area {
+            flex: 1;
+            text-align: center;
+        }
+
+        .dispatcher-title {
+            color: #00d9ff;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .dispatcher-subtitle {
+            color: #8892b0;
+            font-size: 0.85rem;
+            margin: 5px 0 0 0;
+        }
+
+        .dispatcher-subtitle .category-name {
+            color: #e94560;
+            font-weight: 600;
+        }
+
+        .dispatcher-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #00ff88;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: pulse-green 1.5s infinite;
+        }
+
+        @keyframes pulse-green {
+            0%, 100% { opacity: 1; box-shadow: 0 0 5px #00ff88; }
+            50% { opacity: 0.5; box-shadow: 0 0 15px #00ff88; }
+        }
+
+        /* Dispatcher Table */
+        .dispatcher-table-container {
+            padding: 15px;
+            overflow-x: auto;
+        }
+
+        .dispatcher-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(15, 52, 96, 0.3);
+            border: 1px solid #0f3460;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .dispatcher-table thead {
+            background: #0f3460;
+        }
+
+        .dispatcher-table th {
+            color: #00d9ff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 12px 10px;
+            text-align: left;
+            border-bottom: 2px solid #e94560;
+        }
+
+        .dispatcher-table tbody tr {
+            border-bottom: 1px solid rgba(15, 52, 96, 0.8);
+            transition: all 0.2s;
+        }
+
+        .dispatcher-table tbody tr:hover {
+            background: rgba(233, 69, 96, 0.1);
+        }
+
+        .dispatcher-table td {
+            padding: 12px 10px;
+            color: #ffffff;
+            font-size: 0.85rem;
+            vertical-align: middle;
+        }
+
+        /* Incident Number */
+        .incident-number {
+            color: #00d9ff;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        /* Patient Info */
+        .patient-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .patient-age-sex {
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .patient-name {
+            color: #8892b0;
+            font-size: 0.75rem;
+        }
+
+        /* Complaint */
+        .complaint-text {
+            color: #e94560;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        .complaint-details {
+            color: #8892b0;
+            font-size: 0.7rem;
+            margin-top: 3px;
+            max-width: 200px;
+        }
+
+        /* Category Badge */
+        .cat-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-align: center;
+            min-width: 50px;
+        }
+
+        .cat-badge.cat-1 {
+            background: #dc3545;
+            color: white;
+            animation: pulse-red 1.5s infinite;
+        }
+
+        .cat-badge.cat-2 {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .cat-badge.cat-3 {
+            background: #28a745;
+            color: white;
+        }
+
+        .cat-badge.cat-4 {
+            background: #17a2b8;
+            color: white;
+        }
+
+        /* Dispatch Button */
+        .dispatch-btn {
+            background: linear-gradient(135deg, #e94560 0%, #ff6b6b 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-transform: uppercase;
+        }
+
+        .dispatch-btn:hover {
+            background: linear-gradient(135deg, #ff6b6b 0%, #e94560 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+        }
+
+        .dispatch-btn i {
+            font-size: 0.85rem;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .dispatcher-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .dispatcher-header .back-btn {
+                align-self: flex-start;
+            }
+            
+            .dispatcher-status {
+                order: -1;
+                align-self: flex-end;
+            }
+            
+            .dispatcher-table th,
+            .dispatcher-table td {
+                padding: 10px 6px;
+                font-size: 0.75rem;
+            }
+            
+            .dispatch-btn {
+                padding: 6px 10px;
+                font-size: 0.7rem;
+            }
+            
+            .complaint-details {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body class="chat-page">
@@ -483,18 +747,44 @@
                     </div>
                 </div>
 
-                <!-- Subcategory View - MDT Style Cards (hidden by default) -->
+                <!-- Subcategory View - Dispatcher Screen -->
                 <div id="scenarioSubcategory" style="display: none;">
-                    <div class="section-header">
-                        <a href="#" class="back-btn" id="backToScenarioCategories">
-                            <i class="bi bi-arrow-left"></i> Back
-                        </a>
-                        <h1 id="subcategoryTitle">Cardiac Scenarios</h1>
-                        <p id="subcategoryDescription">Respond to incoming calls</p>
-                    </div>
-                    <div class="section-content">
-                        <div class="subcategory-list" id="scenarioList">
-                            <!-- MDT cards will be populated by JavaScript -->
+                    <div class="dispatcher-screen">
+                        <!-- Dispatcher Header -->
+                        <div class="dispatcher-header">
+                            <a href="#" class="back-btn" id="backToScenarioCategories">
+                                <i class="bi bi-arrow-left"></i> Back
+                            </a>
+                            <div class="dispatcher-title-area">
+                                <h1 class="dispatcher-title">
+                                    <i class="bi bi-headset me-2"></i>Dispatcher Screen
+                                </h1>
+                                <p class="dispatcher-subtitle">
+                                    <span class="category-name" id="subcategoryTitle">Cardiac</span> incidents outstanding: <span id="incidentCount">0</span>
+                                </p>
+                            </div>
+                            <div class="dispatcher-status">
+                                <span class="status-indicator"></span>
+                                SYSTEM ACTIVE
+                            </div>
+                        </div>
+
+                        <!-- Incident Table -->
+                        <div class="dispatcher-table-container">
+                            <table class="dispatcher-table">
+                                <thead>
+                                    <tr>
+                                        <th>INCIDENT #</th>
+                                        <th>PATIENT</th>
+                                        <th>COMPLAINT</th>
+                                        <th>CAT</th>
+                                        <th>ACTION</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="scenarioList">
+                                    <!-- Incidents will be populated by JavaScript -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -698,7 +988,5 @@
     <script src="js/app.js"></script>
     <script src="js/scenarios.js"></script>
     <script src="js/chat.js"></script>
-</body>
-</html>
 </body>
 </html>
