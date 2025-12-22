@@ -114,7 +114,7 @@ const elements = {
     categoryGrid: document.getElementById('categoryGrid'),
     backToScenarioCategories: document.getElementById('backToScenarioCategories'),
     subcategoryTitle: document.getElementById('subcategoryTitle'),
-    incidentCount: document.getElementById('incidentCount'),
+    subcategoryDescription: document.getElementById('subcategoryDescription'),
     
     // Modal
     scenarioModal: document.getElementById('scenarioModal'),
@@ -526,70 +526,42 @@ function showScenarioSubcategory(categoryId) {
     
     if (!category || !scenarios.length) return;
     
-    // Update the dispatcher screen header
-    if (elements.subcategoryTitle) {
-        elements.subcategoryTitle.textContent = category.title;
-    }
-    if (elements.incidentCount) {
-        elements.incidentCount.textContent = scenarios.length;
-    }
+    elements.subcategoryTitle.textContent = category.title + ' Scenarios';
+    elements.subcategoryDescription.textContent = 'Respond to incoming calls';
     
-    // Build dispatcher table rows
+    // Build MDT-style cards
     elements.scenarioList.innerHTML = scenarios.map((scenario, index) => {
         const d = scenario.dispatch;
         const genderDisplay = d.gender === 'M' ? 'Male' : d.gender === 'F' ? 'Female' : '';
-        const ageDisplay = d.age ? `${d.age}yr` : '';
-        const patientAgeGender = d.age ? `${ageDisplay} ${genderDisplay}` : 'Multiple';
-        const patientName = d.name || 'Patients';
+        const ageDisplay = d.age ? `${d.age}y` : '';
+        const patientDisplay = d.name ? `${d.name} (${ageDisplay} ${genderDisplay})` : 'Multiple Patients';
+        const incidentNum = `INC-${Date.now().toString().slice(-6)}-${(index + 1).toString().padStart(2, '0')}`;
         
-        // Generate incident number
-        const incidentNum = `INC-${new Date().getFullYear()}-${(index + 1).toString().padStart(3, '0')}`;
-        
-        // Category class for badge
-        const catClass = d.category === 1 ? 'cat-1' : d.category === 2 ? 'cat-2' : d.category === 3 ? 'cat-3' : 'cat-4';
+        const catClass = d.category === 1 ? 'cat-1' : d.category === 2 ? 'cat-2' : 'cat-3';
         
         return `
-            <tr data-scenario-id="${scenario.id}">
-                <td>
-                    <span class="incident-number">${incidentNum}</span>
-                </td>
-                <td>
-                    <div class="patient-info">
-                        <span class="patient-age-sex">${patientAgeGender}</span>
-                        <span class="patient-name">${patientName}</span>
-                    </div>
-                </td>
-                <td>
-                    <div class="complaint-text">${d.chiefComplaint}</div>
-                    <div class="complaint-details">${d.details}</div>
-                </td>
-                <td>
-                    <span class="cat-badge ${catClass}">C${d.category}</span>
-                </td>
-                <td>
-                    <button class="dispatch-btn" data-scenario-id="${scenario.id}">
-                        <i class="bi bi-broadcast"></i>
-                        Dispatch
-                    </button>
-                </td>
-            </tr>
+            <div class="mdt-card" data-scenario-id="${scenario.id}">
+                <div class="mdt-header">
+                    <span class="mdt-incident">${incidentNum}</span>
+                    <span class="mdt-category ${catClass}">CAT ${d.category}</span>
+                </div>
+                <div class="mdt-body">
+                    <div class="mdt-patient">${patientDisplay}</div>
+                    <div class="mdt-complaint">${d.chiefComplaint}</div>
+                    <div class="mdt-details">${d.details}</div>
+                </div>
+                <div class="mdt-footer">
+                    <span class="mdt-status">AWAITING RESPONSE</span>
+                    <span class="mdt-respond"><i class="bi bi-chevron-right"></i></span>
+                </div>
+            </div>
         `;
     }).join('');
     
-    // Add click listeners to dispatch buttons
-    elements.scenarioList.querySelectorAll('.dispatch-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent row click if we add that later
-            const scenarioId = btn.dataset.scenarioId;
-            openScenarioModal(scenarioId);
-        });
-    });
-    
-    // Also make the entire row clickable (optional but nice UX)
-    elements.scenarioList.querySelectorAll('tr').forEach(row => {
-        row.style.cursor = 'pointer';
-        row.addEventListener('click', () => {
-            const scenarioId = row.dataset.scenarioId;
+    // Add click listeners to MDT cards
+    elements.scenarioList.querySelectorAll('.mdt-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const scenarioId = card.dataset.scenarioId;
             openScenarioModal(scenarioId);
         });
     });
