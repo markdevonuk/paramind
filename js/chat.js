@@ -468,6 +468,14 @@ function switchView(viewId) {
     if (viewId === 'scenariosView') {
         hideScenarioSubcategory();
     }
+    
+    // Reset chat to welcome screen when clicking Chat nav button
+    if (viewId === 'chatView') {
+        clearChat();
+        if (elements.welcomeMessage) {
+            elements.welcomeMessage.style.display = 'block';
+        }
+    }
 }
 
 // ==================== SCENARIO NAVIGATION ====================
