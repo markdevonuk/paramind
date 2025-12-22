@@ -529,36 +529,24 @@
             animation: blink 1s infinite;
         }
         
-        /* Fix bullet list overflow in chat messages */
+       /* Fix bullet list overflow in chat messages */
 .chat-messages ul,
 .chat-messages ol {
-    padding-left: 1.5rem;
-    margin-left: 0;
-    list-style-position: inside;
+    padding-left: 1.5em;
+    margin-left: 0.5em;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .chat-messages li {
-    padding-left: 0.5rem;
-    text-indent: -0.5rem;
-    margin-bottom: 0.5rem;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
+    margin-bottom: 0.4rem;
+    padding-left: 0.3em;
 }
 
-/* Alternative: keep bullets outside but contain them */
+/* Ensure message bubbles contain their content */
+.message-bubble,
 .message-content {
-    overflow: hidden;
-    padding-left: 0;
-}
-
-.message-content ul,
-.message-content ol {
-    padding-left: 1.5rem;
-    margin: 0.5rem 0;
-}
-
-.message-content li {
-    margin-bottom: 0.3rem;
+    overflow: visible;
 }
     </style>
 </head>
