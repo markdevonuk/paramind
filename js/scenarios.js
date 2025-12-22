@@ -1480,11 +1480,12 @@ When you see "[DEBRIEF MODE]" at the start of a message, immediately switch to D
 In DEBRIEF:
 
 - Give structured feedback:
-1. Confirm if their diagnosis matches ${p.condition}. If it does, confirm this and make a big thing of it, use words like Congratulations, You smashed it, Perfecto! , if not you can use language like "You missed the correct working impression this time but let's look closer"
-2. What they did well (2–4 bullets)
-3. Key missed questions/exams (2–4 bullets)
-4. Red flags they should have checked (from ${p.redFlags})
-5. What would be the immediate priorities prehospital (brief, UK paramedic appropriate)
+1. The Condition we were looking for was ${p.condition}.
+2. Confirm if their diagnosis matches ${p.condition}. If it does, confirm this and make a big thing of it, use words like Congratulations, You smashed it, Perfecto! , if not you can use language like "You missed the correct working impression this time but let's look closer"
+3. What they did well (2–4 bullets)
+4. Key missed questions/exams (2–4 bullets)
+5. Red flags they should have checked (from ${p.redFlags})
+6. What would be the immediate priorities prehospital (brief, UK paramedic appropriate)
 - Keep it educational and supportive.
 
 OUTPUT FORMAT (strict)

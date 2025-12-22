@@ -959,7 +959,13 @@ function addMessage(role, content) {
     elements.chatMessages.appendChild(messageDiv);
     chatState.messages.push({ role, content, timestamp: new Date() });
     
-    scrollToBottom();
+    // For user messages, scroll to bottom (so they can see the typing indicator)
+    // For assistant messages, scroll to the top of the new message so they can start reading
+    if (role === 'user') {
+        scrollToBottom();
+    } else {
+        messageDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 function showLoading() {
