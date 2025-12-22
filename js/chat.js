@@ -127,8 +127,16 @@ const elements = {
     modalDetails: document.getElementById('modalDetails'),
     mdtAlertBanner: document.getElementById('mdtAlertBanner'),
     
-    // Assessment toolbar
+// Assessment toolbar
     assessmentToolbar: document.getElementById('assessmentToolbar'),
+    
+    // Working impression elements
+    workingImpressionToolbar: document.getElementById('workingImpressionToolbar'),
+    workingImpressionBtn: document.getElementById('workingImpressionBtn'),
+    workingImpressionModal: document.getElementById('workingImpressionModal'),
+    workingImpressionInput: document.getElementById('workingImpressionInput'),
+    impressionReasoning: document.getElementById('impressionReasoning'),
+    submitImpressionBtn: document.getElementById('submitImpressionBtn'),
     
     // Patient form
     patientForm: document.getElementById('patientForm'),
