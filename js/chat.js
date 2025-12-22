@@ -950,6 +950,8 @@ async function handleHint() {
 async function handlePatientForm(e) {
     e.preventDefault();
     
+    clearChat();
+    
     const patientData = {
         age: document.getElementById('patientAge').value,
         sex: document.getElementById('patientSex').value,
