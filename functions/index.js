@@ -172,19 +172,27 @@ exports.chat = onRequest(
       }
 
       // Build system prompt based on user's trust
-      const systemPrompt = buildSystemPrompt(user.trust, user.trustFullName);
+// Check if frontend sent a scenario system prompt in the conversation history
+      const scenarioSystemMessage = conversationHistory.find(
+        msg => msg && msg.role === 'system' && msg.content
+      );
 
-   // Build messages array for OpenAI
-// Filter out any messages with null/undefined content
-const validHistory = conversationHistory
-    .slice(-10)
-    .filter(msg => msg && msg.content && msg.role !== 'system'); // Also filter out client-side system messages
+      // Use scenario prompt if present, otherwise use default trust prompt
+      const systemPrompt = scenarioSystemMessage 
+        ? scenarioSystemMessage.content 
+        : buildSystemPrompt(user.trust, user.trustFullName);
 
-const messages = [
-    { role: "system", content: systemPrompt },
-    ...validHistory,
-    { role: "user", content: message },
-];
+      // Build messages array for OpenAI
+      // Filter out any messages with null/undefined content AND system messages (we handle system prompt separately)
+      const validHistory = conversationHistory
+        .slice(-10)
+        .filter(msg => msg && msg.content && msg.role !== 'system');
+
+      const messages = [
+        { role: "system", content: systemPrompt },
+        ...validHistory,
+        { role: "user", content: message },
+      ];
 
       // Call OpenAI API
       const completion = await openai.chat.completions.create({
