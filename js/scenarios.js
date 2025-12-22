@@ -1894,6 +1894,7 @@ function getScenarioSystemPrompt(scenarioId) {
     if (!scenario) return null;
     
     const p = scenario.patient;
+    const d = scenario.dispatch;
     
     // Format red flags as a readable list
     const redFlagsFormatted = p.redFlags ? p.redFlags.join(', ') : 'None specified';
@@ -1908,6 +1909,9 @@ You are simulating a patient encounter for paramedic training.
 - Teaching happens ONLY in DEBRIEF mode
 
 PATIENT DETAILS (hidden from learner):
+- Name: ${d.name || 'Unknown'}
+- Age: ${d.age || 'Unknown'}
+- Gender: ${d.gender === 'M' ? 'Male' : d.gender === 'F' ? 'Female' : 'Unknown'}
 - Condition: ${p.condition}
 - Medical History: ${p.history}
 - Medications: ${p.medications}
