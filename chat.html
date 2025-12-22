@@ -261,66 +261,108 @@
             color: var(--text-muted);
         }
         
-        /* Assessment Toolbar Styles */
-        .assessment-toolbar {
-            margin-bottom: 10px;
-        }
-        
-        .assessment-btn {
-            width: 100%;
-            border-radius: 20px;
-            padding: 8px 16px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            border: 2px solid #17a2b8;
-            color: #17a2b8;
-            background: rgba(23, 162, 184, 0.1);
-            transition: all 0.2s ease;
-        }
-        
-        .assessment-btn:hover {
-            background: #17a2b8;
-            color: white;
-            box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
-        }
-        
-        .assessment-dropdown {
-            width: 100%;
-            max-height: 350px;
-            overflow-y: auto;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            border: 1px solid #e0e0e0;
-        }
-        
-        .assessment-dropdown .dropdown-header {
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #6c757d;
-            padding: 8px 16px 4px;
-        }
-        
-        .assessment-dropdown .dropdown-item {
-            padding: 10px 16px;
-            font-size: 0.9rem;
-            transition: all 0.15s ease;
-        }
-        
-        .assessment-dropdown .dropdown-item:hover {
-            background: linear-gradient(90deg, rgba(23, 162, 184, 0.1), transparent);
-            color: #17a2b8;
-        }
-        
-        .assessment-dropdown .dropdown-item i {
-            color: #17a2b8;
-            width: 20px;
-        }
-        
-        .assessment-dropdown .dropdown-divider {
-            margin: 4px 0;
-        }
+/* Assessment Toolbar Styles - Brand Colours */
+.assessment-toolbar {
+    margin-bottom: 12px;
+}
+
+.assessment-btn {
+    flex-grow: 1;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: 2px solid #00d9ff;
+    color: #00d9ff;
+    background: rgba(0, 217, 255, 0.1);
+    transition: all 0.2s ease;
+}
+
+.assessment-btn:hover {
+    background: #00d9ff;
+    color: #1a1a2e;
+    box-shadow: 0 4px 15px rgba(0, 217, 255, 0.3);
+}
+
+.hint-btn {
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: 2px solid #e94560;
+    color: #e94560;
+    background: rgba(233, 69, 96, 0.1);
+    transition: all 0.2s ease;
+}
+
+.hint-btn:hover {
+    background: #e94560;
+    color: white;
+    box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
+}
+
+.assessment-dropdown {
+    width: 100%;
+    max-height: 350px;
+    overflow-y: auto;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid #0f3460;
+    background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.assessment-dropdown .dropdown-header {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #8892b0;
+    padding: 8px 16px 4px;
+}
+
+.assessment-dropdown .dropdown-item {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    color: #ffffff;
+    transition: all 0.15s ease;
+}
+
+.assessment-dropdown .dropdown-item:hover {
+    background: rgba(0, 217, 255, 0.15);
+    color: #00d9ff;
+}
+
+.assessment-dropdown .dropdown-item i {
+    color: #00d9ff;
+    width: 20px;
+}
+
+.assessment-dropdown .dropdown-divider {
+    margin: 4px 0;
+    border-color: #0f3460;
+}
+
+/* Working Impression Button - Brand Style */
+.working-impression-toolbar {
+    margin-top: 12px;
+}
+
+.working-impression-toolbar .btn {
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    background: linear-gradient(145deg, #00d9ff 0%, #00b4d8 100%);
+    border: none;
+    color: #1a1a2e;
+    transition: all 0.2s ease;
+}
+
+.working-impression-toolbar .btn:hover {
+    background: linear-gradient(145deg, #00f0ff 0%, #00d9ff 100%);
+    box-shadow: 0 4px 20px rgba(0, 217, 255, 0.4);
+    transform: translateY(-2px);
+}
 
         /* Dispatcher Screen Styles */
         .dispatcher-header h1 {
@@ -557,80 +599,88 @@
             </div>
 
             <!-- Chat Input -->
-            <div class="chat-input-container">
-                <div class="chat-input-wrapper">
-                
-                <!-- Working Impression Button (only visible during scenarios) -->
-                    <div class="working-impression-toolbar" id="workingImpressionToolbar" style="display: none;">
-                        <button class="btn btn-success w-100 mb-2" id="workingImpressionBtn" style="border-radius: 20px; font-weight: 600;">
-                            <i class="bi bi-check-circle me-2"></i>I'm ready to offer my working impression
-                        </button>
-                    </div>
-                
-<!-- Assessment Toolbar (only visible during scenarios) -->
-<div class="assessment-toolbar" id="assessmentToolbar" style="display: none;">
-    <div class="d-flex gap-2 align-items-center flex-wrap">
-        <!-- Assessment Dropdown -->
-        <div class="dropdown">
-            <button class="btn btn-outline-info dropdown-toggle assessment-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-clipboard2-pulse me-1"></i>
-                Perform Assessment
-            </button>
-            <ul class="dropdown-menu assessment-dropdown">
-                <li><h6 class="dropdown-header">Primary Survey</h6></li>
-                <li><a class="dropdown-item" href="#" data-assessment="obs"><i class="bi bi-heart-pulse me-2"></i>Observations (Vital Signs)</a></li>
-                <li><a class="dropdown-item" href="#" data-assessment="ecg"><i class="bi bi-activity me-2"></i>ECG / Rhythm Check</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><h6 class="dropdown-header">Physical Examination</h6></li>
-                <li><a class="dropdown-item" href="#" data-assessment="chest"><i class="bi bi-lungs me-2"></i>Chest Examination</a></li>
-                <li><a class="dropdown-item" href="#" data-assessment="abdo"><i class="bi bi-bandaid me-2"></i>Abdominal Examination</a></li>
-                <li><a class="dropdown-item" href="#" data-assessment="neuro"><i class="bi bi-lightning me-2"></i>Neurological Exam</a></li>
-                <li><a class="dropdown-item" href="#" data-assessment="skin"><i class="bi bi-droplet me-2"></i>Skin Assessment</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><h6 class="dropdown-header">Stroke Assessment</h6></li>
-                <li><a class="dropdown-item" href="#" data-assessment="fast"><i class="bi bi-speedometer me-2"></i>FAST Assessment</a></li>
-                <li><a class="dropdown-item" href="#" data-assessment="mend"><i class="bi bi-diagram-3 me-2"></i>MEND Assessment</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><h6 class="dropdown-header">History Taking</h6></li>
-                <li><a class="dropdown-item" href="#" data-assessment="history"><i class="bi bi-card-list me-2"></i>Full History (SAMPLE)</a></li>
-                <li><a class="dropdown-item" href="#" data-assessment="pain"><i class="bi bi-thermometer-half me-2"></i>Pain Assessment (SOCRATES)</a></li>
-                <li><a class="dropdown-item" href="#" data-assessment="meds"><i class="bi bi-capsule me-2"></i>Medications</a></li>
-                <li><a class="dropdown-item" href="#" data-assessment="social"><i class="bi bi-house me-2"></i>Social History</a></li>
-                <li><a class="dropdown-item" href="#" data-assessment="scene"><i class="bi bi-eye me-2"></i>Scene Assessment</a></li>
-            </ul>
-        </div>
-        
-        <!-- Hint Button - NEW -->
-        <button class="btn btn-outline-warning hint-btn" id="hintBtn" title="Get a hint if you're stuck">
-            <i class="bi bi-lightbulb me-1"></i>
-            Hint
-        </button>
-    </div>
-</div>                
-
-
-
-                    <form id="chatForm">
-                        <div class="input-group">
-                            <textarea 
-                                class="form-control" 
-                                id="messageInput" 
-                                placeholder="Or ask the patient a question..." 
-                                rows="1"
-                                required
-                            ></textarea>
-                            <button class="btn btn-primary" type="submit" id="sendBtn">
-                                <i class="bi bi-send-fill"></i>
-                            </button>
-                        </div>
-                    </form>
-                    <small class="input-disclaimer">
-                        <i class="bi bi-shield-check me-1"></i>
-                        Never enter real patient data.
-                    </small>
+           
+           
+       <!-- Chat Input -->
+<div class="chat-input-container">
+    <div class="chat-input-wrapper">
+    
+        <!-- Assessment Toolbar (only visible during scenarios) - NOW AT TOP -->
+        <div class="assessment-toolbar" id="assessmentToolbar" style="display: none;">
+            <div class="d-flex gap-2 align-items-center flex-wrap">
+                <!-- Assessment Dropdown -->
+                <div class="dropdown flex-grow-1">
+                    <button class="btn dropdown-toggle assessment-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-clipboard2-pulse me-1"></i>
+                        Perform Assessment
+                    </button>
+                    <ul class="dropdown-menu assessment-dropdown">
+                        <li><h6 class="dropdown-header">Primary Survey</h6></li>
+                        <li><a class="dropdown-item" href="#" data-assessment="obs"><i class="bi bi-heart-pulse me-2"></i>Observations (Vital Signs)</a></li>
+                        <li><a class="dropdown-item" href="#" data-assessment="ecg"><i class="bi bi-activity me-2"></i>ECG / Rhythm Check</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header">Physical Examination</h6></li>
+                        <li><a class="dropdown-item" href="#" data-assessment="chest"><i class="bi bi-lungs me-2"></i>Chest Examination</a></li>
+                        <li><a class="dropdown-item" href="#" data-assessment="abdo"><i class="bi bi-bandaid me-2"></i>Abdominal Examination</a></li>
+                        <li><a class="dropdown-item" href="#" data-assessment="neuro"><i class="bi bi-lightning me-2"></i>Neurological Exam</a></li>
+                        <li><a class="dropdown-item" href="#" data-assessment="skin"><i class="bi bi-droplet me-2"></i>Skin Assessment</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header">Stroke Assessment</h6></li>
+                        <li><a class="dropdown-item" href="#" data-assessment="fast"><i class="bi bi-speedometer me-2"></i>FAST Assessment</a></li>
+                        <li><a class="dropdown-item" href="#" data-assessment="mend"><i class="bi bi-diagram-3 me-2"></i>MEND Assessment</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header">History Taking</h6></li>
+                        <li><a class="dropdown-item" href="#" data-assessment="history"><i class="bi bi-card-list me-2"></i>Full History (SAMPLE)</a></li>
+                        <li><a class="dropdown-item" href="#" data-assessment="pain"><i class="bi bi-thermometer-half me-2"></i>Pain Assessment (SOCRATES)</a></li>
+                        <li><a class="dropdown-item" href="#" data-assessment="meds"><i class="bi bi-capsule me-2"></i>Medications</a></li>
+                        <li><a class="dropdown-item" href="#" data-assessment="social"><i class="bi bi-house me-2"></i>Social History</a></li>
+                        <li><a class="dropdown-item" href="#" data-assessment="scene"><i class="bi bi-eye me-2"></i>Scene Assessment</a></li>
+                    </ul>
                 </div>
+                
+                <!-- Hint Button -->
+                <button class="btn hint-btn" id="hintBtn" title="Get a hint if you're stuck">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    Hint
+                </button>
             </div>
         </div>
+
+        <!-- Chat Form - NOW IN MIDDLE -->
+        <form id="chatForm">
+            <div class="input-group">
+                <textarea 
+                    class="form-control" 
+                    id="messageInput" 
+                    placeholder="Or ask the patient a question..." 
+                    rows="1"
+                    required
+                ></textarea>
+                <button class="btn btn-primary" type="submit" id="sendBtn">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </div>
+        </form>
+        
+        <small class="input-disclaimer">
+            <i class="bi bi-shield-check me-1"></i>
+            Never enter real patient data.
+        </small>
+
+        <!-- Working Impression Button - NOW AT BOTTOM -->
+        <div class="working-impression-toolbar" id="workingImpressionToolbar" style="display: none;">
+            <button class="btn w-100" id="workingImpressionBtn">
+                <i class="bi bi-check-circle me-2"></i>I'm ready to offer my working impression
+            </button>
+        </div>
+    
+    </div>
+</div>    
+           
+           
+           
+
+        
 
         <!-- ==================== SCENARIOS VIEW ==================== -->
         <div id="scenariosView" class="content-view">
