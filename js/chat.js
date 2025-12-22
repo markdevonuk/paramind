@@ -28,35 +28,35 @@ const chatState = {
 const ASSESSMENT_PROMPTS = {
     obs: {
         name: "Observations",
-        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing observations. Respond ONLY with clinical findings in this format:\n\nCLINICAL DATA:\n• HR: [value] bpm\n• BP: [value] mmHg\n• RR: [value] /min\n• SpO2: [value]%\n• Temp: [value]°C\n• GCS: [value] (E?/V?/M?)\n• BM: [value] mmol/L\n• Pain: [value]/10\n\nDo NOT respond as the patient. Do NOT add dialogue. Just provide the clinical values."
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing observations. Respond ONLY with clinical findings in this format:\n\nCLINICAL DATA:\n\n• HR: [value] bpm\n• BP: [value] mmHg\n• RR: [value] /min\n• SpO2: [value]%\n• Temp: [value]°C\n• GCS: [value] (E?/V?/M?)\n• BM: [value] mmol/L\n• Pain: [value]/10\n\nDo NOT respond as the patient. Do NOT add dialogue. Just provide the clinical values."
     },
     ecg: {
         name: "ECG",
-        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a 12-lead ECG. Respond ONLY with clinical findings:\n\nCLINICAL DATA - ECG:\n• Rate: [value] bpm\n• Rhythm: [regular/irregular]\n• P waves: [description]\n• PR interval: [value]\n• QRS: [value]\n• ST segments: [description with leads]\n• T waves: [description]\n• Interpretation: [finding]\n\nDo NOT respond as the patient. Do NOT add dialogue. Just describe what the ECG shows."
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a 12-lead ECG. Respond ONLY with clinical findings:\n\nCLINICAL DATA - ECG:\n\n• Rate: [value] bpm\n• Rhythm: [regular/irregular]\n• P waves: [description]\n• PR interval: [value]\n• QRS: [value]\n• ST segments: [description with leads]\n• T waves: [description]\n• Interpretation: [finding]\n\nDo NOT respond as the patient. Do NOT add dialogue. Just describe what the ECG shows."
     },
     chest: {
         name: "Chest Examination",
-        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a chest examination. Respond ONLY with clinical findings:\n\nCLINICAL DATA - CHEST EXAM:\n• Inspection: [respiratory effort, symmetry, accessory muscle use]\n• Palpation: [trachea position, expansion, tenderness]\n• Percussion: [resonance/dullness]\n• Auscultation: [breath sounds, added sounds]\n\nDo NOT respond as the patient. Do NOT add dialogue. Just provide examination findings."
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a chest examination. Respond ONLY with clinical findings:\n\nCLINICAL DATA - CHEST EXAM:\n\n• Inspection: [respiratory effort, symmetry, accessory muscle use]\n• Palpation: [trachea position, expansion, tenderness]\n• Percussion: [resonance/dullness]\n• Auscultation: [breath sounds, added sounds]\n\nDo NOT respond as the patient. Do NOT add dialogue. Just provide examination findings."
     },
     abdo: {
         name: "Abdominal Assessment",
-        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing an abdominal examination. Respond ONLY with clinical findings:\n\nCLINICAL DATA - ABDOMINAL EXAM:\n• Inspection: [distension, scars, bruising]\n• Auscultation: [bowel sounds]\n• Palpation: [soft/rigid, tenderness, guarding, masses]\n• Special signs: [if applicable]\n\nDo NOT respond as the patient. Do NOT add dialogue. Just provide examination findings."
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing an abdominal examination. Respond ONLY with clinical findings:\n\nCLINICAL DATA - ABDOMINAL EXAM:\n\n• Inspection: [distension, scars, bruising]\n• Auscultation: [bowel sounds]\n• Palpation: [soft/rigid, tenderness, guarding, masses]\n• Special signs: [if applicable]\n\nDo NOT respond as the patient. Do NOT add dialogue. Just provide examination findings."
     },
     neuro: {
         name: "Neurological Exam",
-        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a neurological examination. Respond ONLY with clinical findings:\n\nCLINICAL DATA - NEURO EXAM:\n• GCS: [value] (E?/V?/M?)\n• Pupils: [size, reactivity, equality]\n• Limb power: [grade 0-5 each limb]\n• Sensation: [intact/reduced]\n• Tone: [normal/increased/decreased]\n• Focal deficits: [any noted]\n\nDo NOT respond as the patient. Do NOT add dialogue. Just provide examination findings."
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a neurological examination. Respond ONLY with clinical findings:\n\nCLINICAL DATA - NEURO EXAM:\n\n• GCS: [value] (E?/V?/M?)\n• Pupils: [size, reactivity, equality]\n• Limb power: [grade 0-5 each limb]\n• Sensation: [intact/reduced]\n• Tone: [normal/increased/decreased]\n• Focal deficits: [any noted]\n\nDo NOT respond as the patient. Do NOT add dialogue. Just provide examination findings."
     },
     skin: {
         name: "Skin Assessment",
-        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is assessing the patient's skin. Respond ONLY with clinical findings:\n\nCLINICAL DATA - SKIN:\n• Colour: [pink/pale/cyanosed/mottled/flushed]\n• Temperature: [warm/cool/cold]\n• Moisture: [dry/clammy/diaphoretic]\n• CRT: [value] seconds\n• Other findings: [rashes, wounds, etc.]\n\nDo NOT respond as the patient. Do NOT add dialogue. Just provide what the paramedic observes."
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is assessing the patient's skin. Respond ONLY with clinical findings:\n\nCLINICAL DATA - SKIN:\n\n• Colour: [pink/pale/cyanosed/mottled/flushed]\n• Temperature: [warm/cool/cold]\n• Moisture: [dry/clammy/diaphoretic]\n• CRT: [value] seconds\n• Other findings: [rashes, wounds, etc.]\n\nDo NOT respond as the patient. Do NOT add dialogue. Just provide what the paramedic observes."
     },
     fast: {
         name: "FAST Assessment",
-        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a FAST stroke assessment. Respond with clinical findings:\n\nCLINICAL DATA - FAST:\n• Face: [symmetrical smile / facial droop - which side?]\n• Arms: [both held equal / drift - which side?]\n• Speech: [normal / slurred / garbled / unable]\n• Time: [when symptoms first noticed]\n\nDo NOT add unnecessary dialogue. Focus on the objective findings."
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a FAST stroke assessment. Respond with clinical findings:\n\nCLINICAL DATA - FAST:\n\n• Face: [symmetrical smile / facial droop - which side?]\n• Arms: [both held equal / drift - which side?]\n• Speech: [normal / slurred / garbled / unable]\n• Time: [when symptoms first noticed]\n\nDo NOT add unnecessary dialogue. Focus on the objective findings."
     },
     mend: {
         name: "MEND Assessment",
-        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a MEND assessment. Respond ONLY with clinical findings:\n\nCLINICAL DATA - MEND:\n• Mental status: [alert/confused/obtunded]\n• Eyes: [gaze deviation, visual fields, pupils]\n• Neglect: [present/absent, which side]\n• Deficits - Speech: [normal/aphasia type]\n• Deficits - Motor: [face/arm/leg weakness, laterality]\n\nDo NOT respond as the patient. Just provide clinical findings."
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a MEND assessment. Respond ONLY with clinical findings:\n\nCLINICAL DATA - MEND:\n\n• Mental status: [alert/confused/obtunded]\n• Eyes: [gaze deviation, visual fields, pupils]\n• Neglect: [present/absent, which side]\n• Deficits - Speech: [normal/aphasia type]\n• Deficits - Motor: [face/arm/leg weakness, laterality]\n\nDo NOT respond as the patient. Just provide clinical findings."
     },
     pain: {
         name: "Pain Assessment",
@@ -76,7 +76,7 @@ const ASSESSMENT_PROMPTS = {
     },
     scene: {
         name: "Scene Assessment",
-        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is assessing the scene. Respond with third-person observations:\n\nSCENE FINDINGS:\n• Location/environment: [description]\n• Safety hazards: [any noted]\n• Clues: [medication boxes, medical equipment, alcohol, etc.]\n• Patient position: [how/where found]\n• Other people present: [who else is there]\n\nDo NOT respond as the patient. Describe what the paramedic would observe on arrival."
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is assessing the scene. Respond with third-person observations:\n\nSCENE FINDINGS:\n\n• Location/environment: [description]\n• Safety hazards: [any noted]\n• Clues: [medication boxes, medical equipment, alcohol, etc.]\n• Patient position: [how/where found]\n• Other people present: [who else is there]\n\nDo NOT respond as the patient. Describe what the paramedic would observe on arrival."
     }
 };
 

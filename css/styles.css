@@ -1477,3 +1477,44 @@ h1, h2, h3, h4, h5, h6 {
 .message-content li {
     margin-bottom: 0.3rem;
 } 
+
+/* -------------------- 
+   Compact Navigation Fix
+   -------------------- */
+.navbar {
+    padding: 0.5rem 0;  /* Reduced from 1rem */
+}
+
+.navbar .container {
+    flex-wrap: nowrap;  /* Prevent wrapping */
+}
+
+.navbar-nav {
+    flex-direction: row;  /* Keep items in a row */
+    align-items: center;
+    gap: 0.25rem;  /* Tighter spacing */
+}
+
+.navbar-nav .nav-link {
+    padding: 0.4rem 0.75rem;  /* Smaller padding */
+    white-space: nowrap;  /* Prevent text wrapping */
+}
+
+.navbar-brand .brand-text {
+    font-size: 1.25rem;  /* Slightly smaller logo */
+}
+
+/* Make the "Get Started" button smaller */
+.navbar-nav .btn {
+    padding: 0.4rem 0.875rem;
+    font-size: 0.875rem;
+}
+
+/* Ensure proper collapse on mobile */
+@media (max-width: 991.98px) {
+    .navbar-nav {
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 1rem 0;
+    }
+}
