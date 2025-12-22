@@ -41,6 +41,17 @@
                         </div>
                         
                         <form id="registerForm" class="auth-form">
+                        
+                        <div class="mb-3">
+    <label for="firstName" class="form-label">First Name</label>
+    <input type="text" class="form-control" id="firstName" required>
+</div>
+<div class="mb-3">
+    <label for="surname" class="form-label">Surname</label>
+    <input type="text" class="form-control" id="surname" required>
+</div>
+                        
+                        
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email address</label>
                                 <input type="email" class="form-control" id="email" placeholder="you@nhs.net" required>
@@ -243,10 +254,12 @@
     document.getElementById('registerForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-        const trust = document.getElementById('trust').value;
+        const firstName = document.getElementById('firstName').value.trim();
+const surname = document.getElementById('surname').value.trim();
+const email = document.getElementById('email').value.trim();
+const password = document.getElementById('password').value;
+const confirmPassword = document.getElementById('confirmPassword').value;
+const trust = document.getElementById('trust').value;
         
         // Clear previous messages
         document.getElementById('errorMessage').classList.add('d-none');
@@ -263,6 +276,17 @@
             showError('Password must be at least 8 characters long');
             return;
         }
+
+// Validate names
+if (!firstName) {
+    showError('Please enter your first name');
+    return;
+}
+if (!surname) {
+    showError('Please enter your surname');
+    return;
+}
+
 
         // Validate trust selection
         if (!trust) {
@@ -287,30 +311,34 @@
             console.log('Step 3: About to write to Firestore');
             
             // Save user data to Firestore
-            await setDoc(doc(db, 'users', user.uid), {
-                uid: user.uid,
-                email: email,
-                trust: trust,
-                trustFullName: trustFullName,
-                subscriptionStatus: 'free',
-                stripeCustomerId: null,
-                dailyMessageCount: 0,
-                lastMessageDate: null,
-                createdAt: new Date().toISOString()
-            });
+       await setDoc(doc(db, 'users', user.uid), {
+    uid: user.uid,
+    firstName: firstName,
+    surname: surname,
+    email: email,
+    trust: trust,
+    trustFullName: trustFullName,
+    subscriptionStatus: 'free',
+    stripeCustomerId: null,
+    dailyMessageCount: 0,
+    lastMessageDate: null,
+    createdAt: new Date().toISOString()
+});
             
             console.log('Step 4: Firestore document created!');
 
             // Save to localStorage as backup
             localStorage.setItem('paramind_user', JSON.stringify({
-                uid: user.uid,
-                email: email,
-                trust: trust,
-                trustFullName: trustFullName,
-                subscriptionStatus: 'free',
-                dailyMessageCount: 0,
-                lastMessageDate: null
-            }));
+    uid: user.uid,
+    firstName: firstName,
+    surname: surname,
+    email: email,
+    trust: trust,
+    trustFullName: trustFullName,
+    subscriptionStatus: 'free',
+    dailyMessageCount: 0,
+    lastMessageDate: null
+}));
 
             showSuccess('Account created successfully! Redirecting...');
             
