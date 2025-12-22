@@ -526,42 +526,61 @@ function showScenarioSubcategory(categoryId) {
     
     if (!category || !scenarios.length) return;
     
-    elements.subcategoryTitle.textContent = category.title + ' Scenarios';
-    elements.subcategoryDescription.textContent = 'Respond to incoming calls';
+    // Update title to "Dispatcher Screen" and subtitle to show topic
+    elements.subcategoryTitle.innerHTML = '<i class="bi bi-broadcast me-2"></i>Dispatcher Screen';
+    elements.subcategoryDescription.textContent = category.title + ' incidents outstanding';
     
-    // Build MDT-style cards
+    // Build dispatcher-style cards
     elements.scenarioList.innerHTML = scenarios.map((scenario, index) => {
         const d = scenario.dispatch;
-        const genderDisplay = d.gender === 'M' ? 'Male' : d.gender === 'F' ? 'Female' : '';
-        const ageDisplay = d.age ? `${d.age}y` : '';
-        const patientDisplay = d.name ? `${d.name} (${ageDisplay} ${genderDisplay})` : 'Multiple Patients';
-        const incidentNum = `INC-${Date.now().toString().slice(-6)}-${(index + 1).toString().padStart(2, '0')}`;
         
+        // Create patient info WITHOUT name - just age and sex
+        const genderDisplay = d.gender === 'M' ? 'Male' : d.gender === 'F' ? 'Female' : 'Unknown';
+        const ageDisplay = d.age ? `${d.age} years` : 'Unknown age';
+        const patientInfo = d.age ? `${ageDisplay}, ${genderDisplay}` : 'Multiple Patients';
+        
+        // Generate incident number
+        const incidentNum = `INC-${Date.now().toString().slice(-6)}-${(index + 1).toString().padStart(3, '0')}`;
+        
+        // Determine category class for styling
         const catClass = d.category === 1 ? 'cat-1' : d.category === 2 ? 'cat-2' : 'cat-3';
         
         return `
-            <div class="mdt-card" data-scenario-id="${scenario.id}">
-                <div class="mdt-header">
-                    <span class="mdt-incident">${incidentNum}</span>
-                    <span class="mdt-category ${catClass}">CAT ${d.category}</span>
+            <div class="dispatch-card" data-scenario-id="${scenario.id}">
+                <div class="dispatch-header">
+                    <span class="dispatch-incident-num">${incidentNum}</span>
+                    <span class="dispatch-category ${catClass}">CAT ${d.category}</span>
                 </div>
-                <div class="mdt-body">
-                    <div class="mdt-patient">${patientDisplay}</div>
-                    <div class="mdt-complaint">${d.chiefComplaint}</div>
-                    <div class="mdt-details">${d.details}</div>
+                <div class="dispatch-body">
+                    <div class="dispatch-row">
+                        <span class="dispatch-label">Patient:</span>
+                        <span class="dispatch-value">${patientInfo}</span>
+                    </div>
+                    <div class="dispatch-row">
+                        <span class="dispatch-label">Condition:</span>
+                        <span class="dispatch-value highlight">${d.chiefComplaint}</span>
+                    </div>
+                    <div class="dispatch-row">
+                        <span class="dispatch-label">Info:</span>
+                        <span class="dispatch-value">${d.details}</span>
+                    </div>
                 </div>
-                <div class="mdt-footer">
-                    <span class="mdt-status">AWAITING RESPONSE</span>
-                    <span class="mdt-respond"><i class="bi bi-chevron-right"></i></span>
+                <div class="dispatch-footer">
+                    <div class="dispatch-status">AWAITING RESOURCE</div>
+                    <button class="dispatch-btn" data-scenario-id="${scenario.id}">
+                        <i class="bi bi-truck"></i>
+                        Dispatch Resource
+                    </button>
                 </div>
             </div>
         `;
     }).join('');
     
-    // Add click listeners to MDT cards
-    elements.scenarioList.querySelectorAll('.mdt-card').forEach(card => {
-        card.addEventListener('click', () => {
-            const scenarioId = card.dataset.scenarioId;
+    // Add click listeners to the Dispatch Resource buttons
+    elements.scenarioList.querySelectorAll('.dispatch-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent card click
+            const scenarioId = btn.dataset.scenarioId;
             openScenarioModal(scenarioId);
         });
     });
