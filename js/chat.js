@@ -150,7 +150,7 @@ const elements = {
     upgradeLinkBanner: document.getElementById('upgradeLinkBanner')
 };
 
-// ==================== FIREBASE AUTH ====================
+// ==================== FIREBASE AUTH ==================== 
 
 let auth = null;
 let currentUser = null;
