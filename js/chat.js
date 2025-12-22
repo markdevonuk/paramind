@@ -139,10 +139,8 @@ const elements = {
     // Patient form
     patientForm: document.getElementById('patientForm'),
     
-    
     // Welcome name
-welcomeName: document.getElementById('welcomeName'),
-    
+    welcomeName: document.getElementById('welcomeName'),
     
     // Random scenario button
     randomScenarioBtn: document.getElementById('randomScenarioBtn'),
@@ -238,9 +236,9 @@ async function fetchUserProfile() {
         }
         
         // Display user's first name in welcome message
-if (elements.welcomeName && data.firstName) {
-    elements.welcomeName.textContent = ', ' + data.firstName;
-}
+        if (elements.welcomeName && data.firstName) {
+            elements.welcomeName.textContent = ', ' + data.firstName;
+        }
         
         updateMessageCounter();
         
@@ -252,14 +250,14 @@ if (elements.welcomeName && data.firstName) {
     } catch (error) {
         console.error('Error fetching user profile:', error);
         const cached = window.paramind.storage.getUser();
-       if (cached) {
-    chatState.userTrust = cached.trust || 'SWAST';
-    chatState.isPro = cached.subscriptionStatus === 'active';
-    // Show cached firstName if available
-    if (elements.welcomeName && cached.firstName) {
-        elements.welcomeName.textContent = ', ' + cached.firstName;
-    }
-}
+        if (cached) {
+            chatState.userTrust = cached.trust || 'SWAST';
+            chatState.isPro = cached.subscriptionStatus === 'active';
+            // Show cached firstName if available
+            if (elements.welcomeName && cached.firstName) {
+                elements.welcomeName.textContent = ', ' + cached.firstName;
+            }
+        }
     }
 }
 
@@ -459,13 +457,13 @@ function setupEventListeners() {
     }
     
     // Logout button
-const logoutBtn = document.getElementById('logoutBtn');
-if (logoutBtn) {
-    logoutBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        handleLogout();
-    });
-}
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            handleLogout();
+        });
+    }
     
     // Working impression button
     if (elements.workingImpressionBtn) {
@@ -509,8 +507,9 @@ function switchView(viewId) {
         hideScenarioSubcategory();
     }
     
-    // Reset chat to welcome screen when clicking Chat nav button
-    if (viewId === 'chatView') {
+    // Only reset chat when clicking Chat nav button AND not in a scenario
+    // This prevents clearing the scenario when starting one
+    if (viewId === 'chatView' && !chatState.currentScenario) {
         clearChat();
         if (elements.welcomeMessage) {
             elements.welcomeMessage.style.display = 'block';
@@ -624,18 +623,29 @@ function openScenarioModal(scenarioId) {
 function startScenario() {
     if (!chatState.currentScenario) return;
     
-    const scenario = window.scenarioData.getScenarioById(chatState.currentScenario);
+    // IMPORTANT: Save the scenario ID BEFORE any clearing happens
+    const scenarioId = chatState.currentScenario;
+    
+    const scenario = window.scenarioData.getScenarioById(scenarioId);
     if (!scenario) return;
     
     const modal = bootstrap.Modal.getInstance(elements.scenarioModal);
     modal.hide();
     
-    switchView('chatView');
+    // Clear chat messages without clearing the scenario
+    chatState.messages = [];
+    chatState.conversationHistory = [];
+    const messages = elements.chatMessages.querySelectorAll('.message, .alert, .assessment-indicator, .hint-indicator');
+    messages.forEach(msg => msg.remove());
     
-    const scenarioId = chatState.currentScenario;
-    clearChat();
-    resetScenarioProgress(); // Reset progress tracking for new scenario
+    // Reset progress tracking for new scenario
+    resetScenarioProgress();
+    
+    // Restore/set the scenario ID
     chatState.currentScenario = scenarioId;
+    
+    // Switch to chat view (won't clear because currentScenario is set)
+    switchView('chatView');
     
     if (elements.welcomeMessage) {
         elements.welcomeMessage.style.display = 'none';
@@ -689,11 +699,20 @@ function startRandomScenario() {
     const scenario = window.scenarioData.getRandomScenario();
     if (!scenario) return;
     
-    chatState.currentScenario = scenario.id;
+    // IMPORTANT: Save the scenario ID BEFORE any clearing happens
+    const scenarioId = scenario.id;
     
-    clearChat();
-    resetScenarioProgress(); // Reset progress tracking for new scenario
-    chatState.currentScenario = scenario.id;
+    // Clear chat messages without clearing the scenario
+    chatState.messages = [];
+    chatState.conversationHistory = [];
+    const messages = elements.chatMessages.querySelectorAll('.message, .alert, .assessment-indicator, .hint-indicator');
+    messages.forEach(msg => msg.remove());
+    
+    // Reset progress tracking for new scenario
+    resetScenarioProgress();
+    
+    // Set the scenario ID
+    chatState.currentScenario = scenarioId;
     
     if (elements.welcomeMessage) {
         elements.welcomeMessage.style.display = 'none';
@@ -732,7 +751,7 @@ function startRandomScenario() {
     
     chatState.conversationHistory.push({
         role: 'system',
-        content: window.scenarioData.getScenarioSystemPrompt(scenario.id)
+        content: window.scenarioData.getScenarioSystemPrompt(scenarioId)
     });
     
     // Show assessment toolbar and working impression button for scenarios
@@ -920,7 +939,20 @@ function hideAssessmentToolbar() {
 
 async function handleAssessment(assessmentType) {
     const assessment = ASSESSMENT_PROMPTS[assessmentType];
-    if (!assessment || !chatState.currentScenario) return;
+    if (!assessment) {
+        console.error('Unknown assessment type:', assessmentType);
+        return;
+    }
+    
+    if (!chatState.currentScenario) {
+        console.log('No active scenario for assessment');
+        // Show a message to the user
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-info mx-2 my-2';
+        alertDiv.innerHTML = `<i class="bi bi-info-circle me-2"></i>Start a scenario first to perform assessments.`;
+        elements.chatMessages.appendChild(alertDiv);
+        return;
+    }
     
     if (chatState.isLoading) return;
     
@@ -951,7 +983,7 @@ async function handleAssessment(assessmentType) {
         
         addMessage('assistant', response);
         chatState.conversationHistory.push({ role: 'assistant', content: response });
-   } catch (error) {
+    } catch (error) {
         hideLoading();
         handleChatError(error);
     }
@@ -961,6 +993,11 @@ async function handleAssessment(assessmentType) {
 
 async function handleHint() {
     if (!chatState.currentScenario) {
+        console.log('No active scenario for hint');
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-info mx-2 my-2';
+        alertDiv.innerHTML = `<i class="bi bi-info-circle me-2"></i>Start a scenario first to get hints.`;
+        elements.chatMessages.appendChild(alertDiv);
         return;
     }
     
@@ -1004,11 +1041,12 @@ async function handleHint() {
 }
 
 // ==================== YOUR PATIENT FORM ====================
-// ==================== YOUR PATIENT FORM ====================
 
 async function handlePatientForm(e) {
     e.preventDefault();
     
+    // Clear scenario state when using patient form
+    chatState.currentScenario = null;
     clearChat();
     
     const patientData = {
@@ -1257,7 +1295,7 @@ function clearChat() {
     chatState.conversationHistory = [];
     chatState.currentScenario = null;
     
-    const messages = elements.chatMessages.querySelectorAll('.message, .alert, .assessment-indicator');
+    const messages = elements.chatMessages.querySelectorAll('.message, .alert, .assessment-indicator, .hint-indicator');
     messages.forEach(msg => msg.remove());
     
     // Hide toolbars when clearing chat
