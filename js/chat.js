@@ -188,6 +188,23 @@ async function getAuthToken() {
     throw new Error('Not authenticated');
 }
 
+async function handleLogout() {
+    try {
+        const { signOut } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+        await signOut(auth);
+        
+        // Clear localStorage
+        localStorage.removeItem('paramind_user');
+        
+        // Redirect to login page
+        window.location.href = 'login.html';
+    } catch (error) {
+        console.error('Logout error:', error);
+        // Even if there's an error, try to redirect
+        window.location.href = 'login.html';
+    }
+}
+
 // ==================== API FUNCTIONS ====================
 
 async function fetchUserProfile() {
@@ -426,6 +443,15 @@ function setupEventListeners() {
             createCheckoutSession();
         });
     }
+    
+    // Logout button
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        handleLogout();
+    });
+}
     
     // Working impression button
     if (elements.workingImpressionBtn) {
