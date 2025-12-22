@@ -1478,7 +1478,7 @@ Triggered ONLY when the learner message begins with:
 When you see "[DEBRIEF MODE]" at the start of a message, immediately switch to DEBRIEF mode. The learner has submitted their working impression and is ready for feedback.
 
 In DEBRIEF:
-- Confirm if their diagnosis matches ${p.condition}.
+- Confirm if their diagnosis matches ${p.condition}. If it does, confirm this and make a big thing of it, use words like Congratulations, You smashed it, Perfecto! , if not you can use language like "You missed the correct working impression this time but let's look closer"
 - Give structured feedback:
   1) What they did well (2–4 bullets)
   2) Key missed questions/exams (2–4 bullets)
