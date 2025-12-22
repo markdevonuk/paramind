@@ -173,12 +173,14 @@
         "YAS": "Yorkshire Ambulance Service NHS Trust"
     };
 
-    // Check if user is already logged in
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            window.location.href = 'chat.html';
-        }
-    });
+  // Check if user is already logged in (but not during registration)
+let isRegistering = false;
+
+onAuthStateChanged(auth, (user) => {
+    if (user && !isRegistering) {
+        window.location.href = 'chat.html';
+    }
+});
 
     // Toggle password visibility
     document.getElementById('togglePassword').addEventListener('click', function() {
@@ -293,7 +295,7 @@ if (!surname) {
             showError('Please select your ambulance trust');
             return;
         }
-
+isRegistering = true;
         setLoading(true);
 
     try {
