@@ -174,12 +174,17 @@ exports.chat = onRequest(
       // Build system prompt based on user's trust
       const systemPrompt = buildSystemPrompt(user.trust, user.trustFullName);
 
-      // Build messages array for OpenAI
-      const messages = [
-        { role: "system", content: systemPrompt },
-        ...conversationHistory.slice(-10), // Keep last 10 messages for context
-        { role: "user", content: message },
-      ];
+   // Build messages array for OpenAI
+// Filter out any messages with null/undefined content
+const validHistory = conversationHistory
+    .slice(-10)
+    .filter(msg => msg && msg.content && msg.role !== 'system'); // Also filter out client-side system messages
+
+const messages = [
+    { role: "system", content: systemPrompt },
+    ...validHistory,
+    { role: "user", content: message },
+];
 
       // Call OpenAI API
       const completion = await openai.chat.completions.create({
