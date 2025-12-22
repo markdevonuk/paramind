@@ -213,14 +213,16 @@
                         const userData = userDoc.data();
                         // Cache user data in localStorage
                         localStorage.setItem('paramind_user', JSON.stringify({
-                            uid: user.uid,
-                            email: userData.email,
-                            trust: userData.trust,
-                            trustFullName: userData.trustFullName,
-                            subscriptionStatus: userData.subscriptionStatus,
-                            dailyMessageCount: userData.dailyMessageCount || 0,
-                            lastMessageDate: userData.lastMessageDate
-                        }));
+    uid: user.uid,
+    firstName: userData.firstName || null,
+    surname: userData.surname || null,
+    email: userData.email,
+    trust: userData.trust,
+    trustFullName: userData.trustFullName,
+    subscriptionStatus: userData.subscriptionStatus,
+    dailyMessageCount: userData.dailyMessageCount || 0,
+    lastMessageDate: userData.lastMessageDate
+}));
                         console.log('User data cached from Firestore');
                     }
                 } catch (firestoreError) {

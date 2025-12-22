@@ -139,6 +139,11 @@ const elements = {
     // Patient form
     patientForm: document.getElementById('patientForm'),
     
+    
+    // Welcome name
+welcomeName: document.getElementById('welcomeName'),
+    
+    
     // Random scenario button
     randomScenarioBtn: document.getElementById('randomScenarioBtn'),
     
@@ -232,6 +237,11 @@ async function fetchUserProfile() {
             elements.userTrust.textContent = data.trust;
         }
         
+        // Display user's first name in welcome message
+if (elements.welcomeName && data.firstName) {
+    elements.welcomeName.textContent = ', ' + data.firstName;
+}
+        
         updateMessageCounter();
         
         if (chatState.isPro && elements.messageLimitBanner) {
@@ -242,10 +252,14 @@ async function fetchUserProfile() {
     } catch (error) {
         console.error('Error fetching user profile:', error);
         const cached = window.paramind.storage.getUser();
-        if (cached) {
-            chatState.userTrust = cached.trust || 'SWAST';
-            chatState.isPro = cached.subscriptionStatus === 'active';
-        }
+       if (cached) {
+    chatState.userTrust = cached.trust || 'SWAST';
+    chatState.isPro = cached.subscriptionStatus === 'active';
+    // Show cached firstName if available
+    if (elements.welcomeName && cached.firstName) {
+        elements.welcomeName.textContent = ', ' + cached.firstName;
+    }
+}
     }
 }
 

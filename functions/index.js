@@ -233,15 +233,17 @@ exports.user = onRequest({ cors: true }, async (req, res) => {
     // Check message limit status
     const limitCheck = await checkMessageLimit(user);
 
-    return res.status(200).json({
-      uid: user.id,
-      email: user.email,
-      trust: user.trust,
-      trustFullName: user.trustFullName,
-      subscriptionStatus: user.subscriptionStatus,
-      messagesRemaining: limitCheck.remaining,
-      isPro: user.subscriptionStatus === "active",
-    });
+return res.status(200).json({
+    uid: user.id,
+    firstName: user.firstName || null,
+    surname: user.surname || null,
+    email: user.email,
+    trust: user.trust,
+    trustFullName: user.trustFullName,
+    subscriptionStatus: user.subscriptionStatus,
+    messagesRemaining: limitCheck.remaining,
+    isPro: user.subscriptionStatus === "active",
+});
 
   } catch (error) {
     console.error("User fetch error:", error);
