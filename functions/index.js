@@ -164,26 +164,18 @@ exports.chat = onRequest(
         });
       }
 
-      // Get message and conversation history from request
-      const { message, conversationHistory = [] } = req.body;
+  // Get message, conversation history, and scenario prompt from request
+      const { message, conversationHistory = [], scenarioPrompt } = req.body;
 
       if (!message || typeof message !== "string") {
         return res.status(400).json({ error: "Message is required" });
       }
 
-      // Build system prompt based on user's trust
-// Check if frontend sent a scenario system prompt in the conversation history
-      const scenarioSystemMessage = conversationHistory.find(
-        msg => msg && msg.role === 'system' && msg.content
-      );
-
-      // Use scenario prompt if present, otherwise use default trust prompt
-      const systemPrompt = scenarioSystemMessage 
-        ? scenarioSystemMessage.content 
-        : buildSystemPrompt(user.trust, user.trustFullName);
+      // Use scenario prompt if provided, otherwise use default trust prompt
+      const systemPrompt = scenarioPrompt || buildSystemPrompt(user.trust, user.trustFullName);
 
       // Build messages array for OpenAI
-      // Filter out any messages with null/undefined content AND system messages (we handle system prompt separately)
+      // Filter out any messages with null/undefined content and system messages
       const validHistory = conversationHistory
         .slice(-10)
         .filter(msg => msg && msg.content && msg.role !== 'system');

@@ -264,6 +264,11 @@ async function fetchUserProfile() {
 async function sendMessageToAPI(message) {
     const token = await getAuthToken();
     
+    // Get scenario system prompt if in a scenario
+    const scenarioPrompt = chatState.currentScenario 
+        ? window.scenarioData.getScenarioSystemPrompt(chatState.currentScenario)
+        : null;
+    
     const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}${window.paramind.CONFIG.api.chat}`, {
         method: 'POST',
         headers: {
@@ -272,8 +277,9 @@ async function sendMessageToAPI(message) {
         },
         body: JSON.stringify({
             message: message,
-            conversationHistory: chatState.conversationHistory.slice(-10),
-            scenarioId: chatState.currentScenario || null
+            conversationHistory: chatState.conversationHistory.slice(-10).filter(m => m.role !== 'system'),
+            scenarioId: chatState.currentScenario || null,
+            scenarioPrompt: scenarioPrompt
         })
     });
     
