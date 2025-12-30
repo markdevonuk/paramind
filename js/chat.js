@@ -1657,6 +1657,19 @@ async function deleteCpdRecord(recordId) {
 /**
  * Download a CPD certificate as PDF
  */
+
+
+/**
+ * FIXED CERTIFICATE FUNCTIONS
+ * 
+ * Replace BOTH of these functions in your chat.js
+ */
+
+// =====================================================
+// FUNCTION 1: downloadCpdCertificate
+// Find and replace the existing function with this one
+// =====================================================
+
 async function downloadCpdCertificate(recordId) {
     try {
         const token = await getAuthToken();
@@ -1681,13 +1694,34 @@ async function downloadCpdCertificate(recordId) {
             throw new Error('Record not found');
         }
         
-        // Get user info from cache
-        const cachedUser = window.paramind.storage.getUser();
-        const userName = cachedUser ? 
-            `${cachedUser.firstName || ''} ${cachedUser.surname || ''}`.trim() || cachedUser.email : 
-            'Paramind User';
+        // FIXED: Better user name retrieval
+        let userName = 'Paramind User';
         
-        // Generate PDF using jsPDF
+        // Try getting from cache first
+        const cachedUser = window.paramind.storage.getUser();
+        if (cachedUser) {
+            // Try different possible field name formats
+            const firstName = cachedUser.firstName || cachedUser.firstname || cachedUser.first_name || '';
+            const lastName = cachedUser.surname || cachedUser.lastName || cachedUser.lastname || cachedUser.last_name || '';
+            const fullName = `${firstName} ${lastName}`.trim();
+            
+            if (fullName) {
+                userName = fullName;
+            } else if (cachedUser.displayName) {
+                userName = cachedUser.displayName;
+            } else if (cachedUser.name) {
+                userName = cachedUser.name;
+            }
+        }
+        
+        // If still default, try getting from Firebase Auth
+        if (userName === 'Paramind User' && currentUser) {
+            if (currentUser.displayName) {
+                userName = currentUser.displayName;
+            }
+        }
+        
+        // Generate PDF
         generateCertificatePdf(record, userName);
         
     } catch (error) {
@@ -1696,9 +1730,12 @@ async function downloadCpdCertificate(recordId) {
     }
 }
 
-/**
- * Generate the certificate PDF using jsPDF
- */
+
+// =====================================================
+// FUNCTION 2: generateCertificatePdf
+// Find and replace the existing function with this one
+// =====================================================
+
 function generateCertificatePdf(record, userName) {
     const { jsPDF } = window.jspdf;
     
@@ -1775,18 +1812,23 @@ function generateCertificatePdf(record, userName) {
     doc.setFont('helvetica', 'normal');
     doc.text(`Scenario Reference: ${record.scenarioCode}`, centerX, 125, { align: 'center' });
     
-    // Result box
+    // Result box - FIXED: Wider pill, smaller font
     const resultColor = record.result === 'correct' ? green : 
                        record.result === 'partially_correct' ? [240, 173, 78] : [217, 83, 79];
     const resultText = record.result === 'correct' ? 'CORRECT' : 
                       record.result === 'partially_correct' ? 'PARTIALLY CORRECT' : 'INCORRECT';
     
+    const pillWidth = 80;
+    const pillHeight = 10;
+    const pillX = centerX - (pillWidth / 2);
+    const pillY = 132;
+    
     doc.setFillColor(...resultColor);
-    doc.roundedRect(centerX - 30, 132, 60, 12, 3, 3, 'F');
-    doc.setFontSize(10);
+    doc.roundedRect(pillX, pillY, pillWidth, pillHeight, 3, 3, 'F');
+    doc.setFontSize(9);
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
-    doc.text(`ASSESSMENT: ${resultText}`, centerX, 140, { align: 'center' });
+    doc.text(`ASSESSMENT: ${resultText}`, centerX, pillY + 7, { align: 'center' });
     
     // Date
     const completedDate = record.completedAt ? 
@@ -1801,30 +1843,29 @@ function generateCertificatePdf(record, userName) {
     doc.setFont('helvetica', 'normal');
     doc.text(`Completed on: ${completedDate}`, centerX, 155, { align: 'center' });
     
-    // Logo text
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...teal);
-    doc.text('para', centerX - 15, 180, { align: 'center' });
-    doc.setTextColor(...green);
-    doc.text('mind', centerX + 12, 180, { align: 'center' });
-    
-    // Website
-    doc.setFontSize(9);
-    doc.setTextColor(...gray);
-    doc.setFont('helvetica', 'normal');
-    doc.text('www.paramind.co.uk', centerX, 188, { align: 'center' });
-    
     // Signature line
     doc.setDrawColor(...gray);
     doc.setLineWidth(0.3);
-    doc.line(centerX - 40, 175, centerX + 40, 175);
+    doc.line(centerX - 40, 172, centerX + 40, 172);
     
-    // Disclaimer
+    // Signature label
+    doc.setFontSize(8);
+    doc.setTextColor(...gray);
+    doc.text('Paramind Educational Platform', centerX, 177, { align: 'center' });
+    
+    // Logo - FIXED: No gap between para and mind
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...teal);
+    doc.text('para', centerX - 10, 188, { align: 'right' });
+    doc.setTextColor(...green);
+    doc.text('mind', centerX - 10, 188, { align: 'left' });
+    
+    // Disclaimer - FIXED: Single line only
     doc.setFontSize(7);
     doc.setTextColor(150, 150, 150);
-    doc.text('This certificate is issued for educational purposes and records completion of a simulated clinical scenario.', centerX, 195, { align: 'center' });
-    doc.text('It does not constitute formal accreditation or replace official CPD from approved providers.', centerX, 199, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.text('This certificate is issued for educational purposes and records completion of a simulated clinical scenario.', centerX, 196, { align: 'center' });
     
     // Save the PDF
     const fileName = `CPD_Certificate_${record.scenarioCode}_${completedDate.replace(/\s/g, '_')}.pdf`;
