@@ -1,6 +1,7 @@
 /**
  * PARAMIND - Cloud Functions
  * Backend API for the Paramind paramedic learning platform
+ * WITH CPD PORTFOLIO FEATURE
  */
 
 const { onRequest } = require("firebase-functions/v2/https");
@@ -567,6 +568,175 @@ exports.deleteConversation = onRequest({ cors: true }, async (req, res) => {
 
   } catch (error) {
     console.error("Delete conversation error:", error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// CPD PORTFOLIO FUNCTIONS
+// ============================================
+
+/**
+ * POST /saveCpdRecord
+ * Save a CPD record for a completed scenario
+ */
+exports.saveCpdRecord = onRequest({ cors: true }, async (req, res) => {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  try {
+    const uid = await verifyAuth(req);
+    const user = await getUser(uid);
+
+    // Only paid users can save CPD records
+    if (user.subscriptionStatus !== "active") {
+      return res.status(403).json({
+        error: "Pro subscription required",
+        message: "Upgrade to Pro to save CPD records",
+      });
+    }
+
+    const {
+      scenarioId,
+      scenarioCode,
+      scenarioType,
+      scenarioCategory,
+      patientName,
+      chiefComplaint,
+      correctDiagnosis,
+      userImpression,
+      result,
+      questionsAsked,
+      assessmentsPerformed
+    } = req.body;
+
+    // Validate required fields
+    if (!scenarioId || !userImpression || !result) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Validate result value
+    const validResults = ['correct', 'partially_correct', 'incorrect'];
+    if (!validResults.includes(result)) {
+      return res.status(400).json({ error: "Invalid result value" });
+    }
+
+    // Create CPD record document
+    const cpdRecordRef = await db
+      .collection("users")
+      .doc(uid)
+      .collection("cpdRecords")
+      .add({
+        scenarioId,
+        scenarioCode: scenarioCode || 'N/A',
+        scenarioType: scenarioType || 'Unknown',
+        scenarioCategory: scenarioCategory || 'unknown',
+        patientName: patientName || 'Unknown',
+        chiefComplaint: chiefComplaint || 'N/A',
+        correctDiagnosis: correctDiagnosis || 'N/A',
+        userImpression,
+        result,
+        questionsAsked: questionsAsked || 0,
+        assessmentsPerformed: assessmentsPerformed || 0,
+        completedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+    return res.status(200).json({
+      success: true,
+      recordId: cpdRecordRef.id,
+    });
+
+  } catch (error) {
+    console.error("Save CPD record error:", error);
+
+    if (error.message.includes("Unauthorized")) {
+      return res.status(401).json({ error: error.message });
+    }
+
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /getCpdRecords
+ * Get all CPD records for a user
+ */
+exports.getCpdRecords = onRequest({ cors: true }, async (req, res) => {
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  try {
+    const uid = await verifyAuth(req);
+
+    const cpdRecordsSnapshot = await db
+      .collection("users")
+      .doc(uid)
+      .collection("cpdRecords")
+      .orderBy("completedAt", "desc")
+      .limit(100)
+      .get();
+
+    const records = cpdRecordsSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return res.status(200).json({ records });
+
+  } catch (error) {
+    console.error("Get CPD records error:", error);
+
+    if (error.message.includes("Unauthorized")) {
+      return res.status(401).json({ error: error.message });
+    }
+
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * DELETE /deleteCpdRecord
+ * Delete a CPD record
+ */
+exports.deleteCpdRecord = onRequest({ cors: true }, async (req, res) => {
+  if (req.method !== "DELETE") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  try {
+    const uid = await verifyAuth(req);
+    const recordId = req.query.id;
+
+    if (!recordId) {
+      return res.status(400).json({ error: "Record ID is required" });
+    }
+
+    // Verify the record belongs to the user
+    const recordRef = db
+      .collection("users")
+      .doc(uid)
+      .collection("cpdRecords")
+      .doc(recordId);
+
+    const recordDoc = await recordRef.get();
+    
+    if (!recordDoc.exists) {
+      return res.status(404).json({ error: "Record not found" });
+    }
+
+    await recordRef.delete();
+
+    return res.status(200).json({ success: true });
+
+  } catch (error) {
+    console.error("Delete CPD record error:", error);
+
+    if (error.message.includes("Unauthorized")) {
+      return res.status(401).json({ error: error.message });
+    }
+
     return res.status(500).json({ error: error.message });
   }
 });

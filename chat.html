@@ -526,9 +526,6 @@
     animation: blink 1s infinite;
 }
 
-
-
-
         
 /* Fix bullet list overflow in chat messages */
 .message-content ul,
@@ -545,6 +542,260 @@
 .message.assistant .message-content ul,
 .message.assistant .message-content ol {
     padding-left: 1.2rem !important;
+}
+
+/* ==================== CPD PORTFOLIO STYLES ==================== */
+
+/* Pro Lock Overlay */
+.cpd-pro-lock {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.98);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    padding: 20px;
+}
+
+.cpd-pro-lock.hidden {
+    display: none;
+}
+
+.cpd-pro-lock-content {
+    text-align: center;
+    max-width: 400px;
+}
+
+.cpd-lock-icon {
+    font-size: 4rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+.cpd-pro-lock-content h3 {
+    color: #1a1a2e;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.cpd-pro-lock-content p {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+}
+
+.cpd-pro-features {
+    margin-top: 1.5rem;
+    text-align: left;
+}
+
+.cpd-pro-feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.cpd-pro-feature i {
+    color: #5CB85C;
+    font-size: 1.1rem;
+}
+
+/* Empty State */
+.cpd-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+.cpd-empty-state.hidden {
+    display: none;
+}
+
+.cpd-empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.cpd-empty-state h3 {
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.cpd-empty-state p {
+    margin-bottom: 1.5rem;
+}
+
+/* CPD Records List */
+.cpd-list {
+    padding: 0 10px;
+}
+
+.cpd-list.hidden {
+    display: none;
+}
+
+/* Individual CPD Record Card */
+.cpd-record {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
+}
+
+.cpd-record:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.cpd-record-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.cpd-record-date {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.cpd-record-result {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.cpd-record-result.correct {
+    background: rgba(92, 184, 92, 0.15);
+    color: #3d8b3d;
+}
+
+.cpd-record-result.partially-correct {
+    background: rgba(240, 173, 78, 0.15);
+    color: #c77c00;
+}
+
+.cpd-record-result.incorrect {
+    background: rgba(217, 83, 79, 0.15);
+    color: #c9302c;
+}
+
+.cpd-record-title {
+    font-weight: 600;
+    color: #1a1a2e;
+    font-size: 1rem;
+    margin-bottom: 4px;
+}
+
+.cpd-record-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-bottom: 8px;
+}
+
+.cpd-record-impression {
+    font-size: 0.85rem;
+    color: #495057;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    margin-bottom: 12px;
+}
+
+.cpd-record-impression strong {
+    color: #1a1a2e;
+}
+
+.cpd-record-stats {
+    display: flex;
+    gap: 16px;
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-bottom: 12px;
+}
+
+.cpd-record-stat {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.cpd-record-stat i {
+    color: #2B8A9C;
+}
+
+.cpd-record-actions {
+    display: flex;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid #e9ecef;
+}
+
+.cpd-record-actions .btn {
+    flex: 1;
+    font-size: 0.85rem;
+    padding: 8px 12px;
+}
+
+.cpd-record-actions .btn-outline-primary {
+    border-color: #2B8A9C;
+    color: #2B8A9C;
+}
+
+.cpd-record-actions .btn-outline-primary:hover {
+    background: #2B8A9C;
+    color: white;
+}
+
+.cpd-record-actions .btn-outline-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.cpd-record-actions .btn-outline-danger:hover {
+    background: #dc3545;
+    color: white;
+}
+
+/* Loading state for CPD */
+.cpd-loading {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+}
+
+.cpd-loading .spinner-border {
+    width: 2rem;
+    height: 2rem;
+    margin-bottom: 1rem;
+}
+
+/* Mobile adjustments for CPD */
+@media (max-width: 576px) {
+    .cpd-record-actions {
+        flex-direction: column;
+    }
+    
+    .cpd-record-stats {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .cpd-pro-lock-content {
+        padding: 0 10px;
+    }
 }
     </style>
 </head>
@@ -677,8 +928,6 @@
                         </div>
                     </form>
                     
-            
-
                     <!-- Working Impression Button - AT BOTTOM -->
                     <div class="working-impression-toolbar" id="workingImpressionToolbar" style="display: none;">
                         <button class="btn w-100" id="workingImpressionBtn">
@@ -725,6 +974,65 @@
             </div>
         </div>
         <!-- ==================== END SCENARIOS VIEW ==================== -->
+
+        <!-- ==================== CPD PORTFOLIO VIEW ==================== -->
+        <div id="cpdView" class="content-view">
+            <div class="section-view">
+                <div class="section-header">
+                    <h1><i class="bi bi-award me-2"></i>CPD Portfolio</h1>
+                    <p>Your completed learning scenarios and certificates</p>
+                </div>
+                
+                <!-- Pro Lock Overlay (shown to free users) -->
+                <div class="cpd-pro-lock" id="cpdProLock">
+                    <div class="cpd-pro-lock-content">
+                        <i class="bi bi-lock-fill cpd-lock-icon"></i>
+                        <h3>CPD Portfolio is a Pro Feature</h3>
+                        <p>Upgrade to Pro to track your learning progress and download CPD certificates for completed scenarios.</p>
+                        <button class="btn btn-primary btn-lg" onclick="createCheckoutSession()">
+                            <i class="bi bi-star me-2"></i>Upgrade to Pro - £4.99/month
+                        </button>
+                        <div class="cpd-pro-features">
+                            <div class="cpd-pro-feature">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>Track all completed scenarios</span>
+                            </div>
+                            <div class="cpd-pro-feature">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>Download CPD certificates</span>
+                            </div>
+                            <div class="cpd-pro-feature">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>Unlimited messages</span>
+                            </div>
+                            <div class="cpd-pro-feature">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>Save conversations</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- CPD Content (shown to Pro users) -->
+                <div class="section-content" id="cpdContent">
+                    <!-- Empty State -->
+                    <div class="cpd-empty-state" id="cpdEmptyState">
+                        <i class="bi bi-journal-medical"></i>
+                        <h3>No CPD Records Yet</h3>
+                        <p>Complete a scenario and submit your working impression to earn your first CPD record.</p>
+                        <button class="btn btn-primary" onclick="switchView('scenariosView')">
+                            <i class="bi bi-mortarboard me-2"></i>Browse Scenarios
+                        </button>
+                    </div>
+                    
+                    <!-- CPD Records List -->
+                    <div class="cpd-list" id="cpdList">
+                        <!-- CPD records will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ==================== END CPD PORTFOLIO VIEW ==================== -->
 
         <!-- ==================== YOUR PATIENT VIEW ==================== -->
         <div id="patientView" class="content-view">
@@ -826,7 +1134,7 @@
     </div>
     <!-- ==================== END MAIN CONTENT CONTAINER ==================== -->
 
-    <!-- Bottom Navigation (3 items now - differentials removed) -->
+    <!-- Bottom Navigation (4 items with CPD) -->
     <nav class="bottom-nav">
         <div class="nav-item-wrapper">
             <button class="nav-item active" data-view="chatView">
@@ -838,6 +1146,12 @@
             <button class="nav-item" data-view="scenariosView">
                 <i class="bi bi-mortarboard"></i>
                 <span>Scenarios</span>
+            </button>
+        </div>
+        <div class="nav-item-wrapper">
+            <button class="nav-item" data-view="cpdView">
+                <i class="bi bi-award"></i>
+                <span>CPD</span>
             </button>
         </div>
         <div class="nav-item-wrapper">
@@ -921,6 +1235,9 @@
         </div>
     </div>
 
+    <!-- jsPDF for certificate generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/app.js"></script>

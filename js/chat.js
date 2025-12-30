@@ -2,6 +2,7 @@
    PARAMIND - Chat Functionality
    Connected to Firebase Backend
    Scenarios loaded from scenarios.js
+   WITH CPD PORTFOLIO FEATURE
    ============================================ */
 
 // ==================== STATE ====================
@@ -87,6 +88,7 @@ const elements = {
     chatView: document.getElementById('chatView'),
     scenariosView: document.getElementById('scenariosView'),
     patientView: document.getElementById('patientView'),
+    cpdView: document.getElementById('cpdView'),
     
     // Chat elements
     chatMessages: document.getElementById('chatMessages'),
@@ -147,7 +149,13 @@ const elements = {
     
     // Upgrade buttons
     upgradeBtn: document.getElementById('upgradeBtn'),
-    upgradeLinkBanner: document.getElementById('upgradeLinkBanner')
+    upgradeLinkBanner: document.getElementById('upgradeLinkBanner'),
+    
+    // CPD Portfolio elements
+    cpdList: document.getElementById('cpdList'),
+    cpdEmptyState: document.getElementById('cpdEmptyState'),
+    cpdProLock: document.getElementById('cpdProLock'),
+    cpdContent: document.getElementById('cpdContent')
 };
 
 // ==================== FIREBASE AUTH ==================== 
@@ -241,6 +249,7 @@ async function fetchUserProfile() {
         }
         
         updateMessageCounter();
+        updateCpdProLock();
         
         if (chatState.isPro && elements.messageLimitBanner) {
             elements.messageLimitBanner.style.display = 'none';
@@ -257,6 +266,7 @@ async function fetchUserProfile() {
             if (elements.welcomeName && cached.firstName) {
                 elements.welcomeName.textContent = ', ' + cached.firstName;
             }
+            updateCpdProLock();
         }
     }
 }
@@ -498,23 +508,31 @@ function switchView(viewId) {
         item.classList.toggle('active', item.dataset.view === viewId);
     });
     
-    document.querySelectorAll('.content-view').forEach(view => {
-        view.classList.remove('active');
+    // Get all content views including the new CPD view
+    const views = ['chatView', 'scenariosView', 'patientView', 'cpdView'];
+    views.forEach(vId => {
+        const view = document.getElementById(vId);
+        if (view) {
+            view.classList.toggle('active', vId === viewId);
+        }
     });
-    
-    const targetView = document.getElementById(viewId);
-    if (targetView) {
-        targetView.classList.add('active');
-    }
     
     chatState.currentView = viewId;
     
-    if (viewId === 'scenariosView') {
+    // Reset scenarios subcategory when leaving scenarios view
+    if (viewId !== 'scenariosView') {
         hideScenarioSubcategory();
     }
     
+    // Load CPD records when opening CPD view
+    if (viewId === 'cpdView') {
+        updateCpdProLock();
+        if (chatState.isPro) {
+            loadCpdRecords();
+        }
+    }
+    
     // Only reset chat when clicking Chat nav button AND not in a scenario
-    // This prevents clearing the scenario when starting one
     if (viewId === 'chatView' && !chatState.currentScenario) {
         clearChat();
         if (elements.welcomeMessage) {
@@ -595,8 +613,12 @@ function showScenarioSubcategory(categoryId) {
 }
 
 function hideScenarioSubcategory() {
-    elements.scenarioCategories.style.display = 'block';
-    elements.scenarioSubcategory.style.display = 'none';
+    if (elements.scenarioCategories) {
+        elements.scenarioCategories.style.display = 'block';
+    }
+    if (elements.scenarioSubcategory) {
+        elements.scenarioSubcategory.style.display = 'none';
+    }
 }
 
 function openScenarioModal(scenarioId) {
@@ -889,6 +911,9 @@ async function submitWorkingImpression() {
     
     const reasoning = elements.impressionReasoning.value.trim();
     
+    // Store the scenario ID before we clear it
+    const completedScenarioId = chatState.currentScenario;
+    
     // Close the modal
     const modal = bootstrap.Modal.getInstance(elements.workingImpressionModal);
     modal.hide();
@@ -920,6 +945,51 @@ async function submitWorkingImpression() {
         hideLoading();
         addMessage('assistant', response);
         chatState.conversationHistory.push({ role: 'assistant', content: response });
+        
+        // === CPD PORTFOLIO: Save record for Pro users ===
+        if (chatState.isPro && completedScenarioId) {
+            // Parse the result from the AI's response
+            const result = parseDebriefResult(response);
+            
+            // Save the CPD record
+            const recordId = await saveCpdRecord(completedScenarioId, impression, result);
+            
+            if (recordId) {
+                // Show success notification
+                const successDiv = document.createElement('div');
+                successDiv.className = 'alert alert-success mx-2 my-2';
+                successDiv.style.cssText = 'border-left: 4px solid #5CB85C;';
+                successDiv.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-award me-2"></i>
+                        <div>
+                            <strong>CPD Record Saved!</strong>
+                            <div class="small">View and download your certificate in the CPD Portfolio.</div>
+                        </div>
+                    </div>
+                `;
+                elements.chatMessages.appendChild(successDiv);
+                successDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        } else if (!chatState.isPro && completedScenarioId) {
+            // Show upgrade prompt for free users
+            const upgradeDiv = document.createElement('div');
+            upgradeDiv.className = 'alert alert-info mx-2 my-2';
+            upgradeDiv.style.cssText = 'border-left: 4px solid #17a2b8;';
+            upgradeDiv.innerHTML = `
+                <div class="d-flex align-items-start">
+                    <i class="bi bi-star me-2 mt-1"></i>
+                    <div>
+                        <strong>Upgrade to Pro for CPD Tracking</strong>
+                        <div class="small mb-2">Save this scenario to your CPD Portfolio and download a certificate!</div>
+                        <button class="btn btn-primary btn-sm" onclick="createCheckoutSession()">
+                            <i class="bi bi-star me-1"></i>Upgrade Now - £4.99/month
+                        </button>
+                    </div>
+                </div>
+            `;
+            elements.chatMessages.appendChild(upgradeDiv);
+        }
         
         // Clear the scenario state after debrief
         chatState.currentScenario = null;
@@ -1313,8 +1383,477 @@ function scrollToBottom() {
     elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
 }
 
-// Make createCheckoutSession available globally
+// ==================== CPD PORTFOLIO FUNCTIONS ====================
+
+/**
+ * Save a CPD record after scenario completion
+ */
+async function saveCpdRecord(scenarioId, userImpression, result) {
+    if (!chatState.isPro) {
+        console.log('CPD records only saved for Pro users');
+        return null;
+    }
+    
+    try {
+        const token = await getAuthToken();
+        const scenario = window.scenarioData.getScenarioById(scenarioId);
+        
+        if (!scenario) {
+            console.error('Scenario not found:', scenarioId);
+            return null;
+        }
+        
+        const cpdData = {
+            scenarioId: scenarioId,
+            scenarioCode: generateJobCode(scenario),
+            scenarioType: formatScenarioType(scenario),
+            scenarioCategory: scenario.category,
+            patientName: scenario.dispatch.name || 'Unknown',
+            chiefComplaint: scenario.dispatch.chiefComplaint,
+            correctDiagnosis: scenario.patient.condition,
+            userImpression: userImpression,
+            result: result,
+            questionsAsked: chatState.scenarioProgress.questionsAsked,
+            assessmentsPerformed: chatState.scenarioProgress.assessmentsPerformed
+        };
+        
+        const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}/saveCpdRecord`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(cpdData)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to save CPD record');
+        }
+        
+        const data = await response.json();
+        console.log('CPD record saved:', data.recordId);
+        return data.recordId;
+        
+    } catch (error) {
+        console.error('Error saving CPD record:', error);
+        return null;
+    }
+}
+
+/**
+ * Generate a job code for the scenario
+ */
+function generateJobCode(scenario) {
+    const category = scenario.category.toUpperCase().substring(0, 3);
+    const id = scenario.id.split('-')[1] || '001';
+    const date = new Date();
+    const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '');
+    return `${category}-${dateStr}-${id}`;
+}
+
+/**
+ * Format the scenario type for display
+ */
+function formatScenarioType(scenario) {
+    const categoryInfo = window.scenarioData.SCENARIO_CATEGORIES[scenario.category];
+    const categoryTitle = categoryInfo ? categoryInfo.title : scenario.category;
+    return `${categoryTitle}: ${scenario.dispatch.chiefComplaint}`;
+}
+
+/**
+ * Parse the AI's debrief response to determine the result
+ */
+function parseDebriefResult(response) {
+    const responseUpper = response.toUpperCase();
+    
+    if (responseUpper.includes('VERDICT: CORRECT') || 
+        responseUpper.includes('VERDICT:**CORRECT') ||
+        responseUpper.includes('VERDICT: **CORRECT')) {
+        return 'correct';
+    }
+    
+    if (responseUpper.includes('PARTIALLY CORRECT') || 
+        responseUpper.includes('PARTIAL')) {
+        return 'partially_correct';
+    }
+    
+    if (responseUpper.includes('INCORRECT')) {
+        return 'incorrect';
+    }
+    
+    // Default to partially correct if we can't determine
+    return 'partially_correct';
+}
+
+/**
+ * Load CPD records from the API
+ */
+async function loadCpdRecords() {
+    const cpdList = document.getElementById('cpdList');
+    const cpdEmptyState = document.getElementById('cpdEmptyState');
+    
+    if (!cpdList) return;
+    
+    // Show loading state
+    cpdList.innerHTML = `
+        <div class="cpd-loading">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p>Loading your CPD records...</p>
+        </div>
+    `;
+    cpdList.classList.remove('hidden');
+    if (cpdEmptyState) cpdEmptyState.classList.add('hidden');
+    
+    try {
+        const token = await getAuthToken();
+        
+        const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}/getCpdRecords`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to load CPD records');
+        }
+        
+        const data = await response.json();
+        displayCpdRecords(data.records || []);
+        
+    } catch (error) {
+        console.error('Error loading CPD records:', error);
+        cpdList.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-circle me-2"></i>
+                Failed to load CPD records. Please try again.
+            </div>
+        `;
+    }
+}
+
+/**
+ * Display CPD records in the list
+ */
+function displayCpdRecords(records) {
+    const cpdList = document.getElementById('cpdList');
+    const cpdEmptyState = document.getElementById('cpdEmptyState');
+    
+    if (!cpdList) return;
+    
+    if (records.length === 0) {
+        cpdList.classList.add('hidden');
+        if (cpdEmptyState) cpdEmptyState.classList.remove('hidden');
+        return;
+    }
+    
+    if (cpdEmptyState) cpdEmptyState.classList.add('hidden');
+    cpdList.classList.remove('hidden');
+    
+    let html = '';
+    
+    records.forEach(record => {
+        const date = record.completedAt ? new Date(record.completedAt._seconds * 1000) : new Date();
+        const formattedDate = date.toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        const resultClass = record.result === 'correct' ? 'correct' : 
+                           record.result === 'partially_correct' ? 'partially-correct' : 'incorrect';
+        const resultText = record.result === 'correct' ? 'Correct' : 
+                          record.result === 'partially_correct' ? 'Partially Correct' : 'Incorrect';
+        
+        html += `
+            <div class="cpd-record" data-record-id="${record.id}">
+                <div class="cpd-record-header">
+                    <span class="cpd-record-date"><i class="bi bi-calendar3 me-1"></i>${formattedDate}</span>
+                    <span class="cpd-record-result ${resultClass}">${resultText}</span>
+                </div>
+                <div class="cpd-record-title">${escapeHtml(record.scenarioType)}</div>
+                <div class="cpd-record-code"><i class="bi bi-hash me-1"></i>${escapeHtml(record.scenarioCode)}</div>
+                <div class="cpd-record-impression">
+                    <strong>Your impression:</strong> ${escapeHtml(record.userImpression)}<br>
+                    <strong>Actual diagnosis:</strong> ${escapeHtml(record.correctDiagnosis)}
+                </div>
+                <div class="cpd-record-stats">
+                    <span class="cpd-record-stat"><i class="bi bi-chat-dots"></i> ${record.questionsAsked || 0} questions</span>
+                    <span class="cpd-record-stat"><i class="bi bi-clipboard2-pulse"></i> ${record.assessmentsPerformed || 0} assessments</span>
+                </div>
+                <div class="cpd-record-actions">
+                    <button class="btn btn-outline-primary btn-sm" onclick="downloadCpdCertificate('${record.id}')">
+                        <i class="bi bi-download me-1"></i>Certificate
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm" onclick="deleteCpdRecord('${record.id}')">
+                        <i class="bi bi-trash me-1"></i>Delete
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+    
+    cpdList.innerHTML = html;
+}
+
+/**
+ * Helper function to escape HTML
+ */
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+/**
+ * Delete a CPD record
+ */
+async function deleteCpdRecord(recordId) {
+    if (!confirm('Are you sure you want to delete this CPD record? This cannot be undone.')) {
+        return;
+    }
+    
+    try {
+        const token = await getAuthToken();
+        
+        const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}/deleteCpdRecord?id=${recordId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to delete CPD record');
+        }
+        
+        // Remove the record from the UI
+        const recordElement = document.querySelector(`[data-record-id="${recordId}"]`);
+        if (recordElement) {
+            recordElement.style.opacity = '0';
+            recordElement.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                recordElement.remove();
+                
+                // Check if list is now empty
+                const cpdList = document.getElementById('cpdList');
+                if (cpdList && cpdList.children.length === 0) {
+                    loadCpdRecords();
+                }
+            }, 300);
+        }
+        
+    } catch (error) {
+        console.error('Error deleting CPD record:', error);
+        alert('Failed to delete CPD record. Please try again.');
+    }
+}
+
+/**
+ * Download a CPD certificate as PDF
+ */
+async function downloadCpdCertificate(recordId) {
+    try {
+        const token = await getAuthToken();
+        
+        // Fetch the specific record
+        const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}/getCpdRecords`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch record');
+        }
+        
+        const data = await response.json();
+        const record = data.records.find(r => r.id === recordId);
+        
+        if (!record) {
+            throw new Error('Record not found');
+        }
+        
+        // Get user info from cache
+        const cachedUser = window.paramind.storage.getUser();
+        const userName = cachedUser ? 
+            `${cachedUser.firstName || ''} ${cachedUser.surname || ''}`.trim() || cachedUser.email : 
+            'Paramind User';
+        
+        // Generate PDF using jsPDF
+        generateCertificatePdf(record, userName);
+        
+    } catch (error) {
+        console.error('Error downloading certificate:', error);
+        alert('Failed to download certificate. Please try again.');
+    }
+}
+
+/**
+ * Generate the certificate PDF using jsPDF
+ */
+function generateCertificatePdf(record, userName) {
+    const { jsPDF } = window.jspdf;
+    
+    // Create PDF in landscape A4
+    const doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+    });
+    
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const centerX = pageWidth / 2;
+    
+    // Colors
+    const teal = [43, 138, 156];
+    const green = [92, 184, 92];
+    const darkBlue = [26, 26, 46];
+    const gray = [108, 117, 125];
+    
+    // Border
+    doc.setDrawColor(...teal);
+    doc.setLineWidth(3);
+    doc.rect(10, 10, pageWidth - 20, pageHeight - 20);
+    
+    // Inner border
+    doc.setDrawColor(...green);
+    doc.setLineWidth(1);
+    doc.rect(15, 15, pageWidth - 30, pageHeight - 30);
+    
+    // Header
+    doc.setFontSize(32);
+    doc.setTextColor(...teal);
+    doc.setFont('helvetica', 'bold');
+    doc.text('CERTIFICATE OF COMPLETION', centerX, 45, { align: 'center' });
+    
+    // Subtitle
+    doc.setFontSize(14);
+    doc.setTextColor(...gray);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Continuing Professional Development', centerX, 55, { align: 'center' });
+    
+    // Decorative line
+    doc.setDrawColor(...teal);
+    doc.setLineWidth(0.5);
+    doc.line(centerX - 60, 60, centerX + 60, 60);
+    
+    // "This certifies that"
+    doc.setFontSize(12);
+    doc.setTextColor(...gray);
+    doc.text('This certifies that', centerX, 75, { align: 'center' });
+    
+    // User name
+    doc.setFontSize(24);
+    doc.setTextColor(...darkBlue);
+    doc.setFont('helvetica', 'bold');
+    doc.text(userName, centerX, 88, { align: 'center' });
+    
+    // "has successfully completed"
+    doc.setFontSize(12);
+    doc.setTextColor(...gray);
+    doc.setFont('helvetica', 'normal');
+    doc.text('has successfully completed the following clinical scenario:', centerX, 100, { align: 'center' });
+    
+    // Scenario type
+    doc.setFontSize(16);
+    doc.setTextColor(...darkBlue);
+    doc.setFont('helvetica', 'bold');
+    doc.text(record.scenarioType, centerX, 115, { align: 'center' });
+    
+    // Job code
+    doc.setFontSize(10);
+    doc.setTextColor(...gray);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Scenario Reference: ${record.scenarioCode}`, centerX, 125, { align: 'center' });
+    
+    // Result box
+    const resultColor = record.result === 'correct' ? green : 
+                       record.result === 'partially_correct' ? [240, 173, 78] : [217, 83, 79];
+    const resultText = record.result === 'correct' ? 'CORRECT' : 
+                      record.result === 'partially_correct' ? 'PARTIALLY CORRECT' : 'INCORRECT';
+    
+    doc.setFillColor(...resultColor);
+    doc.roundedRect(centerX - 30, 132, 60, 12, 3, 3, 'F');
+    doc.setFontSize(10);
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`ASSESSMENT: ${resultText}`, centerX, 140, { align: 'center' });
+    
+    // Date
+    const completedDate = record.completedAt ? 
+        new Date(record.completedAt._seconds * 1000).toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        }) : new Date().toLocaleDateString('en-GB');
+    
+    doc.setFontSize(11);
+    doc.setTextColor(...gray);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Completed on: ${completedDate}`, centerX, 155, { align: 'center' });
+    
+    // Logo text
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...teal);
+    doc.text('para', centerX - 15, 180, { align: 'center' });
+    doc.setTextColor(...green);
+    doc.text('mind', centerX + 12, 180, { align: 'center' });
+    
+    // Website
+    doc.setFontSize(9);
+    doc.setTextColor(...gray);
+    doc.setFont('helvetica', 'normal');
+    doc.text('www.paramind.co.uk', centerX, 188, { align: 'center' });
+    
+    // Signature line
+    doc.setDrawColor(...gray);
+    doc.setLineWidth(0.3);
+    doc.line(centerX - 40, 175, centerX + 40, 175);
+    
+    // Disclaimer
+    doc.setFontSize(7);
+    doc.setTextColor(150, 150, 150);
+    doc.text('This certificate is issued for educational purposes and records completion of a simulated clinical scenario.', centerX, 195, { align: 'center' });
+    doc.text('It does not constitute formal accreditation or replace official CPD from approved providers.', centerX, 199, { align: 'center' });
+    
+    // Save the PDF
+    const fileName = `CPD_Certificate_${record.scenarioCode}_${completedDate.replace(/\s/g, '_')}.pdf`;
+    doc.save(fileName);
+}
+
+/**
+ * Update the CPD Pro lock visibility
+ */
+function updateCpdProLock() {
+    const cpdProLock = document.getElementById('cpdProLock');
+    const cpdContent = document.getElementById('cpdContent');
+    
+    if (cpdProLock && cpdContent) {
+        if (chatState.isPro) {
+            cpdProLock.classList.add('hidden');
+            cpdContent.style.display = 'block';
+        } else {
+            cpdProLock.classList.remove('hidden');
+            cpdContent.style.display = 'none';
+        }
+    }
+}
+
+// Make functions available globally
 window.createCheckoutSession = createCheckoutSession;
+window.downloadCpdCertificate = downloadCpdCertificate;
+window.deleteCpdRecord = deleteCpdRecord;
+window.switchView = switchView;
 
 // ==================== INITIALIZE ====================
 
