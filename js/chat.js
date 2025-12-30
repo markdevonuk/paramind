@@ -1655,25 +1655,28 @@ async function deleteCpdRecord(recordId) {
 }
 
 /**
- * Download a CPD certificate as PDF
- */
-
-/**
- * FIXED CERTIFICATE FUNCTIONS - VERSION 2
+ * =====================================================
+ * CPD CERTIFICATE FUNCTIONS - VERSION 4
+ * =====================================================
  * 
- * Replace BOTH of these functions in your chat.js
+ * CHANGE: Signature now spells "paramind" in handwritten style
+ * 
+ * INSTRUCTIONS:
+ * 1. In your chat.js, DELETE the existing downloadCpdCertificate 
+ *    and generateCertificatePdf functions completely
+ * 2. Paste these two functions in their place
+ * 3. Save the file
+ * 4. Hard refresh your browser (Ctrl+Shift+R)
+ * =====================================================
  */
-
-// =====================================================
-// FUNCTION 1: downloadCpdCertificate
-// Find and replace the existing function with this one
-// =====================================================
 
 async function downloadCpdCertificate(recordId) {
+    console.log('=== CERTIFICATE DOWNLOAD V4 ===');
+    
     try {
         const token = await getAuthToken();
         
-        // Fetch the specific record
+        // Fetch the CPD records
         const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}/getCpdRecords`, {
             method: 'GET',
             headers: {
@@ -1693,7 +1696,7 @@ async function downloadCpdCertificate(recordId) {
             throw new Error('Record not found');
         }
         
-        // FIXED: Fetch user profile fresh from API to get the name
+        // Fetch user profile to get the name
         let userName = 'Paramind User';
         
         try {
@@ -1707,11 +1710,11 @@ async function downloadCpdCertificate(recordId) {
             
             if (userResponse.ok) {
                 const userData = await userResponse.json();
-                const firstName = userData.firstName || '';
-                const surname = userData.surname || '';
+                const firstName = userData.firstName || userData.firstname || '';
+                const surname = userData.surname || userData.lastName || userData.lastname || '';
                 const fullName = `${firstName} ${surname}`.trim();
                 
-                if (fullName) {
+                if (fullName && fullName.length > 0) {
                     userName = fullName;
                 }
             }
@@ -1728,11 +1731,6 @@ async function downloadCpdCertificate(recordId) {
     }
 }
 
-
-// =====================================================
-// FUNCTION 2: generateCertificatePdf
-// Find and replace the existing function with this one
-// =====================================================
 
 function generateCertificatePdf(record, userName) {
     const { jsPDF } = window.jspdf;
@@ -1754,81 +1752,80 @@ function generateCertificatePdf(record, userName) {
     const darkBlue = [26, 26, 46];
     const gray = [108, 117, 125];
     
-    // Outer Border
+    // ===== BORDERS =====
     doc.setDrawColor(...teal);
     doc.setLineWidth(3);
     doc.rect(10, 10, pageWidth - 20, pageHeight - 20);
     
-    // Inner border
     doc.setDrawColor(...green);
     doc.setLineWidth(1);
     doc.rect(15, 15, pageWidth - 30, pageHeight - 30);
     
-    // Header
+    // ===== HEADER =====
     doc.setFontSize(32);
     doc.setTextColor(...teal);
     doc.setFont('helvetica', 'bold');
-    doc.text('CERTIFICATE OF COMPLETION', centerX, 40, { align: 'center' });
+    doc.text('CERTIFICATE OF COMPLETION', centerX, 38, { align: 'center' });
     
-    // Subtitle
     doc.setFontSize(14);
     doc.setTextColor(...gray);
     doc.setFont('helvetica', 'normal');
-    doc.text('Continuing Professional Development', centerX, 50, { align: 'center' });
+    doc.text('Continuing Professional Development', centerX, 48, { align: 'center' });
     
     // Decorative line
     doc.setDrawColor(...teal);
     doc.setLineWidth(0.5);
-    doc.line(centerX - 60, 55, centerX + 60, 55);
+    doc.line(centerX - 60, 53, centerX + 60, 53);
     
-    // "This certifies that"
+    // ===== CERTIFICATION TEXT =====
     doc.setFontSize(12);
     doc.setTextColor(...gray);
-    doc.text('This certifies that', centerX, 68, { align: 'center' });
+    doc.text('This certifies that', centerX, 65, { align: 'center' });
     
-    // User name
-    doc.setFontSize(24);
+    // User name - BIG AND BOLD
+    doc.setFontSize(26);
     doc.setTextColor(...darkBlue);
     doc.setFont('helvetica', 'bold');
-    doc.text(userName, centerX, 80, { align: 'center' });
+    doc.text(userName, centerX, 78, { align: 'center' });
     
-    // "has successfully completed"
     doc.setFontSize(12);
     doc.setTextColor(...gray);
     doc.setFont('helvetica', 'normal');
-    doc.text('has successfully completed the following clinical scenario:', centerX, 90, { align: 'center' });
+    doc.text('has successfully completed the following clinical scenario:', centerX, 88, { align: 'center' });
     
-    // Scenario type
+    // ===== SCENARIO DETAILS =====
     doc.setFontSize(16);
     doc.setTextColor(...darkBlue);
     doc.setFont('helvetica', 'bold');
-    doc.text(record.scenarioType, centerX, 103, { align: 'center' });
+    doc.text(record.scenarioType || 'Clinical Scenario', centerX, 100, { align: 'center' });
     
-    // Job code
     doc.setFontSize(10);
     doc.setTextColor(...gray);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Scenario Reference: ${record.scenarioCode}`, centerX, 112, { align: 'center' });
+    doc.text(`Scenario Reference: ${record.scenarioCode || 'N/A'}`, centerX, 108, { align: 'center' });
     
-    // Result box - Wide enough for all text
+    // ===== RESULT BADGE =====
     const resultColor = record.result === 'correct' ? green : 
                        record.result === 'partially_correct' ? [240, 173, 78] : [217, 83, 79];
     const resultText = record.result === 'correct' ? 'CORRECT' : 
                       record.result === 'partially_correct' ? 'PARTIALLY CORRECT' : 'INCORRECT';
     
-    const pillWidth = 85;
+    // Make pill wide enough
+    const pillText = `ASSESSMENT: ${resultText}`;
+    doc.setFontSize(9);
+    const textWidth = doc.getTextWidth(pillText);
+    const pillWidth = textWidth + 20;
     const pillHeight = 10;
     const pillX = centerX - (pillWidth / 2);
-    const pillY = 118;
+    const pillY = 114;
     
     doc.setFillColor(...resultColor);
     doc.roundedRect(pillX, pillY, pillWidth, pillHeight, 3, 3, 'F');
-    doc.setFontSize(9);
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
-    doc.text(`ASSESSMENT: ${resultText}`, centerX, pillY + 7, { align: 'center' });
+    doc.text(pillText, centerX, pillY + 7, { align: 'center' });
     
-    // Date
+    // ===== DATE =====
     const completedDate = record.completedAt ? 
         new Date(record.completedAt._seconds * 1000).toLocaleDateString('en-GB', {
             day: 'numeric',
@@ -1839,70 +1836,99 @@ function generateCertificatePdf(record, userName) {
     doc.setFontSize(11);
     doc.setTextColor(...gray);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Completed on: ${completedDate}`, centerX, 140, { align: 'center' });
+    doc.text(`Completed on: ${completedDate}`, centerX, 135, { align: 'center' });
     
-    // ===== SIGNATURE SECTION =====
-    
-    // Draw a stylized signature
-    doc.setDrawColor(60, 60, 60);
+    // ===== HANDWRITTEN "paramind" SIGNATURE =====
+    doc.setDrawColor(30, 30, 30);
     doc.setLineWidth(0.4);
     
-    // Signature starting point
-    const sigStartX = centerX - 25;
-    const sigY = 155;
+    // Starting position - centered
+    const sigX = centerX - 28;
+    const sigY = 152;
     
-    // Draw a stylized "signature" using bezier curves
-    // First stroke - like a "P"
-    doc.line(sigStartX, sigY, sigStartX + 3, sigY - 8);
-    doc.line(sigStartX + 3, sigY - 8, sigStartX + 8, sigY - 6);
-    doc.line(sigStartX + 8, sigY - 6, sigStartX + 5, sigY - 2);
+    // Letter 'p' - down stroke with loop
+    doc.line(sigX, sigY - 2, sigX + 1, sigY + 6);  // down stroke
+    doc.line(sigX + 1, sigY - 2, sigX + 4, sigY - 4);  // top of p
+    doc.line(sigX + 4, sigY - 4, sigX + 5, sigY - 1);  // curve down
+    doc.line(sigX + 5, sigY - 1, sigX + 2, sigY + 1);  // back to stem
     
-    // Second stroke - connecting squiggle
-    doc.line(sigStartX + 5, sigY - 2, sigStartX + 15, sigY - 5);
-    doc.line(sigStartX + 15, sigY - 5, sigStartX + 20, sigY - 8);
-    doc.line(sigStartX + 20, sigY - 8, sigStartX + 28, sigY - 3);
+    // Letter 'a' - small loop
+    doc.line(sigX + 5, sigY + 1, sigX + 8, sigY - 2);  // up
+    doc.line(sigX + 8, sigY - 2, sigX + 10, sigY - 1);  // over
+    doc.line(sigX + 10, sigY - 1, sigX + 9, sigY + 2);  // down
+    doc.line(sigX + 9, sigY + 2, sigX + 11, sigY + 1);  // connect out
     
-    // Third stroke - finishing flourish
-    doc.line(sigStartX + 28, sigY - 3, sigStartX + 38, sigY - 6);
-    doc.line(sigStartX + 38, sigY - 6, sigStartX + 50, sigY - 2);
+    // Letter 'r' - small hump
+    doc.line(sigX + 11, sigY + 1, sigX + 12, sigY - 2);  // up
+    doc.line(sigX + 12, sigY - 2, sigX + 15, sigY);  // over and down
     
-    // Signature line underneath
+    // Letter 'a' - another loop
+    doc.line(sigX + 15, sigY, sigX + 17, sigY - 3);  // up
+    doc.line(sigX + 17, sigY - 3, sigX + 20, sigY - 2);  // curve
+    doc.line(sigX + 20, sigY - 2, sigX + 19, sigY + 1);  // down
+    doc.line(sigX + 19, sigY + 1, sigX + 21, sigY);  // connect
+    
+    // Letter 'm' - two humps
+    doc.line(sigX + 21, sigY, sigX + 23, sigY - 3);  // up
+    doc.line(sigX + 23, sigY - 3, sigX + 26, sigY);  // first hump
+    doc.line(sigX + 26, sigY, sigX + 28, sigY - 3);  // up again
+    doc.line(sigX + 28, sigY - 3, sigX + 31, sigY + 1);  // second hump down
+    
+    // Letter 'i' - short stroke with dot
+    doc.line(sigX + 31, sigY + 1, sigX + 33, sigY - 2);  // up stroke
+    doc.line(sigX + 33, sigY - 2, sigX + 35, sigY + 1);  // down
+    doc.setFillColor(30, 30, 30);
+    doc.circle(sigX + 33, sigY - 5, 0.6, 'F');  // dot
+    
+    // Letter 'n' - one hump
+    doc.line(sigX + 35, sigY + 1, sigX + 37, sigY - 2);  // up
+    doc.line(sigX + 37, sigY - 2, sigX + 40, sigY - 1);  // over
+    doc.line(sigX + 40, sigY - 1, sigX + 42, sigY + 2);  // down
+    
+    // Letter 'd' - loop up and down
+    doc.line(sigX + 42, sigY + 2, sigX + 44, sigY - 2);  // up
+    doc.line(sigX + 44, sigY - 2, sigX + 47, sigY - 6);  // tall stroke up
+    doc.line(sigX + 47, sigY - 6, sigX + 48, sigY - 3);  // curve back
+    doc.line(sigX + 48, sigY - 3, sigX + 46, sigY + 1);  // down
+    doc.line(sigX + 46, sigY + 1, sigX + 50, sigY);  // finishing flourish
+    
+    // Final flourish/underline
+    doc.line(sigX + 50, sigY, sigX + 56, sigY + 2);
+    
+    // Signature line
     doc.setDrawColor(...gray);
     doc.setLineWidth(0.3);
-    doc.line(centerX - 40, sigY + 5, centerX + 40, sigY + 5);
+    doc.line(centerX - 45, sigY + 10, centerX + 45, sigY + 10);
     
-    // Signature label
-    doc.setFontSize(8);
+    // Label under signature
+    doc.setFontSize(9);
     doc.setTextColor(...gray);
     doc.setFont('helvetica', 'normal');
-    doc.text('Paramind Educational Platform', centerX, sigY + 10, { align: 'center' });
+    doc.text('Paramind Educational Platform', centerX, sigY + 16, { align: 'center' });
     
     // ===== LOGO - PROPERLY CENTERED =====
-    
-    // Calculate text widths for proper centering
-    doc.setFontSize(18);
+    doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
     
-    const paraText = 'para';
-    const mindText = 'mind';
-    const paraWidth = doc.getTextWidth(paraText);
-    const mindWidth = doc.getTextWidth(mindText);
-    const totalLogoWidth = paraWidth + mindWidth;
-    const logoStartX = centerX - (totalLogoWidth / 2);
+    const paraWidth = doc.getTextWidth('para');
+    const mindWidth = doc.getTextWidth('mind');
+    const logoTotalWidth = paraWidth + mindWidth;
+    const logoX = centerX - (logoTotalWidth / 2);
     
     doc.setTextColor(...teal);
-    doc.text(paraText, logoStartX, 178);
+    doc.text('para', logoX, 180);
     doc.setTextColor(...green);
-    doc.text(mindText, logoStartX + paraWidth, 178);
+    doc.text('mind', logoX + paraWidth, 180);
     
-    // ===== DISCLAIMER - MOVED UP =====
+    // ===== DISCLAIMER =====
     doc.setFontSize(7);
-    doc.setTextColor(150, 150, 150);
+    doc.setTextColor(140, 140, 140);
     doc.setFont('helvetica', 'normal');
-    doc.text('This certificate is for educational purposes only.', centerX, 188, { align: 'center' });
+    doc.text('For educational purposes only.', centerX, 190, { align: 'center' });
     
-    // Save the PDF
-    const fileName = `CPD_Certificate_${record.scenarioCode}_${completedDate.replace(/\s/g, '_')}.pdf`;
+    // ===== SAVE =====
+    const safeDate = completedDate.replace(/\s/g, '_').replace(/,/g, '');
+    const fileName = `CPD_Certificate_${record.scenarioCode}_${safeDate}.pdf`;
     doc.save(fileName);
 }
 
