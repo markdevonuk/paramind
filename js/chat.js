@@ -243,6 +243,27 @@ async function fetchUserProfile() {
             elements.userTrust.textContent = data.trust;
         }
         
+        // Display user's full name in dropdown
+const userNameElement = document.getElementById('userName');
+if (userNameElement) {
+    const fullName = [data.firstName, data.surname].filter(Boolean).join(' ');
+    userNameElement.textContent = fullName || data.email;
+}
+
+// Update upgrade button based on Pro status
+const upgradeBtn = document.getElementById('upgradeBtn');
+if (upgradeBtn) {
+    if (data.isPro) {
+        upgradeBtn.innerHTML = '<i class="bi bi-star-fill me-2"></i><span class="brand-para">Pro</span> user';
+        upgradeBtn.style.pointerEvents = 'none';
+        upgradeBtn.style.cursor = 'default';
+    } else {
+        upgradeBtn.innerHTML = '<i class="bi bi-star me-2"></i>Upgrade to Pro';
+        upgradeBtn.style.pointerEvents = 'auto';
+        upgradeBtn.style.cursor = 'pointer';
+    }
+}
+        
         // Display user's first name in welcome message
         if (elements.welcomeName && data.firstName) {
             elements.welcomeName.textContent = ', ' + data.firstName;
