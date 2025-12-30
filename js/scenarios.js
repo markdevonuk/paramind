@@ -2,6 +2,7 @@
    PARAMIND - Scenario Data
    All scenarios in one place for easy management
    Updated with ECG findings, red flags, and HINT mode
+   EXPANDED: Minimum 10 scenarios per category
    ============================================ */
 
 // ==================== SCENARIO CATEGORIES ====================
@@ -67,7 +68,7 @@ const SCENARIO_CATEGORIES = {
 // - starterMessage: The first thing the "patient" says
 
 const SCENARIOS = [
-    // ==================== CARDIAC ====================
+    // ==================== CARDIAC (10 scenarios) ====================
     {
         id: "cardiac-001",
         category: "cardiac",
@@ -300,39 +301,39 @@ const SCENARIOS = [
         id: "cardiac-007",
         category: "cardiac",
         dispatch: {
-            name: "Patricia",
-            age: 70,
-            gender: "F",
-            chiefComplaint: "Collapsed - not breathing",
-            details: "Witnessed collapse at bingo hall, bystander CPR in progress",
-            category: 1
+            name: "Thomas",
+            age: 55,
+            gender: "M",
+            chiefComplaint: "Chest tightness",
+            details: "Pain on exertion, has happened before",
+            category: 3
         },
         patient: {
-            condition: "Cardiac Arrest - Shockable Rhythm (VF)",
-            history: "Unknown - bystanders report she mentioned heart problems",
-            medications: "Unknown",
+            condition: "Unstable Angina",
+            history: "Known angina, hypercholesterolaemia, family history IHD",
+            medications: "GTN spray PRN, Atorvastatin, Aspirin",
             vitals: {
-                hr: 0,
-                bp: "unrecordable",
-                rr: 0,
-                spo2: "unrecordable",
-                temp: "N/A",
-                gcs: 3,
-                bm: "N/A",
-                pain: "N/A"
+                hr: 88,
+                bp: "150/90",
+                rr: 18,
+                spo2: 98,
+                temp: 36.6,
+                gcs: 15,
+                bm: 5.8,
+                pain: 6
             },
-            presentation: "Unresponsive, not breathing, no pulse - VF on monitor",
-            ecg: "Ventricular fibrillation - chaotic, irregular waveform with no identifiable QRS complexes. Coarse VF pattern. Shockable rhythm.",
+            presentation: "Chest tightness at rest, usually only on exertion, GTN partially effective",
+            ecg: "Rate 88bpm, sinus rhythm. T wave inversion leads V4-V6 and I, aVL. No ST elevation. Dynamic changes suggesting unstable angina.",
             redFlags: [
-                "Cardiac arrest",
-                "Shockable rhythm (VF) - defibrillate immediately",
-                "Witnessed arrest (better prognosis)",
-                "Bystander CPR in progress",
-                "Minimise interruptions to chest compressions",
-                "Consider reversible causes (4Hs and 4Ts)"
+                "Change in angina pattern (now at rest)",
+                "Reduced response to GTN",
+                "Dynamic ECG changes",
+                "Pain more frequent than usual",
+                "Crescendo pattern",
+                "High risk of progression to MI"
             ]
         },
-        starterMessage: "*Bystander speaking* She just collapsed! We were playing bingo and she grabbed her chest and went down. She's not breathing - I've been doing CPR like they told me on the phone. Please hurry!"
+        starterMessage: "I've had angina for years and I know what it feels like. But this is different... it's been coming on when I'm just sitting still. Normally it only happens when I walk up the hill. My spray helps a bit but doesn't take it away completely like it used to."
     },
     {
         id: "cardiac-008",
@@ -372,8 +373,86 @@ const SCENARIOS = [
         },
         starterMessage: "I think it's just indigestion to be honest... I had a big dinner and this burning feeling started in my stomach. My wife insisted I call because I keep sweating and she says I don't look right. I'm sure it's nothing."
     },
+    {
+        id: "cardiac-009",
+        category: "cardiac",
+        dispatch: {
+            name: "Kenneth",
+            age: 68,
+            gender: "M",
+            chiefComplaint: "Sudden severe back pain",
+            details: "Tearing pain between shoulder blades, very distressed",
+            category: 1
+        },
+        patient: {
+            condition: "Aortic Dissection",
+            history: "Poorly controlled hypertension, Marfan syndrome",
+            medications: "Amlodipine (often forgets to take it)",
+            vitals: {
+                hr: 105,
+                bp: "Right arm 185/110, Left arm 145/85",
+                rr: 24,
+                spo2: 96,
+                temp: 36.5,
+                gcs: 15,
+                bm: 6.0,
+                pain: 10
+            },
+            presentation: "Severe tearing interscapular pain, BP differential between arms, pale and diaphoretic",
+            ecg: "Rate 105bpm, sinus tachycardia. Left ventricular hypertrophy. No acute ST changes.",
+            redFlags: [
+                "Sudden onset tearing/ripping pain",
+                "Radiation to back (interscapular)",
+                "Blood pressure differential >20mmHg between arms",
+                "Hypertension history",
+                "Connective tissue disorder (Marfan)",
+                "Pain maximal at onset",
+                "TIME CRITICAL - needs CT aorta/surgery"
+            ]
+        },
+        starterMessage: "*writhing in agony* The pain... it's like something tearing inside me! It started in my chest and went straight through to my back between my shoulders. I've never felt anything like it - it was worst right at the beginning. I feel like I'm going to die!"
+    },
+    {
+        id: "cardiac-010",
+        category: "cardiac",
+        dispatch: {
+            name: "Brenda",
+            age: 74,
+            gender: "F",
+            chiefComplaint: "Dizzy spells",
+            details: "Multiple episodes today, nearly fell",
+            category: 2
+        },
+        patient: {
+            condition: "Sick Sinus Syndrome with Tachy-Brady",
+            history: "Palpitations for years, hypertension",
+            medications: "Ramipril, Bendroflumethiazide",
+            vitals: {
+                hr: 45,
+                bp: "100/65",
+                rr: 16,
+                spo2: 97,
+                temp: 36.4,
+                gcs: 15,
+                bm: 5.5,
+                pain: 0
+            },
+            presentation: "Episodes of bradycardia alternating with tachycardia, pre-syncope, current bradycardia",
+            ecg: "Rate 45bpm, sinus bradycardia with sinus pauses up to 3 seconds. Previous ECGs (patient reports) showed fast heart rate. Consistent with sick sinus syndrome.",
+            redFlags: [
+                "Symptomatic bradycardia",
+                "Sinus pauses >3 seconds",
+                "Pre-syncope/syncope",
+                "Alternating tachy-brady (sick sinus)",
+                "Hypotension",
+                "May need pacemaker",
+                "Avoid rate-limiting drugs"
+            ]
+        },
+        starterMessage: "I keep going all dizzy and nearly falling over. It's happened about five times today. Sometimes my heart races like mad, and other times it feels really slow - like now. I've had these funny turns on and off for a while but never this bad."
+    },
 
-    // ==================== RESPIRATORY ====================
+    // ==================== RESPIRATORY (10 scenarios) ====================
     {
         id: "resp-001",
         category: "respiratory",
@@ -604,8 +683,163 @@ const SCENARIOS = [
         },
         starterMessage: "I tested positive for COVID a week ago and I've been managing at home... but today I just can't catch my breath. I've been checking my oxygen with that thing on my finger and it's been dropping all day. I feel exhausted just talking to you."
     },
+    {
+        id: "resp-007",
+        category: "respiratory",
+        dispatch: {
+            name: "Gary",
+            age: 22,
+            gender: "M",
+            chiefComplaint: "Sudden breathlessness",
+            details: "Tall thin male, pain on one side, came on suddenly",
+            category: 2
+        },
+        patient: {
+            condition: "Primary Spontaneous Pneumothorax",
+            history: "Tall thin build, smoker, no previous respiratory problems",
+            medications: "None",
+            vitals: {
+                hr: 100,
+                bp: "125/80",
+                rr: 24,
+                spo2: 95,
+                temp: 36.6,
+                gcs: 15,
+                bm: 5.5,
+                pain: 6
+            },
+            presentation: "Reduced breath sounds on right, hyper-resonant percussion, sudden onset pleuritic pain",
+            ecg: "Rate 100bpm, sinus rhythm. Normal ECG.",
+            redFlags: [
+                "Sudden onset dyspnoea and pleuritic pain",
+                "Reduced breath sounds unilaterally",
+                "Hyper-resonance to percussion",
+                "Tall thin male (classic demographic)",
+                "Smoker",
+                "Watch for tension (tracheal deviation, hypotension)"
+            ]
+        },
+        starterMessage: "I was just sitting playing video games and suddenly got this really sharp pain on the right side of my chest. Now I can't catch my breath properly. It came on completely out of nowhere. I'm quite fit normally - I've never had anything like this."
+    },
+    {
+        id: "resp-008",
+        category: "respiratory",
+        dispatch: {
+            name: "Maureen",
+            age: 82,
+            gender: "F",
+            chiefComplaint: "Coughing up blood",
+            details: "Blood in sputum this morning, frightened",
+            category: 2
+        },
+        patient: {
+            condition: "Haemoptysis - likely lung malignancy",
+            history: "Ex-smoker 40 pack years, weight loss over 3 months, chronic cough",
+            medications: "Omeprazole, Paracetamol PRN",
+            vitals: {
+                hr: 88,
+                bp: "135/80",
+                rr: 20,
+                spo2: 94,
+                temp: 36.8,
+                gcs: 15,
+                bm: 5.8,
+                pain: 2
+            },
+            presentation: "Small volume haemoptysis, cachexic appearance, finger clubbing, weight loss",
+            ecg: "Rate 88bpm, sinus rhythm. Normal ECG.",
+            redFlags: [
+                "Haemoptysis in smoker/ex-smoker",
+                "Unintentional weight loss",
+                "Finger clubbing (new)",
+                "Age and smoking history",
+                "Chronic cough with change in character",
+                "Needs urgent 2-week wait referral",
+                "Rule out PE, TB, bronchiectasis"
+            ]
+        },
+        starterMessage: "I coughed up some blood this morning and it really frightened me. It was bright red mixed in with my phlegm. I've had this cough for months but I just put it down to being an old smoker. I've also been losing weight without trying... my clothes are hanging off me."
+    },
+    {
+        id: "resp-009",
+        category: "respiratory",
+        dispatch: {
+            name: "Simon",
+            age: 45,
+            gender: "M",
+            chiefComplaint: "Can't stop coughing",
+            details: "Severe coughing fits, goes red in face, vomited",
+            category: 3
+        },
+        patient: {
+            condition: "Pertussis (Whooping Cough)",
+            history: "No vaccinations as adult, works in school",
+            medications: "None",
+            vitals: {
+                hr: 90,
+                bp: "130/82",
+                rr: 18,
+                spo2: 97,
+                temp: 37.2,
+                gcs: 15,
+                bm: 5.5,
+                pain: 4
+            },
+            presentation: "Paroxysmal coughing with inspiratory whoop, post-tussive vomiting, subconjunctival haemorrhages",
+            ecg: "Rate 90bpm, sinus rhythm. Normal ECG.",
+            redFlags: [
+                "Characteristic 'whoop' sound",
+                "Paroxysmal coughing lasting >2 weeks",
+                "Post-tussive vomiting",
+                "Subconjunctival haemorrhages from coughing",
+                "Unvaccinated/vaccine waned",
+                "Contact with children (highly contagious)",
+                "Notifiable disease"
+            ]
+        },
+        starterMessage: "These coughing fits are absolutely horrendous. I cough and cough until I can't breathe, then I make this horrible whooping noise when I try to breathe in. I've been sick a few times from coughing so hard. It's been going on for about 3 weeks now. I work as a teaching assistant."
+    },
+    {
+        id: "resp-010",
+        category: "respiratory",
+        dispatch: {
+            name: "Evelyn",
+            age: 70,
+            gender: "F",
+            chiefComplaint: "Breathless and swollen legs",
+            details: "Getting worse over weeks, can't do housework anymore",
+            category: 3
+        },
+        patient: {
+            condition: "Pulmonary Fibrosis",
+            history: "Rheumatoid arthritis on methotrexate, dry cough for 6 months",
+            medications: "Methotrexate, Folic acid, Prednisolone",
+            vitals: {
+                hr: 92,
+                bp: "138/82",
+                rr: 24,
+                spo2: 89,
+                temp: 36.5,
+                gcs: 15,
+                bm: 6.2,
+                pain: 0
+            },
+            presentation: "Fine inspiratory crackles bilateral bases (velcro crackles), finger clubbing, chronic progressive dyspnoea",
+            ecg: "Rate 92bpm, sinus rhythm. Right axis deviation. P pulmonale.",
+            redFlags: [
+                "Progressive dyspnoea over weeks/months",
+                "Fine bibasal crackles (velcro)",
+                "Finger clubbing",
+                "Methotrexate use (can cause pulmonary fibrosis)",
+                "Rheumatoid arthritis (associated ILD)",
+                "Chronic hypoxia",
+                "May need home oxygen assessment"
+            ]
+        },
+        starterMessage: "I've been getting more and more breathless over the past few months. I used to be able to do all my housework but now I can barely make it up the stairs. I've got this dry cough that won't go away. My fingers look a bit odd too - the ends have gone all rounded."
+    },
 
-    // ==================== ABDOMINAL ====================
+    // ==================== ABDOMINAL (10 scenarios) ====================
     {
         id: "abdo-001",
         category: "abdominal",
@@ -874,8 +1108,123 @@ const SCENARIOS = [
         },
         starterMessage: "The pain is right here in the top of my stomach and it goes straight through to my back. I've been sick about six times. I had a lot to drink over the weekend... I know, I know... I've had this before but this feels worse."
     },
+    {
+        id: "abdo-008",
+        category: "abdominal",
+        dispatch: {
+            name: "Carol",
+            age: 58,
+            gender: "F",
+            chiefComplaint: "Lower abdominal pain",
+            details: "Left-sided pain, fever, change in bowels",
+            category: 3
+        },
+        patient: {
+            condition: "Acute Diverticulitis",
+            history: "Known diverticular disease, recurrent UTIs",
+            medications: "HRT, Vitamin D",
+            vitals: {
+                hr: 95,
+                bp: "135/85",
+                rr: 18,
+                spo2: 98,
+                temp: 38.2,
+                gcs: 15,
+                bm: 6.0,
+                pain: 7
+            },
+            presentation: "Left iliac fossa tenderness, localised guarding, fever, altered bowel habit",
+            ecg: "Rate 95bpm, sinus rhythm. Normal ECG.",
+            redFlags: [
+                "LIF pain with fever (classic diverticulitis)",
+                "Localised peritonism",
+                "Known diverticular disease",
+                "Risk of perforation/abscess",
+                "Watch for generalised peritonitis",
+                "May need IV antibiotics and CT scan"
+            ]
+        },
+        starterMessage: "I've got this horrible pain in the lower left side of my tummy. It started yesterday and has got worse. I've got a temperature and I've been going to the toilet a lot more than usual. I was told I had pouches in my bowel a few years ago."
+    },
+    {
+        id: "abdo-009",
+        category: "abdominal",
+        dispatch: {
+            name: "Patricia",
+            age: 32,
+            gender: "F",
+            chiefComplaint: "Severe period pain",
+            details: "Worse than normal, feels faint",
+            category: 2
+        },
+        patient: {
+            condition: "Ruptured Ectopic Pregnancy",
+            history: "Previous ectopic 2 years ago, IUCD in situ, LMP 6 weeks ago",
+            medications: "None",
+            vitals: {
+                hr: 118,
+                bp: "90/55",
+                rr: 22,
+                spo2: 99,
+                temp: 36.4,
+                gcs: 15,
+                bm: 5.2,
+                pain: 9
+            },
+            presentation: "Peritonism, shoulder tip pain, vaginal bleeding, hypotensive",
+            ecg: "Rate 118bpm, sinus tachycardia. Normal ECG.",
+            redFlags: [
+                "Sexually active woman with abdominal pain (always consider ectopic)",
+                "Previous ectopic (high recurrence risk)",
+                "IUCD in situ (risk factor)",
+                "Shoulder tip pain (diaphragmatic irritation from blood)",
+                "Hypotension and tachycardia (internal bleeding)",
+                "TIME CRITICAL - needs emergency surgery"
+            ]
+        },
+        starterMessage: "I thought it was just a bad period - I'm a bit late this month. But this pain is much worse than normal... it's in my lower tummy and up into my shoulder which is weird. I feel really faint when I stand up. I've got a coil fitted... I had an ectopic before."
+    },
+    {
+        id: "abdo-010",
+        category: "abdominal",
+        dispatch: {
+            name: "Norman",
+            age: 78,
+            gender: "M",
+            chiefComplaint: "Abdominal pain and bloody diarrhoea",
+            details: "Sudden onset pain, passing blood, looks unwell",
+            category: 1
+        },
+        patient: {
+            condition: "Acute Mesenteric Ischaemia",
+            history: "AF, heart failure, peripheral vascular disease",
+            medications: "Warfarin, Digoxin, Furosemide, Ramipril",
+            vitals: {
+                hr: 110,
+                bp: "95/60",
+                rr: 26,
+                spo2: 94,
+                temp: 36.2,
+                gcs: 14,
+                bm: 7.8,
+                pain: 10
+            },
+            presentation: "Severe pain out of proportion to examination, bloody diarrhoea, AF (embolic source)",
+            ecg: "Rate 110bpm, atrial fibrillation with fast ventricular response.",
+            redFlags: [
+                "Pain out of proportion to examination (classic)",
+                "AF (embolic source for mesenteric artery)",
+                "Bloody diarrhoea",
+                "Rapid deterioration",
+                "Metabolic acidosis likely",
+                "TIME CRITICAL - needs CT angiogram and surgery",
+                "High mortality condition"
+            ]
+        },
+        starterMessage: "*very distressed* The pain is unbearable... it came on suddenly about 2 hours ago. I've been going to the toilet and there's blood. My tummy doesn't feel that bad when you press it but the pain inside is terrible. I've got that heart rhythm problem... takes warfarin for it."
+    },
 
-    // ==================== NEUROLOGICAL ====================
+    // ==================== NEUROLOGICAL (10 scenarios) ====================
     {
         id: "neuro-001",
         category: "neuro",
@@ -1070,8 +1419,204 @@ const SCENARIOS = [
         },
         starterMessage: "*confused, speech slow* I don't... I don't know what's happening... *sweating* ...my neighbour came round and... *trailing off* ...I can't remember what I was doing. I feel really shaky..."
     },
+    {
+        id: "neuro-006",
+        category: "neuro",
+        dispatch: {
+            name: "Helen",
+            age: 42,
+            gender: "F",
+            chiefComplaint: "Worst headache of my life",
+            details: "Sudden onset, vomiting, doesn't want lights on",
+            category: 1
+        },
+        patient: {
+            condition: "Subarachnoid Haemorrhage",
+            history: "Migraines, smoker, on COCP",
+            medications: "Sumatriptan PRN, Microgynon",
+            vitals: {
+                hr: 65,
+                bp: "175/100",
+                rr: 18,
+                spo2: 98,
+                temp: 37.0,
+                gcs: 14,
+                bm: 5.5,
+                pain: 10
+            },
+            presentation: "Thunderclap headache, photophobia, neck stiffness, vomiting",
+            ecg: "Rate 65bpm, sinus bradycardia. Widespread T wave inversion and QT prolongation (neurogenic changes).",
+            redFlags: [
+                "Thunderclap headache (maximal at onset)",
+                "Different from usual migraines",
+                "Neck stiffness (meningism)",
+                "Photophobia",
+                "Vomiting",
+                "Hypertension",
+                "TIME CRITICAL - CT head needed urgently",
+                "Do not give triptans"
+            ]
+        },
+        starterMessage: "*holding head, eyes closed* This headache is different... it came on like a thunderclap - literally the worst pain I've ever felt. I get migraines but this is nothing like them. I've been sick and I can't bear the light. My neck feels stiff too."
+    },
+    {
+        id: "neuro-007",
+        category: "neuro",
+        dispatch: {
+            name: "Dennis",
+            age: 68,
+            gender: "M",
+            chiefComplaint: "Arm weakness and numbness",
+            details: "Symptoms resolved after 20 minutes, back to normal now",
+            category: 2
+        },
+        patient: {
+            condition: "Transient Ischaemic Attack (TIA)",
+            history: "Hypertension, high cholesterol, ex-smoker",
+            medications: "Amlodipine, Simvastatin",
+            vitals: {
+                hr: 82,
+                bp: "165/95",
+                rr: 16,
+                spo2: 98,
+                temp: 36.6,
+                gcs: 15,
+                bm: 6.2,
+                pain: 0
+            },
+            presentation: "Now asymptomatic, was FAST positive 40 minutes ago, resolved spontaneously",
+            ecg: "Rate 82bpm, sinus rhythm with occasional ectopics. No AF detected.",
+            redFlags: [
+                "Recent neurological symptoms (high stroke risk)",
+                "FAST was positive (even though resolved)",
+                "Vascular risk factors",
+                "ABCD2 score calculation needed",
+                "High risk of completed stroke in first 48 hours",
+                "Needs urgent TIA clinic/stroke assessment",
+                "Start Aspirin 300mg"
+            ]
+        },
+        starterMessage: "I feel fine now but about 40 minutes ago my left arm went completely numb and weak - I couldn't grip anything. My wife said my face looked droopy too. It lasted about 20 minutes and then everything went back to normal. I almost didn't call but my wife insisted."
+    },
+    {
+        id: "neuro-008",
+        category: "neuro",
+        dispatch: {
+            name: "Irene",
+            age: 75,
+            gender: "F",
+            chiefComplaint: "Sudden dizziness and vomiting",
+            details: "Room spinning, can't walk straight",
+            category: 2
+        },
+        patient: {
+            condition: "Posterior Circulation Stroke (Cerebellar)",
+            history: "Hypertension, diabetes, previous TIA",
+            medications: "Ramipril, Metformin, Clopidogrel",
+            vitals: {
+                hr: 88,
+                bp: "180/95",
+                rr: 18,
+                spo2: 97,
+                temp: 36.5,
+                gcs: 14,
+                bm: 8.5,
+                pain: 0
+            },
+            presentation: "Vertigo, ataxia, nystagmus, dysarthria - HINTS exam abnormal",
+            ecg: "Rate 88bpm, sinus rhythm. Left ventricular hypertrophy pattern.",
+            redFlags: [
+                "Sudden onset vertigo with vascular risk factors",
+                "Cerebellar signs (ataxia)",
+                "Nystagmus pattern (direction-changing suggests central)",
+                "HINTS exam: skew deviation, direction-changing nystagmus",
+                "Posterior circulation stroke often missed",
+                "Can deteriorate rapidly (cerebellar swelling)",
+                "Needs urgent stroke assessment"
+            ]
+        },
+        starterMessage: "The room is spinning terribly... I tried to walk to the bathroom and I was all over the place, bouncing off the walls. I've been sick several times. I feel like I'm drunk. My speech feels a bit thick too. I've had a mini-stroke before..."
+    },
+    {
+        id: "neuro-009",
+        category: "neuro",
+        dispatch: {
+            name: "Colin",
+            age: 55,
+            gender: "M",
+            chiefComplaint: "Severe facial pain",
+            details: "Electric shock pain in face, been happening for weeks",
+            category: 3
+        },
+        patient: {
+            condition: "Trigeminal Neuralgia",
+            history: "Nil significant, first presentation",
+            medications: "Ibuprofen (not helping)",
+            vitals: {
+                hr: 80,
+                bp: "140/85",
+                rr: 16,
+                spo2: 99,
+                temp: 36.6,
+                gcs: 15,
+                bm: 5.5,
+                pain: 10
+            },
+            presentation: "Paroxysmal stabbing pain in V2/V3 distribution, triggered by eating/talking",
+            ecg: "Rate 80bpm, sinus rhythm. Normal ECG.",
+            redFlags: [
+                "Classic trigeminal neuralgia presentation",
+                "Check for sensory loss (would suggest secondary cause)",
+                "Age of onset (if young, consider MS)",
+                "Bilateral symptoms concerning",
+                "Needs neurology referral",
+                "First-line treatment is carbamazepine",
+                "May need MRI to exclude underlying cause"
+            ]
+        },
+        starterMessage: "The pain is unbelievable - it's like electric shocks in my face. It comes in bursts and it's on the right side, from my cheek down to my jaw. It happens when I eat or even when the wind blows on my face. Nothing touches it - I've tried everything from the chemist."
+    },
+    {
+        id: "neuro-010",
+        category: "neuro",
+        dispatch: {
+            name: "Sandra",
+            age: 38,
+            gender: "F",
+            chiefComplaint: "Numbness and tingling",
+            details: "Legs feel numb, been getting worse over days",
+            category: 3
+        },
+        patient: {
+            condition: "Guillain-Barré Syndrome",
+            history: "Had gastroenteritis 2 weeks ago, otherwise well",
+            medications: "None",
+            vitals: {
+                hr: 85,
+                bp: "125/80",
+                rr: 18,
+                spo2: 98,
+                temp: 36.7,
+                gcs: 15,
+                bm: 5.2,
+                pain: 3
+            },
+            presentation: "Ascending weakness and numbness, areflexia, difficulty walking",
+            ecg: "Rate 85bpm, sinus rhythm. Normal ECG - but watch for autonomic involvement.",
+            redFlags: [
+                "Ascending weakness (started in feet, moving up)",
+                "Recent infection (post-infectious trigger)",
+                "Areflexia on examination",
+                "Progressive over days",
+                "MONITOR RESPIRATORY FUNCTION (FVC)",
+                "Can progress to respiratory failure rapidly",
+                "Needs urgent neurology admission"
+            ]
+        },
+        starterMessage: "It started in my feet about 5 days ago - they felt tingly and numb. Now it's spreading up my legs and they feel weak. I'm struggling to walk and my legs feel like jelly. I had a bad stomach bug a couple of weeks ago but I thought I was over that."
+    },
 
-    // ==================== TRAUMA ====================
+    // ==================== TRAUMA (10 scenarios) ====================
     {
         id: "trauma-001",
         category: "trauma",
@@ -1308,8 +1853,164 @@ const SCENARIOS = [
         },
         starterMessage: "*calm but scared, lying by pool* I dived in and hit the bottom... I can't feel anything below my shoulders. I can't move my legs or my arms properly. My friends pulled me out of the water. I've had a few drinks... is this serious? Why can't I feel anything?"
     },
+    {
+        id: "trauma-007",
+        category: "trauma",
+        dispatch: {
+            name: "Trevor",
+            age: 52,
+            gender: "M",
+            chiefComplaint: "Assault - facial injuries",
+            details: "Punched multiple times, bleeding from face",
+            category: 2
+        },
+        patient: {
+            condition: "Facial Fractures - Le Fort II pattern",
+            history: "On aspirin for heart, otherwise well",
+            medications: "Aspirin 75mg, Ramipril",
+            vitals: {
+                hr: 95,
+                bp: "150/90",
+                rr: 18,
+                spo2: 98,
+                temp: "N/A",
+                gcs: 15,
+                bm: "N/A",
+                pain: 8
+            },
+            presentation: "Mid-face swelling, epistaxis, malocclusion, infraorbital numbness, CSF rhinorrhoea",
+            ecg: "Rate 95bpm, sinus rhythm. Normal ECG.",
+            redFlags: [
+                "Mid-face mobility (Le Fort fracture)",
+                "CSF leak (clear fluid from nose - skull base fracture)",
+                "Infraorbital numbness (nerve involvement)",
+                "Malocclusion (jaw alignment)",
+                "Airway compromise risk with swelling",
+                "On anticoagulant",
+                "Needs maxillofacial assessment"
+            ]
+        },
+        starterMessage: "*holding blood-soaked towel to face* Some bloke jumped me outside the pub... hit me in the face loads of times. My nose is bleeding badly and my cheek feels completely numb. There's clear watery stuff coming from my nose too. My teeth don't line up properly when I bite down."
+    },
+    {
+        id: "trauma-008",
+        category: "trauma",
+        dispatch: {
+            name: "Sophie",
+            age: 8,
+            gender: "F",
+            chiefComplaint: "Arm injury",
+            details: "Fell off monkey bars, arm bent oddly, very upset",
+            category: 3
+        },
+        patient: {
+            condition: "Supracondylar Fracture of Humerus",
+            history: "Normally fit and well child",
+            medications: "None",
+            vitals: {
+                hr: 120,
+                bp: "N/A",
+                rr: 24,
+                spo2: 99,
+                temp: "N/A",
+                gcs: 15,
+                bm: "N/A",
+                pain: 9
+            },
+            presentation: "Obvious deformity above elbow, swelling, hand pale and cool",
+            ecg: "N/A - paediatric trauma, not indicated.",
+            redFlags: [
+                "Supracondylar fracture (most common paediatric elbow fracture)",
+                "Neurovascular compromise (pale, cool hand)",
+                "Check radial pulse and capillary refill",
+                "Check median nerve function (OK sign)",
+                "High risk of Volkmann's ischaemic contracture",
+                "Needs urgent orthopaedic assessment",
+                "Splint in position found if pulseless"
+            ]
+        },
+        starterMessage: "*Mother speaking, child crying loudly* She fell off the monkey bars at the park. Her arm is bent in a horrible way just above the elbow. She's in so much pain. Her hand looks really pale and she says it feels tingly. Please help her!"
+    },
+    {
+        id: "trauma-009",
+        category: "trauma",
+        dispatch: {
+            name: "Brian",
+            age: 45,
+            gender: "M",
+            chiefComplaint: "Crushed leg",
+            details: "Leg trapped under car while changing tyre",
+            category: 2
+        },
+        patient: {
+            condition: "Crush Injury - Lower Limb",
+            history: "Fit and well",
+            medications: "None",
+            vitals: {
+                hr: 105,
+                bp: "135/85",
+                rr: 20,
+                spo2: 98,
+                temp: "N/A",
+                gcs: 15,
+                bm: "N/A",
+                pain: 8
+            },
+            presentation: "Leg trapped for approximately 30 minutes, swollen and bruised, jack collapsed",
+            ecg: "Rate 105bpm, sinus rhythm. Normal QRS. Peaked T waves may develop post-release.",
+            redFlags: [
+                "Prolonged crush (>30 mins significant)",
+                "Risk of crush syndrome on release",
+                "Hyperkalaemia risk (cardiac arrhythmias)",
+                "Rhabdomyolysis risk",
+                "Fluid resuscitation before release",
+                "Consider calcium gluconate pre-release",
+                "Monitor ECG during and after release"
+            ]
+        },
+        starterMessage: "The jack slipped while I was under the car changing a tyre... my leg's been stuck for about half an hour. The neighbours managed to get the jack back up so it's not crushing me anymore but my leg is still trapped. It's really swollen and looks bruised already."
+    },
+    {
+        id: "trauma-010",
+        category: "trauma",
+        dispatch: {
+            name: "Kerry",
+            age: 31,
+            gender: "F",
+            chiefComplaint: "Horse kicked her",
+            details: "Kicked in abdomen by horse, winded, feels unwell",
+            category: 2
+        },
+        patient: {
+            condition: "Blunt Abdominal Trauma - Splenic Laceration",
+            history: "Fit and well, experienced rider",
+            medications: "None",
+            vitals: {
+                hr: 115,
+                bp: "95/65",
+                rr: 24,
+                spo2: 98,
+                temp: 36.5,
+                gcs: 15,
+                bm: "N/A",
+                pain: 8
+            },
+            presentation: "LUQ tenderness, referred pain to left shoulder (Kehr's sign), early shock",
+            ecg: "Rate 115bpm, sinus tachycardia. Normal ECG.",
+            redFlags: [
+                "Mechanism (high force from horse kick)",
+                "Left upper quadrant pain",
+                "Kehr's sign (left shoulder tip pain - splenic injury)",
+                "Signs of internal bleeding (tachycardia, hypotension)",
+                "Spleen most commonly injured organ in blunt abdo trauma",
+                "TIME CRITICAL - needs CT and possible surgery",
+                "Do not delay on scene"
+            ]
+        },
+        starterMessage: "The horse got spooked and kicked out... caught me right in the stomach. I was winded at first but now the pain is mainly up here on the left side of my tummy. Weirdly my left shoulder hurts too even though it didn't touch me. I feel a bit sick and lightheaded."
+    },
 
-    // ==================== PAEDIATRIC ====================
+    // ==================== PAEDIATRIC (10 scenarios) ====================
     {
         id: "paed-001",
         category: "paediatric",
@@ -1508,8 +2209,207 @@ const SCENARIOS = [
         },
         starterMessage: "*Nursery manager speaking* We're really worried about Sophie. She came in today with bruises on her arms and back - different colours like they happened at different times. She says she fell but they don't look like fall injuries to me. She's been very quiet and flinches when adults get close. Her mum's boyfriend picks her up sometimes..."
     },
+    {
+        id: "paed-006",
+        category: "paediatric",
+        dispatch: {
+            name: "Jake",
+            age: 8,
+            gender: "M",
+            chiefComplaint: "Asthma attack",
+            details: "Known asthmatic, blue inhaler not working, PE lesson",
+            category: 2
+        },
+        patient: {
+            condition: "Acute Severe Asthma - Paediatric",
+            history: "Asthma, previous hospital admission, allergies to pollen and cats",
+            medications: "Salbutamol inhaler, Beclometasone inhaler",
+            vitals: {
+                hr: 135,
+                bp: "N/A",
+                rr: 35,
+                spo2: 90,
+                temp: 36.6,
+                gcs: 15,
+                bm: "N/A",
+                pain: 0
+            },
+            presentation: "Widespread wheeze, accessory muscle use, too breathless for full sentences, agitated",
+            ecg: "N/A - paediatric patient",
+            redFlags: [
+                "SpO2 <92%",
+                "Can't complete sentences",
+                "Too breathless to talk or eat",
+                "Accessory muscle use",
+                "Agitation (hypoxia sign)",
+                "Previous hospital admission",
+                "Silent chest = life-threatening",
+                "Nebulised salbutamol + ipratropium"
+            ]
+        },
+        starterMessage: "*School teacher speaking, child wheezing heavily in background* Jake's having a really bad asthma attack. He was doing PE and just couldn't breathe. His inhaler isn't helping. He's had asthma attacks before but this one seems worse. He can barely speak he's breathing so hard."
+    },
+    {
+        id: "paed-007",
+        category: "paediatric",
+        dispatch: {
+            name: "Baby Mia",
+            age: 0.25,
+            gender: "F",
+            chiefComplaint: "Floppy baby",
+            details: "3 month old, not responding normally, feels cold",
+            category: 1
+        },
+        patient: {
+            condition: "Neonatal Sepsis",
+            history: "Born at term, bottle fed, had a cold 2 days ago",
+            medications: "None",
+            vitals: {
+                hr: 180,
+                bp: "N/A",
+                rr: 55,
+                spo2: 94,
+                temp: 35.8,
+                gcs: "Reduced responsiveness",
+                bm: 2.5,
+                pain: "N/A"
+            },
+            presentation: "Hypotonic, poor responsiveness, mottled, hypothermic, not feeding",
+            ecg: "N/A - infant",
+            redFlags: [
+                "Under 3 months with any red flags",
+                "Hypothermia (temp <36°C - worse than fever in infants)",
+                "Hypotonia (floppy)",
+                "Poor responsiveness",
+                "Mottled skin",
+                "Hypoglycaemia",
+                "Not feeding",
+                "TIME CRITICAL - needs IV antibiotics urgently"
+            ]
+        },
+        starterMessage: "*Mother speaking, very frightened* Something's really wrong with her. She's not acting right - she's all floppy and won't look at me properly. She feels really cold even though she's wrapped up. She hasn't had her bottle for hours and she's not crying like she normally does."
+    },
+    {
+        id: "paed-008",
+        category: "paediatric",
+        dispatch: {
+            name: "Tyler",
+            age: 12,
+            gender: "M",
+            chiefComplaint: "Diabetic - feeling unwell",
+            details: "Type 1 diabetic, vomiting, breathing fast, acting confused",
+            category: 2
+        },
+        patient: {
+            condition: "Diabetic Ketoacidosis (DKA)",
+            history: "Type 1 Diabetes diagnosed age 6, poor compliance recently",
+            medications: "Insulin (not taking regularly per mother)",
+            vitals: {
+                hr: 125,
+                bp: "100/60",
+                rr: 32,
+                spo2: 99,
+                temp: 37.2,
+                gcs: 14,
+                bm: 28.5,
+                pain: 5
+            },
+            presentation: "Kussmaul breathing, acetone breath, dehydrated, abdominal pain, drowsy",
+            ecg: "Rate 125bpm, sinus tachycardia. Peaked T waves (hyperkalaemia possible).",
+            redFlags: [
+                "Very high blood glucose",
+                "Kussmaul breathing (deep, sighing)",
+                "Acetone/pear drop smell on breath",
+                "Dehydration",
+                "Altered consciousness",
+                "Vomiting",
+                "Abdominal pain mimicking surgical abdomen",
+                "Needs IV fluids and insulin sliding scale"
+            ]
+        },
+        starterMessage: "*Mother speaking* Tyler's been really unwell since yesterday. He keeps being sick and his breath smells really weird - sort of sweet and fruity. He's breathing really heavily and he's not making sense when he talks. He's diabetic but I don't think he's been taking his insulin properly lately."
+    },
+    {
+        id: "paed-009",
+        category: "paediatric",
+        dispatch: {
+            name: "Oscar",
+            age: 5,
+            gender: "M",
+            chiefComplaint: "Swallowed button battery",
+            details: "Mum thinks he swallowed battery from toy, gagging",
+            category: 2
+        },
+        patient: {
+            condition: "Button Battery Ingestion",
+            history: "Previously fit and well, curious child",
+            medications: "None",
+            vitals: {
+                hr: 115,
+                bp: "N/A",
+                rr: 22,
+                spo2: 99,
+                temp: 36.7,
+                gcs: 15,
+                bm: "N/A",
+                pain: 2
+            },
+            presentation: "Drooling, intermittent gagging, pointing to chest, approximately 20mm battery suspected",
+            ecg: "N/A - paediatric patient",
+            redFlags: [
+                "Button battery ingestion is TIME CRITICAL",
+                "Oesophageal burns start within 2 hours",
+                "Battery >20mm more likely to lodge in oesophagus",
+                "Drooling/gagging suggests oesophageal location",
+                "Do NOT induce vomiting",
+                "Needs urgent X-ray and endoscopic removal",
+                "Honey may help if immediately available and >12 months old",
+                "Do NOT delay transport"
+            ]
+        },
+        starterMessage: "*Mother speaking, worried* I think Oscar swallowed a battery from one of his toys - it's one of those round flat ones. He keeps pointing to his chest and he's dribbling a lot. He gagged a few times but nothing came up. I found the toy with the battery compartment open. It happened about 30 minutes ago."
+    },
+    {
+        id: "paed-010",
+        category: "paediatric",
+        dispatch: {
+            name: "Ella",
+            age: 10,
+            gender: "F",
+            chiefComplaint: "Tummy pain and not eating",
+            details: "Pain for 2 days, worse today, not eating or drinking",
+            category: 3
+        },
+        patient: {
+            condition: "Appendicitis - Paediatric",
+            history: "Normally fit and well",
+            medications: "Calpol given by mum",
+            vitals: {
+                hr: 110,
+                bp: "105/65",
+                rr: 20,
+                spo2: 99,
+                temp: 38.0,
+                gcs: 15,
+                bm: 5.8,
+                pain: 7
+            },
+            presentation: "RIF tenderness, guarding, pain on walking/jumping, anorexia",
+            ecg: "N/A - paediatric patient",
+            redFlags: [
+                "Pain migration (periumbilical to RIF)",
+                "Guarding and rebound",
+                "Anorexia (not eating)",
+                "Low-grade fever",
+                "Pain on movement (walks hunched)",
+                "Hopping test positive",
+                "Higher perforation risk in children (atypical presentation)"
+            ]
+        },
+        starterMessage: "*Ella speaking, holding tummy* My tummy really hurts. It started near my belly button but now it's more down here on the right. It hurts more when I walk or jump. I don't want to eat anything and I've been sick once. *Mother adds* She's been hot and she never refuses food normally."
+    },
 
-    // ==================== OBSTETRIC ====================
+    // ==================== OBSTETRIC (10 scenarios) ====================
     {
         id: "obs-001",
         category: "obstetric",
@@ -1670,8 +2570,249 @@ const SCENARIOS = [
         },
         starterMessage: "*panicking* Something's really wrong! My waters just broke and I went to the toilet and there's something coming out - it looks like the cord! I can see it! I'm only 34 weeks - the baby was breech. What do I do? Is my baby going to die?"
     },
+    {
+        id: "obs-005",
+        category: "obstetric",
+        dispatch: {
+            name: "Lucy",
+            age: 29,
+            gender: "F",
+            chiefComplaint: "Bleeding in pregnancy",
+            details: "30 weeks pregnant, woke with bleeding, no pain",
+            category: 2
+        },
+        patient: {
+            condition: "Placenta Praevia with Haemorrhage",
+            history: "Third pregnancy, known low-lying placenta on 20-week scan",
+            medications: "Pregnancy vitamins, iron supplements",
+            vitals: {
+                hr: 105,
+                bp: "105/70",
+                rr: 20,
+                spo2: 98,
+                temp: 36.6,
+                gcs: 15,
+                bm: "N/A",
+                pain: 0
+            },
+            presentation: "Painless bright red vaginal bleeding, known placenta praevia",
+            ecg: "Rate 105bpm, sinus tachycardia.",
+            redFlags: [
+                "Painless bleeding in third trimester",
+                "Known low-lying placenta",
+                "Bright red blood",
+                "Do NOT perform vaginal examination",
+                "Risk of massive haemorrhage",
+                "Tachycardia suggesting volume loss",
+                "Needs emergency obstetric assessment",
+                "May need emergency caesarean section"
+            ]
+        },
+        starterMessage: "I woke up in a pool of blood - it's bright red and there's quite a lot of it. I'm 30 weeks pregnant. I don't have any pain which seems strange. They told me at my scan that my placenta was low down and might cause problems. I'm really scared for the baby."
+    },
+    {
+        id: "obs-006",
+        category: "obstetric",
+        dispatch: {
+            name: "Jennifer",
+            age: 31,
+            gender: "F",
+            chiefComplaint: "Severe abdominal pain in pregnancy",
+            details: "36 weeks pregnant, sudden severe pain, feels unwell",
+            category: 1
+        },
+        patient: {
+            condition: "Placental Abruption",
+            history: "Second pregnancy, smokes, had mild pre-eclampsia",
+            medications: "Aspirin 75mg (for pre-eclampsia prevention)",
+            vitals: {
+                hr: 120,
+                bp: "160/100",
+                rr: 24,
+                spo2: 97,
+                temp: 36.8,
+                gcs: 15,
+                bm: "N/A",
+                pain: 10
+            },
+            presentation: "Woody hard uterus, constant severe pain, some dark vaginal bleeding, reduced fetal movements",
+            ecg: "Rate 120bpm, sinus tachycardia.",
+            redFlags: [
+                "Sudden onset severe constant pain",
+                "Uterus hard and tender ('woody')",
+                "Dark blood loss (may be concealed)",
+                "Hypertension and pre-eclampsia risk factor",
+                "Smoker (risk factor)",
+                "Reduced fetal movements",
+                "Can lead to DIC and fetal death",
+                "TIME CRITICAL - needs emergency delivery"
+            ]
+        },
+        starterMessage: "*in severe pain, clutching abdomen* The pain came on suddenly about 20 minutes ago and it's constant - it's not coming in waves like contractions. My bump feels really hard and I've had a bit of dark blood. The baby hasn't moved much since it started. Something's really wrong, I know it is."
+    },
+    {
+        id: "obs-007",
+        category: "obstetric",
+        dispatch: {
+            name: "Michelle",
+            age: 33,
+            gender: "F",
+            chiefComplaint: "Shoulder stuck - baby won't come out",
+            details: "Baby's head delivered but body won't come, midwife requesting help",
+            category: 1
+        },
+        patient: {
+            condition: "Shoulder Dystocia",
+            history: "Second baby, first was 4.5kg, gestational diabetes this pregnancy",
+            medications: "Metformin for gestational diabetes",
+            vitals: {
+                hr: 110,
+                bp: "130/85",
+                rr: 28,
+                spo2: 98,
+                temp: 37.0,
+                gcs: 15,
+                bm: "N/A",
+                pain: 10
+            },
+            presentation: "Head delivered, turtle sign (head retracting), no restitution, shoulder impacted",
+            ecg: "N/A - not indicated",
+            redFlags: [
+                "OBSTETRIC EMERGENCY - 5-7 minute window",
+                "McRoberts position (knees to chest)",
+                "Suprapubic pressure (NOT fundal pressure)",
+                "Remove legs from lithotomy",
+                "Consider internal manoeuvres",
+                "Do NOT pull on head",
+                "Risk of brachial plexus injury",
+                "Risk of fetal hypoxia",
+                "May need episiotomy"
+            ]
+        },
+        starterMessage: "*Midwife speaking, urgent* I've got a shoulder dystocia! The head's out but the shoulders are stuck. I need help NOW. I've called for McRoberts and suprapubic pressure but the baby isn't coming. The head delivered about 2 minutes ago. First baby was big and she's got gestational diabetes."
+    },
+    {
+        id: "obs-008",
+        category: "obstetric",
+        dispatch: {
+            name: "Kate",
+            age: 24,
+            gender: "F",
+            chiefComplaint: "Bleeding in early pregnancy",
+            details: "8 weeks pregnant, heavy bleeding and cramps",
+            category: 2
+        },
+        patient: {
+            condition: "Miscarriage - Incomplete",
+            history: "First pregnancy, confirmed on scan last week",
+            medications: "Folic acid",
+            vitals: {
+                hr: 95,
+                bp: "115/75",
+                rr: 18,
+                spo2: 99,
+                temp: 36.7,
+                gcs: 15,
+                bm: "N/A",
+                pain: 6
+            },
+            presentation: "Heavy vaginal bleeding with clots, crampy lower abdominal pain, cervix open",
+            ecg: "N/A - not indicated",
+            redFlags: [
+                "Always consider ectopic (even with confirmed IU pregnancy - heterotopic possible)",
+                "Amount of blood loss",
+                "Signs of haemodynamic compromise",
+                "Products of conception passed?",
+                "Infection risk if prolonged",
+                "Rhesus status (may need Anti-D)",
+                "Psychological support important",
+                "May need surgical management"
+            ]
+        },
+        starterMessage: "*crying* I'm losing my baby... there's so much blood and I keep passing clots. I was 8 weeks pregnant - we only just found out. The pain is like really bad period cramps. Is there anything you can do to save my baby? This is my first pregnancy..."
+    },
+    {
+        id: "obs-009",
+        category: "obstetric",
+        dispatch: {
+            name: "Natalie",
+            age: 27,
+            gender: "F",
+            chiefComplaint: "Baby coming - can see bottom first",
+            details: "39 weeks pregnant, buttocks presenting, no midwife",
+            category: 1
+        },
+        patient: {
+            condition: "Breech Delivery - Imminent",
+            history: "First pregnancy, declined ECV at 37 weeks, planned caesarean next week",
+            medications: "Pregnancy vitamins",
+            vitals: {
+                hr: 100,
+                bp: "125/80",
+                rr: 24,
+                spo2: 99,
+                temp: 37.0,
+                gcs: 15,
+                bm: "N/A",
+                pain: 10
+            },
+            presentation: "Buttocks visible at introitus, mother pushing involuntarily",
+            ecg: "N/A - not indicated",
+            redFlags: [
+                "Breech presentation requires experienced management",
+                "Do NOT pull on baby - 'hands off the breech'",
+                "Allow passive delivery of buttocks and legs",
+                "Keep baby's back anterior",
+                "Head is last to deliver - risk of entrapment",
+                "Mauriceau-Smellie-Veit manoeuvre for head",
+                "Neonatal resuscitation likely needed",
+                "Pre-alert obstetric unit"
+            ]
+        },
+        starterMessage: "*panicking, between contractions* The baby's coming but it's the wrong way round - I can feel the bottom! I was supposed to have a caesarean next week because the baby was breech. My contractions just started an hour ago and now it's coming! I can't stop pushing!"
+    },
+    {
+        id: "obs-010",
+        category: "obstetric",
+        dispatch: {
+            name: "Emma",
+            age: 30,
+            gender: "F",
+            chiefComplaint: "Headache and swelling in pregnancy",
+            details: "34 weeks pregnant, bad headache, face and hands swollen",
+            category: 2
+        },
+        patient: {
+            condition: "Severe Pre-eclampsia",
+            history: "First pregnancy, BP noted to be borderline at last midwife appointment",
+            medications: "None",
+            vitals: {
+                hr: 90,
+                bp: "175/110",
+                rr: 18,
+                spo2: 98,
+                temp: 36.8,
+                gcs: 15,
+                bm: "N/A",
+                pain: 8
+            },
+            presentation: "Severe headache, visual disturbances, facial and hand oedema, RUQ pain, brisk reflexes",
+            ecg: "Rate 90bpm, sinus rhythm. Left ventricular hypertrophy pattern.",
+            redFlags: [
+                "Severe hypertension (>160/110)",
+                "Headache (cerebral involvement)",
+                "Visual disturbances (flashing lights)",
+                "RUQ/epigastric pain (liver involvement - HELLP risk)",
+                "Facial oedema (not just ankles)",
+                "Hyperreflexia",
+                "At risk of progression to eclampsia",
+                "Needs hospital for BP control and monitoring"
+            ]
+        },
+        starterMessage: "I've got a terrible headache that won't go away with paracetamol. I keep seeing flashing lights and my face looks really puffy - look at my hands, my rings won't come off. I've got this pain under my ribs on the right too. I'm 34 weeks pregnant. My midwife said my blood pressure was a bit high last week."
+    },
 
-    // ==================== MENTAL HEALTH ====================
+    // ==================== MENTAL HEALTH (10 scenarios) ====================
     {
         id: "mh-001",
         category: "mental-health",
@@ -1832,6 +2973,249 @@ const SCENARIOS = [
             ]
         },
         starterMessage: "*tearful* I took some tablets about 2 hours ago... paracetamol. A lot of them - the whole box, 32 I think. I regret it now, I don't really want to die, I just wanted everything to stop for a while. My stomach hurts a bit. I'm so stupid... am I going to be okay?"
+    },
+    {
+        id: "mh-005",
+        category: "mental-health",
+        dispatch: {
+            name: "Graham",
+            age: 68,
+            gender: "M",
+            chiefComplaint: "Won't get out of bed",
+            details: "Withdrawn for 2 weeks, wife died 3 months ago, not eating",
+            category: 3
+        },
+        patient: {
+            condition: "Severe Depression with Psychomotor Retardation",
+            history: "Wife died 3 months ago from cancer, no previous mental health history",
+            medications: "None",
+            vitals: {
+                hr: 60,
+                bp: "125/78",
+                rr: 14,
+                spo2: 98,
+                temp: 36.2,
+                gcs: 15,
+                bm: 4.8,
+                pain: 0
+            },
+            presentation: "Psychomotor retardation, minimal verbal responses, dehydrated, weight loss",
+            ecg: "Rate 60bpm, sinus bradycardia. Otherwise normal.",
+            redFlags: [
+                "Severe depression with psychomotor retardation",
+                "Not eating or drinking (dehydration risk)",
+                "Weight loss",
+                "Recent bereavement (complicated grief)",
+                "Passive suicidal ideation possible",
+                "Physical health deterioration",
+                "May need hospital admission",
+                "Exclude organic causes"
+            ]
+        },
+        starterMessage: "*speaking very slowly, long pauses* ...I just... *pause* ...can't do this anymore. *pause* ...Mary was everything... *trails off, staring into distance* ...what's the point of getting up? *very flat, minimal movement*"
+    },
+    {
+        id: "mh-006",
+        category: "mental-health",
+        dispatch: {
+            name: "Jade",
+            age: 22,
+            gender: "F",
+            chiefComplaint: "Panic attack",
+            details: "Can't breathe, thinks she's having a heart attack",
+            category: 3
+        },
+        patient: {
+            condition: "Panic Disorder - Acute Panic Attack",
+            history: "Anxiety since university, had panic attacks before",
+            medications: "Propranolol PRN (not taken today)",
+            vitals: {
+                hr: 120,
+                bp: "145/90",
+                rr: 28,
+                spo2: 99,
+                temp: 36.8,
+                gcs: 15,
+                bm: 5.5,
+                pain: 6
+            },
+            presentation: "Hyperventilating, trembling, chest tightness, feeling of impending doom, perioral tingling",
+            ecg: "Rate 120bpm, sinus tachycardia. Normal ECG. No ischaemic changes.",
+            redFlags: [
+                "First presentation needs cardiac workup",
+                "Rule out physical causes (PE, MI, arrhythmia)",
+                "Perioral tingling (hyperventilation/respiratory alkalosis)",
+                "Feeling of dying/impending doom (classic panic)",
+                "History suggests panic disorder",
+                "Calm reassurance and breathing techniques",
+                "Do not dismiss - very frightening for patient"
+            ]
+        },
+        starterMessage: "*hyperventilating, very distressed* I can't breathe! I think I'm having a heart attack! My chest is so tight and my heart is pounding. My fingers and around my mouth are tingling. I feel like I'm going to die! This has happened before but this time it's worse!"
+    },
+    {
+        id: "mh-007",
+        category: "mental-health",
+        dispatch: {
+            name: "Anthony",
+            age: 35,
+            gender: "M",
+            chiefComplaint: "Aggressive - mental health crisis",
+            details: "Police on scene, very agitated, history of schizophrenia",
+            category: 2
+        },
+        patient: {
+            condition: "Acute Psychotic Relapse with Agitation",
+            history: "Paranoid schizophrenia, multiple admissions, stopped depot injection",
+            medications: "Should be on Aripiprazole depot - missed last 2",
+            vitals: {
+                hr: 110,
+                bp: "155/95",
+                rr: 22,
+                spo2: 98,
+                temp: 37.2,
+                gcs: 15,
+                bm: "Unable to obtain",
+                pain: "Unable to assess"
+            },
+            presentation: "Responding to unseen stimuli, paranoid about police, pacing, shouting",
+            ecg: "N/A - unable to obtain safely",
+            redFlags: [
+                "Medication non-compliance",
+                "Paranoid ideation",
+                "Responding to hallucinations",
+                "Agitation level",
+                "Risk of violence",
+                "May need MHA assessment",
+                "De-escalation techniques",
+                "Consider rapid tranquillisation if needed",
+                "Exclude physical causes (infection, drugs)"
+            ]
+        },
+        starterMessage: "*shouting, pacing, won't make eye contact* STAY BACK! I know why you're here! They sent you didn't they? The voices told me this would happen! *pointing at nothing* Can you see them? They're watching everything! I haven't done anything wrong! Why won't everyone leave me alone?!"
+    },
+    {
+        id: "mh-008",
+        category: "mental-health",
+        dispatch: {
+            name: "Stephanie",
+            age: 28,
+            gender: "F",
+            chiefComplaint: "Hasn't slept for days",
+            details: "Partner concerned, talking non-stop, spending money",
+            category: 3
+        },
+        patient: {
+            condition: "Bipolar Disorder - Manic Episode",
+            history: "Bipolar type 1, last manic episode 2 years ago",
+            medications: "Lithium (admits stopped taking it 3 weeks ago)",
+            vitals: {
+                hr: 100,
+                bp: "135/85",
+                rr: 20,
+                spo2: 99,
+                temp: 37.0,
+                gcs: 15,
+                bm: 5.8,
+                pain: 0
+            },
+            presentation: "Pressured speech, flight of ideas, grandiose beliefs, decreased need for sleep, disinhibited",
+            ecg: "Rate 100bpm, sinus rhythm. Normal ECG.",
+            redFlags: [
+                "Stopped lithium (common precipitant)",
+                "Flight of ideas and pressured speech",
+                "Decreased need for sleep",
+                "Grandiosity",
+                "Disinhibited behaviour (spending, sexual)",
+                "Risk of self-harm through reckless behaviour",
+                "May lack insight into illness",
+                "Needs psychiatric assessment",
+                "Check lithium level if recently stopped"
+            ]
+        },
+        starterMessage: "*speaking very rapidly* Oh hi! Isn't it a BEAUTIFUL day? I've been up all night because I've had the most AMAZING ideas - I'm going to start three new businesses, I've already bought the equipment online - *laughing* - my partner thinks I'm crazy but I've never felt better! I don't need sleep - sleep is for people who aren't achieving things! Do you want to invest? I can make us all millionaires!"
+    },
+    {
+        id: "mh-009",
+        category: "mental-health",
+        dispatch: {
+            name: "Tom",
+            age: 40,
+            gender: "M",
+            chiefComplaint: "Alcohol withdrawal",
+            details: "Shaking badly, seeing things, family very worried",
+            category: 2
+        },
+        patient: {
+            condition: "Delirium Tremens",
+            history: "Alcohol dependent 15 years, drinks 1 bottle vodka daily, stopped 3 days ago",
+            medications: "None",
+            vitals: {
+                hr: 125,
+                bp: "165/100",
+                rr: 24,
+                spo2: 97,
+                temp: 38.2,
+                gcs: 14,
+                bm: 4.5,
+                pain: 0
+            },
+            presentation: "Coarse tremor, visual hallucinations (seeing insects), disorientation, diaphoretic",
+            ecg: "Rate 125bpm, sinus tachycardia. Prolonged QT. Otherwise normal.",
+            redFlags: [
+                "Delirium tremens (medical emergency)",
+                "Visual hallucinations typical",
+                "Risk of seizures",
+                "Autonomic instability (tachycardia, hypertension, fever)",
+                "Hypoglycaemia risk",
+                "Dehydration",
+                "Needs IV Pabrinex and benzodiazepines",
+                "Can be fatal if untreated",
+                "Hospital admission required"
+            ]
+        },
+        starterMessage: "*trembling violently, looking around fearfully* There's things crawling everywhere! Can't you see them? *brushing at arms* Get them off me! I stopped drinking 3 days ago because I wanted to get better but now I feel terrible. What's happening to me? I'm so scared."
+    },
+    {
+        id: "mh-010",
+        category: "mental-health",
+        dispatch: {
+            name: "Priya",
+            age: 32,
+            gender: "F",
+            chiefComplaint: "Can't cope after birth",
+            details: "Baby 2 weeks old, crying constantly, saying strange things",
+            category: 2
+        },
+        patient: {
+            condition: "Postpartum Psychosis",
+            history: "No previous mental health history, first baby, difficult birth",
+            medications: "None",
+            vitals: {
+                hr: 95,
+                bp: "130/80",
+                rr: 18,
+                spo2: 99,
+                temp: 36.8,
+                gcs: 15,
+                bm: 5.5,
+                pain: 0
+            },
+            presentation: "Confused, paranoid about baby, believes baby is 'special', hasn't slept properly, labile mood",
+            ecg: "Rate 95bpm, sinus rhythm. Normal ECG.",
+            redFlags: [
+                "Postpartum psychosis is PSYCHIATRIC EMERGENCY",
+                "Risk to mother and baby",
+                "Delusions involving baby (risk of infanticide)",
+                "Rapid onset (typically within 2 weeks of birth)",
+                "Sleep deprivation prominent",
+                "May swing between elation and despair",
+                "Needs Mother and Baby Unit admission",
+                "Baby safety paramount",
+                "Can deteriorate very rapidly"
+            ]
+        },
+        starterMessage: "*agitated, holding baby tightly* You don't understand - this baby is SPECIAL. She's been sent for a reason. *whispering* They're going to try to take her from me but I won't let them. I haven't slept properly since she was born - I don't need to sleep, I have to protect her. *suddenly crying* I don't know what's real anymore... am I a bad mother?"
     }
 ];
 
@@ -1923,6 +3307,7 @@ PATIENT DETAILS (hidden from learner):
 PATIENT BEHAVIOUR:
 - Speak naturally as a real patient would (may not know medical terms)
 - Show appropriate emotion (anxious if chest pain, drowsy if septic, etc.)
+- If the paramedic is insulting, tell them you are hurt by their comments and not to say these things again
 - May be vague, forgetful, or need prompting—like real patients
 - If very unwell (low GCS, severe pain), responses may be brief or confused
 
