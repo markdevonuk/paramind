@@ -1,7 +1,7 @@
 /**
  * PARAMIND - Cloud Functions
  * Backend API for the Paramind paramedic learning platform
- * WITH CPD PORTFOLIO FEATURE
+ * WITH CPD PORTFOLIO FEATURE AND DISCOUNT CODES
  */
 
 const { onRequest } = require("firebase-functions/v2/https");
@@ -165,7 +165,7 @@ exports.chat = onRequest(
         });
       }
 
-  // Get message, conversation history, and scenario prompt from request
+      // Get message, conversation history, and scenario prompt from request
       const { message, conversationHistory = [], scenarioPrompt } = req.body;
 
       if (!message || typeof message !== "string") {
@@ -239,17 +239,17 @@ exports.user = onRequest({ cors: true }, async (req, res) => {
     // Check message limit status
     const limitCheck = await checkMessageLimit(user);
 
-return res.status(200).json({
-    uid: user.id,
-    firstName: user.firstName || null,
-    surname: user.surname || null,
-    email: user.email,
-    trust: user.trust,
-    trustFullName: user.trustFullName,
-    subscriptionStatus: user.subscriptionStatus,
-    messagesRemaining: limitCheck.remaining,
-    isPro: user.subscriptionStatus === "active",
-});
+    return res.status(200).json({
+      uid: user.id,
+      firstName: user.firstName || null,
+      surname: user.surname || null,
+      email: user.email,
+      trust: user.trust,
+      trustFullName: user.trustFullName,
+      subscriptionStatus: user.subscriptionStatus,
+      messagesRemaining: limitCheck.remaining,
+      isPro: user.subscriptionStatus === "active",
+    });
 
   } catch (error) {
     console.error("User fetch error:", error);
@@ -265,6 +265,7 @@ return res.status(200).json({
 /**
  * POST /createCheckoutSession
  * Create a Stripe checkout session for subscription
+ * NOW SUPPORTS DISCOUNT CODES!
  */
 exports.createCheckoutSession = onRequest(
   { 
@@ -301,7 +302,7 @@ exports.createCheckoutSession = onRequest(
         });
       }
 
-      // Create checkout session
+      // Create checkout session with promotion codes enabled
       const session = await stripe.checkout.sessions.create({
         customer: customerId,
         payment_method_types: ["card"],
@@ -322,6 +323,7 @@ exports.createCheckoutSession = onRequest(
           },
         ],
         mode: "subscription",
+        allow_promotion_codes: true,  // <-- This enables the discount code field on Stripe's page!
         success_url: `${req.headers.origin}/chat.html?session_id={CHECKOUT_SESSION_ID}&success=true`,
         cancel_url: `${req.headers.origin}/chat.html?canceled=true`,
         metadata: {
@@ -376,10 +378,19 @@ exports.stripeWebhook = onRequest(
         const uid = session.metadata.firebaseUID;
 
         if (uid) {
-          await db.collection("users").doc(uid).update({
+          // Store discount info if a coupon was used
+          const updateData = {
             subscriptionStatus: "active",
             stripeSubscriptionId: session.subscription,
-          });
+          };
+
+          // If there was a discount, store it for reference
+          if (session.total_details?.amount_discount > 0) {
+            updateData.discountApplied = true;
+            updateData.discountAmount = session.total_details.amount_discount;
+          }
+
+          await db.collection("users").doc(uid).update(updateData);
           console.log(`Subscription activated for user: ${uid}`);
         }
         break;
