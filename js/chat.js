@@ -3,6 +3,7 @@
    Connected to Firebase Backend
    Scenarios loaded from scenarios.js
    WITH CPD PORTFOLIO FEATURE
+   WITH STREAMING RESPONSES
    ============================================ */
 
 // ==================== STATE ====================
@@ -244,25 +245,25 @@ async function fetchUserProfile() {
         }
         
         // Display user's full name in dropdown
-const userNameElement = document.getElementById('userName');
-if (userNameElement) {
-    const fullName = [data.firstName, data.surname].filter(Boolean).join(' ');
-    userNameElement.textContent = fullName || data.email;
-}
+        const userNameElement = document.getElementById('userName');
+        if (userNameElement) {
+            const fullName = [data.firstName, data.surname].filter(Boolean).join(' ');
+            userNameElement.textContent = fullName || data.email;
+        }
 
-// Update upgrade button based on Pro status
-const upgradeBtn = document.getElementById('upgradeBtn');
-if (upgradeBtn) {
-    if (data.isPro) {
-        upgradeBtn.innerHTML = '<i class="bi bi-star-fill me-2"></i><span class="brand-para">Pro</span> user';
-        upgradeBtn.style.pointerEvents = 'none';
-        upgradeBtn.style.cursor = 'default';
-    } else {
-        upgradeBtn.innerHTML = '<i class="bi bi-star me-2"></i>Upgrade to Pro';
-        upgradeBtn.style.pointerEvents = 'auto';
-        upgradeBtn.style.cursor = 'pointer';
-    }
-}
+        // Update upgrade button based on Pro status
+        const upgradeBtn = document.getElementById('upgradeBtn');
+        if (upgradeBtn) {
+            if (data.isPro) {
+                upgradeBtn.innerHTML = '<i class="bi bi-star-fill me-2"></i><span class="brand-para">Pro</span> user';
+                upgradeBtn.style.pointerEvents = 'none';
+                upgradeBtn.style.cursor = 'default';
+            } else {
+                upgradeBtn.innerHTML = '<i class="bi bi-star me-2"></i>Upgrade to Pro';
+                upgradeBtn.style.pointerEvents = 'auto';
+                upgradeBtn.style.cursor = 'pointer';
+            }
+        }
         
         // Display user's first name in welcome message
         if (elements.welcomeName && data.firstName) {
@@ -292,7 +293,13 @@ if (upgradeBtn) {
     }
 }
 
-async function sendMessageToAPI(message) {
+/**
+ * Send message to API with STREAMING support
+ * @param {string} message - The message to send
+ * @param {function} onChunk - Callback function called with partial message as chunks arrive
+ * @returns {Promise<string>} - The complete message after streaming finishes
+ */
+async function sendMessageToAPI(message, onChunk) {
     const token = await getAuthToken();
     
     // Get scenario system prompt if in a scenario
@@ -314,21 +321,67 @@ async function sendMessageToAPI(message) {
         })
     });
     
-    const data = await response.json();
-    
+    // Check for error responses (non-streaming errors return JSON)
     if (!response.ok) {
         if (response.status === 429) {
             throw new Error('LIMIT_REACHED');
         }
-        throw new Error(data.error || 'Failed to send message');
+        // Try to parse error as JSON
+        try {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to send message');
+        } catch (e) {
+            if (e.message === 'LIMIT_REACHED') throw e;
+            throw new Error('Failed to send message');
+        }
     }
     
-    if (data.remaining !== undefined && data.remaining >= 0) {
-        chatState.messagesRemaining = data.remaining;
-        updateMessageCounter();
+    // Handle streaming response
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let fullMessage = '';
+    
+    while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) break;
+        
+        // Decode the chunk
+        const text = decoder.decode(value, { stream: true });
+        
+        // Parse Server-Sent Events (may contain multiple events)
+        const lines = text.split('\n');
+        
+        for (const line of lines) {
+            if (line.startsWith('data: ')) {
+                try {
+                    const data = JSON.parse(line.slice(6));
+                    
+                    if (data.type === 'meta') {
+                        // Update message counter
+                        if (data.remaining !== undefined && data.remaining >= 0) {
+                            chatState.messagesRemaining = data.remaining;
+                            updateMessageCounter();
+                        }
+                    } else if (data.type === 'chunk') {
+                        // Add chunk to full message
+                        fullMessage += data.content;
+                        // Call the callback to update UI
+                        if (onChunk) {
+                            onChunk(fullMessage);
+                        }
+                    } else if (data.type === 'error') {
+                        throw new Error(data.error);
+                    }
+                    // 'done' type just signals completion
+                } catch (parseError) {
+                    // Skip lines that aren't valid JSON (empty lines, etc.)
+                }
+            }
+        }
     }
     
-    return data.message;
+    return fullMessage;
 }
 
 async function createCheckoutSession() {
@@ -959,12 +1012,19 @@ async function submitWorkingImpression() {
     addMessage('user', displayMessage);
     chatState.conversationHistory.push({ role: 'user', content: triggerMessage });
     
-    showLoading();
+    // Create the streaming message bubble
+    const aiMessageId = 'ai-msg-' + Date.now();
+    addStreamingMessage(aiMessageId);
+    
+    chatState.isLoading = true;
+    elements.sendBtn.disabled = true;
     
     try {
-        const response = await sendMessageToAPI(triggerMessage);
-        hideLoading();
-        addMessage('assistant', response);
+        const response = await sendMessageToAPI(triggerMessage, (partialMessage) => {
+            updateStreamingMessage(aiMessageId, partialMessage);
+        });
+        
+        finalizeStreamingMessage(aiMessageId, response);
         chatState.conversationHistory.push({ role: 'assistant', content: response });
         
         // === CPD PORTFOLIO: Save record for Pro users ===
@@ -1015,8 +1075,11 @@ async function submitWorkingImpression() {
         // Clear the scenario state after debrief
         chatState.currentScenario = null;
     } catch (error) {
-        hideLoading();
+        removeStreamingMessage(aiMessageId);
         handleChatError(error);
+    } finally {
+        chatState.isLoading = false;
+        elements.sendBtn.disabled = false;
     }
 }
 
@@ -1065,24 +1128,33 @@ async function handleAssessment(assessmentType) {
     // Add to conversation history (but don't display as user message)
     chatState.conversationHistory.push({ role: 'user', content: assessment.prompt });
     
-    showLoading();
+    // Show a subtle indicator of what was requested
+    const assessmentIndicator = document.createElement('div');
+    assessmentIndicator.className = 'assessment-indicator';
+    assessmentIndicator.innerHTML = `<small><i class="bi bi-clipboard2-pulse me-1"></i>${assessment.name}</small>`;
+    assessmentIndicator.style.cssText = 'color: #17a2b8; font-size: 0.75rem; margin: 4px 0 0 50px; font-style: italic;';
+    elements.chatMessages.appendChild(assessmentIndicator);
+    
+    // Create the streaming message bubble
+    const aiMessageId = 'ai-msg-' + Date.now();
+    addStreamingMessage(aiMessageId);
+    
+    chatState.isLoading = true;
+    elements.sendBtn.disabled = true;
     
     try {
-        const response = await sendMessageToAPI(assessment.prompt);
-        hideLoading();
+        const response = await sendMessageToAPI(assessment.prompt, (partialMessage) => {
+            updateStreamingMessage(aiMessageId, partialMessage);
+        });
         
-        // Show a subtle indicator of what was requested
-        const assessmentIndicator = document.createElement('div');
-        assessmentIndicator.className = 'assessment-indicator';
-        assessmentIndicator.innerHTML = `<small><i class="bi bi-clipboard2-pulse me-1"></i>${assessment.name}</small>`;
-        assessmentIndicator.style.cssText = 'color: #17a2b8; font-size: 0.75rem; margin: 4px 0 0 50px; font-style: italic;';
-        elements.chatMessages.appendChild(assessmentIndicator);
-        
-        addMessage('assistant', response);
+        finalizeStreamingMessage(aiMessageId, response);
         chatState.conversationHistory.push({ role: 'assistant', content: response });
     } catch (error) {
-        hideLoading();
+        removeStreamingMessage(aiMessageId);
         handleChatError(error);
+    } finally {
+        chatState.isLoading = false;
+        elements.sendBtn.disabled = false;
     }
 }
 
@@ -1113,24 +1185,32 @@ async function handleHint() {
     
     chatState.conversationHistory.push({ role: 'user', content: hintPrompt });
     
-    showLoading();
+    const hintIndicator = document.createElement('div');
+    hintIndicator.className = 'hint-indicator';
+    hintIndicator.innerHTML = `<small><i class="bi bi-lightbulb me-1"></i>Hint requested</small>`;
+    hintIndicator.style.cssText = 'color: #ffc107; font-size: 0.75rem; margin: 4px 0 0 50px; font-style: italic;';
+    elements.chatMessages.appendChild(hintIndicator);
+    
+    // Create the streaming message bubble
+    const aiMessageId = 'ai-msg-' + Date.now();
+    addStreamingMessage(aiMessageId);
+    
+    chatState.isLoading = true;
+    elements.sendBtn.disabled = true;
     
     try {
-        const response = await sendMessageToAPI(hintPrompt);
-        hideLoading();
+        const response = await sendMessageToAPI(hintPrompt, (partialMessage) => {
+            updateStreamingMessage(aiMessageId, partialMessage);
+        });
         
-        const hintIndicator = document.createElement('div');
-        hintIndicator.className = 'hint-indicator';
-        hintIndicator.innerHTML = `<small><i class="bi bi-lightbulb me-1"></i>Hint requested</small>`;
-        hintIndicator.style.cssText = 'color: #ffc107; font-size: 0.75rem; margin: 4px 0 0 50px; font-style: italic;';
-        elements.chatMessages.appendChild(hintIndicator);
-        
-        addMessage('assistant', response);
+        finalizeStreamingMessage(aiMessageId, response);
         chatState.conversationHistory.push({ role: 'assistant', content: response });
     } catch (error) {
-        hideLoading();
+        removeStreamingMessage(aiMessageId);
         handleChatError(error);
     } finally {
+        chatState.isLoading = false;
+        elements.sendBtn.disabled = false;
         if (elements.hintBtn) {
             elements.hintBtn.disabled = false;
         }
@@ -1177,16 +1257,26 @@ async function handlePatientForm(e) {
     addMessage('user', summaryMessage);
     chatState.conversationHistory.push({ role: 'user', content: prompt });
     
-    showLoading();
+    // Create the streaming message bubble
+    const aiMessageId = 'ai-msg-' + Date.now();
+    addStreamingMessage(aiMessageId);
+    
+    chatState.isLoading = true;
+    elements.sendBtn.disabled = true;
     
     try {
-        const response = await sendMessageToAPI(prompt);
-        hideLoading();
-        addMessage('assistant', response);
+        const response = await sendMessageToAPI(prompt, (partialMessage) => {
+            updateStreamingMessage(aiMessageId, partialMessage);
+        });
+        
+        finalizeStreamingMessage(aiMessageId, response);
         chatState.conversationHistory.push({ role: 'assistant', content: response });
     } catch (error) {
-        hideLoading();
+        removeStreamingMessage(aiMessageId);
         handleChatError(error);
+    } finally {
+        chatState.isLoading = false;
+        elements.sendBtn.disabled = false;
     }
 }
 
@@ -1265,16 +1355,26 @@ async function handleSendMessage(e) {
     // Track that a question was asked (if in a scenario)
     incrementQuestionsAsked();
     
-    showLoading();
+    // Create the streaming message bubble
+    const aiMessageId = 'ai-msg-' + Date.now();
+    addStreamingMessage(aiMessageId);
+    
+    chatState.isLoading = true;
+    elements.sendBtn.disabled = true;
     
     try {
-        const response = await sendMessageToAPI(message);
-        hideLoading();
-        addMessage('assistant', response);
+        const response = await sendMessageToAPI(message, (partialMessage) => {
+            updateStreamingMessage(aiMessageId, partialMessage);
+        });
+        
+        finalizeStreamingMessage(aiMessageId, response);
         chatState.conversationHistory.push({ role: 'assistant', content: response });
     } catch (error) {
-        hideLoading();
+        removeStreamingMessage(aiMessageId);
         handleChatError(error);
+    } finally {
+        chatState.isLoading = false;
+        elements.sendBtn.disabled = false;
     }
 }
 
@@ -1313,6 +1413,84 @@ function addMessage(role, content) {
         messageDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 }
+
+// ==================== STREAMING MESSAGE FUNCTIONS ====================
+
+/**
+ * Add an empty streaming message bubble with typing cursor
+ */
+function addStreamingMessage(messageId) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message assistant';
+    messageDiv.id = messageId;
+    
+    messageDiv.innerHTML = `
+        <div class="message-avatar">
+            <i class="bi bi-robot"></i>
+        </div>
+        <div class="message-content">
+            <span class="streaming-text"></span><span class="streaming-cursor">|</span>
+        </div>
+    `;
+    
+    elements.chatMessages.appendChild(messageDiv);
+    scrollToBottom();
+}
+
+/**
+ * Update the streaming message with new content
+ */
+function updateStreamingMessage(messageId, content) {
+    const messageDiv = document.getElementById(messageId);
+    if (messageDiv) {
+        const textSpan = messageDiv.querySelector('.streaming-text');
+        if (textSpan) {
+            // Use the existing formatMessage utility
+            textSpan.innerHTML = window.paramind.utils.formatMessage(content);
+        }
+        // Scroll to keep the message in view
+        const messagesContainer = elements.chatMessages;
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+}
+
+/**
+ * Finalize the streaming message (remove cursor, clean up)
+ */
+function finalizeStreamingMessage(messageId, finalContent) {
+    const messageDiv = document.getElementById(messageId);
+    if (messageDiv) {
+        // Remove the typing cursor
+        const cursor = messageDiv.querySelector('.streaming-cursor');
+        if (cursor) {
+            cursor.remove();
+        }
+        
+        // Ensure final content is displayed
+        const textSpan = messageDiv.querySelector('.streaming-text');
+        if (textSpan) {
+            textSpan.innerHTML = window.paramind.utils.formatMessage(finalContent);
+        }
+        
+        // Add to messages array
+        chatState.messages.push({ role: 'assistant', content: finalContent, timestamp: new Date() });
+        
+        // Scroll to the start of the message so they can read it
+        messageDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+/**
+ * Remove a streaming message (on error)
+ */
+function removeStreamingMessage(messageId) {
+    const messageDiv = document.getElementById(messageId);
+    if (messageDiv) {
+        messageDiv.remove();
+    }
+}
+
+// ==================== LOADING AND UI FUNCTIONS ====================
 
 function showLoading() {
     chatState.isLoading = true;
@@ -1676,21 +1854,8 @@ async function deleteCpdRecord(recordId) {
 }
 
 /**
- * =====================================================
- * CPD CERTIFICATE FUNCTIONS - VERSION 4
- * =====================================================
- * 
- * CHANGE: Signature now spells "paramind" in handwritten style
- * 
- * INSTRUCTIONS:
- * 1. In your chat.js, DELETE the existing downloadCpdCertificate 
- *    and generateCertificatePdf functions completely
- * 2. Paste these two functions in their place
- * 3. Save the file
- * 4. Hard refresh your browser (Ctrl+Shift+R)
- * =====================================================
+ * Download CPD Certificate
  */
-
 async function downloadCpdCertificate(recordId) {
     console.log('=== CERTIFICATE DOWNLOAD V4 ===');
     

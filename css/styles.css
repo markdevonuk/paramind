@@ -1457,6 +1457,36 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ============================================
+   STREAMING RESPONSE STYLES
+   Add this to your existing CSS file
+   ============================================ */
+
+/* Streaming cursor animation */
+.streaming-cursor {
+    display: inline;
+    animation: blink 0.7s infinite;
+    color: #2b8a9c;
+    font-weight: bold;
+    margin-left: 2px;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+/* Ensure streaming text displays properly */
+.streaming-text {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Smooth transition for message content */
+.message-content {
+    transition: none; /* Remove any transition to make streaming smooth */
+}
+
+/* ============================================
    FIX FOR ORPHAN <li> ELEMENTS IN CHAT
    (li tags not wrapped in ul/ol)
    ============================================ */

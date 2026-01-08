@@ -1,7 +1,7 @@
 /**
  * PARAMIND - Cloud Functions
  * Backend API for the Paramind paramedic learning platform
- * WITH CPD PORTFOLIO FEATURE AND DISCOUNT CODES
+ * WITH CPD PORTFOLIO FEATURE, DISCOUNT CODES, AND STREAMING RESPONSES
  */
 
 const { onRequest } = require("firebase-functions/v2/https");
@@ -132,7 +132,7 @@ Be friendly, professional, and thorough in your explanations. Use UK medical ter
 
 /**
  * POST /chat
- * Handle chat messages - the main AI conversation endpoint
+ * Handle chat messages - WITH STREAMING RESPONSE
  */
 exports.chat = onRequest(
   { 
@@ -176,7 +176,6 @@ exports.chat = onRequest(
       const systemPrompt = scenarioPrompt || buildSystemPrompt(user.trust, user.trustFullName);
 
       // Build messages array for OpenAI
-      // Filter out any messages with null/undefined content and system messages
       const validHistory = conversationHistory
         .slice(-10)
         .filter(msg => msg && msg.content && msg.role !== 'system');
@@ -187,38 +186,56 @@ exports.chat = onRequest(
         { role: "user", content: message },
       ];
 
-      // Call OpenAI API
-      const completion = await openai.chat.completions.create({
+      // Set headers for streaming (Server-Sent Events)
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+
+      // Send the remaining message count first
+      const remaining = user.subscriptionStatus === "active" ? -1 : limitCheck.remaining - 1;
+      res.write(`data: ${JSON.stringify({ type: 'meta', remaining: remaining })}\n\n`);
+
+      // Call OpenAI API with streaming enabled
+      const stream = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: messages,
         max_tokens: 1000,
         temperature: 0.7,
+        stream: true,
       });
 
-      const assistantMessage = completion.choices[0].message.content;
+      // Stream each chunk to the client
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content;
+        if (content) {
+          res.write(`data: ${JSON.stringify({ type: 'chunk', content: content })}\n\n`);
+        }
+      }
 
-      // Increment message count for free users
+      // Send completion signal
+      res.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`);
+      res.end();
+
+      // Increment message count for free users (after successful response)
       if (user.subscriptionStatus !== "active") {
         await incrementMessageCount(uid);
       }
 
-      // Return response
-      return res.status(200).json({
-        message: assistantMessage,
-        remaining: limitCheck.remaining - 1,
-      });
-
     } catch (error) {
       console.error("Chat error:", error);
 
-      if (error.message.includes("Unauthorized")) {
-        return res.status(401).json({ error: error.message });
+      if (!res.headersSent) {
+        if (error.message.includes("Unauthorized")) {
+          return res.status(401).json({ error: error.message });
+        }
+        return res.status(500).json({
+          error: "An error occurred processing your message",
+          details: error.message,
+        });
+      } else {
+        res.write(`data: ${JSON.stringify({ type: 'error', error: error.message })}\n\n`);
+        res.end();
       }
-
-      return res.status(500).json({
-        error: "An error occurred processing your message",
-        details: error.message,
-      });
     }
   }
 );
@@ -323,7 +340,7 @@ exports.createCheckoutSession = onRequest(
           },
         ],
         mode: "subscription",
-        allow_promotion_codes: true,  // <-- This enables the discount code field on Stripe's page!
+        allow_promotion_codes: true,
         success_url: `${req.headers.origin}/chat.html?session_id={CHECKOUT_SESSION_ID}&success=true`,
         cancel_url: `${req.headers.origin}/chat.html?canceled=true`,
         metadata: {
