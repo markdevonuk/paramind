@@ -19,7 +19,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
     
-    <!-- Group Discount Card & Hollie Section Styles -->
+    <!-- Additional Styles -->
     <style>
         .group-discount-card {
             background: linear-gradient(135deg, rgba(43, 138, 156, 0.05) 0%, rgba(92, 184, 92, 0.05) 100%);
@@ -48,25 +48,8 @@
             margin-bottom: 0.5rem;
         }
 
-        /* ==================== MEET HOLLIE SECTION ==================== */
-        .meet-hollie-section {
-            background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
-            padding: 4rem 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .meet-hollie-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(43, 138, 156, 0.3), transparent);
-        }
-
-        .hollie-container {
+        /* ==================== HOLLIE IN HERO SECTION ==================== */
+        .hollie-hero {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -81,61 +64,90 @@
         }
 
         .hollie-image-wrapper:hover {
-            transform: scale(1.02);
+            transform: scale(1.03);
         }
 
         .hollie-image-wrapper:hover .hollie-play-btn {
-            transform: translate(-50%, -50%) scale(1.1);
+            transform: scale(1.1);
             background: linear-gradient(135deg, var(--color-teal, #2B8A9C) 0%, var(--color-green, #5CB85C) 100%);
         }
 
         .hollie-image {
-            width: 200px;
-            height: 200px;
+            width: 220px;
+            height: 220px;
             border-radius: 50%;
             object-fit: cover;
             object-position: top;
-            border: 4px solid #fff;
-            box-shadow: 0 10px 40px rgba(43, 138, 156, 0.3);
+            border: 5px solid #fff;
+            box-shadow: 0 15px 50px rgba(43, 138, 156, 0.3);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
         .hollie-play-btn {
             position: absolute;
-            bottom: 10px;
-            right: 10px;
-            width: 50px;
-            height: 50px;
+            bottom: 15px;
+            right: 15px;
+            width: 55px;
+            height: 55px;
             background: linear-gradient(135deg, var(--color-green, #5CB85C) 0%, var(--color-teal, #2B8A9C) 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 1.25rem;
-            box-shadow: 0 4px 15px rgba(92, 184, 92, 0.4);
+            font-size: 1.5rem;
+            box-shadow: 0 4px 20px rgba(92, 184, 92, 0.5);
             transition: all 0.3s ease;
+            border: 3px solid white;
+        }
+
+        /* Speech bubble */
+        .hollie-speech {
+            background: white;
+            border-radius: 20px;
+            padding: 1.25rem 1.75rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            max-width: 320px;
+        }
+
+        .hollie-speech::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 14px solid transparent;
+            border-right: 14px solid transparent;
+            border-top: 14px solid white;
+        }
+
+        .hollie-speech p {
+            margin: 0;
+            font-size: 1.05rem;
+            color: #333;
+            font-style: italic;
+            line-height: 1.5;
         }
 
         .hollie-name {
-            font-size: 1.75rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: #1a1a2e;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
         }
 
         .hollie-title {
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: var(--color-teal, #2B8A9C);
             font-weight: 600;
             margin-bottom: 1rem;
-        }
-
-        .hollie-intro {
-            font-size: 1.1rem;
-            color: #6c757d;
-            max-width: 600px;
-            margin: 0 auto 1.5rem;
-            line-height: 1.7;
         }
 
         .hollie-cta {
@@ -144,9 +156,10 @@
             gap: 0.5rem;
             background: linear-gradient(135deg, var(--color-teal, #2B8A9C) 0%, #1e6d7a 100%);
             color: white;
-            padding: 0.75rem 1.5rem;
+            padding: 0.7rem 1.4rem;
             border-radius: 50px;
             font-weight: 600;
+            font-size: 0.95rem;
             text-decoration: none;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(43, 138, 156, 0.3);
@@ -160,35 +173,6 @@
 
         .hollie-cta i {
             font-size: 1.1rem;
-        }
-
-        /* Speech bubble effect */
-        .hollie-speech {
-            background: white;
-            border-radius: 20px;
-            padding: 1.25rem 1.75rem;
-            margin-bottom: 1.5rem;
-            position: relative;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            max-width: 500px;
-        }
-
-        .hollie-speech::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-left: 12px solid transparent;
-            border-right: 12px solid transparent;
-            border-top: 12px solid white;
-        }
-
-        .hollie-speech p {
-            margin: 0;
-            font-size: 1.1rem;
-            color: #333;
-            font-style: italic;
         }
 
         /* Video Modal Styles */
@@ -223,10 +207,38 @@
         }
 
         /* Responsive adjustments */
-        @media (max-width: 767.98px) {
+        @media (max-width: 991.98px) {
+            .hollie-hero {
+                margin-top: 2rem;
+            }
+            
             .hollie-image {
-                width: 160px;
-                height: 160px;
+                width: 180px;
+                height: 180px;
+            }
+
+            .hollie-play-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1.25rem;
+                bottom: 10px;
+                right: 10px;
+            }
+
+            .hollie-speech {
+                max-width: 280px;
+                padding: 1rem 1.25rem;
+            }
+
+            .hollie-speech p {
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .hollie-image {
+                width: 150px;
+                height: 150px;
             }
 
             .hollie-play-btn {
@@ -236,17 +248,7 @@
             }
 
             .hollie-name {
-                font-size: 1.5rem;
-            }
-
-            .hollie-intro {
-                font-size: 1rem;
-                padding: 0 1rem;
-            }
-
-            .hollie-speech {
-                margin-left: 1rem;
-                margin-right: 1rem;
+                font-size: 1.25rem;
             }
         }
     </style>
@@ -280,10 +282,11 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
+    <!-- Hero Section with Hollie -->
     <header class="hero-section">
         <div class="container">
             <div class="row align-items-center hero-row py-5">
+                <!-- Left side: Hero text -->
                 <div class="col-lg-6">
                     <div class="hero-badge mb-3">
                         <i class="bi bi-shield-check me-2"></i>
@@ -306,65 +309,37 @@
                         </a>
                     </div>
                 </div>
+                
+                <!-- Right side: Hollie -->
                 <div class="col-lg-6 mt-4 mt-lg-0">
-                    <div class="hero-illustration">
-                        <div class="chat-preview">
-                            <div class="chat-preview-header">
-                                <div class="chat-preview-dot"></div>
-                                <div class="chat-preview-dot"></div>
-                                <div class="chat-preview-dot"></div>
-                            </div>
-                            <div class="chat-preview-body">
-                                <div class="chat-preview-message user">
-                                    Patient presenting with chest pain, radiating to left arm. What's my assessment approach?
-                                </div>
-                                <div class="chat-preview-message assistant">
-                                    <strong>Based on SWAST guidelines:</strong><br>
-                                    Start with your primary survey (ABCDE). For chest pain with arm radiation, consider ACS pathway...
-                                </div>
+                    <div class="hollie-hero">
+                        <!-- Speech Bubble -->
+                        <div class="hollie-speech">
+                            <p>"Hi! I'm Hollie, your AI learning assistant. Let me help you become a more confident paramedic!"</p>
+                        </div>
+                        
+                        <!-- Hollie Image (Clickable) -->
+                        <div class="hollie-image-wrapper" data-bs-toggle="modal" data-bs-target="#hollieVideoModal" role="button" aria-label="Watch introduction video">
+                            <img src="images/hollie.png" alt="Hollie - Your Paramind AI Assistant" class="hollie-image">
+                            <div class="hollie-play-btn">
+                                <i class="bi bi-play-fill"></i>
                             </div>
                         </div>
+                        
+                        <!-- Name and Title -->
+                        <h2 class="hollie-name">Meet Hollie</h2>
+                        <p class="hollie-title">Your AI Learning Assistant</p>
+                        
+                        <!-- Watch Video Button -->
+                        <a href="#" class="hollie-cta" data-bs-toggle="modal" data-bs-target="#hollieVideoModal">
+                            <i class="bi bi-play-circle"></i>
+                            Watch Introduction
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </header>
-
-    <!-- Meet Hollie Section -->
-    <section class="meet-hollie-section" id="meet-hollie">
-        <div class="container">
-            <div class="hollie-container">
-                <!-- Speech Bubble -->
-                <div class="hollie-speech">
-                    <p>"Hi! I'm here to help you learn and grow as a paramedic. Let me show you around!"</p>
-                </div>
-                
-                <!-- Hollie Image (Clickable) -->
-                <div class="hollie-image-wrapper" data-bs-toggle="modal" data-bs-target="#hollieVideoModal" role="button" aria-label="Watch introduction video">
-                    <img src="images/hollie.png" alt="Hollie - Your Paramind AI Assistant" class="hollie-image">
-                    <div class="hollie-play-btn">
-                        <i class="bi bi-play-fill"></i>
-                    </div>
-                </div>
-                
-                <!-- Name and Title -->
-                <h2 class="hollie-name">Meet Hollie</h2>
-                <p class="hollie-title">Your AI Learning Assistant</p>
-                
-                <!-- Introduction Text -->
-                <p class="hollie-intro">
-                    Hollie is your personal paramedic learning companion. She's here to help you practice clinical scenarios, 
-                    answer your questions about protocols, and support your professional development — all tailored to your trust's guidelines.
-                </p>
-                
-                <!-- Watch Video Button -->
-                <a href="#" class="hollie-cta" data-bs-toggle="modal" data-bs-target="#hollieVideoModal">
-                    <i class="bi bi-play-circle"></i>
-                    Watch Introduction
-                </a>
-            </div>
-        </div>
-    </section>
 
     <!-- Hollie Video Modal -->
     <div class="modal fade video-modal" id="hollieVideoModal" tabindex="-1" aria-labelledby="hollieVideoModalLabel" aria-hidden="true">
@@ -497,9 +472,9 @@
                             <li><i class="bi bi-check-circle text-success"></i> 5 messages per day</li>
                             <li><i class="bi bi-check-circle text-success"></i> Trust-specific AI guidance</li>
                             <li><i class="bi bi-check-circle text-success"></i> Limited scenario preview</li>
-                            
+                            <li><i class="bi bi-x-circle text-muted"></i> Save conversations</li>
                             <li><i class="bi bi-x-circle text-muted"></i> CPD certificates</li>
-                            <li><i class="bi bi-x-circle text-muted"></i> No payment required</li>
+                            <li><i class="bi bi-x-circle text-muted"></i> No payment details required</li>
                         </ul>
                         <a href="register.html" class="btn btn-outline-primary w-100">Get Started</a>
                     </div>
@@ -599,7 +574,7 @@
                     new bootstrap.Collapse(navbarCollapse).hide();
                 }
             });
-        }); 
+        });
 
         // ==================== HOLLIE VIDEO MODAL FUNCTIONALITY ====================
         // This handles loading/unloading the Vimeo video to prevent it playing in background
