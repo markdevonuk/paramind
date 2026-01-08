@@ -797,9 +797,82 @@
         padding: 0 10px;
     }
 }
+
+
+/* ==================== SUBSCRIPTION LOADING OVERLAY ==================== */
+        .subscription-loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .subscription-loading-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .subscription-loading-content {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .subscription-loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e9ecef;
+            border-top-color: #2B8A9C;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .subscription-loading-text {
+            font-size: 1.1rem;
+            color: #495057;
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .subscription-loading-text .brand-para {
+            color: #2B8A9C;
+            font-weight: 700;
+        }
+
+        .subscription-loading-text .brand-mind {
+            color: #5CB85C;
+            font-weight: 700;
+        }
+
+
     </style>
 </head>
 <body class="chat-page">
+
+<!-- Subscription Loading Overlay -->
+    <div class="subscription-loading-overlay" id="subscriptionLoadingOverlay">
+        <div class="subscription-loading-content">
+            <div class="subscription-loading-spinner"></div>
+            <p class="subscription-loading-text">
+                Just checking to see if you are a 
+                <span class="brand-para">para</span><span class="brand-mind">mind</span> 
+                Pro member...
+            </p>
+        </div>
+    </div>
+
+
     <!-- Top Navigation -->
     <nav class="chat-navbar">
         <div class="container-fluid px-3">

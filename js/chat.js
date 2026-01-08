@@ -273,12 +273,18 @@ async function fetchUserProfile() {
         updateMessageCounter();
         updateCpdProLock();
         
-        if (chatState.isPro && elements.messageLimitBanner) {
+       if (chatState.isPro && elements.messageLimitBanner) {
             elements.messageLimitBanner.style.display = 'none';
         }
         
+        // Hide the loading overlay now we know the subscription status
+        const loadingOverlay = document.getElementById('subscriptionLoadingOverlay');
+        if (loadingOverlay) {
+            loadingOverlay.classList.add('hidden');
+        }
+        
         return data;
-    } catch (error) {
+} catch (error) {
         console.error('Error fetching user profile:', error);
         const cached = window.paramind.storage.getUser();
         if (cached) {
@@ -289,6 +295,12 @@ async function fetchUserProfile() {
                 elements.welcomeName.textContent = ', ' + cached.firstName;
             }
             updateCpdProLock();
+        }
+        
+        // Hide the loading overlay even if there was an error
+        const loadingOverlay = document.getElementById('subscriptionLoadingOverlay');
+        if (loadingOverlay) {
+            loadingOverlay.classList.add('hidden');
         }
     }
 }
