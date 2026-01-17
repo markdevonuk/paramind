@@ -3340,9 +3340,11 @@ function getScenarioSystemPrompt(scenarioId, difficultyLevel = 1) {
     
     
     return `
-════════════════════════════════════════════════════════════════════
-⚠️  CRITICAL: DIFFICULTY LEVEL ${difficultyLevel} - ${difficulty.name}  ⚠️
-════════════════════════════════════════════════════════════════════
+
+========================================================================
+CRITICAL: DIFFICULTY LEVEL ${difficultyLevel} - ${difficulty.name}
+========================================================================
+
 YOU MUST ADJUST YOUR ENTIRE PERFORMANCE BASED ON THIS DIFFICULTY LEVEL.
 This is NOT optional - the difficulty level fundamentally changes how you portray this patient.
 
