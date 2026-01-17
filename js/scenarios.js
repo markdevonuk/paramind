@@ -140,7 +140,7 @@ const SCENARIOS = [
                 pain: 9
             },
             presentation: "Central crushing chest pain radiating to left arm and jaw, diaphoretic, nauseated",
-            ecg: "Rate 95bpm, sinus rhythm. ST elevation V1-V4 (3-4mm) with reciprocal ST depression in leads II, III, aVF. Hyperacute T waves in V2-V3. Anterior STEMI pattern.",
+            ecg: "Rate 95bpm, sinus rhythm. ST elevation V1-V4 (3-4mm) with reciprocal ST depression in leads II, III, aVF. Hyperacute T waves in V2-V3. ",
             redFlags: [
                 "Central crushing chest pain",
                 "Radiation to arm/jaw",
@@ -178,7 +178,7 @@ const SCENARIOS = [
                 pain: 4
             },
             presentation: "Epigastric discomfort, nausea, diaphoresis, bradycardic - atypical MI in diabetic",
-            ecg: "Rate 52bpm, sinus bradycardia. ST elevation in leads II, III, aVF (2-3mm) with reciprocal ST depression V1-V3. First degree heart block (PR 240ms). Inferior STEMI with right ventricular involvement likely.",
+            ecg: "Rate 52bpm, sinus bradycardia. ST elevation in leads II, III, aVF (2-3mm) with reciprocal ST depression V1-V3. First degree heart block (PR 240ms).",
             redFlags: [
                 "Atypical presentation in diabetic patient",
                 "Bradycardia (consider inferior MI with vagal response)",
@@ -216,7 +216,7 @@ const SCENARIOS = [
                 pain: 2
             },
             presentation: "Regular narrow complex tachycardia, sudden onset while at rest",
-            ecg: "Rate 180bpm, regular narrow complex tachycardia. No visible P waves. QRS <120ms. No ST changes. Consistent with SVT (likely AVNRT).",
+            ecg: "Rate 180bpm, regular narrow complex tachycardia. No visible P waves. QRS <120ms. No ST changes.",
             redFlags: [
                 "Very rapid heart rate (>150bpm)",
                 "Hypotension (borderline)",
@@ -254,7 +254,7 @@ const SCENARIOS = [
                 pain: 0
             },
             presentation: "Orthopnoea, bilateral crackles, peripheral oedema, elevated JVP",
-            ecg: "Rate 110bpm, atrial fibrillation with fast ventricular response. Left ventricular hypertrophy pattern. Non-specific ST-T changes. No acute ischaemic changes.",
+            ecg: "Rate 110bpm,  irregularly irregular rhythm, no P waves visible, fibrillatory baseline. Left ventricular hypertrophy pattern. Non-specific ST-T changes. ",
             redFlags: [
                 "Orthopnoea (can't lie flat)",
                 "Severe hypoxia (SpO2 88%)",
@@ -292,7 +292,7 @@ const SCENARIOS = [
                 pain: 0
             },
             presentation: "Irregularly irregular pulse, no chest pain, mild SOB on exertion",
-            ecg: "Rate 130-140bpm (variable), irregularly irregular rhythm. No P waves visible, fibrillatory baseline. Narrow QRS complexes. No acute ST changes. New onset atrial fibrillation.",
+            ecg: "Rate 130-140bpm (variable), irregularly irregular rhythm. No P waves visible, fibrillatory baseline. Narrow QRS complexes. No acute ST changes.",
             redFlags: [
                 "New onset AF (stroke risk)",
                 "Fast ventricular response (>100bpm)",
@@ -330,7 +330,7 @@ const SCENARIOS = [
                 pain: 0
             },
             presentation: "Bradycardic, hypotensive, pale, feels dizzy and weak",
-            ecg: "Rate 32bpm, complete heart block (third degree AV block). P waves regular at ~70bpm but completely dissociated from QRS. Wide QRS escape rhythm (ventricular escape). No relationship between P waves and QRS complexes.",
+            ecg: "Rate 32bpm, complete heart block. P waves regular at ~70bpm but completely dissociated from QRS. Wide QRS escape rhythm (ventricular escape). No relationship between P waves and QRS complexes.",
             redFlags: [
                 "Severe bradycardia (<40bpm)",
                 "Syncope/collapse",
@@ -406,7 +406,7 @@ const SCENARIOS = [
                 pain: 5
             },
             presentation: "Epigastric discomfort, diaphoresis, subtle SOB - high risk features for ACS",
-            ecg: "Rate 88bpm, sinus rhythm. ST depression V4-V6 (1-2mm horizontal). T wave inversion in leads I, aVL. No ST elevation. NSTEMI pattern.",
+            ecg: "Rate 88bpm, sinus rhythm. ST depression V4-V6 (1-2mm horizontal). T wave inversion in leads I, aVL. No ST elevation.",
             redFlags: [
                 "Atypical presentation (epigastric pain)",
                 "Diaphoresis without explanation",
@@ -483,7 +483,7 @@ const SCENARIOS = [
                 pain: 0
             },
             presentation: "Episodes of bradycardia alternating with tachycardia, pre-syncope, current bradycardia",
-            ecg: "Rate 45bpm, sinus bradycardia with sinus pauses up to 3 seconds. Previous ECGs (patient reports) showed fast heart rate. Consistent with sick sinus syndrome.",
+            ecg: "Rate 45bpm, sinus bradycardia with sinus pauses up to 3 seconds. Previous ECGs (patient reports) showed fast heart rate.",
             redFlags: [
                 "Symptomatic bradycardia",
                 "Sinus pauses >3 seconds",
@@ -524,7 +524,7 @@ const SCENARIOS = [
                 pain: 0
             },
             presentation: "Widespread wheeze, using accessory muscles, difficulty completing sentences",
-            ecg: "Rate 125bpm, sinus tachycardia. Normal axis. No ST changes. Tachycardia likely secondary to respiratory distress and beta-agonist use.",
+            ecg: "Rate 125bpm, sinus tachycardia. Normal axis. No ST changes.",
             redFlags: [
                 "Unable to complete sentences",
                 "SpO2 <92% on air",
@@ -563,7 +563,7 @@ const SCENARIOS = [
                 pain: 0
             },
             presentation: "Productive cough with green sputum, pyrexial, reduced air entry bilaterally",
-            ecg: "Rate 105bpm, sinus tachycardia. Right axis deviation. P pulmonale (peaked P waves in II). Low voltage QRS. Pattern consistent with chronic COPD.",
+            ecg: "Rate 105bpm, sinus tachycardia. Right axis deviation. P pulmonale (peaked P waves in II). Low voltage QRS.",
             redFlags: [
                 "Hypoxia despite home oxygen",
                 "Pyrexia (infection)",
@@ -601,7 +601,7 @@ const SCENARIOS = [
                 pain: 6
             },
             presentation: "Right basal crackles, productive cough with rust-coloured sputum, pleuritic pain",
-            ecg: "Rate 110bpm, sinus tachycardia. Normal axis. No acute changes. Tachycardia consistent with septic response.",
+            ecg: "Rate 110bpm, sinus tachycardia. Normal axis. No acute changes.",
             redFlags: [
                 "High CURB-65 score (confusion, urea, RR, BP, age)",
                 "Hypotension",
@@ -639,7 +639,7 @@ const SCENARIOS = [
                 pain: 7
             },
             presentation: "Pleuritic chest pain, tachycardic, tachypnoeic, recent risk factors",
-            ecg: "Rate 115bpm, sinus tachycardia. S1Q3T3 pattern (deep S wave lead I, Q wave and inverted T wave lead III). Right axis deviation. T wave inversion V1-V3. Classic PE pattern.",
+            ecg: "Rate 115bpm, sinus tachycardia. S1Q3T3 pattern (deep S wave lead I, Q wave and inverted T wave lead III). Right axis deviation. T wave inversion V1-V3.",
             redFlags: [
                 "Pleuritic chest pain with dyspnoea",
                 "Recent long-haul flight (DVT risk)",
@@ -677,7 +677,7 @@ const SCENARIOS = [
                 pain: 0
             },
             presentation: "Urticaria, facial swelling, stridor, wheeze, hypotensive",
-            ecg: "Rate 130bpm, sinus tachycardia. Normal axis. No ST changes. Tachycardia secondary to anaphylaxis.",
+            ecg: "Rate 130bpm, sinus tachycardia. Normal axis. No ST changes.",
             redFlags: [
                 "Airway compromise (stridor, throat tightness)",
                 "Hypotension (shock)",
@@ -754,7 +754,7 @@ const SCENARIOS = [
                 pain: 6
             },
             presentation: "Reduced breath sounds on right, hyper-resonant percussion, sudden onset pleuritic pain",
-            ecg: "Rate 100bpm, sinus rhythm. Normal ECG.",
+            ecg: "Rate 100bpm, sinus rhythm.",
             redFlags: [
                 "Sudden onset dyspnoea and pleuritic pain",
                 "Reduced breath sounds unilaterally",
@@ -792,7 +792,7 @@ const SCENARIOS = [
                 pain: 2
             },
             presentation: "Small volume haemoptysis, cachexic appearance, finger clubbing, weight loss",
-            ecg: "Rate 88bpm, sinus rhythm. Normal ECG.",
+            ecg: "Rate 88bpm, sinus rhythm.",
             redFlags: [
                 "Haemoptysis in smoker/ex-smoker",
                 "Unintentional weight loss",
@@ -987,7 +987,7 @@ const SCENARIOS = [
                 pain: 10
             },
             presentation: "Grey, clammy, pulsatile abdominal mass, catastrophic presentation",
-            ecg: "Rate 120bpm, sinus tachycardia. Non-specific ST changes. Tachycardia secondary to hypovolaemia.",
+            ecg: "Rate 120bpm, sinus tachycardia. Non-specific ST changes.",
             redFlags: [
                 "Known AAA with sudden pain",
                 "Severe hypotension (shock)",
@@ -1064,7 +1064,7 @@ const SCENARIOS = [
                 pain: 4
             },
             presentation: "Pale, tachycardic, melaena, epigastric tenderness",
-            ecg: "Rate 115bpm, sinus tachycardia. No acute ischaemic changes. Tachycardia secondary to hypovolaemia.",
+            ecg: "Rate 115bpm, sinus tachycardia. No acute ischaemic changes.",
             redFlags: [
                 "Melaena (upper GI bleed)",
                 "Hypotension with tachycardia (shock)",
@@ -1103,7 +1103,7 @@ const SCENARIOS = [
                 pain: 10
             },
             presentation: "Writhing in pain, loin to groin, haematuria",
-            ecg: "Rate 100bpm, sinus rhythm. Normal ECG. Mild tachycardia secondary to pain.",
+            ecg: "Rate 100bpm, sinus rhythm. Normal ECG.",
             redFlags: [
                 "Loin to groin pain pattern",
                 "Patient unable to stay still (unlike peritonitis)",
@@ -1373,7 +1373,7 @@ const SCENARIOS = [
                 pain: 10
             },
             presentation: "Photophobia, neck stiffness, non-blanching rash on legs",
-            ecg: "Rate 120bpm, sinus tachycardia. Normal ECG. Tachycardia secondary to sepsis.",
+            ecg: "Rate 120bpm, sinus tachycardia. Normal ECG.",
             redFlags: [
                 "Non-blanching petechial/purpuric rash",
                 "Meningism (neck stiffness, photophobia)",
@@ -1647,7 +1647,7 @@ const SCENARIOS = [
                 pain: 3
             },
             presentation: "Ascending weakness and numbness, areflexia, difficulty walking",
-            ecg: "Rate 85bpm, sinus rhythm. Normal ECG - but watch for autonomic involvement.",
+            ecg: "Rate 85bpm, sinus rhythm. Normal ECG.",
             redFlags: [
                 "Ascending weakness (started in feet, moving up)",
                 "Recent infection (post-infectious trigger)",
@@ -1688,7 +1688,7 @@ const SCENARIOS = [
                 pain: "Unable to assess"
             },
             presentation: "Trapped driver, suspected pelvic and chest injuries, declining consciousness",
-            ecg: "Rate 130bpm, sinus tachycardia. No acute ischaemic changes. Tachycardia consistent with haemorrhagic shock.",
+            ecg: "Rate 130bpm, sinus tachycardia. No acute ischaemic changes.",
             redFlags: [
                 "High-energy mechanism",
                 "Entrapment",
@@ -1767,7 +1767,7 @@ const SCENARIOS = [
                 pain: 8
             },
             presentation: "Single stab wound left chest, absent breath sounds left, tracheal deviation",
-            ecg: "Rate 135bpm, sinus tachycardia. Low voltage complexes. Electrical alternans (consider pericardial tamponade).",
+            ecg: "Rate 135bpm, sinus tachycardia. Low voltage complexes. Electrical alternans.",
             redFlags: [
                 "Penetrating chest trauma",
                 "Absent breath sounds (pneumothorax)",
@@ -1846,7 +1846,7 @@ const SCENARIOS = [
                 pain: 10
             },
             presentation: "Obvious open fracture right tibia, bone visible, moderate bleeding",
-            ecg: "Rate 110bpm, sinus rhythm. Normal ECG. Tachycardia secondary to pain.",
+            ecg: "Rate 110bpm, sinus rhythm. Normal ECG.",
             redFlags: [
                 "Open fracture (high infection risk)",
                 "Neurovascular status distally",
@@ -1885,7 +1885,7 @@ const SCENARIOS = [
                 pain: 5
             },
             presentation: "Neurogenic shock, no sensation/movement below shoulders, priapism",
-            ecg: "Rate 55bpm, sinus bradycardia. Normal ECG. Bradycardia consistent with neurogenic shock.",
+            ecg: "Rate 55bpm, sinus bradycardia. Normal ECG.",
             redFlags: [
                 "Complete paralysis below injury level",
                 "Neurogenic shock (bradycardia + hypotension)",
@@ -2360,7 +2360,7 @@ const SCENARIOS = [
                 pain: 5
             },
             presentation: "Kussmaul breathing, acetone breath, dehydrated, abdominal pain, drowsy",
-            ecg: "Rate 125bpm, sinus tachycardia. Peaked T waves (hyperkalaemia possible).",
+            ecg: "Rate 125bpm, sinus tachycardia. Peaked T waves.",
             redFlags: [
                 "Very high blood glucose",
                 "Kussmaul breathing (deep, sighing)",
@@ -2521,7 +2521,7 @@ const SCENARIOS = [
                 pain: 3
             },
             presentation: "Boggy uterus, estimated blood loss 1.5L, pale and clammy",
-            ecg: "Rate 125bpm, sinus tachycardia. Tachycardia secondary to hypovolaemia.",
+            ecg: "Rate 125bpm, sinus tachycardia.",
             redFlags: [
                 "Uterine atony (boggy uterus)",
                 "EBL >500ml (PPH definition)",
@@ -3406,6 +3406,9 @@ PATIENT BEHAVIOUR:
 - If the paramedic is insulting, tell them you are hurt by their comments
 - ADJUST your responses according to the DIFFICULTY LEVEL above
 - If very unwell (low GCS, severe pain), responses may be brief or confused
+
+PARAMEDIC BEHAVIOUR:
+- If the paramedic insults the patient you should flag a warning that speaking to patients like this could mean disciplinary action which could lead to loss of registration. It is better to be professional and friendly to your patients. 
 
 ------------------------------------------------------------------------
 STATE MACHINE (strict - operate in exactly ONE mode at a time)
