@@ -304,8 +304,26 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.95rem;
             line-height: 1.7;
-            white-space: pre-wrap;
             border-bottom: 1px solid var(--color-gray-200);
+        }
+        
+        .handover-script p {
+            margin: 0 0 1rem 0;
+        }
+        
+        .handover-script p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .handover-script .atmist-label {
+            color: #00d9ff;
+            font-weight: 700;
+            display: inline-block;
+            margin-right: 0.25rem;
+        }
+        
+        .handover-script strong:not(.atmist-label) {
+            color: #00d9ff;
         }
         
         .handover-script .highlight {
@@ -722,6 +740,14 @@
                             <label for="callSign">Ambulance Call Sign</label>
                             <input type="text" class="atmist-input" id="callSign" placeholder="e.g., 2330">
                         </div>
+                        <div class="prealert-field">
+                            <label for="eta">ETA to ED / PPCI</label>
+                            <input type="text" class="atmist-input" id="eta" placeholder="e.g., 8 minutes, 14:35">
+                        </div>
+                        <div class="prealert-field">
+                            <label for="destination">Destination</label>
+                            <input type="text" class="atmist-input" id="destination" placeholder="e.g., Resus, PPCI, Majors">
+                        </div>
                     </div>
                     
                     <label class="prealert-label">Pre-Alert Type</label>
@@ -803,20 +829,15 @@
                     </div>
                 </div>
                 
-                <!-- M - Mechanism/Medical -->
+                <!-- M - Mechanism (Dynamic based on type) -->
                 <div class="atmist-section">
                     <div class="atmist-section-header">
                         <span class="atmist-badge m">M</span>
-                        <h3>Mechanism <small>of injury / Medical complaint</small></h3>
+                        <h3>Mechanism <small id="mechanismSubtitle">of injury / Medical complaint</small></h3>
                     </div>
                     <textarea class="atmist-input" id="mechanism" placeholder="e.g., Fall from standing height, RTC - driver, unrestrained, Sudden onset central chest pain at rest"></textarea>
-                    <div class="quick-select">
-                        <button type="button" class="quick-select-btn" data-value="Fall from standing">Fall from standing</button>
-                        <button type="button" class="quick-select-btn" data-value="Mechanical fall">Mechanical fall</button>
-                        <button type="button" class="quick-select-btn" data-value="Collapse ?cause">Collapse ?cause</button>
-                        <button type="button" class="quick-select-btn" data-value="Chest pain">Chest pain</button>
-                        <button type="button" class="quick-select-btn" data-value="SOB">SOB</button>
-                        <button type="button" class="quick-select-btn" data-value="Abdo pain">Abdo pain</button>
+                    <div class="quick-select" id="mechanismQuickSelect">
+                        <!-- Will be populated dynamically based on pre-alert type -->
                     </div>
                 </div>
                 
@@ -1059,6 +1080,58 @@
         
         // ==================== TYPE-SPECIFIC DATA ====================
         
+        const TYPE_MECHANISM_CONFIG = {
+            'medical': {
+                subtitle: '/ Medical complaint',
+                placeholder: 'e.g., Sudden onset SOB at rest, Collapse ?cause, Unresponsive diabetic',
+                quickSelect: [
+                    'Sudden onset', 'Gradual onset', 'Collapse ?cause', 'Found unresponsive',
+                    'Chest pain', 'SOB', 'Abdo pain', 'Altered consciousness'
+                ]
+            },
+            'stroke': {
+                subtitle: '/ Onset details',
+                placeholder: 'e.g., Sudden onset while watching TV, Woke from sleep with symptoms',
+                quickSelect: [
+                    'Sudden onset at rest', 'Woke with symptoms', 'Onset during activity',
+                    'Witnessed collapse', 'Found with symptoms', 'Symptoms fluctuating'
+                ]
+            },
+            'cardiac': {
+                subtitle: '/ Onset details',
+                placeholder: 'e.g., Sudden onset crushing chest pain at rest, Palpitations during exercise',
+                quickSelect: [
+                    'At rest', 'On exertion', 'Post-exercise', 'During sleep',
+                    'Emotional stress', 'After large meal', 'Sudden onset', 'Gradual onset'
+                ]
+            },
+            'trauma': {
+                subtitle: 'of injury',
+                placeholder: 'e.g., Fall from standing, RTC driver unrestrained 40mph, Assault - punched to head',
+                quickSelect: [
+                    'Fall from standing', 'Fall from height', 'Mechanical fall',
+                    'RTC - driver', 'RTC - passenger', 'RTC - pedestrian', 'RTC - cyclist',
+                    'Assault', 'Stabbing', 'Crush injury'
+                ]
+            },
+            'major-trauma': {
+                subtitle: 'of injury',
+                placeholder: 'e.g., High-speed RTC with rollover and ejection, Fall from 6m height',
+                quickSelect: [
+                    'High-speed RTC', 'RTC with ejection', 'RTC rollover', 'Pedestrian vs vehicle',
+                    'Fall from height >3m', 'Penetrating injury', 'Blast injury', 'Crush injury'
+                ]
+            },
+            'paediatric': {
+                subtitle: '/ What happened',
+                placeholder: 'e.g., Febrile convulsion at home, Unwitnessed fall from bed, Choking episode',
+                quickSelect: [
+                    'Febrile illness', 'Seizure', 'Respiratory distress', 'Unwitnessed fall',
+                    'Choking', 'Ingestion', 'Found unresponsive', 'Collapse'
+                ]
+            }
+        };
+        
         const TYPE_SPECIFIC_CONFIG = {
             'medical': {
                 title: 'Medical Pre-Alert',
@@ -1093,10 +1166,10 @@
                 `
             },
             'stroke': {
-                title: 'Stroke Pre-Alert — Critical Information',
+                title: 'Stroke Pre-Alert',
                 hints: [
                     '<strong>Time last seen well</strong> — CRITICAL for thrombolysis window',
-                    '<strong>FAST findings</strong> — Face, Arm, Speech, Time',
+                    '<strong>FAST findings</strong> — Face, Arm, Speech + which side',
                     '<strong>Anticoagulant status</strong> — affects treatment options',
                     '<strong>Blood glucose</strong> — rule out hypoglycaemia as mimic',
                     '<strong>Pre-morbid function</strong> — were they independent before?'
@@ -1125,24 +1198,16 @@
                                     <label for="fastFace">Facial droop</label>
                                 </div>
                                 <div class="type-checkbox">
-                                    <input type="checkbox" id="fastArmLeft" value="Left arm weakness">
-                                    <label for="fastArmLeft">Left arm weakness</label>
-                                </div>
-                                <div class="type-checkbox">
-                                    <input type="checkbox" id="fastArmRight" value="Right arm weakness">
-                                    <label for="fastArmRight">Right arm weakness</label>
-                                </div>
-                                <div class="type-checkbox">
                                     <input type="checkbox" id="fastSpeech" value="Speech disturbance">
                                     <label for="fastSpeech">Speech disturbance</label>
                                 </div>
                                 <div class="type-checkbox">
-                                    <input type="checkbox" id="fastVisual" value="Visual disturbance">
-                                    <label for="fastVisual">Visual disturbance</label>
+                                    <input type="checkbox" id="fastWeaknessLeft" value="Left sided weakness">
+                                    <label for="fastWeaknessLeft">Left sided weakness</label>
                                 </div>
                                 <div class="type-checkbox">
-                                    <input type="checkbox" id="fastLegLeft" value="Left leg weakness">
-                                    <label for="fastLegLeft">Left leg weakness</label>
+                                    <input type="checkbox" id="fastWeaknessRight" value="Right sided weakness">
+                                    <label for="fastWeaknessRight">Right sided weakness</label>
                                 </div>
                             </div>
                         </div>
@@ -1172,7 +1237,7 @@
                 `
             },
             'cardiac': {
-                title: 'Cardiac Pre-Alert — Critical Information',
+                title: 'Cardiac Pre-Alert',
                 hints: [
                     '<strong>12-lead ECG findings</strong> — STEMI? Arrhythmia?',
                     '<strong>Chest pain characteristics</strong> — typical vs atypical',
@@ -1247,9 +1312,9 @@
                 `
             },
             'trauma': {
-                title: 'Trauma Pre-Alert — Critical Information',
+                title: 'Trauma Pre-Alert',
                 hints: [
-                    '<strong>Mechanism of injury</strong> — how did it happen?',
+                    '<strong>Mechanism of injury</strong> — speed, height, restraints, etc.',
                     '<strong>Injuries identified</strong> — be specific about locations',
                     '<strong>C-spine status</strong> — immobilised? Cleared?',
                     '<strong>Blood loss</strong> — estimated or visible',
@@ -1257,28 +1322,6 @@
                 ],
                 fields: `
                     <div class="type-specific-grid">
-                        <div class="type-field">
-                            <label for="traumaMech">Mechanism of Injury *</label>
-                            <select class="atmist-input" id="traumaMech">
-                                <option value="">Select...</option>
-                                <option value="fall-standing">Fall from standing</option>
-                                <option value="fall-height">Fall from height (>2m)</option>
-                                <option value="rtc-driver">RTC - Driver</option>
-                                <option value="rtc-passenger">RTC - Passenger</option>
-                                <option value="rtc-pedestrian">RTC - Pedestrian</option>
-                                <option value="rtc-cyclist">RTC - Cyclist</option>
-                                <option value="rtc-motorcycle">RTC - Motorcyclist</option>
-                                <option value="assault">Assault</option>
-                                <option value="stabbing">Penetrating injury / Stabbing</option>
-                                <option value="crush">Crush injury</option>
-                                <option value="sporting">Sporting injury</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-                        <div class="type-field">
-                            <label for="traumaDetails">Mechanism Details</label>
-                            <input type="text" class="atmist-input" id="traumaDetails" placeholder="e.g., Unrestrained, 40mph, significant intrusion">
-                        </div>
                         <div class="type-field type-field-full">
                             <label>Injuries Identified</label>
                             <div class="type-checkbox-grid">
@@ -1334,7 +1377,7 @@
                 `
             },
             'major-trauma': {
-                title: 'Major Trauma Pre-Alert — Critical Information',
+                title: 'Major Trauma Pre-Alert',
                 hints: [
                     '<strong>Trauma team activation criteria</strong> — why is this major trauma?',
                     '<strong>Airway status</strong> — patent? Protected? Intervention needed?',
@@ -1422,7 +1465,7 @@
                 `
             },
             'paediatric': {
-                title: 'Paediatric Pre-Alert — Critical Information',
+                title: 'Paediatric Pre-Alert',
                 hints: [
                     '<strong>Age AND weight</strong> — critical for drug dosing',
                     '<strong>Immunisation status</strong> — if relevant to presentation',
@@ -1519,6 +1562,7 @@
         
         function updateTypeSpecificContent(type) {
             const config = TYPE_SPECIFIC_CONFIG[type];
+            const mechConfig = TYPE_MECHANISM_CONFIG[type];
             if (!config) return;
             
             // Update hints box
@@ -1538,9 +1582,31 @@
             const fieldsTitle = document.getElementById('typeSpecificTitle');
             const fieldsContainer = document.getElementById('typeSpecificFields');
             
-            fieldsTitle.textContent = config.title.replace(' — Critical Information', ' — Key Details');
+            fieldsTitle.textContent = config.title.replace(' — Critical Information', '') + ' — Key Details';
             fieldsContainer.innerHTML = config.fields;
             fieldsSection.style.display = 'block';
+            
+            // Update Mechanism section
+            if (mechConfig) {
+                document.getElementById('mechanismSubtitle').textContent = mechConfig.subtitle;
+                document.getElementById('mechanism').placeholder = mechConfig.placeholder;
+                
+                const quickSelectContainer = document.getElementById('mechanismQuickSelect');
+                quickSelectContainer.innerHTML = mechConfig.quickSelect.map(option => 
+                    `<button type="button" class="quick-select-btn" data-value="${option}">${option}</button>`
+                ).join('');
+                
+                // Re-attach click handlers for new quick-select buttons
+                quickSelectContainer.querySelectorAll('.quick-select-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const input = document.getElementById('mechanism');
+                        const currentValue = input.value.trim();
+                        const btnValue = this.dataset.value;
+                        input.value = currentValue ? currentValue + ', ' + btnValue : btnValue;
+                        this.classList.toggle('active');
+                    });
+                });
+            }
             
             // Add checkbox styling for dynamically added checkboxes
             fieldsContainer.querySelectorAll('.type-checkbox input').forEach(checkbox => {
@@ -1563,6 +1629,8 @@
             // Collect pre-alert details
             const crewName = document.getElementById('crewName').value.trim() || 'Crew Member';
             const callSign = document.getElementById('callSign').value.trim();
+            const eta = document.getElementById('eta').value.trim();
+            const destination = document.getElementById('destination').value.trim();
             const prealertType = document.querySelector('input[name="prealertType"]:checked').value;
             
             // Format pre-alert type for display
@@ -1582,6 +1650,8 @@
             const formData = {
                 crewName: crewName,
                 callSign: callSign,
+                eta: eta,
+                destination: destination,
                 prealertType: prealertType,
                 prealertTypeDisplay: prealertTypeDisplay,
                 typeSpecificData: typeSpecificData,
@@ -1677,8 +1747,6 @@
                     break;
                     
                 case 'trauma':
-                    data.traumaMech = document.getElementById('traumaMech')?.value || '';
-                    data.traumaDetails = document.getElementById('traumaDetails')?.value || '';
                     data.cspineStatus = document.getElementById('cspineStatus')?.value || '';
                     data.bloodLoss = document.getElementById('bloodLoss')?.value || '';
                     data.injuries = [];
@@ -1786,8 +1854,15 @@
                 output.classList.add('visible');
             }
             
-            // Show raw streaming content (will be formatted properly when complete)
-            scriptDiv.textContent = content.replace(/\[SCRIPT\]|\[\/SCRIPT\]|\[TIPS\]|\[\/TIPS\]/g, '').trim();
+            // Clean up the streaming content and apply basic formatting
+            let cleanContent = content.replace(/\[SCRIPT\]|\[\/SCRIPT\]|\[TIPS\][\s\S]*/g, '').trim();
+            // Convert markdown bold to HTML
+            cleanContent = cleanContent.replace(/\*\*([^*]+)\*\*/g, '<strong class="atmist-label">$1</strong>');
+            // Convert newlines
+            cleanContent = cleanContent.replace(/\n\n/g, '</p><p>');
+            cleanContent = cleanContent.replace(/\n/g, '<br>');
+            
+            scriptDiv.innerHTML = '<p>' + cleanContent + '</p>';
         }
         
         // ==================== PROMPT BUILDER ====================
@@ -1815,6 +1890,18 @@
             }
             openingLine += ` with a ${data.prealertTypeDisplay} pre-alert.`;
             
+            // Build ETA line
+            let etaLine = '';
+            if (data.eta) {
+                etaLine = `Our ETA is ${data.eta}`;
+                if (data.destination) {
+                    etaLine += ` to ${data.destination}`;
+                }
+                etaLine += '.';
+            } else if (data.destination) {
+                etaLine = `We're coming to ${data.destination}.`;
+            }
+            
             // Build type-specific information string
             let typeSpecificInfo = buildTypeSpecificInfo(data.prealertType, data.typeSpecificData);
             
@@ -1823,12 +1910,28 @@
             
             return `You are helping a UK paramedic practise their hospital pre-alert using the ATMIST format. Based on the following patient information, create TWO things:
 
-1. A clear, professional ATMIST pre-alert script they can practise saying over the radio or phone. Write it as natural speech, not bullet points. Keep it concise but complete - aim for about 30-45 seconds when spoken aloud.
+1. A clear, professional ATMIST pre-alert script they can practise saying over the radio or phone. Write it as natural speech, but format it with clear paragraphs for each ATMIST component. Keep it concise but complete - aim for about 30-45 seconds when spoken aloud.
 
-IMPORTANT: The script MUST start with this exact opening:
+IMPORTANT FORMATTING:
+- Start with the opening line provided
+- Then format each ATMIST section as a SEPARATE paragraph with the letter in bold
+- Use this exact structure:
+
 "${openingLine}"
 
-Then continue with the ATMIST structure naturally. End with an ETA (estimate 5-10 minutes).
+**A - Age:** [Age and gender in a natural sentence]
+
+**T - Time:** [Time of onset/incident]
+
+**M - Mechanism:** [What happened / medical complaint]
+
+**I - Injuries/Illness:** [Findings, injuries, relevant history]
+
+**S - Signs:** [Vital signs and clinical findings]
+
+**T - Treatment:** [What treatment has been given]
+
+${data.eta ? `"${etaLine}"` : '[End with ETA]'}
 
 ${typeSpecificGuidance}
 
@@ -1838,6 +1941,8 @@ PRE-ALERT DETAILS:
 - Crew name: ${data.crewName}
 - Ambulance call sign: ${data.callSign || 'Not specified'}
 - Pre-alert type: ${data.prealertTypeDisplay}
+- ETA: ${data.eta || 'Not specified'}
+- Destination: ${data.destination || 'Not specified'}
 
 ${typeSpecificInfo}
 
@@ -1853,7 +1958,19 @@ Format your response EXACTLY like this:
 [SCRIPT]
 ${openingLine}
 
-(Continue the ATMIST handover here as natural speech, incorporating the type-specific critical information, ending with ETA)
+**A - Age:** (Age and gender)
+
+**T - Time:** (Time of onset)
+
+**M - Mechanism:** (What happened)
+
+**I - Injuries/Illness:** (Findings and relevant history)
+
+**S - Signs:** (Vital signs and observations)
+
+**T - Treatment:** (Treatments given)
+
+${etaLine || '(ETA to destination)'}
 [/SCRIPT]
 
 [TIPS]
@@ -1886,8 +2003,6 @@ ${openingLine}
                     break;
                     
                 case 'trauma':
-                    if (data.traumaMech) info += `- Mechanism: ${data.traumaMech}\n`;
-                    if (data.traumaDetails) info += `- Mechanism details: ${data.traumaDetails}\n`;
                     if (data.injuries?.length) info += `- Injuries identified: ${data.injuries.join(', ')}\n`;
                     if (data.cspineStatus) info += `- C-spine status: ${data.cspineStatus}\n`;
                     if (data.bloodLoss) info += `- Blood loss: ${data.bloodLoss}\n`;
@@ -1975,7 +2090,13 @@ ${openingLine}
             const tipsMatch = response.match(/\[TIPS\]([\s\S]*?)\[\/TIPS\]/);
             
             if (scriptMatch) {
-                scriptDiv.textContent = scriptMatch[1].trim();
+                let scriptText = scriptMatch[1].trim();
+                // Convert markdown bold **text** to HTML <strong>text</strong>
+                scriptText = scriptText.replace(/\*\*([^*]+)\*\*/g, '<strong class="atmist-label">$1</strong>');
+                // Convert newlines to proper spacing
+                scriptText = scriptText.replace(/\n\n/g, '</p><p>');
+                scriptText = scriptText.replace(/\n/g, '<br>');
+                scriptDiv.innerHTML = '<p>' + scriptText + '</p>';
             } else {
                 // If no markers found, just show the whole response
                 scriptDiv.textContent = response;
