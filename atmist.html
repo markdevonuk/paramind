@@ -861,7 +861,7 @@
                     <li><i class="bi bi-check-circle-fill"></i> Personalised improvement tips</li>
                     <li><i class="bi bi-check-circle-fill"></i> Unlimited practice sessions</li>
                 </ul>
-                <a href="pricing.html" class="pro-upgrade-btn">
+                <a href="#" class="pro-upgrade-btn" id="proUpgradeBtn">
                     <i class="bi bi-star-fill"></i> Upgrade to Pro
                 </a>
                 <a href="chat.html" class="pro-back-link">
@@ -1209,6 +1209,13 @@
             if (!isPro) {
                 // Show Pro overlay for free users
                 document.getElementById('proOverlay').classList.add('visible');
+                
+                // Set up upgrade button to trigger Stripe checkout
+                document.getElementById('proUpgradeBtn').addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    await handleUpgrade();
+                });
+                
                 return; // Don't initialize the rest of the tool
             }
             
@@ -1257,6 +1264,41 @@
                     crewNameField.placeholder = 'Enter your name';
                 }
                 return false;
+            }
+        }
+        
+        // Handle upgrade button click - redirect to Stripe checkout
+        async function handleUpgrade() {
+            const btn = document.getElementById('proUpgradeBtn');
+            const originalText = btn.innerHTML;
+            
+            try {
+                btn.innerHTML = '<span class="loading-spinner"></span> Loading...';
+                btn.style.pointerEvents = 'none';
+                
+                const token = await getAuthToken();
+                const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}${window.paramind.CONFIG.api.checkout || '/createCheckoutSession'}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    // Redirect to Stripe checkout
+                    if (data.url) {
+                        window.location.href = data.url;
+                    }
+                } else {
+                    throw new Error('Failed to create checkout session');
+                }
+            } catch (error) {
+                console.error('Upgrade error:', error);
+                alert('Unable to start checkout. Please try again or visit the pricing page.');
+                btn.innerHTML = originalText;
+                btn.style.pointerEvents = 'auto';
             }
         }
         
