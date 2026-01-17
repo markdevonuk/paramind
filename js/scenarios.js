@@ -3406,8 +3406,6 @@ PATIENT BEHAVIOUR:
 - If the paramedic is insulting, tell them you are hurt by their comments
 - ADJUST your responses according to the DIFFICULTY LEVEL above
 - If very unwell (low GCS, severe pain), responses may be brief or confused
-
-PARAMEDIC BEHAVIOUR:
 - If the paramedic insults, or is rude to the patient you should flag a warning that speaking to patients like this could mean disciplinary action which could lead to loss of registration. It is better to be professional and friendly to your patients. 
 
 ------------------------------------------------------------------------
