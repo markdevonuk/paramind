@@ -547,6 +547,124 @@
             background: var(--color-gray-50);
             font-weight: 600;
         }
+        
+        /* Type-Specific Hints Box */
+        .type-specific-hints {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(111, 66, 193, 0.1) 0%, rgba(111, 66, 193, 0.05) 100%);
+            border: 1px solid rgba(111, 66, 193, 0.2);
+            border-radius: var(--radius-md);
+            border-left: 4px solid #6f42c1;
+        }
+        
+        .type-hints-title {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #6f42c1;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .type-hints-list {
+            margin: 0;
+            padding-left: 1.25rem;
+            font-size: 0.85rem;
+            color: var(--color-gray-700);
+        }
+        
+        .type-hints-list li {
+            margin-bottom: 0.35rem;
+        }
+        
+        .type-hints-list li:last-child {
+            margin-bottom: 0;
+        }
+        
+        .type-hints-list strong {
+            color: #6f42c1;
+        }
+        
+        /* Type-Specific Section */
+        .type-specific-section {
+            background: linear-gradient(135deg, rgba(111, 66, 193, 0.05) 0%, rgba(111, 66, 193, 0.02) 100%);
+            border-bottom: 2px solid rgba(111, 66, 193, 0.2) !important;
+        }
+        
+        .type-specific-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        @media (min-width: 576px) {
+            .type-specific-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .type-field {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .type-field label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--color-gray-600);
+            margin-bottom: 0.375rem;
+        }
+        
+        .type-field-full {
+            grid-column: 1 / -1;
+        }
+        
+        /* Checkbox grid for type-specific options */
+        .type-checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        @media (min-width: 576px) {
+            .type-checkbox-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        .type-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .type-checkbox:hover {
+            border-color: #6f42c1;
+        }
+        
+        .type-checkbox input {
+            accent-color: #6f42c1;
+        }
+        
+        .type-checkbox label {
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin: 0;
+        }
+        
+        .type-checkbox.checked {
+            border-color: #6f42c1;
+            background: rgba(111, 66, 193, 0.05);
+        }
     </style>
 </head>
 <body class="atmist-page">
@@ -632,6 +750,24 @@
                             <input type="radio" name="prealertType" value="paediatric">
                             <span><i class="bi bi-person"></i> Paediatric</span>
                         </label>
+                    </div>
+                    
+                    <!-- Type-Specific Key Info Prompts -->
+                    <div class="type-specific-hints" id="typeSpecificHints">
+                        <!-- Will be populated by JavaScript based on selection -->
+                    </div>
+                </div>
+                
+                <!-- Type-Specific Fields Section (appears based on selection) -->
+                <div class="atmist-section type-specific-section" id="typeSpecificSection" style="display: none;">
+                    <div class="atmist-section-header">
+                        <span class="atmist-badge" style="background: #6f42c1;">
+                            <i class="bi bi-star-fill" style="font-size: 0.9rem;"></i>
+                        </span>
+                        <h3 id="typeSpecificTitle">Key Information</h3>
+                    </div>
+                    <div id="typeSpecificFields">
+                        <!-- Dynamic fields inserted here -->
                     </div>
                 </div>
                 
@@ -921,6 +1057,417 @@
             }
         }
         
+        // ==================== TYPE-SPECIFIC DATA ====================
+        
+        const TYPE_SPECIFIC_CONFIG = {
+            'medical': {
+                title: 'Medical Pre-Alert',
+                hints: [
+                    '<strong>Working diagnosis</strong> — what do you think this is?',
+                    '<strong>Relevant PMHx</strong> — conditions related to presentation',
+                    '<strong>Current medications</strong> — especially anticoagulants, insulin, cardiac meds',
+                    '<strong>Allergies</strong> — particularly drug allergies'
+                ],
+                fields: `
+                    <div class="type-specific-grid">
+                        <div class="type-field type-field-full">
+                            <label for="workingDiagnosis">Working Diagnosis / Impression</label>
+                            <input type="text" class="atmist-input" id="workingDiagnosis" placeholder="e.g., ?Sepsis, ?DKA, ?PE">
+                        </div>
+                        <div class="type-field">
+                            <label for="relevantPmh">Relevant PMHx</label>
+                            <input type="text" class="atmist-input" id="relevantPmh" placeholder="e.g., COPD, Diabetes, AF">
+                        </div>
+                        <div class="type-field">
+                            <label for="anticoagulants">On Anticoagulants?</label>
+                            <select class="atmist-input" id="anticoagulants">
+                                <option value="">Select...</option>
+                                <option value="none">No</option>
+                                <option value="warfarin">Warfarin</option>
+                                <option value="doac">DOAC (Apixaban/Rivaroxaban)</option>
+                                <option value="other">Other anticoagulant</option>
+                                <option value="unknown">Unknown</option>
+                            </select>
+                        </div>
+                    </div>
+                `
+            },
+            'stroke': {
+                title: 'Stroke Pre-Alert — Critical Information',
+                hints: [
+                    '<strong>Time last seen well</strong> — CRITICAL for thrombolysis window',
+                    '<strong>FAST findings</strong> — Face, Arm, Speech, Time',
+                    '<strong>Anticoagulant status</strong> — affects treatment options',
+                    '<strong>Blood glucose</strong> — rule out hypoglycaemia as mimic',
+                    '<strong>Pre-morbid function</strong> — were they independent before?'
+                ],
+                fields: `
+                    <div class="type-specific-grid">
+                        <div class="type-field">
+                            <label for="lastSeenWell">Time Last Seen Well *</label>
+                            <input type="text" class="atmist-input" id="lastSeenWell" placeholder="e.g., 09:30 this morning, woke with symptoms">
+                        </div>
+                        <div class="type-field">
+                            <label for="strokeOnset">Symptom Onset</label>
+                            <select class="atmist-input" id="strokeOnset">
+                                <option value="">Select...</option>
+                                <option value="witnessed">Witnessed onset - exact time known</option>
+                                <option value="woke">Woke with symptoms</option>
+                                <option value="unwitnessed">Unwitnessed - found with symptoms</option>
+                                <option value="unknown">Unknown</option>
+                            </select>
+                        </div>
+                        <div class="type-field type-field-full">
+                            <label>FAST Findings</label>
+                            <div class="type-checkbox-grid">
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="fastFace" value="Facial droop">
+                                    <label for="fastFace">Facial droop</label>
+                                </div>
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="fastArmLeft" value="Left arm weakness">
+                                    <label for="fastArmLeft">Left arm weakness</label>
+                                </div>
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="fastArmRight" value="Right arm weakness">
+                                    <label for="fastArmRight">Right arm weakness</label>
+                                </div>
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="fastSpeech" value="Speech disturbance">
+                                    <label for="fastSpeech">Speech disturbance</label>
+                                </div>
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="fastVisual" value="Visual disturbance">
+                                    <label for="fastVisual">Visual disturbance</label>
+                                </div>
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="fastLegLeft" value="Left leg weakness">
+                                    <label for="fastLegLeft">Left leg weakness</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="type-field">
+                            <label for="strokeAnticoag">Anticoagulant Status *</label>
+                            <select class="atmist-input" id="strokeAnticoag">
+                                <option value="">Select...</option>
+                                <option value="none">Not anticoagulated</option>
+                                <option value="warfarin">Warfarin</option>
+                                <option value="doac">DOAC (Apixaban/Rivaroxaban/etc)</option>
+                                <option value="other">Other anticoagulant</option>
+                                <option value="unknown">Unknown</option>
+                            </select>
+                        </div>
+                        <div class="type-field">
+                            <label for="premorbid">Pre-morbid Function</label>
+                            <select class="atmist-input" id="premorbid">
+                                <option value="">Select...</option>
+                                <option value="independent">Fully independent</option>
+                                <option value="minimal">Minimal assistance needed</option>
+                                <option value="dependent">Care dependent</option>
+                                <option value="nursing">Nursing home resident</option>
+                                <option value="unknown">Unknown</option>
+                            </select>
+                        </div>
+                    </div>
+                `
+            },
+            'cardiac': {
+                title: 'Cardiac Pre-Alert — Critical Information',
+                hints: [
+                    '<strong>12-lead ECG findings</strong> — STEMI? Arrhythmia?',
+                    '<strong>Chest pain characteristics</strong> — typical vs atypical',
+                    '<strong>Cardiac history</strong> — previous MI, stents, CABG?',
+                    '<strong>Aspirin given?</strong> — and any contraindications',
+                    '<strong>GTN response</strong> — did pain improve?'
+                ],
+                fields: `
+                    <div class="type-specific-grid">
+                        <div class="type-field">
+                            <label for="ecgFindings">12-Lead ECG Findings *</label>
+                            <select class="atmist-input" id="ecgFindings">
+                                <option value="">Select...</option>
+                                <option value="stemi-anterior">STEMI - Anterior (V1-V4)</option>
+                                <option value="stemi-inferior">STEMI - Inferior (II, III, aVF)</option>
+                                <option value="stemi-lateral">STEMI - Lateral (I, aVL, V5-V6)</option>
+                                <option value="stemi-posterior">STEMI - Posterior</option>
+                                <option value="nstemi">NSTEMI / ST depression</option>
+                                <option value="af-rvr">AF with rapid ventricular response</option>
+                                <option value="bradycardia">Symptomatic bradycardia</option>
+                                <option value="vt">Ventricular tachycardia</option>
+                                <option value="other">Other significant finding</option>
+                                <option value="normal">No acute changes</option>
+                            </select>
+                        </div>
+                        <div class="type-field">
+                            <label for="chestPainChar">Chest Pain Character</label>
+                            <select class="atmist-input" id="chestPainChar">
+                                <option value="">Select...</option>
+                                <option value="typical">Typical cardiac - crushing/heavy, radiating</option>
+                                <option value="atypical">Atypical presentation</option>
+                                <option value="pleuritic">Pleuritic - sharp, worse on breathing</option>
+                                <option value="none">No chest pain</option>
+                            </select>
+                        </div>
+                        <div class="type-field type-field-full">
+                            <label>Treatments Given</label>
+                            <div class="type-checkbox-grid">
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="cardiacAspirin" value="Aspirin 300mg">
+                                    <label for="cardiacAspirin">Aspirin 300mg</label>
+                                </div>
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="cardiacGtn" value="GTN">
+                                    <label for="cardiacGtn">GTN given</label>
+                                </div>
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="cardiacMorphine" value="Morphine">
+                                    <label for="cardiacMorphine">Morphine/Opioid</label>
+                                </div>
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="cardiacAntiemetic" value="Antiemetic">
+                                    <label for="cardiacAntiemetic">Antiemetic</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="type-field">
+                            <label for="cardiacHistory">Cardiac History</label>
+                            <input type="text" class="atmist-input" id="cardiacHistory" placeholder="e.g., Previous MI 2019, 2 stents LAD">
+                        </div>
+                        <div class="type-field">
+                            <label for="gtnResponse">GTN Response</label>
+                            <select class="atmist-input" id="gtnResponse">
+                                <option value="">Select...</option>
+                                <option value="complete">Complete relief</option>
+                                <option value="partial">Partial relief</option>
+                                <option value="none">No relief</option>
+                                <option value="not-given">GTN not given</option>
+                            </select>
+                        </div>
+                    </div>
+                `
+            },
+            'trauma': {
+                title: 'Trauma Pre-Alert — Critical Information',
+                hints: [
+                    '<strong>Mechanism of injury</strong> — how did it happen?',
+                    '<strong>Injuries identified</strong> — be specific about locations',
+                    '<strong>C-spine status</strong> — immobilised? Cleared?',
+                    '<strong>Blood loss</strong> — estimated or visible',
+                    '<strong>Analgesia given</strong> — what and how much?'
+                ],
+                fields: `
+                    <div class="type-specific-grid">
+                        <div class="type-field">
+                            <label for="traumaMech">Mechanism of Injury *</label>
+                            <select class="atmist-input" id="traumaMech">
+                                <option value="">Select...</option>
+                                <option value="fall-standing">Fall from standing</option>
+                                <option value="fall-height">Fall from height (>2m)</option>
+                                <option value="rtc-driver">RTC - Driver</option>
+                                <option value="rtc-passenger">RTC - Passenger</option>
+                                <option value="rtc-pedestrian">RTC - Pedestrian</option>
+                                <option value="rtc-cyclist">RTC - Cyclist</option>
+                                <option value="rtc-motorcycle">RTC - Motorcyclist</option>
+                                <option value="assault">Assault</option>
+                                <option value="stabbing">Penetrating injury / Stabbing</option>
+                                <option value="crush">Crush injury</option>
+                                <option value="sporting">Sporting injury</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="type-field">
+                            <label for="traumaDetails">Mechanism Details</label>
+                            <input type="text" class="atmist-input" id="traumaDetails" placeholder="e.g., Unrestrained, 40mph, significant intrusion">
+                        </div>
+                        <div class="type-field type-field-full">
+                            <label>Injuries Identified</label>
+                            <div class="type-checkbox-grid">
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="injHead" value="Head injury">
+                                    <label for="injHead">Head injury</label>
+                                </div>
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="injCspine" value="?C-spine">
+                                    <label for="injCspine">?C-spine</label>
+                                </div>
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="injChest" value="Chest injury">
+                                    <label for="injChest">Chest injury</label>
+                                </div>
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="injAbdo" value="Abdominal injury">
+                                    <label for="injAbdo">Abdominal injury</label>
+                                </div>
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="injPelvis" value="Pelvic injury">
+                                    <label for="injPelvis">Pelvic injury</label>
+                                </div>
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="injLongbone" value="Long bone #">
+                                    <label for="injLongbone">Long bone #</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="type-field">
+                            <label for="cspineStatus">C-Spine Status</label>
+                            <select class="atmist-input" id="cspineStatus">
+                                <option value="">Select...</option>
+                                <option value="immobilised">Immobilised - blocks & collar</option>
+                                <option value="collar">Collar only</option>
+                                <option value="manual">Manual in-line stabilisation</option>
+                                <option value="cleared">Clinically cleared</option>
+                                <option value="not-indicated">Not indicated</option>
+                            </select>
+                        </div>
+                        <div class="type-field">
+                            <label for="bloodLoss">Estimated Blood Loss</label>
+                            <select class="atmist-input" id="bloodLoss">
+                                <option value="">Select...</option>
+                                <option value="minimal">Minimal / Controlled</option>
+                                <option value="moderate">Moderate (500ml-1L)</option>
+                                <option value="significant">Significant (>1L)</option>
+                                <option value="uncontrolled">Active uncontrolled haemorrhage</option>
+                                <option value="internal">Suspected internal bleeding</option>
+                            </select>
+                        </div>
+                    </div>
+                `
+            },
+            'major-trauma': {
+                title: 'Major Trauma Pre-Alert — Critical Information',
+                hints: [
+                    '<strong>Trauma team activation criteria</strong> — why is this major trauma?',
+                    '<strong>Airway status</strong> — patent? Protected? Intervention needed?',
+                    '<strong>Haemorrhage control</strong> — tourniquets, packing, pelvic binder?',
+                    '<strong>GCS</strong> — especially motor component',
+                    '<strong>Signs of shock</strong> — tachycardia, hypotension, pallor'
+                ],
+                fields: `
+                    <div class="type-specific-grid">
+                        <div class="type-field type-field-full">
+                            <label>Major Trauma Criteria Met</label>
+                            <div class="type-checkbox-grid">
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="mtGcs" value="GCS ≤8">
+                                    <label for="mtGcs">GCS ≤8</label>
+                                </div>
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="mtSbp" value="SBP <90">
+                                    <label for="mtSbp">SBP &lt;90</label>
+                                </div>
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="mtRr" value="RR <10 or >29">
+                                    <label for="mtRr">RR &lt;10 or &gt;29</label>
+                                </div>
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="mtPenetrating" value="Penetrating injury">
+                                    <label for="mtPenetrating">Penetrating injury</label>
+                                </div>
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="mtFlail" value="Flail chest">
+                                    <label for="mtFlail">Flail chest</label>
+                                </div>
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="mtAmputation" value="Amputation">
+                                    <label for="mtAmputation">Amputation</label>
+                                </div>
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="mtPelvic" value="Pelvic fracture">
+                                    <label for="mtPelvic">Pelvic fracture</label>
+                                </div>
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="mtParalysis" value="Paralysis">
+                                    <label for="mtParalysis">Paralysis</label>
+                                </div>
+                                <div class="type-checkbox">
+                                    <input type="checkbox" id="mtBurns" value="Major burns">
+                                    <label for="mtBurns">Major burns &gt;20%</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="type-field">
+                            <label for="airwayStatus">Airway Status *</label>
+                            <select class="atmist-input" id="airwayStatus">
+                                <option value="">Select...</option>
+                                <option value="patent">Patent - self-maintaining</option>
+                                <option value="opa">OPA/NPA in situ</option>
+                                <option value="sga">SGA in situ</option>
+                                <option value="intubated">Intubated</option>
+                                <option value="compromised">Compromised - needs intervention</option>
+                            </select>
+                        </div>
+                        <div class="type-field">
+                            <label for="haemControl">Haemorrhage Control</label>
+                            <select class="atmist-input" id="haemControl">
+                                <option value="">Select...</option>
+                                <option value="none">No significant haemorrhage</option>
+                                <option value="direct">Direct pressure</option>
+                                <option value="tourniquet">Tourniquet applied</option>
+                                <option value="pelvic">Pelvic binder applied</option>
+                                <option value="packing">Wound packing</option>
+                                <option value="uncontrolled">Unable to control</option>
+                            </select>
+                        </div>
+                        <div class="type-field">
+                            <label for="txa">TXA Status</label>
+                            <select class="atmist-input" id="txa">
+                                <option value="">Select...</option>
+                                <option value="given">TXA given</option>
+                                <option value="infusing">TXA infusing</option>
+                                <option value="indicated">Indicated - not yet given</option>
+                                <option value="not-indicated">Not indicated</option>
+                            </select>
+                        </div>
+                    </div>
+                `
+            },
+            'paediatric': {
+                title: 'Paediatric Pre-Alert — Critical Information',
+                hints: [
+                    '<strong>Age AND weight</strong> — critical for drug dosing',
+                    '<strong>Immunisation status</strong> — if relevant to presentation',
+                    '<strong>Parent/guardian present?</strong> — for consent and history',
+                    '<strong>Safeguarding concerns?</strong> — note any red flags',
+                    '<strong>Normal for this child?</strong> — parent knows their baseline'
+                ],
+                fields: `
+                    <div class="type-specific-grid">
+                        <div class="type-field">
+                            <label for="paedAge">Age *</label>
+                            <input type="text" class="atmist-input" id="paedAge" placeholder="e.g., 3 years, 6 months">
+                        </div>
+                        <div class="type-field">
+                            <label for="paedWeight">Weight (if known)</label>
+                            <input type="text" class="atmist-input" id="paedWeight" placeholder="e.g., 15kg, estimated">
+                        </div>
+                        <div class="type-field">
+                            <label for="parentPresent">Parent/Guardian</label>
+                            <select class="atmist-input" id="parentPresent">
+                                <option value="">Select...</option>
+                                <option value="present">Present and travelling with child</option>
+                                <option value="following">Following in own vehicle</option>
+                                <option value="meeting">Meeting at hospital</option>
+                                <option value="none">None present - safeguarding</option>
+                            </select>
+                        </div>
+                        <div class="type-field">
+                            <label for="safeguarding">Safeguarding Concerns?</label>
+                            <select class="atmist-input" id="safeguarding">
+                                <option value="">Select...</option>
+                                <option value="none">No concerns</option>
+                                <option value="noted">Concerns noted - details in handover</option>
+                                <option value="referral">Social services referral made</option>
+                            </select>
+                        </div>
+                        <div class="type-field type-field-full">
+                            <label for="paedHistory">Relevant History</label>
+                            <input type="text" class="atmist-input" id="paedHistory" placeholder="e.g., Born at 32/40, developmental delay, previous similar episodes">
+                        </div>
+                    </div>
+                `
+            }
+        };
+        
         // ==================== EVENT LISTENERS ====================
         
         function setupEventListeners() {
@@ -950,6 +1497,16 @@
                 });
             });
             
+            // Pre-alert type change handler
+            document.querySelectorAll('input[name="prealertType"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    updateTypeSpecificContent(this.value);
+                });
+            });
+            
+            // Initialize with default type (medical)
+            updateTypeSpecificContent('medical');
+            
             // Form submission
             document.getElementById('atmistForm').addEventListener('submit', handleFormSubmit);
             
@@ -958,6 +1515,39 @@
             
             // Clear button
             document.getElementById('clearBtn').addEventListener('click', handleClear);
+        }
+        
+        function updateTypeSpecificContent(type) {
+            const config = TYPE_SPECIFIC_CONFIG[type];
+            if (!config) return;
+            
+            // Update hints box
+            const hintsContainer = document.getElementById('typeSpecificHints');
+            hintsContainer.innerHTML = `
+                <div class="type-hints-title">
+                    <i class="bi bi-exclamation-circle"></i>
+                    ${config.title} — Don't forget:
+                </div>
+                <ul class="type-hints-list">
+                    ${config.hints.map(hint => `<li>${hint}</li>`).join('')}
+                </ul>
+            `;
+            
+            // Update fields section
+            const fieldsSection = document.getElementById('typeSpecificSection');
+            const fieldsTitle = document.getElementById('typeSpecificTitle');
+            const fieldsContainer = document.getElementById('typeSpecificFields');
+            
+            fieldsTitle.textContent = config.title.replace(' — Critical Information', ' — Key Details');
+            fieldsContainer.innerHTML = config.fields;
+            fieldsSection.style.display = 'block';
+            
+            // Add checkbox styling for dynamically added checkboxes
+            fieldsContainer.querySelectorAll('.type-checkbox input').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    this.closest('.type-checkbox').classList.toggle('checked', this.checked);
+                });
+            });
         }
         
         // ==================== FORM SUBMISSION ====================
@@ -985,12 +1575,16 @@
                 'paediatric': 'Paediatric'
             }[prealertType] || 'Medical';
             
+            // Collect type-specific data
+            const typeSpecificData = collectTypeSpecificData(prealertType);
+            
             // Collect form data
             const formData = {
                 crewName: crewName,
                 callSign: callSign,
                 prealertType: prealertType,
                 prealertTypeDisplay: prealertTypeDisplay,
+                typeSpecificData: typeSpecificData,
                 age: document.getElementById('patientAge').value,
                 gender: document.getElementById('patientGender').value,
                 time: document.getElementById('incidentTime').value,
@@ -1053,6 +1647,72 @@
                 generateBtn.disabled = false;
                 generateBtn.innerHTML = '<i class="bi bi-telephone-outbound"></i> Generate Pre-Alert Script';
             }
+        }
+        
+        // Collect type-specific data based on the selected pre-alert type
+        function collectTypeSpecificData(type) {
+            const data = {};
+            
+            switch(type) {
+                case 'stroke':
+                    data.lastSeenWell = document.getElementById('lastSeenWell')?.value || '';
+                    data.strokeOnset = document.getElementById('strokeOnset')?.value || '';
+                    data.anticoagStatus = document.getElementById('strokeAnticoag')?.value || '';
+                    data.premorbid = document.getElementById('premorbid')?.value || '';
+                    data.fastFindings = [];
+                    document.querySelectorAll('#typeSpecificFields .type-checkbox input:checked').forEach(cb => {
+                        data.fastFindings.push(cb.value);
+                    });
+                    break;
+                    
+                case 'cardiac':
+                    data.ecgFindings = document.getElementById('ecgFindings')?.value || '';
+                    data.chestPainChar = document.getElementById('chestPainChar')?.value || '';
+                    data.cardiacHistory = document.getElementById('cardiacHistory')?.value || '';
+                    data.gtnResponse = document.getElementById('gtnResponse')?.value || '';
+                    data.cardiacTreatments = [];
+                    document.querySelectorAll('#typeSpecificFields .type-checkbox input:checked').forEach(cb => {
+                        data.cardiacTreatments.push(cb.value);
+                    });
+                    break;
+                    
+                case 'trauma':
+                    data.traumaMech = document.getElementById('traumaMech')?.value || '';
+                    data.traumaDetails = document.getElementById('traumaDetails')?.value || '';
+                    data.cspineStatus = document.getElementById('cspineStatus')?.value || '';
+                    data.bloodLoss = document.getElementById('bloodLoss')?.value || '';
+                    data.injuries = [];
+                    document.querySelectorAll('#typeSpecificFields .type-checkbox input:checked').forEach(cb => {
+                        data.injuries.push(cb.value);
+                    });
+                    break;
+                    
+                case 'major-trauma':
+                    data.airwayStatus = document.getElementById('airwayStatus')?.value || '';
+                    data.haemControl = document.getElementById('haemControl')?.value || '';
+                    data.txa = document.getElementById('txa')?.value || '';
+                    data.mtCriteria = [];
+                    document.querySelectorAll('#typeSpecificFields .type-checkbox input:checked').forEach(cb => {
+                        data.mtCriteria.push(cb.value);
+                    });
+                    break;
+                    
+                case 'paediatric':
+                    data.paedAge = document.getElementById('paedAge')?.value || '';
+                    data.paedWeight = document.getElementById('paedWeight')?.value || '';
+                    data.parentPresent = document.getElementById('parentPresent')?.value || '';
+                    data.safeguarding = document.getElementById('safeguarding')?.value || '';
+                    data.paedHistory = document.getElementById('paedHistory')?.value || '';
+                    break;
+                    
+                case 'medical':
+                    data.workingDiagnosis = document.getElementById('workingDiagnosis')?.value || '';
+                    data.relevantPmh = document.getElementById('relevantPmh')?.value || '';
+                    data.anticoagulants = document.getElementById('anticoagulants')?.value || '';
+                    break;
+            }
+            
+            return data;
         }
         
         // ==================== API CALL ====================
@@ -1155,6 +1815,12 @@
             }
             openingLine += ` with a ${data.prealertTypeDisplay} pre-alert.`;
             
+            // Build type-specific information string
+            let typeSpecificInfo = buildTypeSpecificInfo(data.prealertType, data.typeSpecificData);
+            
+            // Build type-specific tips guidance
+            let typeSpecificGuidance = buildTypeSpecificGuidance(data.prealertType);
+            
             return `You are helping a UK paramedic practise their hospital pre-alert using the ATMIST format. Based on the following patient information, create TWO things:
 
 1. A clear, professional ATMIST pre-alert script they can practise saying over the radio or phone. Write it as natural speech, not bullet points. Keep it concise but complete - aim for about 30-45 seconds when spoken aloud.
@@ -1162,14 +1828,18 @@
 IMPORTANT: The script MUST start with this exact opening:
 "${openingLine}"
 
-Then continue with the ATMIST structure naturally. End with an ETA if appropriate (you can estimate 5-10 minutes).
+Then continue with the ATMIST structure naturally. End with an ETA (estimate 5-10 minutes).
 
-2. 2-4 specific tips for improving their pre-alert based on what information they provided (or didn't provide). Consider what's particularly important for a ${data.prealertTypeDisplay} pre-alert.
+${typeSpecificGuidance}
+
+2. 2-4 specific tips for improving their ${data.prealertTypeDisplay} pre-alert. Focus on what's CRITICAL for this type of pre-alert that they may have missed or could improve.
 
 PRE-ALERT DETAILS:
 - Crew name: ${data.crewName}
 - Ambulance call sign: ${data.callSign || 'Not specified'}
 - Pre-alert type: ${data.prealertTypeDisplay}
+
+${typeSpecificInfo}
 
 PATIENT INFORMATION (ATMIST):
 - Age: ${data.age || 'Not specified'} ${data.gender || ''}
@@ -1183,14 +1853,118 @@ Format your response EXACTLY like this:
 [SCRIPT]
 ${openingLine}
 
-(Continue the ATMIST handover here as natural speech, ending with ETA)
+(Continue the ATMIST handover here as natural speech, incorporating the type-specific critical information, ending with ETA)
 [/SCRIPT]
 
 [TIPS]
-- (First tip specific to ${data.prealertTypeDisplay} pre-alerts)
+- (First tip - specific to ${data.prealertTypeDisplay} pre-alerts and what they provided/missed)
 - (Second tip)
-- (etc)
+- (Third tip if needed)
 [/TIPS]`;
+        }
+        
+        function buildTypeSpecificInfo(type, data) {
+            if (!data) return '';
+            
+            let info = `\n${type.toUpperCase()} PRE-ALERT SPECIFIC INFO:\n`;
+            
+            switch(type) {
+                case 'stroke':
+                    if (data.lastSeenWell) info += `- Time last seen well: ${data.lastSeenWell}\n`;
+                    if (data.strokeOnset) info += `- Onset type: ${data.strokeOnset}\n`;
+                    if (data.fastFindings?.length) info += `- FAST findings: ${data.fastFindings.join(', ')}\n`;
+                    if (data.anticoagStatus) info += `- Anticoagulation status: ${data.anticoagStatus}\n`;
+                    if (data.premorbid) info += `- Pre-morbid function: ${data.premorbid}\n`;
+                    break;
+                    
+                case 'cardiac':
+                    if (data.ecgFindings) info += `- ECG findings: ${data.ecgFindings}\n`;
+                    if (data.chestPainChar) info += `- Chest pain character: ${data.chestPainChar}\n`;
+                    if (data.cardiacHistory) info += `- Cardiac history: ${data.cardiacHistory}\n`;
+                    if (data.gtnResponse) info += `- GTN response: ${data.gtnResponse}\n`;
+                    if (data.cardiacTreatments?.length) info += `- Cardiac treatments: ${data.cardiacTreatments.join(', ')}\n`;
+                    break;
+                    
+                case 'trauma':
+                    if (data.traumaMech) info += `- Mechanism: ${data.traumaMech}\n`;
+                    if (data.traumaDetails) info += `- Mechanism details: ${data.traumaDetails}\n`;
+                    if (data.injuries?.length) info += `- Injuries identified: ${data.injuries.join(', ')}\n`;
+                    if (data.cspineStatus) info += `- C-spine status: ${data.cspineStatus}\n`;
+                    if (data.bloodLoss) info += `- Blood loss: ${data.bloodLoss}\n`;
+                    break;
+                    
+                case 'major-trauma':
+                    if (data.mtCriteria?.length) info += `- Major trauma criteria: ${data.mtCriteria.join(', ')}\n`;
+                    if (data.airwayStatus) info += `- Airway status: ${data.airwayStatus}\n`;
+                    if (data.haemControl) info += `- Haemorrhage control: ${data.haemControl}\n`;
+                    if (data.txa) info += `- TXA status: ${data.txa}\n`;
+                    break;
+                    
+                case 'paediatric':
+                    if (data.paedAge) info += `- Paediatric age: ${data.paedAge}\n`;
+                    if (data.paedWeight) info += `- Weight: ${data.paedWeight}\n`;
+                    if (data.parentPresent) info += `- Parent/guardian: ${data.parentPresent}\n`;
+                    if (data.safeguarding) info += `- Safeguarding: ${data.safeguarding}\n`;
+                    if (data.paedHistory) info += `- Relevant history: ${data.paedHistory}\n`;
+                    break;
+                    
+                case 'medical':
+                    if (data.workingDiagnosis) info += `- Working diagnosis: ${data.workingDiagnosis}\n`;
+                    if (data.relevantPmh) info += `- Relevant PMHx: ${data.relevantPmh}\n`;
+                    if (data.anticoagulants) info += `- Anticoagulation: ${data.anticoagulants}\n`;
+                    break;
+            }
+            
+            return info;
+        }
+        
+        function buildTypeSpecificGuidance(type) {
+            const guidance = {
+                'stroke': `For a STROKE pre-alert, you MUST include:
+- Time last seen well (CRITICAL for thrombolysis decision - within 4.5 hours)
+- FAST findings (facial droop, arm weakness, speech disturbance)
+- Anticoagulation status (affects treatment pathway)
+- Blood glucose (to rule out hypoglycaemia mimic)
+- Pre-morbid functional status`,
+
+                'cardiac': `For a CARDIAC pre-alert, you MUST include:
+- 12-lead ECG interpretation (STEMI location if applicable)
+- Aspirin given? (and contraindications if not)
+- GTN given and response
+- Chest pain onset time
+- Previous cardiac history (MI, stents, CABG)`,
+
+                'trauma': `For a TRAUMA pre-alert, you MUST include:
+- Clear mechanism of injury with details (speed, height, restraints)
+- Specific injuries identified (not just "multiple injuries")
+- C-spine status (immobilised/cleared)
+- Haemorrhage control measures taken
+- GCS (especially if <15)`,
+
+                'major-trauma': `For a MAJOR TRAUMA pre-alert, you MUST include:
+- Which major trauma criteria are met
+- Airway status (patent/compromised/secured)
+- Breathing status and any interventions
+- Circulation - BP, HR, haemorrhage control measures
+- TXA status (given/infusing/indicated)
+- This patient needs the TRAUMA TEAM`,
+
+                'paediatric': `For a PAEDIATRIC pre-alert, you MUST include:
+- Exact age (years AND months for young children)
+- Weight if known (critical for drug calculations)
+- Parent/guardian status and whether travelling with
+- Any safeguarding concerns
+- Is this normal for this child? (parent's assessment of severity)`,
+
+                'medical': `For a MEDICAL pre-alert, you MUST include:
+- Working diagnosis/impression
+- Relevant past medical history
+- Current medications (especially anticoagulants, insulin, immunosuppressants)
+- Allergies
+- What you need from the ED (e.g., Resus, specific team)`
+            };
+            
+            return guidance[type] || '';
         }
         
         // ==================== DISPLAY RESPONSE ====================
@@ -1243,6 +2017,18 @@ ${openingLine}
             document.getElementById('handoverOutput').classList.remove('visible');
             document.querySelectorAll('.quick-select-btn.active').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.treatment-check.checked').forEach(el => el.classList.remove('checked'));
+            document.querySelectorAll('.type-checkbox.checked').forEach(el => el.classList.remove('checked'));
+            
+            // Reset to medical type and update the content
+            document.querySelector('input[name="prealertType"][value="medical"]').checked = true;
+            updateTypeSpecificContent('medical');
+            
+            // Re-populate crew name
+            if (userProfile?.firstName) {
+                const fullName = [userProfile.firstName, userProfile.surname].filter(Boolean).join(' ');
+                document.getElementById('crewName').value = fullName;
+            }
+            
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         
