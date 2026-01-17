@@ -1552,16 +1552,34 @@ h1, h2, h3, h4, h5, h6 {
         padding: 0.75rem 0;
     }
     
-    /* Chat Toolbar with New Chat button */
+/* Chat Toolbar with New Chat button */
 .chat-toolbar {
     padding: 0.5rem 1rem;
     background: var(--color-white);
     border-bottom: 1px solid var(--color-gray-200);
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
 }
 
 .chat-toolbar .btn {
     font-size: 0.8rem;
+    border-radius: var(--radius-full);
+    padding: 0.4rem 1rem;
+    color: var(--color-gray-600);
+    border-color: var(--color-gray-300);
+    transition: all var(--transition-fast);
 }
+
+.chat-toolbar .btn:hover {
+    background: linear-gradient(135deg, rgba(43, 138, 156, 0.1) 0%, rgba(92, 184, 92, 0.1) 100%);
+    border-color: var(--color-teal);
+    color: var(--color-teal);
+}
+
+/* Desktop adjustments */
+@media (min-width: 768px) {
+    .chat-toolbar {
+        padding: 0.75rem 2rem;
+        background: var(--color-gray-50);
+    }
 }
