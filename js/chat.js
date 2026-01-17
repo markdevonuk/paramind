@@ -93,6 +93,8 @@ const elements = {
     
     // Chat elements
     chatMessages: document.getElementById('chatMessages'),
+    chatToolbar: document.getElementById('chatToolbar'),
+    clearChatBtn: document.getElementById('clearChatBtn'),
     chatForm: document.getElementById('chatForm'),
     messageInput: document.getElementById('messageInput'),
     sendBtn: document.getElementById('sendBtn'),
@@ -271,11 +273,21 @@ if (document.getElementById('disclaimerTrust')) {
         }
         
         // Display user's first name in welcome message
-        if (elements.welcomeName && data.firstName) {
-            elements.welcomeName.textContent = ', ' + data.firstName;
-        }
-        
-        updateMessageCounter();
+if (elements.welcomeName && data.firstName) {
+    elements.welcomeName.textContent = ', ' + data.firstName;
+}
+
+// Show PRO badge in welcome message for Pro users
+if (data.isPro && document.getElementById('proBadgeWelcome')) {
+    document.getElementById('proBadgeWelcome').style.display = 'inline';
+}
+
+// Update trust name in disclaimer
+if (document.getElementById('disclaimerTrust')) {
+    document.getElementById('disclaimerTrust').textContent = data.trust;
+}
+
+updateMessageCounter();
         updateCpdProLock();
         
        if (chatState.isPro && elements.messageLimitBanner) {
@@ -546,6 +558,11 @@ function setupEventListeners() {
     // Random scenario button
     if (elements.randomScenarioBtn) {
         elements.randomScenarioBtn.addEventListener('click', startRandomScenario);
+    }
+    
+    // Clear chat button
+    if (elements.clearChatBtn) {
+        elements.clearChatBtn.addEventListener('click', clearChat);
     }
     
     // Upgrade buttons
@@ -1405,6 +1422,11 @@ function handleChatError(error) {
 }
 
 function addMessage(role, content) {
+    // Show the New Chat toolbar when messages are added
+    if (elements.chatToolbar) {
+        elements.chatToolbar.style.display = 'flex';
+    }
+    
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${role}`;
     
@@ -1593,6 +1615,16 @@ function clearChat() {
     // Hide toolbars when clearing chat
     hideAssessmentToolbar();
     hideWorkingImpressionToolbar();
+    
+    // Show welcome message again
+    if (elements.welcomeMessage) {
+        elements.welcomeMessage.style.display = 'block';
+    }
+    
+    // Hide the New Chat button since chat is now empty
+    if (elements.chatToolbar) {
+        elements.chatToolbar.style.display = 'none';
+    }
 }
 
 function scrollToBottom() {
