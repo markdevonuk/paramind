@@ -52,99 +52,47 @@
     <main class="contact-page">
         <div class="container">
             <div class="row justify-content-center">
-                <div class="col-lg-8">
+                <div class="col-lg-6">
                     <div class="text-center mb-5">
                         <h1>Contact Us</h1>
                         <p class="text-muted">Have a question or feedback? We'd love to hear from you.</p>
                     </div>
                     
-                    <div class="row g-4">
-                        <!-- Contact Information -->
-                        <div class="col-md-5">
-                            <div class="contact-card h-100">
-                                <h3 class="h5 mb-4">Get in Touch</h3>
-                                
-                                <div class="contact-info-item">
-                                    <i class="bi bi-envelope"></i>
-                                    <div>
-                                        <h3>Email</h3>
-                                        <p>support@paramind.co.uk</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="contact-info-item">
-                                    <i class="bi bi-clock"></i>
-                                    <div>
-                                        <h3>Response Time</h3>
-                                        <p>We aim to respond within 24-48 hours</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="contact-info-item">
-                                    <i class="bi bi-question-circle"></i>
-                                    <div>
-                                        <h3>FAQs</h3>
-                                        <p>Check our frequently asked questions for quick answers</p>
-                                    </div>
-                                </div>
-                                
-                                <hr class="my-4">
-                                
-                                <div class="contact-info-item mb-0">
-                                    <i class="bi bi-shield-check"></i>
-                                    <div>
-                                        <h3>Data Requests</h3>
-                                        <p>For GDPR data requests, please email us with your registered email address</p>
-                                    </div>
-                                </div>
+                    <!-- Contact Information -->
+                    <div class="contact-card">
+                        <div class="contact-info-item">
+                            <i class="bi bi-envelope"></i>
+                            <div>
+                                <h3>Email</h3>
+                                <p><a href="mailto:markdevon@gmail.com">markdevon@gmail.com</a></p>
                             </div>
                         </div>
                         
-                        <!-- Contact Form -->
-                        <div class="col-md-7">
-                            <div class="contact-card">
-                                <h3 class="h5 mb-4">Send us a Message</h3>
-                                
-                                <form id="contactForm">
-                                    <div class="mb-3">
-                                        <label for="name" class="form-label">Your Name</label>
-                                        <input type="text" class="form-control" id="name" placeholder="John Smith" required>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <label for="email" class="form-label">Email Address</label>
-                                        <input type="email" class="form-control" id="email" placeholder="you@nhs.net" required>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <label for="subject" class="form-label">Subject</label>
-                                        <select class="form-select" id="subject" required>
-                                            <option value="" disabled selected>Select a topic...</option>
-                                            <option value="general">General Enquiry</option>
-                                            <option value="support">Technical Support</option>
-                                            <option value="billing">Billing Question</option>
-                                            <option value="feedback">Feedback or Suggestion</option>
-                                            <option value="bug">Report a Bug</option>
-                                            <option value="data">Data/Privacy Request</option>
-                                            <option value="other">Other</option>
-                                        </select>
-                                    </div>
-                                    
-                                    <div class="mb-4">
-                                        <label for="message" class="form-label">Message</label>
-                                        <textarea class="form-control" id="message" rows="5" placeholder="How can we help you?" required></textarea>
-                                    </div>
-                                    
-                                    <!-- Success message placeholder -->
-                                    <div id="successMessage" class="alert alert-success d-none" role="alert">
-                                        <i class="bi bi-check-circle me-2"></i>
-                                        Thank you for your message! We'll get back to you soon.
-                                    </div>
-                                    
-                                    <button type="submit" class="btn btn-primary w-100">
-                                        <i class="bi bi-send me-2"></i>Send Message
-                                    </button>
-                                </form>
+                        <div class="contact-info-item">
+                            <i class="bi bi-clock"></i>
+                            <div>
+                                <h3>Response Time</h3>
+                                <p>We aim to respond within 24-48 hours</p>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="contact-info-item">
+                            <i class="bi bi-credit-card"></i>
+                            <div>
+                                <h3>Manage Subscription</h3>
+                                <p>To cancel or manage your subscription, you can <a href="https://billing.stripe.com/p/login/dRmfZgdHvdva3VWgA3dIA00" target="_blank">click here</a> to do this immediately</p>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="contact-info-item mb-0">
+                            <i class="bi bi-shield-check"></i>
+                            <div>
+                                <h3>Data Requests</h3>
+                                <p>For GDPR data requests, please email us with your registered email address</p>
                             </div>
                         </div>
                     </div>
@@ -175,22 +123,6 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Contact form handler (placeholder)
-        document.getElementById('contactForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Show success message
-            document.getElementById('successMessage').classList.remove('d-none');
-            
-            // Reset form
-            this.reset();
-            
-            // Hide success message after 5 seconds
-            setTimeout(function() {
-                document.getElementById('successMessage').classList.add('d-none');
-            }, 5000);
-        });
-        
         // Close mobile menu when a nav link is clicked
         document.querySelectorAll('.navbar-nav a').forEach(link => {
             link.addEventListener('click', () => {
