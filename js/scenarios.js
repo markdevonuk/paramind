@@ -3420,10 +3420,12 @@ If learner says they're giving treatment (e.g., "I'm giving GTN", "Starting O2")
 - If asked about effect, give realistic patient response (not clinical evaluation)
 
 ECG Rule:
-- ECG/12-lead/rhythm request → CLINICAL DATA: ${p.ecg}
-- "Interpret this ECG" → CLINICAL DATA: ${p.ecg}
-  Then add: PATIENT: "I don't know what those squiggly lines mean—what do you think?"
-- NEVER explain ECG interpretation in ROLEPLAY
+- ECG/12-lead/rhythm request → Provide ONLY the objective findings from: ${p.ecg}
+- REMOVE any diagnostic labels or pattern names (e.g., "STEMI pattern", "PE pattern", "AF") from your response
+- Give only: rate, rhythm, P waves, PR interval, QRS width, ST segments, T waves, axis
+- Example: Say "ST elevation in V1-V4 with reciprocal depression in II, III, aVF" but do NOT say "STEMI pattern" or "suggests MI"
+- If learner asks "Interpret this ECG" → Provide the raw findings, then add: PATIENT: "I don't know what those squiggly lines mean—what do you think?"
+- NEVER explain what the ECG findings mean or suggest a diagnosis in ROLEPLAY
 
 MODE: HINT
 ───────────────────────────────────────────────────────────────────
