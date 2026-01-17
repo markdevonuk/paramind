@@ -709,13 +709,13 @@
                 <i class="bi bi-telephone-outbound text-teal"></i>
                 ATMIST Pre-Alert Tool
             </h1>
-            <p>Deliver your pre-alerts like a pro</p>
+            <p>Practise your ED pre-alerts like a pro</p>
         </div>
         
         <!-- Info Banner -->
         <div class="info-banner">
             <i class="bi bi-lightbulb"></i>
-            <p>Fill in your patient details below and we'll generate a professional pre-alert script. Your name is automatically pulled from your profile.</p>
+            <p>Fill in your patient details below and we'll generate a professional pre-alert script you can practise delivering to the ED. Your name is automatically pulled from your profile.</p>
         </div>
 
         <!-- ATMIST Form -->
@@ -1912,6 +1912,20 @@
 
 1. A clear, professional ATMIST pre-alert script they can practise saying over the radio or phone. Write it as natural speech, but format it with clear paragraphs for each ATMIST component. Keep it concise but complete - aim for about 30-45 seconds when spoken aloud.
 
+=== CRITICAL INSTRUCTION - YOU MUST OBEY ===
+DO NOT make up, embellish, invent, or assume ANY clinical information.
+- ONLY use the exact information provided by the user
+- If a field is empty or says "Not specified", either skip it or say "unknown"
+- DO NOT invent vital signs, symptoms, findings, history, or treatments
+- DO NOT add clinical details that were not provided
+- DO NOT assume what medications were given if not stated
+- DO NOT fabricate examination findings
+- If information is missing, the script should reflect that gap - this is a learning opportunity
+- The TIPS section should highlight what information was missing
+
+This is a clinical training tool. Fabricating information teaches bad habits and is dangerous.
+===========================================
+
 IMPORTANT FORMATTING:
 - Start with the opening line provided
 - Then format each ATMIST section as a SEPARATE paragraph with the letter in bold
@@ -1919,23 +1933,23 @@ IMPORTANT FORMATTING:
 
 "${openingLine}"
 
-**A - Age:** [Age and gender in a natural sentence]
+**A - Age:** [Age and gender in a natural sentence - ONLY if provided]
 
-**T - Time:** [Time of onset/incident]
+**T - Time:** [Time of onset/incident - ONLY if provided]
 
-**M - Mechanism:** [What happened / medical complaint]
+**M - Mechanism:** [What happened / medical complaint - ONLY if provided]
 
-**I - Injuries/Illness:** [Findings, injuries, relevant history]
+**I - Injuries/Illness:** [Findings, injuries, relevant history - ONLY what was provided]
 
-**S - Signs:** [Vital signs and clinical findings]
+**S - Signs:** [Vital signs and clinical findings - ONLY those provided, do not invent any]
 
-**T - Treatment:** [What treatment has been given]
+**T - Treatment:** [What treatment has been given - ONLY what was stated]
 
-${data.eta ? `"${etaLine}"` : '[End with ETA]'}
+${data.eta ? `"${etaLine}"` : '[End with ETA if provided, otherwise say "ETA to follow"]'}
 
 ${typeSpecificGuidance}
 
-2. 2-4 specific tips for improving their ${data.prealertTypeDisplay} pre-alert. Focus on what's CRITICAL for this type of pre-alert that they may have missed or could improve.
+2. 2-4 specific tips for improving their ${data.prealertTypeDisplay} pre-alert. Focus on what's CRITICAL for this type of pre-alert that they may have missed or could improve. Be specific about what information was MISSING that should have been included.
 
 PRE-ALERT DETAILS:
 - Crew name: ${data.crewName}
@@ -1946,37 +1960,38 @@ PRE-ALERT DETAILS:
 
 ${typeSpecificInfo}
 
-PATIENT INFORMATION (ATMIST):
-- Age: ${data.age || 'Not specified'} ${data.gender || ''}
-- Time of incident/onset: ${data.time || 'Not specified'}
-- Mechanism/Medical complaint: ${data.mechanism || 'Not specified'}
-- Injuries/Illness details: ${data.injuries || 'Not specified'}
-- Signs/Vitals: ${vitalsString || 'Not specified'} ${data.additionalSigns || ''}
-- Treatment given: ${treatmentsString || 'None specified'}
+PATIENT INFORMATION (ATMIST) - USE ONLY THIS DATA, DO NOT ADD ANYTHING:
+- Age: ${data.age || 'NOT PROVIDED'} ${data.gender || ''}
+- Time of incident/onset: ${data.time || 'NOT PROVIDED'}
+- Mechanism/Medical complaint: ${data.mechanism || 'NOT PROVIDED'}
+- Injuries/Illness details: ${data.injuries || 'NOT PROVIDED'}
+- Signs/Vitals: ${vitalsString || 'NOT PROVIDED'} ${data.additionalSigns || ''}
+- Treatment given: ${treatmentsString || 'NOT PROVIDED'}
+
+REMEMBER: Only use the information above. Do not invent or assume anything. Missing information = gap in the handover that should be noted in tips.
 
 Format your response EXACTLY like this:
 [SCRIPT]
 ${openingLine}
 
-**A - Age:** (Age and gender)
+**A - Age:** (ONLY if age was provided)
 
-**T - Time:** (Time of onset)
+**T - Time:** (ONLY if time was provided)
 
-**M - Mechanism:** (What happened)
+**M - Mechanism:** (ONLY if mechanism was provided)
 
-**I - Injuries/Illness:** (Findings and relevant history)
+**I - Injuries/Illness:** (ONLY what was provided)
 
-**S - Signs:** (Vital signs and observations)
+**S - Signs:** (ONLY the vitals/signs that were provided)
 
-**T - Treatment:** (Treatments given)
+**T - Treatment:** (ONLY treatments that were stated)
 
-${etaLine || '(ETA to destination)'}
+${etaLine || 'ETA to follow.'}
 [/SCRIPT]
 
 [TIPS]
-- (First tip - specific to ${data.prealertTypeDisplay} pre-alerts and what they provided/missed)
-- (Second tip)
-- (Third tip if needed)
+- (Highlight missing critical information for this type of pre-alert)
+- (Other improvement tips)
 [/TIPS]`;
         }
         
@@ -2035,48 +2050,54 @@ ${etaLine || '(ETA to destination)'}
         
         function buildTypeSpecificGuidance(type) {
             const guidance = {
-                'stroke': `For a STROKE pre-alert, you MUST include:
+                'stroke': `For a STROKE pre-alert, these are CRITICAL (note in tips if missing):
 - Time last seen well (CRITICAL for thrombolysis decision - within 4.5 hours)
 - FAST findings (facial droop, arm weakness, speech disturbance)
 - Anticoagulation status (affects treatment pathway)
 - Blood glucose (to rule out hypoglycaemia mimic)
-- Pre-morbid functional status`,
+- Pre-morbid functional status
+DO NOT invent any of these if not provided - highlight as missing in tips instead.`,
 
-                'cardiac': `For a CARDIAC pre-alert, you MUST include:
+                'cardiac': `For a CARDIAC pre-alert, these are CRITICAL (note in tips if missing):
 - 12-lead ECG interpretation (STEMI location if applicable)
 - Aspirin given? (and contraindications if not)
 - GTN given and response
 - Chest pain onset time
-- Previous cardiac history (MI, stents, CABG)`,
+- Previous cardiac history (MI, stents, CABG)
+DO NOT invent any of these if not provided - highlight as missing in tips instead.`,
 
-                'trauma': `For a TRAUMA pre-alert, you MUST include:
+                'trauma': `For a TRAUMA pre-alert, these are CRITICAL (note in tips if missing):
 - Clear mechanism of injury with details (speed, height, restraints)
 - Specific injuries identified (not just "multiple injuries")
 - C-spine status (immobilised/cleared)
 - Haemorrhage control measures taken
-- GCS (especially if <15)`,
+- GCS (especially if <15)
+DO NOT invent any of these if not provided - highlight as missing in tips instead.`,
 
-                'major-trauma': `For a MAJOR TRAUMA pre-alert, you MUST include:
+                'major-trauma': `For a MAJOR TRAUMA pre-alert, these are CRITICAL (note in tips if missing):
 - Which major trauma criteria are met
 - Airway status (patent/compromised/secured)
 - Breathing status and any interventions
 - Circulation - BP, HR, haemorrhage control measures
 - TXA status (given/infusing/indicated)
-- This patient needs the TRAUMA TEAM`,
+- This patient needs the TRAUMA TEAM
+DO NOT invent any of these if not provided - highlight as missing in tips instead.`,
 
-                'paediatric': `For a PAEDIATRIC pre-alert, you MUST include:
+                'paediatric': `For a PAEDIATRIC pre-alert, these are CRITICAL (note in tips if missing):
 - Exact age (years AND months for young children)
 - Weight if known (critical for drug calculations)
 - Parent/guardian status and whether travelling with
 - Any safeguarding concerns
-- Is this normal for this child? (parent's assessment of severity)`,
+- Is this normal for this child? (parent's assessment of severity)
+DO NOT invent any of these if not provided - highlight as missing in tips instead.`,
 
-                'medical': `For a MEDICAL pre-alert, you MUST include:
+                'medical': `For a MEDICAL pre-alert, these are CRITICAL (note in tips if missing):
 - Working diagnosis/impression
 - Relevant past medical history
 - Current medications (especially anticoagulants, insulin, immunosuppressants)
 - Allergies
-- What you need from the ED (e.g., Resus, specific team)`
+- What you need from the ED (e.g., Resus, specific team)
+DO NOT invent any of these if not provided - highlight as missing in tips instead.`
             };
             
             return guidance[type] || '';
