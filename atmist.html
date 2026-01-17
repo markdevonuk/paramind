@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>ATMIST Handover Tool | Paramind</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        /* ATMIST Page Specific Styles */
+        .atmist-page {
+            min-height: 100vh;
+            background: var(--color-gray-50);
+        }
+        
+        .atmist-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem;
+            padding-bottom: 2rem;
+        }
+        
+        .atmist-header {
+            text-align: center;
+            padding: 1.5rem 0;
+        }
+        
+        .atmist-header h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .atmist-header p {
+            color: var(--color-gray-600);
+            margin: 0;
+        }
+        
+        /* ATMIST Letter Badges */
+        .atmist-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .atmist-badge.a { background: #e74c3c; }
+        .atmist-badge.t { background: #3498db; }
+        .atmist-badge.m { background: #9b59b6; }
+        .atmist-badge.i { background: #e67e22; }
+        .atmist-badge.s { background: #1abc9c; }
+        .atmist-badge.tr { background: #2ecc71; }
+        
+        /* Form Card */
+        .atmist-form-card {
+            background: var(--color-white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        
+        .atmist-section {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+        
+        .atmist-section:last-child {
+            border-bottom: none;
+        }
+        
+        .atmist-section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .atmist-section-header h3 {
+            font-size: 1rem;
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .atmist-section-header small {
+            color: var(--color-gray-500);
+            font-weight: 400;
+        }
+        
+        /* Form inputs */
+        .atmist-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            transition: all var(--transition-fast);
+        }
+        
+        .atmist-input:focus {
+            outline: none;
+            border-color: var(--color-teal);
+            box-shadow: 0 0 0 3px rgba(43, 138, 156, 0.15);
+        }
+        
+        .atmist-input::placeholder {
+            color: var(--color-gray-400);
+        }
+        
+        textarea.atmist-input {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        /* Quick select buttons */
+        .quick-select {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+        
+        .quick-select-btn {
+            padding: 0.4rem 0.75rem;
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--radius-full);
+            background: var(--color-white);
+            font-size: 0.8rem;
+            color: var(--color-gray-700);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .quick-select-btn:hover {
+            border-color: var(--color-teal);
+            color: var(--color-teal);
+            background: rgba(43, 138, 156, 0.05);
+        }
+        
+        .quick-select-btn.active {
+            border-color: var(--color-teal);
+            background: var(--color-teal);
+            color: white;
+        }
+        
+        /* Inline inputs (Age + Gender) */
+        .inline-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        /* Signs/Vitals Grid */
+        .vitals-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        
+        @media (min-width: 576px) {
+            .vitals-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        .vital-box {
+            background: var(--color-gray-50);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-md);
+            padding: 0.75rem;
+            text-align: center;
+        }
+        
+        .vital-box label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--color-gray-500);
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+        
+        .vital-box input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--color-gray-800);
+            padding: 0;
+        }
+        
+        .vital-box input:focus {
+            outline: none;
+        }
+        
+        .vital-box input::placeholder {
+            color: var(--color-gray-400);
+            font-weight: 400;
+        }
+        
+        /* Generate Button */
+        .generate-btn {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-teal-dark) 100%);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all var(--transition-base);
+        }
+        
+        .generate-btn:hover {
+            background: linear-gradient(135deg, var(--color-teal-light) 0%, var(--color-teal) 100%);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Output Section */
+        .handover-output {
+            background: var(--color-white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            display: none;
+        }
+        
+        .handover-output.visible {
+            display: block;
+            animation: fadeInUp 0.3s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .handover-output-header {
+            background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-green) 100%);
+            color: white;
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .handover-output-header i {
+            font-size: 1.5rem;
+        }
+        
+        .handover-output-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: white;
+        }
+        
+        .handover-script {
+            padding: 1.25rem;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+        
+        .handover-script .highlight {
+            color: #00d9ff;
+            font-weight: 600;
+        }
+        
+        .handover-tips {
+            padding: 1.25rem;
+        }
+        
+        .handover-tips h4 {
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--color-gray-700);
+        }
+        
+        .handover-tips h4 i {
+            color: var(--color-warning);
+        }
+        
+        .handover-tips ul {
+            margin: 0;
+            padding-left: 1.25rem;
+            color: var(--color-gray-600);
+            font-size: 0.9rem;
+        }
+        
+        .handover-tips li {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Action Buttons */
+        .output-actions {
+            display: flex;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            background: var(--color-gray-50);
+            border-top: 1px solid var(--color-gray-200);
+        }
+        
+        .output-actions .btn {
+            flex: 1;
+        }
+        
+        /* Loading State */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Navbar adjustments */
+        .atmist-navbar {
+            background: var(--color-white);
+            border-bottom: 1px solid var(--color-gray-200);
+            padding: 0.75rem 0;
+        }
+        
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--color-teal);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .back-link:hover {
+            color: var(--color-teal-dark);
+        }
+        
+        /* Info Banner */
+        .info-banner {
+            background: linear-gradient(135deg, rgba(43, 138, 156, 0.1) 0%, rgba(92, 184, 92, 0.1) 100%);
+            border: 1px solid rgba(43, 138, 156, 0.2);
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+        
+        .info-banner i {
+            color: var(--color-teal);
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        
+        .info-banner p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--color-gray-700);
+        }
+        
+        /* Treatment checkboxes */
+        .treatment-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        @media (min-width: 576px) {
+            .treatment-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        .treatment-check {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--color-gray-50);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .treatment-check:hover {
+            border-color: var(--color-teal);
+        }
+        
+        .treatment-check input {
+            accent-color: var(--color-teal);
+        }
+        
+        .treatment-check label {
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin: 0;
+        }
+        
+        .treatment-check.checked {
+            border-color: var(--color-teal);
+            background: rgba(43, 138, 156, 0.05);
+        }
+    </style>
+</head>
+<body class="atmist-page">
+    <!-- Navigation -->
+    <nav class="atmist-navbar">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-between">
+                <a href="chat.html" class="back-link">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to Chat
+                </a>
+                <span class="brand-text">
+                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
+                </span>
+                <div style="width: 100px;"></div> <!-- Spacer for centering -->
+            </div>
+        </div>
+    </nav>
+
+    <div class="atmist-container">
+        <!-- Header -->
+        <div class="atmist-header">
+            <h1>
+                <i class="bi bi-clipboard2-pulse text-teal"></i>
+                ATMIST Handover Tool
+            </h1>
+            <p>Build a clear, structured handover for hospital teams</p>
+        </div>
+        
+        <!-- Info Banner -->
+        <div class="info-banner">
+            <i class="bi bi-lightbulb"></i>
+            <p>Fill in each section below with your patient details. The AI will help you structure this into a clear, concise verbal handover script that you can practise delivering.</p>
+        </div>
+
+        <!-- ATMIST Form -->
+        <form id="atmistForm">
+            <div class="atmist-form-card">
+                
+                <!-- A - Age -->
+                <div class="atmist-section">
+                    <div class="atmist-section-header">
+                        <span class="atmist-badge a">A</span>
+                        <h3>Age <small>& Gender</small></h3>
+                    </div>
+                    <div class="inline-inputs">
+                        <input type="number" class="atmist-input" id="patientAge" placeholder="Age (years)" min="0" max="120">
+                        <select class="atmist-input" id="patientGender">
+                            <option value="" disabled selected>Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- T - Time -->
+                <div class="atmist-section">
+                    <div class="atmist-section-header">
+                        <span class="atmist-badge t">T</span>
+                        <h3>Time <small>of incident/onset</small></h3>
+                    </div>
+                    <input type="text" class="atmist-input" id="incidentTime" placeholder="e.g., 14:30, approximately 2 hours ago, gradual onset over 3 days">
+                    <div class="quick-select">
+                        <button type="button" class="quick-select-btn" data-value="Just now">Just now</button>
+                        <button type="button" class="quick-select-btn" data-value="~30 mins ago">~30 mins ago</button>
+                        <button type="button" class="quick-select-btn" data-value="~1 hour ago">~1 hour ago</button>
+                        <button type="button" class="quick-select-btn" data-value="~2 hours ago">~2 hours ago</button>
+                        <button type="button" class="quick-select-btn" data-value="Unknown">Unknown</button>
+                    </div>
+                </div>
+                
+                <!-- M - Mechanism/Medical -->
+                <div class="atmist-section">
+                    <div class="atmist-section-header">
+                        <span class="atmist-badge m">M</span>
+                        <h3>Mechanism <small>of injury / Medical complaint</small></h3>
+                    </div>
+                    <textarea class="atmist-input" id="mechanism" placeholder="e.g., Fall from standing height, RTC - driver, unrestrained, Sudden onset central chest pain at rest"></textarea>
+                    <div class="quick-select">
+                        <button type="button" class="quick-select-btn" data-value="Fall from standing">Fall from standing</button>
+                        <button type="button" class="quick-select-btn" data-value="Mechanical fall">Mechanical fall</button>
+                        <button type="button" class="quick-select-btn" data-value="Collapse ?cause">Collapse ?cause</button>
+                        <button type="button" class="quick-select-btn" data-value="Chest pain">Chest pain</button>
+                        <button type="button" class="quick-select-btn" data-value="SOB">SOB</button>
+                        <button type="button" class="quick-select-btn" data-value="Abdo pain">Abdo pain</button>
+                    </div>
+                </div>
+                
+                <!-- I - Injuries/Illness -->
+                <div class="atmist-section">
+                    <div class="atmist-section-header">
+                        <span class="atmist-badge i">I</span>
+                        <h3>Injuries <small>found / Illness details</small></h3>
+                    </div>
+                    <textarea class="atmist-input" id="injuries" placeholder="e.g., Suspected # NOF, shortened and externally rotated left leg, pain on palpation to left hip. PMHx: AF, HTN, T2DM. Allergies: Penicillin"></textarea>
+                </div>
+                
+                <!-- S - Signs -->
+                <div class="atmist-section">
+                    <div class="atmist-section-header">
+                        <span class="atmist-badge s">S</span>
+                        <h3>Signs <small>& vital signs</small></h3>
+                    </div>
+                    <div class="vitals-grid">
+                        <div class="vital-box">
+                            <label>RR</label>
+                            <input type="number" id="vitalRR" placeholder="--">
+                        </div>
+                        <div class="vital-box">
+                            <label>SpO2 %</label>
+                            <input type="number" id="vitalSpO2" placeholder="--">
+                        </div>
+                        <div class="vital-box">
+                            <label>HR</label>
+                            <input type="number" id="vitalHR" placeholder="--">
+                        </div>
+                        <div class="vital-box">
+                            <label>BP</label>
+                            <input type="text" id="vitalBP" placeholder="--/--">
+                        </div>
+                        <div class="vital-box">
+                            <label>Temp °C</label>
+                            <input type="number" step="0.1" id="vitalTemp" placeholder="--">
+                        </div>
+                        <div class="vital-box">
+                            <label>GCS</label>
+                            <input type="text" id="vitalGCS" placeholder="--">
+                        </div>
+                        <div class="vital-box">
+                            <label>BM</label>
+                            <input type="number" step="0.1" id="vitalBM" placeholder="--">
+                        </div>
+                        <div class="vital-box">
+                            <label>Pain /10</label>
+                            <input type="number" id="vitalPain" placeholder="--">
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <textarea class="atmist-input" id="additionalSigns" placeholder="Additional findings: e.g., ECG shows ST elevation in leads II, III, aVF. Pale, diaphoretic. Equal air entry bilaterally." rows="2"></textarea>
+                    </div>
+                </div>
+                
+                <!-- T - Treatment -->
+                <div class="atmist-section">
+                    <div class="atmist-section-header">
+                        <span class="atmist-badge tr">T</span>
+                        <h3>Treatment <small>given</small></h3>
+                    </div>
+                    <div class="treatment-grid">
+                        <div class="treatment-check">
+                            <input type="checkbox" id="tx_o2" value="Oxygen therapy">
+                            <label for="tx_o2">Oxygen</label>
+                        </div>
+                        <div class="treatment-check">
+                            <input type="checkbox" id="tx_iv" value="IV access">
+                            <label for="tx_iv">IV access</label>
+                        </div>
+                        <div class="treatment-check">
+                            <input type="checkbox" id="tx_fluids" value="IV fluids">
+                            <label for="tx_fluids">IV fluids</label>
+                        </div>
+                        <div class="treatment-check">
+                            <input type="checkbox" id="tx_analgesia" value="Analgesia">
+                            <label for="tx_analgesia">Analgesia</label>
+                        </div>
+                        <div class="treatment-check">
+                            <input type="checkbox" id="tx_ecg" value="12-lead ECG">
+                            <label for="tx_ecg">12-lead ECG</label>
+                        </div>
+                        <div class="treatment-check">
+                            <input type="checkbox" id="tx_splint" value="Splinting">
+                            <label for="tx_splint">Splinting</label>
+                        </div>
+                        <div class="treatment-check">
+                            <input type="checkbox" id="tx_aspirin" value="Aspirin">
+                            <label for="tx_aspirin">Aspirin</label>
+                        </div>
+                        <div class="treatment-check">
+                            <input type="checkbox" id="tx_gtn" value="GTN">
+                            <label for="tx_gtn">GTN</label>
+                        </div>
+                        <div class="treatment-check">
+                            <input type="checkbox" id="tx_nebs" value="Nebulisers">
+                            <label for="tx_nebs">Nebulisers</label>
+                        </div>
+                    </div>
+                    <textarea class="atmist-input" id="treatmentDetails" placeholder="Additional treatment details: e.g., Morphine 5mg IV, Ondansetron 4mg IV, Left leg immobilised with vacuum splint"></textarea>
+                </div>
+                
+            </div>
+            
+            <!-- Generate Button -->
+            <button type="submit" class="generate-btn" id="generateBtn">
+                <i class="bi bi-magic"></i>
+                Generate Handover Script
+            </button>
+        </form>
+        
+        <!-- Output Section -->
+        <div class="handover-output mt-4" id="handoverOutput">
+            <div class="handover-output-header">
+                <i class="bi bi-mic"></i>
+                <h3>Your Handover Script</h3>
+            </div>
+            <div class="handover-script" id="handoverScript">
+                <!-- AI-generated script will appear here -->
+            </div>
+            <div class="handover-tips" id="handoverTips">
+                <h4><i class="bi bi-lightbulb"></i> Tips for Improvement</h4>
+                <ul id="tipsList">
+                    <!-- AI-generated tips will appear here -->
+                </ul>
+            </div>
+            <div class="output-actions">
+                <button type="button" class="btn btn-outline-primary" id="copyBtn">
+                    <i class="bi bi-clipboard me-1"></i>Copy Script
+                </button>
+                <button type="button" class="btn btn-outline-secondary" id="clearBtn">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i>Clear & Start Again
+                </button>
+            </div>
+        </div>
+        
+        <!-- Disclaimer -->
+        <div class="text-center mt-4">
+            <small class="text-muted">
+                <i class="bi bi-shield-lock me-1"></i>
+                This is a learning tool. Always follow your trust's handover protocols.
+            </small>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Load your existing app config -->
+    <script src="js/app.js"></script>
+    
+    <script type="module">
+        // ==================== FIREBASE AUTH ====================
+        
+        let auth = null;
+        let currentUser = null;
+        
+        async function initializeAuth() {
+            const { getAuth, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+            const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+            const { firebaseConfig } = await import('./js/firebase-config.js');
+            
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            
+            return new Promise((resolve) => {
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        currentUser = user;
+                        resolve(true);
+                    } else {
+                        // Redirect to login if not authenticated
+                        window.location.href = 'login.html';
+                        resolve(false);
+                    }
+                });
+            });
+        }
+        
+        async function getAuthToken() {
+            if (currentUser) {
+                return await currentUser.getIdToken(true);
+            }
+            throw new Error('Not authenticated');
+        }
+        
+        // ==================== INITIALIZE ====================
+        
+        async function initATMIST() {
+            const isAuthenticated = await initializeAuth();
+            if (!isAuthenticated) return;
+            
+            console.log('ATMIST Tool initialized - user authenticated');
+            setupEventListeners();
+        }
+        
+        // ==================== EVENT LISTENERS ====================
+        
+        function setupEventListeners() {
+            // Quick select buttons functionality
+            document.querySelectorAll('.quick-select-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const input = this.closest('.atmist-section').querySelector('.atmist-input');
+                    const currentValue = input.value.trim();
+                    const btnValue = this.dataset.value;
+                    
+                    // For textareas, append. For regular inputs, replace.
+                    if (input.tagName === 'TEXTAREA') {
+                        input.value = currentValue ? currentValue + ', ' + btnValue : btnValue;
+                    } else {
+                        input.value = btnValue;
+                    }
+                    
+                    // Toggle active state
+                    this.classList.toggle('active');
+                });
+            });
+            
+            // Treatment checkbox styling
+            document.querySelectorAll('.treatment-check input').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    this.closest('.treatment-check').classList.toggle('checked', this.checked);
+                });
+            });
+            
+            // Form submission
+            document.getElementById('atmistForm').addEventListener('submit', handleFormSubmit);
+            
+            // Copy button
+            document.getElementById('copyBtn').addEventListener('click', handleCopy);
+            
+            // Clear button
+            document.getElementById('clearBtn').addEventListener('click', handleClear);
+        }
+        
+        // ==================== FORM SUBMISSION ====================
+        
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const generateBtn = document.getElementById('generateBtn');
+            const output = document.getElementById('handoverOutput');
+            const scriptDiv = document.getElementById('handoverScript');
+            const tipsList = document.getElementById('tipsList');
+            
+            // Collect form data
+            const formData = {
+                age: document.getElementById('patientAge').value,
+                gender: document.getElementById('patientGender').value,
+                time: document.getElementById('incidentTime').value,
+                mechanism: document.getElementById('mechanism').value,
+                injuries: document.getElementById('injuries').value,
+                vitals: {
+                    rr: document.getElementById('vitalRR').value,
+                    spo2: document.getElementById('vitalSpO2').value,
+                    hr: document.getElementById('vitalHR').value,
+                    bp: document.getElementById('vitalBP').value,
+                    temp: document.getElementById('vitalTemp').value,
+                    gcs: document.getElementById('vitalGCS').value,
+                    bm: document.getElementById('vitalBM').value,
+                    pain: document.getElementById('vitalPain').value
+                },
+                additionalSigns: document.getElementById('additionalSigns').value,
+                treatments: [],
+                treatmentDetails: document.getElementById('treatmentDetails').value
+            };
+            
+            // Collect checked treatments
+            document.querySelectorAll('.treatment-check input:checked').forEach(cb => {
+                formData.treatments.push(cb.value);
+            });
+            
+            // Validate - at least some data entered
+            if (!formData.age && !formData.mechanism && !formData.injuries) {
+                alert('Please fill in at least the Age, Mechanism, and Injuries sections.');
+                return;
+            }
+            
+            // Show loading state
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<span class="loading-spinner"></span> Generating...';
+            
+            try {
+                // Build prompt for AI
+                const prompt = buildATMISTPrompt(formData);
+                
+                // Call your existing chat API endpoint
+                const response = await callChatAPI(prompt);
+                
+                // Parse and display response
+                displayHandoverResponse(response, scriptDiv, tipsList);
+                
+                // Show output section
+                output.classList.add('visible');
+                output.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+            } catch (error) {
+                console.error('Error generating handover:', error);
+                
+                if (error.message === 'LIMIT_REACHED') {
+                    alert('You\'ve reached your daily message limit. Upgrade to Pro for unlimited access!');
+                } else {
+                    alert('Error generating handover. Please try again.');
+                }
+            } finally {
+                // Reset button
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '<i class="bi bi-magic"></i> Generate Handover Script';
+            }
+        }
+        
+        // ==================== API CALL ====================
+        
+        async function callChatAPI(prompt) {
+            const token = await getAuthToken();
+            
+            const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}${window.paramind.CONFIG.api.chat}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: prompt,
+                    conversationHistory: []
+                })
+            });
+            
+            // Check for error responses
+            if (!response.ok) {
+                if (response.status === 429) {
+                    throw new Error('LIMIT_REACHED');
+                }
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to send message');
+            }
+            
+            // Handle streaming response (same as your chat.js)
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let fullMessage = '';
+            
+            while (true) {
+                const { done, value } = await reader.read();
+                
+                if (done) break;
+                
+                const text = decoder.decode(value, { stream: true });
+                const lines = text.split('\n');
+                
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        try {
+                            const data = JSON.parse(line.slice(6));
+                            
+                            if (data.type === 'chunk') {
+                                fullMessage += data.content;
+                                // Update the script preview in real-time (optional)
+                                updateStreamingPreview(fullMessage);
+                            } else if (data.type === 'error') {
+                                throw new Error(data.error);
+                            }
+                        } catch (parseError) {
+                            // Skip lines that aren't valid JSON
+                        }
+                    }
+                }
+            }
+            
+            return fullMessage;
+        }
+        
+        // Optional: Show streaming preview
+        function updateStreamingPreview(content) {
+            const scriptDiv = document.getElementById('handoverScript');
+            const output = document.getElementById('handoverOutput');
+            
+            // Show output if not already visible
+            if (!output.classList.contains('visible')) {
+                output.classList.add('visible');
+            }
+            
+            // Show raw streaming content (will be formatted properly when complete)
+            scriptDiv.textContent = content.replace(/\[SCRIPT\]|\[\/SCRIPT\]|\[TIPS\]|\[\/TIPS\]/g, '').trim();
+        }
+        
+        // ==================== PROMPT BUILDER ====================
+        
+        function buildATMISTPrompt(data) {
+            let vitalsString = '';
+            if (data.vitals.rr) vitalsString += `RR: ${data.vitals.rr}, `;
+            if (data.vitals.spo2) vitalsString += `SpO2: ${data.vitals.spo2}%, `;
+            if (data.vitals.hr) vitalsString += `HR: ${data.vitals.hr}, `;
+            if (data.vitals.bp) vitalsString += `BP: ${data.vitals.bp}, `;
+            if (data.vitals.temp) vitalsString += `Temp: ${data.vitals.temp}°C, `;
+            if (data.vitals.gcs) vitalsString += `GCS: ${data.vitals.gcs}, `;
+            if (data.vitals.bm) vitalsString += `BM: ${data.vitals.bm}, `;
+            if (data.vitals.pain) vitalsString += `Pain: ${data.vitals.pain}/10, `;
+            
+            let treatmentsString = data.treatments.join(', ');
+            if (data.treatmentDetails) {
+                treatmentsString += treatmentsString ? '. ' + data.treatmentDetails : data.treatmentDetails;
+            }
+            
+            return `You are helping a paramedic student practise their hospital handover using the ATMIST format. Based on the following patient information, create TWO things:
+
+1. A clear, professional ATMIST handover script they can practise saying out loud. Write it as natural speech, not bullet points. Keep it concise but complete - aim for about 30-45 seconds when spoken aloud.
+
+2. 2-4 specific tips for improving their handover based on what information they provided (or didn't provide).
+
+PATIENT INFORMATION PROVIDED:
+- Age: ${data.age || 'Not specified'} ${data.gender || ''}
+- Time of incident/onset: ${data.time || 'Not specified'}
+- Mechanism/Medical complaint: ${data.mechanism || 'Not specified'}
+- Injuries/Illness details: ${data.injuries || 'Not specified'}
+- Signs/Vitals: ${vitalsString || 'Not specified'} ${data.additionalSigns || ''}
+- Treatment given: ${treatmentsString || 'None specified'}
+
+Format your response EXACTLY like this:
+[SCRIPT]
+(Write the handover script here as natural speech)
+[/SCRIPT]
+
+[TIPS]
+- (First tip)
+- (Second tip)
+- (etc)
+[/TIPS]`;
+        }
+        
+        // ==================== DISPLAY RESPONSE ====================
+        
+        function displayHandoverResponse(response, scriptDiv, tipsList) {
+            // Extract script section
+            const scriptMatch = response.match(/\[SCRIPT\]([\s\S]*?)\[\/SCRIPT\]/);
+            const tipsMatch = response.match(/\[TIPS\]([\s\S]*?)\[\/TIPS\]/);
+            
+            if (scriptMatch) {
+                scriptDiv.textContent = scriptMatch[1].trim();
+            } else {
+                // If no markers found, just show the whole response
+                scriptDiv.textContent = response;
+            }
+            
+            // Extract and display tips
+            tipsList.innerHTML = '';
+            if (tipsMatch) {
+                const tips = tipsMatch[1].trim().split('\n').filter(t => t.trim().startsWith('-'));
+                tips.forEach(tip => {
+                    const li = document.createElement('li');
+                    li.textContent = tip.replace(/^-\s*/, '').trim();
+                    tipsList.appendChild(li);
+                });
+            } else {
+                // If no tips found, add a default message
+                const li = document.createElement('li');
+                li.textContent = 'Remember to practise delivering this handover out loud!';
+                tipsList.appendChild(li);
+            }
+        }
+        
+        // ==================== UTILITY FUNCTIONS ====================
+        
+        function handleCopy() {
+            const script = document.getElementById('handoverScript').textContent;
+            const copyBtn = document.getElementById('copyBtn');
+            
+            navigator.clipboard.writeText(script).then(() => {
+                copyBtn.innerHTML = '<i class="bi bi-check me-1"></i>Copied!';
+                setTimeout(() => {
+                    copyBtn.innerHTML = '<i class="bi bi-clipboard me-1"></i>Copy Script';
+                }, 2000);
+            });
+        }
+        
+        function handleClear() {
+            document.getElementById('atmistForm').reset();
+            document.getElementById('handoverOutput').classList.remove('visible');
+            document.querySelectorAll('.quick-select-btn.active').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.treatment-check.checked').forEach(el => el.classList.remove('checked'));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // ==================== INITIALIZE ON LOAD ====================
+        
+        document.addEventListener('DOMContentLoaded', initATMIST);
+    </script>
+</body>
+</html>
