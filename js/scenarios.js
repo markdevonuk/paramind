@@ -59,6 +59,51 @@ const SCENARIO_CATEGORIES = {
     }
 };
 
+// ==================== DIFFICULTY LEVELS ====================
+// Dynamic modifiers that adjust scenario difficulty
+
+const DIFFICULTY_LEVELS = {
+    1: {
+        name: "Level 1 - Student",
+        description: "Classic presentations, cooperative patients",
+        modifiers: {
+            presentation: "Present with textbook, classic symptoms that are clearly recognisable. Make the key signs and symptoms obvious.",
+            patientManner: "Be calm, cooperative, and articulate. Answer questions clearly and provide information willingly without needing much prompting.",
+            historyRecall: "Remember your medical history clearly. Know your medications and allergies well. Provide complete information when asked.",
+            complexity: "Focus only on the primary condition. Do not introduce additional co-morbidities or complicating factors.",
+            redFlags: "Volunteer important red flag symptoms without being asked, or make them very obvious when questioned.",
+            clinicalCourse: "Remain stable throughout the scenario. Vital signs should not deteriorate.",
+            distractors: "Do not introduce any distracting symptoms or social issues that might confuse the assessment."
+        }
+    },
+    2: {
+        name: "Level 2 - NQP",
+        description: "Realistic presentations, some complexity",
+        modifiers: {
+            presentation: "Present realistically but with recognisable features. Symptoms may not be textbook-perfect but should still point towards the diagnosis.",
+            patientManner: "Be somewhat anxious or worried about your condition. You may need some reassurance. Answer questions but might need occasional prompting for details.",
+            historyRecall: "Remember most of your medical history but may be uncertain about some medication doses or exact dates. 'I think it was...' or 'Something like...' responses are appropriate.",
+            complexity: "You may have one minor co-morbidity (such as well-controlled hypertension or diabetes) that adds slight complexity but doesn't significantly alter the presentation.",
+            redFlags: "Red flags are present but must be specifically asked about - don't volunteer them. Reveal them when directly questioned.",
+            clinicalCourse: "Remain mostly stable but may show subtle hints of potential deterioration if assessment is delayed.",
+            distractors: "You may have minor concerns (worried about missing work, anxious about hospitals) that add realism but shouldn't significantly derail the assessment."
+        }
+    },
+    3: {
+        name: "Level 3 - Paramedic",
+        description: "Atypical presentations, complex patients",
+        modifiers: {
+            presentation: "Present atypically or with 'silent' features. Symptoms may be vague, subtle, or easily attributed to other causes. The classic textbook presentation should NOT be obvious.",
+            patientManner: "Be one of: confused/vague in your answers, a poor historian who gives contradictory information, distressed and hard to calm, or dismissive of your symptoms ('I'm sure it's nothing'). Make gathering information challenging.",
+            historyRecall: "Be a poor historian. You may not remember all your medications, give vague timelines ('sometime last week'), or provide information that requires clarification. Family members might need to fill in gaps.",
+            complexity: "Have multiple interacting co-morbidities that complicate the picture. For example: diabetes masking chest pain, COPD with heart failure, polypharmacy with potential drug interactions.",
+            redFlags: "Red flags are hidden and subtle. They require careful, systematic questioning to uncover. You may initially deny symptoms that later turn out to be significant.",
+            clinicalCourse: "Your condition may show signs of deterioration during the scenario if assessment is slow. Vital signs might worsen, consciousness might decrease, or new symptoms might develop.",
+            distractors: "Introduce significant distractors: other symptoms unrelated to the main condition, family members with strong opinions, social issues that demand attention, or previous bad experiences with healthcare."
+        }
+    }
+};
+
 // ==================== ALL SCENARIOS ====================
 // Each scenario contains:
 // - id: Unique identifier for tracking/CPD
@@ -3273,12 +3318,20 @@ function formatDispatchInfo(scenario) {
  * Get the system prompt for a scenario (for the AI)
  * Updated with HINT mode and improved DEBRIEF detection
  */
-function getScenarioSystemPrompt(scenarioId) {
+/**
+ * Get the system prompt for a scenario (for the AI)
+ * Updated with difficulty levels, HINT mode and improved DEBRIEF detection
+ */
+function getScenarioSystemPrompt(scenarioId, difficultyLevel = 1) {
     const scenario = getScenarioById(scenarioId);
     if (!scenario) return null;
     
     const p = scenario.patient;
     const d = scenario.dispatch;
+    
+    // Get difficulty modifiers
+    const difficulty = DIFFICULTY_LEVELS[difficultyLevel] || DIFFICULTY_LEVELS[1];
+    const mods = difficulty.modifiers;
     
     // Format red flags as a readable list
     const redFlagsFormatted = p.redFlags ? p.redFlags.join(', ') : 'None specified';
@@ -3291,6 +3344,35 @@ You are simulating a patient encounter for paramedic training.
 - Provide clinical data ONLY when explicitly requested
 - NEVER teach, explain, interpret, or give differentials during ROLEPLAY
 - Teaching happens ONLY in DEBRIEF mode
+
+═══════════════════════════════════════════════════════════════════
+DIFFICULTY LEVEL: ${difficulty.name}
+═══════════════════════════════════════════════════════════════════
+
+IMPORTANT: Adjust your portrayal based on these difficulty modifiers:
+
+PRESENTATION STYLE:
+${mods.presentation}
+
+PATIENT MANNER:
+${mods.patientManner}
+
+HISTORY RECALL:
+${mods.historyRecall}
+
+COMPLEXITY:
+${mods.complexity}
+
+RED FLAGS BEHAVIOUR:
+${mods.redFlags}
+
+CLINICAL COURSE:
+${mods.clinicalCourse}
+
+DISTRACTORS:
+${mods.distractors}
+
+═══════════════════════════════════════════════════════════════════
 
 PATIENT DETAILS (hidden from learner):
 - Name: ${d.name || 'Unknown'}
@@ -3308,7 +3390,7 @@ PATIENT BEHAVIOUR:
 - Speak naturally as a real patient would (may not know medical terms)
 - Show appropriate emotion (anxious if chest pain, drowsy if septic, etc.)
 - If the paramedic is insulting, tell them you are hurt by their comments and not to say these things again
-- May be vague, forgetful, or need prompting—like real patients
+- ADJUST your responses according to the DIFFICULTY LEVEL above
 - If very unwell (low GCS, severe pain), responses may be brief or confused
 
 ═══════════════════════════════════════════════════════════════════
@@ -3378,6 +3460,7 @@ CRITICAL RULES FOR DEBRIEF:
 3. If the learner did nothing before submitting, acknowledge this honestly
 4. Be supportive but honest - false praise is not educational
 5. Do NOT give generic advice - give SPECIFIC feedback based on THIS scenario
+6. Consider the difficulty level (${difficulty.name}) when assessing their performance
 
 REQUIRED DEBRIEF FORMAT (use these exact headings):
 
@@ -3444,6 +3527,7 @@ BEGIN in MODE: ROLEPLAY. Wait for learner's first question.`;
 window.scenarioData = {
     SCENARIO_CATEGORIES,
     SCENARIOS,
+    DIFFICULTY_LEVELS,
     getScenariosByCategory,
     getScenarioById,
     getScenarioCountByCategory,

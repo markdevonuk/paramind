@@ -13,6 +13,7 @@ const chatState = {
     conversationHistory: [], // For API calls
     isLoading: false,
     currentScenario: null,
+    currentDifficultyLevel: 1,
     messagesRemaining: 5,
     isPro: false,
     userTrust: 'SWAST',
@@ -333,8 +334,8 @@ async function sendMessageToAPI(message, onChunk) {
     
     // Get scenario system prompt if in a scenario
     const scenarioPrompt = chatState.currentScenario 
-        ? window.scenarioData.getScenarioSystemPrompt(chatState.currentScenario)
-        : null;
+    ? window.scenarioData.getScenarioSystemPrompt(chatState.currentScenario, chatState.currentDifficultyLevel)
+    : null;
     
     const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}${window.paramind.CONFIG.api.chat}`, {
         method: 'POST',
@@ -607,6 +608,23 @@ function setupEventListeners() {
             handleAssessment(assessmentType);
         });
     });
+    
+    // Difficulty level selector
+    document.querySelectorAll('input[name="difficultyLevel"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            chatState.currentDifficultyLevel = parseInt(e.target.value);
+            // Update description text
+            const descriptions = {
+                1: "Classic presentations, cooperative patients",
+                2: "Realistic presentations, some complexity", 
+                3: "Atypical presentations, complex patients"
+            };
+            const descEl = document.getElementById('difficultyDescription');
+            if (descEl) {
+                descEl.textContent = descriptions[chatState.currentDifficultyLevel];
+            }
+        });
+    });
 }
 
 // ==================== VIEW NAVIGATION ====================
@@ -733,6 +751,12 @@ function openScenarioModal(scenarioId) {
     const scenario = window.scenarioData.getScenarioById(scenarioId);
     if (!scenario) return;
     
+    // Reset difficulty to Level 1 when opening modal
+    chatState.currentDifficultyLevel = 1;
+    document.getElementById('level1').checked = true;
+    document.getElementById('difficultyDescription').textContent = "Classic presentations, cooperative patients";
+    
+    
     chatState.currentScenario = scenarioId;
     
     const d = scenario.dispatch;
@@ -823,7 +847,7 @@ function startScenario() {
     // Add system prompt context (this will be used by the API)
     chatState.conversationHistory.push({
         role: 'system',
-        content: window.scenarioData.getScenarioSystemPrompt(scenarioId)
+        content: window.scenarioData.getScenarioSystemPrompt(scenarioId, chatState.currentDifficultyLevel)
     });
     
     // Show assessment toolbar and working impression button for scenarios
@@ -887,7 +911,7 @@ function startRandomScenario() {
     
     chatState.conversationHistory.push({
         role: 'system',
-        content: window.scenarioData.getScenarioSystemPrompt(scenarioId)
+        content: window.scenarioData.getScenarioSystemPrompt(scenarioId, chatState.currentDifficultyLevel)
     });
     
     // Show assessment toolbar and working impression button for scenarios
