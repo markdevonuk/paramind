@@ -241,8 +241,13 @@ async function fetchUserProfile() {
         chatState.messagesRemaining = data.messagesRemaining;
         
         if (elements.userTrust) {
-            elements.userTrust.textContent = data.trust;
-        }
+    elements.userTrust.textContent = data.trust;
+}
+
+// Update trust name in disclaimer
+if (document.getElementById('disclaimerTrust')) {
+    document.getElementById('disclaimerTrust').textContent = data.trust;
+}
         
         // Display user's full name in dropdown
         const userNameElement = document.getElementById('userName');
