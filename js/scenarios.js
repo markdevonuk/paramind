@@ -3338,8 +3338,6 @@ function getScenarioSystemPrompt(scenarioId, difficultyLevel = 1) {
     
     return `
     
-    
-    return `
 
 ========================================================================
 CRITICAL: DIFFICULTY LEVEL ${difficultyLevel} - ${difficulty.name}
@@ -3384,32 +3382,6 @@ You are simulating a patient encounter for paramedic training.
 - NEVER teach, explain, interpret, or give differentials during ROLEPLAY
 - Teaching happens ONLY in DEBRIEF mode
 
-═══════════════════════════════════════════════════════════════════
-DIFFICULTY LEVEL: ${difficulty.name}
-═══════════════════════════════════════════════════════════════════
-
-IMPORTANT: Adjust your portrayal based on these difficulty modifiers:
-
-PRESENTATION STYLE:
-${mods.presentation}
-
-PATIENT MANNER:
-${mods.patientManner}
-
-HISTORY RECALL:
-${mods.historyRecall}
-
-COMPLEXITY:
-${mods.complexity}
-
-RED FLAGS BEHAVIOUR:
-${mods.redFlags}
-
-CLINICAL COURSE:
-${mods.clinicalCourse}
-
-DISTRACTORS:
-${mods.distractors}
 
 ═══════════════════════════════════════════════════════════════════
 
