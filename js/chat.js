@@ -1424,8 +1424,8 @@ function handleChatError(error) {
 function addMessage(role, content) {
     // Show the New Chat toolbar when messages are added
     if (elements.chatToolbar) {
-        elements.chatToolbar.style.display = 'flex';
-    }
+    elements.chatToolbar.classList.add('visible');
+}
     
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${role}`;
@@ -1623,8 +1623,8 @@ function clearChat() {
     
     // Hide the New Chat button since chat is now empty
     if (elements.chatToolbar) {
-        elements.chatToolbar.style.display = 'none';
-    }
+    elements.chatToolbar.classList.remove('visible');
+}
 }
 
 function scrollToBottom() {
