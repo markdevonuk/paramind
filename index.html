@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paramind | Coming Soon</title>
+    <title>Paramind | AI Learning Support for UK Paramedics</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
-    <!-- Google Fonts -->
+    <!-- Google Fonts - Professional Healthcare Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -16,264 +16,826 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- Additional Styles -->
     <style>
-        :root {
-            --color-teal: #2B8A9C;
-            --color-teal-dark: #237282;
-            --color-green: #5CB85C;
-            --color-green-dark: #4A9A4A;
+        .group-discount-card {
+            background: linear-gradient(135deg, rgba(43, 138, 156, 0.05) 0%, rgba(92, 184, 92, 0.05) 100%);
+            border: 2px dashed var(--color-teal, #2B8A9C);
         }
-        
-        * {
-            box-sizing: border-box;
+        .group-discount-card:hover {
+            border-style: solid;
+            background: linear-gradient(135deg, rgba(43, 138, 156, 0.1) 0%, rgba(92, 184, 92, 0.1) 100%);
         }
-        
-        body {
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-            min-height: 100vh;
+        .group-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--color-teal, #2B8A9C) 0%, var(--color-green, #5CB85C) 100%);
+            border-radius: 50%;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 2rem;
-            text-align: center;
+            flex-shrink: 0;
         }
-        
-        .coming-soon-container {
-            max-width: 600px;
-            width: 100%;
-        }
-        
-        .brand-text {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-weight: 700;
-            font-size: 3.5rem;
-            text-decoration: none;
-            display: inline-block;
-            margin-bottom: 1rem;
-        }
-        
-        .brand-para {
-            color: var(--color-teal);
-        }
-        
-        .brand-mind {
-            color: var(--color-green);
-        }
-        
-        .coming-soon-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-green) 100%);
+        .group-icon i {
+            font-size: 1.75rem;
             color: white;
-            padding: 0.5rem 1.5rem;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 1rem;
-            margin-bottom: 2rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
         }
-        
-        .tagline {
-            font-size: 1.5rem;
-            color: #495057;
-            margin-bottom: 1rem;
-            font-weight: 500;
+        .group-discount-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
         }
-        
-        .description {
-            font-size: 1.1rem;
-            color: #6c757d;
-            margin-bottom: 2.5rem;
-            line-height: 1.7;
-        }
-        
-        .notify-form {
+
+        /* ==================== ANIMATED CHAT PREVIEW ==================== */
+        .chat-demo-container {
             display: flex;
-            gap: 0.75rem;
-            max-width: 450px;
-            margin: 0 auto 2rem;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
         }
-        
-        .notify-form input {
-            flex: 1;
-            padding: 0.875rem 1.25rem;
-            border: 2px solid #dee2e6;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            font-family: inherit;
-            transition: border-color 0.2s ease;
+
+        .chat-demo-phone {
+            width: 100%;
+            max-width: 380px;
+            background: #1a1a2e;
+            border-radius: 32px;
+            padding: 12px;
+            box-shadow: 
+                0 25px 80px rgba(0, 0, 0, 0.25),
+                0 10px 30px rgba(43, 138, 156, 0.15),
+                inset 0 1px 1px rgba(255, 255, 255, 0.1);
         }
-        
-        .notify-form input:focus {
-            outline: none;
-            border-color: var(--color-teal);
+
+        .chat-demo-screen {
+            background: #f8f9fa;
+            border-radius: 24px;
+            overflow: hidden;
+            height: 420px;
+            display: flex;
+            flex-direction: column;
         }
-        
-        .notify-form button {
-            padding: 0.875rem 1.5rem;
-            background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-teal-dark) 100%);
+
+        .chat-demo-header {
+            background: linear-gradient(135deg, var(--color-teal, #2B8A9C) 0%, #1e6d7a 100%);
             color: white;
-            border: none;
-            border-radius: 0.5rem;
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .chat-demo-avatar {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .chat-demo-header-info h4 {
+            margin: 0;
             font-size: 1rem;
             font-weight: 600;
-            font-family: inherit;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            white-space: nowrap;
         }
-        
-        .notify-form button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(43, 138, 156, 0.3);
+
+        .chat-demo-header-info span {
+            font-size: 0.75rem;
+            opacity: 0.9;
         }
-        
-        .features-preview {
+
+        .chat-demo-trust-badge {
+            margin-left: auto;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .chat-demo-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .chat-demo-message {
+            max-width: 85%;
+            padding: 0.75rem 1rem;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: messageAppear 0.4s ease forwards;
+        }
+
+        .chat-demo-message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--color-teal, #2B8A9C) 0%, #1e6d7a 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-demo-message.assistant {
+            align-self: flex-start;
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .chat-demo-message.assistant strong {
+            color: var(--color-teal, #2B8A9C);
+            display: block;
+            margin-bottom: 0.35rem;
+            font-size: 0.8rem;
+        }
+
+        .chat-demo-message.assistant ul {
+            margin: 0.5rem 0 0 0;
+            padding-left: 1.1rem;
+        }
+
+        .chat-demo-message.assistant li {
+            margin-bottom: 0.25rem;
+        }
+
+        @keyframes messageAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 0.75rem 1rem;
+            background: white;
+            border-radius: 16px;
+            border-bottom-left-radius: 4px;
+            align-self: flex-start;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            opacity: 0;
+            transform: translateY(10px);
+            animation: messageAppear 0.3s ease forwards;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #adb5bd;
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-indicator span:nth-child(1) { animation-delay: 0s; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-6px); }
+        }
+
+        /* Phone notch decoration */
+        .chat-demo-notch {
+            width: 100px;
+            height: 24px;
+            background: #1a1a2e;
+            border-radius: 0 0 16px 16px;
+            margin: 0 auto;
+            position: relative;
+            top: -1px;
+        }
+
+        /* Chat input area (decorative) */
+        .chat-demo-input {
+            background: white;
+            padding: 0.75rem 1rem;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .chat-demo-input-field {
+            flex: 1;
+            background: #f1f3f4;
+            border: none;
+            border-radius: 20px;
+            padding: 0.6rem 1rem;
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .chat-demo-send-btn {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--color-teal, #2B8A9C) 0%, var(--color-green, #5CB85C) 100%);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        /* Feature pills below chat */
+        .chat-demo-features {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 1.5rem;
-            margin-bottom: 2.5rem;
-        }
-        
-        .feature-item {
-            display: flex;
-            align-items: center;
             gap: 0.5rem;
-            color: #495057;
-            font-size: 0.95rem;
+            margin-top: 1.5rem;
         }
-        
-        .feature-item i {
-            color: var(--color-teal);
-            font-size: 1.1rem;
-        }
-        
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-        }
-        
-        .social-links a {
+
+        .chat-demo-feature-pill {
+            background: rgba(43, 138, 156, 0.1);
+            color: var(--color-teal, #2B8A9C);
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
             display: flex;
             align-items: center;
-            justify-content: center;
-            width: 44px;
-            height: 44px;
-            background: white;
-            border-radius: 50%;
-            color: #6c757d;
-            font-size: 1.25rem;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            gap: 0.4rem;
         }
-        
-        .social-links a:hover {
-            color: var(--color-teal);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+
+        .chat-demo-feature-pill i {
+            font-size: 0.9rem;
         }
-        
-        .footer-text {
-            margin-top: 3rem;
-            color: #adb5bd;
-            font-size: 0.875rem;
+
+        /* Responsive adjustments */
+        @media (max-width: 991.98px) {
+            .chat-demo-container {
+                margin-top: 2rem;
+            }
+            
+            .chat-demo-phone {
+                max-width: 340px;
+            }
+            
+            .chat-demo-screen {
+                height: 380px;
+            }
         }
-        
-        .success-message {
+
+        @media (max-width: 575.98px) {
+            .chat-demo-phone {
+                max-width: 100%;
+                border-radius: 24px;
+                padding: 8px;
+            }
+            
+            .chat-demo-screen {
+                border-radius: 18px;
+                height: 350px;
+            }
+
+            .chat-demo-message {
+                font-size: 0.85rem;
+            }
+
+            .chat-demo-features {
+                margin-top: 1rem;
+            }
+        }
+
+        /* Hidden class for animation control */
+        .chat-demo-message.hidden,
+        .typing-indicator.hidden {
             display: none;
-            background: #d4edda;
-            color: #155724;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .success-message.show {
-            display: block;
-        }
-        
-        @media (max-width: 576px) {
-            .brand-text {
-                font-size: 2.5rem;
-            }
-            
-            .tagline {
-                font-size: 1.25rem;
-            }
-            
-            .description {
-                font-size: 1rem;
-            }
-            
-            .notify-form {
-                flex-direction: column;
-            }
-            
-            .notify-form button {
-                width: 100%;
-            }
-            
-            .features-preview {
-                flex-direction: column;
-                align-items: center;
-            }
         }
     </style>
 </head>
 <body>
-    <div class="coming-soon-container">
-        <!-- Logo -->
-        <div class="brand-text">
-            <span class="brand-para">para</span><span class="brand-mind">mind</span>
-        </div>
-        <p>
-        <!-- Coming Soon Badge -->
-        <div class="coming-soon-badge">
-            <i class="bi bi-rocket-takeoff me-2"></i>Coming Soon
-        </div>
-        </P>
-        <!-- Tagline -->
-        <h1 class="tagline">AI-Powered Learning for UK Paramedics</h1>
-        
-        <!-- Description -->
-        <p class="description">
-            Get instant, trust-specific clinical guidance. Built specifically for paramedics, NQPs and student paramedics.
-        </p>
-        
-        <!-- Features Preview -->
-        <div class="features-preview">
-            <div class="feature-item">
-                <i class="bi bi-hospital"></i>
-                <span>Trust-Specific Guidance</span>
-            </div>
-            
-            <div class="feature-item">
-                <i class="bi bi-chat-dots"></i>
-                <span>Interactive Scenarios</span>
-            </div>
-            <div class="feature-item">
-                <i class="bi bi-chat-dots"></i>
-                <span>Differentials assistant</span>
-            </div>
-             <div class="feature-item">
-                <i class="bi bi-chat-dots"></i>
-                <span>CPD certificates</span>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <span class="brand-text"><span class="brand-para">para</span><span class="brand-mind">mind</span></span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#pricing">Pricing</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.html">Login</a>
+                    </li>
+                    <li class="nav-item ms-lg-2">
+                        <a class="btn btn-primary" href="register.html">Get Started Free</a>
+                    </li>
+                </ul>
             </div>
         </div>
-        
-        
-        
-        <!-- Footer -->
-        <p class="footer-text">
-            © 2025 Paramind. All rights reserved.
-        </p>
-    </div>
+    </nav>
+
+    <!-- Hero Section with Animated Chat Preview -->
+    <header class="hero-section">
+        <div class="container">
+            <div class="row align-items-center hero-row py-5">
+                <!-- Left side: Hero text -->
+                <div class="col-lg-6">
+                    <div class="hero-badge mb-3">
+                        <i class="bi bi-shield-check me-2"></i>
+                        Trust-Specific Clinical Guidance
+                    </div>
+                    <h1 class="hero-title">
+                        AI-Powered Learning for 
+                        <span class="text-gradient">UK Paramedics</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Get instant, trust-specific clinical guidance and your ambulance service's protocols. Built for paramedics, NQPs and student paramedics.
+                    </p>
+                    <div class="hero-cta">
+                        <a href="register.html" class="btn btn-primary btn-lg me-3">
+                            Start Free Trial
+                            <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+                        <a href="#features" class="btn btn-outline-secondary btn-lg">
+                            Learn More
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Right side: Animated Chat Preview -->
+                <div class="col-lg-6 mt-4 mt-lg-0">
+                    <div class="chat-demo-container">
+                        <div class="chat-demo-phone">
+                            <div class="chat-demo-notch"></div>
+                            <div class="chat-demo-screen">
+                                <div class="chat-demo-header">
+                                    <div class="chat-demo-avatar">
+                                        <i class="bi bi-chat-heart"></i>
+                                    </div>
+                                    <div class="chat-demo-header-info">
+                                        <h4>Paramind</h4>
+                                        <span>AI Learning Assistant</span>
+                                    </div>
+                                    <div class="chat-demo-trust-badge" id="trustBadge">SWAST</div>
+                                </div>
+                                
+                                <div class="chat-demo-messages" id="chatMessages">
+                                    <!-- Messages will be inserted here by JavaScript -->
+                                </div>
+                                
+                                <div class="chat-demo-input">
+                                    <div class="chat-demo-input-field">Ask me anything...</div>
+                                    <button class="chat-demo-send-btn">
+                                        <i class="bi bi-send-fill"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Feature pills -->
+                    <div class="chat-demo-features">
+                        <span class="chat-demo-feature-pill">
+                            <i class="bi bi-lightning-charge-fill"></i>
+                            Instant Answers
+                        </span>
+                        <span class="chat-demo-feature-pill">
+                            <i class="bi bi-hospital"></i>
+                            Trust-Specific
+                        </span>
+                        <span class="chat-demo-feature-pill">
+                            <i class="bi bi-shield-check"></i>
+                            Evidence-Based
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section py-5">
+        <div class="container py-4">
+            <div class="text-center mb-5">
+               <h2 class="section-title">Why Paramedics Choose <span class="brand-text" style="font-size: inherit;"><span class="brand-para">para</span><span class="brand-mind">mind</span></span></h2>
+                <p class="section-subtitle">Purpose-built for UK pre-hospital care</p>
+                <div class="trust-badges-section mt-4">
+                    <small class="text-muted d-block mb-2">Supporting all 15 UK ambulance services</small>
+                    <div class="trust-logos justify-content-center">
+                        <span class="badge bg-light text-dark">BHL</span>
+                        <span class="badge bg-light text-dark">EEAST</span>
+                        <span class="badge bg-light text-dark">EMAS</span>
+                        <span class="badge bg-light text-dark">JAS</span>
+                        <span class="badge bg-light text-dark">NEAS</span>
+                        <span class="badge bg-light text-dark">NIAS</span>
+                        <span class="badge bg-light text-dark">NWAS</span>
+                        <span class="badge bg-light text-dark">SAS</span>
+                        <span class="badge bg-light text-dark">SCAS</span>
+                        <span class="badge bg-light text-dark">SECAmb</span>
+                        <span class="badge bg-light text-dark">SJA</span>
+                        <span class="badge bg-light text-dark">SWAST</span>
+                        <span class="badge bg-light text-dark">WAST</span>
+                        <span class="badge bg-light text-dark">WMAS</span>
+                        <span class="badge bg-light text-dark">YAS</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card feature-card-1">
+                        <div class="feature-icon">
+                            <i class="bi bi-hospital"></i>
+                        </div>
+                        <h3>Trust-Specific Guidance</h3>
+                        <p>Responses tailored to your ambulance service's protocols and scope of practice. No generic advice.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card feature-card-3">
+                        <div class="feature-icon">
+                            <i class="bi bi-chat-dots"></i>
+                        </div>
+                        <h3>Interactive Scenarios</h3>
+                        <p>Practice patient assessments with AI-powered scenarios. YOU choose the difficulty level. Build confidence before your next shift.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card feature-card-2">
+                        <div class="feature-icon">
+                            <i class="bi bi-book"></i>
+                        </div>
+                        <h3>ai ATMIST tool</h3>
+                        <p>Create ATMIST handover scripts for Major trauma, trauma, stroke, medical and cardiac in seconds</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card feature-card-5">
+                        <div class="feature-icon">
+                            <i class="bi bi-bookmark"></i>
+                        </div>
+                        <h3>Differentials helper</h3>
+                        <p>Need some ideas what might be happening with a patient? Try our simple differentials helper. Enter some non-identifiable information and get some ideas in seconds.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card feature-card-4">
+                        <div class="feature-icon">
+                            <i class="bi bi-phone"></i>
+                        </div>
+                        <h3>Mobile First</h3>
+                        <p>Access on any device. Quick answers when you need them, even on station WiFi.</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card feature-card-6">
+                        <div class="feature-icon">
+                            <i class="bi bi-award"></i>
+                        </div>
+                        <h3>CPD Certificates</h3>
+                        <p>Earn CPD certificates for completed learning scenarios. Track your professional development.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing-section py-5">
+        <div class="container py-5">
+            <div class="text-center mb-5">
+                <h2 class="section-title">Simple, Affordable Pricing</h2>
+                <p class="section-subtitle">Start free, upgrade when you're ready</p>
+            </div>
+            <div class="row justify-content-center g-4">
+                <div class="col-md-6 col-lg-5">
+                    <div class="pricing-card">
+                        <div class="pricing-header">
+                            <h3>Free Trial</h3>
+                            <div class="pricing-amount">
+                                <span class="price">£0</span>
+                                <span class="period">/month</span>
+                                
+                            </div>
+                        </div>
+                        <ul class="pricing-features">
+                            <li><i class="bi bi-check-circle text-success"></i> 5 messages per day</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Trust-specific AI guidance</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Limited scenario preview</li>
+                           <li><i class="bi bi-x-circle text-muted"></i> ai ATMIST tool</li>
+                            <li><i class="bi bi-x-circle text-muted"></i> CPD certificates</li>
+                            <li><i class="bi bi-x-circle text-muted"></i> No payment details required</li>
+                        </ul>
+                        <a href="register.html" class="btn btn-outline-primary w-100">Get Started</a>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-5">
+                    <div class="pricing-card featured">
+                        <div class="pricing-badge">Most Popular</div>
+                        <div class="pricing-header">
+                            <h3><span class="brand-para">para</span><span class="brand-mind">mind</span> Pro</h3>
+                            <div class="pricing-amount">
+                                <span class="price">£4.99</span>
+                                <span class="period">/month</span>
+                                
+                            </div>
+                        </div>
+                        <ul class="pricing-features">
+                            <li><i class="bi bi-check-circle text-success"></i> <strong>Unlimited</strong> messages</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Trust-specific AI guidance</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Full scenario library</li>
+                            <li><i class="bi bi-check-circle text-success"></i> ai ATMIST tool</li>
+                            <li><i class="bi bi-check-circle text-success"></i> CPD certificates</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Priority support</li>
+                        </ul>
+                        <a href="register.html" class="btn btn-primary w-100">Start Free Trial</a>
+                    </div>
+                </div>
+                
+                <!-- Group Discount Card -->
+                <div class="col-lg-10 mt-4">
+                    <div class="pricing-card group-discount-card">
+                        <div class="d-flex flex-column flex-md-row align-items-center text-center text-md-start">
+                            <div class="group-icon me-md-4 mb-3 mb-md-0">
+                                <i class="bi bi-people-fill"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h3 class="mb-2">Group Discounts Available</h3>
+                                <p class="mb-0 text-muted">Teams of 10 or more members? Get in touch for special group pricing for your station, university cohort, or training programme.</p>
+                            </div>
+                            <div class="ms-md-4 mt-3 mt-md-0">
+                                <a href="mailto:info@paramind.co.uk" class="btn btn-outline-primary">
+                                    <i class="bi bi-envelope me-2"></i>Find Out More
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
     
-   
+        <!-- CHANGE 20: NEW FAQ Section for SEO (helps with featured snippets) -->
+    <section id="faq" class="faq-section py-5 bg-light" aria-labelledby="faq-heading">
+        <div class="container py-4">
+            <div class="text-center mb-5">
+                <h2 id="faq-heading" class="section-title">Frequently Asked Questions About Paramedic AI Tools</h2>
+                <p class="section-subtitle">Common questions from student paramedics and clinicians</p>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h3 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" aria-expanded="true" aria-controls="faq1">
+                                    What are paramedic AI tools and how can they help me?
+                                </button>
+                            </h3>
+                            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <p>Paramedic AI tools are artificial intelligence-powered applications designed to support paramedic education and clinical learning. Paramind specifically provides trust-specific guidance based on your ambulance service's protocols. They're ideal for student paramedics learning clinical decision-making, NQPs building confidence, and experienced paramedics seeking quick reference information.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h3 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2" aria-expanded="false" aria-controls="faq2">
+                                    Is Paramind suitable for student paramedics?
+                                </button>
+                            </h3>
+                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <p>Absolutely! Paramind was specifically designed with student paramedics in mind. Our AI tools offer interactive learning scenarios that let you practice patient assessments, build clinical reasoning skills, and gain confidence before placements and shifts. The trust-specific guidance ensures you're learning protocols relevant to your chosen ambulance service.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h3 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2" aria-expanded="false" aria-controls="faq2">
+                                    Is Paramind suitable for qualified paramedics?
+                                </button>
+                            </h3>
+                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <p>Our scenarios have a paramedic option, meaning they are harder, the patients don't give away as much information and can be quite troublesome! The ATMIST tool is great for clinicians and the differentials tool can help you think outside the box. So yes, absolutely we've made it suitable for the more experienced clinician.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h3 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3" aria-expanded="false" aria-controls="faq3">
+                                    Which UK ambulance services does Paramind support?
+                                </button>
+                            </h3>
+                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <p>Paramind supports all 15 UK ambulance services: EEAST, EMAS, NEAS, NIAS, NWAS, SAS, SCAS, SECAmb, SWAST, WAST, WMAS, YAS, as well as SJA (St John Ambulance), JAS (Jersey Ambulance Service), and BHL (Bristow Group). When you register, you select your trust and all AI guidance is tailored to that service's specific protocols.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h3 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4" aria-expanded="false" aria-controls="faq4">
+                                    Can I use Paramind for actual patient care decisions?
+                                </button>
+                            </h3>
+                            <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <p>No. Paramind is an <strong>educational tool only</strong> and should not be used for real-time clinical decision-making during patient care. Always refer to your trust's official protocols, JRCalc app, and seek senior clinical advice when treating patients. Our AI tools are designed to support learning and revision, not replace clinical judgment.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h3 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5" aria-expanded="false" aria-controls="faq5">
+                                    Are the CPD certificates recognised?
+                                </button>
+                            </h3>
+                            <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <p>Paramind provides CPD certificates for completed learning scenarios which can be used to evidence your continuous professional development activities. These certificates document your learning hours and topics covered, which you can include in your CPD portfolio for HCPC registration renewal.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Disclaimer Section -->
+    <section class="disclaimer-section py-4">
+        <div class="container">
+            <div class="disclaimer-box">
+                <div class="d-flex align-items-start">
+                    <i class="bi bi-exclamation-triangle-fill text-warning me-3 fs-4"></i>
+                    <div>
+                        <h5 class="mb-2">Educational Tool Disclaimer</h5>
+                        <p class="mb-0 small">
+                            Paramind is an educational support tool and is <strong>not a substitute for clinical judgment</strong>. 
+                            Users remain fully responsible for their clinical decisions. Always verify critical information 
+                            against official sources and follow your trust's protocols. In emergencies, seek senior clinical advice. The JRCalc references are not the very latest so you should use your JRCalc app to find up to date guidance.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer py-4">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-4 text-center text-md-start mb-3 mb-md-0">
+                    <span class="brand-text"><span class="brand-para">para</span><span class="brand-mind">mind</span></span>
+                </div>
+                <div class="col-md-4 text-center mb-3 mb-md-0">
+                    <a href="terms.html" class="footer-link me-3">Terms of Service</a>
+                    <a href="privacy.html" class="footer-link me-3">Privacy Policy</a>
+                    <a href="contact.html" class="footer-link">Contact</a>
+                </div>
+                <div class="col-md-4 text-center text-md-end">
+                    <small class="text-muted">© 2025 Paramind. All rights reserved.</small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // Close mobile menu when a nav link is clicked
+        document.querySelectorAll('.navbar-nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                const navbarCollapse = document.querySelector('.navbar-collapse');
+                if (navbarCollapse.classList.contains('show')) {
+                    new bootstrap.Collapse(navbarCollapse).hide();
+                }
+            });
+        });
+
+        // ==================== ANIMATED CHAT DEMO ====================
+        // This creates an animated conversation that loops through different examples
+        
+        const conversations = [
+            {
+                trust: "SWAST",
+                messages: [
+                    { type: "user", text: "Patient with chest pain radiating to left arm. What's my assessment approach?" },
+                    { type: "assistant", html: "<strong>Based on SWAST guidelines:</strong>Start with your primary survey (ABCDE). For chest pain with arm radiation:<ul><li>12-lead ECG within 10 minutes</li><li>Aspirin 300mg if no contraindications</li><li>GTN but check JRCalc first</li><li>Consider STEMI pathway activation</li></ul>" }
+                ]
+            },
+            {
+                trust: "LAS",
+                messages: [
+                    { type: "user", text: "What's the paediatric sepsis screening criteria?" },
+                    { type: "assistant", html: "<strong>LAS Paediatric Sepsis Screen:</strong>Consider sepsis if infection suspected PLUS any of:<ul><li>Abnormal temperature (<36°C or >38.5°C)</li><li>Tachycardia for age</li><li>Altered mental state</li><li>Reduced urine output</li><li>Mottled/ashen skin colour</li></ul>" }
+                ]
+            },
+            {
+                trust: "WMAS",
+                messages: [
+                    { type: "user", text: "Can I give tranexamic acid for a major trauma patient?" },
+                    { type: "assistant", html: "<strong>WMAS TXA Protocol:</strong>Yes, for suspected significant haemorrhage:<ul><li>1g IV over 10 minutes</li><li>Within 3 hours of injury</li><li>Pre-alert receiving hospital</li><li>Document time of administration</li></ul>" }
+                ]
+            }
+        ];
+
+        let currentConversation = 0;
+        const chatMessages = document.getElementById('chatMessages');
+        const trustBadge = document.getElementById('trustBadge');
+
+        function clearChat() {
+            chatMessages.innerHTML = '';
+        }
+
+        function addTypingIndicator() {
+            const typing = document.createElement('div');
+            typing.className = 'typing-indicator';
+            typing.id = 'typingIndicator';
+            typing.innerHTML = '<span></span><span></span><span></span>';
+            chatMessages.appendChild(typing);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typing = document.getElementById('typingIndicator');
+            if (typing) typing.remove();
+        }
+
+        function addMessage(message) {
+            const div = document.createElement('div');
+            div.className = `chat-demo-message ${message.type}`;
+            
+            if (message.html) {
+                div.innerHTML = message.html;
+            } else {
+                div.textContent = message.text;
+            }
+            
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function playConversation(conv) {
+            // Update trust badge
+            trustBadge.textContent = conv.trust;
+            
+            // Clear previous messages
+            clearChat();
+            
+            // Play through messages with delays
+            for (let i = 0; i < conv.messages.length; i++) {
+                const msg = conv.messages[i];
+                
+                if (msg.type === 'user') {
+                    // Small delay before user message
+                    await new Promise(r => setTimeout(r, 500));
+                    addMessage(msg);
+                } else {
+                    // Show typing indicator before assistant response
+                    await new Promise(r => setTimeout(r, 800));
+                    addTypingIndicator();
+                    
+                    // Wait while "typing"
+                    await new Promise(r => setTimeout(r, 1500));
+                    removeTypingIndicator();
+                    
+                    // Show the response
+                    addMessage(msg);
+                }
+            }
+            
+            // Wait before showing next conversation
+            await new Promise(r => setTimeout(r, 4000));
+            
+            // Move to next conversation
+            currentConversation = (currentConversation + 1) % conversations.length;
+            playConversation(conversations[currentConversation]);
+        }
+
+        // Start the animation when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Small delay before starting
+            setTimeout(() => {
+                playConversation(conversations[0]);
+            }, 1000);
+        });
+    </script>
 </body>
 </html>
