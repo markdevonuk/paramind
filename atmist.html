@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title>ATMIST Handover Tool | Paramind</title>
+    <title>ATMIST Pre-Alert Tool | Paramind</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -458,6 +458,95 @@
             border-color: var(--color-teal);
             background: rgba(43, 138, 156, 0.05);
         }
+        
+        /* Pre-Alert Section Styles */
+        .prealert-section {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.05) 0%, rgba(220, 53, 69, 0.02) 100%);
+            border-bottom: 2px solid rgba(220, 53, 69, 0.2) !important;
+        }
+        
+        .prealert-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .prealert-field label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--color-gray-600);
+            margin-bottom: 0.375rem;
+        }
+        
+        .prealert-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--color-gray-600);
+            margin-bottom: 0.5rem;
+        }
+        
+        .prealert-type-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+        
+        @media (min-width: 576px) {
+            .prealert-type-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        .prealert-type-btn {
+            display: block;
+            cursor: pointer;
+        }
+        
+        .prealert-type-btn input {
+            display: none;
+        }
+        
+        .prealert-type-btn span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            background: var(--color-white);
+            border: 2px solid var(--color-gray-200);
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--color-gray-700);
+            transition: all var(--transition-fast);
+        }
+        
+        .prealert-type-btn:hover span {
+            border-color: var(--color-gray-400);
+        }
+        
+        .prealert-type-btn input:checked + span {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border-color: #dc3545;
+            color: white;
+        }
+        
+        .prealert-type-btn input:checked + span i {
+            color: white;
+        }
+        
+        .prealert-type-btn span i {
+            font-size: 1rem;
+            color: #dc3545;
+        }
+        
+        #crewName {
+            background: var(--color-gray-50);
+            font-weight: 600;
+        }
     </style>
 </head>
 <body class="atmist-page">
@@ -481,21 +570,70 @@
         <!-- Header -->
         <div class="atmist-header">
             <h1>
-                <i class="bi bi-clipboard2-pulse text-teal"></i>
-                ATMIST Handover Tool
+                <i class="bi bi-telephone-outbound text-teal"></i>
+                ATMIST Pre-Alert Tool
             </h1>
-            <p>Build a clear, structured handover for hospital teams</p>
+            <p>Practise your ED pre-alerts like a pro</p>
         </div>
         
         <!-- Info Banner -->
         <div class="info-banner">
             <i class="bi bi-lightbulb"></i>
-            <p>Fill in each section below with your patient details. The AI will help you structure this into a clear, concise verbal handover script that you can practise delivering.</p>
+            <p>Fill in your patient details below and we'll generate a professional pre-alert script you can practise delivering to the ED. Your name is automatically pulled from your profile.</p>
         </div>
 
         <!-- ATMIST Form -->
         <form id="atmistForm">
             <div class="atmist-form-card">
+                
+                <!-- Pre-Alert Details -->
+                <div class="atmist-section prealert-section">
+                    <div class="atmist-section-header">
+                        <span class="atmist-badge" style="background: #dc3545;">
+                            <i class="bi bi-telephone-fill" style="font-size: 0.9rem;"></i>
+                        </span>
+                        <h3>Pre-Alert Details</h3>
+                    </div>
+                    
+                    <div class="prealert-grid">
+                        <div class="prealert-field">
+                            <label for="crewName">Your Name</label>
+                            <input type="text" class="atmist-input" id="crewName" placeholder="Loading..." readonly>
+                        </div>
+                        <div class="prealert-field">
+                            <label for="callSign">Ambulance Call Sign</label>
+                            <input type="text" class="atmist-input" id="callSign" placeholder="e.g., 2330">
+                        </div>
+                    </div>
+                    
+                    <label class="prealert-label">Pre-Alert Type</label>
+                    <div class="prealert-type-grid">
+                        <label class="prealert-type-btn">
+                            <input type="radio" name="prealertType" value="medical" checked>
+                            <span><i class="bi bi-heart-pulse"></i> Medical</span>
+                        </label>
+                        <label class="prealert-type-btn">
+                            <input type="radio" name="prealertType" value="stroke">
+                            <span><i class="bi bi-lightning"></i> Stroke</span>
+                        </label>
+                        <label class="prealert-type-btn">
+                            <input type="radio" name="prealertType" value="trauma">
+                            <span><i class="bi bi-bandaid"></i> Trauma</span>
+                        </label>
+                        <label class="prealert-type-btn">
+                            <input type="radio" name="prealertType" value="cardiac">
+                            <span><i class="bi bi-activity"></i> Cardiac</span>
+                        </label>
+                        <label class="prealert-type-btn">
+                            <input type="radio" name="prealertType" value="major-trauma">
+                            <span><i class="bi bi-exclamation-triangle"></i> Major Trauma</span>
+                        </label>
+                        <label class="prealert-type-btn">
+                            <input type="radio" name="prealertType" value="paediatric">
+                            <span><i class="bi bi-person"></i> Paediatric</span>
+                        </label>
+                    </div>
+                </div>
                 
                 <!-- A - Age -->
                 <div class="atmist-section">
@@ -651,16 +789,16 @@
             
             <!-- Generate Button -->
             <button type="submit" class="generate-btn" id="generateBtn">
-                <i class="bi bi-magic"></i>
-                Generate Handover Script
+                <i class="bi bi-telephone-outbound"></i>
+                Generate Pre-Alert Script
             </button>
         </form>
         
         <!-- Output Section -->
         <div class="handover-output mt-4" id="handoverOutput">
             <div class="handover-output-header">
-                <i class="bi bi-mic"></i>
-                <h3>Your Handover Script</h3>
+                <i class="bi bi-telephone-outbound"></i>
+                <h3>Your Pre-Alert Script</h3>
             </div>
             <div class="handover-script" id="handoverScript">
                 <!-- AI-generated script will appear here -->
@@ -733,12 +871,54 @@
         
         // ==================== INITIALIZE ====================
         
+        let userProfile = null;
+        
         async function initATMIST() {
             const isAuthenticated = await initializeAuth();
             if (!isAuthenticated) return;
             
             console.log('ATMIST Tool initialized - user authenticated');
+            
+            // Fetch user profile to get their name
+            await fetchUserProfile();
+            
             setupEventListeners();
+        }
+        
+        async function fetchUserProfile() {
+            try {
+                const token = await getAuthToken();
+                const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}${window.paramind.CONFIG.api.user}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    userProfile = await response.json();
+                    
+                    // Populate the crew name field
+                    const crewNameField = document.getElementById('crewName');
+                    if (crewNameField && userProfile.firstName) {
+                        const fullName = [userProfile.firstName, userProfile.surname].filter(Boolean).join(' ');
+                        crewNameField.value = fullName || userProfile.email;
+                    } else if (crewNameField) {
+                        crewNameField.value = 'Crew Member';
+                        crewNameField.readOnly = false;
+                        crewNameField.placeholder = 'Enter your name';
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching user profile:', error);
+                const crewNameField = document.getElementById('crewName');
+                if (crewNameField) {
+                    crewNameField.value = '';
+                    crewNameField.readOnly = false;
+                    crewNameField.placeholder = 'Enter your name';
+                }
+            }
         }
         
         // ==================== EVENT LISTENERS ====================
@@ -790,8 +970,27 @@
             const scriptDiv = document.getElementById('handoverScript');
             const tipsList = document.getElementById('tipsList');
             
+            // Collect pre-alert details
+            const crewName = document.getElementById('crewName').value.trim() || 'Crew Member';
+            const callSign = document.getElementById('callSign').value.trim();
+            const prealertType = document.querySelector('input[name="prealertType"]:checked').value;
+            
+            // Format pre-alert type for display
+            const prealertTypeDisplay = {
+                'medical': 'Medical',
+                'stroke': 'Stroke',
+                'trauma': 'Trauma',
+                'cardiac': 'Cardiac',
+                'major-trauma': 'Major Trauma',
+                'paediatric': 'Paediatric'
+            }[prealertType] || 'Medical';
+            
             // Collect form data
             const formData = {
+                crewName: crewName,
+                callSign: callSign,
+                prealertType: prealertType,
+                prealertTypeDisplay: prealertTypeDisplay,
                 age: document.getElementById('patientAge').value,
                 gender: document.getElementById('patientGender').value,
                 time: document.getElementById('incidentTime').value,
@@ -852,7 +1051,7 @@
             } finally {
                 // Reset button
                 generateBtn.disabled = false;
-                generateBtn.innerHTML = '<i class="bi bi-magic"></i> Generate Handover Script';
+                generateBtn.innerHTML = '<i class="bi bi-telephone-outbound"></i> Generate Pre-Alert Script';
             }
         }
         
@@ -949,13 +1148,30 @@
                 treatmentsString += treatmentsString ? '. ' + data.treatmentDetails : data.treatmentDetails;
             }
             
-            return `You are helping a paramedic student practise their hospital handover using the ATMIST format. Based on the following patient information, create TWO things:
+            // Build the opening line
+            let openingLine = `Hello ED, it's ${data.crewName}`;
+            if (data.callSign) {
+                openingLine += ` on ambulance ${data.callSign}`;
+            }
+            openingLine += ` with a ${data.prealertTypeDisplay} pre-alert.`;
+            
+            return `You are helping a UK paramedic practise their hospital pre-alert using the ATMIST format. Based on the following patient information, create TWO things:
 
-1. A clear, professional ATMIST handover script they can practise saying out loud. Write it as natural speech, not bullet points. Keep it concise but complete - aim for about 30-45 seconds when spoken aloud.
+1. A clear, professional ATMIST pre-alert script they can practise saying over the radio or phone. Write it as natural speech, not bullet points. Keep it concise but complete - aim for about 30-45 seconds when spoken aloud.
 
-2. 2-4 specific tips for improving their handover based on what information they provided (or didn't provide).
+IMPORTANT: The script MUST start with this exact opening:
+"${openingLine}"
 
-PATIENT INFORMATION PROVIDED:
+Then continue with the ATMIST structure naturally. End with an ETA if appropriate (you can estimate 5-10 minutes).
+
+2. 2-4 specific tips for improving their pre-alert based on what information they provided (or didn't provide). Consider what's particularly important for a ${data.prealertTypeDisplay} pre-alert.
+
+PRE-ALERT DETAILS:
+- Crew name: ${data.crewName}
+- Ambulance call sign: ${data.callSign || 'Not specified'}
+- Pre-alert type: ${data.prealertTypeDisplay}
+
+PATIENT INFORMATION (ATMIST):
 - Age: ${data.age || 'Not specified'} ${data.gender || ''}
 - Time of incident/onset: ${data.time || 'Not specified'}
 - Mechanism/Medical complaint: ${data.mechanism || 'Not specified'}
@@ -965,11 +1181,13 @@ PATIENT INFORMATION PROVIDED:
 
 Format your response EXACTLY like this:
 [SCRIPT]
-(Write the handover script here as natural speech)
+${openingLine}
+
+(Continue the ATMIST handover here as natural speech, ending with ETA)
 [/SCRIPT]
 
 [TIPS]
-- (First tip)
+- (First tip specific to ${data.prealertTypeDisplay} pre-alerts)
 - (Second tip)
 - (etc)
 [/TIPS]`;
