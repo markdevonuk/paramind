@@ -845,10 +845,11 @@ function startScenario() {
     });
     
     // Add system prompt context (this will be used by the API)
-    chatState.conversationHistory.push({
-        role: 'system',
-        content: window.scenarioData.getScenarioSystemPrompt(scenarioId, chatState.currentDifficultyLevel)
-    });
+console.log('Starting scenario with difficulty level:', chatState.currentDifficultyLevel);
+chatState.conversationHistory.push({
+    role: 'system',
+    content: window.scenarioData.getScenarioSystemPrompt(scenarioId, chatState.currentDifficultyLevel)
+});
     
     // Show assessment toolbar and working impression button for scenarios
     showAssessmentToolbar();
