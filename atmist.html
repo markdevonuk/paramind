@@ -1164,6 +1164,8 @@
 <script src="js/app.js"></script>
 
 <script type="module">
+    console.log('=== ATMIST Script Loading ===');
+    
     // ==================== FIREBASE AUTH ====================
     
     let auth = null;
@@ -1203,16 +1205,20 @@
     let userProfile = null;
     
     async function initATMIST() {
+        console.log('=== initATMIST starting ===');
         const isAuthenticated = await initializeAuth();
+        console.log('isAuthenticated:', isAuthenticated);
         if (!isAuthenticated) return;
         
         console.log('ATMIST Tool initialized - user authenticated');
         
         // Fetch user profile to get their name and check Pro status
         const isPro = await fetchUserProfile();
+        console.log('isPro:', isPro);
         
         if (!isPro) {
             // Show Pro overlay for free users
+            console.log('User is NOT Pro - showing overlay');
             document.getElementById('proOverlay').classList.add('visible');
             
             // Set up upgrade button to trigger Stripe checkout
@@ -1224,7 +1230,9 @@
             return; // Don't initialize the rest of the tool
         }
         
+        console.log('User IS Pro - calling setupEventListeners');
         setupEventListeners();
+        console.log('=== initATMIST complete ===');
     }
     
     async function fetchUserProfile() {
@@ -1743,6 +1751,8 @@
     // ==================== EVENT LISTENERS ====================
     
     function setupEventListeners() {
+        console.log('=== setupEventListeners called ===');
+        
         // Quick select buttons functionality
         document.querySelectorAll('.quick-select-btn').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -1790,8 +1800,11 @@
     }
     
     function updateTypeSpecificContent(type) {
+        console.log('=== updateTypeSpecificContent called with type:', type, '===');
         const config = TYPE_SPECIFIC_CONFIG[type];
         const mechConfig = TYPE_MECHANISM_CONFIG[type];
+        console.log('Config found:', config ? 'YES' : 'NO');
+        console.log('MechConfig found:', mechConfig ? 'YES' : 'NO');
         if (!config) return;
         
         // Update hints box
@@ -1814,6 +1827,8 @@
         fieldsTitle.textContent = config.title.replace(' — Critical Information', '') + ' — Key Details';
         fieldsContainer.innerHTML = config.fields;
         fieldsSection.style.display = 'block';
+        console.log('Fields section display set to:', fieldsSection.style.display);
+        console.log('Fields HTML length:', config.fields.length);
         
         // Update Mechanism section
         if (mechConfig) {
@@ -1875,6 +1890,11 @@
         // Collect type-specific data
         const typeSpecificData = collectTypeSpecificData(prealertType);
         
+        // DEBUG: Log the type-specific data being collected
+        console.log('=== DEBUG: Type-Specific Data Collected ===');
+        console.log('Pre-alert type:', prealertType);
+        console.log('Type-specific data:', JSON.stringify(typeSpecificData, null, 2));
+        
         // Collect form data
         const formData = {
             crewName: crewName,
@@ -1922,6 +1942,11 @@
         try {
             // Build prompt for AI
             const prompt = buildATMISTPrompt(formData);
+            
+            // DEBUG: Log the prompt being sent
+            console.log('=== DEBUG: Full Prompt Being Sent ===');
+            console.log(prompt);
+            console.log('=== END PROMPT ===');
             
             // Call your existing chat API endpoint
             const response = await callChatAPI(prompt);
@@ -2423,7 +2448,10 @@ Format your response EXACTLY like this:
     
     // ==================== INITIALIZE ON LOAD ====================
     
-    document.addEventListener('DOMContentLoaded', initATMIST);
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('=== DOMContentLoaded fired ===');
+        initATMIST();
+    });
   ```
   
     </script>
