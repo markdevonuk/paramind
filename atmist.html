@@ -876,13 +876,13 @@
                 <i class="bi bi-telephone-outbound text-teal"></i>
                 ATMIST Pre-Alert Tool
             </h1>
-            <p>Build your pre-alerts like a pro</p>
+            <p>Practise your ED pre-alerts like a pro</p>
         </div>
         
         <!-- Info Banner -->
         <div class="info-banner">
             <i class="bi bi-lightbulb"></i>
-            <p>Fill in your patient details below and we'll generate a professional pre-alert script you can deliver to the hospital. Your name is automatically pulled from your profile.</p>
+            <p>Fill in your patient details below and we'll generate a professional pre-alert script you can practise delivering to the ED. Your name is automatically pulled from your profile.</p>
         </div>
 
         <!-- ATMIST Form -->
@@ -1738,6 +1738,7 @@
         // ==================== EVENT LISTENERS ====================
         
         function setupEventListeners() {
+            
             // Quick select buttons functionality
             document.querySelectorAll('.quick-select-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
@@ -1870,6 +1871,8 @@
             // Collect type-specific data
             const typeSpecificData = collectTypeSpecificData(prealertType);
             
+            // DEBUG: Log the type-specific data being collected
+            
             // Collect form data
             const formData = {
                 crewName: crewName,
@@ -1917,6 +1920,9 @@
             try {
                 // Build prompt for AI
                 const prompt = buildATMISTPrompt(formData);
+                
+                // DEBUG: Log the prompt being sent
+                console.log(prompt);
                 
                 // Call your existing chat API endpoint
                 const response = await callChatAPI(prompt);
@@ -2150,30 +2156,22 @@ DO NOT make up, embellish, invent, or assume ANY clinical information.
 This is a clinical training tool. Fabricating information teaches bad habits and is dangerous.
 ===========================================
 
-IMPORTANT FORMATTING:
-- Start with the opening line provided
-- Then format each ATMIST section as a SEPARATE paragraph with the letter in bold
-- Use this exact structure:
+=== CRITICAL: TYPE-SPECIFIC KEY DETAILS MUST BE INCLUDED ===
+This is a ${data.prealertTypeDisplay.toUpperCase()} pre-alert. The "KEY DETAILS" section below contains type-specific critical information that MUST be woven into the appropriate ATMIST sections:
+${typeSpecificInfo}
 
-"${openingLine}"
+YOU MUST INCORPORATE THESE KEY DETAILS INTO THE SCRIPT:
+- For STROKE: Include "Time last seen well", FAST findings, anticoag status in the T (Time), I (Illness) and S (Signs) sections
+- For CARDIAC: Include ECG findings in S (Signs), cardiac treatments in T (Treatment)
+- For TRAUMA: Include specific injuries, C-spine status in I (Injuries), blood loss in S (Signs)
+- For MAJOR TRAUMA: State which major trauma criteria are met at the START, include TXA status in T (Treatment)
+- For PAEDIATRIC: Include age/weight in A (Age), parent/safeguarding in I (Illness)
+- For MEDICAL: Include working diagnosis in M (Mechanism) or I (Illness)
 
-**A - Age:** [Age and gender in a natural sentence - ONLY if provided]
-
-**T - Time:** [Time of onset/incident - ONLY if provided]
-
-**M - Mechanism:** [What happened / medical complaint - ONLY if provided]
-
-**I - Injuries/Illness:** [Findings, injuries, relevant history - ONLY what was provided]
-
-**S - Signs:** [Vital signs and clinical findings - ONLY those provided, do not invent any]
-
-**T - Treatment:** [What treatment has been given - ONLY what was stated]
-
-${data.eta ? `"${etaLine}"` : '[End with ETA if provided, otherwise say "ETA to follow"]'}
+If ANY key details were provided, they MUST appear in the script. Do not ignore them!
+============================================================
 
 ${typeSpecificGuidance}
-
-2. 2-4 specific tips for improving their ${data.prealertTypeDisplay} pre-alert. Focus on what's CRITICAL for this type of pre-alert that they may have missed or could improve. Be specific about what information was MISSING that should have been included.
 
 PRE-ALERT DETAILS:
 - Crew name: ${data.crewName}
@@ -2181,8 +2179,6 @@ PRE-ALERT DETAILS:
 - Pre-alert type: ${data.prealertTypeDisplay}
 - ETA: ${data.eta || 'Not specified'}
 - Destination: ${data.destination || 'Not specified'}
-
-${typeSpecificInfo}
 
 PATIENT INFORMATION (ATMIST) - USE ONLY THIS DATA, DO NOT ADD ANYTHING:
 - Age: ${data.age || 'NOT PROVIDED'} ${data.gender || ''}
@@ -2192,80 +2188,90 @@ PATIENT INFORMATION (ATMIST) - USE ONLY THIS DATA, DO NOT ADD ANYTHING:
 - Signs/Vitals: ${vitalsString || 'NOT PROVIDED'} ${data.additionalSigns || ''}
 - Treatment given: ${treatmentsString || 'NOT PROVIDED'}
 
-REMEMBER: Only use the information above. Do not invent or assume anything. Missing information = gap in the handover that should be noted in tips.
+REMEMBER: 
+1. Use ALL information from BOTH the "Key Details" section AND the "ATMIST" section
+2. Key details must be integrated into the relevant ATMIST sections, not ignored
+3. Do not invent anything - missing information = gap to highlight in tips
 
 Format your response EXACTLY like this:
 [SCRIPT]
-${openingLine}
+"${openingLine}"
 
-**A - Age:** (ONLY if age was provided)
+**A - Age:** [Age and gender - include paediatric weight if provided]
 
-**T - Time:** (ONLY if time was provided)
+**T - Time:** [Time of onset - for stroke, include "last seen well" time here]
 
-**M - Mechanism:** (ONLY if mechanism was provided)
+**M - Mechanism:** [What happened - include working diagnosis for medical cases]
 
-**I - Injuries/Illness:** (ONLY what was provided)
+**I - Injuries/Illness:** [Findings, injuries, relevant history - include FAST findings, specific injuries, safeguarding concerns here]
 
-**S - Signs:** (ONLY the vitals/signs that were provided)
+**S - Signs:** [Vital signs and clinical findings - include ECG findings, blood loss estimates, anticoag status here]
 
-**T - Treatment:** (ONLY treatments that were stated)
+**T - Treatment:** [What treatment has been given - include TXA status, cardiac treatments here]
 
-${etaLine || 'ETA to follow.'}
+"${etaLine || 'ETA to follow.'}"
 [/SCRIPT]
 
 [TIPS]
-- (Highlight missing critical information for this type of pre-alert)
-- (Other improvement tips)
+- (Highlight any missing CRITICAL information for a ${data.prealertTypeDisplay} pre-alert)
+- (Other specific improvements)
 [/TIPS]`;
         }
         
         function buildTypeSpecificInfo(type, data) {
-            if (!data) return '';
+            if (!data) return 'No key details provided for this pre-alert type.';
             
-            let info = `\n${type.toUpperCase()} PRE-ALERT SPECIFIC INFO:\n`;
+            let info = ``;
+            let hasData = false;
             
             switch(type) {
                 case 'stroke':
-                    if (data.lastSeenWell) info += `- Time last seen well: ${data.lastSeenWell}\n`;
-                    if (data.strokeOnset) info += `- Onset type: ${data.strokeOnset}\n`;
-                    if (data.fastFindings?.length) info += `- FAST findings: ${data.fastFindings.join(', ')}\n`;
-                    if (data.anticoagStatus) info += `- Anticoagulation status: ${data.anticoagStatus}\n`;
-                    if (data.premorbid) info += `- Pre-morbid function: ${data.premorbid}\n`;
+                    info += `- Time last seen well: ${data.lastSeenWell || 'NOT PROVIDED'}\n`;
+                    info += `- Onset type: ${data.strokeOnset || 'NOT PROVIDED'}\n`;
+                    info += `- FAST findings: ${data.fastFindings?.length ? data.fastFindings.join(', ') : 'NOT PROVIDED'}\n`;
+                    info += `- Anticoagulation status: ${data.anticoagStatus || 'NOT PROVIDED'}\n`;
+                    info += `- Pre-morbid function: ${data.premorbid || 'NOT PROVIDED'}\n`;
+                    hasData = data.lastSeenWell || data.strokeOnset || data.fastFindings?.length || data.anticoagStatus || data.premorbid;
                     break;
                     
                 case 'cardiac':
-                    if (data.ecgFindings) info += `- ECG findings: ${data.ecgFindings}\n`;
-                    if (data.chestPainChar) info += `- Chest pain character: ${data.chestPainChar}\n`;
-                    if (data.cardiacHistory) info += `- Cardiac history: ${data.cardiacHistory}\n`;
-                    if (data.gtnResponse) info += `- GTN response: ${data.gtnResponse}\n`;
-                    if (data.cardiacTreatments?.length) info += `- Cardiac treatments: ${data.cardiacTreatments.join(', ')}\n`;
+                    info += `- ECG findings: ${data.ecgFindings || 'NOT PROVIDED'}\n`;
+                    info += `- Chest pain character: ${data.chestPainChar || 'NOT PROVIDED'}\n`;
+                    info += `- Cardiac history: ${data.cardiacHistory || 'NOT PROVIDED'}\n`;
+                    info += `- GTN response: ${data.gtnResponse || 'NOT PROVIDED'}\n`;
+                    info += `- Cardiac treatments given: ${data.cardiacTreatments?.length ? data.cardiacTreatments.join(', ') : 'NOT PROVIDED'}\n`;
+                    hasData = data.ecgFindings || data.chestPainChar || data.cardiacHistory || data.gtnResponse || data.cardiacTreatments?.length;
                     break;
                     
                 case 'trauma':
-                    if (data.injuries?.length) info += `- Injuries identified: ${data.injuries.join(', ')}\n`;
-                    if (data.cspineStatus) info += `- C-spine status: ${data.cspineStatus}\n`;
-                    if (data.bloodLoss) info += `- Blood loss: ${data.bloodLoss}\n`;
+                    info += `- Injuries identified: ${data.injuries?.length ? data.injuries.join(', ') : 'NOT PROVIDED'}\n`;
+                    info += `- C-spine status: ${data.cspineStatus || 'NOT PROVIDED'}\n`;
+                    info += `- Blood loss estimate: ${data.bloodLoss || 'NOT PROVIDED'}\n`;
+                    hasData = data.injuries?.length || data.cspineStatus || data.bloodLoss;
                     break;
                     
                 case 'major-trauma':
-                    if (data.mtCriteria?.length) info += `- Major trauma criteria: ${data.mtCriteria.join(', ')}\n`;
-                    if (data.airwayStatus) info += `- Airway status: ${data.airwayStatus}\n`;
-                    if (data.haemControl) info += `- Haemorrhage control: ${data.haemControl}\n`;
-                    if (data.txa) info += `- TXA status: ${data.txa}\n`;
+                    info += `- Major trauma criteria met: ${data.mtCriteria?.length ? data.mtCriteria.join(', ') : 'NOT PROVIDED'}\n`;
+                    info += `- Airway status: ${data.airwayStatus || 'NOT PROVIDED'}\n`;
+                    info += `- Haemorrhage control: ${data.haemControl || 'NOT PROVIDED'}\n`;
+                    info += `- TXA status: ${data.txa || 'NOT PROVIDED'}\n`;
+                    hasData = data.mtCriteria?.length || data.airwayStatus || data.haemControl || data.txa;
                     break;
                     
                 case 'paediatric':
-                    if (data.paedAge) info += `- Paediatric age: ${data.paedAge}\n`;
-                    if (data.paedWeight) info += `- Weight: ${data.paedWeight}\n`;
-                    if (data.parentPresent) info += `- Parent/guardian: ${data.parentPresent}\n`;
-                    if (data.safeguarding) info += `- Safeguarding: ${data.safeguarding}\n`;
-                    if (data.paedHistory) info += `- Relevant history: ${data.paedHistory}\n`;
+                    info += `- Paediatric age: ${data.paedAge || 'NOT PROVIDED'}\n`;
+                    info += `- Weight: ${data.paedWeight || 'NOT PROVIDED'}\n`;
+                    info += `- Parent/guardian present: ${data.parentPresent || 'NOT PROVIDED'}\n`;
+                    info += `- Safeguarding concerns: ${data.safeguarding || 'NOT PROVIDED'}\n`;
+                    info += `- Relevant history: ${data.paedHistory || 'NOT PROVIDED'}\n`;
+                    hasData = data.paedAge || data.paedWeight || data.parentPresent || data.safeguarding || data.paedHistory;
                     break;
                     
                 case 'medical':
-                    if (data.workingDiagnosis) info += `- Working diagnosis: ${data.workingDiagnosis}\n`;
-                    if (data.relevantPmh) info += `- Relevant PMHx: ${data.relevantPmh}\n`;
-                    if (data.anticoagulants) info += `- Anticoagulation: ${data.anticoagulants}\n`;
+                    info += `- Working diagnosis: ${data.workingDiagnosis || 'NOT PROVIDED'}\n`;
+                    info += `- Relevant PMHx: ${data.relevantPmh || 'NOT PROVIDED'}\n`;
+                    info += `- Anticoagulation: ${data.anticoagulants || 'NOT PROVIDED'}\n`;
+                    hasData = data.workingDiagnosis || data.relevantPmh || data.anticoagulants;
                     break;
             }
             
@@ -2400,7 +2406,9 @@ DO NOT invent any of these if not provided - highlight as missing in tips instea
         
         // ==================== INITIALIZE ON LOAD ====================
         
-        document.addEventListener('DOMContentLoaded', initATMIST);
+        document.addEventListener('DOMContentLoaded', () => {
+            initATMIST();
+        });
     </script>
 </body>
 </html>
