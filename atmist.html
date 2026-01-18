@@ -1871,8 +1871,6 @@
             // Collect type-specific data
             const typeSpecificData = collectTypeSpecificData(prealertType);
             
-            // DEBUG: Log the type-specific data being collected
-            
             // Collect form data
             const formData = {
                 crewName: crewName,
@@ -1920,9 +1918,6 @@
             try {
                 // Build prompt for AI
                 const prompt = buildATMISTPrompt(formData);
-                
-                // DEBUG: Log the prompt being sent
-                console.log(prompt);
                 
                 // Call your existing chat API endpoint
                 const response = await callChatAPI(prompt);
@@ -2406,9 +2401,7 @@ DO NOT invent any of these if not provided - highlight as missing in tips instea
         
         // ==================== INITIALIZE ON LOAD ====================
         
-        document.addEventListener('DOMContentLoaded', () => {
-            initATMIST();
-        });
+        document.addEventListener('DOMContentLoaded', initATMIST);
     </script>
 </body>
 </html>
