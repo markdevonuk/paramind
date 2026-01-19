@@ -3539,10 +3539,10 @@ The key red flags for this condition are:
 ${redFlagsFormatted}
 [Note which ones they identified vs missed]
 
-## 5. PREHOSPITAL MANAGEMENT
-[Brief UK paramedic management for ${p.condition}]
-[Disposition - where should this patient go?]
-[Reference JRCALC guidelines where relevant]
+## 5. NEXT STEPS
+[Where should this patient go? (Disposition)]
+[What resources might be needed?]
+For treatment and management of ${p.condition}, open your JRCalc app and refer to the relevant guideline.
 
 IMPORTANT: Start your response with "## 1. DIAGNOSIS CHECK" - do NOT start with 
 generic text like "DEBRIEF:" or advice. Go straight into the structured feedback.
