@@ -3470,11 +3470,16 @@ If learner says they are giving treatment (e.g., "I'm giving GTN", "Starting O2"
 
 ECG Rule:
 - ECG/12-lead/rhythm request: Provide ONLY the objective findings from: ${p.ecg}
-- REMOVE any diagnostic labels or pattern names (e.g., "STEMI pattern", "PE pattern", "AF") from your response
-- Give only: rate, rhythm, P waves, PR interval, QRS width, ST segments, T waves, axis
-- Example: Say "ST elevation in V1-V4 with reciprocal depression in II, III, aVF" but do NOT say "STEMI pattern" or "suggests MI"
-- If learner asks "Interpret this ECG": Provide the raw findings, then add: PATIENT: "I don't know what those squiggly lines mean - what do you think?"
-- NEVER explain what the ECG findings mean or suggest a diagnosis in ROLEPLAY
+- REMOVE any diagnostic labels or pattern names from your response
+- Give only: rate, rhythm regularity, P waves, PR interval, QRS width, ST segments, T waves, axis
+- DO NOT add an "Interpretation" line - this is FORBIDDEN
+- DO NOT name the rhythm type (e.g., do NOT say "narrow complex tachycardia", "SVT", "AF", "sinus rhythm", "heart block")
+- DO NOT say what the findings "suggest" or "indicate"
+- Simply state WHAT YOU SEE on the tracing, not WHAT IT MEANS
+- Example CORRECT output: "Rate 180bpm, regular rhythm, no visible P waves, QRS narrow (<120ms), no ST changes"
+- Example WRONG output: "Rate 180bpm... Interpretation: Regular narrow complex tachycardia" ← NEVER DO THIS
+- If learner asks "What does this ECG show?" or "Interpret this ECG": Provide the raw findings only, then add: PATIENT: "I don't know what those squiggly lines mean - what do you think?"
+- The learner must interpret the ECG themselves - that is the learning exercise
 
 MODE: HINT
 ------------------------------------------------------------------------
