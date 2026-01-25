@@ -1384,10 +1384,14 @@
 
         // ==================== MESSAGE FUNCTIONS ====================
         function formatMessage(content) {
+            // Convert bullet characters (•) to markdown list syntax
+            // This handles API responses that use • instead of - or *
+            let processed = content.replace(/^[ \t]*•[ \t]*/gm, '- ');
+            
             if (typeof marked !== 'undefined') {
-                return marked.parse(content);
+                return marked.parse(processed);
             }
-            return content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+            return processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
         }
 
         function addMessage(role, content) {
