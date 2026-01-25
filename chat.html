@@ -465,12 +465,33 @@
             color: var(--color-teal);
             background: rgba(43, 138, 156, 0.05);
         }
+        
+        /* === Make ParaMind header BIGGER on chat.html === */
+.chat-navbar{
+  padding: 1.25rem 0;           /* was 0.75rem 0 */
+}
+
+.chat-navbar .navbar-brand{
+  font-size: 1.8rem;            /* bump this up */
+  line-height: 1;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Ensure your split spans scale with the brand */
+.chat-navbar .brand-para,
+.chat-navbar .brand-mind{
+  font-size: inherit;
+  line-height: inherit;
+}
+
     </style>
 </head>
 
 <body class="chat-page">
-    <!-- ==================== NAVIGATION ==================== -->
-    <nav class="chat-navbar">
+     <!-- ==================== NAVIGATION ==================== -->
+    <nav class="cpd-navbar">
         <div class="container">
             <span class="brand-text">
                 <a class="navbar-brand" href="landing.html">
