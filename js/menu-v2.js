@@ -28,7 +28,7 @@
         ],
         // Pro features
         proNav: [
-            { id: 'connections', href: 'clinical-connections.html', icon: 'bi-heart-pulse', label: 'A&P Connections', isPro: true },
+            { id: 'connections', href: 'connections.html', icon: 'bi-heart-pulse', label: 'A&P Connections', isPro: true },
             { id: 'atmist', href: 'atmist.html', icon: 'bi-telephone-outbound', label: 'ATMIST', isPro: true },
             { id: 'ecg', href: 'ecg.html', icon: 'bi-activity', label: 'ECG Tool', isPro: true },
             { id: 'cpd', href: 'cpd.html', icon: 'bi-award', label: 'CPD Portfolio', isPro: true }
@@ -47,7 +47,7 @@
         if (path.includes('chat')) return 'chat';
         if (path.includes('scenarios')) return 'scenarios';
         if (path.includes('differentials')) return 'differentials';
-        if (path.includes('clinical-connections') || path.includes('connections')) return 'connections';
+        if (path.includes('connections') || path.includes('connections')) return 'connections';
         if (path.includes('atmist')) return 'atmist';
         if (path.includes('ecg')) return 'ecg';
         if (path.includes('cpd')) return 'cpd';
