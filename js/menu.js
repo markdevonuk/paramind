@@ -1,12 +1,11 @@
 /* ==================== HAMBURGER MENU - CENTRALISED JS ==================== */
 /* ParaMind - Centralised Menu JavaScript */
-/* Add to your pages: <script src="js/menu.js"></script> */
+/* Add to your pages BEFORE </body>: <script src="js/menu.js"></script> */
 
 (function() {
     'use strict';
 
     // ==================== CONFIGURATION ====================
-    // Define all menu items here - easy to add/remove/reorder
     const MENU_CONFIG = {
         // Main navigation items
         mainNav: [
@@ -23,8 +22,8 @@
         otherNav: [
             { id: 'cpd', href: 'chat.html#cpd', icon: 'bi-award', label: 'CPD Portfolio' }
         ],
-        // Footer items
-        footerNav: [
+        // Bottom items (Contact, Sign Out) - regular nav items
+        bottomNav: [
             { id: 'contact', href: 'contact.html', icon: 'bi-envelope', label: 'Contact Us' }
         ]
     };
@@ -42,17 +41,17 @@
         if (hash.includes('cpd')) return 'cpd';
         if (path.includes('chat') || path.endsWith('/') || path.includes('index')) return 'chat';
         
-        return 'chat'; // Default
+        return 'chat';
     }
 
     // ==================== BUILD MENU HTML ====================
-    function buildMenuHTML() {
+    function buildMenuHTML(isPro) {
         const currentPage = getCurrentPage();
         
-        // Helper to create nav item HTML
         function createNavItem(item) {
             const isActive = item.id === currentPage ? ' active' : '';
-            const proBadge = item.isPro ? '<span class="pro-badge">Pro</span>' : '';
+            // Only show Pro badge if user is NOT a Pro subscriber
+            const proBadge = (item.isPro && !isPro) ? '<span class="pro-badge">Pro</span>' : '';
             return `
                 <a class="menu-nav-item${isActive}" href="${item.href}" data-menu-id="${item.id}">
                     <i class="bi ${item.icon}"></i>
@@ -62,7 +61,15 @@
             `;
         }
 
-        // Build the complete menu HTML
+        // Build upgrade button HTML - only show if NOT Pro
+        const upgradeHTML = !isPro ? `
+            <div class="menu-divider"></div>
+            <a class="menu-nav-item upgrade" href="#" id="menuUpgradeBtn">
+                <i class="bi bi-star-fill"></i>
+                <span>Upgrade to Pro</span>
+            </a>
+        ` : '';
+
         return `
             <!-- Menu Overlay -->
             <div class="menu-overlay" id="menuOverlay"></div>
@@ -93,16 +100,12 @@
                     
                     ${MENU_CONFIG.otherNav.map(createNavItem).join('')}
                     
+                    ${upgradeHTML}
+                    
                     <div class="menu-divider"></div>
                     
-                    <a class="menu-nav-item upgrade" href="#" id="menuUpgradeBtn">
-                        <i class="bi bi-star-fill"></i>
-                        <span>Upgrade to Pro</span>
-                    </a>
-                </div>
-                
-                <div class="menu-footer">
-                    ${MENU_CONFIG.footerNav.map(createNavItem).join('')}
+                    ${MENU_CONFIG.bottomNav.map(createNavItem).join('')}
+                    
                     <button class="menu-nav-item logout" id="menuLogoutBtn">
                         <i class="bi bi-box-arrow-right"></i>
                         <span>Sign Out</span>
@@ -110,44 +113,6 @@
                 </div>
             </nav>
         `;
-    }
-
-    // ==================== INJECT HAMBURGER BUTTON ====================
-    function injectHamburgerButton() {
-        // Look for existing header elements to add the button to
-        const possibleContainers = [
-            document.querySelector('.header-right'),
-            document.querySelector('.navbar .container .d-flex'),
-            document.querySelector('.atmist-navbar .container .d-flex'),
-            document.querySelector('.ecg-navbar .container .d-flex'),
-            document.querySelector('header'),
-            document.querySelector('nav')
-        ];
-
-        // Check if hamburger already exists
-        if (document.getElementById('hamburgerBtn')) {
-            return document.getElementById('hamburgerBtn');
-        }
-
-        // Create the hamburger button
-        const hamburgerBtn = document.createElement('button');
-        hamburgerBtn.className = 'hamburger-btn';
-        hamburgerBtn.id = 'hamburgerBtn';
-        hamburgerBtn.setAttribute('aria-label', 'Open menu');
-        hamburgerBtn.innerHTML = '<span></span><span></span><span></span>';
-
-        // Try to find the best place to insert it
-        for (const container of possibleContainers) {
-            if (container) {
-                container.appendChild(hamburgerBtn);
-                return hamburgerBtn;
-            }
-        }
-
-        // If no suitable container found, append to body (fallback)
-        console.warn('Menu: No suitable container found for hamburger button');
-        document.body.appendChild(hamburgerBtn);
-        return hamburgerBtn;
     }
 
     // ==================== MENU FUNCTIONALITY ====================
@@ -163,7 +128,6 @@
             return;
         }
 
-        // Toggle menu
         function openMenu() {
             hamburgerBtn.classList.add('active');
             slideMenu.classList.add('active');
@@ -197,16 +161,14 @@
             }
         });
 
-        // Handle menu item clicks for hash navigation
+        // Handle menu item clicks for hash navigation on same page
         slideMenu.querySelectorAll('.menu-nav-item[href*="#"]').forEach(item => {
             item.addEventListener('click', function(e) {
                 const href = this.getAttribute('href');
-                // If we're on the same page, just close menu and handle hash
                 if (href.startsWith('chat.html#') && window.location.pathname.includes('chat')) {
                     e.preventDefault();
                     closeMenu();
                     const hash = href.split('#')[1];
-                    // Trigger view switch if function exists
                     if (typeof window.switchView === 'function') {
                         window.switchView(hash);
                     } else {
@@ -220,15 +182,18 @@
         if (menuLogoutBtn) {
             menuLogoutBtn.addEventListener('click', function() {
                 closeMenu();
-                // Try to use existing logout function
-                if (typeof window.signOut === 'function') {
+                // Try Firebase auth first
+                if (typeof firebase !== 'undefined' && firebase.auth) {
+                    firebase.auth().signOut().then(() => {
+                        window.location.href = 'index.html';
+                    }).catch((error) => {
+                        console.error('Sign out error:', error);
+                        window.location.href = 'index.html';
+                    });
+                } else if (typeof window.signOut === 'function') {
                     window.signOut();
                 } else if (typeof window.logout === 'function') {
                     window.logout();
-                } else if (typeof firebase !== 'undefined' && firebase.auth) {
-                    firebase.auth().signOut().then(() => {
-                        window.location.href = 'index.html';
-                    });
                 } else {
                     window.location.href = 'index.html';
                 }
@@ -240,114 +205,131 @@
             menuUpgradeBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 closeMenu();
-                // Try to use existing upgrade function
                 if (typeof window.handleUpgrade === 'function') {
                     window.handleUpgrade();
                 } else if (typeof window.showUpgradeModal === 'function') {
                     window.showUpgradeModal();
                 } else {
-                    // Fallback - look for upgrade button on page
-                    const upgradeBtn = document.querySelector('[data-upgrade], #upgradeBtn, .upgrade-btn');
-                    if (upgradeBtn) {
-                        upgradeBtn.click();
-                    }
+                    window.location.href = 'register.html';
                 }
             });
         }
+
+        // Expose functions globally
+        window.ParamindMenu = {
+            open: openMenu,
+            close: closeMenu,
+            toggle: toggleMenu,
+            updateUser: function(email, trust) {
+                const emailEl = document.getElementById('menuUserEmail');
+                const trustEl = document.getElementById('menuUserTrust');
+                if (email && emailEl) emailEl.textContent = email;
+                if (trust && trustEl) trustEl.textContent = trust;
+            }
+        };
     }
 
-    // ==================== SYNC USER INFO ====================
-    function syncUserInfo() {
+    // ==================== FIREBASE AUTH INTEGRATION ====================
+    function initFirebaseAuth(callback) {
+        // Wait for Firebase to be available
+        if (typeof firebase === 'undefined' || !firebase.auth) {
+            console.log('Menu: Firebase not available, using defaults');
+            callback({ email: null, trust: null, isPro: false });
+            return;
+        }
+
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+                // User is signed in - get their data from Firestore
+                if (firebase.firestore) {
+                    firebase.firestore().collection('users').doc(user.uid).get()
+                        .then(function(doc) {
+                            if (doc.exists) {
+                                const data = doc.data();
+                                callback({
+                                    email: user.email,
+                                    trust: data.trust || data.trustName || null,
+                                    isPro: data.subscriptionStatus === 'active' || data.isPro === true
+                                });
+                            } else {
+                                callback({
+                                    email: user.email,
+                                    trust: null,
+                                    isPro: false
+                                });
+                            }
+                        })
+                        .catch(function(error) {
+                            console.error('Menu: Error fetching user data:', error);
+                            callback({
+                                email: user.email,
+                                trust: null,
+                                isPro: false
+                            });
+                        });
+                } else {
+                    callback({
+                        email: user.email,
+                        trust: null,
+                        isPro: false
+                    });
+                }
+            } else {
+                // User not signed in
+                callback({ email: null, trust: null, isPro: false });
+            }
+        });
+    }
+
+    // ==================== UPDATE USER DISPLAY ====================
+    function updateUserDisplay(email, trust) {
         const menuUserEmail = document.getElementById('menuUserEmail');
         const menuUserTrust = document.getElementById('menuUserTrust');
 
-        if (!menuUserEmail || !menuUserTrust) return;
-
-        // Try to get user info from various sources
-        function updateUserDisplay(email, trust) {
-            if (email) menuUserEmail.textContent = email;
-            if (trust) menuUserTrust.textContent = trust;
+        if (menuUserEmail && email) {
+            menuUserEmail.textContent = email;
+        } else if (menuUserEmail) {
+            menuUserEmail.textContent = 'Not signed in';
         }
 
-        // Method 1: Check for existing elements on the page
-        const existingEmail = document.querySelector('#userEmail, .user-email, [data-user-email]');
-        const existingTrust = document.querySelector('#userTrust, #trustBadge, .trust-badge, [data-user-trust]');
-        
-        if (existingEmail) {
-            updateUserDisplay(existingEmail.textContent, existingTrust?.textContent);
-        }
-
-        // Method 2: Check Firebase auth
-        if (typeof firebase !== 'undefined' && firebase.auth) {
-            firebase.auth().onAuthStateChanged(function(user) {
-                if (user) {
-                    updateUserDisplay(user.email, null);
-                    
-                    // Try to get trust from Firestore
-                    if (firebase.firestore) {
-                        firebase.firestore().collection('users').doc(user.uid).get()
-                            .then(doc => {
-                                if (doc.exists && doc.data().trust) {
-                                    updateUserDisplay(null, doc.data().trust);
-                                }
-                            })
-                            .catch(() => {});
-                    }
-                }
-            });
-        }
-
-        // Method 3: Check localStorage
-        const storedEmail = localStorage.getItem('userEmail');
-        const storedTrust = localStorage.getItem('userTrust');
-        if (storedEmail || storedTrust) {
-            updateUserDisplay(storedEmail, storedTrust);
-        }
-    }
-
-    // ==================== HIDE PRO ITEMS FOR NON-PRO USERS ====================
-    function updateProVisibility() {
-        // This function can be called to hide/show pro items based on subscription
-        // For now, we show them all with the Pro badge
-        
-        // Check if user is Pro (you can customize this logic)
-        const isPro = localStorage.getItem('isPro') === 'true' || 
-                      document.body.classList.contains('pro-user');
-
-        if (isPro) {
-            // Hide upgrade button for Pro users
-            const upgradeBtn = document.getElementById('menuUpgradeBtn');
-            if (upgradeBtn) {
-                upgradeBtn.style.display = 'none';
-            }
-            // Remove Pro badges since they have Pro
-            document.querySelectorAll('.menu-nav-item .pro-badge').forEach(badge => {
-                badge.style.display = 'none';
-            });
+        if (menuUserTrust && trust) {
+            menuUserTrust.textContent = trust;
+        } else if (menuUserTrust) {
+            menuUserTrust.textContent = '—';
         }
     }
 
     // ==================== INITIALIZE ====================
     function init() {
-        // Inject menu HTML into the page
-        const menuContainer = document.createElement('div');
-        menuContainer.id = 'menuContainer';
-        menuContainer.innerHTML = buildMenuHTML();
-        document.body.insertBefore(menuContainer, document.body.firstChild);
+        // Check if hamburger button exists
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        if (!hamburgerBtn) {
+            console.error('Menu: Hamburger button not found. Please add: <button class="hamburger-btn" id="hamburgerBtn"><span></span><span></span><span></span></button>');
+            return;
+        }
 
-        // Inject hamburger button if not already present
-        injectHamburgerButton();
+        // Initialize with Firebase auth
+        initFirebaseAuth(function(userData) {
+            // Remove existing menu if any (in case of re-init)
+            const existingMenu = document.getElementById('menuContainer');
+            if (existingMenu) {
+                existingMenu.remove();
+            }
 
-        // Initialize functionality
-        initMenuFunctionality();
+            // Inject menu HTML into the page
+            const menuContainer = document.createElement('div');
+            menuContainer.id = 'menuContainer';
+            menuContainer.innerHTML = buildMenuHTML(userData.isPro);
+            document.body.insertBefore(menuContainer, document.body.firstChild);
 
-        // Sync user info
-        syncUserInfo();
+            // Initialize functionality
+            initMenuFunctionality();
 
-        // Update Pro visibility
-        updateProVisibility();
+            // Update user display
+            updateUserDisplay(userData.email, userData.trust);
 
-        console.log('Menu: Initialized successfully');
+            console.log('Menu: Initialized successfully', userData.isPro ? '(Pro user)' : '(Free user)');
+        });
     }
 
     // Run when DOM is ready
@@ -356,38 +338,5 @@
     } else {
         init();
     }
-
-    // ==================== PUBLIC API ====================
-    // Expose functions for external use
-    window.ParamindMenu = {
-        open: function() {
-            document.getElementById('slideMenu')?.classList.add('active');
-            document.getElementById('menuOverlay')?.classList.add('active');
-            document.getElementById('hamburgerBtn')?.classList.add('active');
-            document.body.classList.add('menu-open');
-        },
-        close: function() {
-            document.getElementById('slideMenu')?.classList.remove('active');
-            document.getElementById('menuOverlay')?.classList.remove('active');
-            document.getElementById('hamburgerBtn')?.classList.remove('active');
-            document.body.classList.remove('menu-open');
-        },
-        toggle: function() {
-            const menu = document.getElementById('slideMenu');
-            if (menu?.classList.contains('active')) {
-                this.close();
-            } else {
-                this.open();
-            }
-        },
-        updateUser: function(email, trust) {
-            if (email) document.getElementById('menuUserEmail').textContent = email;
-            if (trust) document.getElementById('menuUserTrust').textContent = trust;
-        },
-        setProUser: function(isPro) {
-            localStorage.setItem('isPro', isPro);
-            updateProVisibility();
-        }
-    };
 
 })();
