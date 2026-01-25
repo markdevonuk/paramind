@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terms of Service | Paramind</title>
+    <title>Terms of Service | ParaMind</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -11,153 +11,317 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/styles.css">
+    <!-- Menu CSS -->
+    <link rel="stylesheet" href="css/menu.css">
+    
+    <style>
+        :root {
+            --color-teal: #2B8A9C;
+            --color-teal-dark: #1e6b7a;
+            --color-green: #5CB85C;
+            --color-gray-50: #f8f9fa;
+            --color-gray-100: #f1f3f5;
+            --color-gray-200: #e9ecef;
+            --color-gray-300: #dee2e6;
+            --color-gray-500: #6c757d;
+            --color-gray-600: #495057;
+            --color-gray-700: #343a40;
+            --color-gray-800: #212529;
+            --color-white: #ffffff;
+            --font-primary: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --radius-md: 8px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-primary);
+            background: var(--color-gray-50);
+            color: var(--color-gray-700);
+            line-height: 1.6;
+        }
+        
+        /* Navbar */
+        .page-navbar {
+            background: var(--color-white);
+            border-bottom: 1px solid var(--color-gray-200);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .page-navbar .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        /* Brand */
+        .brand-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        
+        .brand-text a {
+            text-decoration: none;
+        }
+        
+        .brand-para {
+            color: var(--color-teal);
+        }
+        
+        .brand-mind {
+            color: var(--color-green);
+        }
+        
+        /* Hamburger Button */
+        .hamburger-btn {
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+            z-index: 1000;
+        }
+        
+        .hamburger-btn:hover {
+            background-color: rgba(43, 138, 156, 0.1);
+        }
+        
+        .hamburger-btn span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background-color: #1a1a2e;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .hamburger-btn.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        
+        .hamburger-btn.active span:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger-btn.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+        
+        /* Content */
+        .page-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+        
+        .page-content h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-content .last-updated {
+            color: var(--color-gray-500);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+        
+        .page-content h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .page-content p {
+            margin-bottom: 1rem;
+        }
+        
+        .page-content ul {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+        
+        .page-content li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-content strong {
+            color: var(--color-gray-800);
+        }
+        
+        .page-content a {
+            color: var(--color-teal);
+        }
+        
+        /* Footer */
+        .page-footer {
+            background: var(--color-white);
+            border-top: 1px solid var(--color-gray-200);
+            padding: 2rem 0;
+            text-align: center;
+        }
+        
+        .footer-brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-links a {
+            color: var(--color-gray-600);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .footer-links a:hover {
+            color: var(--color-teal);
+        }
+        
+        .footer-copyright {
+            color: var(--color-gray-500);
+            font-size: 0.85rem;
+        }
+    </style>
 </head>
+
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+    <nav class="page-navbar">
         <div class="container">
-            <a class="navbar-brand" href="index.html">
-                <span class="brand-text"><span class="brand-para">para</span><span class="brand-mind">mind</span></span>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+            <span class="brand-text">
+                <a href="index.html">
+                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
+                </a>
+            </span>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+                <span></span>
+                <span></span>
+                <span></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html#features">Features</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html#pricing">Pricing</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="login.html">Login</a>
-                    </li>
-                    <li class="nav-item ms-lg-2">
-                        <a class="btn btn-primary" href="register.html">Get Started Free</a>
-                    </li>
-                </ul>
-            </div>
         </div>
     </nav>
 
-    <!-- Terms Content -->
-    <main class="legal-page">
-        <div class="container">
-            <div class="legal-content">
-                <h1>Terms of Service</h1>
-                <p class="last-updated">Last updated: December 2025</p>
-                
-                <h2>1. Acceptance of Terms</h2>
-                <p>By accessing and using Paramind ("the Service"), you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to these terms, please do not use the Service.</p>
-                
-                <h2>2. Description of Service</h2>
-                <p>Paramind is an AI-powered educational support tool designed for paramedics and student paramedics in the United Kingdom.</p>
-                
-                <h2>3. Educational Tool Disclaimer</h2>
-<p>Paramind is an educational tool only and is NOT a substitute for professional clinical judgment. Important points to understand:</p>
-<ul>
-    <li>All information provided is for educational purposes only</li>
-    <li>Users remain fully responsible for their own clinical decisions</li>
-    <li>The Service should not be used for actual patient care decisions</li>
-    <li>Always verify information against official sources and trust protocols</li>
-    <li>In emergencies, always follow trust protocols and seek senior clinical advice</li>
-</ul>
+    <!-- Content -->
+    <main class="page-content">
+        <h1>Terms of Service</h1>
+        <p class="last-updated">Last updated: December 2025</p>
 
-<h2>4. AI Limitations and Accuracy</h2>
-<p><strong>Paramind uses artificial intelligence which can and does make mistakes.</strong> By using this Service, you acknowledge and accept that:</p>
-<ul>
-    <li>AI-generated responses may contain errors, inaccuracies, or outdated information</li>
-    <li>The AI may misunderstand questions or provide responses that are not clinically appropriate</li>
-    <li>Paramind does not provide treatment advice - for all treatment and management guidance, you must refer to your own JRCalc app and your Trust's clinical guidelines</li>
-    <li>You are solely responsible for verifying any information provided by the Service before relying on it</li>
-    <li>Paramind and its operators accept no responsibility or liability for any errors, omissions, or inaccuracies in AI-generated content</li>
-    <li>Any clinical decisions you make are entirely your own responsibility</li>
-</ul>
-<p>By continuing to use Paramind, you confirm that you understand these limitations and accept full responsibility for how you use the information provided.</p>
-                
-                <h2>5. User Accounts</h2>
-                <p>To access certain features of the Service, you must register for an account. You agree to:</p>
-                <ul>
-                    <li>Provide accurate and complete information during registration</li>
-                    <li>Maintain the security of your account credentials</li>
-                    <li>Notify us immediately of any unauthorised use of your account</li>
-                    <li>Accept responsibility for all activities that occur under your account</li>
-                </ul>
-                
-                <h2>6. Acceptable Use</h2>
-                <p>You agree not to use the Service to:</p>
-                <ul>
-                    <li>Enter any real patient data or personally identifiable health information</li>
-                    <li>Share your account credentials with others</li>
-                    <li>Attempt to access the Service through unauthorized means</li>
-                    <li>Use the Service for any illegal or unauthorized purpose</li>
-                    <li>Interfere with the proper functioning of the Service</li>
-                </ul>
-                
-                <h2>7. Subscription and Payment</h2>
-                <p>The Service offers both free and paid subscription tiers. For paid subscriptions:</p>
-                <ul>
-                    <li>Subscriptions are billed monthly at the rate displayed at signup</li>
-                    <li>You may cancel your subscription at any time</li>
-                    <li>Access continues until the end of your current billing period</li>
-                    <li>No refunds are provided for partial months</li>
-                </ul>
-                
-                <h2>8. Intellectual Property</h2>
-                <p>All content, features, and functionality of the Service are owned by Paramind and are protected by copyright, trademark, and other intellectual property laws.</p>
-                
-                <h2>9. Limitation of Liability</h2>
-                <p>To the maximum extent permitted by law, Paramind shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of the Service.</p>
-                
-                <h2>10. Changes to Terms</h2>
-                <p>We reserve the right to modify these terms at any time. We will notify users of any material changes via email or through the Service.</p>
-                
-                <h2>11. Contact Information</h2>
-                <p>If you have any questions about these Terms of Service, please contact us at <a href="contact.html">our contact page</a>.</p>
-            </div>
-        </div>
+        <h2>1. Acceptance of Terms</h2>
+        <p>By accessing and using Paramind ("the Service"), you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to these terms, please do not use the Service.</p>
+
+        <h2>2. Description of Service</h2>
+        <p>Paramind is an AI-powered educational support tool designed for paramedics and student paramedics in the United Kingdom.</p>
+
+        <h2>3. Educational Tool Disclaimer</h2>
+        <p>Paramind is an educational tool only and is NOT a substitute for professional clinical judgment. Important points to understand:</p>
+        <ul>
+            <li>All information provided is for educational purposes only</li>
+            <li>Users remain fully responsible for their own clinical decisions</li>
+            <li>The Service should not be used for actual patient care decisions</li>
+            <li>Always verify information against official sources and trust protocols</li>
+            <li>In emergencies, always follow trust protocols and seek senior clinical advice</li>
+        </ul>
+
+        <h2>4. AI Limitations and Accuracy</h2>
+        <p><strong>Paramind uses artificial intelligence which can and does make mistakes.</strong> By using this Service, you acknowledge and accept that:</p>
+        <ul>
+            <li>AI-generated responses may contain errors, inaccuracies, or outdated information</li>
+            <li>The AI may misunderstand questions or provide responses that are not clinically appropriate</li>
+            <li>Paramind does not provide treatment advice - for all treatment and management guidance, you must refer to your own JRCalc app and your Trust's clinical guidelines</li>
+            <li>You are solely responsible for verifying any information provided by the Service before relying on it</li>
+            <li>Paramind and its operators accept no responsibility or liability for any errors, omissions, or inaccuracies in AI-generated content</li>
+            <li>Any clinical decisions you make are entirely your own responsibility</li>
+        </ul>
+        <p>By continuing to use Paramind, you confirm that you understand these limitations and accept full responsibility for how you use the information provided.</p>
+
+        <h2>5. User Accounts</h2>
+        <p>To access certain features of the Service, you must register for an account. You agree to:</p>
+        <ul>
+            <li>Provide accurate and complete information during registration</li>
+            <li>Maintain the security of your account credentials</li>
+            <li>Notify us immediately of any unauthorised use of your account</li>
+            <li>Accept responsibility for all activities that occur under your account</li>
+        </ul>
+
+        <h2>6. Acceptable Use</h2>
+        <p>You agree not to use the Service to:</p>
+        <ul>
+            <li>Enter any real patient data or personally identifiable health information</li>
+            <li>Share your account credentials with others</li>
+            <li>Attempt to access the Service through unauthorized means</li>
+            <li>Use the Service for any illegal or unauthorized purpose</li>
+            <li>Interfere with the proper functioning of the Service</li>
+        </ul>
+
+        <h2>7. Subscription and Payment</h2>
+        <p>The Service offers both free and paid subscription tiers. For paid subscriptions:</p>
+        <ul>
+            <li>Subscriptions are billed monthly at the rate displayed at signup</li>
+            <li>You may cancel your subscription at any time</li>
+            <li>Access continues until the end of your current billing period</li>
+            <li>No refunds are provided for partial months</li>
+        </ul>
+
+        <h2>8. Intellectual Property</h2>
+        <p>All content, features, and functionality of the Service are owned by Paramind and are protected by copyright, trademark, and other intellectual property laws.</p>
+
+        <h2>9. Limitation of Liability</h2>
+        <p>To the maximum extent permitted by law, Paramind shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of the Service.</p>
+
+        <h2>10. Changes to Terms</h2>
+        <p>We reserve the right to modify these terms at any time. We will notify users of any material changes via email or through the Service.</p>
+
+        <h2>11. Contact Information</h2>
+        <p>If you have any questions about these Terms of Service, please contact us at <a href="contact.html">our contact page</a>.</p>
     </main>
 
     <!-- Footer -->
-    <footer class="footer py-4">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-4 text-center text-md-start mb-3 mb-md-0">
-                    <span class="brand-text"><span class="brand-para">para</span><span class="brand-mind">mind</span></span>
-                </div>
-                <div class="col-md-4 text-center mb-3 mb-md-0">
-                     <a href="terms.html" class="footer-link me-3">Terms of Service</a>
-                    <a href="privacy.html" class="footer-link me-3">Privacy Policy</a>
-                    <a href="purpose.html" class="footer-link me-3">Intended Purpose</a>
-                    <a href="contact.html" class="footer-link">Contact</a>
-                </div>
-                <div class="col-md-4 text-center text-md-end">
-                    <small class="text-muted">© 2025 Paramind. All rights reserved.</small>
-                </div>
-            </div>
+    <footer class="page-footer">
+        <div class="footer-brand">
+            <span class="brand-para">para</span><span class="brand-mind">mind</span>
         </div>
+        <div class="footer-links">
+            <a href="terms.html">Terms of Service</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="purpose.html">Intended Purpose</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <p class="footer-copyright">© 2025 Paramind. All rights reserved.</p>
     </footer>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Close mobile menu when a nav link is clicked
-        document.querySelectorAll('.navbar-nav a').forEach(link => {
-            link.addEventListener('click', () => {
-                const navbarCollapse = document.querySelector('.navbar-collapse');
-                if (navbarCollapse && navbarCollapse.classList.contains('show')) {
-                    new bootstrap.Collapse(navbarCollapse).hide();
-                }
-            });
-        });
-    </script>
+    <!-- Menu JS -->
+    <script src="js/menu.js"></script>
 </body>
 </html>

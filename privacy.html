@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy | Paramind</title>
+    <title>Privacy Policy | ParaMind</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -11,150 +11,309 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/styles.css">
+    <!-- Menu CSS -->
+    <link rel="stylesheet" href="css/menu.css">
+    
+    <style>
+        :root {
+            --color-teal: #2B8A9C;
+            --color-teal-dark: #1e6b7a;
+            --color-green: #5CB85C;
+            --color-gray-50: #f8f9fa;
+            --color-gray-100: #f1f3f5;
+            --color-gray-200: #e9ecef;
+            --color-gray-300: #dee2e6;
+            --color-gray-500: #6c757d;
+            --color-gray-600: #495057;
+            --color-gray-700: #343a40;
+            --color-gray-800: #212529;
+            --color-white: #ffffff;
+            --font-primary: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --radius-md: 8px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-primary);
+            background: var(--color-gray-50);
+            color: var(--color-gray-700);
+            line-height: 1.6;
+        }
+        
+        /* Navbar */
+        .page-navbar {
+            background: var(--color-white);
+            border-bottom: 1px solid var(--color-gray-200);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .page-navbar .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        /* Brand */
+        .brand-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        
+        .brand-text a {
+            text-decoration: none;
+        }
+        
+        .brand-para {
+            color: var(--color-teal);
+        }
+        
+        .brand-mind {
+            color: var(--color-green);
+        }
+        
+        /* Hamburger Button */
+        .hamburger-btn {
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+            z-index: 1000;
+        }
+        
+        .hamburger-btn:hover {
+            background-color: rgba(43, 138, 156, 0.1);
+        }
+        
+        .hamburger-btn span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background-color: #1a1a2e;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .hamburger-btn.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        
+        .hamburger-btn.active span:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger-btn.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+        
+        /* Content */
+        .page-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+        
+        .page-content h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-content .last-updated {
+            color: var(--color-gray-500);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+        
+        .page-content h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .page-content p {
+            margin-bottom: 1rem;
+        }
+        
+        .page-content ul {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+        
+        .page-content li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-content strong {
+            color: var(--color-gray-800);
+        }
+        
+        .page-content a {
+            color: var(--color-teal);
+        }
+        
+        /* Footer */
+        .page-footer {
+            background: var(--color-white);
+            border-top: 1px solid var(--color-gray-200);
+            padding: 2rem 0;
+            text-align: center;
+        }
+        
+        .footer-brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-links a {
+            color: var(--color-gray-600);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .footer-links a:hover {
+            color: var(--color-teal);
+        }
+        
+        .footer-copyright {
+            color: var(--color-gray-500);
+            font-size: 0.85rem;
+        }
+    </style>
 </head>
+
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+    <nav class="page-navbar">
         <div class="container">
-            <a class="navbar-brand" href="index.html">
-                <span class="brand-text"><span class="brand-para">para</span><span class="brand-mind">mind</span></span>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+            <span class="brand-text">
+                <a href="index.html">
+                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
+                </a>
+            </span>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+                <span></span>
+                <span></span>
+                <span></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html#features">Features</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html#pricing">Pricing</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="login.html">Login</a>
-                    </li>
-                    <li class="nav-item ms-lg-2">
-                        <a class="btn btn-primary" href="register.html">Get Started Free</a>
-                    </li>
-                </ul>
-            </div>
         </div>
     </nav>
 
-    <!-- Privacy Content -->
-    <main class="legal-page">
-        <div class="container">
-            <div class="legal-content">
-                <h1>Privacy Policy</h1>
-                <p class="last-updated">Last updated: December 2025</p>
-                
-                <h2>1. Introduction</h2>
-                <p>Paramind ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our Service.</p>
-                
-                <h2>2. Information We Collect</h2>
-                <p>We collect information that you provide directly to us:</p>
-                <ul>
-                    <li><strong>Account Information:</strong> Email address, password, and ambulance trust selection</li>
-                    <li><strong>Usage Data:</strong> Information about how you use the Service, including chat interactions</li>
-                    <li><strong>Payment Information:</strong> Billing details processed securely through Stripe</li>
-                </ul>
-                
-                <h2>3. How We Use Your Information</h2>
-                <p>We use the information we collect to:</p>
-                <ul>
-                    <li>Provide, maintain, and improve the Service</li>
-                    <li>Process transactions and send related information</li>
-                    <li>Send technical notices and support messages</li>
-                    <li>Respond to your comments and questions</li>
-                    <li>Analyze usage patterns to improve user experience</li>
-                </ul>
-                
-                <h2>4. Data Storage and Security</h2>
-                <p>We implement appropriate technical and organizational measures to protect your personal data:</p>
-                <ul>
-                    <li>All data is encrypted in transit using TLS/SSL</li>
-                    <li>Data is stored on secure servers provided by Firebase/Google Cloud</li>
-                    <li>Access to personal data is restricted to authorized personnel only</li>
-                    <li>We regularly review and update our security practices</li>
-                </ul>
-                
-                <h2>5. Important Notice About Health Data</h2>
-                <p><strong>Do not enter any real patient data or personally identifiable health information into Paramind.</strong> The Service is designed for educational purposes only using hypothetical scenarios. We are not designed to store or process actual patient health records.</p>
-                
-                <h2>6. Data Retention</h2>
-                <p>We retain your personal information for as long as your account is active or as needed to provide you with the Service. You may request deletion of your account and associated data at any time.</p>
-                
-                <h2>7. Your Rights Under GDPR</h2>
-                <p>If you are in the UK or European Economic Area, you have the following rights:</p>
-                <ul>
-                    <li><strong>Right of Access:</strong> Request a copy of your personal data</li>
-                    <li><strong>Right to Rectification:</strong> Request correction of inaccurate data</li>
-                    <li><strong>Right to Erasure:</strong> Request deletion of your data</li>
-                    <li><strong>Right to Portability:</strong> Request transfer of your data</li>
-                    <li><strong>Right to Object:</strong> Object to processing of your data</li>
-                    <li><strong>Right to Restrict Processing:</strong> Request restriction of data processing</li>
-                </ul>
-                
-                <h2>8. Cookies</h2>
-                <p>We use essential cookies to maintain your session and provide core functionality. We do not use advertising or tracking cookies.</p>
-                
-                <h2>9. Third-Party Services</h2>
-                <p>We use the following third-party services:</p>
-                <ul>
-                    <li><strong>Firebase:</strong> Authentication and database services</li>
-                    <li><strong>Stripe:</strong> Payment processing</li>
-                    <li><strong>OpenAI:</strong> AI chat functionality</li>
-                </ul>
-                <p>Each of these services has their own privacy policy governing data handling.</p>
-                
-                <h2>10. Changes to This Policy</h2>
-                <p>We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date.</p>
-                
-                <h2>11. Contact Us</h2>
-                <p>If you have any questions about this Privacy Policy or wish to exercise your data rights, please contact us at <a href="contact.html">our contact page</a>.</p>
-            </div>
-        </div>
+    <!-- Content -->
+    <main class="page-content">
+        <h1>Privacy Policy</h1>
+        <p class="last-updated">Last updated: December 2025</p>
+
+        <h2>1. Introduction</h2>
+        <p>Paramind ("we", "us", or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our Service.</p>
+
+        <h2>2. Information We Collect</h2>
+        <p>We collect information you provide directly to us:</p>
+        <ul>
+            <li><strong>Account Information:</strong> Email address, first name, and ambulance trust when you register</li>
+            <li><strong>Usage Data:</strong> Information about how you interact with the Service, including features used and session duration</li>
+            <li><strong>Payment Information:</strong> Processed securely through Stripe; we do not store your card details</li>
+        </ul>
+
+        <h2>3. How We Use Your Information</h2>
+        <p>We use your information to:</p>
+        <ul>
+            <li>Provide, maintain, and improve the Service</li>
+            <li>Process transactions and send related information</li>
+            <li>Send you technical notices and support messages</li>
+            <li>Respond to your comments and questions</li>
+            <li>Monitor and analyse trends, usage, and activities</li>
+        </ul>
+
+        <h2>4. Data Storage and Security</h2>
+        <p>We use Firebase (Google Cloud) to store your data securely. We implement appropriate technical and organisational measures to protect your personal information against unauthorised access, alteration, disclosure, or destruction.</p>
+
+        <h2>5. Important: No Patient Data</h2>
+        <p><strong>You must never enter real patient data or personally identifiable health information into Paramind.</strong> The Service is designed for educational purposes only, using fictional scenarios. Any data entered into scenarios or chat is processed to provide AI responses but should never contain real patient information.</p>
+
+        <h2>6. Data Retention</h2>
+        <p>We retain your account information for as long as your account is active. You can request deletion of your account and associated data at any time by contacting us.</p>
+
+        <h2>7. Third-Party Services</h2>
+        <p>We use the following third-party services:</p>
+        <ul>
+            <li><strong>Firebase/Google Cloud:</strong> Authentication and data storage</li>
+            <li><strong>Stripe:</strong> Payment processing</li>
+            <li><strong>Anthropic:</strong> AI services for generating educational content</li>
+        </ul>
+        <p>These services have their own privacy policies governing the use of your information.</p>
+
+        <h2>8. Your Rights (GDPR)</h2>
+        <p>Under UK GDPR, you have the right to:</p>
+        <ul>
+            <li>Access your personal data</li>
+            <li>Rectify inaccurate personal data</li>
+            <li>Request erasure of your personal data</li>
+            <li>Object to processing of your personal data</li>
+            <li>Request restriction of processing</li>
+            <li>Data portability</li>
+        </ul>
+        <p>To exercise these rights, please contact us at <a href="contact.html">our contact page</a>.</p>
+
+        <h2>9. Cookies</h2>
+        <p>We use essential cookies required for the Service to function, including authentication cookies. We do not use tracking or advertising cookies.</p>
+
+        <h2>10. Changes to This Policy</h2>
+        <p>We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date.</p>
+
+        <h2>11. Contact Us</h2>
+        <p>If you have any questions about this Privacy Policy, please contact us at <a href="contact.html">our contact page</a>.</p>
     </main>
 
     <!-- Footer -->
-    <footer class="footer py-4">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-4 text-center text-md-start mb-3 mb-md-0">
-                    <span class="brand-text"><span class="brand-para">para</span><span class="brand-mind">mind</span></span>
-                </div>
-                <div class="col-md-4 text-center mb-3 mb-md-0">
-                    <a href="terms.html" class="footer-link me-3">Terms of Service</a>
-                    <a href="privacy.html" class="footer-link me-3">Privacy Policy</a>
-                    <a href="purpose.html" class="footer-link me-3">Intended Purpose</a>
-                    <a href="contact.html" class="footer-link">Contact</a>
-                </div>
-                <div class="col-md-4 text-center text-md-end">
-                    <small class="text-muted">© 2025 Paramind. All rights reserved.</small>
-                </div>
-            </div>
+    <footer class="page-footer">
+        <div class="footer-brand">
+            <span class="brand-para">para</span><span class="brand-mind">mind</span>
         </div>
+        <div class="footer-links">
+            <a href="terms.html">Terms of Service</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="purpose.html">Intended Purpose</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <p class="footer-copyright">© 2025 Paramind. All rights reserved.</p>
     </footer>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Close mobile menu when a nav link is clicked
-        document.querySelectorAll('.navbar-nav a').forEach(link => {
-            link.addEventListener('click', () => {
-                const navbarCollapse = document.querySelector('.navbar-collapse');
-                if (navbarCollapse && navbarCollapse.classList.contains('show')) {
-                    new bootstrap.Collapse(navbarCollapse).hide();
-                }
-            });
-        });
-    </script>
+    <!-- Menu JS -->
+    <script src="js/menu.js"></script>
 </body>
 </html>

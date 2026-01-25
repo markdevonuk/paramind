@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Us | Paramind</title>
+    <title>Contact Us | ParaMind</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -11,138 +11,302 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/styles.css">
+    <!-- Menu CSS -->
+    <link rel="stylesheet" href="css/menu.css">
+    
+    <style>
+        :root {
+            --color-teal: #2B8A9C;
+            --color-teal-dark: #1e6b7a;
+            --color-green: #5CB85C;
+            --color-gray-50: #f8f9fa;
+            --color-gray-100: #f1f3f5;
+            --color-gray-200: #e9ecef;
+            --color-gray-300: #dee2e6;
+            --color-gray-500: #6c757d;
+            --color-gray-600: #495057;
+            --color-gray-700: #343a40;
+            --color-gray-800: #212529;
+            --color-white: #ffffff;
+            --font-primary: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-primary);
+            background: var(--color-gray-50);
+            color: var(--color-gray-700);
+            line-height: 1.6;
+        }
+        
+        /* Navbar */
+        .page-navbar {
+            background: var(--color-white);
+            border-bottom: 1px solid var(--color-gray-200);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .page-navbar .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        /* Brand */
+        .brand-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        
+        .brand-text a {
+            text-decoration: none;
+        }
+        
+        .brand-para {
+            color: var(--color-teal);
+        }
+        
+        .brand-mind {
+            color: var(--color-green);
+        }
+        
+        /* Hamburger Button */
+        .hamburger-btn {
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+            z-index: 1000;
+        }
+        
+        .hamburger-btn:hover {
+            background-color: rgba(43, 138, 156, 0.1);
+        }
+        
+        .hamburger-btn span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background-color: #1a1a2e;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .hamburger-btn.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        
+        .hamburger-btn.active span:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger-btn.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+        
+        /* Content */
+        .page-content {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+        
+        .page-content h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-content .subtitle {
+            color: var(--color-gray-500);
+            margin-bottom: 2rem;
+        }
+        
+        /* Contact Cards */
+        .contact-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        
+        .contact-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-gray-800);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .contact-card h3 i {
+            color: var(--color-teal);
+        }
+        
+        .contact-card p {
+            margin: 0;
+            color: var(--color-gray-600);
+        }
+        
+        .contact-card a {
+            color: var(--color-teal);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .contact-card a:hover {
+            text-decoration: underline;
+        }
+        
+        .manage-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-teal-dark) 100%);
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        
+        .manage-btn:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(43, 138, 156, 0.3);
+        }
+        
+        /* Footer */
+        .page-footer {
+            background: var(--color-white);
+            border-top: 1px solid var(--color-gray-200);
+            padding: 2rem 0;
+            text-align: center;
+        }
+        
+        .footer-brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-links a {
+            color: var(--color-gray-600);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .footer-links a:hover {
+            color: var(--color-teal);
+        }
+        
+        .footer-copyright {
+            color: var(--color-gray-500);
+            font-size: 0.85rem;
+        }
+    </style>
 </head>
+
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+    <nav class="page-navbar">
         <div class="container">
-            <a class="navbar-brand" href="index.html">
-                <span class="brand-text"><span class="brand-para">para</span><span class="brand-mind">mind</span></span>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+            <span class="brand-text">
+                <a href="index.html">
+                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
+                </a>
+            </span>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+                <span></span>
+                <span></span>
+                <span></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html#features">Features</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html#pricing">Pricing</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="login.html">Login</a>
-                    </li>
-                    <li class="nav-item ms-lg-2">
-                        <a class="btn btn-primary" href="register.html">Get Started Free</a>
-                    </li>
-                </ul>
-            </div>
         </div>
     </nav>
 
-    <!-- Contact Content -->
-    <main class="contact-page">
-        <div class="container">
-            <div class="row justify-content-center">
-            
-            <div class="col-lg-6">
-                    <div class="text-center mb-5">
-                        <h1>.</h1>
-                        <p class="text-muted">     </p>
-                    </div>
-            
-            </div>
-            
-            <div class="row justify-content-center">
-                <div class="col-lg-6">
-                    <div class="text-center mb-5">
-                        <h1>Contact Us</h1>
-                        <p class="text-muted">Have a question or feedback? We'd love to hear from you.</p>
-                    </div>
-                    
-                    <!-- Contact Information -->
-                    <div class="contact-card">
-                        <div class="contact-info-item">
-                            <i class="bi bi-envelope"></i>
-                            <div>
-                                <h3>Email</h3>
-                                <p><a href="mailto:markdevon@gmail.com">markdevon@gmail.com</a></p>
-                            </div>
-                        </div>
-                        
-                        <div class="contact-info-item">
-                            <i class="bi bi-clock"></i>
-                            <div>
-                                <h3>Response Time</h3>
-                                <p>We aim to respond within 24-48 hours</p>
-                            </div>
-                        </div>
-                        
-                        <hr class="my-4">
-                        
-                        <div class="contact-info-item">
-                            <i class="bi bi-credit-card"></i>
-                            <div>
-                                <h3>Manage Subscription</h3>
-                                <p>To cancel or manage your subscription, you can <a href="https://billing.stripe.com/p/login/dRmfZgdHvdva3VWgA3dIA00" target="_blank">click here</a> to do this immediately</p>
-                            </div>
-                        </div>
-                        
-                        <hr class="my-4">
-                        
-                        <div class="contact-info-item mb-0">
-                            <i class="bi bi-shield-check"></i>
-                            <div>
-                                <h3>Data Requests</h3>
-                                <p>For GDPR data requests, please email us with your registered email address</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Content -->
+    <main class="page-content">
+        <h1>Contact Us</h1>
+        <p class="subtitle">Have a question or feedback? We'd love to hear from you.</p>
+
+        <div class="contact-card">
+            <h3><i class="bi bi-envelope"></i> Email</h3>
+            <p><a href="mailto:markdevon@gmail.com">markdevon@gmail.com</a></p>
+        </div>
+
+        <div class="contact-card">
+            <h3><i class="bi bi-clock"></i> Response Time</h3>
+            <p>We aim to respond within 24-48 hours</p>
+        </div>
+
+        <div class="contact-card">
+            <h3><i class="bi bi-credit-card"></i> Manage Subscription</h3>
+            <p>To cancel or manage your subscription:</p>
+            <a href="https://billing.stripe.com/p/login/dRmfZgdHvdva3VWgA3dIA00" class="manage-btn">
+                <i class="bi bi-gear"></i>
+                Manage Subscription
+            </a>
+        </div>
+
+        <div class="contact-card">
+            <h3><i class="bi bi-shield-lock"></i> Data Requests</h3>
+            <p>For GDPR data requests, please email us with your registered email address.</p>
         </div>
     </main>
 
     <!-- Footer -->
-    <footer class="footer py-4">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-4 text-center text-md-start mb-3 mb-md-0">
-                    <span class="brand-text"><span class="brand-para">para</span><span class="brand-mind">mind</span></span>
-                </div>
-                <div class="col-md-4 text-center mb-3 mb-md-0">
-                    <a href="terms.html" class="footer-link me-3">Terms of Service</a>
-                    <a href="privacy.html" class="footer-link me-3">Privacy Policy</a>
-                    <a href="purpose.html" class="footer-link me-3">Intended Purpose</a>
-                    <a href="contact.html" class="footer-link">Contact</a>
-                </div>
-                <div class="col-md-4 text-center text-md-end">
-                    <small class="text-muted">© 2025 Paramind. All rights reserved.</small>
-                </div>
-            </div>
+    <footer class="page-footer">
+        <div class="footer-brand">
+            <span class="brand-para">para</span><span class="brand-mind">mind</span>
         </div>
+        <div class="footer-links">
+            <a href="terms.html">Terms of Service</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="purpose.html">Intended Purpose</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <p class="footer-copyright">© 2025 Paramind. All rights reserved.</p>
     </footer>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Close mobile menu when a nav link is clicked
-        document.querySelectorAll('.navbar-nav a').forEach(link => {
-            link.addEventListener('click', () => {
-                const navbarCollapse = document.querySelector('.navbar-collapse');
-                if (navbarCollapse && navbarCollapse.classList.contains('show')) {
-                    new bootstrap.Collapse(navbarCollapse).hide();
-                }
-            });
-        });
-    </script>
+    <!-- Menu JS -->
+    <script src="js/menu.js"></script>
 </body>
 </html>
