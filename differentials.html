@@ -73,33 +73,19 @@
             text-decoration: none;
         }
         
-        /* Main Container - Single column on mobile, split on desktop */
+        /* Main Container - Single scrolling column */
         .main-container {
             flex: 1;
             overflow-y: auto;
-        }
-        
-        @media (min-width: 992px) {
-            .main-container {
-                display: flex;
-                flex-direction: row;
-                overflow: hidden;
-            }
+            max-width: 700px;
+            margin: 0 auto;
+            width: 100%;
         }
         
         /* Form Panel */
         .form-panel {
             padding: 1.5rem;
             background: var(--color-white);
-        }
-        
-        @media (min-width: 992px) {
-            .form-panel {
-                width: 420px;
-                flex-shrink: 0;
-                border-right: 1px solid var(--color-gray-200);
-                overflow-y: auto;
-            }
         }
         
         .form-header {
@@ -242,30 +228,15 @@
         
         /* Response Panel */
         .response-panel {
-            display: flex;
+            display: none;
             flex-direction: column;
             background: var(--color-gray-50);
-        }
-        
-        /* Mobile: hidden by default, shown when has content */
-        .response-panel.hidden-mobile {
-            display: none;
+            border-top: 1px solid var(--color-gray-200);
         }
         
         .response-panel.has-content {
             display: flex;
             min-height: 300px;
-        }
-        
-        @media (min-width: 992px) {
-            .response-panel {
-                flex: 1;
-                overflow: hidden;
-            }
-            
-            .response-panel.hidden-mobile {
-                display: flex;
-            }
         }
         
         .response-header {
@@ -438,12 +409,6 @@
             font-weight: 500;
         }
         
-        /* Desktop: overflow in response content */
-        @media (min-width: 992px) {
-            .response-content {
-                overflow-y: auto;
-            }
-        }
     </style>
 </head>
 
@@ -574,7 +539,7 @@
         </div>
         
         <!-- ==================== RESPONSE PANEL ==================== -->
-        <div class="response-panel hidden-mobile" id="responsePanel">
+        <div class="response-panel" id="responsePanel">
             <div class="response-header">
                 <h2><i class="bi bi-robot"></i> AI Guidance</h2>
                 <button class="clear-btn" id="clearBtn">
@@ -877,8 +842,7 @@
             
             const prompt = buildPatientPrompt(patientData);
             
-            // Show response panel (especially important on mobile)
-            elements.responsePanel.classList.remove('hidden-mobile');
+            // Show response panel
             elements.responsePanel.classList.add('has-content');
             elements.emptyState.style.display = 'none';
             elements.responseArea.style.display = 'block';
@@ -892,10 +856,8 @@
                 </div>
             `;
             
-            // Scroll to response on mobile
-            if (window.innerWidth < 992) {
-                elements.responsePanel.scrollIntoView({ behavior: 'smooth' });
-            }
+            // Scroll to response
+            elements.responsePanel.scrollIntoView({ behavior: 'smooth' });
             
             const streamingText = document.getElementById('streamingText');
             const responseMessage = document.getElementById('responseMessage');
@@ -954,13 +916,10 @@
             elements.responseArea.style.display = 'none';
             elements.responseArea.innerHTML = '';
             elements.clearBtn.classList.remove('visible');
-            elements.responsePanel.classList.add('hidden-mobile');
             elements.responsePanel.classList.remove('has-content');
             
-            // Scroll back to top on mobile
-            if (window.innerWidth < 992) {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
+            // Scroll back to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // ==================== LIMIT REACHED ====================
