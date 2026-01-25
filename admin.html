@@ -367,11 +367,11 @@
                     
                     allUsers.push(user);
                     
-                    if (user.subscriptionStatus === 'free') {
-                        freeUsersList.push(user);
-                    } else {
-                        paidUsersList.push(user);
-                    }
+                    if (user.subscriptionStatus === 'active') {
+    paidUsersList.push(user);
+} else {
+    freeUsersList.push(user);
+}
                 });
                 
                 // Sort by creation date (newest first)
@@ -436,9 +436,9 @@
                     year: 'numeric'
                 }) : 'Unknown';
                 
-                const statusBadge = user.subscriptionStatus === 'free' 
-                    ? '<span class="badge badge-free">Free</span>'
-                    : '<span class="badge badge-paid">Paid</span>';
+                const statusBadge = user.subscriptionStatus === 'active' 
+    ? '<span class="badge badge-paid">Paid</span>'
+    : '<span class="badge badge-free">Free</span>';
                 
                 if (showStatus) {
                     return `
