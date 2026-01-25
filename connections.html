@@ -393,10 +393,22 @@
         }
         
         .hollie-bubble p {
-            margin: 0;
+            margin: 0 0 0.75rem 0;
             color: var(--color-gray-700);
             line-height: 1.7;
             font-size: 0.95rem;
+        }
+        
+        .hollie-bubble p:last-of-type {
+            margin-bottom: 0;
+        }
+        
+        .hollie-content p {
+            margin: 0 0 0.75rem 0;
+        }
+        
+        .hollie-content p:last-child {
+            margin-bottom: 0;
         }
         
         /* Typing indicator */
@@ -1252,16 +1264,23 @@ Remember: This is for EDUCATION only - never give treatment advice. If treatment
                                 
                                 if (data.type === 'chunk') {
                                     if (isFirstChunk) {
-                                        // Replace typing indicator with empty paragraph
-                                        hollieBubble.innerHTML = '<p></p><span class="typewriter-cursor"></span>';
+                                        // Replace typing indicator with content div
+                                        hollieBubble.innerHTML = '<div class="hollie-content"></div><span class="typewriter-cursor"></span>';
                                         isFirstChunk = false;
                                     }
                                     
                                     fullMessage += data.content;
                                     
+                                    // Format the message with proper paragraphs
+                                    let formattedMessage = fullMessage
+                                        // Convert double newlines to paragraph breaks
+                                        .split('\n\n')
+                                        .map(para => `<p>${para.replace(/\n/g, '<br>')}</p>`)
+                                        .join('');
+                                    
                                     // Update with typewriter effect
-                                    const p = hollieBubble.querySelector('p');
-                                    p.textContent = fullMessage;
+                                    const contentDiv = hollieBubble.querySelector('.hollie-content');
+                                    contentDiv.innerHTML = formattedMessage;
                                     
                                     // Keep cursor at end
                                     const cursor = hollieBubble.querySelector('.typewriter-cursor');
