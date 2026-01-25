@@ -249,7 +249,7 @@ exports.chat = onRequest(
 
 /**
  * GET /user
- * Get the current user's profile
+ * Get the current user's profile and update last login time
  */
 exports.user = onRequest({ cors: true }, async (req, res) => {
   if (req.method !== "GET") {
@@ -262,6 +262,11 @@ exports.user = onRequest({ cors: true }, async (req, res) => {
 
     // Check message limit status
     const limitCheck = await checkMessageLimit(user);
+
+    // Update last login time (runs in background, doesn't slow down response)
+    db.collection("users").doc(uid).update({
+      lastLogin: new Date().toISOString()
+    }).catch(err => console.warn("Could not update lastLogin:", err));
 
     return res.status(200).json({
       uid: user.id,
