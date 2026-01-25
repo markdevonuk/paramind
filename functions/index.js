@@ -421,27 +421,47 @@ exports.stripeWebhook = onRequest(
   break;
 }
 
-      case "customer.subscription.updated": {
-        const subscription = event.data.object;
-        const customerId = subscription.customer;
+     case "customer.subscription.updated": {
+  const subscription = event.data.object;
+  const customerId = subscription.customer;
 
-        // Find user by Stripe customer ID
-        const usersSnapshot = await db
-          .collection("users")
-          .where("stripeCustomerId", "==", customerId)
-          .get();
+  // Find user by Stripe customer ID
+  const usersSnapshot = await db
+    .collection("users")
+    .where("stripeCustomerId", "==", customerId)
+    .get();
 
-        if (!usersSnapshot.empty) {
-          const userDoc = usersSnapshot.docs[0];
-          const status = subscription.status === "active" ? "active" : "cancelled";
+  if (!usersSnapshot.empty) {
+    const userDoc = usersSnapshot.docs[0];
+    
+    // Keep user active if subscription is still active (even if they've cancelled)
+    // They keep access until the billing period ends
+    const isStillActive = subscription.status === "active";
+    
+    const updateData = {
+      subscriptionStatus: isStillActive ? "active" : "cancelled",
+    };
+    
+    // Track if they've cancelled (so we can show them when access expires)
+    if (subscription.cancel_at_period_end) {
+      updateData.cancelledAt = admin.firestore.FieldValue.serverTimestamp();
+      updateData.accessExpiresAt = new Date(subscription.current_period_end * 1000);
+    } else {
+      // They might have re-subscribed or un-cancelled
+      updateData.cancelledAt = null;
+      updateData.accessExpiresAt = null;
+    }
 
-          await userDoc.ref.update({
-            subscriptionStatus: status,
-          });
-          console.log(`Subscription updated for user: ${userDoc.id}, status: ${status}`);
-        }
-        break;
-      }
+    await userDoc.ref.update(updateData);
+    
+    if (subscription.cancel_at_period_end) {
+      console.log(`User ${userDoc.id} cancelled - access continues until ${new Date(subscription.current_period_end * 1000).toISOString()}`);
+    } else {
+      console.log(`Subscription updated for user: ${userDoc.id}, status: ${updateData.subscriptionStatus}`);
+    }
+  }
+  break;
+}
 
       case "customer.subscription.deleted": {
         const subscription = event.data.object;
