@@ -1195,9 +1195,9 @@
             // Update monitor display
             document.getElementById('monitorHR').style.display = mode === 'learn' ? 'flex' : 'none';
             
-            // Hide No Pulse indicator when in learn mode
-            if (mode === 'learn') {
-                document.getElementById('noPulseIndicator').style.display = 'none';
+            // Hide emergency banner in quiz mode (would give away the answer)
+            if (mode === 'quiz') {
+                document.getElementById('emergencyBanner').style.display = 'none';
             }
             
             if (mode === 'quiz') {
@@ -1256,6 +1256,14 @@
             // Show/hide emergency banner
             const banner = document.getElementById('emergencyBanner');
             banner.style.display = rhythm.emergency ? 'block' : 'none';
+            
+            // Show/hide No Pulse indicator for PEA and pulseless VT
+            const noPulseIndicator = document.getElementById('noPulseIndicator');
+            if (selectedRhythm === 'pea' || selectedRhythm === 'ventricularTachycardia') {
+                noPulseIndicator.style.display = 'flex';
+            } else {
+                noPulseIndicator.style.display = 'none';
+            }
         }
         
         function updateRate(value) {
@@ -1301,6 +1309,9 @@
             
             // Update question number
             document.getElementById('questionNumber').textContent = currentQuizIndex + 1;
+            
+            // Always hide emergency banner in quiz mode (would give away the answer)
+            document.getElementById('emergencyBanner').style.display = 'none';
             
             // Show/hide No Pulse indicator for PEA and pulseless VT
             const noPulseIndicator = document.getElementById('noPulseIndicator');
@@ -1781,7 +1792,7 @@
         
         // ==================== SUBSCRIPTION CHECK ====================
         // Uncomment this function if you want to use Firebase auth
-   
+        /*
         function checkSubscription() {
             firebase.auth().onAuthStateChanged(function(user) {
                 if (user) {
@@ -1801,7 +1812,7 @@
                 }
             });
         }
-    
+        */
     </script>
 </body>
 </html>
