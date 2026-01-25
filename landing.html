@@ -669,6 +669,9 @@
     <!-- Menu JS -->
     <script src="js/menu-v2.js"></script>
     
+    <!-- App JS (shared config) -->
+    <script src="js/app.js"></script>
+    
     <!-- Page Script -->
     <script>
         // ==================== FIREBASE CONFIG ====================
@@ -812,14 +815,41 @@
         }
 
         // ==================== UPGRADE HANDLER ====================
-        function handleUpgrade() {
-            // This should integrate with your Stripe checkout
-            if (typeof createCheckoutSession === 'function') {
-                createCheckoutSession();
-            } else {
-                // Fallback - you can implement Stripe checkout here
-                alert('Upgrade functionality coming soon! Contact support for early access.');
+        async function createCheckoutSession() {
+            try {
+                const user = auth.currentUser;
+                if (!user) {
+                    alert('Please sign in to upgrade');
+                    return;
+                }
+                
+                const token = await user.getIdToken();
+                const baseUrl = window.paramind?.CONFIG?.api?.baseUrl || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
+                const checkoutEndpoint = window.paramind?.CONFIG?.api?.createCheckout || '/createCheckoutSession';
+                
+                const response = await fetch(`${baseUrl}${checkoutEndpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to create checkout session');
+                }
+                
+                window.location.href = data.url;
+            } catch (error) {
+                console.error('Checkout error:', error);
+                alert('Failed to start checkout. Please try again.');
             }
+        }
+        
+        function handleUpgrade() {
+            createCheckoutSession();
         }
 
         // ==================== CHECK FOR UPGRADE PARAM ====================
