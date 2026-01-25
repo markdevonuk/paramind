@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title>Chat | ParaMind</title>
+    <title>Chat with Hollie | ParaMind</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -142,14 +142,15 @@
         }
         
         .message-avatar {
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
             font-size: 1rem;
+            overflow: hidden;
         }
         
         .message.user .message-avatar {
@@ -158,8 +159,14 @@
         }
         
         .message.assistant .message-avatar {
-            background: var(--color-gray-200);
-            color: var(--color-gray-700);
+            border: 2px solid var(--color-teal);
+            padding: 0;
+        }
+        
+        .message.assistant .message-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         
         .message-content {
@@ -167,7 +174,7 @@
             padding: 0.875rem 1rem;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-sm);
-            line-height: 1.5;
+            line-height: 1.6;
         }
         
         .message.user .message-content {
@@ -197,7 +204,7 @@
             white-space: pre-wrap;
             word-wrap: break-word;
             font-size: inherit;
-            line-height: 1.5;
+            line-height: 1.6;
         }
         
         /* Message content formatting */
@@ -239,6 +246,14 @@
             margin-top: 0;
         }
         
+        .message-content strong {
+            color: var(--color-teal);
+        }
+        
+        .message.user .message-content strong {
+            color: white;
+        }
+        
         /* Typing indicator */
         .typing-indicator {
             display: flex;
@@ -265,34 +280,51 @@
         /* Welcome Message */
         .welcome-message {
             text-align: center;
-            padding: 3rem 1rem;
+            padding: 2rem 1rem;
             max-width: 500px;
             margin: auto;
         }
         
-        .welcome-icon {
-            width: 80px;
-            height: 80px;
+        .welcome-avatar {
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
-            background: linear-gradient(135deg, rgba(43, 138, 156, 0.1) 0%, rgba(92, 184, 92, 0.1) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
-            font-size: 2rem;
-            color: var(--color-teal);
+            border: 4px solid var(--color-teal);
+            overflow: hidden;
+            margin: 0 auto 1.25rem;
+        }
+        
+        .welcome-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         
         .welcome-message h2 {
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--color-gray-800);
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.5rem;
         }
         
-        .welcome-message p {
+        .hollie-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            background: rgba(43, 138, 156, 0.1);
+            color: var(--color-teal);
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .welcome-message .intro-text {
             color: var(--color-gray-600);
             margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
         }
         
         .welcome-disclaimer {
@@ -466,31 +498,29 @@
             background: rgba(43, 138, 156, 0.05);
         }
         
-        /* === Make ParaMind header BIGGER on chat.html === */
-.chat-navbar{
-  padding: 1.25rem 0;           /* was 0.75rem 0 */
-}
+        /* Make ParaMind header BIGGER */
+        .chat-navbar {
+            padding: 1.25rem 0;
+        }
 
-.chat-navbar .navbar-brand{
-  font-size: 1.8rem;            /* bump this up */
-  line-height: 1;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-}
+        .chat-navbar .navbar-brand {
+            font-size: 1.8rem;
+            line-height: 1;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+        }
 
-/* Ensure your split spans scale with the brand */
-.chat-navbar .brand-para,
-.chat-navbar .brand-mind{
-  font-size: inherit;
-  line-height: inherit;
-}
-
+        .chat-navbar .brand-para,
+        .chat-navbar .brand-mind {
+            font-size: inherit;
+            line-height: inherit;
+        }
     </style>
 </head>
 
 <body class="chat-page">
-     <!-- ==================== NAVIGATION ==================== -->
+    <!-- ==================== NAVIGATION ==================== -->
     <nav class="chat-navbar">
         <div class="container">
             <span class="brand-text">
@@ -529,15 +559,20 @@
             
             <!-- Welcome Message -->
             <div class="welcome-message" id="welcomeMessage">
-                <div class="welcome-icon">
-                    <i class="bi bi-chat-heart"></i>
+                <div class="welcome-avatar">
+                    <img src="images/hollie.png" alt="Hollie">
                 </div>
                 <h2>
-                    Welcome to 
-                    <span class="brand-text"><span class="brand-para">para</span><span class="brand-mind">mind</span> Chat</span>
+                    Hey, I'm Hollie! 👋
                     <span id="proBadgeWelcome" class="pro-badge-welcome" style="display: none;">PRO</span>
                 </h2>
-                <p>I'm here to help with your clinical learning. Ask me anything about paramedicine.</p>
+                <div class="hollie-badge">
+                    <i class="bi bi-patch-check-fill"></i> Paramedic Tutor
+                </div>
+                <p class="intro-text">
+                    I'm your friendly AI paramedic tutor, here to help with your clinical learning. 
+                    Ask me anything about anatomy, physiology, pathophysiology, or paramedicine - I'll explain it like we're having a chat over a cuppa! ☕
+                </p>
                 
                 <!-- Quick Actions -->
                 <div class="quick-actions">
@@ -550,12 +585,11 @@
                     <button class="quick-action-btn" onclick="sendQuickMessage('Explain ABCDE assessment')">
                         <i class="bi bi-list-check me-1"></i>ABCDE Assessment
                     </button>
-                    
                 </div>
                 <p><br></p>
                 <div class="welcome-disclaimer">
                     <i class="bi bi-exclamation-triangle me-2"></i>
-                    Educational tool only. Always verify information and follow your trust's guidelines.
+                    Educational tool only. Always verify information and follow your trust's guidelines and JRCalc.
                 </div>
             </div>
             
@@ -568,7 +602,7 @@
                     <textarea 
                         class="chat-input" 
                         id="messageInput" 
-                        placeholder="Ask me anything about paramedicine..."
+                        placeholder="Ask Hollie anything about paramedicine..."
                         rows="1"
                     ></textarea>
                 </div>
@@ -625,7 +659,6 @@
         const db = firebase.firestore();
 
         // ==================== API CONFIG ====================
-        // Use shared config from app.js if available, otherwise use fallback
         const API_CONFIG = {
             get baseUrl() {
                 return window.paramind?.CONFIG?.api?.baseUrl || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
@@ -634,6 +667,32 @@
                 return window.paramind?.CONFIG?.api?.chat || '/chat';
             }
         };
+
+        // ==================== HOLLIE'S PERSONALITY ====================
+        const HOLLIE_SYSTEM_PROMPT = `You are Hollie, a friendly and experienced UK paramedic who loves teaching clinical knowledge to fellow paramedics and students. You explain things in a warm, conversational way - like you're chatting to a colleague over a cuppa.
+
+Your personality:
+- Friendly and approachable - use "you" and speak directly to the learner
+- Enthusiastic about your topics - you find paramedicine genuinely fascinating
+- Practical - always link theory to what we see on the road
+- Encouraging - make learners feel confident
+- Use phrases like "So basically...", "The cool thing is...", "You'll often see...", "Think of it like...", "In my experience..."
+
+Your style:
+- Start responses with a friendly opener when appropriate (e.g., "Great question!", "Ah, this is a really important one!", "Ooh I love this topic!")
+- Keep it conversational - write like you're talking, not lecturing
+- Use UK spelling and terminology (e.g., "colour", "organisation", "A&E", "999")
+- Link clinical concepts to real-world scenarios paramedics encounter
+- End with an encouraging note or practical tip when relevant
+
+Important rules:
+- This is for EDUCATION only - never give specific treatment advice for live patients
+- If treatment questions come up, remind them to check JRCalc and local guidelines
+- Never diagnose - you can discuss differentials for learning but always emphasise clinical assessment
+- Keep responses helpful but not overly long - be concise where possible
+- Use markdown formatting for lists and emphasis when it helps clarity
+
+Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable! 🚑`;
 
         // ==================== STATE ====================
         const chatState = {
@@ -672,7 +731,6 @@
                     console.error('Error fetching user data:', error);
                 }
             } else {
-                // Not logged in - redirect to login
                 window.location.href = 'login.html';
             }
         });
@@ -680,11 +738,9 @@
         // ==================== UPDATE UI ====================
         function updateUIForUser() {
             if (chatState.isPro) {
-                // Pro user
                 elements.messageLimitBanner.style.display = 'none';
                 elements.proBadgeWelcome.style.display = 'inline';
             } else {
-                // Free user
                 elements.messageLimitBanner.style.display = 'flex';
                 elements.proBadgeWelcome.style.display = 'none';
                 updateMessageCounter();
@@ -705,13 +761,11 @@
         // ==================== MESSAGE FORMATTING ====================
         function formatMessage(content) {
             // Convert bullet characters (•) to markdown list syntax
-            // This handles API responses that use • instead of - or *
             let processed = content.replace(/^[ \t]*•[ \t]*/gm, '- ');
             
             if (typeof marked !== 'undefined') {
                 return marked.parse(processed);
             }
-            // Fallback: basic formatting
             return processed
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\*(.*?)\*/g, '<em>$1</em>')
@@ -785,6 +839,7 @@
                 body: JSON.stringify({
                     message: message,
                     conversationHistory: chatState.conversationHistory.slice(-10).filter(m => m.role !== 'system'),
+                    systemPrompt: HOLLIE_SYSTEM_PROMPT,
                     scenarioId: null,
                     scenarioPrompt: null
                 })
@@ -839,11 +894,16 @@
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${role}`;
             
-            const avatarIcon = role === 'user' ? 'bi-person' : 'bi-robot';
+            let avatarContent;
+            if (role === 'user') {
+                avatarContent = '<i class="bi bi-person"></i>';
+            } else {
+                avatarContent = '<img src="images/hollie.png" alt="Hollie">';
+            }
             
             messageDiv.innerHTML = `
                 <div class="message-avatar">
-                    <i class="bi ${avatarIcon}"></i>
+                    ${avatarContent}
                 </div>
                 <div class="message-content">
                     ${formatMessage(content)}
@@ -866,7 +926,7 @@
             
             messageDiv.innerHTML = `
                 <div class="message-avatar">
-                    <i class="bi bi-robot"></i>
+                    <img src="images/hollie.png" alt="Hollie">
                 </div>
                 <div class="message-content">
                     <span class="streaming-text"></span><span class="streaming-cursor">|</span>
@@ -877,7 +937,7 @@
             scrollToBottom();
         }
 
-        // Track if user has scrolled up (to avoid auto-scrolling while they're reading)
+        // Track if user has scrolled up
         let userHasScrolledUp = false;
         let lastScrollTop = 0;
         
@@ -892,7 +952,6 @@
             if (messageDiv) {
                 const textSpan = messageDiv.querySelector('.streaming-text');
                 if (textSpan) {
-                    // Escape HTML and convert line breaks - no markdown during streaming
                     const escaped = content
                         .replace(/&/g, '&amp;')
                         .replace(/</g, '&lt;')
@@ -901,9 +960,7 @@
                     textSpan.innerHTML = escaped;
                 }
                 
-                // Only auto-scroll if user hasn't scrolled up to read
                 if (!userHasScrolledUp) {
-                    // Use scrollTop for smoother continuous scrolling
                     elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
                 }
             }
@@ -914,11 +971,9 @@
             if (messageDiv) {
                 const contentDiv = messageDiv.querySelector('.message-content');
                 if (contentDiv) {
-                    // Only format when complete
                     contentDiv.innerHTML = formatMessage(content);
                 }
             }
-            // Reset scroll tracking for next message
             userHasScrolledUp = false;
         }
 
@@ -931,7 +986,7 @@
             if (error.message === 'LIMIT_REACHED') {
                 showLimitReached();
             } else {
-                addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+                addMessage('assistant', "Sorry, I'm having a bit of trouble right now. Give it another go in a moment! 🚑");
                 console.error('Chat error:', error);
             }
         }
@@ -942,11 +997,11 @@
             
             limitDiv.innerHTML = `
                 <div class="message-avatar">
-                    <i class="bi bi-robot"></i>
+                    <img src="images/hollie.png" alt="Hollie">
                 </div>
                 <div class="message-content">
-                    <strong>Daily message limit reached</strong><br><br>
-                    You've used all 5 free messages for today. Your limit resets at midnight.<br><br>
+                    <strong>Ah, you've hit your daily limit!</strong><br><br>
+                    You've used all 5 free messages for today - your limit resets at midnight. If you'd like unlimited chats with me, you can upgrade to Pro! 💚<br><br>
                     <button class="btn btn-primary btn-sm" onclick="handleUpgrade()">
                         <i class="bi bi-star me-1"></i>Upgrade to Pro - £4.99/month
                     </button>
@@ -960,21 +1015,17 @@
         function clearChat() {
             chatState.conversationHistory = [];
             
-            // Remove all messages
             const messages = elements.chatMessages.querySelectorAll('.message');
             messages.forEach(msg => msg.remove());
             
-            // Show welcome message
             if (elements.welcomeMessage) {
                 elements.welcomeMessage.style.display = 'block';
             }
             
-            // Hide toolbar
             elements.chatToolbar.classList.remove('visible');
         }
 
         function scrollToBottom() {
-            // Immediate scroll for user messages and initial positioning
             elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
         }
 
