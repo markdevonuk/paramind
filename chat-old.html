@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Chat | Paramind</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- MDT Card Styles -->
+    <style>
+        /* MDT Dispatch Card Styling */
+        .mdt-card {
+            background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+            border: 1px solid #0f3460;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .mdt-card:hover {
+            border-color: #e94560;
+            box-shadow: 0 0 20px rgba(233, 69, 96, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .mdt-header {
+            background: #0f3460;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #1a1a2e;
+        }
+        
+        .mdt-incident {
+            color: #00d9ff;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .mdt-category {
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        .mdt-category.cat-1 {
+            background: #dc3545;
+            color: white;
+            animation: pulse-red 2s infinite;
+        }
+        
+        .mdt-category.cat-2 {
+            background: #ffc107;
+            color: #000;
+        }
+        
+        .mdt-category.cat-3 {
+            background: #28a745;
+            color: white;
+        }
+        
+        @keyframes pulse-red {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .mdt-body {
+            padding: 12px;
+        }
+        
+        .mdt-patient {
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .mdt-complaint {
+            color: #e94560;
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+        
+        .mdt-details {
+            color: #8892b0;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+        
+        .mdt-footer {
+            background: rgba(15, 52, 96, 0.5);
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #0f3460;
+        }
+        
+        .mdt-status {
+            color: #00d9ff;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .mdt-status::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #00d9ff;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .mdt-respond {
+            color: #00d9ff;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        /* Scenario Modal MDT Style */
+        .mdt-modal .modal-content {
+            background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+            border: 2px solid #0f3460;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .mdt-modal .modal-header {
+            background: #0f3460;
+            border-bottom: 1px solid #e94560;
+            padding: 15px 20px;
+        }
+        
+        .mdt-modal .modal-title {
+            color: #00d9ff;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .mdt-modal .modal-title::before {
+            content: '🚑';
+        }
+        
+        .mdt-modal .btn-close {
+            filter: invert(1);
+        }
+        
+        .mdt-modal .modal-body {
+            padding: 20px;
+            color: #ffffff;
+        }
+        
+        .mdt-modal-details {
+            background: rgba(15, 52, 96, 0.3);
+            border: 1px solid #0f3460;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .mdt-modal-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+        
+        .mdt-modal-label {
+            color: #8892b0;
+            width: 100px;
+            flex-shrink: 0;
+            font-size: 0.8rem;
+        }
+        
+        .mdt-modal-value {
+            color: #ffffff;
+            font-size: 0.9rem;
+        }
+        
+        .mdt-modal-complaint {
+            color: #e94560;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+        
+        .mdt-modal .modal-footer {
+            background: rgba(15, 52, 96, 0.5);
+            border-top: 1px solid #0f3460;
+            padding: 15px 20px;
+        }
+        
+        .mdt-modal .btn-secondary {
+            background: transparent;
+            border: 1px solid #8892b0;
+            color: #8892b0;
+        }
+        
+        .mdt-modal .btn-primary {
+            background: #e94560;
+            border: none;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .mdt-modal .btn-primary:hover {
+            background: #ff6b6b;
+        }
+        
+        /* Alert sound visual indicator */
+        .mdt-alert-banner {
+            background: #dc3545;
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            animation: flash 0.5s ease-in-out 3;
+        }
+        
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Category card count updates */
+        .category-card .count {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        /* Assessment Toolbar Styles - Brand Colours */
+        .assessment-toolbar {
+            margin-bottom: 12px;
+        }
+
+        .assessment-btn {
+            flex-grow: 1;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 2px solid #00d9ff;
+            color: #00d9ff;
+            background: rgba(0, 217, 255, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .assessment-btn:hover {
+            background: #00d9ff;
+            color: #1a1a2e;
+            box-shadow: 0 4px 15px rgba(0, 217, 255, 0.3);
+        }
+
+        .hint-btn {
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 2px solid #e94560;
+            color: #e94560;
+            background: rgba(233, 69, 96, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .hint-btn:hover {
+            background: #e94560;
+            color: white;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
+        }
+
+        .assessment-dropdown {
+            width: 100%;
+            max-height: 350px;
+            overflow-y: auto;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid #0f3460;
+            background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        .assessment-dropdown .dropdown-header {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #8892b0;
+            padding: 8px 16px 4px;
+        }
+
+        .assessment-dropdown .dropdown-item {
+            padding: 10px 16px;
+            font-size: 0.9rem;
+            color: #ffffff;
+            transition: all 0.15s ease;
+        }
+
+        .assessment-dropdown .dropdown-item:hover {
+            background: rgba(0, 217, 255, 0.15);
+            color: #00d9ff;
+        }
+
+        .assessment-dropdown .dropdown-item i {
+            color: #00d9ff;
+            width: 20px;
+        }
+
+        .assessment-dropdown .dropdown-divider {
+            margin: 4px 0;
+            border-color: #0f3460;
+        }
+
+        /* Working Impression Button - Brand Style */
+        .working-impression-toolbar {
+            margin-top: 12px;
+        }
+
+        .working-impression-toolbar .btn {
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            background: linear-gradient(145deg, #00d9ff 0%, #00b4d8 100%);
+            border: none;
+            color: #1a1a2e;
+            transition: all 0.2s ease;
+        }
+
+        .working-impression-toolbar .btn:hover {
+            background: linear-gradient(145deg, #00f0ff 0%, #00d9ff 100%);
+            box-shadow: 0 4px 20px rgba(0, 217, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+
+/* Dispatcher Screen Styles - MUTED VERSION */
+.dispatcher-header h1 {
+    color: #6b7a8f;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.incidents-outstanding {
+    color: #8a9bae;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+.dispatcher-screen {
+    background: linear-gradient(180deg, #f5f7fa 0%, #e8ecf1 100%);
+    border-radius: 12px;
+    padding: 15px;
+    border: 1px solid #d1d9e6;
+}
+
+.dispatch-card {
+    background: #ffffff;
+    border: 1px solid #d1d9e6;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    font-family: 'JetBrains Mono', monospace;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.dispatch-card:hover {
+    border-color: #a0b0c4;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.dispatch-header {
+    background: #e8ecf1;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #d1d9e6;
+}
+
+.dispatch-incident-num {
+    color: #5a6a7a;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.dispatch-category {
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.dispatch-category.cat-1 {
+    background: #c9a0a0;
+    color: white;
+}
+
+.dispatch-category.cat-2 {
+    background: #d4c78f;
+    color: #5a5a5a;
+}
+
+.dispatch-category.cat-3 {
+    background: #9bc49b;
+    color: white;
+}
+
+.dispatch-body {
+    padding: 15px;
+    background: #ffffff;
+}
+
+.dispatch-row {
+    display: flex;
+    margin-bottom: 8px;
+    align-items: flex-start;
+}
+
+.dispatch-label {
+    color: #8a9bae;
+    font-size: 0.75rem;
+    width: 90px;
+    flex-shrink: 0;
+    text-transform: uppercase;
+}
+
+.dispatch-value {
+    color: #4a5568;
+    font-size: 0.9rem;
+}
+
+.dispatch-value.highlight {
+    color: #7a6a8a;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.dispatch-footer {
+    padding: 12px 15px;
+    background: #f5f7fa;
+    border-top: 1px solid #d1d9e6;
+}
+
+.dispatch-btn {  
+    width: 100%;
+    background: linear-gradient(145deg, #6b7a8f 0%, #5a6978 100%);
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.dispatch-btn:hover {
+    background: linear-gradient(145deg, #7a8a9f 0%, #6b7a8f 100%);
+    box-shadow: 0 4px 15px rgba(107, 122, 143, 0.3);
+    transform: translateY(-1px);
+}
+
+.dispatch-btn i {
+    font-size: 1rem;
+}
+
+.dispatch-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #a0a8b0;
+    font-size: 0.7rem;
+    margin-bottom: 10px;
+}
+
+.dispatch-status::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #a0a8b0;
+    border-radius: 50%;
+    animation: blink 1s infinite;
+}
+
+        
+/* Fix bullet list overflow in chat messages */
+.message-content ul,
+.message-content ol {
+    margin: 0.5rem 0 !important;
+    padding-left: 1.5rem !important;
+    list-style-position: inside !important;
+}
+
+.message-content li {
+    margin-bottom: 0.35rem !important;
+}
+
+.message.assistant .message-content ul,
+.message.assistant .message-content ol {
+    padding-left: 1.2rem !important;
+}
+
+/* ==================== CPD PORTFOLIO STYLES ==================== */
+
+/* Pro Lock Overlay */
+.cpd-pro-lock {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.98);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    padding: 20px;
+}
+
+.cpd-pro-lock.hidden {
+    display: none;
+}
+
+.cpd-pro-lock-content {
+    text-align: center;
+    max-width: 400px;
+}
+
+.cpd-lock-icon {
+    font-size: 4rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+.cpd-pro-lock-content h3 {
+    color: #1a1a2e;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.cpd-pro-lock-content p {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+}
+
+.cpd-pro-features {
+    margin-top: 1.5rem;
+    text-align: left;
+}
+
+.cpd-pro-feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.cpd-pro-feature i {
+    color: #5CB85C;
+    font-size: 1.1rem;
+}
+
+/* Empty State */
+.cpd-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+.cpd-empty-state.hidden {
+    display: none;
+}
+
+.cpd-empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.cpd-empty-state h3 {
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.cpd-empty-state p {
+    margin-bottom: 1.5rem;
+}
+
+/* CPD Records List */
+.cpd-list {
+    padding: 0 10px;
+}
+
+.cpd-list.hidden {
+    display: none;
+}
+
+/* Individual CPD Record Card */
+.cpd-record {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
+}
+
+.cpd-record:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.cpd-record-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.cpd-record-date {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.cpd-record-result {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.cpd-record-result.correct {
+    background: rgba(92, 184, 92, 0.15);
+    color: #3d8b3d;
+}
+
+.cpd-record-result.partially-correct {
+    background: rgba(240, 173, 78, 0.15);
+    color: #c77c00;
+}
+
+.cpd-record-result.incorrect {
+    background: rgba(217, 83, 79, 0.15);
+    color: #c9302c;
+}
+
+.cpd-record-title {
+    font-weight: 600;
+    color: #1a1a2e;
+    font-size: 1rem;
+    margin-bottom: 4px;
+}
+
+.cpd-record-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-bottom: 8px;
+}
+
+.cpd-record-impression {
+    font-size: 0.85rem;
+    color: #495057;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    margin-bottom: 12px;
+}
+
+.cpd-record-impression strong {
+    color: #1a1a2e;
+}
+
+.cpd-record-stats {
+    display: flex;
+    gap: 16px;
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-bottom: 12px;
+}
+
+.cpd-record-stat {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.cpd-record-stat i {
+    color: #2B8A9C;
+}
+
+.cpd-record-actions {
+    display: flex;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid #e9ecef;
+}
+
+.cpd-record-actions .btn {
+    flex: 1;
+    font-size: 0.85rem;
+    padding: 8px 12px;
+}
+
+.cpd-record-actions .btn-outline-primary {
+    border-color: #2B8A9C;
+    color: #2B8A9C;
+}
+
+.cpd-record-actions .btn-outline-primary:hover {
+    background: #2B8A9C;
+    color: white;
+}
+
+.cpd-record-actions .btn-outline-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.cpd-record-actions .btn-outline-danger:hover {
+    background: #dc3545;
+    color: white;
+}
+
+/* Loading state for CPD */
+.cpd-loading {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+}
+
+.cpd-loading .spinner-border {
+    width: 2rem;
+    height: 2rem;
+    margin-bottom: 1rem;
+}
+
+/* Mobile adjustments for CPD */
+@media (max-width: 576px) {
+    .cpd-record-actions {
+        flex-direction: column;
+    }
+    
+    .cpd-record-stats {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .cpd-pro-lock-content {
+        padding: 0 10px;
+    }
+}
+
+
+/* ==================== SUBSCRIPTION LOADING OVERLAY ==================== */
+        .subscription-loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .subscription-loading-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .subscription-loading-content {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .subscription-loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e9ecef;
+            border-top-color: #2B8A9C;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .subscription-loading-text {
+            font-size: 1.1rem;
+            color: #495057;
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .subscription-loading-text .brand-para {
+            color: #2B8A9C;
+            font-weight: 700;
+        }
+
+        .subscription-loading-text .brand-mind {
+            color: #5CB85C;
+            font-weight: 700;
+        }
+        
+        .pro-badge-welcome {
+    color: #FFD700;
+    font-weight: 700;
+}
+
+
+
+
+    </style>
+</head>
+<body class="chat-page">
+
+<!-- Subscription Loading Overlay -->
+    <div class="subscription-loading-overlay" id="subscriptionLoadingOverlay">
+        <div class="subscription-loading-content">
+            <div class="subscription-loading-spinner"></div>
+            <p class="subscription-loading-text">
+                Just checking to see if you are a 
+                <span class="brand-para">para</span><span class="brand-mind">mind</span> 
+                Pro member...
+            </p>
+        </div>
+    </div>
+
+
+    <!-- Top Navigation -->
+    <nav class="chat-navbar">
+        <div class="container-fluid px-3">
+            <div class="d-flex align-items-center justify-content-between w-100">
+                <a class="navbar-brand" href="index.html">
+                    <span class="brand-text"><span class="brand-para">para</span><span class="brand-mind">mind</span></span>
+                </a>
+                
+                <div class="d-flex align-items-center">
+                    <span class="trust-badge me-2">
+                        <i class="bi bi-hospital me-1"></i>
+                        <span id="userTrust">SWAST</span>
+                    </span>
+                    <div class="dropdown">
+                        <button class="btn btn-link text-dark dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle fs-5"></i>
+                        </button>
+<ul class="dropdown-menu dropdown-menu-end">
+    <li><span class="dropdown-item-text text-muted" id="userEmail">user@nhs.net</span></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="#" id="upgradeBtn"><i class="bi bi-star me-2"></i>Upgrade to Pro</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="contact.html"><i class="bi bi-envelope me-2"></i>Contact Us</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item text-danger" href="#" id="logoutBtn"><i class="bi bi-box-arrow-right me-2"></i>Sign Out</a></li>
+</ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Message Limit Banner (Free Users) -->
+    <div class="message-limit-banner" id="messageLimitBanner">
+        <span>Daily messages: <span class="count"><span id="messagesUsed">0</span>/5</span></span>
+        <a href="#" class="upgrade-link" id="upgradeLinkBanner">
+            <i class="bi bi-star-fill me-1"></i>Upgrade for unlimited
+        </a>
+    </div>
+
+    <!-- Main Content Container -->
+    <div class="chat-main-container">
+        
+        <!-- ==================== CHAT VIEW ==================== -->
+        <div id="chatView" class="content-view active">
+        <!-- Clear Chat Button -->
+<div class="chat-toolbar" id="chatToolbar">
+    <button class="btn btn-outline-secondary btn-sm" id="clearChatBtn">
+        <i class="bi bi-plus-lg me-1"></i>New Chat
+    </button>
+</div>
+            <div class="chat-messages" id="chatMessages">
+                <!-- Welcome Message -->
+                <div class="welcome-message" id="welcomeMessage">
+                    <div class="welcome-icon">
+                        <i class="bi bi-chat-heart"></i>
+                    </div>
+                    <h2>Welcome to <span class="brand-text"><span class="brand-para">para</span><span class="brand-mind">mind</span></span><span id="proBadgeWelcome" class="pro-badge-welcome" style="display: none;"> PRO</span><span id="welcomeName"></span></h2>
+                    <p>I'm here to help with your clinical learning. Ask me anything or explore the menu.</p>
+                    <div class="welcome-disclaimer">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                      <small>Educational tool only. Always verify information and follow <span id="disclaimerTrust">your trust's</span> guidelines. Please use your JRCalc app for up-to-date information. DO NOT treat patients based on information given only in Paramind.</small>
+                    </div>
+                    
+                    <!-- Random Scenario Button -->
+                    <div class="quick-prompts">
+                        <button class="btn btn-primary btn-lg" id="randomScenarioBtn">
+                            <i class="bi bi-shuffle me-2"></i>
+                            Give me a random scenario
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                
+                    <!-- Assessment Toolbar (only visible during scenarios) - AT TOP -->
+                    <div class="assessment-toolbar" id="assessmentToolbar" style="display: none;">
+                        <div class="d-flex gap-2 align-items-center flex-wrap">
+                            <!-- Assessment Dropdown -->
+                            <div class="dropdown flex-grow-1">
+                                <button class="btn dropdown-toggle assessment-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-clipboard2-pulse me-1"></i>
+                                    Perform Assessment
+                                </button>
+                                <ul class="dropdown-menu assessment-dropdown">
+                                    <li><h6 class="dropdown-header">Primary Survey</h6></li>
+                                    <li><a class="dropdown-item" href="#" data-assessment="obs"><i class="bi bi-heart-pulse me-2"></i>Observations (Vital Signs)</a></li>
+                                    <li><a class="dropdown-item" href="#" data-assessment="ecg"><i class="bi bi-activity me-2"></i>ECG / Rhythm Check</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><h6 class="dropdown-header">Physical Examination</h6></li>
+                                    <li><a class="dropdown-item" href="#" data-assessment="chest"><i class="bi bi-lungs me-2"></i>Chest Examination</a></li>
+                                    <li><a class="dropdown-item" href="#" data-assessment="abdo"><i class="bi bi-bandaid me-2"></i>Abdominal Examination</a></li>
+                                    <li><a class="dropdown-item" href="#" data-assessment="neuro"><i class="bi bi-lightning me-2"></i>Neurological Exam</a></li>
+                                    <li><a class="dropdown-item" href="#" data-assessment="skin"><i class="bi bi-droplet me-2"></i>Skin Assessment</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><h6 class="dropdown-header">Stroke Assessment</h6></li>
+                                    <li><a class="dropdown-item" href="#" data-assessment="fast"><i class="bi bi-speedometer me-2"></i>FAST Assessment</a></li>
+                                    <li><a class="dropdown-item" href="#" data-assessment="mend"><i class="bi bi-diagram-3 me-2"></i>MEND Assessment</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><h6 class="dropdown-header">History Taking</h6></li>
+                                    <li><a class="dropdown-item" href="#" data-assessment="history"><i class="bi bi-card-list me-2"></i>Full History (SAMPLE)</a></li>
+                                    <li><a class="dropdown-item" href="#" data-assessment="pain"><i class="bi bi-thermometer-half me-2"></i>Pain Assessment (SOCRATES)</a></li>
+                                    <li><a class="dropdown-item" href="#" data-assessment="meds"><i class="bi bi-capsule me-2"></i>Medications</a></li>
+                                    <li><a class="dropdown-item" href="#" data-assessment="social"><i class="bi bi-house me-2"></i>Social History</a></li>
+                                    <li><a class="dropdown-item" href="#" data-assessment="scene"><i class="bi bi-eye me-2"></i>Scene Assessment</a></li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Hint Button -->
+                            <button class="btn hint-btn" id="hintBtn" title="Get a hint if you're stuck">
+                                <i class="bi bi-lightbulb me-1"></i>
+                                Hint
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Chat Form - IN MIDDLE -->
+                    <form id="chatForm">
+                        <div class="input-group">
+                            <textarea 
+                                class="form-control" 
+                                id="messageInput" 
+                                placeholder="Or ask a question..." 
+                                rows="1"
+                                required
+                            ></textarea>
+                            <button class="btn btn-primary" type="submit" id="sendBtn">
+                                <i class="bi bi-send-fill"></i>
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <!-- Working Impression Button - AT BOTTOM -->
+                    <div class="working-impression-toolbar" id="workingImpressionToolbar" style="display: none;">
+                        <button class="btn w-100" id="workingImpressionBtn">
+                            <i class="bi bi-check-circle me-2"></i>I'm ready to offer my working impression
+                        </button>
+                    </div>
+                
+                </div>
+            </div>
+        </div>
+        <!-- ==================== END CHAT VIEW ==================== -->
+
+        <!-- ==================== SCENARIOS VIEW ==================== -->
+        <div id="scenariosView" class="content-view">
+            <div class="section-view">
+                <!-- Main Categories -->
+                <div id="scenarioCategories">
+                    <div class="section-header">
+                        <h1><i class="bi bi-mortarboard me-2"></i>Learning Scenarios</h1>
+                        <p>Practice with interactive patient cases</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="category-grid" id="categoryGrid">
+                            <!-- Categories will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subcategory View - Dispatcher Screen (hidden by default) -->
+                <div id="scenarioSubcategory" style="display: none;">
+                    <div class="section-header dispatcher-header">
+                        <a href="#" class="back-btn" id="backToScenarioCategories">
+                            <i class="bi bi-arrow-left"></i> Back
+                        </a>
+                        <h1 id="subcategoryTitle"><i class="bi bi-broadcast me-2"></i>Dispatcher Screen</h1>
+                        <p id="subcategoryDescription" class="incidents-outstanding">Cardiac incidents outstanding</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="dispatcher-screen" id="scenarioList">
+                            <!-- Dispatcher cards will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ==================== END SCENARIOS VIEW ==================== -->
+
+        <!-- ==================== CPD PORTFOLIO VIEW ==================== -->
+        <div id="cpdView" class="content-view">
+            <div class="section-view">
+                <div class="section-header">
+                    <h1><i class="bi bi-award me-2"></i>CPD Portfolio</h1>
+                    <p>Your completed learning scenarios and certificates</p>
+                </div>
+                
+                <!-- Pro Lock Overlay (shown to free users) -->
+                <div class="cpd-pro-lock" id="cpdProLock">
+                    <div class="cpd-pro-lock-content">
+                        <i class="bi bi-lock-fill cpd-lock-icon"></i>
+                        <h3>CPD Portfolio is a Pro Feature</h3>
+                        <p>Upgrade to Pro to track your learning progress and download CPD certificates for completed scenarios.</p>
+                        <button class="btn btn-primary btn-lg" onclick="createCheckoutSession()">
+                            <i class="bi bi-star me-2"></i>Upgrade to Pro - £4.99/month
+                        </button>
+                        <div class="cpd-pro-features">
+                            <div class="cpd-pro-feature">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>Track all completed scenarios</span>
+                            </div>
+                            <div class="cpd-pro-feature">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>Download CPD certificates</span>
+                            </div>
+                            <div class="cpd-pro-feature">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>Unlimited messages</span>
+                            </div>
+                            <div class="cpd-pro-feature">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>Save conversations</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- CPD Content (shown to Pro users) -->
+                <div class="section-content" id="cpdContent">
+                    <!-- Empty State -->
+                    <div class="cpd-empty-state" id="cpdEmptyState">
+                        <i class="bi bi-journal-medical"></i>
+                        <h3>No CPD Records Yet</h3>
+                        <p>Complete a scenario and submit your working impression to earn your first CPD record.</p>
+                        <button class="btn btn-primary" onclick="switchView('scenariosView')">
+                            <i class="bi bi-mortarboard me-2"></i>Browse Scenarios
+                        </button>
+                    </div>
+                    
+                    <!-- CPD Records List -->
+                    <div class="cpd-list" id="cpdList">
+                        <!-- CPD records will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ==================== END CPD PORTFOLIO VIEW ==================== -->
+
+        <!-- ==================== YOUR PATIENT VIEW ==================== -->
+        <div id="patientView" class="content-view">
+            <div class="section-view">
+                <div class="section-header">
+                    <h1><i class="bi bi-clipboard2-pulse me-2"></i>Patient Differentials</h1>
+                    <p>IMPORTANT: Not for live patients, this an educational, not diagnostic tool.</p>
+                </div>
+                <div class="section-content">
+                    <form id="patientForm" class="patient-form">
+                        <div class="form-group">
+                            <label for="patientAge">Age</label>
+                            <input type="number" class="form-control" id="patientAge" placeholder="e.g., 65">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="patientSex">Sex</label>
+                            <select class="form-select" id="patientSex">
+                                <option value="" disabled selected>Select...</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="chiefComplaint">Chief Complaint</label>
+                            <input type="text" class="form-control" id="chiefComplaint" placeholder="e.g., Chest pain, Shortness of breath">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="historyPresenting">History of Presenting Complaint</label>
+                            <textarea class="form-control" id="historyPresenting" rows="3" placeholder="When did it start? What makes it better/worse?"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="pmh">Past Medical History</label>
+                            <input type="text" class="form-control" id="pmh" placeholder="e.g., Hypertension, Diabetes, COPD">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Vital Signs</label>
+                            <div class="vital-signs-grid">
+                                <div class="vital-input">
+                                    <label>RR</label>
+                                    <input type="number" id="vitalRR" placeholder="--">
+                                </div>
+                                <div class="vital-input">
+                                    <label>SpO2 %</label>
+                                    <input type="number" id="vitalSpO2" placeholder="--">
+                                </div>
+                                <div class="vital-input">
+                                    <label>HR</label>
+                                    <input type="number" id="vitalHR" placeholder="--">
+                                </div>
+                                <div class="vital-input">
+                                    <label>BP</label>
+                                    <input type="text" id="vitalBP" placeholder="--/--">
+                                </div>
+                                <div class="vital-input">
+                                    <label>Temp °C</label>
+                                    <input type="number" step="0.1" id="vitalTemp" placeholder="--">
+                                </div>
+                                <div class="vital-input">
+                                    <label>GCS</label>
+                                    <input type="number" id="vitalGCS" placeholder="--">
+                                </div>
+                                <div class="vital-input">
+                                    <label>BM</label>
+                                    <input type="number" step="0.1" id="vitalBM" placeholder="--">
+                                </div>
+                                <div class="vital-input">
+                                    <label>Pain /10</label>
+                                    <input type="number" id="vitalPain" placeholder="--">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="additionalNotes">Additional Notes</label>
+                            <textarea class="form-control" id="additionalNotes" rows="2" placeholder="Any other relevant findings..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100 btn-lg mt-3">
+                            <i class="bi bi-chat-dots me-2"></i>Get Guidance
+                        </button>
+                        
+                        <div class="text-center mt-3">
+                            <small class="text-muted">
+                                <i class="bi bi-shield-lock me-1"></i>
+                                This data is not stored. Never enter identifiable patient information.
+                            </small>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- ==================== END YOUR PATIENT VIEW ==================== -->
+
+    </div>
+    <!-- ==================== END MAIN CONTENT CONTAINER ==================== -->
+
+
+   <!-- Bottom Navigation (5 items with ATMIST) -->
+<nav class="bottom-nav">
+    <div class="nav-item-wrapper">
+        <button class="nav-item active" data-view="chatView">
+            <i class="bi bi-chat-dots"></i>
+            <span>Chat</span>
+        </button>
+    </div>
+    <div class="nav-item-wrapper">
+        <button class="nav-item" data-view="scenariosView">
+            <i class="bi bi-mortarboard"></i>
+            <span>Scenarios</span>
+        </button>
+    </div>
+    <div class="nav-item-wrapper">
+        <button class="nav-item" data-view="patientView">
+            <i class="bi bi-clipboard2-pulse"></i>
+            <span>Patient</span>
+        </button>
+    </div>
+    <div class="nav-item-wrapper">
+        <a class="nav-item" href="atmist.html">
+            <i class="bi bi-telephone-outbound"></i>
+            <span>ATMIST</span>
+        </a>
+    </div>
+    <div class="nav-item-wrapper">
+        <button class="nav-item" data-view="cpdView">
+            <i class="bi bi-award"></i>
+            <span>CPD</span>
+        </button>
+    </div>   
+</nav>
+
+
+    <!-- Scenario Start Modal - MDT Style -->
+    <div class="modal fade mdt-modal" id="scenarioModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">INCOMING CALL</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="mdt-alert-banner" id="mdtAlertBanner">
+                    ⚠️ NEW INCIDENT ASSIGNED ⚠️
+                </div>
+                <div class="modal-body">
+                    <div class="mdt-modal-details">
+                        <div class="mdt-modal-row">
+                            <span class="mdt-modal-label">PATIENT:</span>
+                            <span class="mdt-modal-value" id="modalPatient">--</span>
+                        </div>
+                        <div class="mdt-modal-row">
+                            <span class="mdt-modal-label">CATEGORY:</span>
+                            <span class="mdt-modal-value" id="modalCategory">--</span>
+                        </div>
+                        <div class="mdt-modal-complaint" id="modalComplaint">--</div>
+                        <div class="mdt-modal-row mt-3">
+                            <span class="mdt-modal-label">INFO:</span>
+                            <span class="mdt-modal-value" id="modalDetails">--</span>
+                        </div>
+                    </div>
+                    <p class="text-center" style="color: #8892b0; font-size: 0.85rem;">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Assess the patient and provide your working impression
+                    </p>
+                </div>
+                <!-- Difficulty Level Selector -->
+<div class="difficulty-selector mt-4">
+    <label class="form-label fw-bold">Select Difficulty Level:</label>
+    <div class="btn-group w-100" role="group" aria-label="Difficulty level">
+        <input type="radio" class="btn-check" name="difficultyLevel" id="level1" value="1" checked>
+        <label class="btn btn-outline-success" for="level1">
+            <i class="bi bi-1-circle me-1"></i>Student
+        </label>
+        
+        <input type="radio" class="btn-check" name="difficultyLevel" id="level2" value="2">
+        <label class="btn btn-outline-warning" for="level2">
+            <i class="bi bi-2-circle me-1"></i>NQP
+        </label>
+        
+        <input type="radio" class="btn-check" name="difficultyLevel" id="level3" value="3">
+        <label class="btn btn-outline-danger" for="level3">
+            <i class="bi bi-3-circle me-1"></i>Paramedic
+        </label>
+    </div>
+    <small class="text-muted d-block mt-2" id="difficultyDescription">Classic presentations, cooperative patients</small>
+</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Stand Down</button>
+                    <button type="button" class="btn btn-primary" id="startScenarioBtn">
+                        <i class="bi bi-broadcast me-1"></i>RESPOND
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Working Impression Modal -->
+    <div class="modal fade" id="workingImpressionModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-clipboard-check me-2"></i>Your Working Impression</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted mb-3">Based on your assessment, what is your working impression for this patient?</p>
+                    <div class="form-group">
+                        <label for="workingImpressionInput" class="form-label">Working Impression</label>
+                        <input type="text" class="form-control form-control-lg" id="workingImpressionInput" 
+                               placeholder="e.g., Acute Coronary Syndrome, Stroke, Sepsis...">
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="impressionReasoning" class="form-label">Brief reasoning (optional)</label>
+                        <textarea class="form-control" id="impressionReasoning" rows="2" 
+                                  placeholder="What findings led you to this impression?"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Go Back</button>
+                    <button type="button" class="btn btn-success" id="submitImpressionBtn">
+                        <i class="bi bi-send me-1"></i>Submit for Feedback
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jsPDF for certificate generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/scenarios.js"></script>
+    <script src="js/chat.js"></script>
+</body>
+</html>
