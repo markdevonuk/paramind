@@ -9,6 +9,8 @@
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Menu CSS -->
     <link rel="stylesheet" href="css/menu.css">
     
     <!-- Google Fonts -->
@@ -181,19 +183,32 @@
         
         /* No Pulse Indicator */
         .no-pulse-indicator {
-            background: #dc2626;
-            color: white;
-            padding: 0.5rem 1rem;
+            background: rgba(245, 158, 11, 0.2);
+            border: 2px solid #f59e0b;
             border-radius: var(--radius-md);
-            font-weight: 700;
-            font-size: 0.9rem;
+            padding: 0.75rem 1rem;
+            margin: 0 1rem 1rem 1rem;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 0.5rem;
-            animation: pulseWarning 1s ease-in-out infinite;
+            animation: pulseBlink 1s ease-in-out infinite;
         }
         
-        @keyframes pulseWarning {
+        .no-pulse-indicator i {
+            color: #f59e0b;
+            font-size: 1.25rem;
+        }
+        
+        .no-pulse-indicator span {
+            color: #fbbf24;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        @keyframes pulseBlink {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.6; }
         }
@@ -228,38 +243,6 @@
             color: #fca5a5;
             font-weight: 700;
             font-size: 1rem;
-        }
-        
-        /* No Pulse Indicator */
-        .no-pulse-indicator {
-            background: rgba(245, 158, 11, 0.2);
-            border: 2px solid #f59e0b;
-            border-radius: var(--radius-md);
-            padding: 0.75rem 1rem;
-            margin: 0 1rem 1rem 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            animation: pulseBlink 1s ease-in-out infinite;
-        }
-        
-        .no-pulse-indicator i {
-            color: #f59e0b;
-            font-size: 1.25rem;
-        }
-        
-        .no-pulse-indicator span {
-            color: #fbbf24;
-            font-weight: 700;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        @keyframes pulseBlink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
         }
         
         /* Rhythm Selector Grid */
@@ -758,7 +741,8 @@
 </head>
 
 <body class="ecg-page">
-    <!-- Navigation -->
+    <!-- ==================== NAVIGATION ==================== -->
+    <!-- FIXED: Single flex container with hamburger button inside -->
     <nav class="ecg-navbar">
         <div class="container">
             <div class="d-flex align-items-center justify-content-between">
@@ -769,19 +753,14 @@
                 <span class="brand-text">
                     <span class="brand-para">para</span><span class="brand-mind">mind</span>
                 </span>
-                <div style="width: 100px;"></div>
+                <!-- Hamburger button INSIDE the flex container -->
+                <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             </div>
-            <div class="d-flex align-items-center justify-content-between">
-    <a href="chat.html" class="back-link">...</a>
-    <span class="brand-text">...</span>
-    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>  
-</div>
         </div>
-       
     </nav>
 
     <div class="ecg-container">
@@ -823,10 +802,6 @@
                     <span class="hr-icon">♥</span>
                     <span id="hrValue">75</span> BPM
                 </div>
-                <!-- No Pulse Indicator for PEA -->
-                <div class="no-pulse-indicator" id="noPulseIndicator" style="display: none;">
-                    <i class="bi bi-exclamation-triangle-fill"></i> NO PULSE DETECTED
-                </div>
                 <div class="monitor-controls">
                     <button class="monitor-btn monitor-btn-pause" id="playPauseBtn" onclick="togglePlayPause()">
                         <i class="bi bi-pause-fill"></i> Pause
@@ -836,7 +811,7 @@
             <div class="ecg-canvas-container">
                 <canvas id="ecgCanvas" width="800" height="200"></canvas>
             </div>
-            <!-- No Pulse Indicator (for PEA and pulseless VT in quiz) -->
+            <!-- No Pulse Indicator (for PEA and pulseless VT) -->
             <div class="no-pulse-indicator" id="noPulseIndicator" style="display: none;">
                 <i class="bi bi-exclamation-triangle-fill"></i>
                 <span>No pulse detected</span>
@@ -974,18 +949,17 @@
         </div>
     </div>
 
+    <!-- ==================== SCRIPTS ==================== -->
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Firebase (if you want to check subscription status) -->
-    <!-- Uncomment these if using Firebase auth -->
-    <!--
+    <!-- FIREBASE - MUST BE BEFORE menu.js -->
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
     <script src="js/firebase-config.js"></script>
-    -->
     
+    <!-- ECG PAGE SCRIPT -->
     <script>
         // ==================== ECG RHYTHM DATA ====================
         const rhythms = {
@@ -1132,8 +1106,8 @@
         // Quiz state
         let quizRhythm = null;
         let score = { correct: 0, total: 0 };
-        let quizRhythms = []; // Shuffled array of all rhythms
-        let currentQuizIndex = 0; // Current position in quiz
+        let quizRhythms = [];
+        let currentQuizIndex = 0;
         
         // Canvas context
         let canvas, ctx;
@@ -1143,25 +1117,17 @@
             canvas = document.getElementById('ecgCanvas');
             ctx = canvas.getContext('2d');
             
-            // Initialize rhythm selector buttons
             initRhythmGrid();
-            
-            // Initialize quiz dropdown
             initQuizDropdown();
-            
-            // Update display
             updateRhythmDisplay();
-            
-            // Start animation
             animate();
             
-            // Enable quiz answer button when selection made
             document.getElementById('quizAnswer').addEventListener('change', function() {
                 document.getElementById('checkAnswerBtn').disabled = !this.value;
             });
             
-            // Check subscription status (uncomment if using Firebase)
-            // checkSubscription();
+            // Check subscription status
+            checkSubscription();
         });
         
         // ==================== RHYTHM GRID ====================
@@ -1195,24 +1161,17 @@
         function setMode(mode) {
             currentMode = mode;
             
-            // Update buttons
             document.getElementById('learnModeBtn').classList.toggle('active', mode === 'learn');
             document.getElementById('quizModeBtn').classList.toggle('active', mode === 'quiz');
             
-            // Update content visibility
             document.getElementById('learnContent').style.display = mode === 'learn' ? 'block' : 'none';
             document.getElementById('quizContent').style.display = mode === 'quiz' ? 'block' : 'none';
             document.getElementById('quizScore').style.display = mode === 'quiz' ? 'block' : 'none';
             
-            // Update monitor display
             document.getElementById('monitorHR').style.display = mode === 'learn' ? 'flex' : 'none';
             
-            // Hide emergency banner in quiz mode (would give away the answer)
             if (mode === 'quiz') {
                 document.getElementById('emergencyBanner').style.display = 'none';
-            }
-            
-            if (mode === 'quiz') {
                 startQuiz();
             } else {
                 updateRhythmDisplay();
@@ -1221,7 +1180,6 @@
         
         // ==================== RHYTHM SELECTION ====================
         function selectRhythm(rhythmKey) {
-            // Update active state
             document.querySelectorAll('.rhythm-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`rhythm-${rhythmKey}`).classList.add('active');
             
@@ -1235,18 +1193,15 @@
         function updateRhythmDisplay() {
             const rhythm = rhythms[selectedRhythm];
             
-            // Update title and description
             document.getElementById('rhythmTitle').textContent = rhythm.name;
             document.getElementById('rhythmTitle').style.color = rhythm.color;
             document.getElementById('rhythmDescription').textContent = rhythm.description;
             
-            // Update features list
             const featuresList = document.getElementById('featuresList');
             featuresList.innerHTML = rhythm.keyFeatures.map(feature => 
                 `<li><i class="bi bi-check-circle-fill check-icon" style="color: ${rhythm.color}"></i>${feature}</li>`
             ).join('');
             
-            // Update rate slider
             const rateCard = document.getElementById('rateCard');
             if (rhythm.minRate === rhythm.maxRate || rhythm.minRate === 0) {
                 rateCard.style.display = 'none';
@@ -1261,15 +1216,12 @@
                 document.getElementById('rateMax').textContent = rhythm.maxRate + ' BPM';
             }
             
-            // Update monitor
             document.getElementById('hrValue').textContent = heartRate || '--';
             document.getElementById('monitorHR').style.color = rhythm.color;
             
-            // Show/hide emergency banner
             const banner = document.getElementById('emergencyBanner');
             banner.style.display = rhythm.emergency ? 'block' : 'none';
             
-            // Show/hide No Pulse indicator for PEA and pulseless VT
             const noPulseIndicator = document.getElementById('noPulseIndicator');
             if (selectedRhythm === 'pea' || selectedRhythm === 'ventricularTachycardia') {
                 noPulseIndicator.style.display = 'flex';
@@ -1295,37 +1247,25 @@
         }
         
         function startQuiz() {
-            // Reset score
             score = { correct: 0, total: 0 };
             currentQuizIndex = 0;
-            
-            // Shuffle all rhythm keys
             quizRhythms = shuffleArray(Object.keys(rhythms));
-            
-            // Hide final results, show question
             document.getElementById('quizFinalResults').style.display = 'none';
-            
-            // Start first question
             showCurrentQuestion();
         }
         
         function showCurrentQuestion() {
             quizRhythm = quizRhythms[currentQuizIndex];
             
-            // Reset quiz UI
             document.getElementById('quizQuestion').style.display = 'block';
             document.getElementById('quizResult').style.display = 'none';
             document.getElementById('quizFinalResults').style.display = 'none';
             document.getElementById('quizAnswer').value = '';
             document.getElementById('checkAnswerBtn').disabled = true;
             
-            // Update question number
             document.getElementById('questionNumber').textContent = currentQuizIndex + 1;
-            
-            // Always hide emergency banner in quiz mode (would give away the answer)
             document.getElementById('emergencyBanner').style.display = 'none';
             
-            // Show/hide No Pulse indicator for PEA and pulseless VT
             const noPulseIndicator = document.getElementById('noPulseIndicator');
             if (quizRhythm === 'pea' || quizRhythm === 'ventricularTachycardia') {
                 noPulseIndicator.style.display = 'flex';
@@ -1333,24 +1273,17 @@
                 noPulseIndicator.style.display = 'none';
             }
             
-            // Update score display
             updateScoreDisplay();
-        }
-        
-        function startNewQuizQuestion() {
-            startQuiz();
         }
         
         function checkAnswer() {
             const userAnswer = document.getElementById('quizAnswer').value;
             const isCorrect = userAnswer === quizRhythm;
             
-            // Update score
             score.total++;
             if (isCorrect) score.correct++;
             updateScoreDisplay();
             
-            // Show result
             document.getElementById('quizQuestion').style.display = 'none';
             document.getElementById('quizResult').style.display = 'block';
             
@@ -1371,7 +1304,6 @@
             document.getElementById('correctAnswerText').textContent = rhythms[quizRhythm].name;
             document.getElementById('quizExplanation').textContent = rhythms[quizRhythm].description;
             
-            // Update button text for last question
             const nextBtn = document.querySelector('#quizResult .quiz-btn-primary');
             if (currentQuizIndex >= quizRhythms.length - 1) {
                 nextBtn.textContent = 'See Results →';
@@ -1382,8 +1314,6 @@
         
         function nextQuestion() {
             currentQuizIndex++;
-            
-            // Check if quiz is complete
             if (currentQuizIndex >= quizRhythms.length) {
                 showFinalResults();
             } else {
@@ -1394,18 +1324,15 @@
         function showFinalResults() {
             const percent = Math.round((score.correct / 14) * 100);
             
-            // Hide other screens
             document.getElementById('quizQuestion').style.display = 'none';
             document.getElementById('quizResult').style.display = 'none';
             document.getElementById('quizScore').style.display = 'none';
             document.getElementById('noPulseIndicator').style.display = 'none';
             
-            // Show final results
             document.getElementById('quizFinalResults').style.display = 'block';
             document.getElementById('finalPercent').textContent = percent + '%';
             document.getElementById('finalCorrect').textContent = score.correct;
             
-            // Set message based on score
             let message;
             if (percent === 100) {
                 message = '🌟 Perfect! You\'re an ECG expert!';
@@ -1458,20 +1385,16 @@
             const width = canvas.width;
             const height = canvas.height;
             
-            // Clear canvas with dark background
             ctx.fillStyle = '#1a1a2e';
             ctx.fillRect(0, 0, width, height);
             
-            // Draw grid
             drawGrid(width, height);
             
-            // Get current rhythm (quiz or learn mode)
             const currentRhythm = currentMode === 'quiz' ? quizRhythm : selectedRhythm;
             const currentRate = currentMode === 'quiz' ? rhythms[quizRhythm]?.defaultRate || 75 : heartRate;
             
             if (!currentRhythm) return;
             
-            // Generate and draw waveform
             const points = generateWaveform(currentRhythm, currentRate, width);
             const waveColor = currentMode === 'quiz' ? '#22c55e' : rhythms[selectedRhythm].color;
             
@@ -1494,7 +1417,6 @@
         }
         
         function drawGrid(width, height) {
-            // Small grid
             ctx.strokeStyle = '#2d2d4a';
             ctx.lineWidth = 0.5;
             
@@ -1511,7 +1433,6 @@
                 ctx.stroke();
             }
             
-            // Large grid
             ctx.strokeStyle = '#3d3d5a';
             ctx.lineWidth = 1;
             
@@ -1535,13 +1456,10 @@
             const pixelsPerSecond = 100;
             const beatInterval = rate > 0 ? (60 / rate) * pixelsPerSecond : 1000;
             
-            // For AF, pre-calculate irregular beat positions
             let afBeatPositions = [];
             if (rhythm === 'atrialFibrillation') {
-                // Create irregular R-R intervals (some short, some long)
-                // Pattern repeats every ~800 pixels for consistency
                 const patternLength = 800;
-                const intervals = [45, 70, 55, 90, 40, 85, 60, 75, 50, 95, 65, 80]; // Irregular intervals in pixels
+                const intervals = [45, 70, 55, 90, 40, 85, 60, 75, 50, 95, 65, 80];
                 let pos = 0;
                 for (let i = 0; pos < patternLength * 3; i++) {
                     afBeatPositions.push(pos);
@@ -1561,7 +1479,6 @@
                 } else if (rhythm === 'asystole') {
                     y = baselineY + (Math.random() - 0.5) * 2;
                 } else if (rhythm === 'atrialFibrillation') {
-                    // Find distance to nearest beat
                     const patternLength = 800;
                     const posInPattern = adjustedX % patternLength;
                     
@@ -1571,11 +1488,10 @@
                         const dist = posInPattern - beatPos;
                         if (Math.abs(dist) < Math.abs(minDist)) {
                             minDist = dist;
-                            // Calculate phase within the beat (0-1 over ~50 pixels)
                             if (dist >= 0 && dist < 50) {
                                 beatPhase = dist / 50;
                             } else {
-                                beatPhase = -1; // Not in a beat
+                                beatPhase = -1;
                             }
                         }
                     }
@@ -1592,32 +1508,25 @@
             return points;
         }
         
-        // Dedicated function for AF beat shape - clean like the reference image
         function generateAFBeat(phase, baselineY) {
             if (phase < 0 || phase > 1) {
-                // Flat baseline between beats
                 return baselineY;
             }
             
             let y = baselineY;
             
-            // Q wave (small dip) - phase 0.0 to 0.1
             if (phase >= 0.0 && phase < 0.1) {
                 y = baselineY + Math.sin((phase / 0.1) * Math.PI) * 4;
             }
-            // R wave (tall spike up) - phase 0.1 to 0.25
             else if (phase >= 0.1 && phase < 0.25) {
                 y = baselineY - Math.sin(((phase - 0.1) / 0.15) * Math.PI) * 60;
             }
-            // S wave (small dip down) - phase 0.25 to 0.35
             else if (phase >= 0.25 && phase < 0.35) {
                 y = baselineY + Math.sin(((phase - 0.25) / 0.1) * Math.PI) * 10;
             }
-            // T wave (rounded bump) - phase 0.5 to 0.85
             else if (phase >= 0.5 && phase < 0.85) {
                 y = baselineY - Math.sin(((phase - 0.5) / 0.35) * Math.PI) * 12;
             }
-            // Flat baseline
             else {
                 y = baselineY;
             }
@@ -1633,58 +1542,39 @@
                 case 'sinusBradycardia':
                 case 'sinusTachycardia':
                 case 'pea':
-                    // P wave
                     if (cyclePos >= 0.0 && cyclePos < 0.08) {
                         y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
                     }
-                    // Q wave
                     else if (cyclePos >= 0.16 && cyclePos < 0.18) {
                         y = baselineY + Math.sin(((cyclePos - 0.16) / 0.02) * Math.PI) * 8;
                     }
-                    // R wave
                     else if (cyclePos >= 0.18 && cyclePos < 0.22) {
                         y = baselineY - Math.sin(((cyclePos - 0.18) / 0.04) * Math.PI) * 60;
                     }
-                    // S wave
                     else if (cyclePos >= 0.22 && cyclePos < 0.26) {
                         y = baselineY + Math.sin(((cyclePos - 0.22) / 0.04) * Math.PI) * 15;
                     }
-                    // T wave
                     else if (cyclePos >= 0.35 && cyclePos < 0.50) {
                         y = baselineY - Math.sin(((cyclePos - 0.35) / 0.15) * Math.PI) * 15;
                     }
                     break;
                     
-                case 'atrialFibrillation':
-                    // Handled separately in generateAFBeat function
-                    y = baselineY;
-                    break;
-                    
                 case 'atrialFlutter':
-                    // Sawtooth flutter waves at ~300 bpm - negative deflections in Lead II
-                    // Each flutter wave cycle is about 200ms = 20 pixels
                     const flutterPeriod = 20;
                     const flutterPos = (adjustedX % flutterPeriod) / flutterPeriod;
                     
-                    // Classic Lead II flutter: sharp negative deflection, gradual return
-                    // Creates the characteristic sawtooth pointing downward
                     let flutterWave;
                     if (flutterPos < 0.7) {
-                        // Gradual upward slope (returning to baseline)
                         flutterWave = baselineY + 10 - (flutterPos / 0.7) * 20;
                     } else {
-                        // Sharp downward deflection (the "tooth")
                         flutterWave = baselineY - 10 + ((flutterPos - 0.7) / 0.3) * 20;
                     }
                     
                     y = flutterWave;
                     
-                    // Superimpose narrow QRS complex on top of flutter waves
-                    // R wave - tall and narrow, cuts through the flutter
                     if (cyclePos >= 0.18 && cyclePos < 0.21) {
                         y = baselineY - Math.sin(((cyclePos - 0.18) / 0.03) * Math.PI) * 55;
                     }
-                    // S wave - small
                     else if (cyclePos >= 0.21 && cyclePos < 0.24) {
                         y = baselineY + Math.sin(((cyclePos - 0.21) / 0.03) * Math.PI) * 10;
                     }
@@ -1803,12 +1693,9 @@
         }
         
         // ==================== SUBSCRIPTION CHECK ====================
-        // Uncomment this function if you want to use Firebase auth
-     
         function checkSubscription() {
             firebase.auth().onAuthStateChanged(function(user) {
                 if (user) {
-                    // Check Firestore for subscription status
                     firebase.firestore().collection('users').doc(user.uid).get()
                         .then(function(doc) {
                             if (doc.exists) {
@@ -1819,13 +1706,13 @@
                             }
                         });
                 } else {
-                    // Not logged in - show upgrade overlay
                     document.getElementById('proOverlay').classList.add('show');
                 }
             });
         }
-      
     </script>
+    
+    <!-- MENU SCRIPT - MUST BE LAST (after Firebase) -->
     <script src="js/menu.js"></script>
 </body>
 </html>
