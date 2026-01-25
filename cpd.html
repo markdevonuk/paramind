@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title>CPD Portfolio | ParaMind</title>
+    <title>CPD Portfolio | Paramind</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -62,6 +62,7 @@
             background: var(--color-white);
             padding: 1.5rem;
             border-bottom: 1px solid var(--color-gray-200);
+            text-align: center;
         }
         
         .page-header h1 {
@@ -69,7 +70,7 @@
             font-weight: 700;
             color: var(--color-gray-800);
             margin: 0 0 0.25rem 0;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 0.5rem;
         }
@@ -429,11 +430,11 @@
         
         <!-- Page Header -->
         <div class="page-header">
-            <h1>
+            <h2>
                 <i class="bi bi-award"></i>
                 CPD Portfolio
-                <span class="pro-badge">Pro</span>
-            </h1>
+                
+            </h2>
             <p>Your completed learning scenarios and certificates</p>
         </div>
         
@@ -902,30 +903,35 @@
                 
                 const token = await user.getIdToken();
                 
-                const response = await fetch(`${API_CONFIG.baseUrl}/deleteCpdRecord`, {
+                // Note: API expects record ID as query parameter, not in body
+                const response = await fetch(`${API_CONFIG.baseUrl}/deleteCpdRecord?id=${recordId}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ recordId })
+                    }
                 });
                 
                 if (!response.ok) {
                     throw new Error('Failed to delete record');
                 }
                 
-                // Remove from DOM
+                // Remove from DOM with animation
                 const recordEl = document.querySelector(`[data-record-id="${recordId}"]`);
                 if (recordEl) {
-                    recordEl.remove();
-                }
-                
-                // Check if list is now empty
-                const remaining = elements.cpdList.querySelectorAll('.cpd-record');
-                if (remaining.length === 0) {
-                    elements.cpdList.classList.add('hidden');
-                    elements.emptyState.classList.remove('hidden');
+                    recordEl.style.transition = 'all 0.3s ease';
+                    recordEl.style.opacity = '0';
+                    recordEl.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        recordEl.remove();
+                        
+                        // Check if list is now empty
+                        const remaining = elements.cpdList.querySelectorAll('.cpd-record');
+                        if (remaining.length === 0) {
+                            elements.cpdList.classList.add('hidden');
+                            elements.emptyState.classList.remove('hidden');
+                        }
+                    }, 300);
                 }
                 
             } catch (error) {
