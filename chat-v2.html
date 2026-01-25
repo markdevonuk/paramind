@@ -192,6 +192,14 @@
             51%, 100% { opacity: 0; }
         }
         
+        /* Streaming text - consistent sizing during streaming */
+        .streaming-text {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: inherit;
+            line-height: 1.5;
+        }
+        
         /* Typing indicator */
         .typing-indicator {
             display: flex;
@@ -819,7 +827,13 @@
             if (messageDiv) {
                 const textSpan = messageDiv.querySelector('.streaming-text');
                 if (textSpan) {
-                    textSpan.innerHTML = formatMessage(content);
+                    // Escape HTML and convert line breaks - no markdown during streaming
+                    const escaped = content
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/\n/g, '<br>');
+                    textSpan.innerHTML = escaped;
                 }
                 
                 // Only auto-scroll if user hasn't scrolled up to read
@@ -835,6 +849,7 @@
             if (messageDiv) {
                 const contentDiv = messageDiv.querySelector('.message-content');
                 if (contentDiv) {
+                    // Only format when complete
                     contentDiv.innerHTML = formatMessage(content);
                 }
             }
