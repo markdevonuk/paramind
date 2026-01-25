@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinical Connections - A&P Learning Tool</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js">
+    <style>
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+        .animate-bounce-dot {
+            animation: bounce 0.6s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState } = React;
+
+        // Icons as simple SVG components
+        const Heart = ({ className }) => (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+        );
+
+        const Wind = ({ className }) => (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.59 4.59A2 2 0 1111 8H2m10.59 11.41A2 2 0 1014 16H2m15.73-8.27A2.5 2.5 0 1119.5 12H2" />
+            </svg>
+        );
+
+        const Brain = ({ className }) => (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5c-1.5-1.5-4-1.5-5.5 0s-1.5 4 0 5.5l.5.5c-1.5 1-2.5 3-2 5 .5 2.5 3 4 5.5 3.5 0 0 1-.5 1.5-.5s1.5.5 1.5.5c2.5.5 5-1 5.5-3.5.5-2-.5-4-2-5l.5-.5c1.5-1.5 1.5-4 0-5.5s-4-1.5-5.5 0" />
+            </svg>
+        );
+
+        const Stethoscope = ({ className }) => (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 3v2m6-2v2M9 5a2 2 0 00-2 2v4a5 5 0 0010 0V7a2 2 0 00-2-2M9 5h6m-3 6v8m0 0a3 3 0 106 0v-1m-6 1v1" />
+            </svg>
+        );
+
+        const Droplets = ({ className }) => (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21c-4-4-8-7.5-8-11a8 8 0 1116 0c0 3.5-4 7-8 11z" />
+            </svg>
+        );
+
+        const Bone = ({ className }) => (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 8a2 2 0 11-4 0 2 2 0 014 0zm0 0l12 8m0 0a2 2 0 104 0 2 2 0 00-4 0zm0-8a2 2 0 104 0 2 2 0 00-4 0zm0 0L6 16m0 0a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+        );
+
+        const Zap = ({ className }) => (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+        );
+
+        const Shield = ({ className }) => (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+        );
+
+        const ChevronRight = ({ className }) => (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+        );
+
+        const ArrowLeft = ({ className }) => (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m7-7l-7 7 7 7" />
+            </svg>
+        );
+
+        const Lightbulb = ({ className }) => (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 21h6m-6-4h6m-3-4v4m0-4a5 5 0 10-3-9m3 9a5 5 0 003-9" />
+            </svg>
+        );
+
+        const Sparkles = ({ className }) => (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 3l1 5 5 1-5 1-1 5-1-5-5-1 5-1 1-5zm12 8l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3z" />
+            </svg>
+        );
+
+        const BODY_SYSTEMS = [
+            {
+                id: 'cardiovascular',
+                name: 'Cardiovascular',
+                icon: Heart,
+                color: 'bg-red-500',
+                lightColor: 'bg-red-50',
+                textColor: 'text-red-600',
+                borderColor: 'border-red-200',
+                questions: [
+                    "Why does a PE cause tachycardia?",
+                    "How does heart failure cause peripheral oedema?",
+                    "Why do we see JVP elevation in right heart failure?",
+                    "Explain why MI can cause referred pain to the arm and jaw",
+                    "Why does aortic stenosis cause syncope on exertion?",
+                    "How does atrial fibrillation increase stroke risk?",
+                    "Why do patients with heart failure get breathless when lying flat?",
+                    "Explain the pathophysiology of cardiogenic shock",
+                    "Why does severe bradycardia cause hypotension?",
+                    "How does cardiac tamponade affect blood pressure?"
+                ]
+            },
+            {
+                id: 'respiratory',
+                name: 'Respiratory',
+                icon: Wind,
+                color: 'bg-sky-500',
+                lightColor: 'bg-sky-50',
+                textColor: 'text-sky-600',
+                borderColor: 'border-sky-200',
+                questions: [
+                    "Explain the pathophysiology of anaphylaxis and airway compromise",
+                    "Why does COPD cause a barrel chest?",
+                    "How does asthma cause wheeze?",
+                    "Why do we see pursed lip breathing in COPD patients?",
+                    "Explain why tension pneumothorax causes tracheal deviation",
+                    "Why does pulmonary oedema cause pink frothy sputum?",
+                    "How does hyperventilation cause tingling in the hands?",
+                    "Why do asthmatics have a prolonged expiratory phase?",
+                    "Explain why oxygen can be dangerous in some COPD patients",
+                    "How does a flail chest affect ventilation?"
+                ]
+            },
+            {
+                id: 'nervous',
+                name: 'Nervous System',
+                icon: Brain,
+                color: 'bg-purple-500',
+                lightColor: 'bg-purple-50',
+                textColor: 'text-purple-600',
+                borderColor: 'border-purple-200',
+                questions: [
+                    "Why does a stroke cause one-sided weakness?",
+                    "Explain the pathophysiology of a seizure",
+                    "How does raised intracranial pressure cause Cushing's triad?",
+                    "Why do patients become unconscious with hypoglycaemia?",
+                    "Explain why pupil changes occur in head injuries",
+                    "How does meningitis cause neck stiffness?",
+                    "Why does a subarachnoid haemorrhage cause sudden severe headache?",
+                    "Explain the difference between upper and lower motor neuron lesions",
+                    "Why does spinal cord injury cause neurogenic shock?",
+                    "How does the autonomic nervous system affect heart rate?"
+                ]
+            },
+            {
+                id: 'gastrointestinal',
+                name: 'Gastrointestinal',
+                icon: Stethoscope,
+                color: 'bg-amber-500',
+                lightColor: 'bg-amber-50',
+                textColor: 'text-amber-600',
+                borderColor: 'border-amber-200',
+                questions: [
+                    "Why does GI bleeding cause melaena vs fresh blood?",
+                    "Explain the pathophysiology of acute pancreatitis pain",
+                    "How does bowel obstruction cause vomiting?",
+                    "Why does liver failure cause confusion?",
+                    "Explain why appendicitis pain moves from umbilicus to RIF",
+                    "How does dehydration from D&V affect the cardiovascular system?",
+                    "Why does cholecystitis cause referred shoulder pain?",
+                    "Explain the pathophysiology of peritonitis",
+                    "How does a AAA cause back pain?",
+                    "Why do patients with GI bleeds become tachycardic before hypotensive?"
+                ]
+            },
+            {
+                id: 'renal',
+                name: 'Renal & Urinary',
+                icon: Droplets,
+                color: 'bg-yellow-500',
+                lightColor: 'bg-yellow-50',
+                textColor: 'text-yellow-600',
+                borderColor: 'border-yellow-200',
+                questions: [
+                    "How does acute kidney injury cause hyperkalaemia?",
+                    "Why does kidney failure cause fluid overload?",
+                    "Explain the pathophysiology of renal colic pain",
+                    "How does chronic kidney disease cause anaemia?",
+                    "Why do dialysis patients get breathless between treatments?",
+                    "Explain how UTIs can cause confusion in elderly patients",
+                    "Why does urinary retention cause lower abdominal pain?",
+                    "How does rhabdomyolysis affect the kidneys?",
+                    "Explain why kidney patients are prone to arrhythmias",
+                    "How does dehydration affect kidney function?"
+                ]
+            },
+            {
+                id: 'endocrine',
+                name: 'Endocrine',
+                icon: Zap,
+                color: 'bg-emerald-500',
+                lightColor: 'bg-emerald-50',
+                textColor: 'text-emerald-600',
+                borderColor: 'border-emerald-200',
+                questions: [
+                    "Explain the pathophysiology of diabetic ketoacidosis",
+                    "Why does hypoglycaemia cause sweating and tremor?",
+                    "How does Addison's disease cause hypotension?",
+                    "Why do diabetics get fruity-smelling breath in DKA?",
+                    "Explain how HHS differs from DKA",
+                    "Why does hyperthyroidism cause tachycardia and tremor?",
+                    "How does hypothyroidism affect the body?",
+                    "Explain why stress causes blood glucose to rise",
+                    "Why do Type 1 and Type 2 diabetes present differently?",
+                    "How does insulin work at a cellular level?"
+                ]
+            },
+            {
+                id: 'musculoskeletal',
+                name: 'Musculoskeletal',
+                icon: Bone,
+                color: 'bg-orange-500',
+                lightColor: 'bg-orange-50',
+                textColor: 'text-orange-600',
+                borderColor: 'border-orange-200',
+                questions: [
+                    "Why do fractures cause fat embolism syndrome?",
+                    "Explain compartment syndrome pathophysiology",
+                    "How does a femoral fracture cause significant blood loss?",
+                    "Why does a hip fracture cause leg shortening and rotation?",
+                    "Explain the pathophysiology of crush syndrome",
+                    "How do long bone fractures affect clotting?",
+                    "Why is pelvic fracture so dangerous?",
+                    "Explain why open fractures are high risk for infection",
+                    "How does muscle damage release potassium?",
+                    "Why do elderly patients fracture more easily?"
+                ]
+            },
+            {
+                id: 'immune',
+                name: 'Immune & Infection',
+                icon: Shield,
+                color: 'bg-pink-500',
+                lightColor: 'bg-pink-50',
+                textColor: 'text-pink-600',
+                borderColor: 'border-pink-200',
+                questions: [
+                    "Explain the pathophysiology of sepsis",
+                    "Why does anaphylaxis cause widespread vasodilation?",
+                    "How does the body's immune response cause fever?",
+                    "Why does sepsis cause mottled skin?",
+                    "Explain why immunocompromised patients present atypically",
+                    "How do mast cells cause allergic reactions?",
+                    "Why does severe infection cause low blood pressure?",
+                    "Explain the difference between sepsis and septic shock",
+                    "How does the inflammatory response cause redness and swelling?",
+                    "Why do some infections cause rigors?"
+                ]
+            }
+        ];
+
+        // Hollie's image - embedded as base64 for the demo
+        const HOLLIE_IMAGE = "/mnt/user-data/uploads/ChatGPT_Image_Jan_8__2026_at_03_42_13_PM.png";
+
+        function ClinicalConnections() {
+            const [selectedSystem, setSelectedSystem] = useState(null);
+            const [selectedQuestion, setSelectedQuestion] = useState(null);
+            const [answer, setAnswer] = useState('');
+            const [isLoading, setIsLoading] = useState(false);
+            const [error, setError] = useState(null);
+
+            const handleQuestionClick = async (question) => {
+                setSelectedQuestion(question);
+                setAnswer('');
+                setError(null);
+                setIsLoading(true);
+
+                try {
+                    const systemPrompt = `You are Hollie, a friendly and experienced UK paramedic who loves teaching anatomy and physiology to fellow paramedics and students. You explain things in a warm, conversational way - like you're chatting to a colleague over a cuppa.
+
+Your personality:
+- Friendly and approachable - use "you" and speak directly to the learner
+- Enthusiastic about A&P - you find it genuinely fascinating
+- Practical - always link theory to what we see on the road
+- Encouraging - make learners feel confident
+- Use phrases like "So basically...", "The cool thing is...", "You'll often see...", "Think of it like..."
+
+When explaining:
+1. Start with a friendly opener (e.g., "Great question!", "Ah, this is a really important one!", "Ooh I love this topic!")
+2. Give a simple overview first
+3. Explain the anatomy involved in plain terms
+4. Walk through the physiology step-by-step
+5. Link it to clinical signs we observe as paramedics
+6. End with an encouraging note or practical tip
+
+Keep it conversational - no formal headers or bullet points. Write in flowing paragraphs like you're actually talking. Use UK spelling and terminology.
+
+Keep responses around 250-350 words - detailed enough to be useful but not overwhelming.
+
+Remember: This is for EDUCATION only - never give treatment advice. If treatment comes up, remind them to check JRCalc.`;
+
+                    const response = await fetch("https://api.anthropic.com/v1/messages", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            model: "claude-sonnet-4-20250514",
+                            max_tokens: 1000,
+                            system: systemPrompt,
+                            messages: [
+                                { 
+                                    role: "user", 
+                                    content: question
+                                }
+                            ],
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.content && data.content[0] && data.content[0].text) {
+                        setAnswer(data.content[0].text);
+                    } else {
+                        setError('Unable to get a response. Please try again.');
+                    }
+                } catch (err) {
+                    setError('Failed to connect. Please check your connection and try again.');
+                    console.error('API Error:', err);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            // Main system selection view
+            if (!selectedSystem) {
+                return (
+                    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50 p-4 md:p-6">
+                        <div className="max-w-4xl mx-auto">
+                            {/* Header with Hollie */}
+                            <div className="text-center mb-8">
+                                <div className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-4">
+                                    <Sparkles className="w-4 h-4" />
+                                    A&P Learning Tool
+                                </div>
+                                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+                                    Clinical Connections
+                                </h1>
+                                
+                                {/* Hollie Introduction */}
+                                <div className="bg-white rounded-2xl p-5 border border-emerald-200 shadow-sm max-w-2xl mx-auto mt-6">
+                                    <div className="flex items-start gap-4">
+                                        <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-emerald-400 shadow-lg flex-shrink-0">
+                                            <img 
+                                                src={HOLLIE_IMAGE}
+                                                alt="Hollie - Your Paramedic Tutor"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                        <div className="text-left">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="font-bold text-gray-900 text-lg">Hollie</span>
+                                                <span className="bg-emerald-100 text-emerald-700 text-xs px-2 py-0.5 rounded-full font-medium">Paramedic Tutor</span>
+                                            </div>
+                                            <p className="text-gray-600 leading-relaxed">
+                                                "Hey! 👋 I'm Hollie, and I'm here to help you understand the A&P behind what we see on the road. 
+                                                Pick a body system below and I'll explain how it all connects to clinical practice!"
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Body Systems Grid */}
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                {BODY_SYSTEMS.map((system) => {
+                                    const IconComponent = system.icon;
+                                    return (
+                                        <button
+                                            key={system.id}
+                                            onClick={() => setSelectedSystem(system)}
+                                            className={`${system.lightColor} ${system.borderColor} border-2 rounded-2xl p-6 text-center hover:scale-105 transition-all duration-200 hover:shadow-lg`}
+                                        >
+                                            <div className={`${system.color} w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-3`}>
+                                                <IconComponent className="w-7 h-7 text-white" />
+                                            </div>
+                                            <h3 className={`font-semibold ${system.textColor}`}>{system.name}</h3>
+                                            <p className="text-xs text-gray-500 mt-1">{system.questions.length} questions</p>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Question selection view
+            if (!selectedQuestion) {
+                const IconComponent = selectedSystem.icon;
+                return (
+                    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50 p-4 md:p-6">
+                        <div className="max-w-3xl mx-auto">
+                            {/* Back Button */}
+                            <button
+                                onClick={() => setSelectedSystem(null)}
+                                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+                            >
+                                <ArrowLeft className="w-5 h-5" />
+                                <span>Back to body systems</span>
+                            </button>
+
+                            {/* System Header */}
+                            <div className={`${selectedSystem.lightColor} ${selectedSystem.borderColor} border-2 rounded-2xl p-6 mb-6`}>
+                                <div className="flex items-center gap-4">
+                                    <div className={`${selectedSystem.color} w-16 h-16 rounded-xl flex items-center justify-center`}>
+                                        <IconComponent className="w-8 h-8 text-white" />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-2xl font-bold text-gray-900">{selectedSystem.name}</h1>
+                                        <p className="text-gray-600">Select a question to ask Hollie</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Questions List */}
+                            <div className="space-y-3">
+                                {selectedSystem.questions.map((question, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => handleQuestionClick(question)}
+                                        className="w-full bg-white hover:bg-gray-50 border border-gray-200 rounded-xl p-4 text-left flex items-center justify-between gap-4 transition-all hover:shadow-md hover:border-gray-300"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className={`${selectedSystem.lightColor} ${selectedSystem.textColor} w-8 h-8 rounded-lg flex items-center justify-center font-semibold text-sm`}>
+                                                {index + 1}
+                                            </div>
+                                            <span className="text-gray-800 font-medium">{question}</span>
+                                        </div>
+                                        <ChevronRight className={`w-5 h-5 ${selectedSystem.textColor} opacity-50`} />
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Answer view - Chat style with Hollie
+            const IconComponent = selectedSystem.icon;
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50 p-4 md:p-6">
+                    <div className="max-w-3xl mx-auto">
+                        {/* Back Button */}
+                        <button
+                            onClick={() => setSelectedQuestion(null)}
+                            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+                        >
+                            <ArrowLeft className="w-5 h-5" />
+                            <span>Back to questions</span>
+                        </button>
+
+                        {/* Chat Container */}
+                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                            {/* Chat Header */}
+                            <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-emerald-500 to-emerald-600">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white/30 shadow flex-shrink-0">
+                                        <img 
+                                            src={HOLLIE_IMAGE}
+                                            alt="Hollie"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                    <div>
+                                        <h2 className="font-bold text-white">Hollie</h2>
+                                        <p className="text-emerald-100 text-sm">Paramedic Tutor</p>
+                                    </div>
+                                    <div className={`ml-auto ${selectedSystem.lightColor} ${selectedSystem.textColor} px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1`}>
+                                        <IconComponent className="w-4 h-4" />
+                                        <span className="hidden sm:inline">{selectedSystem.name}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Chat Messages Area */}
+                            <div className="p-4 md:p-6 bg-gray-50 min-h-[400px]">
+                                {/* User Question Bubble */}
+                                <div className="flex justify-end mb-6">
+                                    <div className="bg-emerald-500 text-white px-4 py-3 rounded-2xl rounded-br-md max-w-[85%] shadow-sm">
+                                        <p className="font-medium">{selectedQuestion}</p>
+                                    </div>
+                                </div>
+
+                                {/* Hollie's Response */}
+                                <div className="flex items-start gap-3">
+                                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-emerald-200 shadow flex-shrink-0">
+                                        <img 
+                                            src={HOLLIE_IMAGE}
+                                            alt="Hollie"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                    <div className="flex-1">
+                                        {isLoading ? (
+                                            <div className="bg-white px-4 py-3 rounded-2xl rounded-tl-md shadow-sm border border-gray-200 inline-block">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex gap-1">
+                                                        <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                                                        <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                                                        <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                                                    </div>
+                                                    <span className="text-gray-500 text-sm">Hollie is typing...</span>
+                                                </div>
+                                            </div>
+                                        ) : error ? (
+                                            <div className="bg-white px-4 py-3 rounded-2xl rounded-tl-md shadow-sm border border-red-200">
+                                                <p className="text-red-600">{error}</p>
+                                                <button
+                                                    onClick={() => handleQuestionClick(selectedQuestion)}
+                                                    className="mt-2 text-emerald-600 hover:text-emerald-700 font-medium text-sm"
+                                                >
+                                                    Try again
+                                                </button>
+                                            </div>
+                                        ) : answer ? (
+                                            <div className="bg-white px-4 py-4 rounded-2xl rounded-tl-md shadow-sm border border-gray-200 max-w-[95%]">
+                                                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{answer}</p>
+                                            </div>
+                                        ) : null}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Educational Disclaimer */}
+                            <div className="p-4 border-t border-gray-100 bg-amber-50">
+                                <div className="flex items-start gap-2">
+                                    <Lightbulb className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                                    <p className="text-xs text-amber-800">
+                                        <strong>Educational content only.</strong> Always refer to JRCalc and your clinical guidelines for treatment decisions.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Ask Another Question Button */}
+                        {answer && (
+                            <div className="mt-4 text-center">
+                                <button
+                                    onClick={() => setSelectedQuestion(null)}
+                                    className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-xl font-medium transition-colors shadow-sm"
+                                >
+                                    Ask Hollie another question
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<ClinicalConnections />, document.getElementById('root'));
+    </script>
+</body>
+</html>
