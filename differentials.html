@@ -172,8 +172,14 @@
         /* Vital Signs Grid */
         .vital-signs-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 0.5rem;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        
+        @media (min-width: 576px) {
+            .vital-signs-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
         
         .vital-input {
@@ -182,19 +188,20 @@
         }
         
         .vital-input label {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 600;
             color: var(--color-gray-500);
             text-transform: uppercase;
             letter-spacing: 0.3px;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.35rem;
         }
         
         .vital-input input {
-            padding: 0.5rem;
+            padding: 0.75rem 0.5rem;
             text-align: center;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 1rem;
+            border-radius: var(--radius-md);
         }
         
         /* Submit Button */
