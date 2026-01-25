@@ -73,32 +73,32 @@
             text-decoration: none;
         }
         
-        /* Main Container - Split View */
+        /* Main Container - Single column on mobile, split on desktop */
         .main-container {
             flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            overflow-y: auto;
         }
         
         @media (min-width: 992px) {
             .main-container {
+                display: flex;
                 flex-direction: row;
+                overflow: hidden;
             }
         }
         
         /* Form Panel */
         .form-panel {
             padding: 1.5rem;
-            overflow-y: auto;
             background: var(--color-white);
         }
         
         @media (min-width: 992px) {
             .form-panel {
-                width: 400px;
+                width: 420px;
                 flex-shrink: 0;
                 border-right: 1px solid var(--color-gray-200);
+                overflow-y: auto;
             }
         }
         
@@ -242,10 +242,30 @@
         
         /* Response Panel */
         .response-panel {
-            flex: 1;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            background: var(--color-gray-50);
+        }
+        
+        /* Mobile: hidden by default, shown when has content */
+        .response-panel.hidden-mobile {
+            display: none;
+        }
+        
+        .response-panel.has-content {
+            display: flex;
+            min-height: 300px;
+        }
+        
+        @media (min-width: 992px) {
+            .response-panel {
+                flex: 1;
+                overflow: hidden;
+            }
+            
+            .response-panel.hidden-mobile {
+                display: flex;
+            }
         }
         
         .response-header {
@@ -418,15 +438,10 @@
             font-weight: 500;
         }
         
-        /* Mobile: Stack panels vertically */
-        @media (max-width: 991.98px) {
-            .form-panel {
-                max-height: 50vh;
-                border-bottom: 1px solid var(--color-gray-200);
-            }
-            
-            .response-panel {
-                min-height: 50vh;
+        /* Desktop: overflow in response content */
+        @media (min-width: 992px) {
+            .response-content {
+                overflow-y: auto;
             }
         }
     </style>
@@ -559,7 +574,7 @@
         </div>
         
         <!-- ==================== RESPONSE PANEL ==================== -->
-        <div class="response-panel">
+        <div class="response-panel hidden-mobile" id="responsePanel">
             <div class="response-header">
                 <h2><i class="bi bi-robot"></i> AI Guidance</h2>
                 <button class="clear-btn" id="clearBtn">
@@ -644,6 +659,7 @@
             emptyState: document.getElementById('emptyState'),
             responseArea: document.getElementById('responseArea'),
             responseContent: document.getElementById('responseContent'),
+            responsePanel: document.getElementById('responsePanel'),
             messageLimitBanner: document.getElementById('messageLimitBanner'),
             messagesUsed: document.getElementById('messagesUsed'),
             
@@ -861,7 +877,9 @@
             
             const prompt = buildPatientPrompt(patientData);
             
-            // Show response area
+            // Show response panel (especially important on mobile)
+            elements.responsePanel.classList.remove('hidden-mobile');
+            elements.responsePanel.classList.add('has-content');
             elements.emptyState.style.display = 'none';
             elements.responseArea.style.display = 'block';
             elements.clearBtn.classList.add('visible');
@@ -873,6 +891,11 @@
                     <span class="streaming-text" id="streamingText"></span><span class="streaming-cursor">|</span>
                 </div>
             `;
+            
+            // Scroll to response on mobile
+            if (window.innerWidth < 992) {
+                elements.responsePanel.scrollIntoView({ behavior: 'smooth' });
+            }
             
             const streamingText = document.getElementById('streamingText');
             const responseMessage = document.getElementById('responseMessage');
@@ -931,6 +954,13 @@
             elements.responseArea.style.display = 'none';
             elements.responseArea.innerHTML = '';
             elements.clearBtn.classList.remove('visible');
+            elements.responsePanel.classList.add('hidden-mobile');
+            elements.responsePanel.classList.remove('has-content');
+            
+            // Scroll back to top on mobile
+            if (window.innerWidth < 992) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         }
 
         // ==================== LIMIT REACHED ====================
