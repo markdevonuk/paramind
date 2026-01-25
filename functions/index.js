@@ -397,28 +397,29 @@ exports.stripeWebhook = onRequest(
 
     // Handle the event
     switch (event.type) {
-      case "checkout.session.completed": {
-        const session = event.data.object;
-        const uid = session.metadata.firebaseUID;
+	case "checkout.session.completed": {
+  	const session = event.data.object;
+  	const uid = session.metadata.firebaseUID;
 
-        if (uid) {
-          // Store discount info if a coupon was used
-          const updateData = {
-            subscriptionStatus: "active",
-            stripeSubscriptionId: session.subscription,
-          };
+  	if (uid) {
+    // Store subscription ID and discount info, but DON'T activate yet
+    // Activation happens when invoice.paid fires (confirming payment success)
+    const updateData = {
+      stripeSubscriptionId: session.subscription,
+      subscriptionStatus: "pending", // Mark as pending until payment confirmed
+    };
 
-          // If there was a discount, store it for reference
-          if (session.total_details?.amount_discount > 0) {
-            updateData.discountApplied = true;
-            updateData.discountAmount = session.total_details.amount_discount;
-          }
+    // If there was a discount, store it for reference
+    if (session.total_details?.amount_discount > 0) {
+      updateData.discountApplied = true;
+      updateData.discountAmount = session.total_details.amount_discount;
+    }
 
-          await db.collection("users").doc(uid).update(updateData);
-          console.log(`Subscription activated for user: ${uid}`);
-        }
-        break;
-      }
+    await db.collection("users").doc(uid).update(updateData);
+    console.log(`Checkout completed for user: ${uid} - awaiting payment confirmation`);
+  }
+  break;
+}
 
       case "customer.subscription.updated": {
         const subscription = event.data.object;
@@ -463,24 +464,48 @@ exports.stripeWebhook = onRequest(
         }
         break;
       }
+      
+      case "invoice.paid": {
+  const invoice = event.data.object;
+  const customerId = invoice.customer;
 
-      case "invoice.payment_failed": {
-        const invoice = event.data.object;
-        const customerId = invoice.customer;
+  // Find user by Stripe customer ID
+  const usersSnapshot = await db
+    .collection("users")
+    .where("stripeCustomerId", "==", customerId)
+    .get();
 
-        // Find user and notify them
-        const usersSnapshot = await db
-          .collection("users")
-          .where("stripeCustomerId", "==", customerId)
-          .get();
+  if (!usersSnapshot.empty) {
+    const userDoc = usersSnapshot.docs[0];
 
-        if (!usersSnapshot.empty) {
-          const userDoc = usersSnapshot.docs[0];
-          console.log(`Payment failed for user: ${userDoc.id}`);
-          // TODO: Send email notification
-        }
-        break;
-      }
+    await userDoc.ref.update({
+      subscriptionStatus: "active",
+    });
+    console.log(`Payment confirmed - subscription activated for user: ${userDoc.id}`);
+  }
+  break;
+}
+
+   case "invoice.payment_failed": {
+  const invoice = event.data.object;
+  const customerId = invoice.customer;
+
+  // Find user and mark subscription as failed
+  const usersSnapshot = await db
+    .collection("users")
+    .where("stripeCustomerId", "==", customerId)
+    .get();
+
+  if (!usersSnapshot.empty) {
+    const userDoc = usersSnapshot.docs[0];
+
+    await userDoc.ref.update({
+      subscriptionStatus: "payment_failed",
+    });
+    console.log(`Payment failed for user: ${userDoc.id}`);
+  }
+  break;
+}
 
       default:
         console.log(`Unhandled event type: ${event.type}`);
