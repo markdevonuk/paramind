@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Dashboard | ParaMind</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Menu CSS -->
+    <link rel="stylesheet" href="css/menu-v2.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        /* ==================== LANDING PAGE STYLES ==================== */
+        .landing-page {
+            min-height: 100vh;
+            background: var(--color-gray-50);
+        }
+        
+        /* Navbar */
+        .landing-navbar {
+            background: var(--color-white);
+            border-bottom: 1px solid var(--color-gray-200);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .landing-navbar .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .brand-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        
+        .brand-para {
+            color: var(--color-teal);
+        }
+        
+        .brand-mind {
+            color: var(--color-green);
+        }
+        
+        /* Main Container */
+        .landing-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1.5rem 1rem 2rem;
+        }
+        
+        /* Welcome Section */
+        .welcome-section {
+            text-align: center;
+            padding: 1.5rem 0 2rem;
+        }
+        
+        .welcome-section h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 0.5rem;
+        }
+        
+        .welcome-section p {
+            color: var(--color-gray-600);
+            margin: 0;
+        }
+        
+        .user-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-full);
+            margin-top: 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .user-badge i {
+            color: var(--color-teal);
+        }
+        
+        .user-badge .trust-name {
+            font-weight: 600;
+            color: var(--color-gray-700);
+        }
+        
+        /* Pro Badge in Welcome */
+        .pro-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1a1a2e;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.25rem 0.6rem;
+            border-radius: var(--radius-full);
+            margin-left: 0.5rem;
+            text-transform: uppercase;
+        }
+        
+        .pro-status-badge i {
+            color: #1a1a2e;
+            font-size: 0.65rem;
+        }
+        
+        /* Tools Grid */
+        .tools-section {
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--color-gray-500);
+            margin-bottom: 1rem;
+            padding-left: 0.25rem;
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        @media (min-width: 576px) {
+            .tools-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .tools-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        /* Tool Card */
+        .tool-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+            border: 1px solid var(--color-gray-100);
+            position: relative;
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--color-teal);
+            color: inherit;
+        }
+        
+        .tool-card-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.75rem;
+            font-size: 1.5rem;
+        }
+        
+        .tool-card-icon.chat {
+            background: linear-gradient(135deg, rgba(43, 138, 156, 0.15) 0%, rgba(43, 138, 156, 0.05) 100%);
+            color: var(--color-teal);
+        }
+        
+        .tool-card-icon.scenarios {
+            background: linear-gradient(135deg, rgba(92, 184, 92, 0.15) 0%, rgba(92, 184, 92, 0.05) 100%);
+            color: var(--color-green);
+        }
+        
+        .tool-card-icon.differentials {
+            background: linear-gradient(135deg, rgba(108, 117, 125, 0.15) 0%, rgba(108, 117, 125, 0.05) 100%);
+            color: #6c757d;
+        }
+        
+        .tool-card-icon.atmist {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.15) 0%, rgba(220, 53, 69, 0.05) 100%);
+            color: #dc3545;
+        }
+        
+        .tool-card-icon.ecg {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 193, 7, 0.05) 100%);
+            color: #ffc107;
+        }
+        
+        .tool-card-icon.cpd {
+            background: linear-gradient(135deg, rgba(111, 66, 193, 0.15) 0%, rgba(111, 66, 193, 0.05) 100%);
+            color: #6f42c1;
+        }
+        
+        .tool-card-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--color-gray-800);
+            margin-bottom: 0.25rem;
+        }
+        
+        .tool-card-desc {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+            margin: 0;
+            line-height: 1.3;
+        }
+        
+        /* Pro Badge on Card */
+        .tool-card .card-pro-badge {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1a1a2e;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 0.15rem 0.4rem;
+            border-radius: var(--radius-sm);
+            text-transform: uppercase;
+        }
+        
+        /* Locked Card State (for non-Pro users) */
+        .tool-card.locked {
+            opacity: 0.7;
+        }
+        
+        .tool-card.locked:hover {
+            border-color: #FFD700;
+        }
+        
+        /* Upgrade Banner */
+        .upgrade-banner {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 165, 0, 0.1) 100%);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .upgrade-banner h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .upgrade-banner h3 i {
+            color: #FFD700;
+        }
+        
+        .upgrade-banner p {
+            font-size: 0.875rem;
+            color: var(--color-gray-600);
+            margin-bottom: 1rem;
+        }
+        
+        .upgrade-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1a1a2e;
+            font-weight: 600;
+            padding: 0.625rem 1.5rem;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .upgrade-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+            color: #1a1a2e;
+        }
+        
+        /* Quick Tips Section */
+        .tips-section {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .tips-section h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-gray-800);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .tips-section h3 i {
+            color: var(--color-teal);
+        }
+        
+        .tip-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+        
+        .tip-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .tip-item i {
+            color: var(--color-green);
+            margin-top: 0.15rem;
+            flex-shrink: 0;
+        }
+        
+        .tip-item p {
+            font-size: 0.875rem;
+            color: var(--color-gray-600);
+            margin: 0;
+            line-height: 1.4;
+        }
+        
+        .tip-item strong {
+            color: var(--color-gray-700);
+        }
+        
+        /* Message Counter */
+        .message-counter {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.8rem;
+            color: var(--color-gray-500);
+            margin-top: 0.5rem;
+        }
+        
+        .message-counter i {
+            font-size: 0.9rem;
+        }
+        
+        .message-counter .count {
+            font-weight: 600;
+            color: var(--color-teal);
+        }
+    </style>
+</head>
+
+<body class="landing-page">
+    <!-- ==================== NAVIGATION ==================== -->
+    <nav class="landing-navbar">
+        <div class="container">
+            <span class="brand-text">
+                <a class="navbar-brand" href="index.html">
+                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
+                </a>
+            </span>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <div class="landing-container">
+        
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <h1>Welcome back! 👋</h1>
+            <p>What would you like to learn today?</p>
+            <div class="user-badge">
+                <i class="bi bi-hospital"></i>
+                <span class="trust-name" id="userTrust">Loading...</span>
+                <span class="pro-status-badge" id="proBadge" style="display: none;">
+                    <i class="bi bi-star-fill"></i> Pro
+                </span>
+            </div>
+            <div class="message-counter" id="messageCounter" style="display: none;">
+                <i class="bi bi-chat-dots"></i>
+                <span><span class="count" id="messagesUsed">0</span>/10 messages today</span>
+            </div>
+        </div>
+        
+        <!-- Learning Tools Section -->
+        <div class="tools-section">
+            <div class="section-title">Learning Tools</div>
+            <div class="tools-grid">
+                
+                <!-- Chat -->
+                <a href="chat.html" class="tool-card">
+                    <div class="tool-card-icon chat">
+                        <i class="bi bi-chat-dots"></i>
+                    </div>
+                    <div class="tool-card-title">Chat</div>
+                    <p class="tool-card-desc">Ask anything about paramedicine</p>
+                </a>
+                
+                <!-- Scenarios -->
+                <a href="scenarios.html" class="tool-card">
+                    <div class="tool-card-icon scenarios">
+                        <i class="bi bi-mortarboard"></i>
+                    </div>
+                    <div class="tool-card-title">Scenarios</div>
+                    <p class="tool-card-desc">Practice with simulated cases</p>
+                </a>
+                
+                <!-- Differentials -->
+                <a href="differentials.html" class="tool-card">
+                    <div class="tool-card-icon differentials">
+                        <i class="bi bi-clipboard2-pulse"></i>
+                    </div>
+                    <div class="tool-card-title">Differentials</div>
+                    <p class="tool-card-desc">Explore differential diagnoses</p>
+                </a>
+                
+                <!-- ATMIST - Pro -->
+                <a href="atmist.html" class="tool-card" id="atmistCard">
+                    <span class="card-pro-badge" id="atmistProBadge">Pro</span>
+                    <div class="tool-card-icon atmist">
+                        <i class="bi bi-telephone-outbound"></i>
+                    </div>
+                    <div class="tool-card-title">ATMIST</div>
+                    <p class="tool-card-desc">Handover generator</p>
+                </a>
+                
+            </div>
+        </div>
+        
+        <!-- Pro Tools Section -->
+        <div class="tools-section">
+            <div class="section-title">Pro Tools</div>
+            <div class="tools-grid">
+                
+                <!-- ECG Tool - Pro -->
+                <a href="ecg.html" class="tool-card" id="ecgCard">
+                    <span class="card-pro-badge" id="ecgProBadge">Pro</span>
+                    <div class="tool-card-icon ecg">
+                        <i class="bi bi-activity"></i>
+                    </div>
+                    <div class="tool-card-title">ECG Tool</div>
+                    <p class="tool-card-desc">Interactive rhythm practice</p>
+                </a>
+                
+                <!-- CPD Portfolio - Pro -->
+                <a href="cpd.html" class="tool-card" id="cpdCard">
+                    <span class="card-pro-badge" id="cpdProBadge">Pro</span>
+                    <div class="tool-card-icon cpd">
+                        <i class="bi bi-award"></i>
+                    </div>
+                    <div class="tool-card-title">CPD Portfolio</div>
+                    <p class="tool-card-desc">Track your learning</p>
+                </a>
+                
+            </div>
+        </div>
+        
+        <!-- Upgrade Banner (shown to free users) -->
+        <div class="upgrade-banner" id="upgradeBanner">
+            <h3><i class="bi bi-star-fill"></i> Unlock Pro Features</h3>
+            <p>Get unlimited messages, CPD certificates, ECG practice, and more!</p>
+            <button class="upgrade-btn" onclick="handleUpgrade()">
+                <i class="bi bi-star"></i>
+                Upgrade to Pro - £4.99/month
+            </button>
+        </div>
+        
+        <!-- Quick Tips -->
+        <div class="tips-section">
+            <h3><i class="bi bi-lightbulb"></i> Quick Tips</h3>
+            <div class="tip-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <p><strong>Scenarios</strong> now have their own chat - work through cases from dispatch to handover.</p>
+            </div>
+            <div class="tip-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <p><strong>Differentials</strong> helps you explore possible diagnoses based on patient presentation.</p>
+            </div>
+            <div class="tip-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <p><strong>Never enter real patient data</strong> - this is for educational purposes only.</p>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- ==================== SCRIPTS ==================== -->
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Menu JS -->
+    <script src="js/menu-v2.js"></script>
+    
+    <!-- Page Script -->
+    <script>
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
+            authDomain: "paramind-64b8e.firebaseapp.com",
+            projectId: "paramind-64b8e",
+            storageBucket: "paramind-64b8e.firebasestorage.app",
+            messagingSenderId: "452173393964",
+            appId: "1:452173393964:web:8599c0fe1983a6f441e189",
+            measurementId: "G-GW385S6L0L"
+        };
+
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ==================== STATE ====================
+        let isPro = false;
+        let userData = null;
+
+        // ==================== DOM ELEMENTS ====================
+        const userTrustEl = document.getElementById('userTrust');
+        const proBadgeEl = document.getElementById('proBadge');
+        const upgradeBannerEl = document.getElementById('upgradeBanner');
+        const messageCounterEl = document.getElementById('messageCounter');
+        const messagesUsedEl = document.getElementById('messagesUsed');
+
+        // Pro badge elements on cards
+        const atmistProBadge = document.getElementById('atmistProBadge');
+        const ecgProBadge = document.getElementById('ecgProBadge');
+        const cpdProBadge = document.getElementById('cpdProBadge');
+
+        // ==================== AUTH STATE ====================
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    const doc = await db.collection('users').doc(user.uid).get();
+                    if (doc.exists) {
+                        userData = doc.data();
+                        isPro = userData.subscriptionStatus === 'active' || userData.isPro === true;
+                        
+                        // Update UI
+                        updateUI();
+                    } else {
+                        // No user doc - redirect to complete registration
+                        console.log('No user document found');
+                        userTrustEl.textContent = 'Setup required';
+                    }
+                } catch (error) {
+                    console.error('Error fetching user data:', error);
+                    userTrustEl.textContent = 'Error loading';
+                }
+            } else {
+                // Not logged in - redirect to login
+                window.location.href = 'login.html';
+            }
+        });
+
+        // ==================== UPDATE UI ====================
+        function updateUI() {
+            // Update trust name
+            if (userData.trust || userData.trustName) {
+                userTrustEl.textContent = userData.trust || userData.trustName;
+            } else {
+                userTrustEl.textContent = 'No trust set';
+            }
+
+            // Pro status
+            if (isPro) {
+                // Show Pro badge
+                proBadgeEl.style.display = 'inline-flex';
+                
+                // Hide upgrade banner
+                upgradeBannerEl.style.display = 'none';
+                
+                // Hide Pro badges on cards (they already have access)
+                if (atmistProBadge) atmistProBadge.style.display = 'none';
+                if (ecgProBadge) ecgProBadge.style.display = 'none';
+                if (cpdProBadge) cpdProBadge.style.display = 'none';
+                
+                // Remove locked class from cards
+                document.querySelectorAll('.tool-card').forEach(card => {
+                    card.classList.remove('locked');
+                });
+            } else {
+                // Free user
+                proBadgeEl.style.display = 'none';
+                upgradeBannerEl.style.display = 'block';
+                
+                // Show message counter for free users
+                messageCounterEl.style.display = 'block';
+                
+                // Add locked class to pro cards
+                document.getElementById('atmistCard')?.classList.add('locked');
+                document.getElementById('ecgCard')?.classList.add('locked');
+                document.getElementById('cpdCard')?.classList.add('locked');
+                
+                // Update message count
+                updateMessageCount();
+            }
+        }
+
+        // ==================== MESSAGE COUNT ====================
+        async function updateMessageCount() {
+            try {
+                const user = auth.currentUser;
+                if (!user) return;
+
+                // Get today's date string
+                const today = new Date().toISOString().split('T')[0];
+                
+                // Check message count from Firestore
+                const countDoc = await db.collection('users').doc(user.uid)
+                    .collection('daily_usage').doc(today).get();
+                
+                if (countDoc.exists) {
+                    const count = countDoc.data().messageCount || 0;
+                    messagesUsedEl.textContent = count;
+                } else {
+                    messagesUsedEl.textContent = '0';
+                }
+            } catch (error) {
+                console.error('Error fetching message count:', error);
+            }
+        }
+
+        // ==================== UPGRADE HANDLER ====================
+        function handleUpgrade() {
+            // This should integrate with your Stripe checkout
+            if (typeof createCheckoutSession === 'function') {
+                createCheckoutSession();
+            } else {
+                // Fallback - you can implement Stripe checkout here
+                alert('Upgrade functionality coming soon! Contact support for early access.');
+            }
+        }
+
+        // ==================== CHECK FOR UPGRADE PARAM ====================
+        // If user came from menu upgrade button
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('upgrade') === 'true') {
+            // Auto-trigger upgrade modal when page loads
+            setTimeout(() => {
+                handleUpgrade();
+            }, 500);
+        }
+    </script>
+</body>
+</html>
