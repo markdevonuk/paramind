@@ -223,12 +223,15 @@
                                         <th>Email</th>
                                         <th>Trust</th>
                                         <th>Status</th>
+                                        <!-- CHANGE 1: Added Last Login column -->
+                                        <th>Last Login</th>
                                         <th>Joined</th>
                                     </tr>
                                 </thead>
                                 <tbody id="allUsersBody">
                                     <tr>
-                                        <td colspan="5" class="text-center py-4">
+                                        <!-- CHANGE 2: Updated colspan from 5 to 6 -->
+                                        <td colspan="6" class="text-center py-4">
                                             <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
                                             Loading users...
                                         </td>
@@ -247,6 +250,8 @@
                                         <th>Name</th>
                                         <th>Email</th>
                                         <th>Trust</th>
+                                        <!-- CHANGE 3: Added Last Login column -->
+                                        <th>Last Login</th>
                                         <th>Joined</th>
                                     </tr>
                                 </thead>
@@ -265,6 +270,8 @@
                                         <th>Name</th>
                                         <th>Email</th>
                                         <th>Trust</th>
+                                        <!-- CHANGE 4: Added Last Login column -->
+                                        <th>Last Login</th>
                                         <th>Joined</th>
                                     </tr>
                                 </thead>
@@ -362,16 +369,19 @@
                         trust: userData.trust || '',
                         trustFullName: userData.trustFullName || userData.trust || '',
                         subscriptionStatus: userData.subscriptionStatus || 'free',
-                        createdAt: userData.createdAt || null
+                        createdAt: userData.createdAt || null,
+                        // CHANGE 5: Added lastLogin to user object
+                        lastLogin: userData.lastLogin || null
                     };
                     
                     allUsers.push(user);
                     
+                    // CHANGE 6: Fixed logic - only 'active' is paid, everything else is free
                     if (user.subscriptionStatus === 'active') {
-    paidUsersList.push(user);
-} else {
-    freeUsersList.push(user);
-}
+                        paidUsersList.push(user);
+                    } else {
+                        freeUsersList.push(user);
+                    }
                 });
                 
                 // Sort by creation date (newest first)
@@ -402,7 +412,8 @@
                 console.error('Error loading users:', error);
                 document.getElementById('allUsersBody').innerHTML = `
                     <tr>
-                        <td colspan="5" class="text-center text-danger py-4">
+                        <!-- CHANGE 7: Updated colspan from 5 to 6 -->
+                        <td colspan="6" class="text-center text-danger py-4">
                             <i class="bi bi-exclamation-triangle me-2"></i>
                             Error loading users. Check console for details.
                         </td>
@@ -420,7 +431,8 @@
             if (users.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="${showStatus ? 5 : 4}" class="text-center py-4 text-muted">
+                        <!-- CHANGE 8: Updated colspan from 5/4 to 6/5 -->
+                        <td colspan="${showStatus ? 6 : 5}" class="text-center py-4 text-muted">
                             No users found
                         </td>
                     </tr>
@@ -436,26 +448,42 @@
                     year: 'numeric'
                 }) : 'Unknown';
                 
+                // CHANGE 9: Fixed badge logic - only 'active' shows as Paid
                 const statusBadge = user.subscriptionStatus === 'active' 
-    ? '<span class="badge badge-paid">Paid</span>'
-    : '<span class="badge badge-free">Free</span>';
+                    ? '<span class="badge badge-paid">Paid</span>'
+                    : '<span class="badge badge-free">Free</span>';
+                
+                // CHANGE 10: Added lastLogin formatting
+                const lastLogin = user.lastLogin 
+                    ? new Date(user.lastLogin).toLocaleDateString('en-GB', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }) 
+                    : 'Never';
                 
                 if (showStatus) {
+                    // CHANGE 11: Added lastLogin column to table row
                     return `
                         <tr>
                             <td>${escapeHtml(fullName)}</td>
                             <td>${escapeHtml(user.email)}</td>
                             <td>${escapeHtml(user.trust)}</td>
                             <td>${statusBadge}</td>
+                            <td>${lastLogin}</td>
                             <td>${joinDate}</td>
                         </tr>
                     `;
                 } else {
+                    // CHANGE 12: Added lastLogin column to table row (no status version)
                     return `
                         <tr>
                             <td>${escapeHtml(fullName)}</td>
                             <td>${escapeHtml(user.email)}</td>
                             <td>${escapeHtml(user.trust)}</td>
+                            <td>${lastLogin}</td>
                             <td>${joinDate}</td>
                         </tr>
                     `;
@@ -487,12 +515,14 @@
         // CSV EXPORT FUNCTIONALITY
         // ============================================
         function exportToCSV(users, filename) {
-            // CSV headers
-            const headers = ['First Name', 'Surname', 'Email', 'Trust', 'Trust Full Name', 'Subscription Status', 'Joined Date'];
+            // CHANGE 13: Added 'Last Login' to CSV headers
+            const headers = ['First Name', 'Surname', 'Email', 'Trust', 'Trust Full Name', 'Subscription Status', 'Last Login', 'Joined Date'];
             
             // Convert users to CSV rows
             const rows = users.map(user => {
                 const joinDate = user.createdAt ? new Date(user.createdAt).toISOString() : '';
+                // CHANGE 14: Added lastLogin to CSV export
+                const lastLogin = user.lastLogin ? new Date(user.lastLogin).toISOString() : '';
                 return [
                     user.firstName,
                     user.surname,
@@ -500,6 +530,7 @@
                     user.trust,
                     user.trustFullName,
                     user.subscriptionStatus,
+                    lastLogin,
                     joinDate
                 ].map(field => `"${(field || '').replace(/"/g, '""')}"`).join(',');
             });
