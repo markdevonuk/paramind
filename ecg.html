@@ -178,6 +178,25 @@
             transform: translateY(-1px);
         }
         
+        /* No Pulse Indicator */
+        .no-pulse-indicator {
+            background: #dc2626;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: pulseWarning 1s ease-in-out infinite;
+        }
+        
+        @keyframes pulseWarning {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
         .ecg-canvas-container {
             padding: 1rem;
         }
@@ -208,6 +227,38 @@
             color: #fca5a5;
             font-weight: 700;
             font-size: 1rem;
+        }
+        
+        /* No Pulse Indicator */
+        .no-pulse-indicator {
+            background: rgba(245, 158, 11, 0.2);
+            border: 2px solid #f59e0b;
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem;
+            margin: 0 1rem 1rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            animation: pulseBlink 1s ease-in-out infinite;
+        }
+        
+        .no-pulse-indicator i {
+            color: #f59e0b;
+            font-size: 1.25rem;
+        }
+        
+        .no-pulse-indicator span {
+            color: #fbbf24;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        @keyframes pulseBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
         }
         
         /* Rhythm Selector Grid */
@@ -760,6 +811,10 @@
                     <span class="hr-icon">♥</span>
                     <span id="hrValue">75</span> BPM
                 </div>
+                <!-- No Pulse Indicator for PEA -->
+                <div class="no-pulse-indicator" id="noPulseIndicator" style="display: none;">
+                    <i class="bi bi-exclamation-triangle-fill"></i> NO PULSE DETECTED
+                </div>
                 <div class="monitor-controls">
                     <button class="monitor-btn monitor-btn-pause" id="playPauseBtn" onclick="togglePlayPause()">
                         <i class="bi bi-pause-fill"></i> Pause
@@ -768,6 +823,11 @@
             </div>
             <div class="ecg-canvas-container">
                 <canvas id="ecgCanvas" width="800" height="200"></canvas>
+            </div>
+            <!-- No Pulse Indicator (for PEA and pulseless VT in quiz) -->
+            <div class="no-pulse-indicator" id="noPulseIndicator" style="display: none;">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>No pulse detected</span>
             </div>
             <!-- Emergency Banner (hidden by default) -->
             <div class="emergency-banner" id="emergencyBanner" style="display: none;">
@@ -1135,6 +1195,11 @@
             // Update monitor display
             document.getElementById('monitorHR').style.display = mode === 'learn' ? 'flex' : 'none';
             
+            // Hide No Pulse indicator when in learn mode
+            if (mode === 'learn') {
+                document.getElementById('noPulseIndicator').style.display = 'none';
+            }
+            
             if (mode === 'quiz') {
                 startQuiz();
             } else {
@@ -1237,6 +1302,14 @@
             // Update question number
             document.getElementById('questionNumber').textContent = currentQuizIndex + 1;
             
+            // Show/hide No Pulse indicator for PEA and pulseless VT
+            const noPulseIndicator = document.getElementById('noPulseIndicator');
+            if (quizRhythm === 'pea' || quizRhythm === 'ventricularTachycardia') {
+                noPulseIndicator.style.display = 'flex';
+            } else {
+                noPulseIndicator.style.display = 'none';
+            }
+            
             // Update score display
             updateScoreDisplay();
         }
@@ -1302,6 +1375,7 @@
             document.getElementById('quizQuestion').style.display = 'none';
             document.getElementById('quizResult').style.display = 'none';
             document.getElementById('quizScore').style.display = 'none';
+            document.getElementById('noPulseIndicator').style.display = 'none';
             
             // Show final results
             document.getElementById('quizFinalResults').style.display = 'block';
@@ -1707,7 +1781,7 @@
         
         // ==================== SUBSCRIPTION CHECK ====================
         // Uncomment this function if you want to use Firebase auth
-       
+   
         function checkSubscription() {
             firebase.auth().onAuthStateChanged(function(user) {
                 if (user) {
@@ -1727,7 +1801,7 @@
                 }
             });
         }
-        
+    
     </script>
 </body>
 </html>
