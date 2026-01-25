@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>ECG Rhythm Generator | Paramind</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        /* ECG Page Specific Styles */
+        .ecg-page {
+            min-height: 100vh;
+            background: var(--color-gray-50);
+        }
+        
+        .ecg-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1rem;
+            padding-bottom: 2rem;
+        }
+        
+        .ecg-header {
+            text-align: center;
+            padding: 1.5rem 0;
+        }
+        
+        .ecg-header h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .ecg-header p {
+            color: var(--color-gray-600);
+            margin: 0;
+        }
+        
+        /* Navbar */
+        .ecg-navbar {
+            background: var(--color-white);
+            border-bottom: 1px solid var(--color-gray-200);
+            padding: 0.75rem 0;
+        }
+        
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--color-teal);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .back-link:hover {
+            color: var(--color-teal-dark);
+        }
+        
+        /* Mode Toggle Buttons */
+        .mode-toggle {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .mode-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: 2px solid var(--color-gray-200);
+            background: var(--color-white);
+            color: var(--color-gray-600);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .mode-btn:hover {
+            border-color: var(--color-teal);
+            color: var(--color-teal);
+        }
+        
+        .mode-btn.active {
+            background: var(--color-teal);
+            border-color: var(--color-teal);
+            color: white;
+        }
+        
+        /* ECG Monitor Card */
+        .ecg-monitor-card {
+            background: #1a1a2e;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            margin-bottom: 1.5rem;
+        }
+        
+        .monitor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            background: #252542;
+            border-bottom: 1px solid #3d3d5a;
+        }
+        
+        .monitor-lead {
+            color: #888;
+            font-size: 0.9rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .monitor-hr {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .hr-icon {
+            animation: pulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        .monitor-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .monitor-btn {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .monitor-btn-play {
+            background: #22c55e;
+            color: white;
+        }
+        
+        .monitor-btn-pause {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .monitor-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
+        .ecg-canvas-container {
+            padding: 1rem;
+        }
+        
+        #ecgCanvas {
+            width: 100%;
+            border-radius: var(--radius-md);
+            display: block;
+        }
+        
+        /* Emergency Warning Banner */
+        .emergency-banner {
+            background: rgba(220, 38, 38, 0.2);
+            border: 2px solid #dc2626;
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin: 1rem;
+            text-align: center;
+            animation: emergencyPulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes emergencyPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .emergency-banner span {
+            color: #fca5a5;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        
+        /* Rhythm Selector Grid */
+        .rhythm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .rhythm-btn {
+            padding: 0.875rem 1rem;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--color-gray-200);
+            background: var(--color-white);
+            text-align: left;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--color-gray-700);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .rhythm-btn::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--rhythm-color, var(--color-gray-300));
+        }
+        
+        .rhythm-btn:hover {
+            border-color: var(--rhythm-color, var(--color-teal));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .rhythm-btn.active {
+            border-color: var(--rhythm-color, var(--color-teal));
+            background: linear-gradient(135deg, rgba(43, 138, 156, 0.05) 0%, rgba(92, 184, 92, 0.05) 100%);
+        }
+        
+        .rhythm-btn .emergency-icon {
+            margin-left: 0.25rem;
+        }
+        
+        .rhythm-btn.emergency {
+            background: rgba(220, 38, 38, 0.05);
+        }
+        
+        /* Rate Slider Card */
+        .rate-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .rate-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: var(--color-gray-700);
+        }
+        
+        .rate-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            color: var(--color-teal);
+        }
+        
+        .rate-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--color-gray-200);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        .rate-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--color-teal);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(43, 138, 156, 0.4);
+        }
+        
+        .rate-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--color-teal);
+            cursor: pointer;
+            border: none;
+        }
+        
+        .rate-range {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--color-gray-500);
+        }
+        
+        /* Info Card */
+        .info-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .info-card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .info-card .description {
+            color: var(--color-gray-600);
+            margin-bottom: 1.25rem;
+            line-height: 1.6;
+        }
+        
+        .info-card h3 {
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            color: var(--color-gray-700);
+        }
+        
+        .features-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .features-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+            color: var(--color-gray-600);
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+        
+        .features-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .features-list .check-icon {
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        /* Quiz Mode Styles */
+        .quiz-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .quiz-score {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .quiz-score-badge {
+            display: inline-block;
+            background: var(--color-teal);
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+        }
+        
+        .quiz-question {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--color-gray-800);
+        }
+        
+        .quiz-select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--color-gray-200);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            background: var(--color-white);
+        }
+        
+        .quiz-select:focus {
+            outline: none;
+            border-color: var(--color-teal);
+        }
+        
+        .quiz-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .quiz-btn {
+            flex: 1;
+            padding: 0.875rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .quiz-btn-primary {
+            background: var(--color-teal);
+            color: white;
+        }
+        
+        .quiz-btn-primary:hover:not(:disabled) {
+            background: var(--color-teal-dark);
+        }
+        
+        .quiz-btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .quiz-btn-secondary {
+            background: var(--color-gray-200);
+            color: var(--color-gray-700);
+        }
+        
+        .quiz-btn-secondary:hover {
+            background: var(--color-gray-300);
+        }
+        
+        /* Quiz Result */
+        .quiz-result {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+        }
+        
+        .quiz-result.correct {
+            background: rgba(34, 197, 94, 0.1);
+            border: 2px solid #22c55e;
+        }
+        
+        .quiz-result.incorrect {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid #ef4444;
+        }
+        
+        .quiz-result-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .quiz-result.correct .quiz-result-icon {
+            color: #22c55e;
+        }
+        
+        .quiz-result.incorrect .quiz-result-icon {
+            color: #ef4444;
+        }
+        
+        .quiz-answer-reveal {
+            background: var(--color-gray-50);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        
+        .quiz-answer-reveal h4 {
+            color: var(--color-gray-500);
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .quiz-answer-reveal .answer {
+            color: #22c55e;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        /* Info Banner */
+        .info-banner {
+            background: linear-gradient(135deg, rgba(43, 138, 156, 0.1) 0%, rgba(92, 184, 92, 0.1) 100%);
+            border: 1px solid rgba(43, 138, 156, 0.2);
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+        
+        .info-banner i {
+            color: var(--color-teal);
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        
+        .info-banner p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--color-gray-600);
+        }
+        
+        /* Footer Disclaimer */
+        .ecg-footer {
+            text-align: center;
+            padding: 1.5rem 0;
+            color: var(--color-gray-500);
+            font-size: 0.85rem;
+        }
+        
+        .ecg-footer i {
+            margin-right: 0.25rem;
+        }
+        
+        /* Pro Overlay */
+        .pro-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.98);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        
+        .pro-overlay.show {
+            display: flex;
+        }
+        
+        .pro-overlay-content {
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .pro-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-green) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .pro-icon i {
+            font-size: 2rem;
+            color: white;
+        }
+        
+        .pro-overlay h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .pro-feature-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--color-gray-100);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-full);
+            font-size: 0.9rem;
+            color: var(--color-green);
+            margin-bottom: 1rem;
+        }
+        
+        .pro-description {
+            color: var(--color-gray-600);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        
+        .pro-upgrade-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--color-green) 0%, #4a9f4a 100%);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            transition: all var(--transition-fast);
+            margin-bottom: 1rem;
+        }
+        
+        .pro-upgrade-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(92, 184, 92, 0.4);
+            color: white;
+        }
+        
+        .pro-back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--color-gray-500);
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+        
+        .pro-back-link:hover {
+            color: var(--color-gray-700);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .rhythm-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .mode-toggle {
+                flex-direction: column;
+            }
+            
+            .mode-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="ecg-page">
+    <!-- Navigation -->
+    <nav class="ecg-navbar">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-between">
+                <a href="chat.html" class="back-link">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to Chat
+                </a>
+                <span class="brand-text">
+                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
+                </span>
+                <div style="width: 100px;"></div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="ecg-container">
+        <!-- Header -->
+        <div class="ecg-header">
+            <h1>🫀 ECG Rhythm Generator</h1>
+            <p>Interactive ECG learning tool for paramedics</p>
+        </div>
+        
+        <!-- Info Banner -->
+        <div class="info-banner">
+            <i class="bi bi-info-circle-fill"></i>
+            <p>Practice identifying common ECG rhythms. Use <strong>Learn Mode</strong> to study each rhythm, or <strong>Test Yourself</strong> to check your knowledge.</p>
+        </div>
+        
+        <!-- Mode Toggle -->
+        <div class="mode-toggle">
+            <button class="mode-btn active" id="learnModeBtn" onclick="setMode('learn')">
+                <i class="bi bi-book me-2"></i>Learn Mode
+            </button>
+            <button class="mode-btn" id="quizModeBtn" onclick="setMode('quiz')">
+                <i class="bi bi-patch-question me-2"></i>Test Yourself
+            </button>
+        </div>
+        
+        <!-- Quiz Score (hidden by default) -->
+        <div class="quiz-score" id="quizScore" style="display: none;">
+            <span class="quiz-score-badge">
+                Score: <span id="scoreCorrect">0</span>/<span id="scoreTotal">0</span>
+                <span id="scorePercent"></span>
+            </span>
+        </div>
+        
+        <!-- ECG Monitor -->
+        <div class="ecg-monitor-card">
+            <div class="monitor-header">
+                <span class="monitor-lead">Lead II</span>
+                <div class="monitor-hr" id="monitorHR" style="color: #22c55e;">
+                    <span class="hr-icon">♥</span>
+                    <span id="hrValue">75</span> BPM
+                </div>
+                <div class="monitor-controls">
+                    <button class="monitor-btn monitor-btn-pause" id="playPauseBtn" onclick="togglePlayPause()">
+                        <i class="bi bi-pause-fill"></i> Pause
+                    </button>
+                </div>
+            </div>
+            <div class="ecg-canvas-container">
+                <canvas id="ecgCanvas" width="800" height="200"></canvas>
+            </div>
+            <!-- Emergency Banner (hidden by default) -->
+            <div class="emergency-banner" id="emergencyBanner" style="display: none;">
+                <span>⚠️ EMERGENCY RHYTHM - IMMEDIATE INTERVENTION REQUIRED</span>
+            </div>
+        </div>
+        
+        <!-- Learn Mode Content -->
+        <div id="learnContent">
+            <!-- Rhythm Selector -->
+            <div class="rhythm-grid" id="rhythmGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+            
+            <!-- Rate Slider -->
+            <div class="rate-card" id="rateCard">
+                <div class="rate-label">
+                    <span>Adjust Heart Rate</span>
+                    <span class="rate-value"><span id="rateValue">75</span> BPM</span>
+                </div>
+                <input type="range" class="rate-slider" id="rateSlider" min="60" max="100" value="75" oninput="updateRate(this.value)">
+                <div class="rate-range">
+                    <span id="rateMin">60 BPM</span>
+                    <span id="rateMax">100 BPM</span>
+                </div>
+            </div>
+            
+            <!-- Rhythm Info -->
+            <div class="info-card" id="infoCard">
+                <h2 id="rhythmTitle" style="color: #22c55e;">Normal Sinus Rhythm</h2>
+                <p class="description" id="rhythmDescription">Regular rhythm with consistent P waves before each QRS complex. Rate 60-100 bpm.</p>
+                <h3><i class="bi bi-list-check me-2"></i>Key Features</h3>
+                <ul class="features-list" id="featuresList">
+                    <!-- Populated by JavaScript -->
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Quiz Mode Content -->
+        <div id="quizContent" style="display: none;">
+            <div class="quiz-card">
+                <!-- Quiz Question State -->
+                <div id="quizQuestion">
+                    <h3 class="quiz-question">🤔 What rhythm is this?</h3>
+                    <select class="quiz-select" id="quizAnswer">
+                        <option value="">Select a rhythm...</option>
+                        <!-- Populated by JavaScript -->
+                    </select>
+                    <div class="quiz-buttons">
+                        <button class="quiz-btn quiz-btn-primary" id="checkAnswerBtn" onclick="checkAnswer()" disabled>
+                            Check Answer
+                        </button>
+                        <button class="quiz-btn quiz-btn-secondary" onclick="setMode('learn')">
+                            Exit Quiz
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Quiz Result State -->
+                <div id="quizResult" style="display: none;">
+                    <div class="quiz-result" id="quizResultBox">
+                        <div class="quiz-result-icon" id="quizResultIcon">✅</div>
+                        <div class="quiz-result-text" id="quizResultText">Correct!</div>
+                    </div>
+                    <div class="quiz-answer-reveal">
+                        <h4>The correct answer was:</h4>
+                        <div class="answer" id="correctAnswerText">Normal Sinus Rhythm</div>
+                    </div>
+                    <div class="quiz-answer-reveal">
+                        <p id="quizExplanation"></p>
+                    </div>
+                    <div class="quiz-buttons">
+                        <button class="quiz-btn quiz-btn-primary" onclick="nextQuestion()">
+                            Next Question →
+                        </button>
+                        <button class="quiz-btn quiz-btn-secondary" onclick="setMode('learn')">
+                            Exit Quiz
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="ecg-footer">
+            <p><i class="bi bi-shield-check"></i> For educational purposes only - not for clinical decision-making</p>
+            <p>Part of the Paramind Learning Platform</p>
+        </div>
+    </div>
+
+    <!-- Pro Overlay (shown if not subscribed) -->
+    <div class="pro-overlay" id="proOverlay">
+        <div class="pro-overlay-content">
+            <div class="pro-icon">
+                <i class="bi bi-heart-pulse"></i>
+            </div>
+            <h2>ECG Rhythm Generator</h2>
+            <p class="pro-feature-badge"><i class="bi bi-star-fill"></i> Pro Feature</p>
+            <p class="pro-description">
+                Master ECG interpretation with our interactive rhythm generator. 
+                Practice identifying 14 different rhythms including emergency arrhythmias, 
+                heart blocks, and more. Includes quiz mode to test your knowledge.
+            </p>
+            <a href="register.html" class="pro-upgrade-btn">
+                <i class="bi bi-lightning-charge"></i>
+                Upgrade to Paramind Pro
+            </a>
+            <a href="chat.html" class="pro-back-link">
+                <i class="bi bi-arrow-left"></i>
+                Back to Chat
+            </a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Firebase (if you want to check subscription status) -->
+    <!-- Uncomment these if using Firebase auth -->
+    <!--
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    -->
+    
+    <script>
+        // ==================== ECG RHYTHM DATA ====================
+        const rhythms = {
+            normalSinus: {
+                name: "Normal Sinus Rhythm",
+                description: "Regular rhythm with consistent P waves before each QRS complex. Rate 60-100 bpm.",
+                keyFeatures: ["Regular R-R intervals", "P wave before each QRS", "Normal PR interval (0.12-0.20s)", "Narrow QRS (<0.12s)"],
+                defaultRate: 75,
+                minRate: 60,
+                maxRate: 100,
+                color: "#22c55e"
+            },
+            sinusBradycardia: {
+                name: "Sinus Bradycardia",
+                description: "Normal sinus rhythm but rate below 60 bpm. May be normal in athletes or during sleep.",
+                keyFeatures: ["Regular rhythm", "Rate < 60 bpm", "Normal P waves", "Normal PR and QRS"],
+                defaultRate: 45,
+                minRate: 30,
+                maxRate: 59,
+                color: "#3b82f6"
+            },
+            sinusTachycardia: {
+                name: "Sinus Tachycardia",
+                description: "Normal sinus rhythm but rate above 100 bpm. Often a response to pain, anxiety, fever, or hypovolaemia.",
+                keyFeatures: ["Regular rhythm", "Rate > 100 bpm", "Normal P waves", "Normal PR and QRS"],
+                defaultRate: 120,
+                minRate: 101,
+                maxRate: 180,
+                color: "#f59e0b"
+            },
+            atrialFibrillation: {
+                name: "Atrial Fibrillation",
+                description: "Chaotic atrial activity with irregular ventricular response. No discernible P waves.",
+                keyFeatures: ["Irregularly irregular rhythm", "No P waves (fibrillatory baseline)", "Variable R-R intervals", "Narrow QRS usually"],
+                defaultRate: 90,
+                minRate: 40,
+                maxRate: 180,
+                color: "#ef4444"
+            },
+            atrialFlutter: {
+                name: "Atrial Flutter",
+                description: "Organised atrial activity at ~300 bpm with characteristic 'sawtooth' flutter waves.",
+                keyFeatures: ["Regular or regularly irregular", "Sawtooth flutter waves", "Atrial rate ~300 bpm", "Variable AV block (2:1, 3:1, 4:1)"],
+                defaultRate: 150,
+                minRate: 75,
+                maxRate: 150,
+                color: "#f97316"
+            },
+            ventricularTachycardia: {
+                name: "Ventricular Tachycardia (VT)",
+                description: "Life-threatening rhythm arising from ventricles. Wide QRS complexes at rapid rate. TREAT AS EMERGENCY.",
+                keyFeatures: ["Wide QRS (>0.12s)", "Rate typically 150-250 bpm", "No P waves visible", "AV dissociation may be present"],
+                defaultRate: 180,
+                minRate: 100,
+                maxRate: 250,
+                color: "#dc2626",
+                emergency: true
+            },
+            ventricularFibrillation: {
+                name: "Ventricular Fibrillation (VF)",
+                description: "CARDIAC ARREST RHYTHM. Chaotic ventricular activity with no cardiac output. Requires immediate defibrillation.",
+                keyFeatures: ["Chaotic, irregular waveform", "No identifiable QRS", "No pulse", "SHOCKABLE RHYTHM"],
+                defaultRate: 0,
+                minRate: 0,
+                maxRate: 0,
+                color: "#dc2626",
+                emergency: true
+            },
+            asystole: {
+                name: "Asystole",
+                description: "CARDIAC ARREST RHYTHM. Flat line with no electrical activity. Non-shockable - requires CPR and adrenaline.",
+                keyFeatures: ["Flat line", "No QRS complexes", "No pulse", "NON-SHOCKABLE RHYTHM"],
+                defaultRate: 0,
+                minRate: 0,
+                maxRate: 0,
+                color: "#dc2626",
+                emergency: true
+            },
+            firstDegreeBlock: {
+                name: "First Degree Heart Block",
+                description: "Prolonged PR interval (>0.20s) but all P waves conducted. Usually benign.",
+                keyFeatures: ["PR interval > 0.20s", "All P waves conducted", "Regular rhythm", "1:1 P:QRS relationship"],
+                defaultRate: 70,
+                minRate: 50,
+                maxRate: 100,
+                color: "#8b5cf6"
+            },
+            secondDegreeMobitz1: {
+                name: "Second Degree Block (Mobitz I)",
+                description: "Progressive PR prolongation until a beat is dropped (Wenckebach). Usually at AV node level.",
+                keyFeatures: ["Progressive PR prolongation", "Dropped QRS after longest PR", "Grouped beating pattern", "Usually narrow QRS"],
+                defaultRate: 60,
+                minRate: 40,
+                maxRate: 80,
+                color: "#8b5cf6"
+            },
+            secondDegreeMobitz2: {
+                name: "Second Degree Block (Mobitz II)",
+                description: "Intermittent non-conducted P waves without PR prolongation. Higher risk of progression to complete block.",
+                keyFeatures: ["Constant PR interval", "Sudden dropped QRS", "May have wide QRS", "Higher risk than Mobitz I"],
+                defaultRate: 50,
+                minRate: 30,
+                maxRate: 70,
+                color: "#dc2626",
+                emergency: true
+            },
+            thirdDegreeBlock: {
+                name: "Third Degree (Complete) Heart Block",
+                description: "Complete AV dissociation. Atria and ventricles beat independently. May cause syncope or arrest.",
+                keyFeatures: ["AV dissociation", "Regular P waves (faster)", "Regular QRS (slower)", "No relationship between P and QRS"],
+                defaultRate: 35,
+                minRate: 20,
+                maxRate: 50,
+                color: "#dc2626",
+                emergency: true
+            },
+            svt: {
+                name: "Supraventricular Tachycardia (SVT)",
+                description: "Rapid regular rhythm from above ventricles. Often responds to vagal manoeuvres or adenosine.",
+                keyFeatures: ["Regular narrow complex", "Rate 150-250 bpm", "P waves often hidden", "Sudden onset/offset"],
+                defaultRate: 180,
+                minRate: 150,
+                maxRate: 250,
+                color: "#f59e0b"
+            },
+            pea: {
+                name: "Pulseless Electrical Activity (PEA)",
+                description: "CARDIAC ARREST RHYTHM. Organised electrical activity but no pulse. Non-shockable - treat reversible causes (4Hs & 4Ts).",
+                keyFeatures: ["Any organised rhythm", "NO PULSE despite rhythm", "Non-shockable", "Treat reversible causes"],
+                defaultRate: 60,
+                minRate: 20,
+                maxRate: 100,
+                color: "#dc2626",
+                emergency: true
+            }
+        };
+        
+        // ==================== STATE VARIABLES ====================
+        let currentMode = 'learn';
+        let selectedRhythm = 'normalSinus';
+        let heartRate = 75;
+        let isPlaying = true;
+        let time = 0;
+        let animationId = null;
+        
+        // Quiz state
+        let quizRhythm = null;
+        let score = { correct: 0, total: 0 };
+        
+        // Canvas context
+        let canvas, ctx;
+        
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            canvas = document.getElementById('ecgCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // Initialize rhythm selector buttons
+            initRhythmGrid();
+            
+            // Initialize quiz dropdown
+            initQuizDropdown();
+            
+            // Update display
+            updateRhythmDisplay();
+            
+            // Start animation
+            animate();
+            
+            // Enable quiz answer button when selection made
+            document.getElementById('quizAnswer').addEventListener('change', function() {
+                document.getElementById('checkAnswerBtn').disabled = !this.value;
+            });
+            
+            // Check subscription status (uncomment if using Firebase)
+            // checkSubscription();
+        });
+        
+        // ==================== RHYTHM GRID ====================
+        function initRhythmGrid() {
+            const grid = document.getElementById('rhythmGrid');
+            grid.innerHTML = '';
+            
+            Object.entries(rhythms).forEach(([key, rhythm]) => {
+                const btn = document.createElement('button');
+                btn.className = `rhythm-btn ${key === selectedRhythm ? 'active' : ''} ${rhythm.emergency ? 'emergency' : ''}`;
+                btn.style.setProperty('--rhythm-color', rhythm.color);
+                btn.innerHTML = `${rhythm.name}${rhythm.emergency ? ' <span class="emergency-icon">⚠️</span>' : ''}`;
+                btn.onclick = () => selectRhythm(key);
+                btn.id = `rhythm-${key}`;
+                grid.appendChild(btn);
+            });
+        }
+        
+        // ==================== QUIZ DROPDOWN ====================
+        function initQuizDropdown() {
+            const select = document.getElementById('quizAnswer');
+            Object.entries(rhythms).forEach(([key, rhythm]) => {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = rhythm.name;
+                select.appendChild(option);
+            });
+        }
+        
+        // ==================== MODE SWITCHING ====================
+        function setMode(mode) {
+            currentMode = mode;
+            
+            // Update buttons
+            document.getElementById('learnModeBtn').classList.toggle('active', mode === 'learn');
+            document.getElementById('quizModeBtn').classList.toggle('active', mode === 'quiz');
+            
+            // Update content visibility
+            document.getElementById('learnContent').style.display = mode === 'learn' ? 'block' : 'none';
+            document.getElementById('quizContent').style.display = mode === 'quiz' ? 'block' : 'none';
+            document.getElementById('quizScore').style.display = mode === 'quiz' ? 'block' : 'none';
+            
+            // Update monitor display
+            document.getElementById('monitorHR').style.display = mode === 'learn' ? 'flex' : 'none';
+            
+            if (mode === 'quiz') {
+                startNewQuizQuestion();
+            } else {
+                updateRhythmDisplay();
+            }
+        }
+        
+        // ==================== RHYTHM SELECTION ====================
+        function selectRhythm(rhythmKey) {
+            // Update active state
+            document.querySelectorAll('.rhythm-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`rhythm-${rhythmKey}`).classList.add('active');
+            
+            selectedRhythm = rhythmKey;
+            const rhythm = rhythms[rhythmKey];
+            heartRate = rhythm.defaultRate;
+            
+            updateRhythmDisplay();
+        }
+        
+        function updateRhythmDisplay() {
+            const rhythm = rhythms[selectedRhythm];
+            
+            // Update title and description
+            document.getElementById('rhythmTitle').textContent = rhythm.name;
+            document.getElementById('rhythmTitle').style.color = rhythm.color;
+            document.getElementById('rhythmDescription').textContent = rhythm.description;
+            
+            // Update features list
+            const featuresList = document.getElementById('featuresList');
+            featuresList.innerHTML = rhythm.keyFeatures.map(feature => 
+                `<li><i class="bi bi-check-circle-fill check-icon" style="color: ${rhythm.color}"></i>${feature}</li>`
+            ).join('');
+            
+            // Update rate slider
+            const rateCard = document.getElementById('rateCard');
+            if (rhythm.minRate === rhythm.maxRate || rhythm.minRate === 0) {
+                rateCard.style.display = 'none';
+            } else {
+                rateCard.style.display = 'block';
+                const slider = document.getElementById('rateSlider');
+                slider.min = rhythm.minRate;
+                slider.max = rhythm.maxRate;
+                slider.value = heartRate;
+                document.getElementById('rateValue').textContent = heartRate;
+                document.getElementById('rateMin').textContent = rhythm.minRate + ' BPM';
+                document.getElementById('rateMax').textContent = rhythm.maxRate + ' BPM';
+            }
+            
+            // Update monitor
+            document.getElementById('hrValue').textContent = heartRate || '--';
+            document.getElementById('monitorHR').style.color = rhythm.color;
+            
+            // Show/hide emergency banner
+            const banner = document.getElementById('emergencyBanner');
+            banner.style.display = rhythm.emergency ? 'block' : 'none';
+        }
+        
+        function updateRate(value) {
+            heartRate = parseInt(value);
+            document.getElementById('rateValue').textContent = heartRate;
+            document.getElementById('hrValue').textContent = heartRate;
+        }
+        
+        // ==================== QUIZ FUNCTIONS ====================
+        function startNewQuizQuestion() {
+            // Pick random rhythm
+            const rhythmKeys = Object.keys(rhythms);
+            quizRhythm = rhythmKeys[Math.floor(Math.random() * rhythmKeys.length)];
+            
+            // Reset quiz UI
+            document.getElementById('quizQuestion').style.display = 'block';
+            document.getElementById('quizResult').style.display = 'none';
+            document.getElementById('quizAnswer').value = '';
+            document.getElementById('checkAnswerBtn').disabled = true;
+            
+            // Update score display
+            updateScoreDisplay();
+        }
+        
+        function checkAnswer() {
+            const userAnswer = document.getElementById('quizAnswer').value;
+            const isCorrect = userAnswer === quizRhythm;
+            
+            // Update score
+            score.total++;
+            if (isCorrect) score.correct++;
+            updateScoreDisplay();
+            
+            // Show result
+            document.getElementById('quizQuestion').style.display = 'none';
+            document.getElementById('quizResult').style.display = 'block';
+            
+            const resultBox = document.getElementById('quizResultBox');
+            const resultIcon = document.getElementById('quizResultIcon');
+            const resultText = document.getElementById('quizResultText');
+            
+            if (isCorrect) {
+                resultBox.className = 'quiz-result correct';
+                resultIcon.textContent = '✅';
+                resultText.textContent = 'Correct!';
+            } else {
+                resultBox.className = 'quiz-result incorrect';
+                resultIcon.textContent = '❌';
+                resultText.textContent = 'Incorrect';
+            }
+            
+            document.getElementById('correctAnswerText').textContent = rhythms[quizRhythm].name;
+            document.getElementById('quizExplanation').textContent = rhythms[quizRhythm].description;
+        }
+        
+        function nextQuestion() {
+            startNewQuizQuestion();
+        }
+        
+        function updateScoreDisplay() {
+            document.getElementById('scoreCorrect').textContent = score.correct;
+            document.getElementById('scoreTotal').textContent = score.total;
+            
+            const percentSpan = document.getElementById('scorePercent');
+            if (score.total > 0) {
+                const percent = Math.round((score.correct / score.total) * 100);
+                percentSpan.textContent = ` (${percent}%)`;
+            } else {
+                percentSpan.textContent = '';
+            }
+        }
+        
+        // ==================== PLAY/PAUSE ====================
+        function togglePlayPause() {
+            isPlaying = !isPlaying;
+            const btn = document.getElementById('playPauseBtn');
+            
+            if (isPlaying) {
+                btn.innerHTML = '<i class="bi bi-pause-fill"></i> Pause';
+                btn.className = 'monitor-btn monitor-btn-pause';
+            } else {
+                btn.innerHTML = '<i class="bi bi-play-fill"></i> Play';
+                btn.className = 'monitor-btn monitor-btn-play';
+            }
+        }
+        
+        // ==================== ECG ANIMATION ====================
+        function animate() {
+            if (isPlaying) {
+                time += 0.05;
+            }
+            drawECG();
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        function drawECG() {
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Clear canvas with dark background
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Draw grid
+            drawGrid(width, height);
+            
+            // Get current rhythm (quiz or learn mode)
+            const currentRhythm = currentMode === 'quiz' ? quizRhythm : selectedRhythm;
+            const currentRate = currentMode === 'quiz' ? rhythms[quizRhythm]?.defaultRate || 75 : heartRate;
+            
+            if (!currentRhythm) return;
+            
+            // Generate and draw waveform
+            const points = generateWaveform(currentRhythm, currentRate, width);
+            const waveColor = currentMode === 'quiz' ? '#22c55e' : rhythms[selectedRhythm].color;
+            
+            ctx.strokeStyle = waveColor;
+            ctx.lineWidth = 2;
+            ctx.shadowColor = waveColor;
+            ctx.shadowBlur = 4;
+            ctx.beginPath();
+            
+            points.forEach((point, i) => {
+                if (i === 0) {
+                    ctx.moveTo(point.x, point.y);
+                } else {
+                    ctx.lineTo(point.x, point.y);
+                }
+            });
+            
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+        
+        function drawGrid(width, height) {
+            // Small grid
+            ctx.strokeStyle = '#2d2d4a';
+            ctx.lineWidth = 0.5;
+            
+            for (let x = 0; x < width; x += 4) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < height; y += 4) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+            
+            // Large grid
+            ctx.strokeStyle = '#3d3d5a';
+            ctx.lineWidth = 1;
+            
+            for (let x = 0; x < width; x += 20) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < height; y += 20) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+        }
+        
+        function generateWaveform(rhythm, rate, width) {
+            const points = [];
+            const baselineY = 100;
+            const pixelsPerSecond = 100;
+            const beatInterval = rate > 0 ? (60 / rate) * pixelsPerSecond : 1000;
+            
+            for (let x = 0; x < width; x++) {
+                const adjustedX = x + (time * pixelsPerSecond * 0.5);
+                let y = baselineY;
+                
+                if (rhythm === 'ventricularFibrillation') {
+                    y = baselineY + Math.sin(adjustedX * 0.3) * 30 + 
+                        Math.sin(adjustedX * 0.7) * 20 + 
+                        Math.sin(adjustedX * 1.3) * 15 +
+                        (Math.random() - 0.5) * 20;
+                } else if (rhythm === 'asystole') {
+                    y = baselineY + (Math.random() - 0.5) * 2;
+                } else {
+                    let cyclePos;
+                    if (rhythm === 'atrialFibrillation') {
+                        const irregularFactor = Math.sin(adjustedX * 0.01) * 0.3 + 1;
+                        cyclePos = (adjustedX % (beatInterval * irregularFactor)) / (beatInterval * irregularFactor);
+                    } else {
+                        cyclePos = (adjustedX % beatInterval) / beatInterval;
+                    }
+                    
+                    y = generatePQRST(rhythm, cyclePos, baselineY, adjustedX, beatInterval);
+                }
+                
+                points.push({ x, y: Math.max(20, Math.min(180, y)) });
+            }
+            
+            return points;
+        }
+        
+        function generatePQRST(rhythm, cyclePos, baselineY, adjustedX, beatInterval) {
+            let y = baselineY;
+            
+            switch (rhythm) {
+                case 'normalSinus':
+                case 'sinusBradycardia':
+                case 'sinusTachycardia':
+                case 'pea':
+                    // P wave
+                    if (cyclePos >= 0.0 && cyclePos < 0.08) {
+                        y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
+                    }
+                    // Q wave
+                    else if (cyclePos >= 0.16 && cyclePos < 0.18) {
+                        y = baselineY + Math.sin(((cyclePos - 0.16) / 0.02) * Math.PI) * 8;
+                    }
+                    // R wave
+                    else if (cyclePos >= 0.18 && cyclePos < 0.22) {
+                        y = baselineY - Math.sin(((cyclePos - 0.18) / 0.04) * Math.PI) * 60;
+                    }
+                    // S wave
+                    else if (cyclePos >= 0.22 && cyclePos < 0.26) {
+                        y = baselineY + Math.sin(((cyclePos - 0.22) / 0.04) * Math.PI) * 15;
+                    }
+                    // T wave
+                    else if (cyclePos >= 0.35 && cyclePos < 0.50) {
+                        y = baselineY - Math.sin(((cyclePos - 0.35) / 0.15) * Math.PI) * 15;
+                    }
+                    break;
+                    
+                case 'atrialFibrillation':
+                    y = baselineY + Math.sin(adjustedX * 0.5) * 3 + Math.sin(adjustedX * 0.8) * 2;
+                    if (cyclePos >= 0.16 && cyclePos < 0.18) {
+                        y = baselineY + Math.sin(((cyclePos - 0.16) / 0.02) * Math.PI) * 8;
+                    } else if (cyclePos >= 0.18 && cyclePos < 0.22) {
+                        y = baselineY - Math.sin(((cyclePos - 0.18) / 0.04) * Math.PI) * 55;
+                    } else if (cyclePos >= 0.22 && cyclePos < 0.26) {
+                        y = baselineY + Math.sin(((cyclePos - 0.22) / 0.04) * Math.PI) * 12;
+                    } else if (cyclePos >= 0.35 && cyclePos < 0.50) {
+                        y = baselineY - Math.sin(((cyclePos - 0.35) / 0.15) * Math.PI) * 12 + Math.sin(adjustedX * 0.5) * 2;
+                    }
+                    break;
+                    
+                case 'atrialFlutter':
+                    const flutterCycle = (adjustedX % 33) / 33;
+                    y = baselineY - (flutterCycle * 15 - 7);
+                    if (cyclePos >= 0.18 && cyclePos < 0.22) {
+                        y = baselineY - Math.sin(((cyclePos - 0.18) / 0.04) * Math.PI) * 55;
+                    } else if (cyclePos >= 0.22 && cyclePos < 0.26) {
+                        y = baselineY + Math.sin(((cyclePos - 0.22) / 0.04) * Math.PI) * 12;
+                    }
+                    break;
+                    
+                case 'ventricularTachycardia':
+                    if (cyclePos >= 0.0 && cyclePos < 0.35) {
+                        const vtPos = cyclePos / 0.35;
+                        y = baselineY - Math.sin(vtPos * Math.PI) * 50 * Math.sin(vtPos * Math.PI * 2);
+                        y += Math.sin(vtPos * Math.PI * 3) * 20;
+                    }
+                    break;
+                    
+                case 'firstDegreeBlock':
+                    if (cyclePos >= 0.0 && cyclePos < 0.06) {
+                        y = baselineY - Math.sin((cyclePos / 0.06) * Math.PI) * 10;
+                    } else if (cyclePos >= 0.20 && cyclePos < 0.22) {
+                        y = baselineY + Math.sin(((cyclePos - 0.20) / 0.02) * Math.PI) * 8;
+                    } else if (cyclePos >= 0.22 && cyclePos < 0.26) {
+                        y = baselineY - Math.sin(((cyclePos - 0.22) / 0.04) * Math.PI) * 60;
+                    } else if (cyclePos >= 0.26 && cyclePos < 0.30) {
+                        y = baselineY + Math.sin(((cyclePos - 0.26) / 0.04) * Math.PI) * 15;
+                    } else if (cyclePos >= 0.40 && cyclePos < 0.55) {
+                        y = baselineY - Math.sin(((cyclePos - 0.40) / 0.15) * Math.PI) * 15;
+                    }
+                    break;
+                    
+                case 'thirdDegreeBlock':
+                    const pCycle = (adjustedX % 75) / 75;
+                    if (pCycle >= 0.0 && pCycle < 0.15) {
+                        y = baselineY - Math.sin((pCycle / 0.15) * Math.PI) * 10;
+                    }
+                    if (cyclePos >= 0.16 && cyclePos < 0.18) {
+                        y = baselineY + Math.sin(((cyclePos - 0.16) / 0.02) * Math.PI) * 8;
+                    } else if (cyclePos >= 0.18 && cyclePos < 0.24) {
+                        y = baselineY - Math.sin(((cyclePos - 0.18) / 0.06) * Math.PI) * 55;
+                    } else if (cyclePos >= 0.24 && cyclePos < 0.30) {
+                        y = baselineY + Math.sin(((cyclePos - 0.24) / 0.06) * Math.PI) * 15;
+                    } else if (cyclePos >= 0.45 && cyclePos < 0.60) {
+                        y = baselineY - Math.sin(((cyclePos - 0.45) / 0.15) * Math.PI) * 12;
+                    }
+                    break;
+                    
+                case 'svt':
+                    if (cyclePos >= 0.10 && cyclePos < 0.14) {
+                        y = baselineY + Math.sin(((cyclePos - 0.10) / 0.04) * Math.PI) * 6;
+                    } else if (cyclePos >= 0.14 && cyclePos < 0.20) {
+                        y = baselineY - Math.sin(((cyclePos - 0.14) / 0.06) * Math.PI) * 55;
+                    } else if (cyclePos >= 0.20 && cyclePos < 0.26) {
+                        y = baselineY + Math.sin(((cyclePos - 0.20) / 0.06) * Math.PI) * 12;
+                    } else if (cyclePos >= 0.40 && cyclePos < 0.55) {
+                        y = baselineY - Math.sin(((cyclePos - 0.40) / 0.15) * Math.PI) * 10;
+                    }
+                    break;
+                    
+                case 'secondDegreeMobitz1':
+                    const wenkeBeat = Math.floor((adjustedX / beatInterval) % 4);
+                    const prProlongation = wenkeBeat * 0.03;
+                    
+                    if (wenkeBeat < 3) {
+                        if (cyclePos >= 0.0 && cyclePos < 0.08) {
+                            y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
+                        } else if (cyclePos >= (0.16 + prProlongation) && cyclePos < (0.18 + prProlongation)) {
+                            y = baselineY + Math.sin(((cyclePos - 0.16 - prProlongation) / 0.02) * Math.PI) * 8;
+                        } else if (cyclePos >= (0.18 + prProlongation) && cyclePos < (0.22 + prProlongation)) {
+                            y = baselineY - Math.sin(((cyclePos - 0.18 - prProlongation) / 0.04) * Math.PI) * 60;
+                        } else if (cyclePos >= (0.22 + prProlongation) && cyclePos < (0.26 + prProlongation)) {
+                            y = baselineY + Math.sin(((cyclePos - 0.22 - prProlongation) / 0.04) * Math.PI) * 15;
+                        } else if (cyclePos >= 0.40 && cyclePos < 0.55) {
+                            y = baselineY - Math.sin(((cyclePos - 0.40) / 0.15) * Math.PI) * 15;
+                        }
+                    } else {
+                        if (cyclePos >= 0.0 && cyclePos < 0.08) {
+                            y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
+                        }
+                    }
+                    break;
+                    
+                case 'secondDegreeMobitz2':
+                    const mobitz2Beat = Math.floor((adjustedX / beatInterval) % 3);
+                    
+                    if (mobitz2Beat < 2) {
+                        if (cyclePos >= 0.0 && cyclePos < 0.08) {
+                            y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
+                        } else if (cyclePos >= 0.16 && cyclePos < 0.18) {
+                            y = baselineY + Math.sin(((cyclePos - 0.16) / 0.02) * Math.PI) * 8;
+                        } else if (cyclePos >= 0.18 && cyclePos < 0.24) {
+                            y = baselineY - Math.sin(((cyclePos - 0.18) / 0.06) * Math.PI) * 55;
+                        } else if (cyclePos >= 0.24 && cyclePos < 0.30) {
+                            y = baselineY + Math.sin(((cyclePos - 0.24) / 0.06) * Math.PI) * 15;
+                        } else if (cyclePos >= 0.40 && cyclePos < 0.55) {
+                            y = baselineY - Math.sin(((cyclePos - 0.40) / 0.15) * Math.PI) * 12;
+                        }
+                    } else {
+                        if (cyclePos >= 0.0 && cyclePos < 0.08) {
+                            y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
+                        }
+                    }
+                    break;
+                    
+                default:
+                    if (cyclePos >= 0.0 && cyclePos < 0.08) {
+                        y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
+                    } else if (cyclePos >= 0.16 && cyclePos < 0.18) {
+                        y = baselineY + Math.sin(((cyclePos - 0.16) / 0.02) * Math.PI) * 8;
+                    } else if (cyclePos >= 0.18 && cyclePos < 0.22) {
+                        y = baselineY - Math.sin(((cyclePos - 0.18) / 0.04) * Math.PI) * 60;
+                    } else if (cyclePos >= 0.22 && cyclePos < 0.26) {
+                        y = baselineY + Math.sin(((cyclePos - 0.22) / 0.04) * Math.PI) * 15;
+                    } else if (cyclePos >= 0.35 && cyclePos < 0.50) {
+                        y = baselineY - Math.sin(((cyclePos - 0.35) / 0.15) * Math.PI) * 15;
+                    }
+            }
+            
+            return y;
+        }
+        
+        // ==================== SUBSCRIPTION CHECK ====================
+        // Uncomment this function if you want to use Firebase auth
+        /*
+        function checkSubscription() {
+            firebase.auth().onAuthStateChanged(function(user) {
+                if (user) {
+                    // Check Firestore for subscription status
+                    firebase.firestore().collection('users').doc(user.uid).get()
+                        .then(function(doc) {
+                            if (doc.exists) {
+                                const data = doc.data();
+                                if (data.subscriptionStatus !== 'active') {
+                                    document.getElementById('proOverlay').classList.add('show');
+                                }
+                            }
+                        });
+                } else {
+                    // Not logged in - show upgrade overlay
+                    document.getElementById('proOverlay').classList.add('show');
+                }
+            });
+        }
+        */
+    </script>
+</body>
+</html>
