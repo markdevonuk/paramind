@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Chat | ParaMind</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Menu CSS -->
+    <link rel="stylesheet" href="css/menu-v2.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        /* ==================== CHAT PAGE STYLES ==================== */
+        .chat-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--color-gray-50);
+        }
+        
+        /* Navbar */
+        .chat-navbar {
+            background: var(--color-white);
+            border-bottom: 1px solid var(--color-gray-200);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+        
+        .chat-navbar .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .brand-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        
+        .brand-para {
+            color: var(--color-teal);
+        }
+        
+        .brand-mind {
+            color: var(--color-green);
+        }
+        
+        /* Message Limit Banner */
+        .message-limit-banner {
+            background: linear-gradient(135deg, rgba(43, 138, 156, 0.1) 0%, rgba(92, 184, 92, 0.1) 100%);
+            padding: 0.5rem 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        
+        .message-limit-banner .count {
+            font-weight: 700;
+            color: var(--color-teal);
+        }
+        
+        .message-limit-banner .upgrade-link {
+            color: var(--color-teal);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        .message-limit-banner .upgrade-link:hover {
+            text-decoration: underline;
+        }
+        
+        .message-limit-banner.limit-reached {
+            background: rgba(220, 53, 69, 0.1);
+        }
+        
+        .message-limit-banner.limit-reached .count {
+            color: #dc3545;
+        }
+        
+        /* Chat Container */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        
+        /* Chat Toolbar */
+        .chat-toolbar {
+            padding: 0.75rem 1rem;
+            display: none;
+            justify-content: flex-end;
+            border-bottom: 1px solid var(--color-gray-100);
+            background: var(--color-white);
+        }
+        
+        .chat-toolbar.visible {
+            display: flex;
+        }
+        
+        /* Chat Messages */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        /* Message Styles */
+        .message {
+            display: flex;
+            gap: 0.75rem;
+            max-width: 85%;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        
+        .message.assistant {
+            align-self: flex-start;
+        }
+        
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1rem;
+        }
+        
+        .message.user .message-avatar {
+            background: var(--color-teal);
+            color: white;
+        }
+        
+        .message.assistant .message-avatar {
+            background: var(--color-gray-200);
+            color: var(--color-gray-700);
+        }
+        
+        .message-content {
+            background: var(--color-white);
+            padding: 0.875rem 1rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            line-height: 1.5;
+        }
+        
+        .message.user .message-content {
+            background: var(--color-teal);
+            color: white;
+        }
+        
+        .message.assistant .message-content {
+            background: var(--color-white);
+        }
+        
+        /* Streaming cursor */
+        .streaming-cursor {
+            display: inline-block;
+            animation: blink 0.7s infinite;
+            color: var(--color-teal);
+            font-weight: bold;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        /* Typing indicator */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 4px 0;
+        }
+        
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: var(--color-gray-400);
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-4px); }
+        }
+        
+        /* Welcome Message */
+        .welcome-message {
+            text-align: center;
+            padding: 3rem 1rem;
+            max-width: 500px;
+            margin: auto;
+        }
+        
+        .welcome-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(43, 138, 156, 0.1) 0%, rgba(92, 184, 92, 0.1) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: var(--color-teal);
+        }
+        
+        .welcome-message h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 0.75rem;
+        }
+        
+        .welcome-message p {
+            color: var(--color-gray-600);
+            margin-bottom: 1.5rem;
+        }
+        
+        .welcome-disclaimer {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem;
+            font-size: 0.8rem;
+            color: var(--color-gray-700);
+        }
+        
+        .pro-badge-welcome {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1a1a2e;
+            font-size: 0.6rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+        
+        /* Chat Input Area */
+        .chat-input-area {
+            padding: 1rem;
+            background: var(--color-white);
+            border-top: 1px solid var(--color-gray-200);
+            flex-shrink: 0;
+        }
+        
+        .chat-form {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-end;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .chat-input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+        
+        .chat-input {
+            width: 100%;
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--radius-lg);
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            resize: none;
+            max-height: 120px;
+            line-height: 1.5;
+            font-family: inherit;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--color-teal);
+            box-shadow: 0 0 0 3px rgba(43, 138, 156, 0.15);
+        }
+        
+        .send-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-teal-dark) 100%);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        
+        .send-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(43, 138, 156, 0.4);
+        }
+        
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .send-btn i {
+            font-size: 1.25rem;
+        }
+        
+        /* Privacy Notice */
+        .privacy-notice {
+            text-align: center;
+            padding: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+        }
+        
+        /* Message content formatting */
+        .message-content h1, .message-content h2, .message-content h3 {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .message-content h1:first-child, 
+        .message-content h2:first-child, 
+        .message-content h3:first-child {
+            margin-top: 0;
+        }
+        
+        .message-content ul, .message-content ol {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        .message-content p {
+            margin: 0.5rem 0;
+        }
+        
+        .message-content p:first-child {
+            margin-top: 0;
+        }
+        
+        .message-content p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .message-content code {
+            background: var(--color-gray-100);
+            padding: 0.125rem 0.375rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.875em;
+        }
+        
+        .message-content pre {
+            background: var(--color-gray-100);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            overflow-x: auto;
+            margin: 0.5rem 0;
+        }
+        
+        .message-content pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        
+        .quick-action-btn {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-full);
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            color: var(--color-gray-700);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .quick-action-btn:hover {
+            border-color: var(--color-teal);
+            color: var(--color-teal);
+            background: rgba(43, 138, 156, 0.05);
+        }
+    </style>
+</head>
+
+<body class="chat-page">
+    <!-- ==================== NAVIGATION ==================== -->
+    <nav class="chat-navbar">
+        <div class="container">
+            <span class="brand-text">
+                <a class="navbar-brand" href="landing.html">
+                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
+                </a>
+            </span>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Message Limit Banner (Free Users) -->
+    <div class="message-limit-banner" id="messageLimitBanner">
+        <span>Daily messages: <span class="count"><span id="messagesUsed">0</span>/5</span></span>
+        <a href="#" class="upgrade-link" onclick="handleUpgrade(); return false;">
+            <i class="bi bi-star-fill me-1"></i>Upgrade for unlimited
+        </a>
+    </div>
+
+    <!-- ==================== CHAT CONTAINER ==================== -->
+    <div class="chat-container">
+        
+        <!-- Chat Toolbar -->
+        <div class="chat-toolbar" id="chatToolbar">
+            <button class="btn btn-outline-secondary btn-sm" id="clearChatBtn">
+                <i class="bi bi-plus-lg me-1"></i>New Chat
+            </button>
+        </div>
+        
+        <!-- Chat Messages -->
+        <div class="chat-messages" id="chatMessages">
+            
+            <!-- Welcome Message -->
+            <div class="welcome-message" id="welcomeMessage">
+                <div class="welcome-icon">
+                    <i class="bi bi-chat-heart"></i>
+                </div>
+                <h2>
+                    Welcome to 
+                    <span class="brand-text"><span class="brand-para">para</span><span class="brand-mind">mind</span></span>
+                    <span id="proBadgeWelcome" class="pro-badge-welcome" style="display: none;">PRO</span>
+                </h2>
+                <p>I'm here to help with your clinical learning. Ask me anything about paramedicine.</p>
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button class="quick-action-btn" onclick="sendQuickMessage('Explain the pathophysiology of MI')">
+                        <i class="bi bi-heart-pulse me-1"></i>MI Pathophysiology
+                    </button>
+                    <button class="quick-action-btn" onclick="sendQuickMessage('What are the signs of sepsis?')">
+                        <i class="bi bi-thermometer-half me-1"></i>Sepsis Signs
+                    </button>
+                    <button class="quick-action-btn" onclick="sendQuickMessage('Explain ABCDE assessment')">
+                        <i class="bi bi-list-check me-1"></i>ABCDE Assessment
+                    </button>
+                </div>
+                
+                <div class="welcome-disclaimer">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Educational tool only. Always verify information and follow your trust's guidelines.
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- Chat Input Area -->
+        <div class="chat-input-area">
+            <form class="chat-form" id="chatForm">
+                <div class="chat-input-wrapper">
+                    <textarea 
+                        class="chat-input" 
+                        id="messageInput" 
+                        placeholder="Ask me anything about paramedicine..."
+                        rows="1"
+                    ></textarea>
+                </div>
+                <button type="submit" class="send-btn" id="sendBtn">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </form>
+            <div class="privacy-notice">
+                <i class="bi bi-shield-lock me-1"></i>
+                Never enter identifiable patient information
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- ==================== SCRIPTS ==================== -->
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Marked.js for Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Menu JS -->
+    <script src="js/menu-v2.js"></script>
+    
+    <!-- Page Script -->
+    <script>
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
+            authDomain: "paramind-64b8e.firebaseapp.com",
+            projectId: "paramind-64b8e",
+            storageBucket: "paramind-64b8e.firebasestorage.app",
+            messagingSenderId: "452173393964",
+            appId: "1:452173393964:web:8599c0fe1983a6f441e189",
+            measurementId: "G-GW385S6L0L"
+        };
+
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ==================== API CONFIG ====================
+        const API_CONFIG = {
+            baseUrl: 'https://paramind-api.onrender.com',
+            chatEndpoint: '/api/chat'
+        };
+
+        // ==================== STATE ====================
+        const chatState = {
+            isPro: false,
+            messagesRemaining: 5,
+            conversationHistory: [],
+            isLoading: false,
+            userData: null
+        };
+
+        // ==================== DOM ELEMENTS ====================
+        const elements = {
+            chatMessages: document.getElementById('chatMessages'),
+            chatForm: document.getElementById('chatForm'),
+            messageInput: document.getElementById('messageInput'),
+            sendBtn: document.getElementById('sendBtn'),
+            welcomeMessage: document.getElementById('welcomeMessage'),
+            chatToolbar: document.getElementById('chatToolbar'),
+            clearChatBtn: document.getElementById('clearChatBtn'),
+            messageLimitBanner: document.getElementById('messageLimitBanner'),
+            messagesUsed: document.getElementById('messagesUsed'),
+            proBadgeWelcome: document.getElementById('proBadgeWelcome')
+        };
+
+        // ==================== AUTH STATE ====================
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    const doc = await db.collection('users').doc(user.uid).get();
+                    if (doc.exists) {
+                        chatState.userData = doc.data();
+                        chatState.isPro = chatState.userData.subscriptionStatus === 'active' || chatState.userData.isPro === true;
+                        updateUIForUser();
+                    }
+                } catch (error) {
+                    console.error('Error fetching user data:', error);
+                }
+            } else {
+                // Not logged in - redirect to login
+                window.location.href = 'login.html';
+            }
+        });
+
+        // ==================== UPDATE UI ====================
+        function updateUIForUser() {
+            if (chatState.isPro) {
+                // Pro user
+                elements.messageLimitBanner.style.display = 'none';
+                elements.proBadgeWelcome.style.display = 'inline';
+            } else {
+                // Free user
+                elements.messageLimitBanner.style.display = 'flex';
+                elements.proBadgeWelcome.style.display = 'none';
+                updateMessageCounter();
+            }
+        }
+
+        function updateMessageCounter() {
+            const used = Math.max(0, 5 - chatState.messagesRemaining);
+            elements.messagesUsed.textContent = used;
+            
+            if (chatState.messagesRemaining <= 0) {
+                elements.messageLimitBanner.classList.add('limit-reached');
+            } else {
+                elements.messageLimitBanner.classList.remove('limit-reached');
+            }
+        }
+
+        // ==================== MESSAGE FORMATTING ====================
+        function formatMessage(content) {
+            if (typeof marked !== 'undefined') {
+                return marked.parse(content);
+            }
+            // Fallback: basic formatting
+            return content
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>');
+        }
+
+        // ==================== CHAT FUNCTIONS ====================
+        async function handleSendMessage(e) {
+            e.preventDefault();
+            
+            const message = elements.messageInput.value.trim();
+            if (!message || chatState.isLoading) return;
+            
+            // Check message limit for free users
+            if (!chatState.isPro && chatState.messagesRemaining <= 0) {
+                showLimitReached();
+                return;
+            }
+            
+            // Clear input
+            elements.messageInput.value = '';
+            elements.messageInput.style.height = 'auto';
+            
+            // Hide welcome message
+            if (elements.welcomeMessage) {
+                elements.welcomeMessage.style.display = 'none';
+            }
+            
+            // Show toolbar
+            elements.chatToolbar.classList.add('visible');
+            
+            // Add user message
+            addMessage('user', message);
+            chatState.conversationHistory.push({ role: 'user', content: message });
+            
+            // Create streaming message bubble
+            const aiMessageId = 'ai-msg-' + Date.now();
+            addStreamingMessage(aiMessageId);
+            
+            chatState.isLoading = true;
+            elements.sendBtn.disabled = true;
+            
+            try {
+                const response = await sendMessageToAPI(message, (partialMessage) => {
+                    updateStreamingMessage(aiMessageId, partialMessage);
+                });
+                
+                finalizeStreamingMessage(aiMessageId, response);
+                chatState.conversationHistory.push({ role: 'assistant', content: response });
+            } catch (error) {
+                removeStreamingMessage(aiMessageId);
+                handleChatError(error);
+            } finally {
+                chatState.isLoading = false;
+                elements.sendBtn.disabled = false;
+            }
+        }
+
+        async function sendMessageToAPI(message, onChunk) {
+            const user = auth.currentUser;
+            if (!user) throw new Error('Not authenticated');
+            
+            const token = await user.getIdToken();
+            
+            const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.chatEndpoint}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: message,
+                    conversationHistory: chatState.conversationHistory.slice(-10).filter(m => m.role !== 'system'),
+                    scenarioId: null,
+                    scenarioPrompt: null
+                })
+            });
+            
+            if (!response.ok) {
+                if (response.status === 429) {
+                    throw new Error('LIMIT_REACHED');
+                }
+                throw new Error('Failed to send message');
+            }
+            
+            // Handle streaming response
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let fullMessage = '';
+            
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                
+                const text = decoder.decode(value, { stream: true });
+                const lines = text.split('\n');
+                
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        try {
+                            const data = JSON.parse(line.slice(6));
+                            
+                            if (data.type === 'meta') {
+                                if (data.remaining !== undefined && data.remaining >= 0) {
+                                    chatState.messagesRemaining = data.remaining;
+                                    updateMessageCounter();
+                                }
+                            } else if (data.type === 'chunk') {
+                                fullMessage += data.content;
+                                if (onChunk) onChunk(fullMessage);
+                            } else if (data.type === 'error') {
+                                throw new Error(data.error);
+                            }
+                        } catch (parseError) {
+                            // Skip invalid JSON lines
+                        }
+                    }
+                }
+            }
+            
+            return fullMessage;
+        }
+
+        function addMessage(role, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            const avatarIcon = role === 'user' ? 'bi-person' : 'bi-robot';
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="bi ${avatarIcon}"></i>
+                </div>
+                <div class="message-content">
+                    ${formatMessage(content)}
+                </div>
+            `;
+            
+            elements.chatMessages.appendChild(messageDiv);
+            
+            if (role === 'user') {
+                scrollToBottom();
+            } else {
+                messageDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function addStreamingMessage(messageId) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message assistant';
+            messageDiv.id = messageId;
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <div class="message-content">
+                    <span class="streaming-text"></span><span class="streaming-cursor">|</span>
+                </div>
+            `;
+            
+            elements.chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function updateStreamingMessage(messageId, content) {
+            const messageDiv = document.getElementById(messageId);
+            if (messageDiv) {
+                const textSpan = messageDiv.querySelector('.streaming-text');
+                if (textSpan) {
+                    textSpan.innerHTML = formatMessage(content);
+                }
+                messageDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function finalizeStreamingMessage(messageId, content) {
+            const messageDiv = document.getElementById(messageId);
+            if (messageDiv) {
+                const contentDiv = messageDiv.querySelector('.message-content');
+                if (contentDiv) {
+                    contentDiv.innerHTML = formatMessage(content);
+                }
+            }
+        }
+
+        function removeStreamingMessage(messageId) {
+            const messageDiv = document.getElementById(messageId);
+            if (messageDiv) messageDiv.remove();
+        }
+
+        function handleChatError(error) {
+            if (error.message === 'LIMIT_REACHED') {
+                showLimitReached();
+            } else {
+                addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+                console.error('Chat error:', error);
+            }
+        }
+
+        function showLimitReached() {
+            const limitDiv = document.createElement('div');
+            limitDiv.className = 'message assistant';
+            
+            limitDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <div class="message-content">
+                    <strong>Daily message limit reached</strong><br><br>
+                    You've used all 5 free messages for today. Your limit resets at midnight.<br><br>
+                    <button class="btn btn-primary btn-sm" onclick="handleUpgrade()">
+                        <i class="bi bi-star me-1"></i>Upgrade to Pro - £4.99/month
+                    </button>
+                </div>
+            `;
+            
+            elements.chatMessages.appendChild(limitDiv);
+            scrollToBottom();
+        }
+
+        function clearChat() {
+            chatState.conversationHistory = [];
+            
+            // Remove all messages
+            const messages = elements.chatMessages.querySelectorAll('.message');
+            messages.forEach(msg => msg.remove());
+            
+            // Show welcome message
+            if (elements.welcomeMessage) {
+                elements.welcomeMessage.style.display = 'block';
+            }
+            
+            // Hide toolbar
+            elements.chatToolbar.classList.remove('visible');
+        }
+
+        function scrollToBottom() {
+            elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+        }
+
+        // ==================== QUICK MESSAGES ====================
+        function sendQuickMessage(message) {
+            elements.messageInput.value = message;
+            elements.chatForm.dispatchEvent(new Event('submit'));
+        }
+
+        // ==================== UPGRADE HANDLER ====================
+        function handleUpgrade() {
+            if (typeof createCheckoutSession === 'function') {
+                createCheckoutSession();
+            } else {
+                alert('Upgrade functionality coming soon!');
+            }
+        }
+
+        // ==================== EVENT LISTENERS ====================
+        elements.chatForm.addEventListener('submit', handleSendMessage);
+
+        elements.messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        elements.messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                elements.chatForm.dispatchEvent(new Event('submit'));
+            }
+        });
+
+        elements.clearChatBtn.addEventListener('click', clearChat);
+    </script>
+</body>
+</html>

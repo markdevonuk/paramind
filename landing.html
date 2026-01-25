@@ -144,11 +144,11 @@
         
         .tools-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(1, 1fr);
             gap: 1rem;
         }
         
-        @media (min-width: 576px) {
+        @media (min-width: 480px) {
             .tools-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -156,107 +156,186 @@
         
         @media (min-width: 768px) {
             .tools-grid {
-                grid-template-columns: repeat(4, 1fr);
+                grid-template-columns: repeat(3, 1fr);
             }
         }
         
-        /* Tool Card */
+        /* Tool Card - Redesigned */
         .tool-card {
             background: var(--color-white);
-            border-radius: var(--radius-lg);
-            padding: 1.25rem;
-            text-align: center;
+            border-radius: 16px;
+            padding: 1.5rem;
             text-decoration: none;
             color: inherit;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.2s ease;
-            border: 1px solid var(--color-gray-100);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
             position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 160px;
+        }
+        
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--card-accent);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
         }
         
         .tool-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--color-teal);
+            transform: translateY(-6px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
             color: inherit;
         }
         
+        .tool-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        /* Card accent colors */
+        .tool-card.card-chat { --card-accent: linear-gradient(135deg, #2B8A9C, #5CB85C); }
+        .tool-card.card-scenarios { --card-accent: linear-gradient(135deg, #5CB85C, #28a745); }
+        .tool-card.card-differentials { --card-accent: linear-gradient(135deg, #6c757d, #495057); }
+        .tool-card.card-atmist { --card-accent: linear-gradient(135deg, #dc3545, #c82333); }
+        .tool-card.card-ecg { --card-accent: linear-gradient(135deg, #ffc107, #e0a800); }
+        .tool-card.card-cpd { --card-accent: linear-gradient(135deg, #6f42c1, #5a32a3); }
+        
+        .tool-card::before {
+            background: var(--card-accent);
+        }
+        
+        .tool-card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        
         .tool-card-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: var(--radius-md);
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 0.75rem;
             font-size: 1.5rem;
+            flex-shrink: 0;
         }
         
-        .tool-card-icon.chat {
-            background: linear-gradient(135deg, rgba(43, 138, 156, 0.15) 0%, rgba(43, 138, 156, 0.05) 100%);
-            color: var(--color-teal);
+        .tool-card.card-chat .tool-card-icon {
+            background: linear-gradient(135deg, rgba(43, 138, 156, 0.15) 0%, rgba(92, 184, 92, 0.1) 100%);
+            color: #2B8A9C;
         }
         
-        .tool-card-icon.scenarios {
-            background: linear-gradient(135deg, rgba(92, 184, 92, 0.15) 0%, rgba(92, 184, 92, 0.05) 100%);
-            color: var(--color-green);
+        .tool-card.card-scenarios .tool-card-icon {
+            background: linear-gradient(135deg, rgba(92, 184, 92, 0.2) 0%, rgba(40, 167, 69, 0.1) 100%);
+            color: #28a745;
         }
         
-        .tool-card-icon.differentials {
-            background: linear-gradient(135deg, rgba(108, 117, 125, 0.15) 0%, rgba(108, 117, 125, 0.05) 100%);
-            color: #6c757d;
+        .tool-card.card-differentials .tool-card-icon {
+            background: linear-gradient(135deg, rgba(108, 117, 125, 0.15) 0%, rgba(73, 80, 87, 0.1) 100%);
+            color: #495057;
         }
         
-        .tool-card-icon.atmist {
-            background: linear-gradient(135deg, rgba(220, 53, 69, 0.15) 0%, rgba(220, 53, 69, 0.05) 100%);
+        .tool-card.card-atmist .tool-card-icon {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.15) 0%, rgba(200, 35, 51, 0.1) 100%);
             color: #dc3545;
         }
         
-        .tool-card-icon.ecg {
-            background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 193, 7, 0.05) 100%);
-            color: #ffc107;
+        .tool-card.card-ecg .tool-card-icon {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.2) 0%, rgba(224, 168, 0, 0.1) 100%);
+            color: #d39e00;
         }
         
-        .tool-card-icon.cpd {
-            background: linear-gradient(135deg, rgba(111, 66, 193, 0.15) 0%, rgba(111, 66, 193, 0.05) 100%);
+        .tool-card.card-cpd .tool-card-icon {
+            background: linear-gradient(135deg, rgba(111, 66, 193, 0.15) 0%, rgba(90, 50, 163, 0.1) 100%);
             color: #6f42c1;
         }
         
+        .tool-card-info {
+            flex: 1;
+        }
+        
         .tool-card-title {
-            font-weight: 600;
-            font-size: 0.95rem;
+            font-weight: 700;
+            font-size: 1.1rem;
             color: var(--color-gray-800);
             margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .tool-card-subtitle {
+            font-size: 0.8rem;
+            color: var(--color-gray-500);
+            font-weight: 500;
         }
         
         .tool-card-desc {
-            font-size: 0.75rem;
-            color: var(--color-gray-500);
+            font-size: 0.875rem;
+            color: var(--color-gray-600);
             margin: 0;
-            line-height: 1.3;
+            line-height: 1.5;
+            flex: 1;
+        }
+        
+        .tool-card-arrow {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--color-gray-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-gray-400);
+            transition: all 0.3s ease;
+        }
+        
+        .tool-card:hover .tool-card-arrow {
+            background: var(--color-teal);
+            color: white;
+            transform: translateX(4px);
         }
         
         /* Pro Badge on Card */
         .tool-card .card-pro-badge {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
             background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
             color: #1a1a2e;
-            font-size: 0.6rem;
+            font-size: 0.65rem;
             font-weight: 700;
-            padding: 0.15rem 0.4rem;
-            border-radius: var(--radius-sm);
+            padding: 0.2rem 0.5rem;
+            border-radius: 20px;
             text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
         
         /* Locked Card State (for non-Pro users) */
         .tool-card.locked {
-            opacity: 0.7;
+            opacity: 0.75;
         }
         
         .tool-card.locked:hover {
-            border-color: #FFD700;
+            opacity: 1;
+        }
+        
+        .tool-card.locked .tool-card-arrow {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1a1a2e;
+        }
+        
+        .tool-card.locked:hover .tool-card-arrow {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
         }
         
         /* Upgrade Banner */
@@ -406,7 +485,7 @@
         
         <!-- Welcome Section -->
         <div class="welcome-section">
-            <h1>Welcome back! 👋</h1>
+            <h1>Welcome back, <span id="userFirstName">there</span>! 👋</h1>
             <p>What would you like to learn today?</p>
             <div class="user-badge">
                 <i class="bi bi-hospital"></i>
@@ -417,7 +496,7 @@
             </div>
             <div class="message-counter" id="messageCounter" style="display: none;">
                 <i class="bi bi-chat-dots"></i>
-                <span><span class="count" id="messagesUsed">0</span>/10 messages today</span>
+                <span><span class="count" id="messagesUsed">0</span>/5 messages today</span>
             </div>
         </div>
         
@@ -427,40 +506,54 @@
             <div class="tools-grid">
                 
                 <!-- Chat -->
-                <a href="chat.html" class="tool-card">
-                    <div class="tool-card-icon chat">
-                        <i class="bi bi-chat-dots"></i>
+                <a href="chat.html" class="tool-card card-chat">
+                    <div class="tool-card-header">
+                        <div class="tool-card-icon">
+                            <i class="bi bi-chat-dots"></i>
+                        </div>
+                        <div class="tool-card-info">
+                            <div class="tool-card-title">Chat</div>
+                            <div class="tool-card-subtitle">AI Assistant</div>
+                        </div>
                     </div>
-                    <div class="tool-card-title">Chat</div>
-                    <p class="tool-card-desc">Ask anything about paramedicine</p>
+                    <p class="tool-card-desc">Ask anything about paramedicine, clinical guidelines, or pharmacology.</p>
+                    <div class="tool-card-arrow">
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
                 </a>
                 
                 <!-- Scenarios -->
-                <a href="scenarios.html" class="tool-card">
-                    <div class="tool-card-icon scenarios">
-                        <i class="bi bi-mortarboard"></i>
+                <a href="scenarios.html" class="tool-card card-scenarios">
+                    <div class="tool-card-header">
+                        <div class="tool-card-icon">
+                            <i class="bi bi-mortarboard"></i>
+                        </div>
+                        <div class="tool-card-info">
+                            <div class="tool-card-title">Scenarios</div>
+                            <div class="tool-card-subtitle">Case Studies</div>
+                        </div>
                     </div>
-                    <div class="tool-card-title">Scenarios</div>
-                    <p class="tool-card-desc">Practice with simulated cases</p>
+                    <p class="tool-card-desc">Practice with realistic simulated patient cases from dispatch to handover.</p>
+                    <div class="tool-card-arrow">
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
                 </a>
                 
                 <!-- Differentials -->
-                <a href="differentials.html" class="tool-card">
-                    <div class="tool-card-icon differentials">
-                        <i class="bi bi-clipboard2-pulse"></i>
+                <a href="differentials.html" class="tool-card card-differentials">
+                    <div class="tool-card-header">
+                        <div class="tool-card-icon">
+                            <i class="bi bi-clipboard2-pulse"></i>
+                        </div>
+                        <div class="tool-card-info">
+                            <div class="tool-card-title">Differentials</div>
+                            <div class="tool-card-subtitle">Diagnosis Explorer</div>
+                        </div>
                     </div>
-                    <div class="tool-card-title">Differentials</div>
-                    <p class="tool-card-desc">Explore differential diagnoses</p>
-                </a>
-                
-                <!-- ATMIST - Pro -->
-                <a href="atmist.html" class="tool-card" id="atmistCard">
-                    <span class="card-pro-badge" id="atmistProBadge">Pro</span>
-                    <div class="tool-card-icon atmist">
-                        <i class="bi bi-telephone-outbound"></i>
+                    <p class="tool-card-desc">Explore differential diagnoses based on patient presentation and vitals.</p>
+                    <div class="tool-card-arrow">
+                        <i class="bi bi-arrow-right"></i>
                     </div>
-                    <div class="tool-card-title">ATMIST</div>
-                    <p class="tool-card-desc">Handover generator</p>
                 </a>
                 
             </div>
@@ -471,24 +564,64 @@
             <div class="section-title">Pro Tools</div>
             <div class="tools-grid">
                 
-                <!-- ECG Tool - Pro -->
-                <a href="ecg.html" class="tool-card" id="ecgCard">
-                    <span class="card-pro-badge" id="ecgProBadge">Pro</span>
-                    <div class="tool-card-icon ecg">
-                        <i class="bi bi-activity"></i>
+                <!-- ATMIST - Pro -->
+                <a href="atmist.html" class="tool-card card-atmist" id="atmistCard">
+                    <div class="tool-card-header">
+                        <div class="tool-card-icon">
+                            <i class="bi bi-telephone-outbound"></i>
+                        </div>
+                        <div class="tool-card-info">
+                            <div class="tool-card-title">
+                                ATMIST
+                                <span class="card-pro-badge" id="atmistProBadge">Pro</span>
+                            </div>
+                            <div class="tool-card-subtitle">Handover Tool</div>
+                        </div>
                     </div>
-                    <div class="tool-card-title">ECG Tool</div>
-                    <p class="tool-card-desc">Interactive rhythm practice</p>
+                    <p class="tool-card-desc">Generate structured pre-alert and handover messages for hospital teams.</p>
+                    <div class="tool-card-arrow">
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
+                </a>
+                
+                <!-- ECG Tool - Pro -->
+                <a href="ecg.html" class="tool-card card-ecg" id="ecgCard">
+                    <div class="tool-card-header">
+                        <div class="tool-card-icon">
+                            <i class="bi bi-activity"></i>
+                        </div>
+                        <div class="tool-card-info">
+                            <div class="tool-card-title">
+                                ECG Tool
+                                <span class="card-pro-badge" id="ecgProBadge">Pro</span>
+                            </div>
+                            <div class="tool-card-subtitle">Rhythm Practice</div>
+                        </div>
+                    </div>
+                    <p class="tool-card-desc">Interactive ECG rhythm generator to practice identification skills.</p>
+                    <div class="tool-card-arrow">
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
                 </a>
                 
                 <!-- CPD Portfolio - Pro -->
-                <a href="cpd.html" class="tool-card" id="cpdCard">
-                    <span class="card-pro-badge" id="cpdProBadge">Pro</span>
-                    <div class="tool-card-icon cpd">
-                        <i class="bi bi-award"></i>
+                <a href="cpd.html" class="tool-card card-cpd" id="cpdCard">
+                    <div class="tool-card-header">
+                        <div class="tool-card-icon">
+                            <i class="bi bi-award"></i>
+                        </div>
+                        <div class="tool-card-info">
+                            <div class="tool-card-title">
+                                CPD Portfolio
+                                <span class="card-pro-badge" id="cpdProBadge">Pro</span>
+                            </div>
+                            <div class="tool-card-subtitle">Track Progress</div>
+                        </div>
                     </div>
-                    <div class="tool-card-title">CPD Portfolio</div>
-                    <p class="tool-card-desc">Track your learning</p>
+                    <p class="tool-card-desc">Track your completed scenarios and download CPD certificates.</p>
+                    <div class="tool-card-arrow">
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
                 </a>
                 
             </div>
@@ -562,6 +695,7 @@
         let userData = null;
 
         // ==================== DOM ELEMENTS ====================
+        const userFirstNameEl = document.getElementById('userFirstName');
         const userTrustEl = document.getElementById('userTrust');
         const proBadgeEl = document.getElementById('proBadge');
         const upgradeBannerEl = document.getElementById('upgradeBanner');
@@ -601,6 +735,16 @@
 
         // ==================== UPDATE UI ====================
         function updateUI() {
+            // Update first name
+            if (userData.firstName) {
+                userFirstNameEl.textContent = userData.firstName;
+            } else if (userData.name) {
+                // Try to get first name from full name
+                userFirstNameEl.textContent = userData.name.split(' ')[0];
+            } else {
+                userFirstNameEl.textContent = 'there';
+            }
+            
             // Update trust name
             if (userData.trust || userData.trustName) {
                 userTrustEl.textContent = userData.trust || userData.trustName;
