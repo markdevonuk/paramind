@@ -5,7 +5,18 @@
 (function() {
     'use strict';
 
-    // ==================== CONFIGURATION ====================
+    // ==================== FIREBASE CONFIG (for standalone pages) ====================
+    const FIREBASE_CONFIG = {
+        apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
+        authDomain: "paramind-64b8e.firebaseapp.com",
+        projectId: "paramind-64b8e",
+        storageBucket: "paramind-64b8e.firebasestorage.app",
+        messagingSenderId: "452173393964",
+        appId: "1:452173393964:web:8599c0fe1983a6f441e189",
+        measurementId: "G-GW385S6L0L"
+    };
+
+    // ==================== MENU CONFIGURATION ====================
     const MENU_CONFIG = {
         // Main navigation items
         mainNav: [
@@ -229,15 +240,112 @@
         };
     }
 
-    // ==================== FIREBASE AUTH INTEGRATION ====================
-    function initFirebaseAuth(callback) {
-        // Wait for Firebase to be available
+    // ==================== GET USER DATA ====================
+    // This function tries multiple methods to get user data:
+    // 1. From existing DOM elements (populated by app.js on chat.html)
+    // 2. From Firebase compat SDK (for standalone pages like ECG)
+    
+    function getUserData(callback) {
+        // Method 1: Try to read from existing DOM elements (chat.html uses these)
+        const existingEmail = document.querySelector('#userEmail');
+        const existingTrust = document.querySelector('#userTrust');
+        const proBadge = document.querySelector('#proBadgeWelcome');
+        
+        // Check if these elements have real data (not just placeholders)
+        if (existingEmail && existingEmail.textContent && 
+            existingEmail.textContent !== 'user@nhs.net' && 
+            existingEmail.textContent !== 'Loading...') {
+            
+            // User data already available in DOM
+            const isPro = proBadge && proBadge.style.display !== 'none';
+            callback({
+                email: existingEmail.textContent,
+                trust: existingTrust ? existingTrust.textContent : null,
+                isPro: isPro
+            });
+            return;
+        }
+        
+        // Method 2: Try Firebase compat SDK (for standalone pages)
+        // First, check if Firebase compat is already loaded
+        if (typeof firebase !== 'undefined' && firebase.auth) {
+            initFromFirebaseCompat(callback);
+            return;
+        }
+        
+        // Method 3: Load Firebase compat SDK dynamically
+        loadFirebaseCompat(callback);
+    }
+    
+    // Load Firebase compat SDK dynamically for standalone pages
+    function loadFirebaseCompat(callback) {
+        // Check if already loading or loaded
+        if (window._firebaseLoading) {
+            // Wait for it to finish
+            setTimeout(() => loadFirebaseCompat(callback), 100);
+            return;
+        }
+        
+        if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) {
+            initFromFirebaseCompat(callback);
+            return;
+        }
+        
+        window._firebaseLoading = true;
+        
+        const scripts = [
+            'https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js',
+            'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js',
+            'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js'
+        ];
+        
+        let loaded = 0;
+        
+        scripts.forEach((src, index) => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = () => {
+                loaded++;
+                if (loaded === scripts.length) {
+                    // All scripts loaded, initialize Firebase
+                    try {
+                        if (!firebase.apps || firebase.apps.length === 0) {
+                            firebase.initializeApp(FIREBASE_CONFIG);
+                        }
+                        window._firebaseLoading = false;
+                        initFromFirebaseCompat(callback);
+                    } catch (e) {
+                        console.error('Menu: Firebase init error', e);
+                        window._firebaseLoading = false;
+                        callback({ email: null, trust: null, isPro: false });
+                    }
+                }
+            };
+            script.onerror = () => {
+                console.error('Menu: Failed to load Firebase script', src);
+                window._firebaseLoading = false;
+                callback({ email: null, trust: null, isPro: false });
+            };
+            document.head.appendChild(script);
+        });
+    }
+    
+    // Initialize from Firebase compat SDK
+    function initFromFirebaseCompat(callback) {
         if (typeof firebase === 'undefined' || !firebase.auth) {
-            console.log('Menu: Firebase not available, using defaults');
             callback({ email: null, trust: null, isPro: false });
             return;
         }
-
+        
+        // Initialize if not already done
+        try {
+            if (!firebase.apps || firebase.apps.length === 0) {
+                firebase.initializeApp(FIREBASE_CONFIG);
+            }
+        } catch (e) {
+            // Already initialized, that's fine
+        }
+        
         firebase.auth().onAuthStateChanged(function(user) {
             if (user) {
                 // User is signed in - get their data from Firestore
@@ -308,8 +416,8 @@
             return;
         }
 
-        // Initialize with Firebase auth
-        initFirebaseAuth(function(userData) {
+        // Get user data and initialize menu
+        getUserData(function(userData) {
             // Remove existing menu if any (in case of re-init)
             const existingMenu = document.getElementById('menuContainer');
             if (existingMenu) {
