@@ -510,6 +510,49 @@
             font-weight: 600;
         }
         
+        /* Final Results Screen */
+        .final-results-container {
+            text-align: center;
+            padding: 1rem 0;
+        }
+        
+        .final-results-title {
+            font-size: 1.75rem;
+            color: var(--color-gray-800);
+            margin-bottom: 1.5rem;
+        }
+        
+        .final-score-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-green) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 8px 30px rgba(43, 138, 156, 0.3);
+        }
+        
+        .final-score-percent {
+            font-size: 3rem;
+            font-weight: 700;
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .final-score-text {
+            font-size: 1.2rem;
+            color: var(--color-gray-700);
+            margin-bottom: 0.5rem;
+        }
+        
+        .final-score-message {
+            font-size: 1.1rem;
+            color: var(--color-gray-500);
+            margin-bottom: 1rem;
+        }
+        
         /* Info Banner */
         .info-banner {
             background: linear-gradient(135deg, rgba(43, 138, 156, 0.1) 0%, rgba(92, 184, 92, 0.1) 100%);
@@ -704,8 +747,8 @@
         <!-- Quiz Score (hidden by default) -->
         <div class="quiz-score" id="quizScore" style="display: none;">
             <span class="quiz-score-badge">
+                Question <span id="questionNumber">1</span> of 14 | 
                 Score: <span id="scoreCorrect">0</span>/<span id="scoreTotal">0</span>
-                <span id="scorePercent"></span>
             </span>
         </div>
         
@@ -805,6 +848,26 @@
                         </button>
                     </div>
                 </div>
+                
+                <!-- Final Results State -->
+                <div id="quizFinalResults" style="display: none;">
+                    <div class="final-results-container">
+                        <h2 class="final-results-title">🎉 Quiz Complete!</h2>
+                        <div class="final-score-circle">
+                            <span class="final-score-percent" id="finalPercent">0%</span>
+                        </div>
+                        <p class="final-score-text">You got <span id="finalCorrect">0</span> out of 14 correct</p>
+                        <p class="final-score-message" id="finalMessage">Keep practising!</p>
+                        <div class="quiz-buttons" style="margin-top: 1.5rem;">
+                            <button class="quiz-btn quiz-btn-primary" onclick="restartQuiz()">
+                                🔄 Try Again
+                            </button>
+                            <button class="quiz-btn quiz-btn-secondary" onclick="setMode('learn')">
+                                📚 Back to Learn
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -901,7 +964,7 @@
             },
             ventricularTachycardia: {
                 name: "Ventricular Tachycardia (VT)",
-                description: "Life-threatening rhythm arising from ventricles. Wide QRS complexes at rapid rate. TREAT AS EMERGENCY.",
+                description: "Life-threatening rhythm arising from the ventricles. Wide QRS complexes at a rapid rate. Shockable rhythm if pulseless.",
                 keyFeatures: ["Wide QRS (>0.12s)", "Rate typically 150-250 bpm", "No P waves visible", "AV dissociation may be present"],
                 defaultRate: 180,
                 minRate: 100,
@@ -911,7 +974,7 @@
             },
             ventricularFibrillation: {
                 name: "Ventricular Fibrillation (VF)",
-                description: "CARDIAC ARREST RHYTHM. Chaotic ventricular activity with no cardiac output. Requires immediate defibrillation.",
+                description: "CARDIAC ARREST RHYTHM. Chaotic ventricular activity with no cardiac output. Shockable rhythm.",
                 keyFeatures: ["Chaotic, irregular waveform", "No identifiable QRS", "No pulse", "SHOCKABLE RHYTHM"],
                 defaultRate: 0,
                 minRate: 0,
@@ -921,7 +984,7 @@
             },
             asystole: {
                 name: "Asystole",
-                description: "CARDIAC ARREST RHYTHM. Flat line with no electrical activity. Non-shockable - requires CPR and adrenaline.",
+                description: "CARDIAC ARREST RHYTHM. Flat line with no electrical activity. Non-shockable rhythm.",
                 keyFeatures: ["Flat line", "No QRS complexes", "No pulse", "NON-SHOCKABLE RHYTHM"],
                 defaultRate: 0,
                 minRate: 0,
@@ -954,22 +1017,20 @@
                 defaultRate: 50,
                 minRate: 30,
                 maxRate: 70,
-                color: "#dc2626",
-                emergency: true
+                color: "#8b5cf6"
             },
             thirdDegreeBlock: {
                 name: "Third Degree (Complete) Heart Block",
-                description: "Complete AV dissociation. Atria and ventricles beat independently. May cause syncope or arrest.",
+                description: "Complete AV dissociation. Atria and ventricles beat independently. May cause syncope.",
                 keyFeatures: ["AV dissociation", "Regular P waves (faster)", "Regular QRS (slower)", "No relationship between P and QRS"],
                 defaultRate: 35,
                 minRate: 20,
                 maxRate: 50,
-                color: "#dc2626",
-                emergency: true
+                color: "#8b5cf6"
             },
             svt: {
                 name: "Supraventricular Tachycardia (SVT)",
-                description: "Rapid regular rhythm from above ventricles. Often responds to vagal manoeuvres or adenosine.",
+                description: "Rapid regular rhythm originating from above the ventricles. Characterised by sudden onset and offset.",
                 keyFeatures: ["Regular narrow complex", "Rate 150-250 bpm", "P waves often hidden", "Sudden onset/offset"],
                 defaultRate: 180,
                 minRate: 150,
@@ -978,8 +1039,8 @@
             },
             pea: {
                 name: "Pulseless Electrical Activity (PEA)",
-                description: "CARDIAC ARREST RHYTHM. Organised electrical activity but no pulse. Non-shockable - treat reversible causes (4Hs & 4Ts).",
-                keyFeatures: ["Any organised rhythm", "NO PULSE despite rhythm", "Non-shockable", "Treat reversible causes"],
+                description: "CARDIAC ARREST RHYTHM. Organised electrical activity but no pulse. Non-shockable rhythm.",
+                keyFeatures: ["Any organised rhythm", "NO PULSE despite rhythm", "Non-shockable", "Consider reversible causes"],
                 defaultRate: 60,
                 minRate: 20,
                 maxRate: 100,
@@ -999,6 +1060,8 @@
         // Quiz state
         let quizRhythm = null;
         let score = { correct: 0, total: 0 };
+        let quizRhythms = []; // Shuffled array of all rhythms
+        let currentQuizIndex = 0; // Current position in quiz
         
         // Canvas context
         let canvas, ctx;
@@ -1073,7 +1136,7 @@
             document.getElementById('monitorHR').style.display = mode === 'learn' ? 'flex' : 'none';
             
             if (mode === 'quiz') {
-                startNewQuizQuestion();
+                startQuiz();
             } else {
                 updateRhythmDisplay();
             }
@@ -1137,19 +1200,49 @@
         }
         
         // ==================== QUIZ FUNCTIONS ====================
-        function startNewQuizQuestion() {
-            // Pick random rhythm
-            const rhythmKeys = Object.keys(rhythms);
-            quizRhythm = rhythmKeys[Math.floor(Math.random() * rhythmKeys.length)];
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+        
+        function startQuiz() {
+            // Reset score
+            score = { correct: 0, total: 0 };
+            currentQuizIndex = 0;
+            
+            // Shuffle all rhythm keys
+            quizRhythms = shuffleArray(Object.keys(rhythms));
+            
+            // Hide final results, show question
+            document.getElementById('quizFinalResults').style.display = 'none';
+            
+            // Start first question
+            showCurrentQuestion();
+        }
+        
+        function showCurrentQuestion() {
+            quizRhythm = quizRhythms[currentQuizIndex];
             
             // Reset quiz UI
             document.getElementById('quizQuestion').style.display = 'block';
             document.getElementById('quizResult').style.display = 'none';
+            document.getElementById('quizFinalResults').style.display = 'none';
             document.getElementById('quizAnswer').value = '';
             document.getElementById('checkAnswerBtn').disabled = true;
             
+            // Update question number
+            document.getElementById('questionNumber').textContent = currentQuizIndex + 1;
+            
             // Update score display
             updateScoreDisplay();
+        }
+        
+        function startNewQuizQuestion() {
+            startQuiz();
         }
         
         function checkAnswer() {
@@ -1181,23 +1274,64 @@
             
             document.getElementById('correctAnswerText').textContent = rhythms[quizRhythm].name;
             document.getElementById('quizExplanation').textContent = rhythms[quizRhythm].description;
+            
+            // Update button text for last question
+            const nextBtn = document.querySelector('#quizResult .quiz-btn-primary');
+            if (currentQuizIndex >= quizRhythms.length - 1) {
+                nextBtn.textContent = 'See Results →';
+            } else {
+                nextBtn.textContent = 'Next Question →';
+            }
         }
         
         function nextQuestion() {
-            startNewQuizQuestion();
+            currentQuizIndex++;
+            
+            // Check if quiz is complete
+            if (currentQuizIndex >= quizRhythms.length) {
+                showFinalResults();
+            } else {
+                showCurrentQuestion();
+            }
+        }
+        
+        function showFinalResults() {
+            const percent = Math.round((score.correct / 14) * 100);
+            
+            // Hide other screens
+            document.getElementById('quizQuestion').style.display = 'none';
+            document.getElementById('quizResult').style.display = 'none';
+            document.getElementById('quizScore').style.display = 'none';
+            
+            // Show final results
+            document.getElementById('quizFinalResults').style.display = 'block';
+            document.getElementById('finalPercent').textContent = percent + '%';
+            document.getElementById('finalCorrect').textContent = score.correct;
+            
+            // Set message based on score
+            let message;
+            if (percent === 100) {
+                message = '🌟 Perfect! You\'re an ECG expert!';
+            } else if (percent >= 85) {
+                message = '🎯 Excellent work! Nearly there!';
+            } else if (percent >= 70) {
+                message = '👍 Good job! Keep practising!';
+            } else if (percent >= 50) {
+                message = '📚 Getting there! Review the tricky ones.';
+            } else {
+                message = '💪 Keep learning! Practice makes perfect.';
+            }
+            document.getElementById('finalMessage').textContent = message;
+        }
+        
+        function restartQuiz() {
+            document.getElementById('quizScore').style.display = 'block';
+            startQuiz();
         }
         
         function updateScoreDisplay() {
             document.getElementById('scoreCorrect').textContent = score.correct;
             document.getElementById('scoreTotal').textContent = score.total;
-            
-            const percentSpan = document.getElementById('scorePercent');
-            if (score.total > 0) {
-                const percent = Math.round((score.correct / score.total) * 100);
-                percentSpan.textContent = ` (${percent}%)`;
-            } else {
-                percentSpan.textContent = '';
-            }
         }
         
         // ==================== PLAY/PAUSE ====================
@@ -1304,6 +1438,20 @@
             const pixelsPerSecond = 100;
             const beatInterval = rate > 0 ? (60 / rate) * pixelsPerSecond : 1000;
             
+            // For AF, pre-calculate irregular beat positions
+            let afBeatPositions = [];
+            if (rhythm === 'atrialFibrillation') {
+                // Create irregular R-R intervals (some short, some long)
+                // Pattern repeats every ~800 pixels for consistency
+                const patternLength = 800;
+                const intervals = [45, 70, 55, 90, 40, 85, 60, 75, 50, 95, 65, 80]; // Irregular intervals in pixels
+                let pos = 0;
+                for (let i = 0; pos < patternLength * 3; i++) {
+                    afBeatPositions.push(pos);
+                    pos += intervals[i % intervals.length];
+                }
+            }
+            
             for (let x = 0; x < width; x++) {
                 const adjustedX = x + (time * pixelsPerSecond * 0.5);
                 let y = baselineY;
@@ -1315,15 +1463,29 @@
                         (Math.random() - 0.5) * 20;
                 } else if (rhythm === 'asystole') {
                     y = baselineY + (Math.random() - 0.5) * 2;
-                } else {
-                    let cyclePos;
-                    if (rhythm === 'atrialFibrillation') {
-                        const irregularFactor = Math.sin(adjustedX * 0.01) * 0.3 + 1;
-                        cyclePos = (adjustedX % (beatInterval * irregularFactor)) / (beatInterval * irregularFactor);
-                    } else {
-                        cyclePos = (adjustedX % beatInterval) / beatInterval;
+                } else if (rhythm === 'atrialFibrillation') {
+                    // Find distance to nearest beat
+                    const patternLength = 800;
+                    const posInPattern = adjustedX % patternLength;
+                    
+                    let minDist = Infinity;
+                    let beatPhase = 0;
+                    for (const beatPos of afBeatPositions) {
+                        const dist = posInPattern - beatPos;
+                        if (Math.abs(dist) < Math.abs(minDist)) {
+                            minDist = dist;
+                            // Calculate phase within the beat (0-1 over ~50 pixels)
+                            if (dist >= 0 && dist < 50) {
+                                beatPhase = dist / 50;
+                            } else {
+                                beatPhase = -1; // Not in a beat
+                            }
+                        }
                     }
                     
+                    y = generateAFBeat(beatPhase, baselineY);
+                } else {
+                    let cyclePos = (adjustedX % beatInterval) / beatInterval;
                     y = generatePQRST(rhythm, cyclePos, baselineY, adjustedX, beatInterval);
                 }
                 
@@ -1331,6 +1493,39 @@
             }
             
             return points;
+        }
+        
+        // Dedicated function for AF beat shape - clean like the reference image
+        function generateAFBeat(phase, baselineY) {
+            if (phase < 0 || phase > 1) {
+                // Flat baseline between beats
+                return baselineY;
+            }
+            
+            let y = baselineY;
+            
+            // Q wave (small dip) - phase 0.0 to 0.1
+            if (phase >= 0.0 && phase < 0.1) {
+                y = baselineY + Math.sin((phase / 0.1) * Math.PI) * 4;
+            }
+            // R wave (tall spike up) - phase 0.1 to 0.25
+            else if (phase >= 0.1 && phase < 0.25) {
+                y = baselineY - Math.sin(((phase - 0.1) / 0.15) * Math.PI) * 60;
+            }
+            // S wave (small dip down) - phase 0.25 to 0.35
+            else if (phase >= 0.25 && phase < 0.35) {
+                y = baselineY + Math.sin(((phase - 0.25) / 0.1) * Math.PI) * 10;
+            }
+            // T wave (rounded bump) - phase 0.5 to 0.85
+            else if (phase >= 0.5 && phase < 0.85) {
+                y = baselineY - Math.sin(((phase - 0.5) / 0.35) * Math.PI) * 12;
+            }
+            // Flat baseline
+            else {
+                y = baselineY;
+            }
+            
+            return y;
         }
         
         function generatePQRST(rhythm, cyclePos, baselineY, adjustedX, beatInterval) {
@@ -1364,25 +1559,37 @@
                     break;
                     
                 case 'atrialFibrillation':
-                    y = baselineY + Math.sin(adjustedX * 0.5) * 3 + Math.sin(adjustedX * 0.8) * 2;
-                    if (cyclePos >= 0.16 && cyclePos < 0.18) {
-                        y = baselineY + Math.sin(((cyclePos - 0.16) / 0.02) * Math.PI) * 8;
-                    } else if (cyclePos >= 0.18 && cyclePos < 0.22) {
-                        y = baselineY - Math.sin(((cyclePos - 0.18) / 0.04) * Math.PI) * 55;
-                    } else if (cyclePos >= 0.22 && cyclePos < 0.26) {
-                        y = baselineY + Math.sin(((cyclePos - 0.22) / 0.04) * Math.PI) * 12;
-                    } else if (cyclePos >= 0.35 && cyclePos < 0.50) {
-                        y = baselineY - Math.sin(((cyclePos - 0.35) / 0.15) * Math.PI) * 12 + Math.sin(adjustedX * 0.5) * 2;
-                    }
+                    // Handled separately in generateAFBeat function
+                    y = baselineY;
                     break;
                     
                 case 'atrialFlutter':
-                    const flutterCycle = (adjustedX % 33) / 33;
-                    y = baselineY - (flutterCycle * 15 - 7);
-                    if (cyclePos >= 0.18 && cyclePos < 0.22) {
-                        y = baselineY - Math.sin(((cyclePos - 0.18) / 0.04) * Math.PI) * 55;
-                    } else if (cyclePos >= 0.22 && cyclePos < 0.26) {
-                        y = baselineY + Math.sin(((cyclePos - 0.22) / 0.04) * Math.PI) * 12;
+                    // Sawtooth flutter waves at ~300 bpm - negative deflections in Lead II
+                    // Each flutter wave cycle is about 200ms = 20 pixels
+                    const flutterPeriod = 20;
+                    const flutterPos = (adjustedX % flutterPeriod) / flutterPeriod;
+                    
+                    // Classic Lead II flutter: sharp negative deflection, gradual return
+                    // Creates the characteristic sawtooth pointing downward
+                    let flutterWave;
+                    if (flutterPos < 0.7) {
+                        // Gradual upward slope (returning to baseline)
+                        flutterWave = baselineY + 10 - (flutterPos / 0.7) * 20;
+                    } else {
+                        // Sharp downward deflection (the "tooth")
+                        flutterWave = baselineY - 10 + ((flutterPos - 0.7) / 0.3) * 20;
+                    }
+                    
+                    y = flutterWave;
+                    
+                    // Superimpose narrow QRS complex on top of flutter waves
+                    // R wave - tall and narrow, cuts through the flutter
+                    if (cyclePos >= 0.18 && cyclePos < 0.21) {
+                        y = baselineY - Math.sin(((cyclePos - 0.18) / 0.03) * Math.PI) * 55;
+                    }
+                    // S wave - small
+                    else if (cyclePos >= 0.21 && cyclePos < 0.24) {
+                        y = baselineY + Math.sin(((cyclePos - 0.21) / 0.03) * Math.PI) * 10;
                     }
                     break;
                     
@@ -1500,7 +1707,7 @@
         
         // ==================== SUBSCRIPTION CHECK ====================
         // Uncomment this function if you want to use Firebase auth
-        /*
+        
         function checkSubscription() {
             firebase.auth().onAuthStateChanged(function(user) {
                 if (user) {
