@@ -516,7 +516,38 @@
             padding: 1rem 1.25rem;
             background: var(--color-gray-50);
             border-top: 1px solid var(--color-gray-200);
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            align-items: center;
+        }
+        
+        .simplify-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 100%;
+            max-width: 280px;
+            justify-content: center;
+        }
+        
+        .simplify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+        }
+        
+        .simplify-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
         
         .another-question-btn {
@@ -528,6 +559,8 @@
             font-weight: 600;
             cursor: pointer;
             transition: all var(--transition-fast);
+            width: 100%;
+            max-width: 280px;
         }
         
         .another-question-btn:hover {
@@ -828,8 +861,12 @@
                 </div>
                 
                 <div class="chat-actions" id="chatActions" style="display: none;">
+                    <button class="simplify-btn" id="simplifyBtn">
+                        <i class="bi bi-emoji-smile"></i>
+                        Make it simpler, Hollie!
+                    </button>
                     <button class="another-question-btn" id="anotherQuestionBtn">
-                        Ask Hollie another question
+                        Ask another question
                     </button>
                 </div>
             </div>
@@ -1150,9 +1187,15 @@
             const messagesDiv = document.getElementById('chatMessages');
             const badge = document.getElementById('chatSystemBadge');
             const system = BODY_SYSTEMS.find(s => s.id === systemId);
+            const simplifyBtn = document.getElementById('simplifyBtn');
             
             // Set system badge
             badge.innerHTML = `<i class="bi ${system.icon}"></i> ${system.name}`;
+            
+            // Reset simplify button visibility
+            if (simplifyBtn) {
+                simplifyBtn.style.display = 'flex';
+            }
             
             // Render user question and typing indicator
             messagesDiv.innerHTML = `
@@ -1223,6 +1266,11 @@
             // Another question button
             document.getElementById('anotherQuestionBtn').addEventListener('click', () => {
                 showView('questions');
+            });
+            
+            // Simplify button
+            document.getElementById('simplifyBtn').addEventListener('click', () => {
+                askHollieToSimplify();
             });
         }
 
@@ -1339,6 +1387,12 @@ Remember: This is for EDUCATION only - never give treatment advice. If treatment
                 // Show action buttons
                 document.getElementById('chatActions').style.display = 'block';
                 
+                // Store conversation for potential simplification
+                conversationForSimplify = [
+                    { role: 'user', content: question },
+                    { role: 'assistant', content: fullMessage }
+                ];
+                
                 // Scroll back to top of response
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 
@@ -1346,6 +1400,150 @@ Remember: This is for EDUCATION only - never give treatment advice. If treatment
                 console.error('Error:', error);
                 hollieBubble.innerHTML = `<p style="color: #dc2626;">Sorry, I couldn't get a response. Please try again.</p>`;
                 document.getElementById('chatActions').style.display = 'block';
+            }
+        }
+
+        // ==================== ASK HOLLIE TO SIMPLIFY ====================
+        
+        // Store the conversation for simplification
+        let conversationForSimplify = [];
+        
+        async function askHollieToSimplify() {
+            const chatMessages = document.getElementById('chatMessages');
+            const simplifyBtn = document.getElementById('simplifyBtn');
+            const chatActions = document.getElementById('chatActions');
+            
+            if (conversationForSimplify.length === 0) return;
+            
+            // Hide actions while processing
+            chatActions.style.display = 'none';
+            
+            // Add user request bubble
+            const userRequest = document.createElement('div');
+            userRequest.className = 'user-message';
+            userRequest.innerHTML = `
+                <div class="user-bubble">Make it simpler please, Hollie! 😊</div>
+            `;
+            chatMessages.appendChild(userRequest);
+            
+            // Add Hollie's typing indicator
+            const hollieResponse = document.createElement('div');
+            hollieResponse.className = 'hollie-message';
+            hollieResponse.innerHTML = `
+                <div class="hollie-avatar">
+                    <img src="images/hollie.png" alt="Hollie">
+                </div>
+                <div class="hollie-bubble" id="simplifyBubble">
+                    <div class="typing-indicator">
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <span class="typing-text">Hollie is typing...</span>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(hollieResponse);
+            
+            // Scroll to show the new messages
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            const simplifyBubble = document.getElementById('simplifyBubble');
+            
+            const simplifySystemPrompt = `You are Hollie, a friendly and experienced UK paramedic who loves teaching anatomy and physiology. 
+
+IMPORTANT: The learner just asked you to simplify your previous explanation. You MUST:
+- Re-explain the SAME topic you just discussed
+- Use simpler language and shorter sentences  
+- Use more analogies and everyday comparisons (like "think of it like...")
+- Avoid medical jargon or explain terms simply
+- Start with "No worries!" or "Of course!" or similar
+- Keep it friendly and encouraging
+- Do NOT introduce new topics - simplify what you already explained
+
+Use UK spelling and terminology.`;
+
+            try {
+                const token = await getAuthToken();
+                
+                const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}${window.paramind.CONFIG.api.chat}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Can you explain that again but in a simpler, easier-to-understand way please? Use simpler language, more analogies, and less medical jargon.',
+                        conversationHistory: conversationForSimplify,
+                        systemPrompt: simplifySystemPrompt
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to get response');
+                }
+                
+                // Set up streaming display
+                simplifyBubble.innerHTML = '<span class="streaming-text" id="simplifyStreamingText"></span><span class="streaming-cursor">|</span>';
+                const streamingText = document.getElementById('simplifyStreamingText');
+                
+                // Handle streaming response
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullMessage = '';
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    
+                    if (done) break;
+                    
+                    const text = decoder.decode(value, { stream: true });
+                    const lines = text.split('\n');
+                    
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                
+                                if (data.type === 'chunk') {
+                                    fullMessage += data.content;
+                                    
+                                    // Escape HTML during streaming
+                                    const escaped = fullMessage
+                                        .replace(/&/g, '&amp;')
+                                        .replace(/</g, '&lt;')
+                                        .replace(/>/g, '&gt;')
+                                        .replace(/\n/g, '<br>');
+                                    streamingText.innerHTML = escaped;
+                                    
+                                    // Scroll to keep latest text visible
+                                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                                    
+                                } else if (data.type === 'error') {
+                                    throw new Error(data.error);
+                                }
+                            } catch (parseError) {
+                                // Skip invalid JSON
+                            }
+                        }
+                    }
+                }
+                
+                // Finalize with formatted markdown
+                simplifyBubble.innerHTML = formatMessage(fullMessage);
+                
+                // Show action buttons but hide simplify (already used)
+                simplifyBtn.style.display = 'none';
+                chatActions.style.display = 'flex';
+                
+                // Scroll to top of response
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+            } catch (error) {
+                console.error('Error:', error);
+                simplifyBubble.innerHTML = `<p style="color: #dc2626;">Sorry, I couldn't simplify that. Please try again.</p>`;
+                chatActions.style.display = 'flex';
             }
         }
 
