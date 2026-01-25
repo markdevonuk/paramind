@@ -107,7 +107,7 @@
         // Check if user is already logged in
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                window.location.href = 'chat.html';
+                window.location.href = 'landing.html';
             }
         });
 
@@ -227,14 +227,14 @@
                     }
                 } catch (firestoreError) {
                     console.warn('Could not fetch Firestore data:', firestoreError);
-                    // Continue anyway - chat.html will handle this
+                    // Continue anyway - landing.html will handle this
                 }
 
                 showSuccess('Signed in successfully! Redirecting...');
                 
                 // Redirect to chat
                 setTimeout(() => {
-                    window.location.href = 'chat.html';
+                    window.location.href = 'landing.html';
                 }, 1000);
 
             } catch (error) {
