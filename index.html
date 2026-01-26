@@ -7,18 +7,18 @@
     <meta name="description" content="AI-powered learning tool for UK paramedics and student paramedics. Practice patient scenarios and earn CPD certificates. Free plan available.">
     <meta name="keywords" content="paramedic training, student paramedic, NQP paramedic, UK ambulance service, paramedic CPD, paramedic scenarios, paramedic education, pre-hospital care, paramedic revision">
     <!-- Open Graph / Social Media -->
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://www.paramind.co.uk/">
-<meta property="og:title" content="Paramind | AI Learning Support for UK Paramedics">
-<meta property="og:description" content="AI-powered learning tool for UK paramedics. Practice scenarios and earn CPD certificates.">
-<meta property="og:image" content="https://www.paramind.co.uk/images/paramind-social-preview.png">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.paramind.co.uk/">
+    <meta property="og:title" content="Paramind | AI Learning Support for UK Paramedics">
+    <meta property="og:description" content="AI-powered learning tool for UK paramedics. Practice scenarios and earn CPD certificates.">
+    <meta property="og:image" content="https://www.paramind.co.uk/images/paramind-social-preview.png">
 
-<!-- Twitter -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Paramind | AI Learning Support for UK Paramedics">
-<meta name="twitter:description" content="AI-powered learning for UK paramedics and students. Practice scenarios, earn CPD.">
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Paramind | AI Learning Support for UK Paramedics">
+    <meta name="twitter:description" content="AI-powered learning for UK paramedics and students. Practice scenarios, earn CPD.">
     
- <meta name="robots" content="index, follow">   
+    <meta name="robots" content="index, follow">   
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -128,8 +128,8 @@
         }
 
         .chat-demo-avatar {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             background: rgba(255, 255, 255, 0.2);
             border-radius: 50%;
             display: flex;
@@ -138,9 +138,24 @@
             font-size: 1.25rem;
         }
 
+        /* Hollie Avatar Styling */
+        .chat-demo-avatar.hollie-avatar {
+            background: white;
+            padding: 0;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .chat-demo-avatar.hollie-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
         .chat-demo-header-info h4 {
             margin: 0;
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 600;
         }
 
@@ -156,6 +171,17 @@
             border-radius: 20px;
             font-size: 0.7rem;
             font-weight: 600;
+        }
+
+        .chat-demo-trust-badge.hollie-badge {
+            background: rgba(255, 255, 255, 0.25);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .chat-demo-trust-badge.hollie-badge i {
+            font-size: 0.7rem;
         }
 
         .chat-demo-messages {
@@ -197,7 +223,7 @@
             color: var(--color-teal, #2B8A9C);
             display: block;
             margin-bottom: 0.35rem;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
         }
 
         .chat-demo-message.assistant ul {
@@ -360,9 +386,9 @@
         }
         
         /* Red styling for unavailable features */
-.pricing-features .bi-x-circle {
-    color: #dc3545 !important;
-}
+        .pricing-features .bi-x-circle {
+            color: #dc3545 !important;
+        }
     </style>
 </head>
 <body>
@@ -395,7 +421,7 @@
                         <span class="text-gradient">UK Paramedics</span>
                     </h1>
                     <p class="hero-subtitle">
-                        Practice your paramedic skills with pre-built scenarios. ai Chat, ai ATMIST tool, ai Differentials tool and ECG tool. Built for paramedics, NQPs and student paramedics.
+                        Practice your paramedic skills with pre-built scenarios. AI Chat, AI ATMIST tool, AI Differentials tool, A&P connections and ECG tool. Built for paramedics, NQPs and student paramedics.
                     </p>
                     <div class="hero-cta">
                         <a href="register.html" class="btn btn-primary btn-lg me-3">
@@ -408,21 +434,23 @@
                     </div>
                 </div>
                 
-                <!-- Right side: Animated Chat Preview -->
+                <!-- Right side: Animated Chat Preview with Hollie -->
                 <div class="col-lg-6 mt-4 mt-lg-0">
                     <div class="chat-demo-container">
                         <div class="chat-demo-phone">
                             <div class="chat-demo-notch"></div>
                             <div class="chat-demo-screen">
                                 <div class="chat-demo-header">
-                                    <div class="chat-demo-avatar">
-                                        <i class="bi bi-chat-heart"></i>
+                                    <div class="chat-demo-avatar hollie-avatar">
+                                        <img src="images/hollie.png" alt="Hollie">
                                     </div>
                                     <div class="chat-demo-header-info">
-                                        <h4>Paramind</h4>
-                                        <span>AI Learning Assistant</span>
+                                        <h4>Hollie</h4>
+                                        <span>Paramedic Tutor</span>
                                     </div>
-                                    <div class="chat-demo-trust-badge" id="trustBadge">SWAST</div>
+                                    <div class="chat-demo-trust-badge hollie-badge">
+                                        <i class="bi bi-patch-check-fill"></i> AI Tutor
+                                    </div>
                                 </div>
                                 
                                 <div class="chat-demo-messages" id="chatMessages">
@@ -430,7 +458,7 @@
                                 </div>
                                 
                                 <div class="chat-demo-input">
-                                    <div class="chat-demo-input-field">Ask me anything...</div>
+                                    <div class="chat-demo-input-field">Ask Hollie anything...</div>
                                     <button class="chat-demo-send-btn">
                                         <i class="bi bi-send-fill"></i>
                                     </button>
@@ -443,12 +471,15 @@
                     <div class="chat-demo-features">
                         <span class="chat-demo-feature-pill">
                             <i class="bi bi-lightning-charge-fill"></i>
-                            Instant learning explanations
+                            Friendly explanations
                         </span>
-                        
+                        <span class="chat-demo-feature-pill">
+                            <i class="bi bi-heart-pulse"></i>
+                            UK Paramedic focused
+                        </span>
                         <span class="chat-demo-feature-pill">
                             <i class="bi bi-shield-check"></i>
-                            Evidence-Based
+                            Evidence-based
                         </span>
                     </div>
                 </div>
@@ -463,70 +494,70 @@
                <h2 class="section-title">Why Paramedics Choose <span class="brand-text" style="font-size: inherit;"><span class="brand-para">para</span><span class="brand-mind">mind</span></span></h2>
                 <p class="section-subtitle">Purpose-built for UK pre-hospital care</p>
                 <div class="trust-badges-section mt-4">
-                    <small class="text-muted d-block mb-2">Supporting clinicians in all 15 UK ambulance services</small>
+                    <small class="text-muted d-block mb-2">Supporting all 15 UK ambulance services</small>
                     <div class="trust-logos justify-content-center">
                         <span class="badge bg-light text-dark">BHL</span>
                         <span class="badge bg-light text-dark">EEAST</span>
                         <span class="badge bg-light text-dark">EMAS</span>
-                        <span class="badge bg-light text-dark">JAS</span>
+                        <span class="badge bg-light text-dark">LAS</span>
                         <span class="badge bg-light text-dark">NEAS</span>
                         <span class="badge bg-light text-dark">NIAS</span>
                         <span class="badge bg-light text-dark">NWAS</span>
-                        <span class="badge bg-light text-dark">SAS</span>
                         <span class="badge bg-light text-dark">SCAS</span>
-                        <span class="badge bg-light text-dark">SECAmb</span>
-                        <span class="badge bg-light text-dark">SJA</span>
+                        <span class="badge bg-light text-dark">SAS</span>
+                        <span class="badge bg-light text-dark">SECAMB</span>
                         <span class="badge bg-light text-dark">SWAST</span>
-                        <span class="badge bg-light text-dark">WAST</span>
+                        <span class="badge bg-light text-dark">WAS</span>
                         <span class="badge bg-light text-dark">WMAS</span>
                         <span class="badge bg-light text-dark">YAS</span>
+                        <span class="badge bg-light text-dark">IOM</span>
                     </div>
                 </div>
             </div>
             <div class="row g-4">
                 <div class="col-md-6 col-lg-4">
-                    <div class="feature-card feature-card-1">
-                        <div class="feature-icon">
-                            <i class="bi bi-hospital"></i>
-                        </div>
-                        <h3>Paramedic ai Chat and A&P connections</h3>
-                        <p>Ask questions to support learning and revision and deep dive into why the body reacts as it does.</p>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4">
-                    <div class="feature-card feature-card-3">
+                    <div class="feature-card">
                         <div class="feature-icon">
                             <i class="bi bi-chat-dots"></i>
                         </div>
-                        <h3>Interactive Scenarios</h3>
-                        <p>Practice patient assessments with AI-powered scenarios. YOU choose the difficulty level. Build confidence before your next shift.</p>
+                        <h3>Chat with Hollie</h3>
+                        <p>Get friendly, conversational explanations from Hollie, your AI paramedic tutor. Ask about any clinical topic!</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-heart-pulse"></i>
+                        </div>
+                        <h3>A&P Connections</h3>
+                        <p>Understand the anatomy and physiology behind clinical presentations. Link theory to practice!</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-4">
                     <div class="feature-card feature-card-2">
                         <div class="feature-icon">
-                            <i class="bi bi-book"></i>
+                            <i class="bi bi-person-video3"></i>
                         </div>
-                        <h3>ai ATMIST Tool</h3>
-                        <p>Practice structured handovers for training scenarios, full ai guidance.</p>
+                        <h3>Realistic Scenarios</h3>
+                        <p>Practice with AI-powered patient simulations from dispatch to handover.</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-4">
-                    <div class="feature-card feature-card-5">
+                    <div class="feature-card feature-card-3">
                         <div class="feature-icon">
-                            <i class="bi bi-bookmark"></i>
+                            <i class="bi bi-clipboard2-pulse"></i>
                         </div>
-                        <h3>Differentials Helper</h3>
-                        <p>Need some ideas on what might be happening with a fictional case/scenario you're practising? Try our simple differentials helper. Get some ideas in seconds.</p>
+                        <h3>AI Differentials</h3>
+                        <p>Try our simple differentials helper. Get some ideas in seconds.</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-4">
                     <div class="feature-card feature-card-4">
                         <div class="feature-icon">
-                            <i class="bi bi-phone"></i>
+                            <i class="bi bi-activity"></i>
                         </div>
                         <h3>Interactive ECG Tool</h3>
-                        <p>improve your ECG skills with our interactive ECG viewer and then test yourself</p>
+                        <p>Improve your ECG skills with our interactive ECG viewer and then test yourself.</p>
                     </div>
                 </div>
                 
@@ -558,21 +589,18 @@
                             <div class="pricing-amount">
                                 <span class="price">£0</span>
                                 <span class="period">/month</span>
-                                
                             </div>
                         </div>
                         <ul class="pricing-features">
                             <li><i class="bi bi-check-circle text-success"></i> 5 messages per day</li>
-                            <li><i class="bi bi-check-circle text-success"></i> ai paramedic chat</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Chat with Hollie</li>
                             <li><i class="bi bi-check-circle text-success"></i> Limited scenario preview</li>
-                            
-                            <li><i class="bi bi-x-circle text-muted"></i> ai ATMIST tool</li>
-                             <li><i class="bi bi-check-circle text-success"></i> ai differentials tool</li>
-                              <li><i class="bi bi-x-circle text-muted"></i> Interactive ECG tool/test</li>
-                              <li><i class="bi bi-x-circle text-muted"></i> A&P connections</li>
+                            <li><i class="bi bi-x-circle text-muted"></i> AI ATMIST tool</li>
+                            <li><i class="bi bi-check-circle text-success"></i> AI differentials tool</li>
+                            <li><i class="bi bi-x-circle text-muted"></i> Interactive ECG tool/test</li>
+                            <li><i class="bi bi-x-circle text-muted"></i> A&P connections</li>
                             <li><i class="bi bi-x-circle text-muted"></i> CPD certificates</li>
                             <li><i class="bi bi-x-circle text-muted"></i> Priority support</li>
-                            
                         </ul>
                         <a href="register.html" class="btn btn-outline-primary w-100">Get Started</a>
                     </div>
@@ -585,39 +613,124 @@
                             <div class="pricing-amount">
                                 <span class="price">£4.99</span>
                                 <span class="period">/month</span>
-                                
                             </div>
                         </div>
                         <ul class="pricing-features">
                             <li><i class="bi bi-check-circle text-success"></i> <strong>Unlimited</strong> messages</li>
-                          <li><i class="bi bi-check-circle text-success"></i> ai paramedic chat</li>
-                            <li><i class="bi bi-check-circle text-success"></i> Full ai scenario library</li>
-                            <li><i class="bi bi-check-circle text-success"></i> ai ATMIST tool</li>
-                             <li><i class="bi bi-check-circle text-success"></i> ai differentials tool</li>
-                              <li><i class="bi bi-check-circle text-success"></i> Interactive ECG tool/test</li>
-                              <li><i class="bi bi-check-circle text-success"></i> A&P connections</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Chat with Hollie</li>
+                            <li><i class="bi bi-check-circle text-success"></i> <strong>All</strong> scenarios</li>
+                            <li><i class="bi bi-check-circle text-success"></i> AI ATMIST tool</li>
+                            <li><i class="bi bi-check-circle text-success"></i> AI differentials tool</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Interactive ECG tool/test</li>
+                            <li><i class="bi bi-check-circle text-success"></i> A&P connections</li>
                             <li><i class="bi bi-check-circle text-success"></i> CPD certificates</li>
                             <li><i class="bi bi-check-circle text-success"></i> Priority support</li>
                         </ul>
                         <a href="register.html" class="btn btn-primary w-100">Start Free Trial</a>
                     </div>
                 </div>
-                
-                <!-- Group Discount Card -->
-                <div class="col-lg-10 mt-4">
+            </div>
+            
+            <!-- Group Discount Card -->
+            <div class="row justify-content-center mt-4">
+                <div class="col-md-10 col-lg-8">
                     <div class="pricing-card group-discount-card">
-                        <div class="d-flex flex-column flex-md-row align-items-center text-center text-md-start">
-                            <div class="group-icon me-md-4 mb-3 mb-md-0">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="group-icon">
                                 <i class="bi bi-people-fill"></i>
                             </div>
-                            <div class="flex-grow-1">
-                                <h3 class="mb-2">Group Discounts Available</h3>
-                                <p class="mb-0 text-muted">Teams of 10 or more members? Get in touch for special group pricing for your station, university cohort, or training programme.</p>
+                            <div>
+                                <h3>Group & University Discounts</h3>
+                                <p class="mb-0 text-muted">Are you a university, training provider, or ambulance trust? Get special pricing for your cohort or team.</p>
                             </div>
-                            <div class="ms-md-4 mt-3 mt-md-0">
-                                <a href="mailto:markdevon@gmail.com" class="btn btn-outline-primary">
-                                    <i class="bi bi-envelope me-2"></i>Find Out More
-                                </a>
+                            <a href="contact.html" class="btn btn-outline-primary ms-auto">Contact Us</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="faq-section py-5">
+        <div class="container py-4">
+            <div class="text-center mb-5">
+                <h2 class="section-title">Frequently Asked Questions</h2>
+                <p class="section-subtitle">Everything you need to know about Paramind</p>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h3 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                    Who is Hollie?
+                                </button>
+                            </h3>
+                            <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <p>Hollie is your AI paramedic tutor! She's designed to explain clinical concepts in a friendly, conversational way - like chatting with a knowledgeable colleague over a cuppa. She can help with anatomy, physiology, pathophysiology, and paramedicine topics.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h3 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                    Is Paramind suitable for student paramedics?
+                                </button>
+                            </h3>
+                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <p>Absolutely! Paramind is perfect for student paramedics, newly qualified paramedics (NQPs), and experienced clinicians looking to refresh their knowledge. The AI adapts its explanations to your level.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h3 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                    Can I use Paramind for real patient care?
+                                </button>
+                            </h3>
+                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <p><strong>No.</strong> Paramind is an educational tool only and is NOT a substitute for clinical judgment. Always follow your trust's protocols and JRCalc guidelines for patient care decisions.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h3 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                    How do the scenarios work?
+                                </button>
+                            </h3>
+                            <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <p>Our scenarios simulate realistic patient encounters from dispatch to working impression. You'll interact with AI patients, gather information, and make clinical decisions. It's a safe space to practice without real-world consequences.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h3 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                    What's included in the free trial?
+                                </button>
+                            </h3>
+                            <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <p>The free trial gives you 5 messages per day with Hollie, access to limited scenarios, and the differentials tool. Upgrade to Pro for unlimited messages, all scenarios, ECG practice, ATMIST tool, and CPD certificates.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h3 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">
+                                    How do CPD certificates work?
+                                </button>
+                            </h3>
+                            <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <p>Paramind provides CPD certificates for completed learning scenarios which can be used to evidence your continuous professional development activities. These certificates document the learning topics covered, which you can include in your CPD portfolio for HCPC registration renewal.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -625,107 +738,6 @@
             </div>
         </div>
     </section>
-    
-      <!-- FAQ Section - CORRECTED VERSION -->
-<section id="faq" class="faq-section py-5 bg-light" aria-labelledby="faq-heading">
-    <div class="container py-4">
-        <div class="text-center mb-5">
-            <h2 id="faq-heading" class="section-title">Frequently Asked Questions About Paramedic AI Tools</h2>
-            <p class="section-subtitle">Common questions from student paramedics and clinicians</p>
-        </div>
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="accordion" id="faqAccordion">
-                    
-                    <!-- FAQ 1 -->
-                    <div class="accordion-item">
-                        <h3 class="accordion-header">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" aria-expanded="true" aria-controls="faq1">
-                                What are paramedic AI tools and how can they help me?
-                            </button>
-                        </h3>
-                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body">
-                                <p>Paramedic AI tools are artificial intelligence-powered applications designed to support paramedic education and clinical learning. They're ideal for student paramedics learning clinical decision-making, NQPs building confidence, and experienced paramedics seeking reference information.</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- FAQ 2 -->
-                    <div class="accordion-item">
-                        <h3 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2" aria-expanded="false" aria-controls="faq2">
-                                Is Paramind suitable for student paramedics?
-                            </button>
-                        </h3>
-                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body">
-                                <p>Absolutely! Paramind was specifically designed with student paramedics in mind. Our AI tools offer interactive learning scenarios that let you practice patient assessments, build clinical reasoning skills, practice ATMIST handovers, gain confidence before placements and shifts. </p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- FAQ 3 -->
-                    <div class="accordion-item">
-                        <h3 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3" aria-expanded="false" aria-controls="faq3">
-                                Is Paramind suitable for qualified paramedics?
-                            </button>
-                        </h3>
-                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body">
-                                <p>Our scenarios have a paramedic option, meaning they are harder, the patients don't give away as much information and can be quite troublesome! The ATMIST tool is great for clinicians and the differentials tool can help you think outside the box. So yes, absolutely, we've made it suitable for the more experienced clinician.</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- FAQ 4 -->
-                    <div class="accordion-item">
-                        <h3 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4" aria-expanded="false" aria-controls="faq4">
-                                Which UK ambulance services does Paramind support?
-                            </button>
-                        </h3>
-                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body">
-                                <p>Paramind supports clinicians in all 15 UK ambulance services: EEAST, EMAS, NEAS, NIAS, NWAS, SAS, SCAS, SECAmb, SWAST, WAST, WMAS, YAS, as well as SJA (St John Ambulance), JAS (Jersey Ambulance Service), and BHL (Bristow Group). When you register, you select your trust and it will remember that in all ai responses.</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- FAQ 5 -->
-                    <div class="accordion-item">
-                        <h3 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5" aria-expanded="false" aria-controls="faq5">
-                                Can I use Paramind for actual patient care decisions?
-                            </button>
-                        </h3>
-                        <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body">
-                                <p>No. Paramind is an <strong>educational tool only</strong> and should not be used for real-time clinical decision-making during patient care. Always refer to your trust's official protocols, JRCalc app, and seek senior clinical advice when treating patients. Our AI tools are designed to support learning and revision, not replace clinical judgment.</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- FAQ 6 -->
-                    <div class="accordion-item">
-                        <h3 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6" aria-expanded="false" aria-controls="faq6">
-                                Are the CPD certificates recognised?
-                            </button>
-                        </h3>
-                        <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body">
-                                <p>Paramind provides CPD certificates for completed learning scenarios which can be used to evidence your continuous professional development activities. These certificates document the learning topics covered, which you can include in your CPD portfolio for HCPC registration renewal.</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
     <!-- Disclaimer Section -->
     <section class="disclaimer-section py-4">
@@ -754,7 +766,7 @@
                     <span class="brand-text"><span class="brand-para">para</span><span class="brand-mind">mind</span></span>
                 </div>
                 <div class="col-md-4 text-center mb-3 mb-md-0">
-                     <a href="terms.html" class="footer-link me-3">Terms of Service</a>
+                    <a href="terms.html" class="footer-link me-3">Terms of Service</a>
                     <a href="privacy.html" class="footer-link me-3">Privacy Policy</a>
                     <a href="purpose.html" class="footer-link me-3">Intended Purpose</a>
                     <a href="contact.html" class="footer-link">Contact</a>
@@ -776,36 +788,39 @@
     <script src="js/menu-v2.js"></script>
     
     <script>
-        // ==================== ANIMATED CHAT DEMO ====================
-        // This creates an animated conversation that loops through different examples
+        // ==================== ANIMATED CHAT DEMO WITH HOLLIE ====================
+        // Hollie-style conversations that showcase her friendly personality
         
         const conversations = [
             {
-                trust: "SWAST",
                 messages: [
-                    { type: "user", text: "Simulated patient case: chest pain radiating to left arm. For revision: outline an assessment structure" },
-                    { type: "assistant", html: "When assessing a patient presenting with chest pain radiating to the left arm, it's important to conduct a thorough and systematic assessment to identify potential underlying causes. Here's a structured approach......." }
+                    { type: "user", text: "Can you explain what happens in an MI?" },
+                    { type: "assistant", html: "<strong>Great question! 🫀</strong> So basically, an MI happens when blood flow to part of the heart muscle gets blocked - usually by a clot forming on a ruptured plaque. Without oxygen, those heart cells start dying within minutes. That's why time is so critical!" }
                 ]
             },
             {
-                trust: "LAS",
                 messages: [
-                    { type: "user", text: "Tell me about cholecystitis" },
-                    { type: "assistant", html: "Cholecystitis is the inflammation of the gallbladder, often caused by the presence of gallstones. Understanding the clinical presentation, pathophysiology, and assessment approach is crucial for identifying this condition......" }
+                    { type: "user", text: "What are the signs of sepsis?" },
+                    { type: "assistant", html: "<strong>Ooh, this is a really important one!</strong> Think of sepsis as the body's overwhelming response to infection. Look for: high or low temp, raised heart rate, fast breathing, confusion, and mottled skin. Remember - if in doubt, think sepsis! 🚑" }
+                ]
+            },
+           
+            {
+                messages: [
+                    { type: "user", text: "Explain the ABCDE approach" },
+                    { type: "assistant", html: "<strong>Love this topic!</strong> ABCDE keeps us systematic under pressure: <strong>Airway, Breathing, Circulation, Disability, Exposure. </strong>Treat as you find problems - don't move on until each is sorted! 🩺" }
                 ]
             },
             {
-                trust: "WMAS",
                 messages: [
-                    { type: "user", text: "What is eindhovens triangle?" },
-                    { type: "assistant", html: "Eindhoven's triangle is a concept in the field of electrocardiography (ECG) that is used to understand and interpret the electrical activity of the heart. It refers to an imaginary triangle formed by the three limb leads (I, II, and III) of a standard 12-lead ECG......." }
+                    { type: "user", text: "What causes hypoglycaemia?" },
+                    { type: "assistant", html: "<strong>Great revision topic!</strong> Hypos happen when blood glucose drops too low (usually <4mmol/L). Common causes: too much insulin, missed meals, excess alcohol, or increased activity. Watch for sweating, tremor, confusion and altered GCS! 🍬" }
                 ]
             }
         ];
 
         let currentConversation = 0;
         const chatMessages = document.getElementById('chatMessages');
-        const trustBadge = document.getElementById('trustBadge');
 
         function clearChat() {
             chatMessages.innerHTML = '';
@@ -840,9 +855,6 @@
         }
 
         async function playConversation(conv) {
-            // Update trust badge
-            trustBadge.textContent = conv.trust;
-            
             // Clear previous messages
             clearChat();
             
@@ -855,12 +867,12 @@
                     await new Promise(r => setTimeout(r, 500));
                     addMessage(msg);
                 } else {
-                    // Show typing indicator before assistant response
+                    // Show typing indicator before Hollie's response
                     await new Promise(r => setTimeout(r, 800));
                     addTypingIndicator();
                     
                     // Wait while "typing"
-                    await new Promise(r => setTimeout(r, 1500));
+                    await new Promise(r => setTimeout(r, 1800));
                     removeTypingIndicator();
                     
                     // Show the response
@@ -869,7 +881,7 @@
             }
             
             // Wait before showing next conversation
-            await new Promise(r => setTimeout(r, 4000));
+            await new Promise(r => setTimeout(r, 5000));
             
             // Move to next conversation
             currentConversation = (currentConversation + 1) % conversations.length;
