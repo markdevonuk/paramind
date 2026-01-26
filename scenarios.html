@@ -1697,8 +1697,9 @@
             }
             
             const reasoning = elements.impressionReasoning.value.trim();
-            
+			const completedScenarioId = chatState.currentScenario;
             const modal = bootstrap.Modal.getInstance(elements.workingImpressionModal);
+            
             modal.hide();
             
             let triggerMessage = `[DEBRIEF MODE] My working impression is: ${impression}`;
@@ -1722,12 +1723,57 @@
                 });
                 
                 finalizeStreamingMessage(aiMessageId, response);
-                chatState.conversationHistory.push({ role: 'assistant', content: response });
-                
-                // End scenario
-                chatState.currentScenario = null;
-                elements.assessmentToolbar.style.display = 'none';
-                elements.workingImpressionToolbar.style.display = 'none';
+chatState.conversationHistory.push({ role: 'assistant', content: response });
+
+// === CPD PORTFOLIO: Save record for Pro users ===
+if (chatState.isPro && completedScenarioId) {
+    // Parse the result from the AI's response
+    const result = parseDebriefResult(response);
+    
+    // Save the CPD record
+    const recordId = await saveCpdRecord(completedScenarioId, impression, result);
+    
+    if (recordId) {
+        // Show success notification
+        const successDiv = document.createElement('div');
+        successDiv.className = 'alert alert-success mx-2 my-2';
+        successDiv.style.cssText = 'border-left: 4px solid #5CB85C;';
+        successDiv.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="bi bi-award me-2"></i>
+                <div>
+                    <strong>CPD Record Saved!</strong>
+                    <div class="small">View and download your certificate in the CPD Portfolio.</div>
+                </div>
+            </div>
+        `;
+        elements.chatMessages.appendChild(successDiv);
+        successDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+} else if (!chatState.isPro && completedScenarioId) {
+    // Show upgrade prompt for free users
+    const upgradeDiv = document.createElement('div');
+    upgradeDiv.className = 'alert alert-info mx-2 my-2';
+    upgradeDiv.style.cssText = 'border-left: 4px solid #17a2b8;';
+    upgradeDiv.innerHTML = `
+        <div class="d-flex align-items-start">
+            <i class="bi bi-star me-2 mt-1"></i>
+            <div>
+                <strong>Upgrade to Pro for CPD Tracking</strong>
+                <div class="small mb-2">Save this scenario to your CPD Portfolio and download a certificate!</div>
+                <button class="btn btn-primary btn-sm" onclick="createCheckoutSession()">
+                    <i class="bi bi-star me-1"></i>Upgrade Now - £4.99/month
+                </button>
+            </div>
+        </div>
+    `;
+    elements.chatMessages.appendChild(upgradeDiv);
+}
+
+// End scenario
+chatState.currentScenario = null;
+elements.assessmentToolbar.style.display = 'none';
+elements.workingImpressionToolbar.style.display = 'none';
                 
             } catch (error) {
                 removeStreamingMessage(aiMessageId);
@@ -1833,5 +1879,6 @@
             });
         });
     </script>
+    <script src="js/chat.js"></script>
 </body>
 </html>
