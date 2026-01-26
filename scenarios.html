@@ -1828,6 +1828,112 @@ elements.workingImpressionToolbar.style.display = 'none';
             createCheckoutSession();
         }
 
+// ==================== CPD HELPER FUNCTIONS ====================
+
+/**
+ * Parse the AI's debrief response to determine the result
+ */
+function parseDebriefResult(response) {
+    const responseUpper = response.toUpperCase();
+    
+    if (responseUpper.includes('VERDICT: CORRECT') || 
+        responseUpper.includes('VERDICT:**CORRECT') ||
+        responseUpper.includes('VERDICT: **CORRECT')) {
+        return 'correct';
+    }
+    
+    if (responseUpper.includes('PARTIALLY CORRECT') || 
+        responseUpper.includes('PARTIAL')) {
+        return 'partially_correct';
+    }
+    
+    if (responseUpper.includes('INCORRECT')) {
+        return 'incorrect';
+    }
+    
+    // Default to partially correct if we can't determine
+    return 'partially_correct';
+}
+
+/**
+ * Save a CPD record after scenario completion
+ */
+async function saveCpdRecord(scenarioId, userImpression, result) {
+    if (!chatState.isPro) {
+        console.log('CPD records only saved for Pro users');
+        return null;
+    }
+    
+    try {
+        const user = auth.currentUser;
+        if (!user) throw new Error('Not authenticated');
+        
+        const token = await user.getIdToken();
+        const scenario = window.scenarioData.getScenarioById(scenarioId);
+        
+        if (!scenario) {
+            console.error('Scenario not found:', scenarioId);
+            return null;
+        }
+        
+        const cpdData = {
+            scenarioId: scenarioId,
+            scenarioCode: generateJobCode(scenario),
+            scenarioType: formatScenarioType(scenario),
+            scenarioCategory: scenario.category,
+            patientName: scenario.dispatch.name || 'Unknown',
+            chiefComplaint: scenario.dispatch.chiefComplaint,
+            correctDiagnosis: scenario.patient.condition,
+            userImpression: userImpression,
+            result: result,
+            questionsAsked: chatState.scenarioProgress.questionsAsked,
+            assessmentsPerformed: chatState.scenarioProgress.assessmentsPerformed
+        };
+        
+        const response = await fetch(`${API_CONFIG.baseUrl}/saveCpdRecord`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(cpdData)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to save CPD record');
+        }
+        
+        const data = await response.json();
+        console.log('CPD record saved:', data.recordId);
+        return data.recordId;
+        
+    } catch (error) {
+        console.error('Error saving CPD record:', error);
+        return null;
+    }
+}
+
+/**
+ * Generate a job code for the scenario
+ */
+function generateJobCode(scenario) {
+    const category = scenario.category.toUpperCase().substring(0, 3);
+    const id = scenario.id.split('-')[1] || '001';
+    const date = new Date();
+    const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '');
+    return `${category}-${dateStr}-${id}`;
+}
+
+/**
+ * Format the scenario type for display
+ */
+function formatScenarioType(scenario) {
+    const categoryInfo = window.scenarioData.SCENARIO_CATEGORIES[scenario.category];
+    const categoryTitle = categoryInfo ? categoryInfo.title : scenario.category;
+    return `${categoryTitle}: ${scenario.dispatch.chiefComplaint}`;
+}
+
+
         // ==================== EVENT LISTENERS ====================
         elements.backToCategories.addEventListener('click', (e) => {
             e.preventDefault();
@@ -1879,6 +1985,6 @@ elements.workingImpressionToolbar.style.display = 'none';
             });
         });
     </script>
-    <script src="js/chat.js"></script>
+    
 </body>
 </html>
