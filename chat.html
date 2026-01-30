@@ -555,6 +555,62 @@
             font-size: inherit;
             line-height: inherit;
         }
+        
+        /* ==================== MOBILE LAYOUT FIXES ==================== */
+
+/* Fix for iOS safe areas (notch and home indicator) */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .chat-input-area {
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+    }
+    
+    .chat-page {
+        padding-top: env(safe-area-inset-top);
+    }
+}
+
+/* Ensure chat container accounts for header height */
+.chat-container {
+    /* Add margin-top to prevent content hiding under sticky header */
+    margin-top: 0;
+}
+
+/* Fix the chat-messages area to have proper spacing */
+.chat-messages {
+    padding-top: 0.5rem;
+}
+
+/* Make sure toolbar is always visible and not cut off */
+.chat-toolbar {
+    position: relative;
+    z-index: 10;
+}
+
+/* Privacy notice needs bottom safe area on mobile */
+.privacy-notice {
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* Mobile-specific fixes */
+@media (max-width: 767px) {
+    /* Reduce header padding on mobile to give more space */
+    .chat-navbar {
+        padding: 0.75rem 0;
+    }
+    
+    /* Ensure input area has enough bottom padding */
+    .chat-input-area {
+        padding: 0.75rem 1rem;
+        padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    }
+    
+    /* Make privacy notice smaller on mobile */
+    .privacy-notice {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.5rem;
+        padding-bottom: calc(0.25rem + env(safe-area-inset-bottom, 0px));
+    }
+}
     </style>
 </head>
 
