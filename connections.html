@@ -1065,24 +1065,22 @@
 
         // ==================== INITIALIZATION ====================
         async function initClinicalConnections() {
-            const isAuthenticated = await initializeAuth();
-            if (!isAuthenticated) return;
-            
-            // Check Pro status
-            const isPro = await checkProStatus();
-            
-            if (!isPro) {
-                document.getElementById('proOverlay').classList.add('visible');
-                document.getElementById('proUpgradeBtn').addEventListener('click', handleUpgrade);
-                return;
-            }
-            
-            // Render body systems
-            renderBodySystems();
-            
-            // Set up event listeners
-            setupEventListeners();
-        }
+    const isAuthenticated = await initializeAuth();
+    if (!isAuthenticated) return;
+    
+    // Render body systems IMMEDIATELY - don't wait for Pro check!
+    renderBodySystems();
+    setupEventListeners();
+    
+    // Check Pro status in the background
+    const isPro = await checkProStatus();
+    
+    // If not Pro, show overlay ON TOP of the already-rendered content
+    if (!isPro) {
+        document.getElementById('proOverlay').classList.add('visible');
+        document.getElementById('proUpgradeBtn').addEventListener('click', handleUpgrade);
+    }
+}
         
         async function checkProStatus() {
             try {
