@@ -162,7 +162,14 @@
         }
 
         // Event listeners
-        hamburgerBtn.addEventListener('click', toggleMenu);
+        // Click for desktop
+hamburgerBtn.addEventListener('click', toggleMenu);
+
+// Touch for iOS/iPad - fixes menu not responding on iPads
+hamburgerBtn.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    toggleMenu();
+});
         menuOverlay.addEventListener('click', closeMenu);
 
         // Close on Escape key
