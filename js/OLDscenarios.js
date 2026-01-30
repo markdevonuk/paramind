@@ -104,114 +104,6 @@ const DIFFICULTY_LEVELS = {
     }
 };
 
-// ==================== PATIENT PERSONAS (LEVEL 3 ONLY) ====================
-// These create realistic assessment challenges - focused on ASSESSMENT not treatment
-// A persona is automatically assigned at Level 3 to make information gathering genuinely challenging
-
-const PATIENT_PERSONAS = {
-    denier: {
-        name: "The Denier",
-        description: "Minimises symptoms, reluctant to accept help",
-        behaviour: `You are a DENIER patient. You MUST exhibit these behaviours throughout:
-- Actively minimise your symptoms: "I'm sure it's nothing", "My wife overreacted by calling you"
-- Be reluctant to accept you're unwell: "I've felt worse", "I'll be fine in a minute"  
-- Initially resist assessment: "Do you really need to do all that?"
-- Downplay concerning features: "It's just a twinge", "Barely hurts really"
-- Only gradually reveal the true severity when the paramedic is persistent and professional
-- Make them work to uncover how serious your condition actually is
-- Your clinical observations will tell the real story - but YOU won't admit it easily`
-    },
-    poorHistorian: {
-        name: "The Poor Historian",
-        description: "Doesn't know medications or medical history well",
-        behaviour: `You are a POOR HISTORIAN patient. You MUST exhibit these behaviours throughout:
-- Be vague about medications: "I take some tablets... white ones, I think", "The doctor gave me something for my heart"
-- Uncertain about medical history: "I had something done years ago", "They said it was my blood or something"  
-- Struggle with timelines: "It started... sometime last week? Or was it the week before?"
-- Mix up names: "Dr... something... at the hospital", "That condition beginning with D"
-- Give incomplete information that requires careful follow-up questions
-- You genuinely don't know the details - you're not being difficult on purpose
-- If asked about a medication list or repeat prescription, you might say "it's somewhere in the kitchen drawer"`
-    },
-    distressed: {
-        name: "The Distressed",
-        description: "Highly emotional, barely able to answer questions",
-        behaviour: `You are a DISTRESSED patient. You MUST exhibit these behaviours throughout:
-- Be crying, panicking, or very anxious between answers
-- Give fragmented responses: "I can't... it hurts so much... please help me..."
-- Need calming and reassurance before you can answer properly
-- Require patience - information gathering will be slow
-- May fixate on one concern: "Am I going to die?", "What about my children?"
-- The paramedic must manage your emotional state to get information
-- If they are calm and reassuring, you gradually become more cooperative
-- If they are impatient or dismissive, you become more distressed`
-    },
-    confused: {
-        name: "The Confused",
-        description: "Gives contradictory or muddled information",
-        behaviour: `You are a CONFUSED patient. You MUST exhibit these behaviours throughout:
-- Give contradictory information: "The pain started this morning... or was it last night?"
-- Mix up details: confuse medications, get names wrong, muddle timelines
-- Change your story unintentionally when asked again
-- Say things like: "Wait, that's not right...", "Did I say morning? I meant evening"
-- The paramedic must piece together what's actually true through careful questioning
-- This confusion may be due to your condition, age, stress, or cognitive state
-- Be consistent about being inconsistent - your confusion should feel genuine, not evasive
-- You're trying to help but your brain isn't cooperating`
-    },
-    stoic: {
-        name: "The Stoic",
-        description: "Downplays everything, clinical findings don't match presentation",
-        behaviour: `You are a STOIC patient. You MUST exhibit these behaviours throughout:
-- Downplay all symptoms: "It's not that bad", "I've had worse", "I don't want to make a fuss"
-- Rate pain much lower than it should be: severe conditions described as "about a 3 or 4"
-- Minimise concerning symptoms: "I'm just a bit breathless" (even when severely unwell)
-- Be dismissive of concern: "You don't need to worry about me", "There are sicker people than me"
-- Your clinical findings (observations, examination) should tell the REAL story
-- Force the paramedic to trust their clinical assessment over your self-report
-- Be tough and uncomplaining - but your body tells the truth
-- You might have a "stiff upper lip" attitude or be from a generation that doesn't complain`
-    },
-    interferingFamily: {
-        name: "The Interfering Relative",
-        description: "Family member answers for patient, sometimes incorrectly",
-        behaviour: `There is an INTERFERING FAMILY MEMBER present. You MUST incorporate this throughout:
-- A family member (spouse, adult child, etc.) constantly interrupts and answers FOR the patient
-- The family member may give information that is incomplete or even incorrect
-- The family member has their own theories: "I think it's just indigestion", "He's been overdoing it"
-- When the paramedic asks the patient, the relative jumps in: "He means...", "What she's trying to say is..."
-- The patient may defer to the family member OR try to correct them (creating conflict)
-- The paramedic must politely but firmly direct questions to the patient
-- Create realistic tension between getting information from family vs patient
-- Format your responses to show BOTH voices, e.g.:
-  PATIENT: "Well, I think it started—"
-  RELATIVE: "It was definitely after breakfast, I remember because—"
-  PATIENT: "No, it was before breakfast, dear..."
-- The relative means well but is making assessment harder`
-    }
-};
-
-/**
- * Get a persona for Level 3 based on scenario ID
- * Uses deterministic selection so the same scenario always gets the same persona
- * This ensures consistency for learners who repeat scenarios
- */
-function getPersonaForScenario(scenarioId) {
-    const personaKeys = Object.keys(PATIENT_PERSONAS);
-    
-    // Create a simple hash from the scenario ID
-    let hash = 0;
-    for (let i = 0; i < scenarioId.length; i++) {
-        const char = scenarioId.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash; // Convert to 32bit integer
-    }
-    
-    // Use absolute value and modulo to select persona
-    const index = Math.abs(hash) % personaKeys.length;
-    return personaKeys[index];
-}
-
 // ==================== ALL SCENARIOS ====================
 // Each scenario contains:
 // - id: Unique identifier for tracking/CPD
@@ -3432,10 +3324,6 @@ function formatDispatchInfo(scenario) {
  */
 
 
-/**
- * Get the system prompt for a scenario (for the AI)
- * Updated with difficulty levels, HINT mode, personas for Level 3, and improved DEBRIEF detection
- */
 function getScenarioSystemPrompt(scenarioId, difficultyLevel = 1) {
     const scenario = getScenarioById(scenarioId);
     if (!scenario) return null;
@@ -3452,10 +3340,10 @@ function getScenarioSystemPrompt(scenarioId, difficultyLevel = 1) {
     
     // Build difficulty-specific instructions
     let difficultyInstructions = '';
-    let personaInstructions = '';
-    
     if (difficultyLevel === 1) {
         difficultyInstructions = `
+
+
 LEVEL 1 REQUIREMENTS (YOU MUST FOLLOW THESE):
 - Present with TEXTBOOK, OBVIOUS symptoms
 - Be CALM and COOPERATIVE
@@ -3471,29 +3359,14 @@ LEVEL 2 REQUIREMENTS (YOU MUST FOLLOW THESE):
 - Only reveal red flags when DIRECTLY ASKED
 - Add minor realistic concerns (worried about work, etc.)`;
     } else {
-        // Level 3 - Get persona for this scenario
-        const personaKey = getPersonaForScenario(scenarioId);
-        const persona = PATIENT_PERSONAS[personaKey];
-        
         difficultyInstructions = `
 LEVEL 3 REQUIREMENTS (YOU MUST FOLLOW THESE):
 - Present ATYPICALLY - symptoms should be VAGUE or SUBTLE
+- Be a POOR HISTORIAN - give contradictory or incomplete information
+- Be CONFUSED, DISTRESSED, or DISMISSIVE of symptoms
 - HIDE red flags - only reveal with careful, persistent questioning
-- ADD DISTRACTORS - unrelated symptoms, social issues
-- Your condition may DETERIORATE if assessment is slow
-- You MUST adopt the assigned PATIENT PERSONA below`;
-
-        personaInstructions = `
-========================================================================
-MANDATORY PATIENT PERSONA: ${persona.name}
-========================================================================
-${persona.description}
-
-${persona.behaviour}
-
-THIS PERSONA IS NOT OPTIONAL. You must maintain this persona consistently throughout the entire scenario.
-The paramedic must work around these challenges to gather the information they need.
-========================================================================`;
+- ADD DISTRACTORS - unrelated symptoms, family interference, social issues
+- Your condition may DETERIORATE if assessment is slow`;
     }
     
     return `
@@ -3504,7 +3377,6 @@ CRITICAL: DIFFICULTY LEVEL ${difficultyLevel} - ${difficulty.name}
 YOU MUST ADJUST YOUR ENTIRE PERFORMANCE BASED ON THIS DIFFICULTY LEVEL.
 This is NOT optional - the difficulty level fundamentally changes how you portray this patient.
 ${difficultyInstructions}
-${personaInstructions}
 
 CORE GOAL
 You are simulating a patient encounter for paramedic training.
@@ -3716,12 +3588,10 @@ window.scenarioData = {
     SCENARIO_CATEGORIES,
     SCENARIOS,
     DIFFICULTY_LEVELS,
-    PATIENT_PERSONAS, 
     getScenariosByCategory,
     getScenarioById,
     getScenarioCountByCategory,
     getRandomScenario,
     formatDispatchInfo,
     getScenarioSystemPrompt
-    getPersonaForScenario
 };
