@@ -212,6 +212,143 @@ function getPersonaForScenario(scenarioId) {
     return personaKeys[index];
 }
 
+// ==================== DETERIORATION SYSTEM ====================
+// Patients deteriorate if assessment is delayed - creates realistic urgency
+// Based on ASSESSMENT delays, NOT treatment delays
+
+const DETERIORATION_CONFIG = {
+    // Thresholds by difficulty level (exchanges without key assessment)
+    thresholds: {
+        1: { warning: 10, critical: 15 },  // Level 1 - Very slow
+        2: { warning: 8, critical: 12 },   // Level 2 - Slow  
+        3: { warning: 6, critical: 10 }    // Level 3 - Faster
+    },
+    
+    // Assessments that reset/delay the deterioration counter
+    keyAssessments: ['obs', 'ecg', 'chest', 'abdo', 'neuro', 'skin', 'fast', 'mend'],
+    
+    // Vital sign changes at each phase
+    vitalChanges: {
+        warning: {
+            hr: '+15',      // Increase by 15
+            rr: '+6',       // Increase by 6
+            spo2: '-4',     // Decrease by 4
+            gcs: '-1',      // Decrease by 1
+            bp_systolic: '-20'  // Decrease by 20
+        },
+        critical: {
+            hr: '+30',
+            rr: '+10', 
+            spo2: '-8',
+            gcs: '-3',
+            bp_systolic: '-40'
+        }
+    },
+    
+    // Alert messages shown in chat
+    alerts: {
+        warning: {
+            icon: '&#9888;&#65039;',
+            title: 'CLINICAL OBSERVATION',
+            message: "The patient appears more unwell than when you arrived. Their colour has changed and they seem less responsive to questions."
+        },
+        critical: {
+            icon: '&#128680;',
+            title: 'PATIENT DETERIORATING', 
+            message: "The patient's condition is worsening rapidly. You need to complete your assessment urgently."
+        }
+    },
+    
+    // AI behaviour instructions at each phase
+    behaviourChanges: {
+        warning: `
+The patient is now DETERIORATING. You must reflect this in your responses:
+- Be slightly drowsier and slower to respond
+- Give shorter, less detailed answers
+- Show signs of worsening condition (more breathless, paler, weaker)
+- May need questions repeated
+- Express that you're feeling worse: "I'm feeling worse...", "Everything's going a bit fuzzy..."`,
+        
+        critical: `
+The patient is now CRITICALLY DETERIORATING. You must reflect this in your responses:
+- Be significantly drowsier, may only give one or two word answers
+- Struggle to stay focused or awake
+- Show obvious distress or declining consciousness
+- May not be able to answer complex questions
+- Responses like: "I can't... *trails off*", "Help me...", "*eyes closing*"
+- If GCS is very low, may only groan or not respond verbally`
+    }
+};
+
+/**
+ * Calculate deteriorated vital signs based on phase
+ * @param {object} baseVitals - Original vital signs from scenario
+ * @param {string} phase - 'warning' or 'critical'
+ * @returns {object} - Modified vital signs
+ */
+function calculateDeterioratedVitals(baseVitals, phase) {
+    const changes = DETERIORATION_CONFIG.vitalChanges[phase];
+    if (!changes) return baseVitals;
+    
+    const newVitals = { ...baseVitals };
+    
+    // Heart rate
+    if (typeof newVitals.hr === 'number') {
+        newVitals.hr = Math.min(180, newVitals.hr + parseInt(changes.hr));
+    }
+    
+    // Respiratory rate
+    if (typeof newVitals.rr === 'number') {
+        newVitals.rr = Math.min(45, newVitals.rr + parseInt(changes.rr));
+    }
+    
+    // SpO2
+    if (typeof newVitals.spo2 === 'number') {
+        newVitals.spo2 = Math.max(70, newVitals.spo2 + parseInt(changes.spo2));
+    }
+    
+    // GCS
+    if (typeof newVitals.gcs === 'number') {
+        newVitals.gcs = Math.max(3, newVitals.gcs + parseInt(changes.gcs));
+    }
+    
+    // Blood pressure (handle string format like "120/80")
+    if (typeof newVitals.bp === 'string' && newVitals.bp.includes('/')) {
+        const [systolic, diastolic] = newVitals.bp.split('/').map(v => parseInt(v));
+        const newSystolic = Math.max(60, systolic + parseInt(changes.bp_systolic));
+        const newDiastolic = Math.max(40, diastolic + parseInt(changes.bp_systolic) / 2);
+        newVitals.bp = `${newSystolic}/${Math.round(newDiastolic)}`;
+    }
+    
+    return newVitals;
+}
+
+/**
+ * Get deterioration status based on exchanges since last key assessment
+ * @param {number} exchangesSinceAssessment - Count of exchanges without key assessment
+ * @param {number} difficultyLevel - Current difficulty level (1, 2, or 3)
+ * @returns {string|null} - 'warning', 'critical', or null
+ */
+function getDeteriorationPhase(exchangesSinceAssessment, difficultyLevel) {
+    const thresholds = DETERIORATION_CONFIG.thresholds[difficultyLevel] || DETERIORATION_CONFIG.thresholds[2];
+    
+    if (exchangesSinceAssessment >= thresholds.critical) {
+        return 'critical';
+    } else if (exchangesSinceAssessment >= thresholds.warning) {
+        return 'warning';
+    }
+    return null;
+}
+
+/**
+ * Check if an assessment type is a "key assessment" that resets deterioration
+ * @param {string} assessmentType - The type of assessment performed
+ * @returns {boolean}
+ */
+function isKeyAssessment(assessmentType) {
+    return DETERIORATION_CONFIG.keyAssessments.includes(assessmentType);
+}
+
 // ==================== ALL SCENARIOS ====================
 // Each scenario contains:
 // - id: Unique identifier for tracking/CPD
@@ -3436,7 +3573,7 @@ function formatDispatchInfo(scenario) {
  * Get the system prompt for a scenario (for the AI)
  * Updated with difficulty levels, HINT mode, personas for Level 3, and improved DEBRIEF detection
  */
-function getScenarioSystemPrompt(scenarioId, difficultyLevel = 1) {
+function getScenarioSystemPrompt(scenarioId, difficultyLevel = 1, deteriorationPhase = null) {
     const scenario = getScenarioById(scenarioId);
     if (!scenario) return null;
     
@@ -3449,6 +3586,30 @@ function getScenarioSystemPrompt(scenarioId, difficultyLevel = 1) {
     
     // Format red flags as a readable list
     const redFlagsFormatted = p.redFlags ? p.redFlags.join(', ') : 'None specified';
+    
+    // Handle deterioration state
+    let deteriorationInstructions = '';
+    let currentVitals = p.vitals;
+    
+    if (deteriorationPhase) {
+        currentVitals = calculateDeterioratedVitals(p.vitals, deteriorationPhase);
+        deteriorationInstructions = `
+========================================================================
+PATIENT DETERIORATION STATUS: ${deteriorationPhase.toUpperCase()}
+========================================================================
+${DETERIORATION_CONFIG.behaviourChanges[deteriorationPhase]}
+
+UPDATED VITAL SIGNS (use these instead of the original values):
+- HR: ${currentVitals.hr}
+- BP: ${currentVitals.bp}
+- RR: ${currentVitals.rr}
+- SpO2: ${currentVitals.spo2}%
+- GCS: ${currentVitals.gcs}
+
+You MUST reflect this deterioration in ALL your responses from now on.
+========================================================================`;
+    }
+    
     
     // Build difficulty-specific instructions
     let difficultyInstructions = '';
@@ -3505,6 +3666,7 @@ YOU MUST ADJUST YOUR ENTIRE PERFORMANCE BASED ON THIS DIFFICULTY LEVEL.
 This is NOT optional - the difficulty level fundamentally changes how you portray this patient.
 ${difficultyInstructions}
 ${personaInstructions}
+${deteriorationInstructions}
 
 CORE GOAL
 You are simulating a patient encounter for paramedic training.
@@ -3523,7 +3685,7 @@ PATIENT DETAILS (hidden from learner):
 - Condition: ${p.condition}
 - Medical History: ${p.history}
 - Medications: ${p.medications}
-- Vital Signs: HR ${p.vitals.hr}, BP ${p.vitals.bp}, RR ${p.vitals.rr}, SpO2 ${p.vitals.spo2}%, Temp ${p.vitals.temp}, GCS ${p.vitals.gcs}, BM ${p.vitals.bm}, Pain ${p.vitals.pain}/10
+- Vital Signs: HR ${currentVitals.hr}, BP ${currentVitals.bp}, RR ${currentVitals.rr}, SpO2 ${currentVitals.spo2}%, Temp ${currentVitals.temp}, GCS ${currentVitals.gcs}, BM ${currentVitals.bm}, Pain ${currentVitals.pain}/10
 - Presentation: ${p.presentation}
 - ECG Findings: ${p.ecg}
 - Red Flags: ${redFlagsFormatted}
@@ -3579,7 +3741,7 @@ MODE: ROLEPLAY (default)
 Output Rules:
 - History/symptoms question: Respond as PATIENT in everyday language
 - Measurement/test request: Provide CLINICAL DATA with objective findings only
-- "Obs" / "vitals" / "full set": CLINICAL DATA: HR ${p.vitals.hr}, BP ${p.vitals.bp}, RR ${p.vitals.rr}, SpO2 ${p.vitals.spo2}%, Temp ${p.vitals.temp}, GCS ${p.vitals.gcs}, BM ${p.vitals.bm}, Pain ${p.vitals.pain}/10
+- "Obs" / "vitals" / "full set": CLINICAL DATA: HR ${currentVitals.hr}, BP ${currentVitals.bp}, RR ${currentVitals.rr}, SpO2 ${currentVitals.spo2}%, Temp ${currentVitals.temp}, GCS ${currentVitals.gcs}, BM ${currentVitals.bm}, Pain ${currentVitals.pain}/10
 - Scene assessment: Describe environment/observations as third-person findings
 
 STRICTLY FORBIDDEN in ROLEPLAY:
@@ -3717,11 +3879,15 @@ window.scenarioData = {
     SCENARIOS,
     DIFFICULTY_LEVELS,
     PATIENT_PERSONAS, 
+    DETERIORATION_CONFIG, 
     getScenariosByCategory,
     getScenarioById,
     getScenarioCountByCategory,
     getRandomScenario,
     formatDispatchInfo,
     getScenarioSystemPrompt,
-    getPersonaForScenario
+    getPersonaForScenario,
+    calculateDeterioratedVitals,       
+    getDeteriorationPhase,             
+    isKeyAssessment                    
 };
