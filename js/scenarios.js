@@ -3722,6 +3722,6 @@ window.scenarioData = {
     getScenarioCountByCategory,
     getRandomScenario,
     formatDispatchInfo,
-    getScenarioSystemPrompt
+    getScenarioSystemPrompt,
     getPersonaForScenario
 };
