@@ -550,32 +550,55 @@
             cpdList: document.getElementById('cpdList')
         };
 
-        // ==================== AUTH STATE ====================
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                try {
-                    const doc = await db.collection('users').doc(user.uid).get();
-                    if (doc.exists) {
-                        const userData = doc.data();
-                        pageState.isPro = userData.subscriptionStatus === 'active' || userData.isPro === true;
-                        
-                        // Get user name for certificates
-                        const firstName = userData.firstName || userData.firstname || '';
-                        const surname = userData.surname || userData.lastName || '';
-                        const fullName = `${firstName} ${surname}`.trim();
-                        if (fullName) {
-                            pageState.userName = fullName;
-                        }
-                        
-                        updateUIForUser();
-                    }
-                } catch (error) {
-                    console.error('Error fetching user data:', error);
+       // ==================== AUTH STATE ====================
+auth.onAuthStateChanged(async (user) => {
+    if (user) {
+        // Show loading state IMMEDIATELY - don't wait for Pro check
+        showLoadingState();
+        
+        try {
+            const doc = await db.collection('users').doc(user.uid).get();
+            if (doc.exists) {
+                const userData = doc.data();
+                pageState.isPro = userData.subscriptionStatus === 'active' || userData.isPro === true;
+                
+                // Get user name for certificates
+                const firstName = userData.firstName || userData.firstname || '';
+                const surname = userData.surname || userData.lastName || '';
+                const fullName = `${firstName} ${surname}`.trim();
+                if (fullName) {
+                    pageState.userName = fullName;
                 }
+                
+                updateUIForUser();
             } else {
-                window.location.href = 'login.html';
+                // No user doc - show Pro overlay
+                updateUIForUser();
             }
-        });
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+            // On error, show Pro overlay (safer default)
+            updateUIForUser();
+        }
+    } else {
+        window.location.href = 'login.html';
+    }
+});
+
+// ==================== SHOW LOADING STATE IMMEDIATELY ====================
+function showLoadingState() {
+    // Hide the Pro overlay initially and show content with loading spinner
+    elements.proLockOverlay.classList.add('hidden');
+    elements.cpdContent.style.display = 'block';
+    elements.emptyState.classList.add('hidden');
+    elements.cpdList.classList.remove('hidden');
+    elements.cpdList.innerHTML = `
+        <div class="cpd-loading">
+            <div class="spinner-border" role="status"></div>
+            <p>Loading your CPD records...</p>
+        </div>
+    `;
+}
 
         // ==================== UI UPDATES ====================
         function updateUIForUser() {
