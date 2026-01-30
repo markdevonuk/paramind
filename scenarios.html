@@ -123,52 +123,81 @@
         .category-card {
             background: var(--color-white);
             border-radius: var(--radius-lg);
-            padding: 1.25rem;
+            padding: 1.25rem 1rem;
             text-align: center;
+            border: 2px solid var(--color-gray-200);
             cursor: pointer;
             transition: all 0.2s ease;
-            border: 2px solid transparent;
-            box-shadow: var(--shadow-sm);
         }
         
         .category-card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-3px);
             box-shadow: var(--shadow-md);
-            border-color: var(--color-teal);
         }
         
-        .category-card .icon {
+        /* Category Colors */
+        .category-card[data-category="cardiac"] { border-color: #fee2e2; background: #fef2f2; }
+        .category-card[data-category="cardiac"]:hover { border-color: #ef4444; }
+        .category-card[data-category="cardiac"] .category-icon { background: #ef4444; }
+        .category-card[data-category="cardiac"] .category-name { color: #dc2626; }
+        
+        .category-card[data-category="respiratory"] { border-color: #e0f2fe; background: #f0f9ff; }
+        .category-card[data-category="respiratory"]:hover { border-color: #0ea5e9; }
+        .category-card[data-category="respiratory"] .category-icon { background: #0ea5e9; }
+        .category-card[data-category="respiratory"] .category-name { color: #0284c7; }
+        
+        .category-card[data-category="abdominal"] { border-color: #fef3c7; background: #fffbeb; }
+        .category-card[data-category="abdominal"]:hover { border-color: #f59e0b; }
+        .category-card[data-category="abdominal"] .category-icon { background: #f59e0b; }
+        .category-card[data-category="abdominal"] .category-name { color: #d97706; }
+        
+        .category-card[data-category="neuro"] { border-color: #f3e8ff; background: #faf5ff; }
+        .category-card[data-category="neuro"]:hover { border-color: #a855f7; }
+        .category-card[data-category="neuro"] .category-icon { background: #a855f7; }
+        .category-card[data-category="neuro"] .category-name { color: #9333ea; }
+        
+        .category-card[data-category="trauma"] { border-color: #ffedd5; background: #fff7ed; }
+        .category-card[data-category="trauma"]:hover { border-color: #f97316; }
+        .category-card[data-category="trauma"] .category-icon { background: #f97316; }
+        .category-card[data-category="trauma"] .category-name { color: #ea580c; }
+        
+        .category-card[data-category="paediatric"] { border-color: #d1fae5; background: #ecfdf5; }
+        .category-card[data-category="paediatric"]:hover { border-color: #10b981; }
+        .category-card[data-category="paediatric"] .category-icon { background: #10b981; }
+        .category-card[data-category="paediatric"] .category-name { color: #059669; }
+        
+        .category-card[data-category="obstetric"] { border-color: #fce7f3; background: #fdf2f8; }
+        .category-card[data-category="obstetric"]:hover { border-color: #ec4899; }
+        .category-card[data-category="obstetric"] .category-icon { background: #ec4899; }
+        .category-card[data-category="obstetric"] .category-name { color: #db2777; }
+        
+        .category-card[data-category="mental-health"] { border-color: #ccfbf1; background: #f0fdfa; }
+        .category-card[data-category="mental-health"]:hover { border-color: #14b8a6; }
+        .category-card[data-category="mental-health"] .category-icon { background: #14b8a6; }
+        .category-card[data-category="mental-health"] .category-name { color: #0d9488; }
+        
+        .category-icon {
             width: 50px;
             height: 50px;
-            border-radius: 50%;
+            border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 0.75rem;
+            color: white;
             font-size: 1.5rem;
         }
         
-        .category-card h3 {
-            font-size: 0.95rem;
+        .category-name {
             font-weight: 600;
+            font-size: 0.9rem;
             margin-bottom: 0.25rem;
-            color: var(--color-gray-800);
         }
         
-        .category-card .count {
+        .category-count {
             font-size: 0.75rem;
             color: var(--color-gray-500);
         }
-        
-        /* Category Colors */
-        .category-card[data-category="cardiac"] .icon { background: rgba(220, 53, 69, 0.15); color: #dc3545; }
-        .category-card[data-category="respiratory"] .icon { background: rgba(23, 162, 184, 0.15); color: #17a2b8; }
-        .category-card[data-category="abdominal"] .icon { background: rgba(253, 126, 20, 0.15); color: #fd7e14; }
-        .category-card[data-category="neuro"] .icon { background: rgba(111, 66, 193, 0.15); color: #6f42c1; }
-        .category-card[data-category="trauma"] .icon { background: rgba(255, 193, 7, 0.15); color: #ffc107; }
-        .category-card[data-category="paediatric"] .icon { background: rgba(40, 167, 69, 0.15); color: #28a745; }
-        .category-card[data-category="obstetric"] .icon { background: rgba(232, 62, 140, 0.15); color: #e83e8c; }
-        .category-card[data-category="mental-health"] .icon { background: rgba(32, 201, 151, 0.15); color: #20c997; }
         
         /* ==================== DISPATCHER VIEW ==================== */
         .dispatcher-view {
@@ -1232,9 +1261,11 @@
             for (const [key, cat] of Object.entries(categories)) {
                 html += `
                     <div class="category-card" data-category="${key}">
-                        <div class="icon"><i class="bi ${cat.icon}"></i></div>
-                        <h3>${cat.title}</h3>
-                        <span class="count">${counts[key]} scenarios</span>
+                        <div class="category-icon">
+                            <i class="bi ${cat.icon}"></i>
+                        </div>
+                        <div class="category-name">${cat.title}</div>
+                        <div class="category-count">${counts[key]} scenarios</div>
                     </div>
                 `;
             }
