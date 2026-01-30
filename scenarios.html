@@ -806,6 +806,69 @@
         .impression-modal .form-control {
             border: 1px solid var(--color-gray-300);
         }
+        
+        /* ==================== Deterioration Alerts ==================== */
+.deterioration-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 8px;
+    animation: alertSlideIn 0.5s ease;
+}
+
+@keyframes alertSlideIn {
+    0% { transform: translateY(-10px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+.deterioration-warning {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 152, 0, 0.15) 100%);
+    border: 1px solid #ffc107;
+    border-left: 4px solid #ffc107;
+}
+
+.deterioration-critical {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.15) 0%, rgba(200, 35, 51, 0.15) 100%);
+    border: 1px solid #dc3545;
+    border-left: 4px solid #dc3545;
+    animation: alertSlideIn 0.5s ease, criticalPulse 2s infinite;
+}
+
+@keyframes criticalPulse {
+    0%, 100% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.3); }
+    50% { box-shadow: 0 0 15px rgba(220, 53, 69, 0.5); }
+}
+
+.deterioration-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.deterioration-content {
+    flex: 1;
+}
+
+.deterioration-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.deterioration-warning .deterioration-title {
+    color: #856404;
+}
+
+.deterioration-critical .deterioration-title {
+    color: #721c24;
+}
+
+.deterioration-message {
+    font-size: 0.85rem;
+    color: var(--color-gray-700);
+    line-height: 1.4;
+}
     </style>
 </head>
 
@@ -1055,7 +1118,7 @@
     <script src="js/app.js"></script>
     
     <!-- Scenarios Data -->
-    <script src="js/scenarios.js"></script>
+    <script src="js/UDscenarios.js"></script>
     
     <!-- Menu JS -->
     <script src="js/menu-v2.js"></script>
@@ -1147,17 +1210,24 @@
 
         // ==================== STATE ====================
         const chatState = {
-            isPro: false,
-            messagesRemaining: 5,
-            conversationHistory: [],
-            isLoading: false,
-            currentScenario: null,
-            currentDifficultyLevel: 1,
-            scenarioProgress: {
-                questionsAsked: 0,
-                assessmentsPerformed: 0
-            }
-        };
+    isPro: false,
+    messagesRemaining: 5,
+    conversationHistory: [],
+    isLoading: false,
+    currentScenario: null,
+    currentDifficultyLevel: 1,
+    scenarioProgress: {
+        questionsAsked: 0,
+        assessmentsPerformed: 0
+    },
+    // Deterioration tracking
+    deterioration: {
+        exchangesSinceKeyAssessment: 0,
+        currentPhase: null,           // null, 'warning', or 'critical'
+        warningShown: false,
+        criticalShown: false
+    }
+};
 
         // ==================== DOM ELEMENTS ====================
         const elements = {
@@ -1389,6 +1459,13 @@
             // Reset state
             chatState.conversationHistory = [];
             chatState.scenarioProgress = { questionsAsked: 0, assessmentsPerformed: 0 };
+            // Reset deterioration tracking
+chatState.deterioration = {
+    exchangesSinceKeyAssessment: 0,
+    currentPhase: null,
+    warningShown: false,
+    criticalShown: false
+};
             elements.chatMessages.innerHTML = '';
             
             // Update incident banner
@@ -1507,6 +1584,67 @@
         function scrollToBottom() {
             elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
         }
+        
+        // ==================== DETERIORATION SYSTEM ====================
+
+/**
+ * Add a deterioration alert to the chat
+ * @param {string} phase - 'warning' or 'critical'
+ */
+function addDeteriorationAlert(phase) {
+    const config = window.scenarioData.DETERIORATION_CONFIG.alerts[phase];
+    if (!config) return;
+    
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `deterioration-alert deterioration-${phase}`;
+    alertDiv.innerHTML = `
+        <div class="deterioration-icon">${config.icon}</div>
+        <div class="deterioration-content">
+            <div class="deterioration-title">${config.title}</div>
+            <div class="deterioration-message">${config.message}</div>
+        </div>
+    `;
+    
+    elements.chatMessages.appendChild(alertDiv);
+    scrollToBottom();
+}
+
+/**
+ * Check if deterioration should occur and handle it
+ * Called after each exchange that isn't a key assessment
+ */
+function checkDeterioration() {
+    if (!chatState.currentScenario) return;
+    
+    const phase = window.scenarioData.getDeteriorationPhase(
+        chatState.deterioration.exchangesSinceKeyAssessment,
+        chatState.currentDifficultyLevel
+    );
+    
+    if (phase === 'critical' && !chatState.deterioration.criticalShown) {
+        chatState.deterioration.currentPhase = 'critical';
+        chatState.deterioration.criticalShown = true;
+        addDeteriorationAlert('critical');
+    } else if (phase === 'warning' && !chatState.deterioration.warningShown) {
+        chatState.deterioration.currentPhase = 'warning';
+        chatState.deterioration.warningShown = true;
+        addDeteriorationAlert('warning');
+    }
+}
+
+/**
+ * Reset deterioration counter (called when key assessment performed)
+ */
+function resetDeteriorationCounter() {
+    chatState.deterioration.exchangesSinceKeyAssessment = 0;
+}
+
+/**
+ * Increment deterioration counter
+ */
+function incrementDeteriorationCounter() {
+    chatState.deterioration.exchangesSinceKeyAssessment++;
+}
 
         // ==================== API CALL ====================
         async function sendMessageToAPI(message, onChunk) {
@@ -1514,9 +1652,13 @@
             if (!user) throw new Error('Not authenticated');
             
             const token = await user.getIdToken();
-            const scenarioPrompt = chatState.currentScenario 
-                ? window.scenarioData.getScenarioSystemPrompt(chatState.currentScenario, chatState.currentDifficultyLevel)
-                : null;
+           const scenarioPrompt = chatState.currentScenario 
+    ? window.scenarioData.getScenarioSystemPrompt(
+        chatState.currentScenario, 
+        chatState.currentDifficultyLevel,
+        chatState.deterioration.currentPhase
+      )
+    : null;
             
             const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.chatEndpoint}`, {
                 method: 'POST',
@@ -1587,6 +1729,7 @@
             addMessage('user', message);
             chatState.conversationHistory.push({ role: 'user', content: message });
             chatState.scenarioProgress.questionsAsked++;
+            incrementDeteriorationCounter();
             
             const aiMessageId = 'ai-msg-' + Date.now();
             addStreamingMessage(aiMessageId);
@@ -1601,6 +1744,7 @@
                 
                 finalizeStreamingMessage(aiMessageId, response);
                 chatState.conversationHistory.push({ role: 'assistant', content: response });
+                checkDeterioration();
             } catch (error) {
                 removeStreamingMessage(aiMessageId);
                 if (error.message === 'LIMIT_REACHED') {
@@ -1626,6 +1770,12 @@
             }
             
             chatState.scenarioProgress.assessmentsPerformed++;
+            // Check if this is a key assessment that resets deterioration
+if (window.scenarioData.isKeyAssessment(assessmentType)) {
+    resetDeteriorationCounter();
+} else {
+    incrementDeteriorationCounter();
+}
             
             const indicator = document.createElement('div');
             indicator.className = 'assessment-indicator';
