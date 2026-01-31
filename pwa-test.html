@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Test | ParaMind</title>
+    
+    <!-- PWA Support -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2B8A9C">
+    
+    <!-- iOS PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="ParaMind">
+    <link rel="apple-touch-icon" href="/images/icons/icon-152x152.png">
+    
+    <!-- Windows PWA Support -->
+    <meta name="msapplication-TileImage" content="/images/icons/icon-144x144.png">
+    <meta name="msapplication-TileColor" content="#1a2634">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #1a2634 0%, #2d3e50 100%);
+            border-radius: 16px;
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .brand {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .brand .para { color: #5cb85c; }
+        .brand .mind { color: #2B8A9C; }
+        
+        .header p {
+            opacity: 0.8;
+            font-size: 14px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: #1a2634;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 16px;
+        }
+        
+        .status-icon.success { background: #d4edda; color: #28a745; }
+        .status-icon.error { background: #f8d7da; color: #dc3545; }
+        .status-icon.warning { background: #fff3cd; color: #856404; }
+        .status-icon.loading { background: #e7e7e7; color: #666; }
+        
+        .status-text {
+            flex: 1;
+        }
+        
+        .status-text strong {
+            display: block;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .status-text span {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .install-section {
+            text-align: center;
+            padding: 30px 20px;
+        }
+        
+        .install-btn {
+            background: #2B8A9C;
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: none;
+            margin: 0 auto;
+        }
+        
+        .install-btn:hover {
+            background: #247a8a;
+        }
+        
+        .install-btn.show {
+            display: inline-block;
+        }
+        
+        .install-instructions {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+            text-align: left;
+            font-size: 14px;
+            color: #0369a1;
+        }
+        
+        .install-instructions strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .log-section {
+            background: #1a2634;
+            border-radius: 8px;
+            padding: 16px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .log-entry {
+            font-family: monospace;
+            font-size: 12px;
+            color: #a0a0a0;
+            padding: 4px 0;
+        }
+        
+        .log-entry.success { color: #5cb85c; }
+        .log-entry.error { color: #dc3545; }
+        .log-entry.info { color: #17a2b8; }
+        
+        .refresh-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+        
+        .refresh-btn:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="brand">
+                <span class="para">para</span><span class="mind">mind</span>
+            </div>
+            <p>PWA Installation Test Page</p>
+        </div>
+        
+        <!-- Status Checks -->
+        <div class="card">
+            <h2>📋 PWA Checklist</h2>
+            
+            <div class="status-item">
+                <div class="status-icon loading" id="httpsIcon">⏳</div>
+                <div class="status-text">
+                    <strong>HTTPS</strong>
+                    <span id="httpsStatus">Checking...</span>
+                </div>
+            </div>
+            
+            <div class="status-item">
+                <div class="status-icon loading" id="swIcon">⏳</div>
+                <div class="status-text">
+                    <strong>Service Worker</strong>
+                    <span id="swStatus">Checking...</span>
+                </div>
+            </div>
+            
+            <div class="status-item">
+                <div class="status-icon loading" id="manifestIcon">⏳</div>
+                <div class="status-text">
+                    <strong>Manifest</strong>
+                    <span id="manifestStatus">Checking...</span>
+                </div>
+            </div>
+            
+            <div class="status-item">
+                <div class="status-icon loading" id="iconsIcon">⏳</div>
+                <div class="status-text">
+                    <strong>Icons</strong>
+                    <span id="iconsStatus">Checking...</span>
+                </div>
+            </div>
+            
+            <div class="status-item">
+                <div class="status-icon loading" id="installableIcon">⏳</div>
+                <div class="status-text">
+                    <strong>Installable</strong>
+                    <span id="installableStatus">Checking...</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Install Section -->
+        <div class="card">
+            <div class="install-section">
+                <button class="install-btn" id="installBtn">Install ParaMind App</button>
+                <p id="installMessage">Checking if app can be installed...</p>
+                
+                <div class="install-instructions" id="manualInstructions" style="display: none;">
+                    <strong>📱 Manual Installation:</strong>
+                    <p><strong>iPhone/iPad:</strong> Tap the Share button (square with arrow) → "Add to Home Screen"</p>
+                    <p style="margin-top: 8px;"><strong>Android:</strong> Tap the menu (3 dots) → "Add to Home Screen" or "Install App"</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Console Log -->
+        <div class="card">
+            <h2>🔧 Debug Log</h2>
+            <div class="log-section" id="logSection">
+                <div class="log-entry info">PWA Test Page loaded...</div>
+            </div>
+            <button class="refresh-btn" onclick="location.reload()">🔄 Refresh & Recheck</button>
+        </div>
+    </div>
+    
+    <script>
+        // Logging function
+        function log(message, type = 'info') {
+            const logSection = document.getElementById('logSection');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            logSection.appendChild(entry);
+            logSection.scrollTop = logSection.scrollHeight;
+            console.log(`[PWA Test] ${message}`);
+        }
+        
+        // Update status
+        function updateStatus(id, success, message) {
+            const icon = document.getElementById(id + 'Icon');
+            const status = document.getElementById(id + 'Status');
+            
+            icon.className = 'status-icon ' + (success ? 'success' : (success === false ? 'error' : 'warning'));
+            icon.textContent = success ? '✓' : (success === false ? '✗' : '⚠');
+            status.textContent = message;
+        }
+        
+        // Check HTTPS
+        function checkHTTPS() {
+            const isHTTPS = location.protocol === 'https:';
+            const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+            
+            if (isHTTPS) {
+                updateStatus('https', true, 'Site is served over HTTPS');
+                log('HTTPS: ✓ Secure connection', 'success');
+            } else if (isLocalhost) {
+                updateStatus('https', null, 'Localhost (OK for testing)');
+                log('HTTPS: ⚠ Localhost - OK for testing but install may not work', 'info');
+            } else {
+                updateStatus('https', false, 'Site must be served over HTTPS');
+                log('HTTPS: ✗ Not secure - PWA requires HTTPS', 'error');
+            }
+        }
+        
+        // Check Service Worker
+        async function checkServiceWorker() {
+            if (!('serviceWorker' in navigator)) {
+                updateStatus('sw', false, 'Service Workers not supported');
+                log('Service Worker: ✗ Not supported in this browser', 'error');
+                return;
+            }
+            
+            try {
+                const registration = await navigator.serviceWorker.register('/sw.js');
+                updateStatus('sw', true, 'Registered and active');
+                log(`Service Worker: ✓ Registered (scope: ${registration.scope})`, 'success');
+            } catch (error) {
+                updateStatus('sw', false, 'Failed to register: ' + error.message);
+                log(`Service Worker: ✗ ${error.message}`, 'error');
+            }
+        }
+        
+        // Check Manifest
+        async function checkManifest() {
+            try {
+                const response = await fetch('/manifest.json');
+                if (!response.ok) throw new Error('Not found');
+                
+                const manifest = await response.json();
+                
+                if (manifest.name && manifest.icons && manifest.start_url) {
+                    updateStatus('manifest', true, `Found: "${manifest.short_name || manifest.name}"`);
+                    log(`Manifest: ✓ Valid manifest found`, 'success');
+                    log(`  - Name: ${manifest.name}`, 'info');
+                    log(`  - Icons: ${manifest.icons.length} defined`, 'info');
+                    log(`  - Start URL: ${manifest.start_url}`, 'info');
+                    return manifest;
+                } else {
+                    updateStatus('manifest', false, 'Missing required fields');
+                    log('Manifest: ✗ Missing name, icons, or start_url', 'error');
+                }
+            } catch (error) {
+                updateStatus('manifest', false, 'Could not load manifest.json');
+                log(`Manifest: ✗ ${error.message}`, 'error');
+            }
+            return null;
+        }
+        
+        // Check Icons
+        async function checkIcons(manifest) {
+            if (!manifest || !manifest.icons) {
+                updateStatus('icons', false, 'No icons defined');
+                return;
+            }
+            
+            const requiredSizes = ['192x192', '512x512'];
+            const foundSizes = manifest.icons.map(i => i.sizes);
+            
+            const hasRequired = requiredSizes.every(size => foundSizes.includes(size));
+            
+            if (hasRequired) {
+                // Try to load one icon to verify it exists
+                const testIcon = manifest.icons.find(i => i.sizes === '192x192');
+                try {
+                    const response = await fetch(testIcon.src);
+                    if (response.ok) {
+                        updateStatus('icons', true, `${manifest.icons.length} icons configured`);
+                        log(`Icons: ✓ Found ${manifest.icons.length} icons, files accessible`, 'success');
+                    } else {
+                        updateStatus('icons', false, 'Icon files not found at specified paths');
+                        log(`Icons: ✗ Icon file not accessible: ${testIcon.src}`, 'error');
+                    }
+                } catch (error) {
+                    updateStatus('icons', false, 'Could not verify icon files');
+                    log(`Icons: ✗ Error loading icon: ${error.message}`, 'error');
+                }
+            } else {
+                updateStatus('icons', null, 'Missing 192x192 or 512x512');
+                log(`Icons: ⚠ Should have 192x192 and 512x512 sizes`, 'info');
+            }
+        }
+        
+        // Install prompt
+        let deferredPrompt = null;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            updateStatus('installable', true, 'Ready to install!');
+            log('Install: ✓ App is installable!', 'success');
+            
+            document.getElementById('installBtn').classList.add('show');
+            document.getElementById('installMessage').textContent = 'Click the button below to install:';
+        });
+        
+        document.getElementById('installBtn').addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            log(`Install: User ${outcome === 'accepted' ? 'accepted' : 'dismissed'} the install`, outcome === 'accepted' ? 'success' : 'info');
+            deferredPrompt = null;
+            document.getElementById('installBtn').classList.remove('show');
+        });
+        
+        window.addEventListener('appinstalled', () => {
+            log('Install: ✓ App was installed successfully!', 'success');
+            document.getElementById('installMessage').textContent = '🎉 App installed successfully!';
+        });
+        
+        // Check if already installed
+        function checkInstallable() {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            
+            if (isStandalone) {
+                updateStatus('installable', true, 'Already installed and running as app');
+                log('Install: ✓ Running as installed PWA', 'success');
+                document.getElementById('installMessage').textContent = '🎉 You\'re running ParaMind as an installed app!';
+            } else {
+                // Wait a moment for beforeinstallprompt
+                setTimeout(() => {
+                    if (!deferredPrompt) {
+                        updateStatus('installable', null, 'Waiting for browser... (see manual install)');
+                        log('Install: ⚠ Browser hasn\'t triggered install prompt yet', 'info');
+                        document.getElementById('installMessage').textContent = 'Browser install not available. Use manual method:';
+                        document.getElementById('manualInstructions').style.display = 'block';
+                    }
+                }, 2000);
+            }
+        }
+        
+        // Run all checks
+        async function runChecks() {
+            log('Starting PWA checks...', 'info');
+            
+            checkHTTPS();
+            await checkServiceWorker();
+            const manifest = await checkManifest();
+            await checkIcons(manifest);
+            checkInstallable();
+            
+            log('All checks complete!', 'info');
+        }
+        
+        // Start checks when page loads
+        runChecks();
+    </script>
+</body>
+</html>
