@@ -26,9 +26,10 @@
             { id: 'scenarios', href: 'scenarios.html', icon: 'bi-mortarboard', label: 'Scenarios' },
             { id: 'differentials', href: 'differentials.html', icon: 'bi-clipboard2-pulse', label: 'Differentials' }
         ],
-        // Pro features
+       // Pro features
         proNav: [
             { id: 'connections', href: 'connections.html', icon: 'bi-heart-pulse', label: 'A&P Connections', isPro: true },
+            { id: 'drugs', href: 'drugs.html', icon: 'bi-capsule', label: 'Drugs', isPro: true },
             { id: 'atmist', href: 'atmist.html', icon: 'bi-telephone-outbound', label: 'ATMIST', isPro: true },
             { id: 'ecg', href: 'ecg.html', icon: 'bi-activity', label: 'ECG Tool', isPro: true },
             { id: 'cpd', href: 'cpd.html', icon: 'bi-award', label: 'CPD Portfolio', isPro: true }
@@ -48,6 +49,7 @@
         if (path.includes('scenarios')) return 'scenarios';
         if (path.includes('differentials')) return 'differentials';
         if (path.includes('connections') || path.includes('connections')) return 'connections';
+        if (path.includes('drugs')) return 'drugs';
         if (path.includes('atmist')) return 'atmist';
         if (path.includes('ecg')) return 'ecg';
         if (path.includes('cpd')) return 'cpd';

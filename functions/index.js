@@ -353,8 +353,8 @@ exports.createCheckoutSession = onRequest(
         ],
         mode: "subscription",
         allow_promotion_codes: true,
-        success_url: `${req.headers.origin}/chat.html?session_id={CHECKOUT_SESSION_ID}&success=true`,
-        cancel_url: `${req.headers.origin}/chat.html?canceled=true`,
+        success_url: `${req.headers.origin}/landing.html?session_id={CHECKOUT_SESSION_ID}&success=true`,
+        cancel_url: `${req.headers.origin}/landing.html?canceled=true`,
         metadata: {
           firebaseUID: uid,
         },
@@ -402,11 +402,11 @@ exports.stripeWebhook = onRequest(
 
     // Handle the event
     switch (event.type) {
-	case "checkout.session.completed": {
-  	const session = event.data.object;
-  	const uid = session.metadata.firebaseUID;
+case "checkout.session.completed": {
+  const session = event.data.object;
+  const uid = session.metadata.firebaseUID;
 
-  	if (uid) {
+  if (uid) {
     // Store subscription ID and discount info, but DON'T activate yet
     // Activation happens when invoice.paid fires (confirming payment success)
     const updateData = {
@@ -418,6 +418,23 @@ exports.stripeWebhook = onRequest(
     if (session.total_details?.amount_discount > 0) {
       updateData.discountApplied = true;
       updateData.discountAmount = session.total_details.amount_discount;
+      
+      // NEW: Get the promotion code name (e.g., "PLYMOUTH_UNI")
+      // This helps us track which partner/university referred this user
+      if (session.discounts && session.discounts.length > 0) {
+        try {
+          const discountInfo = session.discounts[0];
+          // The promotion_code field contains the promo code ID
+          if (discountInfo.promotion_code) {
+            const promoCode = await stripe.promotionCodes.retrieve(discountInfo.promotion_code);
+            updateData.promoCodeUsed = promoCode.code; // The actual code string like "PLYMOUTH_UNI"
+            console.log(`Promo code used: ${promoCode.code}`);
+          }
+        } catch (promoError) {
+          console.error("Error retrieving promo code details:", promoError.message);
+          // Continue anyway - don't fail the whole checkout over this
+        }
+      }
     }
 
     await db.collection("users").doc(uid).update(updateData);

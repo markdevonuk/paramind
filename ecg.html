@@ -934,16 +934,16 @@
             <p class="pro-feature-badge"><i class="bi bi-star-fill"></i> Pro Feature</p>
             <p class="pro-description">
                 Master ECG interpretation with our interactive rhythm generator. 
-                Practice identifying 14 different rhythms including emergency arrhythmias, 
+                Practice identifying 14 different rhythms, including emergency arrhythmias, 
                 heart blocks, and more. Includes quiz mode to test your knowledge.
             </p>
-            <a href="register.html" class="pro-upgrade-btn">
+            <a href="#" class="pro-upgrade-btn" id="proUpgradeBtn">
                 <i class="bi bi-lightning-charge"></i>
                 Upgrade to Paramind Pro
             </a>
             <a href="chat.html" class="pro-back-link">
                 <i class="bi bi-arrow-left"></i>
-                Back to Chat
+                Go back
             </a>
         </div>
     </div>
@@ -1685,7 +1685,7 @@
             return y;
         }
         
-        // ==================== SUBSCRIPTION CHECK ====================
+       // ==================== SUBSCRIPTION CHECK ====================
         // Waits for Firebase to be loaded by menu.js, then checks subscription
         function checkSubscription() {
             // Wait for Firebase to be available (loaded by menu.js)
@@ -1703,13 +1703,74 @@
                                 const data = doc.data();
                                 if (data.subscriptionStatus !== 'active') {
                                     document.getElementById('proOverlay').classList.add('show');
+                                    // Set up the upgrade button
+                                    setupUpgradeButton();
                                 }
                             }
                         });
                 } else {
                     document.getElementById('proOverlay').classList.add('show');
+                    setupUpgradeButton();
                 }
             });
+        }
+        
+        // ==================== UPGRADE BUTTON SETUP ====================
+        function setupUpgradeButton() {
+            const upgradeBtn = document.getElementById('proUpgradeBtn');
+            if (upgradeBtn) {
+                upgradeBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    handleUpgrade();
+                });
+            }
+        }
+        
+        // ==================== HANDLE UPGRADE ====================
+        async function handleUpgrade() {
+            const btn = document.getElementById('proUpgradeBtn');
+            const originalText = btn ? btn.innerHTML : '';
+            
+            try {
+                if (btn) {
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Loading...';
+                    btn.style.pointerEvents = 'none';
+                }
+                
+                const user = firebase.auth().currentUser;
+                if (!user) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                const token = await user.getIdToken();
+                const baseUrl = window.paramind?.CONFIG?.api?.baseUrl || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
+                const checkoutEndpoint = window.paramind?.CONFIG?.api?.checkout || '/createCheckoutSession';
+                
+                const response = await fetch(`${baseUrl}${checkoutEndpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.url) {
+                        window.location.href = data.url;
+                    }
+                } else {
+                    throw new Error('Failed to create checkout session');
+                }
+            } catch (error) {
+                console.error('Upgrade error:', error);
+                alert('Unable to start checkout. Please try again.');
+                if (btn) {
+                    btn.innerHTML = originalText;
+                    btn.style.pointerEvents = 'auto';
+                }
+            }
         }
     </script>
     
