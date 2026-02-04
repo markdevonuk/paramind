@@ -490,26 +490,68 @@ exports.stripeWebhook = onRequest(
         break;
       }
       
-      case "invoice.paid": {
-  const invoice = event.data.object;
-  const customerId = invoice.customer;
+case "invoice.paid": {
+        const invoice = event.data.object;
+        const customerId = invoice.customer;
 
-  // Find user by Stripe customer ID
-  const usersSnapshot = await db
-    .collection("users")
-    .where("stripeCustomerId", "==", customerId)
-    .get();
+        console.log(`Processing invoice.paid for Stripe customer: ${customerId}`);
 
-  if (!usersSnapshot.empty) {
-    const userDoc = usersSnapshot.docs[0];
+        // First, try to find user by Stripe customer ID
+        let usersSnapshot = await db
+          .collection("users")
+          .where("stripeCustomerId", "==", customerId)
+          .get();
 
-    await userDoc.ref.update({
-      subscriptionStatus: "active",
-    });
-    console.log(`Payment confirmed - subscription activated for user: ${userDoc.id}`);
-  }
-  break;
-}
+        let userDoc = null;
+
+        if (!usersSnapshot.empty) {
+          userDoc = usersSnapshot.docs[0];
+          console.log(`Found user by stripeCustomerId: ${userDoc.id}`);
+        } else {
+          // FALLBACK: Get Firebase UID from Stripe customer metadata
+          console.log(`User not found by stripeCustomerId, trying fallback...`);
+          
+          try {
+            const customer = await stripe.customers.retrieve(customerId);
+            const firebaseUID = customer.metadata?.firebaseUID;
+            
+            if (firebaseUID) {
+              console.log(`Found firebaseUID in Stripe metadata: ${firebaseUID}`);
+              
+              // Look up user directly by Firebase UID
+              const userRef = db.collection("users").doc(firebaseUID);
+              const userSnap = await userRef.get();
+              
+              if (userSnap.exists) {
+                userDoc = userSnap;
+                
+                // Also save the stripeCustomerId for future lookups
+                await userRef.update({
+                  stripeCustomerId: customerId,
+                });
+                console.log(`Linked stripeCustomerId to user: ${firebaseUID}`);
+              } else {
+                console.error(`User document not found for firebaseUID: ${firebaseUID}`);
+              }
+            } else {
+              console.error(`No firebaseUID in Stripe customer metadata for: ${customerId}`);
+            }
+          } catch (stripeError) {
+            console.error(`Error retrieving Stripe customer: ${stripeError.message}`);
+          }
+        }
+
+        // Activate subscription if we found the user
+        if (userDoc) {
+          await (userDoc.ref || db.collection("users").doc(userDoc.id)).update({
+            subscriptionStatus: "active",
+          });
+          console.log(`Payment confirmed - subscription activated for user: ${userDoc.id}`);
+        } else {
+          console.error(`CRITICAL: Could not find user for Stripe customer: ${customerId}. User is stuck on pending!`);
+        }
+        break;
+      }
 
    case "invoice.payment_failed": {
   const invoice = event.data.object;
