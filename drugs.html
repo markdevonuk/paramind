@@ -32,7 +32,7 @@
         }
         
         .drug-container {
-            max-width: 1200px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 1rem;
             padding-bottom: 2rem;
@@ -149,8 +149,8 @@
         /* Drug Cards Grid */
         .drugs-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.75rem;
             margin-bottom: 1.5rem;
         }
         
@@ -1022,6 +1022,15 @@
         // ==================== DRUG GUIDE SETUP ====================
         
         function setupDrugGuide() {
+            // Check if drugs data is loaded
+            if (typeof window.drugs === 'undefined' || !Array.isArray(window.drugs)) {
+                console.error('Drug data not loaded. Check that js/drugs-data.js is properly deployed.');
+                alert('Error: Drug data could not be loaded. Please refresh the page or contact support.');
+                return;
+            }
+            
+            console.log('Drug data loaded:', window.drugs.length, 'medications');
+            
             const drugsGrid = document.getElementById('drugs-grid');
             const categoryBtns = document.querySelectorAll('.category-btn');
             const modalOverlay = document.getElementById('modal-overlay');
