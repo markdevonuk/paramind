@@ -31,7 +31,7 @@
             background: var(--color-gray-50);
         }
         
-        /* Navbar */
+        /* Navbar - matches rest of site */
         .landing-navbar {
             background: var(--color-white);
             border-bottom: 1px solid var(--color-gray-200);
@@ -54,80 +54,209 @@
             padding: 1.5rem 1rem 2rem;
         }
         
-        /* Welcome Section */
-        .welcome-section {
-            text-align: center;
-            padding: 1.5rem 0 2rem;
+        /* ==================== PAYMENT SUCCESS BANNER ==================== */
+        .payment-success-banner {
+            display: none;
+            background: linear-gradient(135deg, rgba(92, 184, 92, 0.15) 0%, rgba(43, 138, 156, 0.1) 100%);
+            border: 1px solid rgba(92, 184, 92, 0.3);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            animation: slideDown 0.4s ease-out;
         }
         
-        .welcome-section h1 {
-            font-size: 1.75rem;
+        .payment-success-banner.show {
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .payment-success-banner .success-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .payment-success-banner .success-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--color-green) 0%, var(--color-teal) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .payment-success-banner .success-icon i {
+            color: white;
+            font-size: 1.25rem;
+        }
+        
+        .payment-success-banner .success-text h3 {
+            font-size: 1rem;
             font-weight: 700;
             color: var(--color-gray-800);
-            margin-bottom: 0.5rem;
+            margin: 0 0 0.25rem 0;
         }
         
-        .welcome-section p {
+        .payment-success-banner .success-text p {
+            font-size: 0.875rem;
             color: var(--color-gray-600);
             margin: 0;
         }
         
-        .user-badge {
-            display: inline-flex;
+        /* ==================== HERO WITH HOLLIE ==================== */
+        .hero-section {
+            text-align: center !important;
+            padding: 1.5rem 0 2rem;
+            display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 0.5rem;
-            background: var(--color-white);
-            border: 1px solid var(--color-gray-200);
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-full);
-            margin-top: 1rem;
-            font-size: 0.875rem;
+            justify-content: center;
         }
         
-        .user-badge i {
-            color: var(--color-teal);
+        .hero-section * {
+            text-align: center !important;
         }
         
-        .user-badge .trust-name {
-            font-weight: 600;
-            color: var(--color-gray-700);
+        .hollie-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid var(--color-teal);
+            overflow: hidden;
+            margin: 0 auto 1rem;
+            box-shadow: 0 8px 24px rgba(43, 138, 156, 0.25);
         }
         
-        /* Pro Badge in Welcome */
-        .pro-status-badge {
+        .hollie-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .hollie-badge {
             display: inline-flex;
             align-items: center;
             gap: 0.35rem;
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-            color: #1a1a2e;
-            font-size: 0.7rem;
-            font-weight: 700;
-            padding: 0.25rem 0.6rem;
+            background: rgba(43, 138, 156, 0.1);
+            color: var(--color-teal);
+            padding: 0.3rem 0.75rem;
             border-radius: var(--radius-full);
-            margin-left: 0.5rem;
-            text-transform: uppercase;
-        }
-        
-        .pro-status-badge i {
-            color: #1a1a2e;
-            font-size: 0.65rem;
-        }
-        
-        /* Tools Grid */
-        .tools-section {
-            margin-bottom: 2rem;
-        }
-        
-        .section-title {
             font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-greeting {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 0.25rem;
+            text-align: center !important;
+            width: 100%;
+            display: block;
+        }
+        
+        .hero-subtitle {
+            color: var(--color-gray-600);
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            text-align: center !important;
+            width: 100%;
+            display: block;
+        }
+        
+        /* User info badges */
+        .user-info-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .info-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            padding: 0.4rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            color: var(--color-gray-600);
+        }
+        
+        .info-badge i {
+            color: var(--color-teal);
+        }
+        
+        .info-badge.pro-badge {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            border: none;
+            color: #1a1a2e;
+            font-weight: 600;
+        }
+        
+        .info-badge.pro-badge i {
+            color: #1a1a2e;
+        }
+        
+        .info-badge.messages-badge .count {
+            font-weight: 700;
+            color: var(--color-teal);
+        }
+        
+        /* ==================== SECTION HEADERS ==================== */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .section-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.7rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            color: var(--color-gray-500);
-            margin-bottom: 1rem;
-            padding-left: 0.25rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 6px;
         }
         
+        .section-tag.free {
+            background: rgba(92, 184, 92, 0.15);
+            color: var(--color-green-dark);
+            border: 1px solid rgba(92, 184, 92, 0.3);
+        }
+        
+        .section-tag.pro {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 165, 0, 0.1) 100%);
+            color: #b8860b;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+        
+        .section-line {
+            flex: 1;
+            height: 1px;
+            background: var(--color-gray-200);
+        }
+        
+        /* ==================== TOOL CARDS ==================== */
         .tools-grid {
             display: grid;
             grid-template-columns: repeat(1, 1fr);
@@ -146,21 +275,20 @@
             }
         }
         
-        /* Tool Card - Redesigned */
         .tool-card {
             background: var(--color-white);
             border-radius: 16px;
-            padding: 1.5rem;
+            padding: 1.25rem;
             text-decoration: none;
             color: inherit;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid transparent;
+            border: 1px solid var(--color-gray-100);
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            min-height: 160px;
+            min-height: 170px;
         }
         
         .tool-card::before {
@@ -176,9 +304,10 @@
         }
         
         .tool-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
             color: inherit;
+            border-color: var(--color-gray-200);
         }
         
         .tool-card:hover::before {
@@ -189,30 +318,26 @@
         .tool-card.card-chat { --card-accent: linear-gradient(135deg, #2B8A9C, #5CB85C); }
         .tool-card.card-scenarios { --card-accent: linear-gradient(135deg, #5CB85C, #28a745); }
         .tool-card.card-differentials { --card-accent: linear-gradient(135deg, #6c757d, #495057); }
+        .tool-card.card-connections { --card-accent: linear-gradient(135deg, #ec4899, #f472b6); }
+        .tool-card.card-drugs { --card-accent: linear-gradient(135deg, #3b82f6, #60a5fa); }
         .tool-card.card-atmist { --card-accent: linear-gradient(135deg, #dc3545, #c82333); }
-        .tool-card.card-ecg { --card-accent: linear-gradient(135deg, #ffc107, #e0a800); }
-        .tool-card.card-cpd { --card-accent: linear-gradient(135deg, #6f42c1, #5a32a3); }
-        
-        .tool-card::before {
-            background: var(--card-accent);
-        }
-        
-        .tool-card-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            margin-bottom: 0.75rem;
-        }
+        .tool-card.card-ecg { --card-accent: linear-gradient(135deg, #f59e0b, #fbbf24); }
+        .tool-card.card-cpd { --card-accent: linear-gradient(135deg, #8b5cf6, #a78bfa); }
         
         .tool-card-icon {
-            width: 52px;
-            height: 52px;
+            width: 48px;
+            height: 48px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
-            flex-shrink: 0;
+            font-size: 1.35rem;
+            margin-bottom: 0.75rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .tool-card:hover .tool-card-icon {
+            transform: scale(1.1);
         }
         
         .tool-card.card-chat .tool-card-icon {
@@ -221,55 +346,62 @@
         }
         
         .tool-card.card-scenarios .tool-card-icon {
-            background: linear-gradient(135deg, rgba(92, 184, 92, 0.2) 0%, rgba(40, 167, 69, 0.1) 100%);
+            background: rgba(92, 184, 92, 0.15);
             color: #28a745;
         }
         
         .tool-card.card-differentials .tool-card-icon {
-            background: linear-gradient(135deg, rgba(108, 117, 125, 0.15) 0%, rgba(73, 80, 87, 0.1) 100%);
+            background: rgba(108, 117, 125, 0.12);
             color: #495057;
         }
         
+        .tool-card.card-connections .tool-card-icon {
+            background: rgba(236, 72, 153, 0.12);
+            color: #ec4899;
+        }
+        
+        .tool-card.card-drugs .tool-card-icon {
+            background: rgba(59, 130, 246, 0.12);
+            color: #3b82f6;
+        }
+        
         .tool-card.card-atmist .tool-card-icon {
-            background: linear-gradient(135deg, rgba(220, 53, 69, 0.15) 0%, rgba(200, 35, 51, 0.1) 100%);
+            background: rgba(220, 53, 69, 0.12);
             color: #dc3545;
         }
         
         .tool-card.card-ecg .tool-card-icon {
-            background: linear-gradient(135deg, rgba(255, 193, 7, 0.2) 0%, rgba(224, 168, 0, 0.1) 100%);
-            color: #d39e00;
+            background: rgba(245, 158, 11, 0.15);
+            color: #d97706;
         }
         
         .tool-card.card-cpd .tool-card-icon {
-            background: linear-gradient(135deg, rgba(111, 66, 193, 0.15) 0%, rgba(90, 50, 163, 0.1) 100%);
-            color: #6f42c1;
-        }
-        
-        .tool-card-info {
-            flex: 1;
+            background: rgba(139, 92, 246, 0.12);
+            color: #8b5cf6;
         }
         
         .tool-card-title {
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             color: var(--color-gray-800);
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.15rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
         
         .tool-card-subtitle {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--color-gray-500);
             font-weight: 500;
+            margin-bottom: 0.5rem;
         }
         
         .tool-card-desc {
-            font-size: 0.875rem;
+            font-size: 0.85rem;
             color: var(--color-gray-600);
             margin: 0;
-            line-height: 1.5;
+            line-height: 1.45;
             flex: 1;
         }
         
@@ -277,8 +409,8 @@
             position: absolute;
             bottom: 1rem;
             right: 1rem;
-            width: 32px;
-            height: 32px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             background: var(--color-gray-100);
             display: flex;
@@ -286,27 +418,28 @@
             justify-content: center;
             color: var(--color-gray-400);
             transition: all 0.3s ease;
+            font-size: 0.85rem;
         }
         
         .tool-card:hover .tool-card-arrow {
             background: var(--color-teal);
             color: white;
-            transform: translateX(4px);
+            transform: translateX(3px);
         }
         
-        /* Pro Badge on Card */
-        .tool-card .card-pro-badge {
+        /* Pro badge on cards */
+        .card-pro-badge {
             background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
             color: #1a1a2e;
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             font-weight: 700;
-            padding: 0.2rem 0.5rem;
+            padding: 0.15rem 0.45rem;
             border-radius: 20px;
             text-transform: uppercase;
             letter-spacing: 0.3px;
         }
         
-        /* Locked Card State (for non-Pro users) */
+        /* Locked state for non-Pro users */
         .tool-card.locked {
             opacity: 0.75;
         }
@@ -320,39 +453,79 @@
             color: #1a1a2e;
         }
         
-        .tool-card.locked:hover .tool-card-arrow {
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-        }
-        
-        /* Upgrade Banner */
+        /* ==================== UPGRADE BANNER ==================== */
         .upgrade-banner {
-            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 165, 0, 0.1) 100%);
-            border: 1px solid rgba(255, 215, 0, 0.3);
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.08) 0%, rgba(255, 165, 0, 0.06) 100%);
+            border: 1px solid rgba(255, 193, 7, 0.25);
             border-radius: var(--radius-lg);
             padding: 1.25rem;
-            text-align: center;
-            margin-bottom: 2rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
         }
         
-        .upgrade-banner h3 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--color-gray-800);
-            margin-bottom: 0.5rem;
+        .upgrade-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .upgrade-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
+            font-size: 1.1rem;
+            color: #1a1a2e;
         }
         
-        .upgrade-banner h3 i {
-            color: #FFD700;
+        .upgrade-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin: 0;
         }
         
-        .upgrade-banner p {
-            font-size: 0.875rem;
+        .upgrade-subtitle {
+            font-size: 0.8rem;
             color: var(--color-gray-600);
-            margin-bottom: 1rem;
+            margin: 0;
+        }
+        
+        .upgrade-features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.35rem 1rem;
+            margin: 0.75rem 0 1rem;
+        }
+        
+        @media (min-width: 600px) {
+            .upgrade-features {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        .upgrade-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.78rem;
+            color: var(--color-gray-600);
+        }
+        
+        .upgrade-feature i {
+            color: #d97706;
+            font-size: 0.8rem;
+        }
+        
+        .upgrade-cta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.75rem;
         }
         
         .upgrade-btn {
@@ -361,44 +534,59 @@
             gap: 0.5rem;
             background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
             color: #1a1a2e;
-            font-weight: 600;
-            padding: 0.625rem 1.5rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 0.65rem 1.25rem;
             border-radius: var(--radius-md);
             text-decoration: none;
-            transition: all 0.2s ease;
             border: none;
             cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.25);
         }
         
         .upgrade-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+            box-shadow: 0 6px 20px rgba(255, 193, 7, 0.35);
             color: #1a1a2e;
         }
         
-        /* Quick Tips Section */
-        .tips-section {
+        .upgrade-price {
+            font-size: 0.85rem;
+            color: var(--color-gray-500);
+        }
+        
+        .upgrade-price strong {
+            color: var(--color-gray-700);
+        }
+        
+        /* ==================== UPDATES SECTION ==================== */
+        .updates-section {
             background: var(--color-white);
             border-radius: var(--radius-lg);
             padding: 1.25rem;
             box-shadow: var(--shadow-sm);
         }
         
-        .tips-section h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--color-gray-800);
-            margin-bottom: 1rem;
+        .updates-header {
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            margin-bottom: 1rem;
         }
         
-        .tips-section h3 i {
+        .updates-header i {
             color: var(--color-teal);
         }
         
-        .tip-item {
+        .updates-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-gray-800);
+            margin: 0;
+        }
+        
+        .update-item {
             display: flex;
             align-items: flex-start;
             gap: 0.75rem;
@@ -406,45 +594,35 @@
             border-bottom: 1px solid var(--color-gray-100);
         }
         
-        .tip-item:last-child {
+        .update-item:last-child {
             border-bottom: none;
             padding-bottom: 0;
         }
         
-        .tip-item i {
-            color: var(--color-green);
-            margin-top: 0.15rem;
+        .update-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 42px;
+            height: 20px;
+            background: linear-gradient(135deg, var(--color-teal), var(--color-green));
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-radius: 4px;
             flex-shrink: 0;
         }
         
-        .tip-item p {
-            font-size: 0.875rem;
+        .update-text {
+            font-size: 0.85rem;
             color: var(--color-gray-600);
-            margin: 0;
-            line-height: 1.4;
+            line-height: 1.45;
         }
         
-        .tip-item strong {
-            color: var(--color-gray-700);
-        }
-        
-        /* Message Counter */
-        .message-counter {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            font-size: 0.8rem;
-            color: var(--color-gray-500);
-            margin-top: 0.5rem;
-        }
-        
-        .message-counter i {
-            font-size: 0.9rem;
-        }
-        
-        .message-counter .count {
-            font-weight: 600;
-            color: var(--color-teal);
+        .update-text strong {
+            color: var(--color-gray-800);
         }
     </style>
 </head>
@@ -469,174 +647,248 @@
     <!-- ==================== MAIN CONTENT ==================== -->
     <div class="landing-container">
         
-        <!-- Welcome Section -->
-        <div class="welcome-section">
-            <h1>Welcome back, <span id="userFirstName">there</span>! 👋</h1>
-            <p>What would you like to learn today?</p>
-            <div class="user-badge">
-                <i class="bi bi-hospital"></i>
-                <span class="trust-name" id="userTrust">Loading...</span>
-                <span class="pro-status-badge" id="proBadge" style="display: none;">
-                    <i class="bi bi-star-fill"></i> Pro
-                </span>
-            </div>
-            <div class="message-counter" id="messageCounter" style="display: none;">
-                <i class="bi bi-chat-dots"></i>
-                <span><span class="count" id="messagesUsed">0</span>/5 messages today</span>
+        <!-- Payment Success Banner -->
+        <div class="payment-success-banner" id="paymentSuccessBanner">
+            <div class="success-content">
+                <div class="success-icon">
+                    <i class="bi bi-check-lg"></i>
+                </div>
+                <div class="success-text">
+                    <h3>Welcome to Paramind Pro! 🎉</h3>
+                    <p>Your subscription is now active. Enjoy unlimited access to all features!</p>
+                </div>
             </div>
         </div>
         
-        <!-- Learning Tools Section -->
-        <div class="tools-section">
-            <div class="section-title">Learning Tools</div>
-            <div class="tools-grid">
-                
-                <!-- Chat -->
-                <a href="chat.html" class="tool-card card-chat">
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon">
-                            <i class="bi bi-chat-dots"></i>
-                        </div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">Chat</div>
-                            <div class="tool-card-subtitle">AI Assistant</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Ask anything about paramedicine, we are here to help you.</p>
-                    <div class="tool-card-arrow">
-                        <i class="bi bi-arrow-right"></i>
-                    </div>
-                </a>
-                
-                <!-- Scenarios -->
-                <a href="scenarios.html" class="tool-card card-scenarios">
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon">
-                            <i class="bi bi-mortarboard"></i>
-                        </div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">Scenarios</div>
-                            <div class="tool-card-subtitle">Case Studies</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Practice with realistic simulated patient cases from dispatch to handover.</p>
-                    <div class="tool-card-arrow">
-                        <i class="bi bi-arrow-right"></i>
-                    </div>
-                </a>
-                
-                <!-- Differentials -->
-                <a href="differentials.html" class="tool-card card-differentials">
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon">
-                            <i class="bi bi-clipboard2-pulse"></i>
-                        </div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">Differentials</div>
-                            <div class="tool-card-subtitle">Diagnosis Explorer</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Explore differential diagnoses based on patient presentation and vitals.</p>
-                    <div class="tool-card-arrow">
-                        <i class="bi bi-arrow-right"></i>
-                    </div>
-                </a>
-                
+        <!-- Hero Section with Hollie -->
+        <div class="hero-section">
+            <div class="hollie-avatar">
+                <img src="images/hollie.png" alt="Hollie - Your Paramedic Tutor">
             </div>
+            <div class="hollie-badge">
+                <i class="bi bi-patch-check-fill"></i> Paramedic Tutor
+            </div>
+            <h1 class="hero-greeting">Hey <span id="userFirstName">there</span>! 👋</h1>
+            <p class="hero-subtitle">I'm Hollie, your AI paramedic tutor. What shall we learn today?</p>
+            
+            <div class="user-info-row">
+                <div class="info-badge">
+                    <i class="bi bi-hospital"></i>
+                    <span id="userTrust">Loading...</span>
+                </div>
+                <div class="info-badge pro-badge" id="proBadge" style="display: none;">
+                    <i class="bi bi-star-fill"></i> Pro
+                </div>
+                <div class="info-badge messages-badge" id="messageCounter" style="display: none;">
+                    <i class="bi bi-chat-dots"></i>
+                    <span><span class="count" id="messagesUsed">0</span>/5 today</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Free Learning Tools Section -->
+        <div class="section-header">
+            <div class="section-tag free">
+                <i class="bi bi-unlock-fill"></i>
+                Free Tools
+            </div>
+            <div class="section-line"></div>
+        </div>
+        
+        <div class="tools-grid">
+            <!-- Chat -->
+            <a href="chat.html" class="tool-card card-chat">
+                <div class="tool-card-icon">
+                    <i class="bi bi-chat-dots"></i>
+                </div>
+                <div class="tool-card-title">Chat</div>
+                <div class="tool-card-subtitle">AI Assistant</div>
+                <p class="tool-card-desc">Ask me anything about paramedicine. I'll help with your clinical questions!</p>
+                <div class="tool-card-arrow">
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+            </a>
+            
+            <!-- Scenarios -->
+            <a href="scenarios.html" class="tool-card card-scenarios">
+                <div class="tool-card-icon">
+                    <i class="bi bi-mortarboard"></i>
+                </div>
+                <div class="tool-card-title">Scenarios</div>
+                <div class="tool-card-subtitle">Case Studies</div>
+                <p class="tool-card-desc">Practice realistic patient cases from dispatch to handover. Build your confidence!</p>
+                <div class="tool-card-arrow">
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+            </a>
+            
+            <!-- Differentials -->
+            <a href="differentials.html" class="tool-card card-differentials">
+                <div class="tool-card-icon">
+                    <i class="bi bi-clipboard2-pulse"></i>
+                </div>
+                <div class="tool-card-title">Differentials</div>
+                <div class="tool-card-subtitle">Diagnosis Explorer</div>
+                <p class="tool-card-desc">Explore differential diagnoses based on patient presentation and vitals.</p>
+                <div class="tool-card-arrow">
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+            </a>
         </div>
         
         <!-- Pro Tools Section -->
-        <div class="tools-section">
-            <div class="section-title">Pro Tools</div>
-            <div class="tools-grid">
-                
-                <!-- ATMIST - Pro -->
-                <a href="atmist.html" class="tool-card card-atmist" id="atmistCard">
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon">
-                            <i class="bi bi-telephone-outbound"></i>
-                        </div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">
-                                ATMIST
-                                <span class="card-pro-badge" id="atmistProBadge">Pro</span>
-                            </div>
-                            <div class="tool-card-subtitle">Handover Tool</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Generate and practice structured pre-alert and handover messages for hospital teams.</p>
-                    <div class="tool-card-arrow">
-                        <i class="bi bi-arrow-right"></i>
-                    </div>
-                </a>
-                
-                <!-- ECG Tool - Pro -->
-                <a href="ecg.html" class="tool-card card-ecg" id="ecgCard">
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon">
-                            <i class="bi bi-activity"></i>
-                        </div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">
-                                ECG Tool
-                                <span class="card-pro-badge" id="ecgProBadge">Pro</span>
-                            </div>
-                            <div class="tool-card-subtitle">Rhythm Practice</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Interactive ECG rhythm generator to practice identification skills.</p>
-                    <div class="tool-card-arrow">
-                        <i class="bi bi-arrow-right"></i>
-                    </div>
-                </a>
-                
-                <!-- CPD Portfolio - Pro -->
-                <a href="cpd.html" class="tool-card card-cpd" id="cpdCard">
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon">
-                            <i class="bi bi-award"></i>
-                        </div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">
-                                CPD Portfolio
-                                <span class="card-pro-badge" id="cpdProBadge">Pro</span>
-                            </div>
-                            <div class="tool-card-subtitle">Track Progress</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Track your completed scenarios and download CPD certificates.</p>
-                    <div class="tool-card-arrow">
-                        <i class="bi bi-arrow-right"></i>
-                    </div>
-                </a>
-                
+        <div class="section-header">
+            <div class="section-tag pro">
+                <i class="bi bi-star-fill"></i>
+                Pro Tools
             </div>
+            <div class="section-line"></div>
+        </div>
+        
+        <div class="tools-grid">
+            <!-- A&P Connections - Pro -->
+            <a href="connections.html" class="tool-card card-connections" id="connectionsCard">
+                <div class="tool-card-icon">
+                    <i class="bi bi-heart-pulse"></i>
+                </div>
+                <div class="tool-card-title">
+                    A&P Connections
+                    <span class="card-pro-badge" id="connectionsProBadge">Pro</span>
+                </div>
+                <div class="tool-card-subtitle">Understand the Why</div>
+                <p class="tool-card-desc">Learn why things happen. "Why does sepsis cause mottled skin?" I'll explain!</p>
+                <div class="tool-card-arrow">
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+            </a>
+            
+            <!-- Drugs - Pro -->
+            <a href="drugs.html" class="tool-card card-drugs" id="drugsCard">
+                <div class="tool-card-icon">
+                    <i class="bi bi-capsule"></i>
+                </div>
+                <div class="tool-card-title">
+                    Drugs
+                    <span class="card-pro-badge" id="drugsProBadge">Pro</span>
+                </div>
+                <div class="tool-card-subtitle">Pharmacology Guide</div>
+                <p class="tool-card-desc">Deep dive into paramedic drugs, mechanisms, doses, and clinical considerations.</p>
+                <div class="tool-card-arrow">
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+            </a>
+            
+            <!-- ATMIST - Pro -->
+            <a href="atmist.html" class="tool-card card-atmist" id="atmistCard">
+                <div class="tool-card-icon">
+                    <i class="bi bi-telephone-outbound"></i>
+                </div>
+                <div class="tool-card-title">
+                    ATMIST
+                    <span class="card-pro-badge" id="atmistProBadge">Pro</span>
+                </div>
+                <div class="tool-card-subtitle">Handover Generator</div>
+                <p class="tool-card-desc">Generate and practice structured pre-alert messages for hospital handovers.</p>
+                <div class="tool-card-arrow">
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+            </a>
+            
+            <!-- ECG Tool - Pro -->
+            <a href="ecg.html" class="tool-card card-ecg" id="ecgCard">
+                <div class="tool-card-icon">
+                    <i class="bi bi-activity"></i>
+                </div>
+                <div class="tool-card-title">
+                    ECG Tool
+                    <span class="card-pro-badge" id="ecgProBadge">Pro</span>
+                </div>
+                <div class="tool-card-subtitle">Rhythm Mastery</div>
+                <p class="tool-card-desc">Interactive ECG training with 14 key cardiac rhythms. Learn, then test yourself!</p>
+                <div class="tool-card-arrow">
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+            </a>
+            
+            <!-- CPD Portfolio - Pro -->
+            <a href="cpd.html" class="tool-card card-cpd" id="cpdCard">
+                <div class="tool-card-icon">
+                    <i class="bi bi-award"></i>
+                </div>
+                <div class="tool-card-title">
+                    CPD Portfolio
+                    <span class="card-pro-badge" id="cpdProBadge">Pro</span>
+                </div>
+                <div class="tool-card-subtitle">Track & Certify</div>
+                <p class="tool-card-desc">Track your learning and download CPD certificates for completed scenarios.</p>
+                <div class="tool-card-arrow">
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+            </a>
         </div>
         
         <!-- Upgrade Banner (shown to free users) -->
         <div class="upgrade-banner" id="upgradeBanner">
-            <h3><i class="bi bi-star-fill"></i> Unlock Pro Features</h3>
-            <p>Get unlimited messages, CPD certificates, ai ATMIST tool, ECG practice, and more!</p>
-            <button class="upgrade-btn" onclick="handleUpgrade()">
-                <i class="bi bi-star"></i>
-                Upgrade to Pro - Just £4.99/month
-            </button>
+            <div class="upgrade-header">
+                <div class="upgrade-icon">
+                    <i class="bi bi-rocket-takeoff"></i>
+                </div>
+                <div>
+                    <h3 class="upgrade-title">Unlock Pro Features</h3>
+                    <p class="upgrade-subtitle">Get unlimited access to all learning tools</p>
+                </div>
+            </div>
+            
+            <div class="upgrade-features">
+                <div class="upgrade-feature">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>Unlimited chat</span>
+                </div>
+                <div class="upgrade-feature">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>All Pro tools</span>
+                </div>
+                <div class="upgrade-feature">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>CPD certificates</span>
+                </div>
+                
+            </div>
+            
+            <div class="upgrade-cta">
+                <button class="upgrade-btn" onclick="handleUpgrade()">
+                    <i class="bi bi-star-fill"></i>
+                    Upgrade to Pro
+                </button>
+                <span class="upgrade-price">Just <strong>£4.99</strong>/month</span>
+            </div>
         </div>
         
-        <!-- Quick Tips -->
-        <div class="tips-section">
-            <h3><i class="bi bi-lightbulb"></i> UPDATES</h3>
-            <div class="tip-item">
-                <i class="bi bi-check-circle-fill"></i>
-                <p><strong>NEW!</strong> An interactive, fun ECG tool and quiz for PRO users. Learn 14 top rhythms, then do the test.</p>
+        <!-- Updates Section -->
+        <div class="updates-section">
+            <div class="updates-header">
+                <i class="bi bi-megaphone-fill"></i>
+                <h3>What's New</h3>
             </div>
-            <div class="tip-item">
-                <i class="bi bi-check-circle-fill"></i>
-                <p><strong>NEW!</strong> A&P Connections for PRO users, learn why things happen to the body... questions such as "Why does sepsis cause mottled skin?"</p>
+            
+            <div class="update-item">
+                <span class="update-badge">New</span>
+                <p class="update-text"><strong>Drugs Tool</strong> — The most common medications you will see in practice, with full (plain English) descriptions and considerations</p>
             </div>
-            <div class="tip-item">
-                <i class="bi bi-check-circle-fill"></i>
-                <p><strong>NEW!</strong> Simplify button in chat and A&P connections for when you need things explained in a little less complicated way!</p>
+            
+            <div class="update-item">
+                <span class="update-badge">New</span>
+                <p class="update-text"><strong>ECG Tool</strong> — Interactive rhythm training with 14 key cardiac rhythms. Learn the patterns, then test yourself with the quiz!</p>
+            </div>
+            
+            <div class="update-item">
+                <span class="update-badge">New</span>
+                <p class="update-text"><strong>A&P Connections</strong> — Ever wondered "Why does sepsis cause mottled skin?" Now you can find out with 80+ clinical questions.</p>
+            </div>
+            
+            <div class="update-item">
+                <span class="update-badge">New</span>
+                <p class="update-text"><strong>Simplify Button</strong> — Hit simplify in Chat and A&P Connections when you need things explained in plain English!</p>
             </div>
         </div>
         
@@ -692,6 +944,8 @@
         const messagesUsedEl = document.getElementById('messagesUsed');
 
         // Pro badge elements on cards
+        const connectionsProBadge = document.getElementById('connectionsProBadge');
+        const drugsProBadge = document.getElementById('drugsProBadge');
         const atmistProBadge = document.getElementById('atmistProBadge');
         const ecgProBadge = document.getElementById('ecgProBadge');
         const cpdProBadge = document.getElementById('cpdProBadge');
@@ -750,6 +1004,8 @@
                 upgradeBannerEl.style.display = 'none';
                 
                 // Hide Pro badges on cards (they already have access)
+                if (connectionsProBadge) connectionsProBadge.style.display = 'none';
+                if (drugsProBadge) drugsProBadge.style.display = 'none';
                 if (atmistProBadge) atmistProBadge.style.display = 'none';
                 if (ecgProBadge) ecgProBadge.style.display = 'none';
                 if (cpdProBadge) cpdProBadge.style.display = 'none';
@@ -764,9 +1020,11 @@
                 upgradeBannerEl.style.display = 'block';
                 
                 // Show message counter for free users
-                messageCounterEl.style.display = 'block';
+                messageCounterEl.style.display = 'inline-flex';
                 
                 // Add locked class to pro cards
+                document.getElementById('connectionsCard')?.classList.add('locked');
+                document.getElementById('drugsCard')?.classList.add('locked');
                 document.getElementById('atmistCard')?.classList.add('locked');
                 document.getElementById('ecgCard')?.classList.add('locked');
                 document.getElementById('cpdCard')?.classList.add('locked');
@@ -838,9 +1096,28 @@
             createCheckoutSession();
         }
 
-        // ==================== CHECK FOR UPGRADE PARAM ====================
-        // If user came from menu upgrade button
+        // ==================== CHECK FOR URL PARAMS ====================
         const urlParams = new URLSearchParams(window.location.search);
+        
+        // Check for successful payment
+        if (urlParams.get('success') === 'true') {
+            const banner = document.getElementById('paymentSuccessBanner');
+            if (banner) {
+                banner.classList.add('show');
+                
+                // Auto-hide after 10 seconds (optional)
+                setTimeout(() => {
+                    banner.style.animation = 'none';
+                    banner.style.opacity = '0';
+                    banner.style.transition = 'opacity 0.5s ease';
+                    setTimeout(() => banner.classList.remove('show'), 500);
+                }, 10000);
+            }
+            // Clean up URL
+            window.history.replaceState({}, document.title, 'landing.html');
+        }
+        
+        // If user came from menu upgrade button
         if (urlParams.get('upgrade') === 'true') {
             // Auto-trigger upgrade modal when page loads
             setTimeout(() => {
