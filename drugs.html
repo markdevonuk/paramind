@@ -109,47 +109,6 @@
             line-height: 1.6;
         }
         
-        /* Search Section */
-        .search-section {
-            background: var(--color-white);
-            border-radius: var(--radius-lg);
-            padding: 1.25rem;
-            margin-bottom: 1.5rem;
-            box-shadow: var(--shadow-sm);
-        }
-        
-        .search-container {
-            position: relative;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        
-        .search-input {
-            width: 100%;
-            padding: 0.875rem 1.25rem 0.875rem 3rem;
-            border: 2px solid var(--color-gray-200);
-            border-radius: var(--radius-full);
-            font-size: 1rem;
-            font-family: 'DM Sans', sans-serif;
-            transition: all var(--transition-fast);
-            background: var(--color-gray-50);
-        }
-        
-        .search-input:focus {
-            outline: none;
-            border-color: var(--color-teal);
-            box-shadow: 0 0 0 3px rgba(43, 138, 156, 0.15);
-        }
-        
-        .search-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--color-teal);
-            font-size: 1.1rem;
-        }
-        
         /* Category Navigation */
         .category-nav {
             display: flex;
@@ -602,26 +561,31 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(255, 255, 255, 0.98);
-            z-index: 1000;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            z-index: 9999;
             justify-content: center;
             align-items: center;
-            padding: 2rem;
+            padding: 1.5rem;
         }
         
-        .pro-overlay.show {
+        .pro-overlay.visible {
             display: flex;
         }
         
         .pro-overlay-content {
-            max-width: 400px;
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            max-width: 480px;
+            width: 100%;
             text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
         }
         
         .pro-icon {
             width: 80px;
             height: 80px;
-            background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-green) 100%);
+            background: linear-gradient(135deg, var(--color-teal) 0%, #228B9D 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -630,31 +594,65 @@
         }
         
         .pro-icon i {
-            font-size: 2rem;
+            font-size: 2.5rem;
             color: white;
         }
         
-        .pro-overlay h2 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
+        .pro-overlay-content h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--color-gray-900);
+            margin: 0 0 0.75rem;
         }
         
         .pro-feature-badge {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            background: var(--color-gray-100);
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-full);
-            font-size: 0.9rem;
-            color: var(--color-green);
-            margin-bottom: 1rem;
+            gap: 0.375rem;
+            background: linear-gradient(135deg, #ffc107 0%, #ffca2c 100%);
+            color: #000;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 0.375rem 0.875rem;
+            border-radius: 2rem;
+            margin-bottom: 1.25rem;
+        }
+        
+        .pro-feature-badge i {
+            font-size: 0.75rem;
         }
         
         .pro-description {
             color: var(--color-gray-600);
-            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
             line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        
+        .pro-benefits {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 2rem;
+            text-align: left;
+        }
+        
+        .pro-benefits li {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.625rem 0;
+            color: var(--color-gray-700);
+            font-size: 0.95rem;
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+        
+        .pro-benefits li:last-child {
+            border-bottom: none;
+        }
+        
+        .pro-benefits li i {
+            color: var(--color-green);
+            font-size: 1.1rem;
         }
         
         .pro-upgrade-btn {
@@ -687,10 +685,26 @@
             color: var(--color-gray-500);
             font-size: 0.9rem;
             text-decoration: none;
+            transition: color var(--transition-fast);
         }
         
         .pro-back-link:hover {
             color: var(--color-gray-700);
+        }
+        
+        /* Loading spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         
         /* Responsive */
@@ -766,7 +780,7 @@
         <!-- Info Banner -->
         <div class="info-banner">
             <i class="bi bi-info-circle-fill"></i>
-            <p>Master pharmacology with plain English explanations. <strong>Search by drug name</strong> or <strong>browse by body system</strong>. Click any medication for full details including paramedic-specific clinical notes.</p>
+            <p>Master pharmacology with plain English explanations. <strong>Browse by body system</strong> using the filters below. Click any medication for full details including paramedic-specific clinical notes.</p>
         </div>
         
         <!-- Hollie Introduction -->
@@ -775,16 +789,8 @@
             <div class="hollie-speech">
                 <div class="hollie-name">👋 Hollie says...</div>
                 <div class="speech-bubble">
-                    Welcome to the <strong>Drug Guide</strong>! I've put together information on 50 of the most common medications you'll come across as a paramedic in the UK. Don't worry if you're new to pharmacology - I've written everything in plain English to help you understand what each drug does and why it matters for your patient assessments. Remember, always verify information with the BNF when you're unsure!
+                    Welcome to the <strong>Drug Guide</strong>! I've put together information on 50 of the most common medications you'll come across as a paramedic in the UK. Don't worry if you're new to pharmacology - I've written everything in plain English to help you understand what each drug does and why it matters for your patient assessments. Use the filters to <strong>browse by body system</strong>, then click any medication to see the full details. Remember, always verify information with the BNF when you're unsure!
                 </div>
-            </div>
-        </div>
-
-        <!-- Search Section -->
-        <div class="search-section">
-            <div class="search-container">
-                <i class="bi bi-search search-icon"></i>
-                <input type="text" class="search-input" id="drug-search" placeholder="Search for a medication (e.g. bisoprolol, ramipril, sertraline...)">
             </div>
         </div>
 
@@ -858,16 +864,20 @@
             <p class="pro-feature-badge"><i class="bi bi-star-fill"></i> Pro Feature</p>
             <p class="pro-description">
                 Master pharmacology with our comprehensive drug guide. 
-                Learn about 50 common UK medications with plain English explanations, 
-                paramedic-focused clinical notes, and quick reference tables.
+                Learn about 50 common UK medications with plain English explanations 
+                and paramedic-focused clinical notes.
             </p>
-            <a href="register.html" class="pro-upgrade-btn">
-                <i class="bi bi-lightning-charge"></i>
-                Upgrade to Paramind Pro
+            <ul class="pro-benefits">
+                <li><i class="bi bi-check-circle-fill"></i> 50 common UK medications</li>
+                <li><i class="bi bi-check-circle-fill"></i> Plain English explanations</li>
+                <li><i class="bi bi-check-circle-fill"></i> Paramedic-specific clinical notes</li>
+                <li><i class="bi bi-check-circle-fill"></i> Quick reference tables</li>
+            </ul>
+            <a href="#" class="pro-upgrade-btn" id="proUpgradeBtn">
+                <i class="bi bi-star-fill"></i> Upgrade to Pro
             </a>
             <a href="chat.html" class="pro-back-link">
-                <i class="bi bi-arrow-left"></i>
-                Back to Chat
+                <i class="bi bi-arrow-left"></i> Back to Chat
             </a>
         </div>
     </div>
@@ -876,188 +886,298 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- Load your existing app config -->
+    <script src="js/app.js"></script>
+    
     <!-- Drug Data -->
     <script src="js/drugs-data.js"></script>
     
     <!-- Drug Guide Script -->
-    <script>
-        // ==================== DOM ELEMENTS ====================
-        const drugsGrid = document.getElementById('drugs-grid');
-        const searchInput = document.getElementById('drug-search');
-        const categoryBtns = document.querySelectorAll('.category-btn');
-        const modalOverlay = document.getElementById('modal-overlay');
-        const modalContent = document.getElementById('modal-content');
-        const noResults = document.getElementById('no-results');
-
-        let currentCategory = 'all';
-        let currentSearch = '';
-
-        // ==================== RENDER DRUG CARDS ====================
-        function renderDrugs() {
-            const filteredDrugs = drugs.filter(drug => {
-                const matchesCategory = currentCategory === 'all' || drug.category === currentCategory;
-                const matchesSearch = currentSearch === '' || 
-                    drug.name.toLowerCase().includes(currentSearch.toLowerCase()) ||
-                    drug.drugClass.toLowerCase().includes(currentSearch.toLowerCase()) ||
-                    (drug.ukBrands && drug.ukBrands.toLowerCase().includes(currentSearch.toLowerCase()));
-                return matchesCategory && matchesSearch;
+    <script type="module">
+        // ==================== FIREBASE AUTH ====================
+        
+        let auth = null;
+        let currentUser = null;
+        
+        async function initializeAuth() {
+            const { getAuth, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+            const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+            const { firebaseConfig } = await import('./js/firebase-config.js');
+            
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            
+            return new Promise((resolve) => {
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        currentUser = user;
+                        resolve(true);
+                    } else {
+                        // Redirect to login if not authenticated
+                        window.location.href = 'login.html';
+                        resolve(false);
+                    }
+                });
             });
-
-            if (filteredDrugs.length === 0) {
-                drugsGrid.innerHTML = '';
-                noResults.style.display = 'block';
-                return;
+        }
+        
+        async function getAuthToken() {
+            if (currentUser) {
+                return await currentUser.getIdToken(true);
             }
-
-            noResults.style.display = 'none';
-            drugsGrid.innerHTML = filteredDrugs.map(drug => `
-                <div class="drug-card ${drug.category}" onclick="openModal(${drug.id})">
-                    <div class="drug-name">${drug.name}</div>
-                    <div class="drug-pronunciation">${drug.pronunciation}</div>
-                    <div class="drug-class">${drug.drugClass}</div>
-                </div>
-            `).join('');
+            throw new Error('Not authenticated');
         }
-
-        // ==================== OPEN MODAL ====================
-        function openModal(drugId) {
-            const drug = drugs.find(d => d.id === drugId);
-            if (!drug) return;
-
-            const alertHtml = drug.paramedicNotes.map(note => `
-                <div class="alert-box alert-${note.type}">
-                    <span class="alert-icon">${note.icon}</span>
-                    <div>${note.text}</div>
-                </div>
-            `).join('');
-
-            const quickRefRows = drug.quickReference ? drug.quickReference.map(ref => `
-                <tr><td>${ref.scenario}</td><td>${ref.consideration}</td></tr>
-            `).join('') : '';
-
-            modalContent.innerHTML = `
-                <div class="modal-header">
-                    <button class="modal-close" onclick="closeModal()"><i class="bi bi-x-lg"></i></button>
-                    <div class="modal-drug-name">${drug.name}</div>
-                    <div class="modal-pronunciation"><i class="bi bi-volume-up"></i> ${drug.pronunciation}</div>
-                    <div class="modal-meta">
-                        <span class="modal-meta-item"><i class="bi bi-capsule"></i> ${drug.drugClass}</span>
-                        ${drug.ukBrands ? `<span class="modal-meta-item"><i class="bi bi-tag"></i> ${drug.ukBrands}</span>` : ''}
-                    </div>
-                </div>
-                <div class="modal-body">
-                    <div class="modal-section">
-                        <div class="modal-section-title"><i class="bi bi-info-circle"></i> What Does This Drug Actually Do?</div>
-                        <div class="modal-section-content"><p>${drug.whatItDoes.replace(/\n/g, '</p><p>')}</p></div>
-                    </div>
-                    <div class="modal-section">
-                        <div class="modal-section-title"><i class="bi bi-question-circle"></i> Why Would a Patient Be Taking It?</div>
-                        <div class="modal-section-content"><p>${drug.whyPatientsTakeIt.replace(/\n/g, '</p><p>')}</p></div>
-                    </div>
-                    <div class="modal-section">
-                        <div class="modal-section-title"><i class="bi bi-truck"></i> Important Things to Know on Scene</div>
-                        <div class="modal-section-content">${alertHtml}</div>
-                    </div>
-                    <div class="modal-section">
-                        <div class="modal-section-title"><i class="bi bi-exclamation-triangle"></i> Side Effects</div>
-                        <div class="side-effects-grid">
-                            <div class="side-effects-common">
-                                <div class="side-effects-title"><i class="bi bi-check-circle"></i> Common</div>
-                                <ul class="side-effects-list">${drug.commonSideEffects.map(e => `<li>${e}</li>`).join('')}</ul>
-                            </div>
-                            <div class="side-effects-serious">
-                                <div class="side-effects-title"><i class="bi bi-exclamation-circle"></i> Serious</div>
-                                <ul class="side-effects-list">${drug.seriousSideEffects.map(e => `<li>${e}</li>`).join('')}</ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-section">
-                        <div class="modal-section-title"><i class="bi bi-radioactive"></i> Overdose Presentation</div>
-                        <div class="modal-section-content"><p>${drug.overdosePresentation}</p></div>
-                    </div>
-                    ${quickRefRows ? `
-                    <div class="modal-section">
-                        <div class="modal-section-title"><i class="bi bi-table"></i> Quick Reference</div>
-                        <table class="reference-table">
-                            <thead><tr><th>If you see this...</th><th>Think about this...</th></tr></thead>
-                            <tbody>${quickRefRows}</tbody>
-                        </table>
-                    </div>` : ''}
-                    <div class="modal-section">
-                        <div class="modal-section-title"><i class="bi bi-link-45deg"></i> Official Sources</div>
-                        <div class="modal-section-content">
-                            <p>Always verify with official sources:</p>
-                            <div class="bnf-links">
-                                <a href="${drug.bnfUrl}" target="_blank" rel="noopener" class="bnf-link"><i class="bi bi-book"></i> View on BNF</a>
-                                <a href="${drug.nhsUrl}" target="_blank" rel="noopener" class="bnf-link secondary"><i class="bi bi-hospital"></i> NHS Patient Info</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            modalOverlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        // ==================== CLOSE MODAL ====================
-        function closeModal() {
-            modalOverlay.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        // ==================== EVENT LISTENERS ====================
-        searchInput.addEventListener('input', (e) => {
-            currentSearch = e.target.value;
-            renderDrugs();
-        });
-
-        categoryBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                categoryBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentCategory = btn.dataset.category;
-                renderDrugs();
-            });
-        });
-
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) closeModal();
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeModal();
-        });
-
-        // ==================== INITIALIZATION ====================
-        document.addEventListener('DOMContentLoaded', function() {
-            renderDrugs();
-            checkSubscription();
-        });
-
-        // ==================== SUBSCRIPTION CHECK ====================
-        function checkSubscription() {
-            // Wait for Firebase to be available (loaded by menu.js)
-            if (typeof firebase === 'undefined' || !firebase.auth) {
-                setTimeout(checkSubscription, 200);
-                return;
+        
+        // ==================== INITIALIZE ====================
+        
+        async function initDrugGuide() {
+            const isAuthenticated = await initializeAuth();
+            if (!isAuthenticated) return;
+            
+            console.log('Drug Guide initialized - user authenticated');
+            
+            // Fetch user profile to check Pro status
+            const isPro = await fetchUserProfile();
+            
+            if (!isPro) {
+                // Show Pro overlay for free users
+                document.getElementById('proOverlay').classList.add('visible');
+                
+                // Set up upgrade button to trigger Stripe checkout
+                document.getElementById('proUpgradeBtn').addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    await handleUpgrade();
+                });
+                
+                return; // Don't initialize the rest of the tool
             }
             
-            firebase.auth().onAuthStateChanged(function(user) {
-                if (user) {
-                    firebase.firestore().collection('users').doc(user.uid).get()
-                        .then(function(doc) {
-                            if (doc.exists) {
-                                const data = doc.data();
-                                if (data.subscriptionStatus !== 'active') {
-                                    document.getElementById('proOverlay').classList.add('show');
-                                }
-                            }
-                        });
-                } else {
-                    document.getElementById('proOverlay').classList.add('show');
-                }
-            });
+            // User is Pro - initialize the drug guide
+            setupDrugGuide();
         }
+        
+        async function fetchUserProfile() {
+            try {
+                const token = await getAuthToken();
+                const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}${window.paramind.CONFIG.api.user}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const userProfile = await response.json();
+                    
+                    // Check if user is Pro
+                    const isPro = userProfile.subscriptionStatus === 'pro' || 
+                                  userProfile.subscriptionStatus === 'active' ||
+                                  userProfile.isPro === true;
+                    
+                    return isPro;
+                }
+                return false;
+            } catch (error) {
+                console.error('Error fetching user profile:', error);
+                return false;
+            }
+        }
+        
+        // Handle upgrade button click - redirect to Stripe checkout
+        async function handleUpgrade() {
+            const btn = document.getElementById('proUpgradeBtn');
+            const originalText = btn.innerHTML;
+            
+            try {
+                btn.innerHTML = '<span class="loading-spinner"></span> Loading...';
+                btn.style.pointerEvents = 'none';
+                
+                const token = await getAuthToken();
+                const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}${window.paramind.CONFIG.api.checkout || '/createCheckoutSession'}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    // Redirect to Stripe checkout
+                    if (data.url) {
+                        window.location.href = data.url;
+                    }
+                } else {
+                    throw new Error('Failed to create checkout session');
+                }
+            } catch (error) {
+                console.error('Upgrade error:', error);
+                alert('Unable to start checkout. Please try again or visit the pricing page.');
+                btn.innerHTML = originalText;
+                btn.style.pointerEvents = 'auto';
+            }
+        }
+        
+        // ==================== DRUG GUIDE SETUP ====================
+        
+        function setupDrugGuide() {
+            const drugsGrid = document.getElementById('drugs-grid');
+            const categoryBtns = document.querySelectorAll('.category-btn');
+            const modalOverlay = document.getElementById('modal-overlay');
+            const modalContent = document.getElementById('modal-content');
+            const noResults = document.getElementById('no-results');
+
+            let currentCategory = 'all';
+
+            // Render drug cards - always sorted alphabetically
+            function renderDrugs() {
+                let filteredDrugs = window.drugs.filter(drug => {
+                    return currentCategory === 'all' || drug.category === currentCategory;
+                });
+                
+                // Sort alphabetically by name
+                filteredDrugs.sort((a, b) => a.name.localeCompare(b.name));
+
+                if (filteredDrugs.length === 0) {
+                    drugsGrid.innerHTML = '';
+                    noResults.style.display = 'block';
+                    return;
+                }
+
+                noResults.style.display = 'none';
+                drugsGrid.innerHTML = filteredDrugs.map(drug => `
+                    <div class="drug-card ${drug.category}" data-drug-id="${drug.id}">
+                        <div class="drug-name">${drug.name}</div>
+                        <div class="drug-pronunciation">${drug.pronunciation}</div>
+                        <div class="drug-class">${drug.drugClass}</div>
+                    </div>
+                `).join('');
+                
+                // Add click handlers to cards
+                drugsGrid.querySelectorAll('.drug-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const drugId = parseInt(card.dataset.drugId);
+                        openModal(drugId);
+                    });
+                });
+            }
+
+            // Open modal with drug details
+            function openModal(drugId) {
+                const drug = window.drugs.find(d => d.id === drugId);
+                if (!drug) return;
+
+                const alertHtml = drug.paramedicNotes.map(note => `
+                    <div class="alert-box alert-${note.type}">
+                        <span class="alert-icon">${note.icon}</span>
+                        <div>${note.text}</div>
+                    </div>
+                `).join('');
+
+                const quickRefRows = drug.quickReference ? drug.quickReference.map(ref => `
+                    <tr><td>${ref.scenario}</td><td>${ref.consideration}</td></tr>
+                `).join('') : '';
+
+                modalContent.innerHTML = `
+                    <div class="modal-header">
+                        <button class="modal-close" id="modalCloseBtn"><i class="bi bi-x-lg"></i></button>
+                        <div class="modal-drug-name">${drug.name}</div>
+                        <div class="modal-pronunciation"><i class="bi bi-volume-up"></i> ${drug.pronunciation}</div>
+                        <div class="modal-meta">
+                            <span class="modal-meta-item"><i class="bi bi-capsule"></i> ${drug.drugClass}</span>
+                            ${drug.ukBrands ? `<span class="modal-meta-item"><i class="bi bi-tag"></i> ${drug.ukBrands}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="modal-section">
+                            <div class="modal-section-title"><i class="bi bi-info-circle"></i> What Does This Drug Actually Do?</div>
+                            <div class="modal-section-content"><p>${drug.whatItDoes.replace(/\n/g, '</p><p>')}</p></div>
+                        </div>
+                        <div class="modal-section">
+                            <div class="modal-section-title"><i class="bi bi-question-circle"></i> Why Would a Patient Be Taking It?</div>
+                            <div class="modal-section-content"><p>${drug.whyPatientsTakeIt.replace(/\n/g, '</p><p>')}</p></div>
+                        </div>
+                        <div class="modal-section">
+                            <div class="modal-section-title"><i class="bi bi-truck"></i> Important Things to Know on Scene</div>
+                            <div class="modal-section-content">${alertHtml}</div>
+                        </div>
+                        <div class="modal-section">
+                            <div class="modal-section-title"><i class="bi bi-exclamation-triangle"></i> Side Effects</div>
+                            <div class="side-effects-grid">
+                                <div class="side-effects-common">
+                                    <div class="side-effects-title"><i class="bi bi-check-circle"></i> Common</div>
+                                    <ul class="side-effects-list">${drug.commonSideEffects.map(e => `<li>${e}</li>`).join('')}</ul>
+                                </div>
+                                <div class="side-effects-serious">
+                                    <div class="side-effects-title"><i class="bi bi-exclamation-circle"></i> Serious</div>
+                                    <ul class="side-effects-list">${drug.seriousSideEffects.map(e => `<li>${e}</li>`).join('')}</ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-section">
+                            <div class="modal-section-title"><i class="bi bi-radioactive"></i> Overdose Presentation</div>
+                            <div class="modal-section-content"><p>${drug.overdosePresentation}</p></div>
+                        </div>
+                        ${quickRefRows ? `
+                        <div class="modal-section">
+                            <div class="modal-section-title"><i class="bi bi-table"></i> Quick Reference</div>
+                            <table class="reference-table">
+                                <thead><tr><th>If you see this...</th><th>Think about this...</th></tr></thead>
+                                <tbody>${quickRefRows}</tbody>
+                            </table>
+                        </div>` : ''}
+                        <div class="modal-section">
+                            <div class="modal-section-title"><i class="bi bi-link-45deg"></i> Official Sources</div>
+                            <div class="modal-section-content">
+                                <p>Always verify with official sources:</p>
+                                <div class="bnf-links">
+                                    <a href="${drug.bnfUrl}" target="_blank" rel="noopener" class="bnf-link"><i class="bi bi-book"></i> View on BNF</a>
+                                    <a href="${drug.nhsUrl}" target="_blank" rel="noopener" class="bnf-link secondary"><i class="bi bi-hospital"></i> NHS Patient Info</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Add close button handler
+                document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+                
+                modalOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            // Close modal
+            function closeModal() {
+                modalOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            // Event listeners
+            categoryBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    categoryBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCategory = btn.dataset.category;
+                    renderDrugs();
+                });
+            });
+
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) closeModal();
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeModal();
+            });
+
+            // Initial render
+            renderDrugs();
+        }
+        
+        // ==================== INITIALIZE ON LOAD ====================
+        
+        document.addEventListener('DOMContentLoaded', initDrugGuide);
     </script>
     
     <!-- MENU SCRIPT - MUST BE LAST -->
