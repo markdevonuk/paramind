@@ -389,6 +389,87 @@
         .pricing-features .bi-x-circle {
             color: #dc3545 !important;
         }
+
+        /* ==================== PARTNER LOGO STYLES ==================== */
+        .partner-logo-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .partner-badge {
+            background: linear-gradient(135deg, var(--color-teal, #2B8A9C) 0%, var(--color-green, #5CB85C) 100%);
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .partner-badge i {
+            font-size: 1rem;
+        }
+
+        .partner-logo {
+            max-width: 300px;
+            max-height: 200px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            margin-bottom: 1.5rem;
+            border-radius: 12px;
+        }
+
+        .partner-welcome-text {
+            font-size: 1.1rem;
+            color: var(--color-gray-600, #6b7280);
+            max-width: 350px;
+        }
+
+        /* Chat demo section (when moved below hero for partners) */
+        .chat-demo-section {
+            background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 3rem 0;
+            display: none; /* Hidden by default, shown via JS for partners */
+        }
+
+        .chat-demo-section .section-title {
+            margin-bottom: 0.5rem;
+        }
+
+        .chat-demo-section .section-subtitle {
+            margin-bottom: 2rem;
+        }
+
+        .chat-demo-section .chat-demo-phone {
+            max-width: 420px;
+        }
+
+        .chat-demo-section .chat-demo-screen {
+            height: 450px;
+        }
+
+        @media (max-width: 767.98px) {
+            .partner-logo {
+                max-width: 220px;
+                max-height: 150px;
+            }
+
+            .chat-demo-section .chat-demo-phone {
+                max-width: 340px;
+            }
+
+            .chat-demo-section .chat-demo-screen {
+                height: 380px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -434,58 +515,132 @@
                     </div>
                 </div>
                 
-                <!-- Right side: Animated Chat Preview with Hollie -->
+                <!-- Right side: Chat Preview OR Partner Logo -->
                 <div class="col-lg-6 mt-4 mt-lg-0">
-                    <div class="chat-demo-container">
-                        <div class="chat-demo-phone">
-                            <div class="chat-demo-notch"></div>
-                            <div class="chat-demo-screen">
-                                <div class="chat-demo-header">
-                                    <div class="chat-demo-avatar hollie-avatar">
-                                        <img src="images/hollie.png" alt="Hollie">
+                    
+                    <!-- DEFAULT: Chat Demo (hidden when partner is present) -->
+                    <div id="heroChatDemo">
+                        <div class="chat-demo-container">
+                            <div class="chat-demo-phone">
+                                <div class="chat-demo-notch"></div>
+                                <div class="chat-demo-screen">
+                                    <div class="chat-demo-header">
+                                        <div class="chat-demo-avatar hollie-avatar">
+                                            <img src="images/hollie.png" alt="Hollie">
+                                        </div>
+                                        <div class="chat-demo-header-info">
+                                            <h4>Hollie</h4>
+                                            <span>Paramedic Tutor</span>
+                                        </div>
+                                        <div class="chat-demo-trust-badge hollie-badge">
+                                            <i class="bi bi-patch-check-fill"></i> AI Tutor
+                                        </div>
                                     </div>
-                                    <div class="chat-demo-header-info">
-                                        <h4>Hollie</h4>
-                                        <span>Paramedic Tutor</span>
+                                    
+                                    <div class="chat-demo-messages" id="chatMessages">
+                                        <!-- Messages will be inserted here by JavaScript -->
                                     </div>
-                                    <div class="chat-demo-trust-badge hollie-badge">
-                                        <i class="bi bi-patch-check-fill"></i> AI Tutor
+                                    
+                                    <div class="chat-demo-input">
+                                        <div class="chat-demo-input-field">Ask Hollie anything...</div>
+                                        <button class="chat-demo-send-btn">
+                                            <i class="bi bi-send-fill"></i>
+                                        </button>
                                     </div>
-                                </div>
-                                
-                                <div class="chat-demo-messages" id="chatMessages">
-                                    <!-- Messages will be inserted here by JavaScript -->
-                                </div>
-                                
-                                <div class="chat-demo-input">
-                                    <div class="chat-demo-input-field">Ask Hollie anything...</div>
-                                    <button class="chat-demo-send-btn">
-                                        <i class="bi bi-send-fill"></i>
-                                    </button>
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- Feature pills -->
+                        <div class="chat-demo-features">
+                            <span class="chat-demo-feature-pill">
+                                <i class="bi bi-lightning-charge-fill"></i>
+                                Friendly explanations
+                            </span>
+                            <span class="chat-demo-feature-pill">
+                                <i class="bi bi-heart-pulse"></i>
+                                UK Paramedic focused
+                            </span>
+                            <span class="chat-demo-feature-pill">
+                                <i class="bi bi-shield-check"></i>
+                                Evidence-based
+                            </span>
+                        </div>
                     </div>
-                    
-                    <!-- Feature pills -->
-                    <div class="chat-demo-features">
-                        <span class="chat-demo-feature-pill">
-                            <i class="bi bi-lightning-charge-fill"></i>
-                            Friendly explanations
-                        </span>
-                        <span class="chat-demo-feature-pill">
-                            <i class="bi bi-heart-pulse"></i>
-                            UK Paramedic focused
-                        </span>
-                        <span class="chat-demo-feature-pill">
-                            <i class="bi bi-shield-check"></i>
-                            Evidence-based
-                        </span>
+
+                    <!-- PARTNER: Logo Display (hidden by default, shown via JS) -->
+                    <div id="heroPartnerLogo" style="display: none;">
+                        <div class="partner-logo-container">
+                            <div class="partner-badge">
+                                <i class="bi bi-building"></i>
+                                <span>Official Partner</span>
+                            </div>
+                            <img id="partnerLogoImage" src="" alt="Partner Logo" class="partner-logo">
+                            <p class="partner-welcome-text">
+                                Welcome! Your organisation has partnered with Paramind to support your learning journey.
+                            </p>
+                        </div>
                     </div>
+
                 </div>
             </div>
         </div>
     </header>
+
+    <!-- Chat Demo Section (shown ONLY for partners, above features) -->
+    <section id="chatDemoSection" class="chat-demo-section">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-title">Meet Hollie, Your AI Tutor</h2>
+                <p class="section-subtitle">Get friendly, expert explanations on any clinical topic</p>
+            </div>
+            <div class="d-flex justify-content-center">
+                <div class="chat-demo-phone">
+                    <div class="chat-demo-notch"></div>
+                    <div class="chat-demo-screen">
+                        <div class="chat-demo-header">
+                            <div class="chat-demo-avatar hollie-avatar">
+                                <img src="images/hollie.png" alt="Hollie">
+                            </div>
+                            <div class="chat-demo-header-info">
+                                <h4>Hollie</h4>
+                                <span>Paramedic Tutor</span>
+                            </div>
+                            <div class="chat-demo-trust-badge hollie-badge">
+                                <i class="bi bi-patch-check-fill"></i> AI Tutor
+                            </div>
+                        </div>
+                        
+                        <div class="chat-demo-messages" id="chatMessagesSection">
+                            <!-- Messages will be inserted here by JavaScript -->
+                        </div>
+                        
+                        <div class="chat-demo-input">
+                            <div class="chat-demo-input-field">Ask Hollie anything...</div>
+                            <button class="chat-demo-send-btn">
+                                <i class="bi bi-send-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Feature pills -->
+            <div class="chat-demo-features mt-4">
+                <span class="chat-demo-feature-pill">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                    Friendly explanations
+                </span>
+                <span class="chat-demo-feature-pill">
+                    <i class="bi bi-heart-pulse"></i>
+                    UK Paramedic focused
+                </span>
+                <span class="chat-demo-feature-pill">
+                    <i class="bi bi-shield-check"></i>
+                    Evidence-based
+                </span>
+            </div>
+        </div>
+    </section>
 
     <!-- Features Section -->
     <section id="features" class="features-section py-5">
@@ -777,6 +932,43 @@
     <script src="js/menu-v2.js"></script>
     
     <script>
+        // ==================== PARTNER DETECTION ====================
+        // Check URL for partner parameter: ?partner=k2
+        
+        function getPartnerFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('partner');
+        }
+
+        function setupPartnerView(partnerId) {
+            // Get the elements
+            const heroChatDemo = document.getElementById('heroChatDemo');
+            const heroPartnerLogo = document.getElementById('heroPartnerLogo');
+            const partnerLogoImage = document.getElementById('partnerLogoImage');
+            const chatDemoSection = document.getElementById('chatDemoSection');
+
+            // Set the partner logo image source
+            // Logo should be stored as: images/k2.png (matching the partner ID)
+            partnerLogoImage.src = `images/${partnerId}.png`;
+            partnerLogoImage.alt = `${partnerId} Logo`;
+
+            // Handle logo load error (if partner logo doesn't exist)
+            partnerLogoImage.onerror = function() {
+                console.warn(`Partner logo not found: images/${partnerId}.png`);
+                // Fall back to default view if logo doesn't exist
+                heroChatDemo.style.display = 'block';
+                heroPartnerLogo.style.display = 'none';
+                chatDemoSection.style.display = 'none';
+            };
+
+            // Hide the chat demo in hero, show partner logo
+            heroChatDemo.style.display = 'none';
+            heroPartnerLogo.style.display = 'block';
+
+            // Show the chat demo section (below hero, above features)
+            chatDemoSection.style.display = 'block';
+        }
+
         // ==================== ANIMATED CHAT DEMO WITH HOLLIE ====================
         // Hollie-style conversations that showcase her friendly personality
         
@@ -809,19 +1001,27 @@
         ];
 
         let currentConversation = 0;
-        const chatMessages = document.getElementById('chatMessages');
-
-        function clearChat() {
-            chatMessages.innerHTML = '';
+        
+        // Get the appropriate chat messages container based on partner status
+        function getChatMessagesContainer() {
+            const partnerId = getPartnerFromURL();
+            if (partnerId) {
+                return document.getElementById('chatMessagesSection');
+            }
+            return document.getElementById('chatMessages');
         }
 
-        function addTypingIndicator() {
+        function clearChat(container) {
+            container.innerHTML = '';
+        }
+
+        function addTypingIndicator(container) {
             const typing = document.createElement('div');
             typing.className = 'typing-indicator';
             typing.id = 'typingIndicator';
             typing.innerHTML = '<span></span><span></span><span></span>';
-            chatMessages.appendChild(typing);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            container.appendChild(typing);
+            container.scrollTop = container.scrollHeight;
         }
 
         function removeTypingIndicator() {
@@ -829,7 +1029,7 @@
             if (typing) typing.remove();
         }
 
-        function addMessage(message) {
+        function addMessage(container, message) {
             const div = document.createElement('div');
             div.className = `chat-demo-message ${message.type}`;
             
@@ -839,13 +1039,16 @@
                 div.textContent = message.text;
             }
             
-            chatMessages.appendChild(div);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
         }
 
         async function playConversation(conv) {
+            const chatMessages = getChatMessagesContainer();
+            if (!chatMessages) return;
+
             // Clear previous messages
-            clearChat();
+            clearChat(chatMessages);
             
             // Play through messages with delays
             for (let i = 0; i < conv.messages.length; i++) {
@@ -854,18 +1057,18 @@
                 if (msg.type === 'user') {
                     // Small delay before user message
                     await new Promise(r => setTimeout(r, 500));
-                    addMessage(msg);
+                    addMessage(chatMessages, msg);
                 } else {
                     // Show typing indicator before Hollie's response
                     await new Promise(r => setTimeout(r, 800));
-                    addTypingIndicator();
+                    addTypingIndicator(chatMessages);
                     
                     // Wait while "typing"
                     await new Promise(r => setTimeout(r, 1800));
                     removeTypingIndicator();
                     
                     // Show the response
-                    addMessage(msg);
+                    addMessage(chatMessages, msg);
                 }
             }
             
@@ -877,9 +1080,17 @@
             playConversation(conversations[currentConversation]);
         }
 
-        // Start the animation when page loads
+        // ==================== INITIALISATION ====================
         document.addEventListener('DOMContentLoaded', () => {
-            // Small delay before starting
+            // Check for partner in URL
+            const partnerId = getPartnerFromURL();
+            
+            if (partnerId) {
+                // Set up partner view
+                setupPartnerView(partnerId);
+            }
+            
+            // Start the chat animation after a small delay
             setTimeout(() => {
                 playConversation(conversations[0]);
             }, 1000);
