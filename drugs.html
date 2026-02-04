@@ -889,11 +889,11 @@
     <!-- Load your existing app config -->
     <script src="js/app.js"></script>
     
-    <!-- Drug Data -->
-    <script src="js/drugs-data.js"></script>
-    
     <!-- Drug Guide Script -->
     <script type="module">
+        // ==================== IMPORT DRUG DATA ====================
+        import { drugs } from './js/drugs-data.js';
+        
         // ==================== FIREBASE AUTH ====================
         
         let auth = null;
@@ -913,7 +913,6 @@
                         currentUser = user;
                         resolve(true);
                     } else {
-                        // Redirect to login if not authenticated
                         window.location.href = 'login.html';
                         resolve(false);
                     }
@@ -936,23 +935,18 @@
             
             console.log('Drug Guide initialized - user authenticated');
             
-            // Fetch user profile to check Pro status
             const isPro = await fetchUserProfile();
             
             if (!isPro) {
-                // Show Pro overlay for free users
                 document.getElementById('proOverlay').classList.add('visible');
-                
-                // Set up upgrade button to trigger Stripe checkout
                 document.getElementById('proUpgradeBtn').addEventListener('click', async (e) => {
                     e.preventDefault();
                     await handleUpgrade();
                 });
-                
-                return; // Don't initialize the rest of the tool
+                return;
             }
             
-            // User is Pro - initialize the drug guide
+            console.log('Drug data loaded:', drugs.length, 'medications');
             setupDrugGuide();
         }
         
@@ -969,13 +963,9 @@
                 
                 if (response.ok) {
                     const userProfile = await response.json();
-                    
-                    // Check if user is Pro
-                    const isPro = userProfile.subscriptionStatus === 'pro' || 
-                                  userProfile.subscriptionStatus === 'active' ||
-                                  userProfile.isPro === true;
-                    
-                    return isPro;
+                    return userProfile.subscriptionStatus === 'pro' || 
+                           userProfile.subscriptionStatus === 'active' ||
+                           userProfile.isPro === true;
                 }
                 return false;
             } catch (error) {
@@ -984,7 +974,6 @@
             }
         }
         
-        // Handle upgrade button click - redirect to Stripe checkout
         async function handleUpgrade() {
             const btn = document.getElementById('proUpgradeBtn');
             const originalText = btn.innerHTML;
@@ -1004,7 +993,6 @@
                 
                 if (response.ok) {
                     const data = await response.json();
-                    // Redirect to Stripe checkout
                     if (data.url) {
                         window.location.href = data.url;
                     }
@@ -1013,7 +1001,7 @@
                 }
             } catch (error) {
                 console.error('Upgrade error:', error);
-                alert('Unable to start checkout. Please try again or visit the pricing page.');
+                alert('Unable to start checkout. Please try again.');
                 btn.innerHTML = originalText;
                 btn.style.pointerEvents = 'auto';
             }
@@ -1022,15 +1010,6 @@
         // ==================== DRUG GUIDE SETUP ====================
         
         function setupDrugGuide() {
-            // Check if drugs data is loaded
-            if (typeof window.drugs === 'undefined' || !Array.isArray(window.drugs)) {
-                console.error('Drug data not loaded. Check that js/drugs-data.js is properly deployed.');
-                alert('Error: Drug data could not be loaded. Please refresh the page or contact support.');
-                return;
-            }
-            
-            console.log('Drug data loaded:', window.drugs.length, 'medications');
-            
             const drugsGrid = document.getElementById('drugs-grid');
             const categoryBtns = document.querySelectorAll('.category-btn');
             const modalOverlay = document.getElementById('modal-overlay');
@@ -1039,13 +1018,11 @@
 
             let currentCategory = 'all';
 
-            // Render drug cards - always sorted alphabetically
             function renderDrugs() {
-                let filteredDrugs = window.drugs.filter(drug => {
+                let filteredDrugs = drugs.filter(drug => {
                     return currentCategory === 'all' || drug.category === currentCategory;
                 });
                 
-                // Sort alphabetically by name
                 filteredDrugs.sort((a, b) => a.name.localeCompare(b.name));
 
                 if (filteredDrugs.length === 0) {
@@ -1063,18 +1040,15 @@
                     </div>
                 `).join('');
                 
-                // Add click handlers to cards
                 drugsGrid.querySelectorAll('.drug-card').forEach(card => {
                     card.addEventListener('click', () => {
-                        const drugId = parseInt(card.dataset.drugId);
-                        openModal(drugId);
+                        openModal(parseInt(card.dataset.drugId));
                     });
                 });
             }
 
-            // Open modal with drug details
             function openModal(drugId) {
-                const drug = window.drugs.find(d => d.id === drugId);
+                const drug = drugs.find(d => d.id === drugId);
                 if (!drug) return;
 
                 const alertHtml = drug.paramedicNotes.map(note => `
@@ -1149,20 +1123,16 @@
                     </div>
                 `;
                 
-                // Add close button handler
                 document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
-                
                 modalOverlay.classList.add('active');
                 document.body.style.overflow = 'hidden';
             }
 
-            // Close modal
             function closeModal() {
                 modalOverlay.classList.remove('active');
                 document.body.style.overflow = '';
             }
 
-            // Event listeners
             categoryBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
                     categoryBtns.forEach(b => b.classList.remove('active'));
@@ -1180,7 +1150,6 @@
                 if (e.key === 'Escape') closeModal();
             });
 
-            // Initial render
             renderDrugs();
         }
         
