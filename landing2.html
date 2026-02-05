@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Dashboard | ParaMind</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Menu CSS -->
+    <link rel="stylesheet" href="css/menu-v2.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        /* ==================== LANDING PAGE V3 - STYLED UP ==================== */
+        
+        /* ---------- BASE ---------- */
+        .landing-page {
+            min-height: 100vh;
+            background: #FFFFFF;
+            overflow-x: hidden;
+        }
+        
+        /* Navbar */
+        .landing-navbar {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .landing-navbar .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        /* ---------- ANIMATED BACKGROUND ---------- */
+        .bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        
+        /* Floating geometric shapes */
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0;
+            animation: floatShape 18s ease-in-out infinite;
+        }
+        
+        .floating-shape.shape-1 {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(43,138,156,0.06) 0%, transparent 70%);
+            top: -80px; right: -60px;
+            animation-delay: 0s;
+        }
+        .floating-shape.shape-2 {
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(92,184,92,0.06) 0%, transparent 70%);
+            bottom: 20%; left: -40px;
+            animation-delay: -6s;
+        }
+        .floating-shape.shape-3 {
+            width: 250px; height: 250px;
+            background: radial-gradient(circle, rgba(43,138,156,0.04) 0%, transparent 70%);
+            top: 40%; right: -30px;
+            animation-delay: -12s;
+        }
+        .floating-shape.shape-4 {
+            width: 180px; height: 180px;
+            background: radial-gradient(circle, rgba(92,184,92,0.05) 0%, transparent 70%);
+            top: 60%; left: 10%;
+            animation-delay: -3s;
+        }
+        .floating-shape.shape-5 {
+            width: 140px; height: 140px;
+            background: radial-gradient(circle, rgba(255,193,7,0.04) 0%, transparent 70%);
+            top: 15%; left: 30%;
+            animation-delay: -9s;
+        }
+        
+        @keyframes floatShape {
+            0%   { opacity: 0; transform: translateY(40px) scale(0.9); }
+            15%  { opacity: 1; }
+            50%  { opacity: 1; transform: translateY(-30px) scale(1.05); }
+            85%  { opacity: 1; }
+            100% { opacity: 0; transform: translateY(40px) scale(0.9); }
+        }
+        
+        /* Dot grid pattern */
+        .dot-grid {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: radial-gradient(circle, rgba(43,138,156,0.08) 1px, transparent 1px);
+            background-size: 32px 32px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* ---------- MAIN CONTAINER ---------- */
+        .landing-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1rem 1rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* ---------- ECG HEARTBEAT LINE ---------- */
+        .ecg-line-container {
+            width: 100%;
+            height: 50px;
+            overflow: hidden;
+            margin: 0 auto 0.5rem;
+            opacity: 0.18;
+        }
+        
+        .ecg-line-container svg {
+            width: 200%;
+            height: 100%;
+            animation: ecgScroll 4s linear infinite;
+        }
+        
+        @keyframes ecgScroll {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        
+        /* ---------- HERO SECTION ---------- */
+        .hero-section {
+            text-align: center;
+            padding: 1rem 0 1.5rem;
+            position: relative;
+        }
+        
+        /* Glowing avatar */
+        .hollie-avatar-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+        
+        .hollie-avatar-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 0deg,
+                #2B8A9C, #5CB85C, #2B8A9C, #5CB85C, #2B8A9C
+            );
+            animation: avatarSpin 6s linear infinite;
+            z-index: 0;
+        }
+        
+        .hollie-avatar-wrapper::after {
+            content: '';
+            position: absolute;
+            inset: -16px;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 0deg,
+                rgba(43,138,156,0.2), rgba(92,184,92,0.2), rgba(43,138,156,0.2), rgba(92,184,92,0.2), rgba(43,138,156,0.2)
+            );
+            animation: avatarSpin 8s linear infinite reverse;
+            filter: blur(8px);
+            z-index: -1;
+        }
+        
+        @keyframes avatarSpin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .hollie-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            border: 4px solid #fff;
+        }
+        
+        .hollie-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* Pulse ring behind avatar */
+        .pulse-ring {
+            position: absolute;
+            inset: -20px;
+            border-radius: 50%;
+            border: 2px solid rgba(43,138,156,0.15);
+            animation: pulseRing 3s ease-out infinite;
+            z-index: -2;
+        }
+        
+        .pulse-ring:nth-child(2) {
+            animation-delay: 1s;
+        }
+        .pulse-ring:nth-child(3) {
+            animation-delay: 2s;
+        }
+        
+        @keyframes pulseRing {
+            0%   { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(1.8); opacity: 0; }
+        }
+        
+        .hollie-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: rgba(43, 138, 156, 0.1);
+            color: var(--color-teal);
+            padding: 0.3rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        
+        .hero-section h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 0.25rem;
+            animation: fadeInUp 0.6s ease both;
+        }
+        
+        .hero-section p {
+            color: var(--color-gray-600);
+            margin: 0 0 0.75rem;
+            animation: fadeInUp 0.6s 0.1s ease both;
+        }
+        
+        .user-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--color-gray-50);
+            border: 1px solid var(--color-gray-200);
+            padding: 0.4rem 0.85rem;
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            color: var(--color-gray-600);
+            animation: fadeInUp 0.6s 0.2s ease both;
+        }
+        
+        .user-badge i { color: var(--color-teal); }
+        
+        .pro-status-badge {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1a1a2e;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.15rem 0.5rem;
+            border-radius: var(--radius-full);
+        }
+        
+        .message-counter {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--color-gray-500);
+            animation: fadeInUp 0.6s 0.3s ease both;
+        }
+        
+        .message-counter i { color: var(--color-teal); margin-right: 0.25rem; }
+        .message-counter .count { font-weight: 700; color: var(--color-teal); }
+        
+        /* ---------- SECTION HEADERS ---------- */
+        .tools-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--color-gray-400);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, var(--color-gray-200), transparent);
+        }
+        
+        /* ---------- TOOL CARDS ---------- */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 1rem;
+        }
+        
+        @media (min-width: 480px) {
+            .tools-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .tools-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        .tool-card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 1.25rem;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 160px;
+            border: 1px solid transparent;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.06);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            /* staggered entrance */
+            opacity: 0;
+            transform: translateY(24px);
+            animation: cardEntrance 0.5s ease forwards;
+        }
+        
+        .tool-card:nth-child(1) { animation-delay: 0.1s; }
+        .tool-card:nth-child(2) { animation-delay: 0.2s; }
+        .tool-card:nth-child(3) { animation-delay: 0.3s; }
+        
+        @keyframes cardEntrance {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Gradient border on hover */
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 16px;
+            padding: 2px;
+            background: var(--card-gradient);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        
+        .tool-card:hover::before {
+            opacity: 1;
+        }
+        
+        /* Top accent stripe */
+        .tool-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--card-gradient);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .tool-card:hover::after {
+            transform: scaleX(1);
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.08),
+                0 8px 16px rgba(0,0,0,0.04);
+            color: inherit;
+        }
+        
+        /* Card accent gradients */
+        .tool-card.card-chat        { --card-gradient: linear-gradient(135deg, #2B8A9C, #5CB85C); }
+        .tool-card.card-scenarios    { --card-gradient: linear-gradient(135deg, #5CB85C, #28a745); }
+        .tool-card.card-differentials { --card-gradient: linear-gradient(135deg, #6c757d, #495057); }
+        .tool-card.card-atmist       { --card-gradient: linear-gradient(135deg, #dc3545, #c82333); }
+        .tool-card.card-ecg          { --card-gradient: linear-gradient(135deg, #f59e0b, #fbbf24); }
+        .tool-card.card-cpd          { --card-gradient: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+        
+        .tool-card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .tool-card-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease;
+        }
+        
+        .tool-card:hover .tool-card-icon {
+            transform: scale(1.12) rotate(-3deg);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .tool-card.card-chat .tool-card-icon {
+            background: linear-gradient(135deg, rgba(43,138,156,0.15), rgba(92,184,92,0.1));
+            color: #2B8A9C;
+        }
+        .tool-card.card-scenarios .tool-card-icon {
+            background: linear-gradient(135deg, rgba(92,184,92,0.2), rgba(40,167,69,0.1));
+            color: #28a745;
+        }
+        .tool-card.card-differentials .tool-card-icon {
+            background: rgba(108,117,125,0.12);
+            color: #495057;
+        }
+        .tool-card.card-atmist .tool-card-icon {
+            background: rgba(220,53,69,0.12);
+            color: #dc3545;
+        }
+        .tool-card.card-ecg .tool-card-icon {
+            background: rgba(245,158,11,0.12);
+            color: #d97706;
+        }
+        .tool-card.card-cpd .tool-card-icon {
+            background: rgba(139,92,246,0.12);
+            color: #8b5cf6;
+        }
+        
+        .tool-card-info {}
+        
+        .tool-card-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--color-gray-800);
+            margin-bottom: 0.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .tool-card-subtitle {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+            font-weight: 500;
+        }
+        
+        .tool-card-desc {
+            font-size: 0.85rem;
+            color: var(--color-gray-600);
+            margin: 0;
+            line-height: 1.45;
+            flex: 1;
+        }
+        
+        /* Animated arrow */
+        .tool-card-arrow {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--color-gray-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-gray-400);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.85rem;
+        }
+        
+        .tool-card:hover .tool-card-arrow {
+            background: var(--color-teal);
+            color: white;
+            transform: translateX(3px);
+            box-shadow: 0 4px 12px rgba(43,138,156,0.3);
+        }
+        
+        /* Pro badge on cards */
+        .card-pro-badge {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #1a1a2e;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 0.15rem 0.45rem;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        /* Locked state */
+        .tool-card.locked { opacity: 0.75; }
+        .tool-card.locked:hover { opacity: 1; }
+        .tool-card.locked .tool-card-arrow {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #1a1a2e;
+        }
+        .tool-card.locked:hover .tool-card-arrow {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            box-shadow: 0 4px 12px rgba(255,193,7,0.3);
+        }
+        
+        /* ---------- UPGRADE BANNER ---------- */
+        .upgrade-banner {
+            background: #FFFFFF;
+            border: 2px solid transparent;
+            border-radius: 20px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(255,193,7,0.1);
+        }
+        
+        /* Animated gradient border for upgrade */
+        .upgrade-banner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            padding: 2px;
+            background: linear-gradient(135deg, #FFD700, #FFA500, #FFD700, #FFA500);
+            background-size: 300% 300%;
+            animation: gradientShift 4s ease infinite;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+        }
+        
+        @keyframes gradientShift {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Shimmer effect on upgrade banner */
+        .upgrade-banner::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,215,0,0.06), transparent);
+            animation: shimmer 5s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0%   { left: -100%; }
+            50%  { left: 100%; }
+            100% { left: 100%; }
+        }
+        
+        .upgrade-banner h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .upgrade-banner h3 i { color: #FFD700; }
+        
+        .upgrade-banner p {
+            font-size: 0.875rem;
+            color: var(--color-gray-600);
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .upgrade-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1a1a2e;
+            font-weight: 700;
+            padding: 0.75rem 1.75rem;
+            border-radius: var(--radius-full);
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(255,193,7,0.25);
+        }
+        
+        .upgrade-btn:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 8px 24px rgba(255,193,7,0.4);
+            color: #1a1a2e;
+        }
+        
+        /* ---------- TIPS / UPDATES SECTION ---------- */
+        .tips-section {
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.06);
+            margin-bottom: 2rem;
+            border: 1px solid var(--color-gray-100);
+        }
+        
+        .tips-section h3 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .tips-section h3 i {
+            color: var(--color-teal);
+            font-size: 1.1rem;
+        }
+        
+        .tip-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+        
+        .tip-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .tip-item i {
+            color: var(--color-green);
+            flex-shrink: 0;
+            margin-top: 0.15rem;
+            font-size: 1rem;
+        }
+        
+        .tip-item p {
+            font-size: 0.85rem;
+            color: var(--color-gray-600);
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .tip-item p strong {
+            color: var(--color-teal);
+        }
+        
+        /* ---------- ENTRANCE ANIMATIONS ---------- */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            opacity: 0;
+            transform: translateY(16px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        
+        .fade-in-d1 { animation-delay: 0.1s; }
+        .fade-in-d2 { animation-delay: 0.2s; }
+        .fade-in-d3 { animation-delay: 0.3s; }
+        .fade-in-d4 { animation-delay: 0.4s; }
+        .fade-in-d5 { animation-delay: 0.5s; }
+        
+        /* ---------- INTERACTIVE TILT (JS-powered) ---------- */
+        .tool-card.tilting {
+            transform-style: preserve-3d;
+            perspective: 600px;
+        }
+        
+        /* ---------- REDUCED MOTION ---------- */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="landing-page">
+    <!-- ==================== ANIMATED BACKGROUND ==================== -->
+    <div class="bg-canvas">
+        <div class="dot-grid"></div>
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+        <div class="floating-shape shape-4"></div>
+        <div class="floating-shape shape-5"></div>
+    </div>
+    
+    <!-- ==================== NAVIGATION ==================== -->
+    <nav class="landing-navbar">
+        <div class="container">
+            <span class="brand-text">
+                <a class="navbar-brand" href="index.html">
+                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
+                </a>
+            </span>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <div class="landing-container">
+        
+        <!-- ECG Heartbeat Line -->
+        <div class="ecg-line-container fade-in">
+            <svg viewBox="0 0 1200 60" preserveAspectRatio="none">
+                <polyline
+                    fill="none"
+                    stroke="#2B8A9C"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    points="0,30 80,30 100,30 110,15 120,45 130,10 140,50 150,30 170,30 250,30 280,30 290,15 300,45 310,10 320,50 330,30 350,30 430,30 460,30 470,15 480,45 490,10 500,50 510,30 530,30 600,30 680,30 700,30 710,15 720,45 730,10 740,50 750,30 770,30 850,30 880,30 890,15 900,45 910,10 920,50 930,30 950,30 1030,30 1060,30 1070,15 1080,45 1090,10 1100,50 1110,30 1130,30 1200,30"
+                />
+            </svg>
+        </div>
+        
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <div class="hollie-avatar-wrapper">
+                <div class="pulse-ring"></div>
+                <div class="pulse-ring"></div>
+                <div class="pulse-ring"></div>
+                <div class="hollie-avatar">
+                    <img src="images/hollie.png" alt="Hollie - Your Paramedic Tutor">
+                </div>
+            </div>
+            
+            <div class="hollie-badge fade-in">
+                <i class="bi bi-patch-check-fill"></i> Paramedic Tutor
+            </div>
+            
+            <h1>Hey <span id="userFirstName">there</span>! 👋</h1>
+            <p>What would you like to learn today?</p>
+            
+            <div class="user-badge">
+                <i class="bi bi-hospital"></i>
+                <span class="trust-name" id="userTrust">Loading...</span>
+                <span class="pro-status-badge" id="proBadge" style="display: none;">
+                    <i class="bi bi-star-fill"></i> Pro
+                </span>
+            </div>
+            <div class="message-counter" id="messageCounter" style="display: none;">
+                <i class="bi bi-chat-dots"></i>
+                <span><span class="count" id="messagesUsed">0</span>/5 messages today</span>
+            </div>
+        </div>
+        
+        <!-- Learning Tools Section -->
+        <div class="tools-section fade-in fade-in-d2">
+            <div class="section-title">Learning Tools</div>
+            <div class="tools-grid">
+                
+                <!-- Chat -->
+                <a href="chat.html" class="tool-card card-chat">
+                    <div class="tool-card-header">
+                        <div class="tool-card-icon">
+                            <i class="bi bi-chat-dots"></i>
+                        </div>
+                        <div class="tool-card-info">
+                            <div class="tool-card-title">Chat</div>
+                            <div class="tool-card-subtitle">AI Assistant</div>
+                        </div>
+                    </div>
+                    <p class="tool-card-desc">Ask anything about paramedicine, we are here to help you.</p>
+                    <div class="tool-card-arrow">
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
+                </a>
+                
+                <!-- Scenarios -->
+                <a href="scenarios.html" class="tool-card card-scenarios">
+                    <div class="tool-card-header">
+                        <div class="tool-card-icon">
+                            <i class="bi bi-mortarboard"></i>
+                        </div>
+                        <div class="tool-card-info">
+                            <div class="tool-card-title">Scenarios</div>
+                            <div class="tool-card-subtitle">Case Studies</div>
+                        </div>
+                    </div>
+                    <p class="tool-card-desc">Practice with realistic simulated patient cases from dispatch to handover.</p>
+                    <div class="tool-card-arrow">
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
+                </a>
+                
+                <!-- Differentials -->
+                <a href="differentials.html" class="tool-card card-differentials">
+                    <div class="tool-card-header">
+                        <div class="tool-card-icon">
+                            <i class="bi bi-clipboard2-pulse"></i>
+                        </div>
+                        <div class="tool-card-info">
+                            <div class="tool-card-title">Differentials</div>
+                            <div class="tool-card-subtitle">Diagnosis Explorer</div>
+                        </div>
+                    </div>
+                    <p class="tool-card-desc">Explore differential diagnoses based on patient presentation and vitals.</p>
+                    <div class="tool-card-arrow">
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
+                </a>
+                
+            </div>
+        </div>
+        
+        <!-- Pro Tools Section -->
+        <div class="tools-section fade-in fade-in-d3">
+            <div class="section-title">Pro Tools</div>
+            <div class="tools-grid">
+                
+                <!-- ATMIST - Pro -->
+                <a href="atmist.html" class="tool-card card-atmist" id="atmistCard">
+                    <div class="tool-card-header">
+                        <div class="tool-card-icon">
+                            <i class="bi bi-telephone-outbound"></i>
+                        </div>
+                        <div class="tool-card-info">
+                            <div class="tool-card-title">
+                                ATMIST
+                                <span class="card-pro-badge" id="atmistProBadge">Pro</span>
+                            </div>
+                            <div class="tool-card-subtitle">Handover Tool</div>
+                        </div>
+                    </div>
+                    <p class="tool-card-desc">Generate and practice structured pre-alert and handover messages for hospital teams.</p>
+                    <div class="tool-card-arrow">
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
+                </a>
+                
+                <!-- ECG Tool - Pro -->
+                <a href="ecg.html" class="tool-card card-ecg" id="ecgCard">
+                    <div class="tool-card-header">
+                        <div class="tool-card-icon">
+                            <i class="bi bi-activity"></i>
+                        </div>
+                        <div class="tool-card-info">
+                            <div class="tool-card-title">
+                                ECG Tool
+                                <span class="card-pro-badge" id="ecgProBadge">Pro</span>
+                            </div>
+                            <div class="tool-card-subtitle">Rhythm Practice</div>
+                        </div>
+                    </div>
+                    <p class="tool-card-desc">Interactive ECG rhythm generator to practice identification skills.</p>
+                    <div class="tool-card-arrow">
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
+                </a>
+                
+                <!-- CPD Portfolio - Pro -->
+                <a href="cpd.html" class="tool-card card-cpd" id="cpdCard">
+                    <div class="tool-card-header">
+                        <div class="tool-card-icon">
+                            <i class="bi bi-award"></i>
+                        </div>
+                        <div class="tool-card-info">
+                            <div class="tool-card-title">
+                                CPD Portfolio
+                                <span class="card-pro-badge" id="cpdProBadge">Pro</span>
+                            </div>
+                            <div class="tool-card-subtitle">Track Progress</div>
+                        </div>
+                    </div>
+                    <p class="tool-card-desc">Track your completed scenarios and download CPD certificates.</p>
+                    <div class="tool-card-arrow">
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
+                </a>
+                
+            </div>
+        </div>
+        
+        <!-- Upgrade Banner (shown to free users) -->
+        <div class="upgrade-banner fade-in fade-in-d4" id="upgradeBanner">
+            <h3><i class="bi bi-star-fill"></i> Unlock Pro Features</h3>
+            <p>Get unlimited messages, CPD certificates, AI ATMIST tool, ECG practice, and more!</p>
+            <button class="upgrade-btn" onclick="handleUpgrade()">
+                <i class="bi bi-star"></i>
+                Upgrade to Pro - Just £4.99/month
+            </button>
+        </div>
+        
+        <!-- Quick Tips -->
+        <div class="tips-section fade-in fade-in-d5">
+            <h3><i class="bi bi-lightbulb"></i> UPDATES</h3>
+            <div class="tip-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <p><strong>NEW!</strong> An interactive, fun ECG tool and quiz for PRO users. Learn 14 top rhythms, then do the test.</p>
+            </div>
+            <div class="tip-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <p><strong>NEW!</strong> A&P Connections for PRO users, learn why things happen to the body... questions such as "Why does sepsis cause mottled skin?"</p>
+            </div>
+            <div class="tip-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <p><strong>NEW!</strong> Simplify button in chat and A&P connections for when you need things explained in a little less complicated way!</p>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- ==================== SCRIPTS ==================== -->
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Menu JS -->
+    <script src="js/menu-v2.js"></script>
+    
+    <!-- App JS (shared config) -->
+    <script src="js/app.js"></script>
+    
+    <!-- Page Script -->
+    <script>
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
+            authDomain: "paramind-64b8e.firebaseapp.com",
+            projectId: "paramind-64b8e",
+            storageBucket: "paramind-64b8e.firebasestorage.app",
+            messagingSenderId: "452173393964",
+            appId: "1:452173393964:web:8599c0fe1983a6f441e189",
+            measurementId: "G-GW385S6L0L"
+        };
+
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ==================== STATE ====================
+        let isPro = false;
+        let userData = null;
+
+        // ==================== DOM ELEMENTS ====================
+        const userFirstNameEl = document.getElementById('userFirstName');
+        const userTrustEl = document.getElementById('userTrust');
+        const proBadgeEl = document.getElementById('proBadge');
+        const messageCounterEl = document.getElementById('messageCounter');
+        const messagesUsedEl = document.getElementById('messagesUsed');
+        const upgradeBannerEl = document.getElementById('upgradeBanner');
+        const atmistProBadge = document.getElementById('atmistProBadge');
+        const ecgProBadge = document.getElementById('ecgProBadge');
+        const cpdProBadge = document.getElementById('cpdProBadge');
+
+        // ==================== AUTH STATE ====================
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (userDoc.exists) {
+                    userData = userDoc.data();
+                    isPro = userData.isPro === true || userData.subscriptionStatus === 'active';
+                    updateUI();
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        });
+
+        // ==================== UPDATE UI ====================
+        function updateUI() {
+            // Update name
+            if (userData.firstName) {
+                userFirstNameEl.textContent = userData.firstName;
+            } else {
+                userFirstNameEl.textContent = 'there';
+            }
+            
+            // Update trust name
+            if (userData.trust || userData.trustName) {
+                userTrustEl.textContent = userData.trust || userData.trustName;
+            } else {
+                userTrustEl.textContent = 'No trust set';
+            }
+
+            // Pro status
+            if (isPro) {
+                proBadgeEl.style.display = 'inline-flex';
+                upgradeBannerEl.style.display = 'none';
+                
+                if (atmistProBadge) atmistProBadge.style.display = 'none';
+                if (ecgProBadge) ecgProBadge.style.display = 'none';
+                if (cpdProBadge) cpdProBadge.style.display = 'none';
+                
+                document.querySelectorAll('.tool-card').forEach(card => {
+                    card.classList.remove('locked');
+                });
+            } else {
+                proBadgeEl.style.display = 'none';
+                upgradeBannerEl.style.display = 'block';
+                messageCounterEl.style.display = 'block';
+                
+                document.getElementById('atmistCard')?.classList.add('locked');
+                document.getElementById('ecgCard')?.classList.add('locked');
+                document.getElementById('cpdCard')?.classList.add('locked');
+                
+                updateMessageCount();
+            }
+        }
+
+        // ==================== MESSAGE COUNT ====================
+        async function updateMessageCount() {
+            try {
+                const user = auth.currentUser;
+                if (!user) return;
+
+                const today = new Date().toISOString().split('T')[0];
+                
+                const countDoc = await db.collection('users').doc(user.uid)
+                    .collection('daily_usage').doc(today).get();
+                
+                if (countDoc.exists) {
+                    const count = countDoc.data().messageCount || 0;
+                    messagesUsedEl.textContent = count;
+                } else {
+                    messagesUsedEl.textContent = '0';
+                }
+            } catch (error) {
+                console.error('Error fetching message count:', error);
+            }
+        }
+
+        // ==================== UPGRADE HANDLER ====================
+        async function createCheckoutSession() {
+            try {
+                const user = auth.currentUser;
+                if (!user) {
+                    alert('Please sign in to upgrade');
+                    return;
+                }
+                
+                const token = await user.getIdToken();
+                const baseUrl = window.paramind?.CONFIG?.api?.baseUrl || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
+                const checkoutEndpoint = window.paramind?.CONFIG?.api?.createCheckout || '/createCheckoutSession';
+                
+                const response = await fetch(`${baseUrl}${checkoutEndpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to create checkout session');
+                }
+                
+                window.location.href = data.url;
+            } catch (error) {
+                console.error('Checkout error:', error);
+                alert('Failed to start checkout. Please try again.');
+            }
+        }
+        
+        function handleUpgrade() {
+            createCheckoutSession();
+        }
+
+        // ==================== CHECK FOR UPGRADE PARAM ====================
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('upgrade') === 'true') {
+            setTimeout(() => {
+                handleUpgrade();
+            }, 500);
+        }
+
+        // ==================== INTERACTIVE CARD TILT ====================
+        // Adds a subtle 3D tilt effect when hovering over tool cards
+        document.querySelectorAll('.tool-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -4;
+                const rotateY = ((x - centerX) / centerX) * 4;
+                
+                card.style.transform = `translateY(-6px) perspective(600px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+            });
+        });
+    </script>
+</body>
+</html>
