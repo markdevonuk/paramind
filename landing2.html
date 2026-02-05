@@ -16,7 +16,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -25,726 +25,560 @@
     <link rel="stylesheet" href="css/styles.css">
     
     <style>
-        /* ==================== LANDING PAGE V3 - STYLED UP ==================== */
+        /* ================================================================
+           PARAMIND SUPER SITE — V5
+           Particle Network × Live ECG × Glassmorphism × Magnetic Cards
+           All original content preserved
+           ================================================================ */
         
-        /* ---------- BASE ---------- */
         .landing-page {
             min-height: 100vh;
             background: #FFFFFF;
             overflow-x: hidden;
+            position: relative;
         }
         
-        /* Navbar */
+        /* ---- PARTICLE CANVAS ---- */
+        #particleCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* ---- BOTTOM ECG CANVAS ---- */
+        #ecgCanvas {
+            position: fixed;
+            bottom: 0; left: 0;
+            width: 100%; height: 120px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.12;
+        }
+        
+        /* ---- NAVBAR (frosted glass) ---- */
         .landing-navbar {
-            background: rgba(255,255,255,0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(0,0,0,0.06);
+            background: rgba(255,255,255,0.72);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border-bottom: 1px solid rgba(43,138,156,0.08);
             padding: 0.75rem 0;
             position: sticky;
             top: 0;
             z-index: 100;
+            transition: box-shadow 0.3s ease;
         }
-        
+        .landing-navbar.scrolled {
+            box-shadow: 0 4px 30px rgba(0,0,0,0.06);
+        }
         .landing-navbar .container {
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
         
-        /* ---------- ANIMATED BACKGROUND ---------- */
-        .bg-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-            overflow: hidden;
-        }
-        
-        /* Floating geometric shapes */
-        .floating-shape {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0;
-            animation: floatShape 18s ease-in-out infinite;
-        }
-        
-        .floating-shape.shape-1 {
-            width: 300px; height: 300px;
-            background: radial-gradient(circle, rgba(43,138,156,0.06) 0%, transparent 70%);
-            top: -80px; right: -60px;
-            animation-delay: 0s;
-        }
-        .floating-shape.shape-2 {
-            width: 200px; height: 200px;
-            background: radial-gradient(circle, rgba(92,184,92,0.06) 0%, transparent 70%);
-            bottom: 20%; left: -40px;
-            animation-delay: -6s;
-        }
-        .floating-shape.shape-3 {
-            width: 250px; height: 250px;
-            background: radial-gradient(circle, rgba(43,138,156,0.04) 0%, transparent 70%);
-            top: 40%; right: -30px;
-            animation-delay: -12s;
-        }
-        .floating-shape.shape-4 {
-            width: 180px; height: 180px;
-            background: radial-gradient(circle, rgba(92,184,92,0.05) 0%, transparent 70%);
-            top: 60%; left: 10%;
-            animation-delay: -3s;
-        }
-        .floating-shape.shape-5 {
-            width: 140px; height: 140px;
-            background: radial-gradient(circle, rgba(255,193,7,0.04) 0%, transparent 70%);
-            top: 15%; left: 30%;
-            animation-delay: -9s;
-        }
-        
-        @keyframes floatShape {
-            0%   { opacity: 0; transform: translateY(40px) scale(0.9); }
-            15%  { opacity: 1; }
-            50%  { opacity: 1; transform: translateY(-30px) scale(1.05); }
-            85%  { opacity: 1; }
-            100% { opacity: 0; transform: translateY(40px) scale(0.9); }
-        }
-        
-        /* Dot grid pattern */
-        .dot-grid {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-image: radial-gradient(circle, rgba(43,138,156,0.08) 1px, transparent 1px);
-            background-size: 32px 32px;
-            pointer-events: none;
-            z-index: 0;
-        }
-        
-        /* ---------- MAIN CONTAINER ---------- */
+        /* ---- MAIN CONTAINER ---- */
         .landing-container {
-            max-width: 900px;
+            max-width: 920px;
             margin: 0 auto;
-            padding: 1rem 1rem 2rem;
+            padding: 0.5rem 1rem 3rem;
             position: relative;
             z-index: 1;
         }
         
-        /* ---------- ECG HEARTBEAT LINE ---------- */
-        .ecg-line-container {
+        /* ============================================================
+           PAYMENT SUCCESS BANNER
+           ============================================================ */
+        .payment-success-banner {
+            display: none;
+            background: linear-gradient(135deg, rgba(92,184,92,0.15) 0%, rgba(43,138,156,0.1) 100%);
+            border: 1px solid rgba(92,184,92,0.3);
+            border-radius: 16px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            animation: slideDown 0.4s ease-out;
+            backdrop-filter: blur(12px);
+        }
+        .payment-success-banner.show { display: block; }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .payment-success-banner .success-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .payment-success-banner .success-icon {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, var(--color-green), var(--color-teal));
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .payment-success-banner .success-icon i { color: white; font-size: 1.25rem; }
+        .payment-success-banner .success-text h3 {
+            font-size: 1rem; font-weight: 700;
+            color: var(--color-gray-800); margin: 0 0 0.25rem 0;
+        }
+        .payment-success-banner .success-text p {
+            font-size: 0.875rem; color: var(--color-gray-600); margin: 0;
+        }
+        
+        /* ============================================================
+           LIVE ECG HERO STRIP
+           ============================================================ */
+        .ecg-hero {
             width: 100%;
-            height: 50px;
-            overflow: hidden;
+            height: 60px;
             margin: 0 auto 0.5rem;
-            opacity: 0.18;
+            position: relative;
+            overflow: hidden;
+        }
+        #ecgHeroCanvas {
+            width: 100%; height: 100%;
+            display: block;
         }
         
-        .ecg-line-container svg {
-            width: 200%;
-            height: 100%;
-            animation: ecgScroll 4s linear infinite;
-        }
-        
-        @keyframes ecgScroll {
-            0%   { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-        
-        /* ---------- HERO SECTION ---------- */
+        /* ============================================================
+           HERO SECTION
+           ============================================================ */
         .hero-section {
             text-align: center;
-            padding: 1rem 0 1.5rem;
+            padding: 0.5rem 0 1.5rem;
             position: relative;
         }
         
-        /* Glowing avatar */
-        .hollie-avatar-wrapper {
+        /* Avatar with orbiting ring + heartbeat pulses */
+        .avatar-stage {
             position: relative;
             display: inline-block;
-            margin-bottom: 1rem;
+            width: 130px; height: 130px;
+            margin-bottom: 1.25rem;
         }
-        
-        .hollie-avatar-wrapper::before {
-            content: '';
-            position: absolute;
-            inset: -8px;
+        .orbit-ring {
+            position: absolute; inset: -6px;
             border-radius: 50%;
-            background: conic-gradient(
-                from 0deg,
-                #2B8A9C, #5CB85C, #2B8A9C, #5CB85C, #2B8A9C
-            );
-            animation: avatarSpin 6s linear infinite;
-            z-index: 0;
+            border: 2px dashed rgba(43,138,156,0.2);
+            animation: orbitSpin 20s linear infinite;
         }
-        
-        .hollie-avatar-wrapper::after {
-            content: '';
+        .orbit-dot {
             position: absolute;
-            inset: -16px;
+            width: 8px; height: 8px;
             border-radius: 50%;
-            background: conic-gradient(
-                from 0deg,
-                rgba(43,138,156,0.2), rgba(92,184,92,0.2), rgba(43,138,156,0.2), rgba(92,184,92,0.2), rgba(43,138,156,0.2)
-            );
-            animation: avatarSpin 8s linear infinite reverse;
-            filter: blur(8px);
-            z-index: -1;
+            top: -4px; left: 50%; margin-left: -4px;
+        }
+        .orbit-dot.dot-teal  { background: var(--color-teal); box-shadow: 0 0 12px rgba(43,138,156,0.6); }
+        .orbit-dot.dot-green { background: var(--color-green); box-shadow: 0 0 12px rgba(92,184,92,0.6); top: auto; bottom: -4px; }
+        .orbit-dot.dot-gold  { background: #FFD700; box-shadow: 0 0 12px rgba(255,215,0,0.6); top: 50%; left: -4px; margin-left: 0; }
+        @keyframes orbitSpin { to { transform: rotate(360deg); } }
+        
+        .avatar-glow {
+            position: absolute; inset: -20px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(43,138,156,0.12) 0%, transparent 70%);
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+        @keyframes glowPulse {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50%      { transform: scale(1.15); opacity: 1; }
         }
         
-        @keyframes avatarSpin {
-            to { transform: rotate(360deg); }
+        .heartbeat-ring {
+            position: absolute; inset: 0;
+            border-radius: 50%;
+            border: 2px solid rgba(43,138,156,0.25);
+            animation: heartbeatPulse 2.5s cubic-bezier(0.4,0,0.2,1) infinite;
+        }
+        .heartbeat-ring:nth-child(2) { animation-delay: 0.8s; }
+        .heartbeat-ring:nth-child(3) { animation-delay: 1.6s; }
+        @keyframes heartbeatPulse {
+            0%   { transform: scale(1); opacity: 0.6; }
+            50%  { transform: scale(1.5); opacity: 0; }
+            100% { transform: scale(1.5); opacity: 0; }
         }
         
         .hollie-avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            overflow: hidden;
-            position: relative;
-            z-index: 1;
-            border: 4px solid #fff;
-        }
-        
-        .hollie-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        /* Pulse ring behind avatar */
-        .pulse-ring {
+            width: 108px; height: 108px;
+            border-radius: 50%; overflow: hidden;
             position: absolute;
-            inset: -20px;
-            border-radius: 50%;
-            border: 2px solid rgba(43,138,156,0.15);
-            animation: pulseRing 3s ease-out infinite;
-            z-index: -2;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            border: 4px solid #fff;
+            box-shadow: 0 8px 32px rgba(43,138,156,0.2);
         }
-        
-        .pulse-ring:nth-child(2) {
-            animation-delay: 1s;
-        }
-        .pulse-ring:nth-child(3) {
-            animation-delay: 2s;
-        }
-        
-        @keyframes pulseRing {
-            0%   { transform: scale(0.8); opacity: 1; }
-            100% { transform: scale(1.8); opacity: 0; }
-        }
+        .hollie-avatar img { width: 100%; height: 100%; object-fit: cover; }
         
         .hollie-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            background: rgba(43, 138, 156, 0.1);
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            background: rgba(43,138,156,0.08);
             color: var(--color-teal);
-            padding: 0.3rem 0.75rem;
+            padding: 0.35rem 0.85rem;
             border-radius: var(--radius-full);
-            font-size: 0.8rem;
-            font-weight: 600;
+            font-size: 0.8rem; font-weight: 600;
             margin-bottom: 0.75rem;
+            border: 1px solid rgba(43,138,156,0.12);
         }
         
-        .hero-section h1 {
-            font-size: 1.6rem;
-            font-weight: 700;
+        /* Animated gradient heading */
+        .hero-greeting {
+            font-size: 1.75rem; font-weight: 800;
+            margin-bottom: 0.3rem; line-height: 1.3;
             color: var(--color-gray-800);
-            margin-bottom: 0.25rem;
-            animation: fadeInUp 0.6s ease both;
+        }
+        .hero-greeting .gradient-name {
+            background: linear-gradient(135deg, #2B8A9C 0%, #5CB85C 50%, #2B8A9C 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientText 4s ease infinite;
+        }
+        @keyframes gradientText {
+            0%   { background-position: 0% center; }
+            50%  { background-position: 100% center; }
+            100% { background-position: 0% center; }
         }
         
-        .hero-section p {
-            color: var(--color-gray-600);
-            margin: 0 0 0.75rem;
-            animation: fadeInUp 0.6s 0.1s ease both;
+        .hero-subtitle {
+            color: var(--color-gray-500);
+            margin: 0 0 1rem; font-size: 1rem;
         }
         
-        .user-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: var(--color-gray-50);
+        /* User info row */
+        .user-info-row {
+            display: flex; flex-wrap: wrap;
+            justify-content: center; gap: 0.5rem;
+        }
+        .info-chip {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            background: rgba(248,249,250,0.8);
+            backdrop-filter: blur(8px);
             border: 1px solid var(--color-gray-200);
             padding: 0.4rem 0.85rem;
             border-radius: var(--radius-full);
-            font-size: 0.8rem;
-            color: var(--color-gray-600);
-            animation: fadeInUp 0.6s 0.2s ease both;
-        }
-        
-        .user-badge i { color: var(--color-teal); }
-        
-        .pro-status-badge {
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-            color: #1a1a2e;
-            font-size: 0.65rem;
-            font-weight: 700;
-            padding: 0.15rem 0.5rem;
-            border-radius: var(--radius-full);
-        }
-        
-        .message-counter {
-            display: block;
-            margin-top: 0.5rem;
-            font-size: 0.8rem;
-            color: var(--color-gray-500);
-            animation: fadeInUp 0.6s 0.3s ease both;
-        }
-        
-        .message-counter i { color: var(--color-teal); margin-right: 0.25rem; }
-        .message-counter .count { font-weight: 700; color: var(--color-teal); }
-        
-        /* ---------- SECTION HEADERS ---------- */
-        .tools-section {
-            margin-bottom: 1.5rem;
-        }
-        
-        .section-title {
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: var(--color-gray-400);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        
-        .section-title::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: linear-gradient(to right, var(--color-gray-200), transparent);
-        }
-        
-        /* ---------- TOOL CARDS ---------- */
-        .tools-grid {
-            display: grid;
-            grid-template-columns: repeat(1, 1fr);
-            gap: 1rem;
-        }
-        
-        @media (min-width: 480px) {
-            .tools-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        
-        @media (min-width: 768px) {
-            .tools-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-        
-        .tool-card {
-            background: #FFFFFF;
-            border-radius: 16px;
-            padding: 1.25rem;
-            text-decoration: none;
-            color: inherit;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            min-height: 160px;
-            border: 1px solid transparent;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.06);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            /* staggered entrance */
-            opacity: 0;
-            transform: translateY(24px);
-            animation: cardEntrance 0.5s ease forwards;
-        }
-        
-        .tool-card:nth-child(1) { animation-delay: 0.1s; }
-        .tool-card:nth-child(2) { animation-delay: 0.2s; }
-        .tool-card:nth-child(3) { animation-delay: 0.3s; }
-        
-        @keyframes cardEntrance {
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* Gradient border on hover */
-        .tool-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 16px;
-            padding: 2px;
-            background: var(--card-gradient);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            opacity: 0;
-            transition: opacity 0.4s ease;
-        }
-        
-        .tool-card:hover::before {
-            opacity: 1;
-        }
-        
-        /* Top accent stripe */
-        .tool-card::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            background: var(--card-gradient);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .tool-card:hover::after {
-            transform: scaleX(1);
-        }
-        
-        .tool-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 
-                0 20px 40px rgba(0,0,0,0.08),
-                0 8px 16px rgba(0,0,0,0.04);
-            color: inherit;
-        }
-        
-        /* Card accent gradients */
-        .tool-card.card-chat        { --card-gradient: linear-gradient(135deg, #2B8A9C, #5CB85C); }
-        .tool-card.card-scenarios    { --card-gradient: linear-gradient(135deg, #5CB85C, #28a745); }
-        .tool-card.card-differentials { --card-gradient: linear-gradient(135deg, #6c757d, #495057); }
-        .tool-card.card-atmist       { --card-gradient: linear-gradient(135deg, #dc3545, #c82333); }
-        .tool-card.card-ecg          { --card-gradient: linear-gradient(135deg, #f59e0b, #fbbf24); }
-        .tool-card.card-cpd          { --card-gradient: linear-gradient(135deg, #8b5cf6, #a78bfa); }
-        
-        .tool-card-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            margin-bottom: 0.75rem;
-        }
-        
-        .tool-card-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            flex-shrink: 0;
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease;
-        }
-        
-        .tool-card:hover .tool-card-icon {
-            transform: scale(1.12) rotate(-3deg);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        
-        .tool-card.card-chat .tool-card-icon {
-            background: linear-gradient(135deg, rgba(43,138,156,0.15), rgba(92,184,92,0.1));
-            color: #2B8A9C;
-        }
-        .tool-card.card-scenarios .tool-card-icon {
-            background: linear-gradient(135deg, rgba(92,184,92,0.2), rgba(40,167,69,0.1));
-            color: #28a745;
-        }
-        .tool-card.card-differentials .tool-card-icon {
-            background: rgba(108,117,125,0.12);
-            color: #495057;
-        }
-        .tool-card.card-atmist .tool-card-icon {
-            background: rgba(220,53,69,0.12);
-            color: #dc3545;
-        }
-        .tool-card.card-ecg .tool-card-icon {
-            background: rgba(245,158,11,0.12);
-            color: #d97706;
-        }
-        .tool-card.card-cpd .tool-card-icon {
-            background: rgba(139,92,246,0.12);
-            color: #8b5cf6;
-        }
-        
-        .tool-card-info {}
-        
-        .tool-card-title {
-            font-weight: 700;
-            font-size: 1.05rem;
-            color: var(--color-gray-800);
-            margin-bottom: 0.1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .tool-card-subtitle {
-            font-size: 0.75rem;
-            color: var(--color-gray-500);
-            font-weight: 500;
-        }
-        
-        .tool-card-desc {
-            font-size: 0.85rem;
-            color: var(--color-gray-600);
-            margin: 0;
-            line-height: 1.45;
-            flex: 1;
-        }
-        
-        /* Animated arrow */
-        .tool-card-arrow {
-            position: absolute;
-            bottom: 1rem;
-            right: 1rem;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--color-gray-100);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--color-gray-400);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 0.85rem;
-        }
-        
-        .tool-card:hover .tool-card-arrow {
-            background: var(--color-teal);
-            color: white;
-            transform: translateX(3px);
-            box-shadow: 0 4px 12px rgba(43,138,156,0.3);
-        }
-        
-        /* Pro badge on cards */
-        .card-pro-badge {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #1a1a2e;
-            font-size: 0.6rem;
-            font-weight: 700;
-            padding: 0.15rem 0.45rem;
-            border-radius: 20px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-        
-        /* Locked state */
-        .tool-card.locked { opacity: 0.75; }
-        .tool-card.locked:hover { opacity: 1; }
-        .tool-card.locked .tool-card-arrow {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #1a1a2e;
-        }
-        .tool-card.locked:hover .tool-card-arrow {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            box-shadow: 0 4px 12px rgba(255,193,7,0.3);
-        }
-        
-        /* ---------- UPGRADE BANNER ---------- */
-        .upgrade-banner {
-            background: #FFFFFF;
-            border: 2px solid transparent;
-            border-radius: 20px;
-            padding: 1.5rem;
-            text-align: center;
-            margin-bottom: 2rem;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(255,193,7,0.1);
-        }
-        
-        /* Animated gradient border for upgrade */
-        .upgrade-banner::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 20px;
-            padding: 2px;
-            background: linear-gradient(135deg, #FFD700, #FFA500, #FFD700, #FFA500);
-            background-size: 300% 300%;
-            animation: gradientShift 4s ease infinite;
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-        }
-        
-        @keyframes gradientShift {
-            0%   { background-position: 0% 50%; }
-            50%  { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        
-        /* Shimmer effect on upgrade banner */
-        .upgrade-banner::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 60%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,215,0,0.06), transparent);
-            animation: shimmer 5s ease-in-out infinite;
-        }
-        
-        @keyframes shimmer {
-            0%   { left: -100%; }
-            50%  { left: 100%; }
-            100% { left: 100%; }
-        }
-        
-        .upgrade-banner h3 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--color-gray-800);
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .upgrade-banner h3 i { color: #FFD700; }
-        
-        .upgrade-banner p {
-            font-size: 0.875rem;
-            color: var(--color-gray-600);
-            margin-bottom: 1rem;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .upgrade-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-            color: #1a1a2e;
-            font-weight: 700;
-            padding: 0.75rem 1.75rem;
-            border-radius: var(--radius-full);
-            text-decoration: none;
-            border: none;
-            cursor: pointer;
-            position: relative;
-            z-index: 1;
+            font-size: 0.8rem; color: var(--color-gray-600);
             transition: all 0.3s ease;
-            box-shadow: 0 4px 16px rgba(255,193,7,0.25);
         }
-        
-        .upgrade-btn:hover {
-            transform: translateY(-2px) scale(1.03);
-            box-shadow: 0 8px 24px rgba(255,193,7,0.4);
-            color: #1a1a2e;
+        .info-chip:hover { border-color: var(--color-teal); background: rgba(43,138,156,0.04); }
+        .info-chip i { color: var(--color-teal); }
+        .info-chip.pro-chip {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border: none; color: #1a1a2e; font-weight: 700;
         }
+        .info-chip.pro-chip i { color: #1a1a2e; }
+        .info-chip.messages-chip .count { font-weight: 700; color: var(--color-teal); }
         
-        /* ---------- TIPS / UPDATES SECTION ---------- */
-        .tips-section {
-            background: #FFFFFF;
-            border-radius: 20px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.06);
-            margin-bottom: 2rem;
-            border: 1px solid var(--color-gray-100);
-        }
-        
-        .tips-section h3 {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: var(--color-gray-800);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .tips-section h3 i {
-            color: var(--color-teal);
-            font-size: 1.1rem;
-        }
-        
-        .tip-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.75rem;
-            padding: 0.75rem 0;
+        /* Stats row */
+        .stats-row {
+            display: flex; justify-content: center; gap: 2rem;
+            margin: 1.5rem 0 0; padding: 1.25rem 0;
+            border-top: 1px solid var(--color-gray-100);
             border-bottom: 1px solid var(--color-gray-100);
         }
+        .stat-item { text-align: center; }
+        .stat-number { font-size: 1.5rem; font-weight: 800; color: var(--color-teal); line-height: 1; margin-bottom: 0.2rem; }
+        .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--color-gray-400); font-weight: 600; }
         
-        .tip-item:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
+        /* ============================================================
+           SECTION HEADERS
+           ============================================================ */
+        .tools-section { margin-bottom: 2rem; }
+        .section-label {
+            font-size: 0.7rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 2px;
+            color: var(--color-gray-400);
+            margin-bottom: 1.25rem;
+            display: flex; align-items: center; gap: 0.75rem;
+        }
+        .section-label .label-icon {
+            width: 24px; height: 24px; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem;
+        }
+        .section-label .label-icon.free { background: rgba(92,184,92,0.12); color: var(--color-green); }
+        .section-label .label-icon.pro  { background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,165,0,0.1)); color: #d97706; }
+        .section-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, var(--color-gray-200), transparent); }
+        
+        /* ============================================================
+           TOOL CARDS — GLASSMORPHISM
+           ============================================================ */
+        .tools-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+        @media (min-width: 480px) { .tools-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 768px) { .tools-grid { grid-template-columns: repeat(3, 1fr); } }
+        
+        .tool-card {
+            position: relative;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.6);
+            border-radius: 20px;
+            padding: 1.5rem 1.25rem 1.25rem;
+            text-decoration: none; color: inherit;
+            overflow: hidden;
+            display: flex; flex-direction: column;
+            min-height: 175px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8);
+            transition: all 0.5s cubic-bezier(0.4,0,0.2,1);
+            will-change: transform, box-shadow;
+            /* scroll reveal start hidden */
+            opacity: 0; transform: translateY(40px);
+        }
+        .tool-card.revealed { opacity: 1; transform: translateY(0); }
+        
+        /* Coloured glow blob follows cursor */
+        .tool-card .card-glow {
+            position: absolute;
+            width: 200px; height: 200px;
+            border-radius: 50%; filter: blur(60px);
+            opacity: 0; transition: opacity 0.5s ease;
+            pointer-events: none; z-index: 0;
+        }
+        .tool-card:hover .card-glow { opacity: 1; }
+        .card-chat .card-glow         { background: rgba(43,138,156,0.12); }
+        .card-scenarios .card-glow     { background: rgba(92,184,92,0.12); }
+        .card-differentials .card-glow { background: rgba(108,117,125,0.08); }
+        .card-connections .card-glow   { background: rgba(236,72,153,0.1); }
+        .card-drugs .card-glow         { background: rgba(59,130,246,0.1); }
+        .card-atmist .card-glow        { background: rgba(220,53,69,0.1); }
+        .card-ecg .card-glow           { background: rgba(245,158,11,0.12); }
+        .card-cpd .card-glow           { background: rgba(139,92,246,0.1); }
+        
+        /* Top gradient accent line */
+        .tool-card .card-line {
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--card-gradient);
+            transform: scaleX(0); transform-origin: left;
+            transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
+        }
+        .tool-card:hover .card-line { transform: scaleX(1); }
+        
+        .tool-card:hover {
+            border-color: rgba(43,138,156,0.12);
+            box-shadow: 0 24px 48px rgba(0,0,0,0.08), 0 8px 16px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.9);
+            color: inherit;
         }
         
-        .tip-item i {
-            color: var(--color-green);
-            flex-shrink: 0;
-            margin-top: 0.15rem;
-            font-size: 1rem;
+        .card-chat         { --card-gradient: linear-gradient(135deg, #2B8A9C, #5CB85C); }
+        .card-scenarios     { --card-gradient: linear-gradient(135deg, #5CB85C, #28a745); }
+        .card-differentials { --card-gradient: linear-gradient(135deg, #6c757d, #495057); }
+        .card-connections   { --card-gradient: linear-gradient(135deg, #ec4899, #f472b6); }
+        .card-drugs         { --card-gradient: linear-gradient(135deg, #3b82f6, #60a5fa); }
+        .card-atmist        { --card-gradient: linear-gradient(135deg, #dc3545, #c82333); }
+        .card-ecg           { --card-gradient: linear-gradient(135deg, #f59e0b, #fbbf24); }
+        .card-cpd           { --card-gradient: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+        
+        .tool-card-header {
+            display: flex; align-items: flex-start; gap: 1rem;
+            margin-bottom: 0.75rem; position: relative; z-index: 1;
+        }
+        .tool-card-icon {
+            width: 52px; height: 52px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; flex-shrink: 0;
+            transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .tool-card:hover .tool-card-icon { transform: scale(1.15) rotate(-5deg); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+        
+        .card-chat .tool-card-icon         { background: linear-gradient(135deg, rgba(43,138,156,0.15), rgba(92,184,92,0.1)); color: #2B8A9C; }
+        .card-scenarios .tool-card-icon     { background: rgba(92,184,92,0.15); color: #28a745; }
+        .card-differentials .tool-card-icon { background: rgba(108,117,125,0.12); color: #495057; }
+        .card-connections .tool-card-icon   { background: rgba(236,72,153,0.12); color: #ec4899; }
+        .card-drugs .tool-card-icon         { background: rgba(59,130,246,0.12); color: #3b82f6; }
+        .card-atmist .tool-card-icon        { background: rgba(220,53,69,0.12); color: #dc3545; }
+        .card-ecg .tool-card-icon           { background: rgba(245,158,11,0.15); color: #d97706; }
+        .card-cpd .tool-card-icon           { background: rgba(139,92,246,0.12); color: #8b5cf6; }
+        
+        .tool-card-title { font-weight: 700; font-size: 1.05rem; color: var(--color-gray-800); margin-bottom: 0.1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .tool-card-subtitle { font-size: 0.72rem; color: var(--color-gray-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tool-card-desc { font-size: 0.85rem; color: var(--color-gray-500); margin: 0; line-height: 1.5; flex: 1; position: relative; z-index: 1; }
+        
+        .tool-card-arrow {
+            position: absolute; bottom: 1.1rem; right: 1.1rem;
+            width: 34px; height: 34px; border-radius: 50%;
+            background: var(--color-gray-100);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--color-gray-400);
+            transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+            font-size: 0.85rem; z-index: 1;
+        }
+        .tool-card:hover .tool-card-arrow {
+            background: var(--color-teal); color: #fff;
+            transform: translateX(4px) scale(1.08);
+            box-shadow: 0 4px 16px rgba(43,138,156,0.35);
         }
         
-        .tip-item p {
-            font-size: 0.85rem;
-            color: var(--color-gray-600);
-            margin: 0;
-            line-height: 1.5;
+        .card-pro-badge {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #1a1a2e; font-size: 0.58rem; font-weight: 700;
+            padding: 0.18rem 0.5rem; border-radius: 20px;
+            text-transform: uppercase; letter-spacing: 0.5px;
         }
         
-        .tip-item p strong {
-            color: var(--color-teal);
+        .tool-card.locked { opacity: 0.7; }
+        .tool-card.locked:hover { opacity: 1; }
+        .tool-card.locked .tool-card-arrow { background: linear-gradient(135deg, #FFD700, #FFA500); color: #1a1a2e; }
+        .tool-card.locked:hover .tool-card-arrow { background: linear-gradient(135deg, #FFD700, #FFA500); box-shadow: 0 4px 16px rgba(255,193,7,0.35); }
+        
+        /* ============================================================
+           UPGRADE BANNER
+           ============================================================ */
+        .upgrade-banner {
+            position: relative; background: #FFFFFF;
+            border-radius: 24px; padding: 2rem 1.5rem;
+            margin-bottom: 2rem; overflow: hidden;
+            box-shadow: 0 4px 30px rgba(255,193,7,0.08);
+            opacity: 0; transform: translateY(40px);
         }
+        .upgrade-banner.revealed { opacity: 1; transform: translateY(0); }
         
-        /* ---------- ENTRANCE ANIMATIONS ---------- */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(16px); }
-            to   { opacity: 1; transform: translateY(0); }
+        /* Rotating conic-gradient border */
+        .upgrade-banner::before {
+            content: ''; position: absolute; inset: 0;
+            border-radius: 24px; padding: 2px;
+            background: conic-gradient(from var(--upgrade-angle, 0deg), #FFD700, #FFA500, #FFD700, transparent, #FFD700);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude;
+            animation: rotateBorder 4s linear infinite;
         }
+        @property --upgrade-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+        @keyframes rotateBorder { to { --upgrade-angle: 360deg; } }
         
-        .fade-in {
-            opacity: 0;
-            transform: translateY(16px);
-            animation: fadeInUp 0.6s ease forwards;
+        .upgrade-banner::after {
+            content: ''; position: absolute; top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,215,0,0.06), transparent);
+            animation: shimmerSweep 4s ease-in-out infinite;
         }
+        @keyframes shimmerSweep { 0% { left: -100%; } 40% { left: 100%; } 100% { left: 100%; } }
         
-        .fade-in-d1 { animation-delay: 0.1s; }
-        .fade-in-d2 { animation-delay: 0.2s; }
-        .fade-in-d3 { animation-delay: 0.3s; }
-        .fade-in-d4 { animation-delay: 0.4s; }
-        .fade-in-d5 { animation-delay: 0.5s; }
-        
-        /* ---------- INTERACTIVE TILT (JS-powered) ---------- */
-        .tool-card.tilting {
-            transform-style: preserve-3d;
-            perspective: 600px;
+        .upgrade-header {
+            display: flex; align-items: center; gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            position: relative; z-index: 1;
         }
+        .upgrade-icon {
+            width: 44px; height: 44px; border-radius: 10px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; color: #1a1a2e;
+        }
+        .upgrade-title { font-size: 1.1rem; font-weight: 700; color: var(--color-gray-800); margin: 0; }
+        .upgrade-subtitle { font-size: 0.8rem; color: var(--color-gray-600); margin: 0; }
         
-        /* ---------- REDUCED MOTION ---------- */
+        .upgrade-features {
+            display: grid; grid-template-columns: repeat(2, 1fr);
+            gap: 0.35rem 1rem; margin: 0.75rem 0 1rem;
+            position: relative; z-index: 1;
+        }
+        @media (min-width: 600px) { .upgrade-features { grid-template-columns: repeat(4, 1fr); } }
+        .upgrade-feature {
+            display: flex; align-items: center; gap: 0.35rem;
+            font-size: 0.78rem; color: var(--color-gray-600);
+        }
+        .upgrade-feature i { color: #d97706; font-size: 0.8rem; }
+        
+        .upgrade-cta {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem;
+            position: relative; z-index: 1;
+        }
+        .upgrade-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #1a1a2e; font-weight: 700; font-size: 0.9rem;
+            padding: 0.65rem 1.25rem;
+            border-radius: var(--radius-full);
+            text-decoration: none; border: none; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            box-shadow: 0 4px 20px rgba(255,193,7,0.25);
+        }
+        .upgrade-btn:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 12px 32px rgba(255,193,7,0.4); color: #1a1a2e; }
+        .upgrade-price { font-size: 0.85rem; color: var(--color-gray-500); }
+        .upgrade-price strong { color: var(--color-gray-700); }
+        
+        /* ============================================================
+           UPDATES / WHAT'S NEW
+           ============================================================ */
+        .updates-section {
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.6);
+            border-radius: 20px; padding: 1.5rem;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.03);
+            margin-bottom: 2rem;
+            opacity: 0; transform: translateY(40px);
+        }
+        .updates-section.revealed { opacity: 1; transform: translateY(0); }
+        
+        .updates-header {
+            display: flex; align-items: center; gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .updates-header i { color: var(--color-teal); font-size: 1.1rem; }
+        .updates-header h3 { font-size: 1rem; font-weight: 700; color: var(--color-gray-800); margin: 0; }
+        
+        .update-item {
+            display: flex; align-items: flex-start; gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--color-gray-100);
+            transition: all 0.3s ease;
+        }
+        .update-item:hover { padding-left: 0.5rem; }
+        .update-item:last-child { border-bottom: none; padding-bottom: 0; }
+        
+        .update-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 42px; height: 20px;
+            background: linear-gradient(135deg, var(--color-teal), var(--color-green));
+            color: white; font-size: 0.6rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.3px;
+            border-radius: 4px; flex-shrink: 0;
+        }
+        .update-text {
+            font-size: 0.85rem; color: var(--color-gray-600); line-height: 1.45;
+        }
+        .update-text strong { color: var(--color-gray-800); }
+        
+        /* ============================================================
+           SCROLL REVEAL + PAGE LOAD ORCHESTRATION
+           ============================================================ */
+        .reveal-element {
+            transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1),
+                        transform 0.7s cubic-bezier(0.4,0,0.2,1);
+        }
+        .page-load-1 { opacity: 0; animation: pageReveal 0.7s 0.1s ease both; }
+        .page-load-2 { opacity: 0; animation: pageReveal 0.7s 0.2s ease both; }
+        .page-load-3 { opacity: 0; animation: pageReveal 0.7s 0.35s ease both; }
+        .page-load-4 { opacity: 0; animation: pageReveal 0.7s 0.5s ease both; }
+        .page-load-5 { opacity: 0; animation: pageReveal 0.7s 0.65s ease both; }
+        @keyframes pageReveal { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* ============================================================
+           REDUCED MOTION
+           ============================================================ */
         @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
+            *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+            .tool-card, .upgrade-banner, .updates-section { opacity: 1 !important; transform: none !important; }
+        }
+        
+        @media (max-width: 480px) {
+            .hero-greeting { font-size: 1.4rem; }
+            .stats-row { gap: 1.25rem; }
+            .stat-number { font-size: 1.25rem; }
         }
     </style>
 </head>
 
 <body class="landing-page">
-    <!-- ==================== ANIMATED BACKGROUND ==================== -->
-    <div class="bg-canvas">
-        <div class="dot-grid"></div>
-        <div class="floating-shape shape-1"></div>
-        <div class="floating-shape shape-2"></div>
-        <div class="floating-shape shape-3"></div>
-        <div class="floating-shape shape-4"></div>
-        <div class="floating-shape shape-5"></div>
-    </div>
+    <!-- ==================== CANVASES ==================== -->
+    <canvas id="particleCanvas"></canvas>
+    <canvas id="ecgCanvas"></canvas>
     
     <!-- ==================== NAVIGATION ==================== -->
-    <nav class="landing-navbar">
+    <nav class="landing-navbar" id="mainNav">
         <div class="container">
             <span class="brand-text">
                 <a class="navbar-brand" href="index.html">
@@ -762,224 +596,513 @@
     <!-- ==================== MAIN CONTENT ==================== -->
     <div class="landing-container">
         
-        <!-- ECG Heartbeat Line -->
-        <div class="ecg-line-container fade-in">
-            <svg viewBox="0 0 1200 60" preserveAspectRatio="none">
-                <polyline
-                    fill="none"
-                    stroke="#2B8A9C"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    points="0,30 80,30 100,30 110,15 120,45 130,10 140,50 150,30 170,30 250,30 280,30 290,15 300,45 310,10 320,50 330,30 350,30 430,30 460,30 470,15 480,45 490,10 500,50 510,30 530,30 600,30 680,30 700,30 710,15 720,45 730,10 740,50 750,30 770,30 850,30 880,30 890,15 900,45 910,10 920,50 930,30 950,30 1030,30 1060,30 1070,15 1080,45 1090,10 1100,50 1110,30 1130,30 1200,30"
-                />
-            </svg>
+        <!-- Payment Success Banner -->
+        <div class="payment-success-banner" id="paymentSuccessBanner">
+            <div class="success-content">
+                <div class="success-icon">
+                    <i class="bi bi-check-lg"></i>
+                </div>
+                <div class="success-text">
+                    <h3>Welcome to Paramind Pro! 🎉</h3>
+                    <p>Your subscription is now active. Enjoy unlimited access to all features!</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Live ECG Hero Strip -->
+        <div class="ecg-hero page-load-1">
+            <canvas id="ecgHeroCanvas"></canvas>
         </div>
         
         <!-- Hero Section -->
         <div class="hero-section">
-            <div class="hollie-avatar-wrapper">
-                <div class="pulse-ring"></div>
-                <div class="pulse-ring"></div>
-                <div class="pulse-ring"></div>
+            <div class="avatar-stage page-load-2">
+                <div class="avatar-glow"></div>
+                <div class="heartbeat-ring"></div>
+                <div class="heartbeat-ring"></div>
+                <div class="heartbeat-ring"></div>
+                <div class="orbit-ring">
+                    <div class="orbit-dot dot-teal"></div>
+                    <div class="orbit-dot dot-green"></div>
+                    <div class="orbit-dot dot-gold"></div>
+                </div>
                 <div class="hollie-avatar">
                     <img src="images/hollie.png" alt="Hollie - Your Paramedic Tutor">
                 </div>
             </div>
             
-            <div class="hollie-badge fade-in">
+            <div class="hollie-badge page-load-3">
                 <i class="bi bi-patch-check-fill"></i> Paramedic Tutor
             </div>
             
-            <h1>Hey <span id="userFirstName">there</span>! 👋</h1>
-            <p>What would you like to learn today?</p>
+            <h1 class="hero-greeting page-load-3">Hey <span class="gradient-name" id="userFirstName">there</span>! 👋</h1>
+            <p class="hero-subtitle page-load-4">I'm Hollie, your AI paramedic tutor. What shall we learn today?</p>
             
-            <div class="user-badge">
-                <i class="bi bi-hospital"></i>
-                <span class="trust-name" id="userTrust">Loading...</span>
-                <span class="pro-status-badge" id="proBadge" style="display: none;">
+            <div class="user-info-row page-load-5">
+                <div class="info-chip">
+                    <i class="bi bi-hospital"></i>
+                    <span id="userTrust">Loading...</span>
+                </div>
+                <div class="info-chip pro-chip" id="proBadge" style="display: none;">
                     <i class="bi bi-star-fill"></i> Pro
-                </span>
+                </div>
+                <div class="info-chip messages-chip" id="messageCounter" style="display: none;">
+                    <i class="bi bi-chat-dots"></i>
+                    <span><span class="count" id="messagesUsed">0</span>/5 today</span>
+                </div>
             </div>
-            <div class="message-counter" id="messageCounter" style="display: none;">
-                <i class="bi bi-chat-dots"></i>
-                <span><span class="count" id="messagesUsed">0</span>/5 messages today</span>
+            
+            <!-- Stats Row -->
+            <div class="stats-row page-load-5">
+                <div class="stat-item">
+                    <div class="stat-number" data-target="8">0</div>
+                    <div class="stat-label">Tools</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="14">0</div>
+                    <div class="stat-label">ECG Rhythms</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="50" data-suffix="+">0</div>
+                    <div class="stat-label">Scenarios</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="24" data-suffix="/7">0</div>
+                    <div class="stat-label">Available</div>
+                </div>
             </div>
         </div>
         
-        <!-- Learning Tools Section -->
-        <div class="tools-section fade-in fade-in-d2">
-            <div class="section-title">Learning Tools</div>
+        <!-- ==================== FREE TOOLS ==================== -->
+        <div class="tools-section">
+            <div class="section-label">
+                <span class="label-icon free"><i class="bi bi-unlock-fill"></i></span>
+                Free Tools
+            </div>
             <div class="tools-grid">
-                
                 <!-- Chat -->
-                <a href="chat.html" class="tool-card card-chat">
+                <a href="chat.html" class="tool-card card-chat reveal-element">
+                    <div class="card-glow"></div>
+                    <div class="card-line"></div>
                     <div class="tool-card-header">
-                        <div class="tool-card-icon">
-                            <i class="bi bi-chat-dots"></i>
-                        </div>
+                        <div class="tool-card-icon"><i class="bi bi-chat-dots"></i></div>
                         <div class="tool-card-info">
                             <div class="tool-card-title">Chat</div>
                             <div class="tool-card-subtitle">AI Assistant</div>
                         </div>
                     </div>
-                    <p class="tool-card-desc">Ask anything about paramedicine, we are here to help you.</p>
-                    <div class="tool-card-arrow">
-                        <i class="bi bi-arrow-right"></i>
-                    </div>
+                    <p class="tool-card-desc">Ask me anything about paramedicine. I'll help with your clinical questions!</p>
+                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
                 </a>
                 
                 <!-- Scenarios -->
-                <a href="scenarios.html" class="tool-card card-scenarios">
+                <a href="scenarios.html" class="tool-card card-scenarios reveal-element">
+                    <div class="card-glow"></div>
+                    <div class="card-line"></div>
                     <div class="tool-card-header">
-                        <div class="tool-card-icon">
-                            <i class="bi bi-mortarboard"></i>
-                        </div>
+                        <div class="tool-card-icon"><i class="bi bi-mortarboard"></i></div>
                         <div class="tool-card-info">
                             <div class="tool-card-title">Scenarios</div>
                             <div class="tool-card-subtitle">Case Studies</div>
                         </div>
                     </div>
-                    <p class="tool-card-desc">Practice with realistic simulated patient cases from dispatch to handover.</p>
-                    <div class="tool-card-arrow">
-                        <i class="bi bi-arrow-right"></i>
-                    </div>
+                    <p class="tool-card-desc">Practice realistic patient cases from dispatch to handover. Build your confidence!</p>
+                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
                 </a>
                 
                 <!-- Differentials -->
-                <a href="differentials.html" class="tool-card card-differentials">
+                <a href="differentials.html" class="tool-card card-differentials reveal-element">
+                    <div class="card-glow"></div>
+                    <div class="card-line"></div>
                     <div class="tool-card-header">
-                        <div class="tool-card-icon">
-                            <i class="bi bi-clipboard2-pulse"></i>
-                        </div>
+                        <div class="tool-card-icon"><i class="bi bi-clipboard2-pulse"></i></div>
                         <div class="tool-card-info">
                             <div class="tool-card-title">Differentials</div>
                             <div class="tool-card-subtitle">Diagnosis Explorer</div>
                         </div>
                     </div>
                     <p class="tool-card-desc">Explore differential diagnoses based on patient presentation and vitals.</p>
-                    <div class="tool-card-arrow">
-                        <i class="bi bi-arrow-right"></i>
-                    </div>
+                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
                 </a>
-                
             </div>
         </div>
         
-        <!-- Pro Tools Section -->
-        <div class="tools-section fade-in fade-in-d3">
-            <div class="section-title">Pro Tools</div>
+        <!-- ==================== PRO TOOLS ==================== -->
+        <div class="tools-section">
+            <div class="section-label">
+                <span class="label-icon pro"><i class="bi bi-star-fill"></i></span>
+                Pro Tools
+            </div>
             <div class="tools-grid">
-                
-                <!-- ATMIST - Pro -->
-                <a href="atmist.html" class="tool-card card-atmist" id="atmistCard">
+                <!-- A&P Connections -->
+                <a href="connections.html" class="tool-card card-connections reveal-element" id="connectionsCard">
+                    <div class="card-glow"></div>
+                    <div class="card-line"></div>
                     <div class="tool-card-header">
-                        <div class="tool-card-icon">
-                            <i class="bi bi-telephone-outbound"></i>
-                        </div>
+                        <div class="tool-card-icon"><i class="bi bi-heart-pulse"></i></div>
                         <div class="tool-card-info">
-                            <div class="tool-card-title">
-                                ATMIST
-                                <span class="card-pro-badge" id="atmistProBadge">Pro</span>
-                            </div>
-                            <div class="tool-card-subtitle">Handover Tool</div>
+                            <div class="tool-card-title">A&P Connections <span class="card-pro-badge" id="connectionsProBadge">Pro</span></div>
+                            <div class="tool-card-subtitle">Understand the Why</div>
                         </div>
                     </div>
-                    <p class="tool-card-desc">Generate and practice structured pre-alert and handover messages for hospital teams.</p>
-                    <div class="tool-card-arrow">
-                        <i class="bi bi-arrow-right"></i>
-                    </div>
+                    <p class="tool-card-desc">Learn why things happen. "Why does sepsis cause mottled skin?" I'll explain!</p>
+                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
                 </a>
                 
-                <!-- ECG Tool - Pro -->
-                <a href="ecg.html" class="tool-card card-ecg" id="ecgCard">
+                <!-- Drugs -->
+                <a href="drugs.html" class="tool-card card-drugs reveal-element" id="drugsCard">
+                    <div class="card-glow"></div>
+                    <div class="card-line"></div>
                     <div class="tool-card-header">
-                        <div class="tool-card-icon">
-                            <i class="bi bi-activity"></i>
-                        </div>
+                        <div class="tool-card-icon"><i class="bi bi-capsule"></i></div>
                         <div class="tool-card-info">
-                            <div class="tool-card-title">
-                                ECG Tool
-                                <span class="card-pro-badge" id="ecgProBadge">Pro</span>
-                            </div>
-                            <div class="tool-card-subtitle">Rhythm Practice</div>
+                            <div class="tool-card-title">Drugs <span class="card-pro-badge" id="drugsProBadge">Pro</span></div>
+                            <div class="tool-card-subtitle">Pharmacology Guide</div>
                         </div>
                     </div>
-                    <p class="tool-card-desc">Interactive ECG rhythm generator to practice identification skills.</p>
-                    <div class="tool-card-arrow">
-                        <i class="bi bi-arrow-right"></i>
-                    </div>
+                    <p class="tool-card-desc">Deep dive into paramedic drugs, mechanisms, doses, and clinical considerations.</p>
+                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
                 </a>
                 
-                <!-- CPD Portfolio - Pro -->
-                <a href="cpd.html" class="tool-card card-cpd" id="cpdCard">
+                <!-- ATMIST -->
+                <a href="atmist.html" class="tool-card card-atmist reveal-element" id="atmistCard">
+                    <div class="card-glow"></div>
+                    <div class="card-line"></div>
                     <div class="tool-card-header">
-                        <div class="tool-card-icon">
-                            <i class="bi bi-award"></i>
-                        </div>
+                        <div class="tool-card-icon"><i class="bi bi-telephone-outbound"></i></div>
                         <div class="tool-card-info">
-                            <div class="tool-card-title">
-                                CPD Portfolio
-                                <span class="card-pro-badge" id="cpdProBadge">Pro</span>
-                            </div>
-                            <div class="tool-card-subtitle">Track Progress</div>
+                            <div class="tool-card-title">ATMIST <span class="card-pro-badge" id="atmistProBadge">Pro</span></div>
+                            <div class="tool-card-subtitle">Handover Generator</div>
                         </div>
                     </div>
-                    <p class="tool-card-desc">Track your completed scenarios and download CPD certificates.</p>
-                    <div class="tool-card-arrow">
-                        <i class="bi bi-arrow-right"></i>
-                    </div>
+                    <p class="tool-card-desc">Generate and practice structured pre-alert messages for hospital handovers.</p>
+                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
                 </a>
                 
+                <!-- ECG Tool -->
+                <a href="ecg.html" class="tool-card card-ecg reveal-element" id="ecgCard">
+                    <div class="card-glow"></div>
+                    <div class="card-line"></div>
+                    <div class="tool-card-header">
+                        <div class="tool-card-icon"><i class="bi bi-activity"></i></div>
+                        <div class="tool-card-info">
+                            <div class="tool-card-title">ECG Tool <span class="card-pro-badge" id="ecgProBadge">Pro</span></div>
+                            <div class="tool-card-subtitle">Rhythm Mastery</div>
+                        </div>
+                    </div>
+                    <p class="tool-card-desc">Interactive ECG training with 14 key cardiac rhythms. Learn, then test yourself!</p>
+                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
+                </a>
+                
+                <!-- CPD Portfolio -->
+                <a href="cpd.html" class="tool-card card-cpd reveal-element" id="cpdCard">
+                    <div class="card-glow"></div>
+                    <div class="card-line"></div>
+                    <div class="tool-card-header">
+                        <div class="tool-card-icon"><i class="bi bi-award"></i></div>
+                        <div class="tool-card-info">
+                            <div class="tool-card-title">CPD Portfolio <span class="card-pro-badge" id="cpdProBadge">Pro</span></div>
+                            <div class="tool-card-subtitle">Track & Certify</div>
+                        </div>
+                    </div>
+                    <p class="tool-card-desc">Track your learning and download CPD certificates for completed scenarios.</p>
+                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
+                </a>
             </div>
         </div>
         
-        <!-- Upgrade Banner (shown to free users) -->
-        <div class="upgrade-banner fade-in fade-in-d4" id="upgradeBanner">
-            <h3><i class="bi bi-star-fill"></i> Unlock Pro Features</h3>
-            <p>Get unlimited messages, CPD certificates, AI ATMIST tool, ECG practice, and more!</p>
-            <button class="upgrade-btn" onclick="handleUpgrade()">
-                <i class="bi bi-star"></i>
-                Upgrade to Pro - Just £4.99/month
-            </button>
+        <!-- ==================== UPGRADE BANNER ==================== -->
+        <div class="upgrade-banner reveal-element" id="upgradeBanner">
+            <div class="upgrade-header">
+                <div class="upgrade-icon">
+                    <i class="bi bi-rocket-takeoff"></i>
+                </div>
+                <div>
+                    <h3 class="upgrade-title">Unlock Pro Features</h3>
+                    <p class="upgrade-subtitle">Get unlimited access to all learning tools</p>
+                </div>
+            </div>
+            
+            <div class="upgrade-features">
+                <div class="upgrade-feature">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>Unlimited chat</span>
+                </div>
+                <div class="upgrade-feature">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>All Pro tools</span>
+                </div>
+                <div class="upgrade-feature">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>CPD certificates</span>
+                </div>
+            </div>
+            
+            <div class="upgrade-cta">
+                <button class="upgrade-btn" onclick="handleUpgrade()">
+                    <i class="bi bi-star-fill"></i>
+                    Upgrade to Pro
+                </button>
+                <span class="upgrade-price">Just <strong>£4.99</strong>/month</span>
+            </div>
         </div>
         
-        <!-- Quick Tips -->
-        <div class="tips-section fade-in fade-in-d5">
-            <h3><i class="bi bi-lightbulb"></i> UPDATES</h3>
-            <div class="tip-item">
-                <i class="bi bi-check-circle-fill"></i>
-                <p><strong>NEW!</strong> An interactive, fun ECG tool and quiz for PRO users. Learn 14 top rhythms, then do the test.</p>
+        <!-- ==================== UPDATES ==================== -->
+        <div class="updates-section reveal-element">
+            <div class="updates-header">
+                <i class="bi bi-megaphone-fill"></i>
+                <h3>What's New</h3>
             </div>
-            <div class="tip-item">
-                <i class="bi bi-check-circle-fill"></i>
-                <p><strong>NEW!</strong> A&P Connections for PRO users, learn why things happen to the body... questions such as "Why does sepsis cause mottled skin?"</p>
+            
+            <div class="update-item">
+                <span class="update-badge">New</span>
+                <p class="update-text"><strong>Drugs Tool</strong> — The most common medications you will see in practice, with full (plain English) descriptions and considerations</p>
             </div>
-            <div class="tip-item">
-                <i class="bi bi-check-circle-fill"></i>
-                <p><strong>NEW!</strong> Simplify button in chat and A&P connections for when you need things explained in a little less complicated way!</p>
+            
+            <div class="update-item">
+                <span class="update-badge">New</span>
+                <p class="update-text"><strong>ECG Tool</strong> — Interactive rhythm training with 14 key cardiac rhythms. Learn the patterns, then test yourself with the quiz!</p>
+            </div>
+            
+            <div class="update-item">
+                <span class="update-badge">New</span>
+                <p class="update-text"><strong>A&P Connections</strong> — Ever wondered "Why does sepsis cause mottled skin?" Now you can find out with 80+ clinical questions.</p>
+            </div>
+            
+            <div class="update-item">
+                <span class="update-badge">New</span>
+                <p class="update-text"><strong>Simplify Button</strong> — Hit simplify in Chat and A&P Connections when you need things explained in plain English!</p>
             </div>
         </div>
         
     </div>
 
     <!-- ==================== SCRIPTS ==================== -->
-    
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Menu JS -->
     <script src="js/menu-v2.js"></script>
-    
-    <!-- App JS (shared config) -->
     <script src="js/app.js"></script>
     
-    <!-- Page Script -->
+    <!-- ==================== VISUAL ENGINE ==================== -->
+    <script>
+    (function() {
+        'use strict';
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        
+        /* ========== 1. PARTICLE NETWORK ========== */
+        const pc = document.getElementById('particleCanvas');
+        const pctx = pc.getContext('2d');
+        let particles = [];
+        let mouseX = -1000, mouseY = -1000;
+        
+        function resizePC() { pc.width = window.innerWidth; pc.height = window.innerHeight; }
+        resizePC();
+        window.addEventListener('resize', resizePC);
+        document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+        document.addEventListener('mouseleave', () => { mouseX = -1000; mouseY = -1000; });
+        
+        class Particle {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * pc.width;
+                this.y = Math.random() * pc.height;
+                this.vx = (Math.random() - 0.5) * 0.4;
+                this.vy = (Math.random() - 0.5) * 0.4;
+                this.r = Math.random() * 2 + 1;
+                this.o = Math.random() * 0.3 + 0.1;
+                const c = ['43,138,156','92,184,92','180,190,200'];
+                this.c = c[Math.floor(Math.random() * c.length)];
+            }
+            update() {
+                const dx = this.x - mouseX, dy = this.y - mouseY;
+                const d = Math.sqrt(dx*dx + dy*dy);
+                if (d < 150) { const f = (150-d)/150; this.vx += (dx/d)*f*0.3; this.vy += (dy/d)*f*0.3; }
+                this.vx *= 0.98; this.vy *= 0.98;
+                this.x += this.vx; this.y += this.vy;
+                if (this.x < -10) this.x = pc.width+10;
+                if (this.x > pc.width+10) this.x = -10;
+                if (this.y < -10) this.y = pc.height+10;
+                if (this.y > pc.height+10) this.y = -10;
+            }
+            draw() {
+                pctx.beginPath();
+                pctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+                pctx.fillStyle = `rgba(${this.c},${this.o})`;
+                pctx.fill();
+            }
+        }
+        
+        const pCount = window.innerWidth < 768 ? 30 : 60;
+        for (let i = 0; i < pCount; i++) particles.push(new Particle());
+        
+        function drawConns() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i+1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
+                    const d = Math.sqrt(dx*dx + dy*dy);
+                    if (d < 120) {
+                        pctx.beginPath();
+                        pctx.moveTo(particles[i].x, particles[i].y);
+                        pctx.lineTo(particles[j].x, particles[j].y);
+                        pctx.strokeStyle = `rgba(43,138,156,${(1-d/120)*0.08})`;
+                        pctx.lineWidth = 1;
+                        pctx.stroke();
+                    }
+                }
+            }
+        }
+        
+        function animP() {
+            if (reducedMotion) return;
+            pctx.clearRect(0, 0, pc.width, pc.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            drawConns();
+            requestAnimationFrame(animP);
+        }
+        animP();
+        
+        /* ========== 2. REAL-TIME ECG (Hero strip) ========== */
+        const ecgH = document.getElementById('ecgHeroCanvas');
+        const ectx = ecgH.getContext('2d');
+        let dpr = window.devicePixelRatio || 1;
+        
+        function resizeECG() {
+            const r = ecgH.parentElement.getBoundingClientRect();
+            ecgH.width = r.width * dpr;
+            ecgH.height = r.height * dpr;
+            ectx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        resizeECG();
+        window.addEventListener('resize', () => { dpr = window.devicePixelRatio || 1; resizeECG(); });
+        
+        function ecgPt(t) {
+            t = t % 1;
+            if (t > 0.05 && t < 0.15) return Math.sin((t-0.05)/0.1*Math.PI)*0.12;
+            if (t > 0.18 && t < 0.22) return -Math.sin((t-0.18)/0.04*Math.PI)*0.1;
+            if (t > 0.22 && t < 0.28) return Math.sin((t-0.22)/0.06*Math.PI)*0.85;
+            if (t > 0.28 && t < 0.33) return -Math.sin((t-0.28)/0.05*Math.PI)*0.2;
+            if (t > 0.40 && t < 0.55) return Math.sin((t-0.40)/0.15*Math.PI)*0.18;
+            return 0;
+        }
+        
+        let ecgOff = 0;
+        function drawECG() {
+            if (reducedMotion) return;
+            const w = ecgH.parentElement.getBoundingClientRect().width;
+            const h = ecgH.parentElement.getBoundingClientRect().height;
+            const my = h*0.5, amp = h*0.4, cw = 220;
+            
+            ectx.clearRect(0, 0, w, h);
+            ectx.shadowColor = 'rgba(43,138,156,0.6)';
+            ectx.shadowBlur = 8;
+            ectx.beginPath();
+            ectx.strokeStyle = '#2B8A9C';
+            ectx.lineWidth = 2.5;
+            ectx.lineJoin = 'round';
+            ectx.lineCap = 'round';
+            
+            for (let x = 0; x <= w; x++) {
+                const t = ((x+ecgOff)%cw)/cw;
+                const y = my - ecgPt(t)*amp;
+                x === 0 ? ectx.moveTo(x,y) : ectx.lineTo(x,y);
+            }
+            ectx.stroke();
+            
+            const dx = w*0.85;
+            const dt = ((dx+ecgOff)%cw)/cw;
+            const dy = my - ecgPt(dt)*amp;
+            ectx.shadowBlur = 16;
+            ectx.shadowColor = 'rgba(43,138,156,0.8)';
+            ectx.beginPath();
+            ectx.arc(dx, dy, 4, 0, Math.PI*2);
+            ectx.fillStyle = '#2B8A9C';
+            ectx.fill();
+            
+            ectx.shadowBlur = 0;
+            const g = ectx.createLinearGradient(dx, 0, w, 0);
+            g.addColorStop(0, 'rgba(255,255,255,0)');
+            g.addColorStop(1, 'rgba(255,255,255,0.95)');
+            ectx.fillStyle = g;
+            ectx.fillRect(dx, 0, w-dx, h);
+            
+            ecgOff += 1.8;
+            requestAnimationFrame(drawECG);
+        }
+        drawECG();
+        
+        /* ========== 3. BOTTOM ECG (ambient) ========== */
+        const ecgB = document.getElementById('ecgCanvas');
+        const bctx = ecgB.getContext('2d');
+        function resizeBE() { ecgB.width = window.innerWidth; ecgB.height = 120; }
+        resizeBE();
+        window.addEventListener('resize', resizeBE);
+        let bOff = 0;
+        function drawBE() {
+            if (reducedMotion) return;
+            bctx.clearRect(0, 0, ecgB.width, ecgB.height);
+            bctx.beginPath();
+            bctx.strokeStyle = 'rgba(92,184,92,0.15)';
+            bctx.lineWidth = 1.5;
+            for (let x = 0; x <= ecgB.width; x++) {
+                const t = ((x+bOff)%280)/280;
+                const y = 60 - ecgPt(t)*45;
+                x === 0 ? bctx.moveTo(x,y) : bctx.lineTo(x,y);
+            }
+            bctx.stroke();
+            bOff += 1.2;
+            requestAnimationFrame(drawBE);
+        }
+        drawBE();
+        
+        /* ========== 4. SCROLL REVEALS ========== */
+        const rObs = new IntersectionObserver((entries) => {
+            entries.forEach((e, i) => {
+                if (e.isIntersecting) {
+                    setTimeout(() => e.target.classList.add('revealed'), (e.target.dataset.rd || i*80));
+                    rObs.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        document.querySelectorAll('.tool-card, .upgrade-banner, .updates-section').forEach((el, i) => { el.dataset.rd = i*80; rObs.observe(el); });
+        
+        /* ========== 5. MAGNETIC CARD HOVER (3D tilt + glow follow) ========== */
+        document.querySelectorAll('.tool-card').forEach(card => {
+            const glow = card.querySelector('.card-glow');
+            card.addEventListener('mousemove', e => {
+                const r = card.getBoundingClientRect();
+                const x = e.clientX - r.left, y = e.clientY - r.top;
+                const rx = ((y - r.height/2)/(r.height/2))*-5;
+                const ry = ((x - r.width/2)/(r.width/2))*5;
+                card.style.transform = `translateY(-8px) perspective(600px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+                if (glow) { glow.style.left = (x-100)+'px'; glow.style.top = (y-100)+'px'; }
+            });
+            card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+        });
+        
+        /* ========== 6. STAT COUNTERS ========== */
+        function animCounters() {
+            document.querySelectorAll('.stat-number').forEach(el => {
+                const t = +el.dataset.target, s = el.dataset.suffix||'', st = performance.now();
+                (function step(now) {
+                    const p = Math.min((now-st)/1500, 1);
+                    el.textContent = Math.round((1-Math.pow(1-p,3))*t) + s;
+                    if (p < 1) requestAnimationFrame(step);
+                })(st);
+            });
+        }
+        const sObs = new IntersectionObserver(e => { if (e[0].isIntersecting) { setTimeout(animCounters, 400); sObs.unobserve(e[0].target); } }, { threshold: 0.5 });
+        const sr = document.querySelector('.stats-row');
+        if (sr) sObs.observe(sr);
+        
+        /* ========== 7. NAVBAR SCROLL ========== */
+        const nav = document.getElementById('mainNav');
+        window.addEventListener('scroll', () => { nav.classList.toggle('scrolled', window.scrollY > 20); }, { passive: true });
+    })();
+    </script>
+    
+    <!-- ==================== FIREBASE & APP LOGIC ==================== -->
     <script>
         // ==================== FIREBASE CONFIG ====================
         const firebaseConfig = {
@@ -992,7 +1115,6 @@
             measurementId: "G-GW385S6L0L"
         };
 
-        // Initialize Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
@@ -1008,37 +1130,46 @@
         const userFirstNameEl = document.getElementById('userFirstName');
         const userTrustEl = document.getElementById('userTrust');
         const proBadgeEl = document.getElementById('proBadge');
+        const upgradeBannerEl = document.getElementById('upgradeBanner');
         const messageCounterEl = document.getElementById('messageCounter');
         const messagesUsedEl = document.getElementById('messagesUsed');
-        const upgradeBannerEl = document.getElementById('upgradeBanner');
+
+        // Pro badge elements on cards
+        const connectionsProBadge = document.getElementById('connectionsProBadge');
+        const drugsProBadge = document.getElementById('drugsProBadge');
         const atmistProBadge = document.getElementById('atmistProBadge');
         const ecgProBadge = document.getElementById('ecgProBadge');
         const cpdProBadge = document.getElementById('cpdProBadge');
 
         // ==================== AUTH STATE ====================
         auth.onAuthStateChanged(async (user) => {
-            if (!user) {
-                window.location.href = 'login.html';
-                return;
-            }
-
-            try {
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                if (userDoc.exists) {
-                    userData = userDoc.data();
-                    isPro = userData.isPro === true || userData.subscriptionStatus === 'active';
-                    updateUI();
+            if (user) {
+                try {
+                    const doc = await db.collection('users').doc(user.uid).get();
+                    if (doc.exists) {
+                        userData = doc.data();
+                        isPro = userData.subscriptionStatus === 'active' || userData.isPro === true;
+                        updateUI();
+                    } else {
+                        console.log('No user document found');
+                        userTrustEl.textContent = 'Setup required';
+                    }
+                } catch (error) {
+                    console.error('Error fetching user data:', error);
+                    userTrustEl.textContent = 'Error loading';
                 }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
+            } else {
+                window.location.href = 'login.html';
             }
         });
 
         // ==================== UPDATE UI ====================
         function updateUI() {
-            // Update name
+            // Update first name
             if (userData.firstName) {
                 userFirstNameEl.textContent = userData.firstName;
+            } else if (userData.name) {
+                userFirstNameEl.textContent = userData.name.split(' ')[0];
             } else {
                 userFirstNameEl.textContent = 'there';
             }
@@ -1055,6 +1186,8 @@
                 proBadgeEl.style.display = 'inline-flex';
                 upgradeBannerEl.style.display = 'none';
                 
+                if (connectionsProBadge) connectionsProBadge.style.display = 'none';
+                if (drugsProBadge) drugsProBadge.style.display = 'none';
                 if (atmistProBadge) atmistProBadge.style.display = 'none';
                 if (ecgProBadge) ecgProBadge.style.display = 'none';
                 if (cpdProBadge) cpdProBadge.style.display = 'none';
@@ -1065,8 +1198,10 @@
             } else {
                 proBadgeEl.style.display = 'none';
                 upgradeBannerEl.style.display = 'block';
-                messageCounterEl.style.display = 'block';
+                messageCounterEl.style.display = 'inline-flex';
                 
+                document.getElementById('connectionsCard')?.classList.add('locked');
+                document.getElementById('drugsCard')?.classList.add('locked');
                 document.getElementById('atmistCard')?.classList.add('locked');
                 document.getElementById('ecgCard')?.classList.add('locked');
                 document.getElementById('cpdCard')?.classList.add('locked');
@@ -1080,15 +1215,11 @@
             try {
                 const user = auth.currentUser;
                 if (!user) return;
-
                 const today = new Date().toISOString().split('T')[0];
-                
                 const countDoc = await db.collection('users').doc(user.uid)
                     .collection('daily_usage').doc(today).get();
-                
                 if (countDoc.exists) {
-                    const count = countDoc.data().messageCount || 0;
-                    messagesUsedEl.textContent = count;
+                    messagesUsedEl.textContent = countDoc.data().messageCount || 0;
                 } else {
                     messagesUsedEl.textContent = '0';
                 }
@@ -1101,10 +1232,7 @@
         async function createCheckoutSession() {
             try {
                 const user = auth.currentUser;
-                if (!user) {
-                    alert('Please sign in to upgrade');
-                    return;
-                }
+                if (!user) { alert('Please sign in to upgrade'); return; }
                 
                 const token = await user.getIdToken();
                 const baseUrl = window.paramind?.CONFIG?.api?.baseUrl || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
@@ -1119,11 +1247,7 @@
                 });
                 
                 const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.error || 'Failed to create checkout session');
-                }
-                
+                if (!response.ok) throw new Error(data.error || 'Failed to create checkout session');
                 window.location.href = data.url;
             } catch (error) {
                 console.error('Checkout error:', error);
@@ -1135,33 +1259,28 @@
             createCheckoutSession();
         }
 
-        // ==================== CHECK FOR UPGRADE PARAM ====================
+        // ==================== CHECK FOR URL PARAMS ====================
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('upgrade') === 'true') {
-            setTimeout(() => {
-                handleUpgrade();
-            }, 500);
+        
+        // Check for successful payment
+        if (urlParams.get('success') === 'true') {
+            const banner = document.getElementById('paymentSuccessBanner');
+            if (banner) {
+                banner.classList.add('show');
+                setTimeout(() => {
+                    banner.style.animation = 'none';
+                    banner.style.opacity = '0';
+                    banner.style.transition = 'opacity 0.5s ease';
+                    setTimeout(() => banner.classList.remove('show'), 500);
+                }, 10000);
+            }
+            window.history.replaceState({}, document.title, 'landing.html');
         }
-
-        // ==================== INTERACTIVE CARD TILT ====================
-        // Adds a subtle 3D tilt effect when hovering over tool cards
-        document.querySelectorAll('.tool-card').forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                const rotateX = ((y - centerY) / centerY) * -4;
-                const rotateY = ((x - centerX) / centerX) * 4;
-                
-                card.style.transform = `translateY(-6px) perspective(600px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-            });
-            
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = '';
-            });
-        });
+        
+        // If user came from menu upgrade button
+        if (urlParams.get('upgrade') === 'true') {
+            setTimeout(() => { handleUpgrade(); }, 500);
+        }
     </script>
 </body>
 </html>
