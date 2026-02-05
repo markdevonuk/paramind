@@ -419,21 +419,21 @@ case "checkout.session.completed": {
       updateData.discountApplied = true;
       updateData.discountAmount = session.total_details.amount_discount;
       
-      // NEW: Get the promotion code name (e.g., "PLYMOUTH_UNI")
-      // This helps us track which partner/university referred this user
-      if (session.discounts && session.discounts.length > 0) {
-        try {
-          const discountInfo = session.discounts[0];
-          // The promotion_code field contains the promo code ID
-          if (discountInfo.promotion_code) {
-            const promoCode = await stripe.promotionCodes.retrieve(discountInfo.promotion_code);
-            updateData.promoCodeUsed = promoCode.code; // The actual code string like "PLYMOUTH_UNI"
-            console.log(`Promo code used: ${promoCode.code}`);
-          }
-        } catch (promoError) {
-          console.error("Error retrieving promo code details:", promoError.message);
-          // Continue anyway - don't fail the whole checkout over this
+      // Retrieve the full session from Stripe with discount details expanded
+      try {
+        const fullSession = await stripe.checkout.sessions.retrieve(session.id, {
+          expand: ['total_details.breakdown']
+        });
+        
+        const discounts = fullSession.total_details?.breakdown?.discounts;
+        if (discounts && discounts.length > 0 && discounts[0].discount?.promotion_code) {
+          const promoCodeId = discounts[0].discount.promotion_code;
+          const promoCode = await stripe.promotionCodes.retrieve(promoCodeId);
+          updateData.promoCodeUsed = promoCode.code;
+          console.log(`Promo code used: ${promoCode.code}`);
         }
+      } catch (promoError) {
+        console.error("Error retrieving promo code details:", promoError.message);
       }
     }
 
