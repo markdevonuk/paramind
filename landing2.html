@@ -47,16 +47,6 @@
             z-index: 0;
         }
         
-        /* ---- BOTTOM ECG CANVAS ---- */
-        #ecgCanvas {
-            position: fixed;
-            bottom: 0; left: 0;
-            width: 100%; height: 120px;
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0.12;
-        }
-        
         /* ---- NAVBAR (frosted glass) ---- */
         .landing-navbar {
             background: rgba(255,255,255,0.72);
@@ -124,21 +114,6 @@
         }
         .payment-success-banner .success-text p {
             font-size: 0.875rem; color: var(--color-gray-600); margin: 0;
-        }
-        
-        /* ============================================================
-           LIVE ECG HERO STRIP
-           ============================================================ */
-        .ecg-hero {
-            width: 100%;
-            height: 60px;
-            margin: 0 auto 0.5rem;
-            position: relative;
-            overflow: hidden;
-        }
-        #ecgHeroCanvas {
-            width: 100%; height: 100%;
-            display: block;
         }
         
         /* ============================================================
@@ -243,7 +218,9 @@
         
         .hero-subtitle {
             color: var(--color-gray-500);
-            margin: 0 0 1rem; font-size: 1rem;
+            margin: 0 auto 1rem; font-size: 1rem;
+            max-width: 400px;
+            text-align: center;
         }
         
         /* User info row */
@@ -575,7 +552,6 @@
 <body class="landing-page">
     <!-- ==================== CANVASES ==================== -->
     <canvas id="particleCanvas"></canvas>
-    <canvas id="ecgCanvas"></canvas>
     
     <!-- ==================== NAVIGATION ==================== -->
     <nav class="landing-navbar" id="mainNav">
@@ -607,11 +583,6 @@
                     <p>Your subscription is now active. Enjoy unlimited access to all features!</p>
                 </div>
             </div>
-        </div>
-        
-        <!-- Live ECG Hero Strip -->
-        <div class="ecg-hero page-load-1">
-            <canvas id="ecgHeroCanvas"></canvas>
         </div>
         
         <!-- Hero Section -->
@@ -963,100 +934,7 @@
         }
         animP();
         
-        /* ========== 2. REAL-TIME ECG (Hero strip) ========== */
-        const ecgH = document.getElementById('ecgHeroCanvas');
-        const ectx = ecgH.getContext('2d');
-        let dpr = window.devicePixelRatio || 1;
-        
-        function resizeECG() {
-            const r = ecgH.parentElement.getBoundingClientRect();
-            ecgH.width = r.width * dpr;
-            ecgH.height = r.height * dpr;
-            ectx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        }
-        resizeECG();
-        window.addEventListener('resize', () => { dpr = window.devicePixelRatio || 1; resizeECG(); });
-        
-        function ecgPt(t) {
-            t = t % 1;
-            if (t > 0.05 && t < 0.15) return Math.sin((t-0.05)/0.1*Math.PI)*0.12;
-            if (t > 0.18 && t < 0.22) return -Math.sin((t-0.18)/0.04*Math.PI)*0.1;
-            if (t > 0.22 && t < 0.28) return Math.sin((t-0.22)/0.06*Math.PI)*0.85;
-            if (t > 0.28 && t < 0.33) return -Math.sin((t-0.28)/0.05*Math.PI)*0.2;
-            if (t > 0.40 && t < 0.55) return Math.sin((t-0.40)/0.15*Math.PI)*0.18;
-            return 0;
-        }
-        
-        let ecgOff = 0;
-        function drawECG() {
-            if (reducedMotion) return;
-            const w = ecgH.parentElement.getBoundingClientRect().width;
-            const h = ecgH.parentElement.getBoundingClientRect().height;
-            const my = h*0.5, amp = h*0.4, cw = 220;
-            
-            ectx.clearRect(0, 0, w, h);
-            ectx.shadowColor = 'rgba(43,138,156,0.6)';
-            ectx.shadowBlur = 8;
-            ectx.beginPath();
-            ectx.strokeStyle = '#2B8A9C';
-            ectx.lineWidth = 2.5;
-            ectx.lineJoin = 'round';
-            ectx.lineCap = 'round';
-            
-            for (let x = 0; x <= w; x++) {
-                const t = ((x+ecgOff)%cw)/cw;
-                const y = my - ecgPt(t)*amp;
-                x === 0 ? ectx.moveTo(x,y) : ectx.lineTo(x,y);
-            }
-            ectx.stroke();
-            
-            const dx = w*0.85;
-            const dt = ((dx+ecgOff)%cw)/cw;
-            const dy = my - ecgPt(dt)*amp;
-            ectx.shadowBlur = 16;
-            ectx.shadowColor = 'rgba(43,138,156,0.8)';
-            ectx.beginPath();
-            ectx.arc(dx, dy, 4, 0, Math.PI*2);
-            ectx.fillStyle = '#2B8A9C';
-            ectx.fill();
-            
-            ectx.shadowBlur = 0;
-            const g = ectx.createLinearGradient(dx, 0, w, 0);
-            g.addColorStop(0, 'rgba(255,255,255,0)');
-            g.addColorStop(1, 'rgba(255,255,255,0.95)');
-            ectx.fillStyle = g;
-            ectx.fillRect(dx, 0, w-dx, h);
-            
-            ecgOff += 1.8;
-            requestAnimationFrame(drawECG);
-        }
-        drawECG();
-        
-        /* ========== 3. BOTTOM ECG (ambient) ========== */
-        const ecgB = document.getElementById('ecgCanvas');
-        const bctx = ecgB.getContext('2d');
-        function resizeBE() { ecgB.width = window.innerWidth; ecgB.height = 120; }
-        resizeBE();
-        window.addEventListener('resize', resizeBE);
-        let bOff = 0;
-        function drawBE() {
-            if (reducedMotion) return;
-            bctx.clearRect(0, 0, ecgB.width, ecgB.height);
-            bctx.beginPath();
-            bctx.strokeStyle = 'rgba(92,184,92,0.15)';
-            bctx.lineWidth = 1.5;
-            for (let x = 0; x <= ecgB.width; x++) {
-                const t = ((x+bOff)%280)/280;
-                const y = 60 - ecgPt(t)*45;
-                x === 0 ? bctx.moveTo(x,y) : bctx.lineTo(x,y);
-            }
-            bctx.stroke();
-            bOff += 1.2;
-            requestAnimationFrame(drawBE);
-        }
-        drawBE();
-        
-        /* ========== 4. SCROLL REVEALS ========== */
+        /* ========== 2. SCROLL REVEALS ========== */
         const rObs = new IntersectionObserver((entries) => {
             entries.forEach((e, i) => {
                 if (e.isIntersecting) {
@@ -1067,7 +945,7 @@
         }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
         document.querySelectorAll('.tool-card, .upgrade-banner, .updates-section').forEach((el, i) => { el.dataset.rd = i*80; rObs.observe(el); });
         
-        /* ========== 5. MAGNETIC CARD HOVER (3D tilt + glow follow) ========== */
+        /* ========== 3. MAGNETIC CARD HOVER ========== */
         document.querySelectorAll('.tool-card').forEach(card => {
             const glow = card.querySelector('.card-glow');
             card.addEventListener('mousemove', e => {
@@ -1081,13 +959,14 @@
             card.addEventListener('mouseleave', () => { card.style.transform = ''; });
         });
         
-        /* ========== 6. STAT COUNTERS ========== */
+        /* ========== 4. STAT COUNTERS ========== */
         function animCounters() {
             document.querySelectorAll('.stat-number').forEach(el => {
                 const t = +el.dataset.target, s = el.dataset.suffix||'', st = performance.now();
                 (function step(now) {
-                    const p = Math.min((now-st)/1500, 1);
-                    el.textContent = Math.round((1-Math.pow(1-p,3))*t) + s;
+                    const p = Math.min((now-st)/3000, 1);
+                    const eased = p < 0.5 ? 4*p*p*p : 1 - Math.pow(-2*p+2,3)/2;
+                    el.textContent = Math.round(eased*t) + s;
                     if (p < 1) requestAnimationFrame(step);
                 })(st);
             });
@@ -1096,7 +975,7 @@
         const sr = document.querySelector('.stats-row');
         if (sr) sObs.observe(sr);
         
-        /* ========== 7. NAVBAR SCROLL ========== */
+        /* ========== 5. NAVBAR SCROLL ========== */
         const nav = document.getElementById('mainNav');
         window.addEventListener('scroll', () => { nav.classList.toggle('scrolled', window.scrollY > 20); }, { passive: true });
     })();
