@@ -434,7 +434,7 @@
             updateUserDisplay(userData.email, userData.trust);
 
             console.log('Menu v2: Initialized successfully', userData.isPro ? '(Pro user)' : '(Free user)');
-        }
+        } 
 
         // SAFETY NET: If Firebase takes too long (offline/slow), build menu anyway after 2 seconds
         const safetyTimeout = setTimeout(function() {
