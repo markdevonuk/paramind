@@ -1,8 +1,6 @@
 /* ==================== HAMBURGER MENU V2 - CENTRALISED JS ==================== */
 /* ParaMind - Centralised Menu JavaScript */
 /* Version 2: Updated for separate pages structure */
-/* FIXED: Double-tap bug (click+touchend removed) */
-/* FIXED: Menu now builds even when Firebase is offline */
 /* Add to your pages BEFORE </body>: <script src="js/menu-v2.js"></script> */
 
 (function() {
@@ -168,15 +166,14 @@
         }
 
         // Event listeners
-        // FIX: Single click handler only - works on ALL devices
-        // The old touchend + click combo caused double-firing on mobile,
-        // which opened then immediately closed the menu
-        hamburgerBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleMenu();
-        });
+        // Click for desktop
+hamburgerBtn.addEventListener('click', toggleMenu);
 
+// Touch for iOS/iPad - fixes menu not responding on iPads
+hamburgerBtn.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    toggleMenu();
+});
         menuOverlay.addEventListener('click', closeMenu);
 
         // Close on Escape key
@@ -398,8 +395,6 @@
     }
 
     // ==================== INITIALIZE ====================
-    // FIX: Menu now builds even when Firebase is offline/slow
-    // Uses a 2-second safety timeout so the menu always appears
     function init() {
         // Check if hamburger button exists
         const hamburgerBtn = document.getElementById('hamburgerBtn');
@@ -450,6 +445,27 @@
             buildMenu(userData);
         });
     }
+            // Remove existing menu if any (in case of re-init)
+            const existingMenu = document.getElementById('menuContainer');
+            if (existingMenu) {
+                existingMenu.remove();
+            }
+
+            // Inject menu HTML into the page
+            const menuContainer = document.createElement('div');
+            menuContainer.id = 'menuContainer';
+            menuContainer.innerHTML = buildMenuHTML(userData.isPro);
+            document.body.insertBefore(menuContainer, document.body.firstChild);
+
+            // Initialize functionality
+            initMenuFunctionality();
+
+            // Update user display
+            updateUserDisplay(userData.email, userData.trust);
+
+            console.log('Menu v2: Initialized successfully', userData.isPro ? '(Pro user)' : '(Free user)');
+        });
+    }
 
     // Run when DOM is ready
     if (document.readyState === 'loading') {
@@ -458,4 +474,5 @@
         init();
     }
 
-})();
+})(); 
+ 
