@@ -1,8 +1,6 @@
 /* ==================== HAMBURGER MENU STYLES V2 ==================== */
 /* ParaMind - Centralised Menu Styles */
 /* Version 2: Updated for separate pages structure */
-/* FIXED: iPad Safari body scroll lock */
-/* FIXED: Touch events bleeding through overlay */
 /* Add to your pages: <link rel="stylesheet" href="css/menu-v2.css"> */
 
 /* ==================== HAMBURGER BUTTON ==================== */
@@ -68,9 +66,6 @@
 .menu-overlay.active {
     opacity: 1;
     visibility: visible;
-    /* FIX: Stop touch events bleeding through overlay on iPad */
-    -webkit-overflow-scrolling: auto;
-    touch-action: none;
 }
 
 /* ==================== SLIDE-OUT MENU ==================== */
@@ -238,12 +233,7 @@
     }
 }
 
-/* ==================== PREVENT BODY SCROLL WHEN MENU IS OPEN ==================== */
-/* FIX: Need both html AND body for iOS/iPad Safari */
-html.menu-open,
+/* Prevent body scroll when menu is open */
 body.menu-open {
     overflow: hidden;
-    position: fixed;
-    width: 100%;
-    height: 100%;
 }

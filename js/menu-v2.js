@@ -3,6 +3,7 @@
 /* Version 2: Updated for separate pages structure */
 /* FIXED: Double-tap bug (click+touchend removed) */
 /* FIXED: Menu now builds even when Firebase is offline */
+/* FIXED: iPad Safari scroll lock (position fixed + scroll save/restore) */
 /* Add to your pages BEFORE </body>: <script src="js/menu-v2.js"></script> */
 
 (function() {
@@ -145,11 +146,17 @@
             return;
         }
 
+        // FIX: Save scroll position for iPad Safari scroll lock
+        let savedScrollY = 0;
+
         function openMenu() {
+            savedScrollY = window.scrollY;
             hamburgerBtn.classList.add('active');
             slideMenu.classList.add('active');
             menuOverlay.classList.add('active');
             document.body.classList.add('menu-open');
+            document.documentElement.classList.add('menu-open');
+            document.body.style.top = `-${savedScrollY}px`;
         }
 
         function closeMenu() {
@@ -157,6 +164,9 @@
             slideMenu.classList.remove('active');
             menuOverlay.classList.remove('active');
             document.body.classList.remove('menu-open');
+            document.documentElement.classList.remove('menu-open');
+            document.body.style.top = '';
+            window.scrollTo(0, savedScrollY);
         }
 
         function toggleMenu() {
@@ -434,7 +444,7 @@
             updateUserDisplay(userData.email, userData.trust);
 
             console.log('Menu v2: Initialized successfully', userData.isPro ? '(Pro user)' : '(Free user)');
-        } 
+        }
 
         // SAFETY NET: If Firebase takes too long (offline/slow), build menu anyway after 2 seconds
         const safetyTimeout = setTimeout(function() {

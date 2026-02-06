@@ -1,9 +1,6 @@
-/* ==================== HAMBURGER MENU V2 - CENTRALISED JS ==================== */
+/* ==================== HAMBURGER MENU - CENTRALISED JS ==================== */
 /* ParaMind - Centralised Menu JavaScript */
-/* Version 2: Updated for separate pages structure */
-/* FIXED: Double-tap bug (click+touchend removed) */
-/* FIXED: Menu now builds even when Firebase is offline */
-/* Add to your pages BEFORE </body>: <script src="js/menu-v2.js"></script> */
+/* Add to your pages BEFORE </body>: <script src="js/menu.js"></script> */
 
 (function() {
     'use strict';
@@ -21,22 +18,22 @@
 
     // ==================== MENU CONFIGURATION ====================
     const MENU_CONFIG = {
-        // Main navigation items (free features)
+        // Main navigation items
         mainNav: [
-            { id: 'home', href: 'landing.html', icon: 'bi-house', label: 'Home' },
             { id: 'chat', href: 'chat.html', icon: 'bi-chat-dots', label: 'Chat' },
-            { id: 'scenarios', href: 'scenarios.html', icon: 'bi-mortarboard', label: 'Scenarios' },
-            { id: 'differentials', href: 'differentials.html', icon: 'bi-clipboard2-pulse', label: 'Differentials' }
+            { id: 'scenarios', href: 'chat.html#scenarios', icon: 'bi-mortarboard', label: 'Scenarios' },
+            { id: 'patient', href: 'chat.html#patient', icon: 'bi-clipboard2-pulse', label: 'Patient' }
         ],
-       // Pro features
+        // Pro features
         proNav: [
-            { id: 'connections', href: 'connections.html', icon: 'bi-heart-pulse', label: 'A&P Connections', isPro: true },
-            { id: 'drugs', href: 'drugs.html', icon: 'bi-capsule', label: 'Drugs', isPro: true },
             { id: 'atmist', href: 'atmist.html', icon: 'bi-telephone-outbound', label: 'ATMIST', isPro: true },
-            { id: 'ecg', href: 'ecg.html', icon: 'bi-activity', label: 'ECG Tool', isPro: true },
-            { id: 'cpd', href: 'cpd.html', icon: 'bi-award', label: 'CPD Portfolio', isPro: true }
+            { id: 'ecg', href: 'ecg.html', icon: 'bi-activity', label: 'ECG Tool', isPro: true }
         ],
-        // Bottom items (Contact, Sign Out)
+        // Other items
+        otherNav: [
+            { id: 'cpd', href: 'chat.html#cpd', icon: 'bi-award', label: 'CPD Portfolio' }
+        ],
+        // Bottom items (Contact, Sign Out) - regular nav items
         bottomNav: [
             { id: 'contact', href: 'contact.html', icon: 'bi-envelope', label: 'Contact Us' }
         ]
@@ -45,20 +42,17 @@
     // ==================== DETECT CURRENT PAGE ====================
     function getCurrentPage() {
         const path = window.location.pathname.toLowerCase();
+        const hash = window.location.hash.toLowerCase();
         
-        if (path.includes('landing')) return 'home';
-        if (path.includes('chat')) return 'chat';
-        if (path.includes('scenarios')) return 'scenarios';
-        if (path.includes('differentials')) return 'differentials';
-        if (path.includes('connections') || path.includes('connections')) return 'connections';
-        if (path.includes('drugs')) return 'drugs';
         if (path.includes('atmist')) return 'atmist';
         if (path.includes('ecg')) return 'ecg';
-        if (path.includes('cpd')) return 'cpd';
         if (path.includes('contact')) return 'contact';
+        if (hash.includes('scenarios')) return 'scenarios';
+        if (hash.includes('patient')) return 'patient';
+        if (hash.includes('cpd')) return 'cpd';
+        if (path.includes('chat') || path.endsWith('/') || path.includes('index')) return 'chat';
         
-        // Default to home for root or unknown pages
-        return 'home';
+        return 'chat';
     }
 
     // ==================== BUILD MENU HTML ====================
@@ -107,20 +101,20 @@
                 </div>
                 
                 <div class="menu-nav">
-                    <!-- Main Navigation -->
                     ${MENU_CONFIG.mainNav.map(createNavItem).join('')}
                     
                     <div class="menu-divider"></div>
                     
-                    <!-- Pro Features -->
-                    <div class="menu-section-label">Pro Features</div>
                     ${MENU_CONFIG.proNav.map(createNavItem).join('')}
+                    
+                    <div class="menu-divider"></div>
+                    
+                    ${MENU_CONFIG.otherNav.map(createNavItem).join('')}
                     
                     ${upgradeHTML}
                     
                     <div class="menu-divider"></div>
                     
-                    <!-- Bottom Navigation -->
                     ${MENU_CONFIG.bottomNav.map(createNavItem).join('')}
                     
                     <button class="menu-nav-item logout" id="menuLogoutBtn">
@@ -168,15 +162,14 @@
         }
 
         // Event listeners
-        // FIX: Single click handler only - works on ALL devices
-        // The old touchend + click combo caused double-firing on mobile,
-        // which opened then immediately closed the menu
-        hamburgerBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleMenu();
-        });
+        // Click for desktop
+hamburgerBtn.addEventListener('click', toggleMenu);
 
+// Touch for iOS/iPad - fixes menu not responding on iPads
+hamburgerBtn.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    toggleMenu();
+});
         menuOverlay.addEventListener('click', closeMenu);
 
         // Close on Escape key
@@ -184,6 +177,23 @@
             if (e.key === 'Escape' && slideMenu.classList.contains('active')) {
                 closeMenu();
             }
+        });
+
+        // Handle menu item clicks for hash navigation on same page
+        slideMenu.querySelectorAll('.menu-nav-item[href*="#"]').forEach(item => {
+            item.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href.startsWith('chat.html#') && window.location.pathname.includes('chat')) {
+                    e.preventDefault();
+                    closeMenu();
+                    const hash = href.split('#')[1];
+                    if (typeof window.switchView === 'function') {
+                        window.switchView(hash);
+                    } else {
+                        window.location.hash = hash;
+                    }
+                }
+            });
         });
 
         // Logout button
@@ -217,11 +227,8 @@
                     window.handleUpgrade();
                 } else if (typeof window.showUpgradeModal === 'function') {
                     window.showUpgradeModal();
-                } else if (typeof window.createCheckoutSession === 'function') {
-                    window.createCheckoutSession();
                 } else {
-                    // Fallback: redirect to a page that can handle upgrade
-                    window.location.href = 'landing.html?upgrade=true';
+                    window.location.href = 'register.html';
                 }
             });
         }
@@ -242,11 +249,11 @@
 
     // ==================== GET USER DATA ====================
     // This function tries multiple methods to get user data:
-    // 1. From existing DOM elements (if populated by another script)
-    // 2. From Firebase compat SDK
+    // 1. From existing DOM elements (populated by app.js on chat.html)
+    // 2. From Firebase compat SDK (for standalone pages like ECG)
     
     function getUserData(callback) {
-        // Method 1: Try to read from existing DOM elements
+        // Method 1: Try to read from existing DOM elements (chat.html uses these)
         const existingEmail = document.querySelector('#userEmail');
         const existingTrust = document.querySelector('#userTrust');
         const proBadge = document.querySelector('#proBadgeWelcome');
@@ -266,43 +273,53 @@
             return;
         }
         
-        // Method 2: Load Firebase and get user data
-        loadFirebaseAndGetUser(callback);
-    }
-    
-    // Load Firebase SDK dynamically if not already loaded
-    function loadFirebaseAndGetUser(callback) {
-        // Check if Firebase is already loaded
+        // Method 2: Try Firebase compat SDK (for standalone pages)
+        // First, check if Firebase compat is already loaded
         if (typeof firebase !== 'undefined' && firebase.auth) {
             initFromFirebaseCompat(callback);
             return;
         }
         
-        // Prevent multiple loading attempts
+        // Method 3: Load Firebase compat SDK dynamically
+        loadFirebaseCompat(callback);
+    }
+    
+    // Load Firebase compat SDK dynamically for standalone pages
+    function loadFirebaseCompat(callback) {
+        // Check if already loading or loaded
         if (window._firebaseLoading) {
-            // Wait and retry
-            setTimeout(() => loadFirebaseAndGetUser(callback), 100);
+            // Wait for it to finish
+            setTimeout(() => loadFirebaseCompat(callback), 100);
+            return;
+        }
+        
+        if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) {
+            initFromFirebaseCompat(callback);
             return;
         }
         
         window._firebaseLoading = true;
         
-        // Load Firebase scripts
         const scripts = [
-            'https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js',
-            'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js',
-            'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js'
+            'https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js',
+            'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js',
+            'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js'
         ];
         
         let loaded = 0;
+        
         scripts.forEach((src, index) => {
             const script = document.createElement('script');
             script.src = src;
             script.onload = () => {
                 loaded++;
                 if (loaded === scripts.length) {
-                    window._firebaseLoading = false;
+                    // All scripts loaded, initialize Firebase
                     try {
+                        if (!firebase.apps || firebase.apps.length === 0) {
+                            firebase.initializeApp(FIREBASE_CONFIG);
+                        }
+                        window._firebaseLoading = false;
                         initFromFirebaseCompat(callback);
                     } catch (e) {
                         console.error('Menu: Firebase init error', e);
@@ -373,7 +390,7 @@
                     });
                 }
             } else {
-                // User not signed in - redirect to login
+                // User not signed in
                 callback({ email: null, trust: null, isPro: false });
             }
         });
@@ -398,8 +415,6 @@
     }
 
     // ==================== INITIALIZE ====================
-    // FIX: Menu now builds even when Firebase is offline/slow
-    // Uses a 2-second safety timeout so the menu always appears
     function init() {
         // Check if hamburger button exists
         const hamburgerBtn = document.getElementById('hamburgerBtn');
@@ -408,13 +423,8 @@
             return;
         }
 
-        let menuInitialized = false;
-
-        function buildMenu(userData) {
-            // Prevent double-initialization
-            if (menuInitialized) return;
-            menuInitialized = true;
-
+        // Get user data and initialize menu
+        getUserData(function(userData) {
             // Remove existing menu if any (in case of re-init)
             const existingMenu = document.getElementById('menuContainer');
             if (existingMenu) {
@@ -433,21 +443,7 @@
             // Update user display
             updateUserDisplay(userData.email, userData.trust);
 
-            console.log('Menu v2: Initialized successfully', userData.isPro ? '(Pro user)' : '(Free user)');
-        } 
-
-        // SAFETY NET: If Firebase takes too long (offline/slow), build menu anyway after 2 seconds
-        const safetyTimeout = setTimeout(function() {
-            if (!menuInitialized) {
-                console.warn('Menu: Firebase timeout - building menu with defaults');
-                buildMenu({ email: null, trust: null, isPro: false });
-            }
-        }, 2000);
-
-        // Try to get user data from Firebase
-        getUserData(function(userData) {
-            clearTimeout(safetyTimeout);  // Cancel the safety net - Firebase responded
-            buildMenu(userData);
+            console.log('Menu: Initialized successfully', userData.isPro ? '(Pro user)' : '(Free user)');
         });
     }
 
