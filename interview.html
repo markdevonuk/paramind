@@ -1,1041 +1,1334 @@
-import { useState, useRef, useEffect } from "react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Prep | ParaMind</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Menu CSS -->
+    <link rel="stylesheet" href="css/menu-v2.css">
+    
+    <style>
+        /* ==================== CSS VARIABLES ==================== */
+        :root {
+            --color-teal: #2B8A9C;
+            --color-teal-dark: #237282;
+            --color-teal-light: #3DA4B8;
+            --color-green: #5CB85C;
+            --color-green-dark: #4A9A4A;
+            --color-gray-50: #F8F9FA;
+            --color-gray-100: #F1F3F5;
+            --color-gray-200: #E9ECEF;
+            --color-gray-300: #DEE2E6;
+            --color-gray-400: #CED4DA;
+            --color-gray-500: #ADB5BD;
+            --color-gray-600: #6C757D;
+            --color-gray-700: #495057;
+            --color-gray-800: #343A40;
+            --color-gray-900: #212529;
+            --color-white: #FFFFFF;
+            --color-danger: #DC3545;
+            --color-warning: #E67E22;
+            --font-primary: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --header-height: 56px;
+        }
 
-const INTERVIEW_TYPES = [
-  {
-    id: "nhs_trust",
-    icon: "🏥",
-    title: "NHS Trust Interview",
-    subtitle: "Band 5/6 Paramedic Posts",
-    description: "Practice for ambulance trust recruitment with values-based and competency questions",
-    color: "#2B8A9C",
-    tags: ["Values-Based", "Competency", "Clinical"],
-  },
-  {
-    id: "university",
-    icon: "🎓",
-    title: "University Admission",
-    subtitle: "BSc / MSc Paramedic Science",
-    description: "Prepare for university interviews with motivation and aptitude questions",
-    color: "#5CB85C",
-    tags: ["Motivation", "Aptitude", "Ethics"],
-  },
-  {
-    id: "promotion",
-    icon: "📋",
-    title: "Promotion & Progression",
-    subtitle: "Band 6/7 & Specialist Roles",
-    description: "Prepare for leadership, clinical specialist, and advanced practice interviews",
-    color: "#E67E22",
-    tags: ["Leadership", "Management", "Advanced Practice"],
-  },
-];
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: var(--font-primary);
+            background: var(--color-gray-50);
+            color: var(--color-gray-800);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
 
-const QUESTION_CATEGORIES = {
-  nhs_trust: [
-    { id: "values", label: "NHS Values & Constitution", icon: "💙" },
-    { id: "clinical", label: "Clinical Scenarios", icon: "🩺" },
-    { id: "safeguarding", label: "Safeguarding", icon: "🛡️" },
-    { id: "teamwork", label: "Teamwork & Communication", icon: "🤝" },
-    { id: "pressure", label: "Working Under Pressure", icon: "⚡" },
-    { id: "equality", label: "Equality, Diversity & Inclusion", icon: "🌍" },
-  ],
-  university: [
-    { id: "motivation", label: "Why Paramedicine?", icon: "❤️" },
-    { id: "nhs_awareness", label: "NHS Awareness", icon: "🏥" },
-    { id: "ethics", label: "Ethical Dilemmas", icon: "⚖️" },
-    { id: "teamwork", label: "Teamwork & Communication", icon: "🤝" },
-    { id: "resilience", label: "Resilience & Self-Care", icon: "💪" },
-    { id: "academic", label: "Academic Readiness", icon: "📚" },
-  ],
-  promotion: [
-    { id: "leadership", label: "Leadership & Management", icon: "👔" },
-    { id: "governance", label: "Clinical Governance", icon: "📊" },
-    { id: "change", label: "Change Management", icon: "🔄" },
-    { id: "mentoring", label: "Mentoring & Education", icon: "🎓" },
-    { id: "evidence", label: "Evidence-Based Practice", icon: "🔬" },
-    { id: "patient_safety", label: "Patient Safety & Quality", icon: "✅" },
-  ],
-};
+        /* ==================== NAVBAR ==================== */
+        .page-navbar {
+            background: var(--color-white);
+            border-bottom: 1px solid var(--color-gray-200);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            height: var(--header-height);
+        }
 
-// ─── Markdown-lite renderer ───
-function renderMarkdown(text) {
-  if (!text) return "";
-  let html = text
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.+?)\*/g, "<em>$1</em>")
-    .replace(/^### (.+)$/gm, '<h4 style="margin:0.8em 0 0.3em;font-size:0.95rem;font-weight:700">$1</h4>')
-    .replace(/^## (.+)$/gm, '<h3 style="margin:0.8em 0 0.3em;font-size:1rem;font-weight:700">$1</h3>')
-    .replace(/^- (.+)$/gm, '<li style="margin-left:1.2em;margin-bottom:0.2em;list-style:disc">$1</li>')
-    .replace(/^(\d+)\. (.+)$/gm, '<li style="margin-left:1.2em;margin-bottom:0.2em;list-style:decimal">$2</li>');
-  html = html.replace(/((<li[^>]*>.*<\/li>\s*)+)/g, '<ul style="padding-left:0;margin:0.4em 0">$1</ul>');
-  html = html
-    .split("\n")
-    .map((line) => {
-      if (
-        line.trim() === "" ||
-        line.startsWith("<h") ||
-        line.startsWith("<ul") ||
-        line.startsWith("<li") ||
-        line.startsWith("<strong>🟢") ||
-        line.startsWith("<strong>🟡") ||
-        line.startsWith("<strong>🔴")
-      )
-        return line;
-      return `<p style="margin:0 0 0.5em">${line}</p>`;
-    })
-    .join("\n");
-  return html;
-}
+        .brand-text {
+            font-weight: 700;
+            font-size: 1.4rem;
+            text-decoration: none;
+        }
+        .brand-text a { text-decoration: none; }
+        .brand-para { color: var(--color-teal); }
+        .brand-mind { color: var(--color-green); }
 
-// ─── System prompts for interview types ───
-function getSystemPrompt(type, category) {
-  const baseRules = `You are Hollie, ParaMind's AI interview coach for UK paramedics. You are warm, encouraging, and knowledgeable about NHS ambulance service recruitment.
+        /* ==================== HERO SECTION ==================== */
+        .hero-section {
+            background: linear-gradient(135deg, #1a2634 0%, #2d4a5e 60%, var(--color-teal) 100%);
+            padding: 40px 20px 36px;
+            text-align: center;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-pattern {
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(43,138,156,0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(92,184,92,0.2) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        .hero-section h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+            position: relative;
+            color: #fff;
+        }
+        .hero-section p {
+            font-size: 0.95rem;
+            opacity: 0.85;
+            max-width: 480px;
+            margin: 0 auto 16px;
+            line-height: 1.5;
+            position: relative;
+        }
+        .free-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(92,184,92,0.2);
+            border: 1px solid rgba(92,184,92,0.4);
+            color: #7CDB7C;
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            position: relative;
+        }
+
+        /* ==================== HOW IT WORKS ==================== */
+        .tips-box {
+            background: linear-gradient(135deg, rgba(43,138,156,0.08), rgba(92,184,92,0.08));
+            border: 1px solid rgba(43,138,156,0.2);
+            border-radius: 14px;
+            padding: 18px 16px;
+            margin: 20px 16px 0;
+            max-width: 660px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .tips-box h3 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--color-teal);
+            margin-bottom: 8px;
+        }
+        .tips-box .tip {
+            font-size: 0.82rem;
+            color: var(--color-gray-700);
+            line-height: 1.5;
+            margin-bottom: 4px;
+        }
+
+        /* ==================== INTERVIEW TYPE CARDS ==================== */
+        .cards-section {
+            padding: 24px 16px;
+            max-width: 660px;
+            margin: 0 auto;
+        }
+        .section-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 14px;
+        }
+        .interview-card {
+            background: var(--color-white);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 14px;
+            border: 1px solid var(--color-gray-200);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+        .interview-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+        .interview-card .card-icon { font-size: 2rem; margin-bottom: 8px; }
+        .interview-card h3 { font-size: 1.05rem; font-weight: 700; color: var(--color-gray-900); margin: 0; }
+        .interview-card .card-subtitle { font-size: 0.8rem; font-weight: 600; color: var(--color-gray-600); margin: 2px 0 6px; }
+        .interview-card .card-desc { font-size: 0.85rem; color: var(--color-gray-600); line-height: 1.5; margin: 0 0 10px; }
+        .interview-card .tag {
+            display: inline-block;
+            background: var(--color-gray-100);
+            color: var(--color-gray-700);
+            border-radius: 6px;
+            padding: 3px 10px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+
+        /* ==================== CATEGORY SCREEN ==================== */
+        .cat-header {
+            padding: 24px 16px 8px;
+            max-width: 660px;
+            margin: 0 auto;
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--color-teal);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 4px 0;
+            font-family: var(--font-primary);
+        }
+        .cat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 12px 16px 24px;
+            max-width: 660px;
+            margin: 0 auto;
+        }
+        .cat-card {
+            background: var(--color-white);
+            border-radius: 14px;
+            padding: 18px 14px;
+            text-align: center;
+            border: 1px solid var(--color-gray-200);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+        .cat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--color-teal);
+        }
+        .cat-card .cat-icon { font-size: 1.6rem; margin-bottom: 6px; }
+        .cat-card .cat-label { font-size: 0.82rem; font-weight: 600; color: var(--color-gray-800); line-height: 1.3; }
+
+        .cat-card.random-mix {
+            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark));
+            color: #fff;
+            grid-column: 1 / -1;
+            border: none;
+        }
+        .cat-card.random-mix .cat-label { color: #fff; }
+
+        /* Hot Seat Toggle */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 16px;
+            max-width: 660px;
+            margin: 0 auto;
+        }
+        .toggle-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--color-gray-700);
+        }
+        .toggle-switch {
+            width: 44px;
+            height: 24px;
+            border-radius: 12px;
+            background: var(--color-gray-400);
+            position: relative;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+            transition: background 0.2s ease;
+        }
+        .toggle-switch.active { background: var(--color-teal); }
+        .toggle-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #fff;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: left 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .toggle-switch.active .toggle-dot { left: 23px; }
+
+        /* ==================== CHAT SCREEN ==================== */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - var(--header-height));
+            background: var(--color-gray-50);
+        }
+
+        /* Chat Header */
+        .chat-header {
+            background: var(--color-white);
+            border-bottom: 1px solid var(--color-gray-200);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .chat-header-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-teal), var(--color-green));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+        .chat-header-title { font-size: 0.95rem; font-weight: 700; color: var(--color-gray-900); }
+        .chat-header-sub { font-size: 0.75rem; color: var(--color-gray-600); }
+        .q-badge {
+            background: var(--color-gray-100);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--color-gray-700);
+        }
+
+        /* Timer Bar */
+        .timer-bar {
+            background: var(--color-white);
+            border-bottom: 1px solid var(--color-gray-200);
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .timer-text {
+            font-weight: 700;
+            font-size: 0.9rem;
+            font-variant-numeric: tabular-nums;
+            color: var(--color-teal);
+        }
+        .timer-text.warning { color: var(--color-warning); }
+        .timer-text.danger { color: var(--color-danger); }
+        .timer-track {
+            flex: 1;
+            height: 6px;
+            background: var(--color-gray-200);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .timer-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--color-teal), var(--color-green));
+            transition: width 1s linear;
+        }
+        .timer-fill.warning {
+            background: linear-gradient(90deg, var(--color-danger), var(--color-warning));
+        }
+        .times-up {
+            font-size: 0.75rem;
+            color: var(--color-danger);
+            font-weight: 600;
+        }
+
+        /* Chat Messages Area */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        /* Messages */
+        .message {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            max-width: 88%;
+            animation: fadeInUp 0.3s ease;
+        }
+        .message.user {
+            flex-direction: row-reverse;
+            margin-left: auto;
+        }
+        .message-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .message.user .message-avatar {
+            background: var(--color-gray-200);
+            color: var(--color-gray-600);
+        }
+        .message.assistant .message-avatar {
+            background: linear-gradient(135deg, var(--color-teal), var(--color-green));
+            color: #fff;
+        }
+        .message-content {
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            line-height: 1.55;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .message.user .message-content {
+            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark));
+            color: #fff;
+            border-bottom-right-radius: var(--radius-sm);
+        }
+        .message.assistant .message-content {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            color: var(--color-gray-800);
+            border-bottom-left-radius: var(--radius-sm);
+        }
+
+        /* Markdown in assistant messages */
+        .message.assistant .message-content h3,
+        .message.assistant .message-content h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin: 0.8em 0 0.3em;
+            color: var(--color-gray-900);
+        }
+        .message.assistant .message-content h3:first-child,
+        .message.assistant .message-content h4:first-child { margin-top: 0; }
+        .message.assistant .message-content p { margin: 0 0 0.5em; }
+        .message.assistant .message-content p:last-child { margin-bottom: 0; }
+        .message.assistant .message-content ul,
+        .message.assistant .message-content ol {
+            margin: 0.4em 0;
+            padding-left: 1.5rem;
+        }
+        .message.assistant .message-content li { margin-bottom: 0.2em; }
+        .message.assistant .message-content strong { color: var(--color-gray-900); }
+
+        /* Typing indicator */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 4px 0;
+        }
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: var(--color-gray-400);
+            border-radius: 50%;
+            animation: bounce 1.2s ease-in-out infinite;
+        }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.15s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.3s; }
+
+        /* Chat Input Area */
+        .chat-input-area {
+            padding: 12px 16px;
+            background: var(--color-white);
+            border-top: 1px solid var(--color-gray-200);
+            flex-shrink: 0;
+        }
+        .chat-form {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        .chat-input {
+            flex: 1;
+            border: 1px solid var(--color-gray-300);
+            border-radius: 14px;
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            font-family: var(--font-primary);
+            resize: none;
+            max-height: 120px;
+            line-height: 1.5;
+            outline: none;
+        }
+        .chat-input:focus {
+            border-color: var(--color-teal);
+            box-shadow: 0 0 0 3px rgba(43,138,156,0.15);
+        }
+        .send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark));
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: opacity 0.2s;
+        }
+        .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .input-disclaimer {
+            text-align: center;
+            margin-top: 6px;
+            color: var(--color-gray-500);
+            font-size: 0.7rem;
+        }
+
+        /* End session button */
+        .end-btn {
+            background: none;
+            border: 1px solid var(--color-gray-300);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--color-gray-600);
+            cursor: pointer;
+            font-family: var(--font-primary);
+            transition: all 0.2s;
+        }
+        .end-btn:hover {
+            background: var(--color-gray-100);
+            border-color: var(--color-gray-400);
+        }
+
+        /* ==================== VIEW MANAGEMENT ==================== */
+        .view { display: none; }
+        .view.active { display: block; }
+        .view-chat.active {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - var(--header-height));
+        }
+
+        /* ==================== ANIMATIONS ==================== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-6px); }
+        }
+
+        /* ==================== MESSAGE COUNTER BANNER ==================== */
+        .message-limit-banner {
+            background: linear-gradient(135deg, rgba(43,138,156,0.1), rgba(92,184,92,0.1));
+            border: 1px solid rgba(43,138,156,0.2);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin: 12px 16px 0;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--color-gray-700);
+        }
+        .message-limit-banner strong { color: var(--color-teal); }
+        .message-limit-banner.warning { 
+            border-color: rgba(220,53,69,0.3);
+            background: rgba(220,53,69,0.06);
+        }
+        .message-limit-banner.warning strong { color: var(--color-danger); }
+
+        /* ==================== NOT LOGGED IN OVERLAY ==================== */
+        .login-prompt {
+            text-align: center;
+            padding: 60px 20px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .login-prompt i { font-size: 3rem; color: var(--color-teal); margin-bottom: 16px; }
+        .login-prompt h2 { font-size: 1.2rem; margin-bottom: 8px; }
+        .login-prompt p { color: var(--color-gray-600); margin-bottom: 20px; font-size: 0.9rem; }
+        .login-prompt .btn-login {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark));
+            color: #fff;
+            padding: 12px 32px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ==================== NAVBAR ==================== -->
+    <nav class="page-navbar">
+        <span class="brand-text">
+            <a href="landing.html">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </a>
+        </span>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <!-- ==================== HOME VIEW ==================== -->
+    <div id="homeView" class="view active">
+        
+        <!-- Hero -->
+        <div class="hero-section">
+            <div class="hero-pattern"></div>
+            <h1><i class="bi bi-mortarboard me-2"></i>Mock Interview Simulator</h1>
+            <p>Practice with AI-powered mock interviews tailored to UK paramedic roles. Get instant feedback on every answer.</p>
+            <div class="free-badge">✨ Free Tool — Uses Your Daily Messages</div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="tips-box">
+            <h3>💡 How It Works</h3>
+            <div class="tip"><strong>1.</strong> Choose your interview type below</div>
+            <div class="tip"><strong>2.</strong> Pick a question category (or go random)</div>
+            <div class="tip"><strong>3.</strong> Answer questions as you would in a real interview</div>
+            <div class="tip"><strong>4.</strong> Get instant AI feedback with strengths, improvements & model answers</div>
+        </div>
+
+        <!-- Login prompt (shown when not logged in) -->
+        <div id="loginPrompt" class="login-prompt" style="display: none;">
+            <i class="bi bi-person-circle"></i>
+            <h2>Sign in to start practising</h2>
+            <p>You need a free ParaMind account to use the Interview Simulator. It uses your daily message allowance.</p>
+            <a href="register.html" class="btn-login">Sign Up Free</a>
+            <p style="margin-top: 12px; font-size: 0.82rem;">Already have an account? <a href="login.html" style="color: var(--color-teal); font-weight: 600;">Log in</a></p>
+        </div>
+
+        <!-- Interview type cards (shown when logged in) -->
+        <div id="interviewCards" class="cards-section">
+            <div class="section-title">Choose Your Interview Type</div>
+            
+            <!-- NHS Trust -->
+            <div class="interview-card" style="border-left: 4px solid #2B8A9C;" onclick="selectType('nhs_trust')">
+                <div class="card-icon">🏥</div>
+                <h3>NHS Trust Interview</h3>
+                <div class="card-subtitle">Band 5/6 Paramedic Posts</div>
+                <div class="card-desc">Practice for ambulance trust recruitment with values-based and competency questions</div>
+                <span class="tag">Values-Based</span>
+                <span class="tag">Competency</span>
+                <span class="tag">Clinical</span>
+            </div>
+
+            <!-- University -->
+            <div class="interview-card" style="border-left: 4px solid #5CB85C;" onclick="selectType('university')">
+                <div class="card-icon">🎓</div>
+                <h3>University Admission</h3>
+                <div class="card-subtitle">BSc / MSc Paramedic Science</div>
+                <div class="card-desc">Prepare for university interviews with motivation and aptitude questions</div>
+                <span class="tag">Motivation</span>
+                <span class="tag">Aptitude</span>
+                <span class="tag">Ethics</span>
+            </div>
+
+            <!-- Promotion -->
+            <div class="interview-card" style="border-left: 4px solid #E67E22;" onclick="selectType('promotion')">
+                <div class="card-icon">📋</div>
+                <h3>Promotion & Progression</h3>
+                <div class="card-subtitle">Band 6/7 & Specialist Roles</div>
+                <div class="card-desc">Prepare for leadership, clinical specialist, and advanced practice interviews</div>
+                <span class="tag">Leadership</span>
+                <span class="tag">Management</span>
+                <span class="tag">Advanced Practice</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== CATEGORIES VIEW ==================== -->
+    <div id="categoriesView" class="view">
+        <div class="cat-header">
+            <button class="back-btn" onclick="goHome()">← Back</button>
+            <div style="margin-top: 12px;">
+                <span id="catTypeIcon" style="font-size: 1.5rem;"></span>
+                <h2 id="catTypeTitle" style="font-size: 1.2rem; font-weight: 700; margin: 4px 0 2px;"></h2>
+                <p style="font-size: 0.85rem; color: var(--color-gray-600);">Choose a category to focus on, or go with a random mix</p>
+            </div>
+        </div>
+
+        <!-- Hot Seat Toggle -->
+        <div class="toggle-row">
+            <span class="toggle-label">⚡ Hot Seat Mode (2 min timer)</span>
+            <button class="toggle-switch" id="hotSeatToggle" onclick="toggleHotSeat()">
+                <div class="toggle-dot"></div>
+            </button>
+        </div>
+
+        <!-- Category Grid -->
+        <div class="cat-grid" id="catGrid">
+            <!-- Populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- ==================== CHAT VIEW ==================== -->
+    <div id="chatView" class="view view-chat">
+        
+        <!-- Chat Header -->
+        <div class="chat-header">
+            <div class="chat-header-left">
+                <div class="chat-header-avatar">H</div>
+                <div>
+                    <div class="chat-header-title">Hollie — Interview Panel</div>
+                    <div class="chat-header-sub" id="chatSubtitle">NHS Trust · Random Mix</div>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="q-badge" id="qBadge">Q1</div>
+                <button class="end-btn" onclick="goHome()">End</button>
+            </div>
+        </div>
+
+        <!-- Timer Bar (Hot Seat Mode) -->
+        <div class="timer-bar" id="timerBar" style="display: none;">
+            <span>⚡</span>
+            <span class="timer-text" id="timerText">2:00</span>
+            <div class="timer-track">
+                <div class="timer-fill" id="timerFill" style="width: 100%;"></div>
+            </div>
+            <span class="times-up" id="timesUp" style="display: none;">Time's up!</span>
+        </div>
+
+        <!-- Message Limit Banner -->
+        <div class="message-limit-banner" id="messageLimitBanner" style="display: none;">
+            <strong id="msgRemaining">5</strong> free messages remaining today · <a href="register.html" style="color: var(--color-teal); font-weight: 600;">Upgrade for unlimited</a>
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="chat-messages" id="chatMessages">
+            <!-- Messages populated by JavaScript -->
+        </div>
+
+        <!-- Chat Input -->
+        <div class="chat-input-area">
+            <form class="chat-form" id="chatForm" onsubmit="handleSend(event)">
+                <textarea
+                    class="chat-input"
+                    id="messageInput"
+                    placeholder="Type your answer..."
+                    rows="1"
+                ></textarea>
+                <button type="submit" class="send-btn" id="sendBtn" disabled>
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </form>
+            <div class="input-disclaimer">Educational tool only — not for clinical decision-making</div>
+        </div>
+    </div>
+
+    <!-- ==================== SCRIPTS ==================== -->
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Marked.js for Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- Menu JS -->
+    <script src="js/menu-v2.js"></script>
+
+    <!-- App JS (shared config) -->
+    <script src="js/app.js"></script>
+
+    <script>
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
+            authDomain: "paramind-64b8e.firebaseapp.com",
+            projectId: "paramind-64b8e",
+            storageBucket: "paramind-64b8e.firebasestorage.app",
+            messagingSenderId: "452173393964",
+            appId: "1:452173393964:web:8599c0fe1983a6f441e189",
+            measurementId: "G-GW385S6L0L"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ==================== API CONFIG ====================
+        const API_CONFIG = {
+            get baseUrl() {
+                return window.paramind?.CONFIG?.api?.baseUrl || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
+            },
+            get chatEndpoint() {
+                return window.paramind?.CONFIG?.api?.chat || '/chat';
+            }
+        };
+
+        // ==================== INTERVIEW DATA ====================
+        const INTERVIEW_TYPES = {
+            nhs_trust: {
+                icon: '🏥',
+                title: 'NHS Trust Interview',
+                categories: [
+                    { id: 'values', label: 'NHS Values & Constitution', icon: '💙' },
+                    { id: 'clinical', label: 'Clinical Scenarios', icon: '🩺' },
+                    { id: 'safeguarding', label: 'Safeguarding', icon: '🛡️' },
+                    { id: 'teamwork', label: 'Teamwork & Communication', icon: '🤝' },
+                    { id: 'pressure', label: 'Working Under Pressure', icon: '⚡' },
+                    { id: 'equality', label: 'Equality, Diversity & Inclusion', icon: '🌍' }
+                ]
+            },
+            university: {
+                icon: '🎓',
+                title: 'University Admission',
+                categories: [
+                    { id: 'motivation', label: 'Why Paramedicine?', icon: '❤️' },
+                    { id: 'nhs_awareness', label: 'NHS Awareness', icon: '🏥' },
+                    { id: 'ethics', label: 'Ethical Dilemmas', icon: '⚖️' },
+                    { id: 'teamwork', label: 'Teamwork & Communication', icon: '🤝' },
+                    { id: 'resilience', label: 'Resilience & Self-Care', icon: '💪' },
+                    { id: 'academic', label: 'Academic Readiness', icon: '📚' }
+                ]
+            },
+            promotion: {
+                icon: '📋',
+                title: 'Promotion & Progression',
+                categories: [
+                    { id: 'leadership', label: 'Leadership & Management', icon: '👔' },
+                    { id: 'governance', label: 'Clinical Governance', icon: '📊' },
+                    { id: 'change', label: 'Change Management', icon: '🔄' },
+                    { id: 'mentoring', label: 'Mentoring & Education', icon: '🎓' },
+                    { id: 'evidence', label: 'Evidence-Based Practice', icon: '🔬' },
+                    { id: 'patient_safety', label: 'Patient Safety & Quality', icon: '✅' }
+                ]
+            }
+        };
+
+        // ==================== STATE ====================
+        const state = {
+            currentType: null,
+            currentCategory: null,
+            categoryLabel: null,
+            conversationHistory: [],
+            isLoading: false,
+            questionCount: 0,
+            isPro: false,
+            messagesRemaining: 5,
+            hotSeatMode: false,
+            timerSeconds: 120,
+            timerInterval: null,
+            userData: null
+        };
+
+        // ==================== DOM ELEMENTS ====================
+        const els = {
+            homeView: document.getElementById('homeView'),
+            categoriesView: document.getElementById('categoriesView'),
+            chatView: document.getElementById('chatView'),
+            interviewCards: document.getElementById('interviewCards'),
+            loginPrompt: document.getElementById('loginPrompt'),
+            catTypeIcon: document.getElementById('catTypeIcon'),
+            catTypeTitle: document.getElementById('catTypeTitle'),
+            catGrid: document.getElementById('catGrid'),
+            chatMessages: document.getElementById('chatMessages'),
+            messageInput: document.getElementById('messageInput'),
+            sendBtn: document.getElementById('sendBtn'),
+            chatSubtitle: document.getElementById('chatSubtitle'),
+            qBadge: document.getElementById('qBadge'),
+            timerBar: document.getElementById('timerBar'),
+            timerText: document.getElementById('timerText'),
+            timerFill: document.getElementById('timerFill'),
+            timesUp: document.getElementById('timesUp'),
+            messageLimitBanner: document.getElementById('messageLimitBanner'),
+            msgRemaining: document.getElementById('msgRemaining')
+        };
+
+        // ==================== AUTH STATE ====================
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // User is logged in
+                els.loginPrompt.style.display = 'none';
+                els.interviewCards.style.display = 'block';
+                
+                try {
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    if (userDoc.exists) {
+                        state.userData = userDoc.data();
+                        state.isPro = state.userData.subscriptionStatus === 'active';
+                        
+                        // Check remaining messages for free users
+                        if (!state.isPro) {
+                            const today = new Date().toDateString();
+                            const lastDate = state.userData.lastMessageDate?.toDate?.()?.toDateString?.();
+                            const count = (lastDate === today) ? (state.userData.dailyMessageCount || 0) : 0;
+                            state.messagesRemaining = Math.max(0, 5 - count);
+                        }
+                    }
+                } catch (err) {
+                    console.error('Error fetching user data:', err);
+                }
+            } else {
+                // Not logged in — show login prompt, hide cards
+                els.loginPrompt.style.display = 'block';
+                els.interviewCards.style.display = 'none';
+            }
+        });
+
+        // ==================== VIEW SWITCHING ====================
+        function switchView(viewName) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewName + 'View').classList.add('active');
+        }
+
+        function goHome() {
+            switchView('home');
+            state.conversationHistory = [];
+            state.questionCount = 0;
+            state.currentType = null;
+            state.currentCategory = null;
+            clearTimer();
+        }
+
+        // ==================== SELECT INTERVIEW TYPE ====================
+        function selectType(typeId) {
+            state.currentType = typeId;
+            const typeData = INTERVIEW_TYPES[typeId];
+
+            els.catTypeIcon.textContent = typeData.icon;
+            els.catTypeTitle.textContent = typeData.title;
+
+            // Build category grid
+            let html = `
+                <div class="cat-card random-mix" onclick="startInterview(null)">
+                    <div class="cat-icon">🎲</div>
+                    <div class="cat-label">Random Mix — Surprise Me!</div>
+                </div>
+            `;
+            typeData.categories.forEach(cat => {
+                html += `
+                    <div class="cat-card" onclick="startInterview('${cat.id}')">
+                        <div class="cat-icon">${cat.icon}</div>
+                        <div class="cat-label">${cat.label}</div>
+                    </div>
+                `;
+            });
+            els.catGrid.innerHTML = html;
+
+            switchView('categories');
+        }
+
+        // ==================== HOT SEAT TOGGLE ====================
+        function toggleHotSeat() {
+            state.hotSeatMode = !state.hotSeatMode;
+            document.getElementById('hotSeatToggle').classList.toggle('active', state.hotSeatMode);
+        }
+
+        // ==================== TIMER ====================
+        function startTimer() {
+            state.timerSeconds = 120;
+            els.timerBar.style.display = 'flex';
+            els.timesUp.style.display = 'none';
+            updateTimerDisplay();
+            
+            clearInterval(state.timerInterval);
+            state.timerInterval = setInterval(() => {
+                state.timerSeconds--;
+                updateTimerDisplay();
+                if (state.timerSeconds <= 0) {
+                    clearInterval(state.timerInterval);
+                    els.timesUp.style.display = 'inline';
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const min = Math.floor(state.timerSeconds / 60);
+            const sec = state.timerSeconds % 60;
+            const pct = (state.timerSeconds / 120) * 100;
+
+            els.timerText.textContent = `${min}:${sec.toString().padStart(2, '0')}`;
+            els.timerFill.style.width = pct + '%';
+
+            // Color classes
+            els.timerText.classList.remove('warning', 'danger');
+            els.timerFill.classList.remove('warning');
+            if (state.timerSeconds <= 30) {
+                els.timerText.classList.add('danger');
+                els.timerFill.classList.add('warning');
+            } else if (state.timerSeconds <= 60) {
+                els.timerText.classList.add('warning');
+            }
+        }
+
+        function clearTimer() {
+            clearInterval(state.timerInterval);
+            els.timerBar.style.display = 'none';
+        }
+
+        // ==================== SYSTEM PROMPT ====================
+        function getInterviewSystemPrompt(typeId, categoryLabel) {
+            const baseRules = `You are Hollie, ParaMind's AI interview coach for UK paramedics. You are warm, encouraging, and knowledgeable about NHS ambulance service recruitment.
 
 CRITICAL RULES:
 - Ask ONE question at a time. Wait for the user's answer before proceeding.
 - After the user answers, provide detailed feedback using this EXACT structure:
-  
-  ### Feedback
-  
-  **🟢 Strengths:** [what was good about their answer]
-  
-  **🟡 Could Improve:** [what was missing or could be better]
-  
-  **🔴 Key Points Missed:** [important things they didn't mention, or say "None - great coverage!" if thorough]
-  
-  ### Model Answer
-  [Provide a strong example answer they could learn from]
-  
-  ### STAR Check
-  [If competency-based, note which STAR elements (Situation, Task, Action, Result) were present or missing]
+
+### Feedback
+
+**🟢 Strengths:** [what was good about their answer]
+
+**🟡 Could Improve:** [what was missing or could be better]
+
+**🔴 Key Points Missed:** [important things they didn't mention, or say "None - great coverage!" if thorough]
+
+### Model Answer
+[Provide a strong example answer they could learn from]
+
+### STAR Check
+[If competency-based, note which STAR elements (Situation, Task, Action, Result) were present or missing. If not competency-based, skip this section.]
 
 - After feedback, ask "Ready for the next question?" before continuing.
-- Be encouraging but honest. This is practice - honest feedback helps them improve.
+- Be encouraging but honest. This is practice — honest feedback helps them improve.
 - Keep questions realistic and relevant to current UK paramedic practice.
 - Reference NHS values, JRCALC, HCPC standards where appropriate.
-- NEVER provide clinical advice for real patients - this is interview practice only.`;
+- NEVER provide clinical advice for real patients — this is interview practice only.`;
 
-  const typeContexts = {
-    nhs_trust: `\n\nCONTEXT: NHS Trust Band 5/6 Paramedic Interview. Questions should reflect real ambulance service recruitment panels. Focus on NHS Constitution values, competency-based questions using STAR method, and clinical reasoning scenarios. Category focus: ${category || "mixed"}.`,
-    university: `\n\nCONTEXT: University BSc/MSc Paramedic Science Admission Interview. Questions should assess motivation, aptitude, ethical reasoning, and readiness for healthcare education. Be slightly gentler as these candidates are aspiring paramedics. Category focus: ${category || "mixed"}.`,
-    promotion: `\n\nCONTEXT: Band 6/7 or Specialist Paramedic Role Interview. Questions should test leadership capability, clinical governance knowledge, change management, and advanced clinical reasoning. Expect more experienced answers. Category focus: ${category || "mixed"}.`,
-  };
+            const contexts = {
+                nhs_trust: `\n\nCONTEXT: NHS Trust Band 5/6 Paramedic Interview. Questions should reflect real ambulance service recruitment panels. Focus on NHS Constitution values, competency-based questions using STAR method, and clinical reasoning scenarios. Category focus: ${categoryLabel || 'mixed'}.`,
+                university: `\n\nCONTEXT: University BSc/MSc Paramedic Science Admission Interview. Questions should assess motivation, aptitude, ethical reasoning, and readiness for healthcare education. Be slightly gentler as these candidates are aspiring paramedics. Category focus: ${categoryLabel || 'mixed'}.`,
+                promotion: `\n\nCONTEXT: Band 6/7 or Specialist Paramedic Role Interview. Questions should test leadership capability, clinical governance knowledge, change management, and advanced clinical reasoning. Expect more experienced answers. Category focus: ${categoryLabel || 'mixed'}.`
+            };
 
-  return baseRules + (typeContexts[type] || typeContexts.nhs_trust);
-}
+            return baseRules + (contexts[typeId] || contexts.nhs_trust);
+        }
 
-// ─── Main Component ───
-export default function InterviewPrep() {
-  const [screen, setScreen] = useState("home"); // home | categories | chat | complete
-  const [selectedType, setSelectedType] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [questionCount, setQuestionCount] = useState(0);
-  const [timerActive, setTimerActive] = useState(false);
-  const [timerSeconds, setTimerSeconds] = useState(120);
-  const [hotSeatMode, setHotSeatMode] = useState(false);
-  const chatEndRef = useRef(null);
-  const textareaRef = useRef(null);
-  const timerRef = useRef(null);
+        // ==================== START INTERVIEW ====================
+        async function startInterview(categoryId) {
+            const user = auth.currentUser;
+            if (!user) {
+                alert('Please sign in to use the Interview Simulator.');
+                return;
+            }
 
-  // Auto-scroll chat
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loading]);
+            // Check message limit for free users
+            if (!state.isPro && state.messagesRemaining <= 0) {
+                alert('You\'ve used all your free messages for today. Upgrade to Pro for unlimited access!');
+                return;
+            }
 
-  // Timer logic
-  useEffect(() => {
-    if (timerActive && timerSeconds > 0) {
-      timerRef.current = setTimeout(() => setTimerSeconds((s) => s - 1), 1000);
-    } else if (timerSeconds === 0 && timerActive) {
-      setTimerActive(false);
-    }
-    return () => clearTimeout(timerRef.current);
-  }, [timerActive, timerSeconds]);
+            state.currentCategory = categoryId;
+            const typeData = INTERVIEW_TYPES[state.currentType];
+            const catData = categoryId ? typeData.categories.find(c => c.id === categoryId) : null;
+            state.categoryLabel = catData ? catData.label : 'Random Mix';
 
-  // Auto-resize textarea
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 120) + "px";
-    }
-  }, [input]);
+            // Update UI
+            els.chatSubtitle.textContent = `${typeData.title} · ${state.categoryLabel}`;
+            els.chatMessages.innerHTML = '';
+            state.conversationHistory = [];
+            state.questionCount = 1;
+            els.qBadge.textContent = 'Q1';
 
-  // ─── Start interview ───
-  async function startInterview(type, category) {
-    setSelectedType(type);
-    setSelectedCategory(category);
-    setMessages([]);
-    setQuestionCount(0);
-    setScreen("chat");
-    setLoading(true);
+            // Show message limit banner for free users
+            if (!state.isPro) {
+                els.messageLimitBanner.style.display = 'block';
+                els.msgRemaining.textContent = state.messagesRemaining;
+                if (state.messagesRemaining <= 2) {
+                    els.messageLimitBanner.classList.add('warning');
+                }
+            } else {
+                els.messageLimitBanner.style.display = 'none';
+            }
 
-    const categoryLabel = QUESTION_CATEGORIES[type.id]?.find((c) => c.id === category)?.label || "General";
-    const systemPrompt = getSystemPrompt(type.id, categoryLabel);
+            switchView('chat');
 
-    try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          system: systemPrompt,
-          messages: [
-            {
-              role: "user",
-              content: `Start the mock interview. Briefly introduce yourself as the interview panel, set the scene (make it feel realistic), then ask the first ${categoryLabel} question. Keep the introduction to 2-3 sentences max.`,
-            },
-          ],
-        }),
-      });
-      const data = await response.json();
-      const text = data.content?.map((b) => b.text || "").join("\n") || "Let's begin your interview practice!";
-      setMessages([{ role: "assistant", content: text }]);
-      setQuestionCount(1);
-    } catch (err) {
-      setMessages([
-        {
-          role: "assistant",
-          content:
-            "Welcome to your mock interview! I'm Hollie, your interview coach. Let's get started.\n\n**Question 1:** Can you tell us why you want to work as a paramedic, and what you believe are the most important qualities for the role?",
-        },
-      ]);
-      setQuestionCount(1);
-    }
-    setLoading(false);
-    if (hotSeatMode) {
-      setTimerSeconds(120);
-      setTimerActive(true);
-    }
-  }
+            // Start timer if hot seat mode
+            if (state.hotSeatMode) {
+                startTimer();
+            } else {
+                els.timerBar.style.display = 'none';
+            }
 
-  // ─── Send message ───
-  async function sendMessage() {
-    if (!input.trim() || loading) return;
-    const userMsg = input.trim();
-    setInput("");
-    setTimerActive(false);
+            // Send opening prompt to AI
+            const openingMessage = `Start the mock interview. Briefly introduce yourself as the interview panel, set the scene (make it feel realistic), then ask the first ${state.categoryLabel} question. Keep the introduction to 2-3 sentences max.`;
+            
+            await sendToAPI(openingMessage, true);
+        }
 
-    const newMessages = [...messages, { role: "user", content: userMsg }];
-    setMessages(newMessages);
-    setLoading(true);
+        // ==================== SEND MESSAGE TO API (STREAMING) ====================
+        async function sendToAPI(message, isSystemInitiated = false) {
+            if (state.isLoading) return;
+            state.isLoading = true;
+            els.sendBtn.disabled = true;
 
-    const categoryLabel =
-      QUESTION_CATEGORIES[selectedType?.id]?.find((c) => c.id === selectedCategory)?.label || "General";
-    const systemPrompt = getSystemPrompt(selectedType?.id, categoryLabel);
+            // Show user message in chat (unless it's the system-initiated opening)
+            if (!isSystemInitiated) {
+                addMessage('user', message);
+                state.conversationHistory.push({ role: 'user', content: message });
+            }
 
-    // Build conversation for API
-    const apiMessages = [
-      {
-        role: "user",
-        content: `Start the mock interview for ${categoryLabel}. Ask the first question.`,
-      },
-    ];
+            // Show typing indicator
+            const aiMsgId = 'ai-' + Date.now();
+            showTypingIndicator(aiMsgId);
 
-    newMessages.forEach((msg) => {
-      apiMessages.push({ role: msg.role, content: msg.content });
-    });
+            try {
+                const user = auth.currentUser;
+                if (!user) throw new Error('Not authenticated');
+                const token = await user.getIdToken();
 
-    try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          system: systemPrompt,
-          messages: apiMessages,
-        }),
-      });
-      const data = await response.json();
-      const text = data.content?.map((b) => b.text || "").join("\n") || "Great answer! Let me give you some feedback...";
-      setMessages([...newMessages, { role: "assistant", content: text }]);
+                const systemPrompt = getInterviewSystemPrompt(state.currentType, state.categoryLabel);
 
-      // Count questions (rough heuristic)
-      if (text.toLowerCase().includes("question") || text.toLowerCase().includes("ready for the next")) {
-        setQuestionCount((q) => q + 1);
-      }
-    } catch (err) {
-      setMessages([
-        ...newMessages,
-        {
-          role: "assistant",
-          content:
-            "I'm having a moment of technical difficulty — but don't worry, that happens in real interviews too! 😄 Could you try sending your answer again?",
-        },
-      ]);
-    }
+                // Build conversation history for API
+                const apiHistory = state.conversationHistory.slice(-10).filter(m => m.role !== 'system');
 
-    setLoading(false);
-    if (hotSeatMode) {
-      setTimerSeconds(120);
-      setTimerActive(true);
-    }
-  }
+                const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.chatEndpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: isSystemInitiated ? message : message,
+                        conversationHistory: apiHistory,
+                        scenarioId: null,
+                        scenarioPrompt: systemPrompt
+                    })
+                });
 
-  // ─── Reset ───
-  function goHome() {
-    setScreen("home");
-    setMessages([]);
-    setSelectedType(null);
-    setSelectedCategory(null);
-    setQuestionCount(0);
-    setTimerActive(false);
-    setHotSeatMode(false);
-  }
+                if (!response.ok) {
+                    if (response.status === 429) throw new Error('LIMIT_REACHED');
+                    throw new Error('Failed to send message');
+                }
 
-  // ─── STYLES ───
-  const styles = {
-    app: {
-      fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif",
-      background: "#F8F9FA",
-      minHeight: "100vh",
-      maxWidth: "100%",
-      overflow: "hidden",
-    },
-    // Top bar
-    topBar: {
-      background: "#fff",
-      borderBottom: "1px solid #E9ECEF",
-      padding: "12px 16px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      position: "sticky",
-      top: 0,
-      zIndex: 100,
-    },
-    brand: {
-      fontWeight: 700,
-      fontSize: "1.3rem",
-      textDecoration: "none",
-      display: "flex",
-      alignItems: "center",
-      gap: "8px",
-    },
-    brandPara: { color: "#2B8A9C" },
-    brandMind: { color: "#5CB85C" },
+                // Handle streaming response
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullMessage = '';
 
-    // Hero
-    hero: {
-      background: "linear-gradient(135deg, #1a2634 0%, #2d4a5e 60%, #2B8A9C 100%)",
-      padding: "48px 20px 40px",
-      textAlign: "center",
-      color: "#fff",
-      position: "relative",
-      overflow: "hidden",
-    },
-    heroPattern: {
-      position: "absolute",
-      inset: 0,
-      backgroundImage:
-        "radial-gradient(circle at 20% 50%, rgba(43,138,156,0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(92,184,92,0.2) 0%, transparent 50%)",
-      pointerEvents: "none",
-    },
-    heroTitle: {
-      fontSize: "1.75rem",
-      fontWeight: 800,
-      marginBottom: "8px",
-      position: "relative",
-    },
-    heroSub: {
-      fontSize: "1rem",
-      opacity: 0.85,
-      maxWidth: 500,
-      margin: "0 auto 20px",
-      lineHeight: 1.5,
-      position: "relative",
-    },
-    freeBadge: {
-      display: "inline-flex",
-      alignItems: "center",
-      gap: "6px",
-      background: "rgba(92,184,92,0.2)",
-      border: "1px solid rgba(92,184,92,0.4)",
-      color: "#7CDB7C",
-      borderRadius: 20,
-      padding: "6px 16px",
-      fontSize: "0.8rem",
-      fontWeight: 600,
-      position: "relative",
-    },
+                // Replace typing indicator with actual message bubble
+                replaceTypingWithMessage(aiMsgId);
 
-    // Cards grid
-    cardsSection: {
-      padding: "24px 16px",
-      maxWidth: 700,
-      margin: "0 auto",
-    },
-    sectionTitle: {
-      fontSize: "1.1rem",
-      fontWeight: 700,
-      color: "#343A40",
-      marginBottom: "16px",
-    },
-    card: (color) => ({
-      background: "#fff",
-      borderRadius: 16,
-      padding: "20px",
-      marginBottom: 14,
-      border: "1px solid #E9ECEF",
-      cursor: "pointer",
-      transition: "all 0.2s ease",
-      borderLeft: `4px solid ${color}`,
-      boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-    }),
-    cardIcon: {
-      fontSize: "2rem",
-      marginBottom: 8,
-    },
-    cardTitle: {
-      fontSize: "1.1rem",
-      fontWeight: 700,
-      color: "#212529",
-      margin: 0,
-    },
-    cardSubtitle: {
-      fontSize: "0.8rem",
-      fontWeight: 600,
-      color: "#6C757D",
-      margin: "2px 0 6px",
-    },
-    cardDesc: {
-      fontSize: "0.85rem",
-      color: "#6C757D",
-      lineHeight: 1.5,
-      margin: "0 0 10px",
-    },
-    tag: {
-      display: "inline-block",
-      background: "#F1F3F5",
-      color: "#495057",
-      borderRadius: 6,
-      padding: "3px 10px",
-      fontSize: "0.72rem",
-      fontWeight: 600,
-      marginRight: 6,
-    },
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
 
-    // Categories screen
-    catHeader: {
-      padding: "24px 16px 8px",
-      maxWidth: 700,
-      margin: "0 auto",
-    },
-    backBtn: {
-      background: "none",
-      border: "none",
-      color: "#2B8A9C",
-      fontWeight: 600,
-      fontSize: "0.9rem",
-      cursor: "pointer",
-      padding: "4px 0",
-      display: "flex",
-      alignItems: "center",
-      gap: 4,
-    },
-    catGrid: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr",
-      gap: 12,
-      padding: "12px 16px 24px",
-      maxWidth: 700,
-      margin: "0 auto",
-    },
-    catCard: {
-      background: "#fff",
-      borderRadius: 14,
-      padding: "18px 14px",
-      textAlign: "center",
-      border: "1px solid #E9ECEF",
-      cursor: "pointer",
-      transition: "all 0.2s ease",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-    },
-    catIcon: { fontSize: "1.6rem", marginBottom: 6 },
-    catLabel: {
-      fontSize: "0.82rem",
-      fontWeight: 600,
-      color: "#343A40",
-      lineHeight: 1.3,
-    },
+                    const text = decoder.decode(value, { stream: true });
+                    const lines = text.split('\n');
 
-    // Hot seat toggle
-    toggleRow: {
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 10,
-      padding: "16px",
-      maxWidth: 700,
-      margin: "0 auto",
-    },
-    toggleLabel: {
-      fontSize: "0.85rem",
-      fontWeight: 600,
-      color: "#495057",
-      display: "flex",
-      alignItems: "center",
-      gap: 6,
-    },
-    toggle: (active) => ({
-      width: 44,
-      height: 24,
-      borderRadius: 12,
-      background: active ? "#2B8A9C" : "#CED4DA",
-      position: "relative",
-      cursor: "pointer",
-      transition: "background 0.2s ease",
-      border: "none",
-      padding: 0,
-    }),
-    toggleDot: (active) => ({
-      width: 18,
-      height: 18,
-      borderRadius: "50%",
-      background: "#fff",
-      position: "absolute",
-      top: 3,
-      left: active ? 23 : 3,
-      transition: "left 0.2s ease",
-      boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-    }),
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                if (data.type === 'meta' && data.remaining !== undefined && data.remaining >= 0) {
+                                    state.messagesRemaining = data.remaining;
+                                    els.msgRemaining.textContent = data.remaining;
+                                    if (data.remaining <= 2) {
+                                        els.messageLimitBanner.classList.add('warning');
+                                    }
+                                } else if (data.type === 'chunk') {
+                                    fullMessage += data.content;
+                                    updateStreamingMessage(aiMsgId, fullMessage);
+                                } else if (data.type === 'error') {
+                                    throw new Error(data.error);
+                                }
+                            } catch (parseError) {
+                                // Skip non-JSON lines
+                            }
+                        }
+                    }
+                }
 
-    // Chat screen
-    chatContainer: {
-      display: "flex",
-      flexDirection: "column",
-      height: "calc(100vh - 57px)",
-      background: "#F8F9FA",
-    },
-    chatHeader: {
-      background: "#fff",
-      borderBottom: "1px solid #E9ECEF",
-      padding: "12px 16px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      flexShrink: 0,
-    },
-    chatHeaderLeft: {
-      display: "flex",
-      alignItems: "center",
-      gap: 10,
-    },
-    chatHeaderIcon: {
-      width: 36,
-      height: 36,
-      borderRadius: "50%",
-      background: "linear-gradient(135deg, #2B8A9C, #5CB85C)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      color: "#fff",
-      fontSize: "1rem",
-      fontWeight: 700,
-    },
-    chatHeaderTitle: {
-      fontSize: "0.95rem",
-      fontWeight: 700,
-      color: "#212529",
-    },
-    chatHeaderSub: {
-      fontSize: "0.75rem",
-      color: "#6C757D",
-    },
-    qBadge: {
-      background: "#F1F3F5",
-      borderRadius: 8,
-      padding: "6px 12px",
-      fontSize: "0.78rem",
-      fontWeight: 600,
-      color: "#495057",
-    },
-    chatMessages: {
-      flex: 1,
-      overflowY: "auto",
-      padding: "16px",
-    },
-    msgRow: (isUser) => ({
-      display: "flex",
-      flexDirection: isUser ? "row-reverse" : "row",
-      gap: 8,
-      marginBottom: 14,
-      maxWidth: "88%",
-      marginLeft: isUser ? "auto" : 0,
-      marginRight: isUser ? 0 : "auto",
-      animation: "fadeIn 0.3s ease",
-    }),
-    msgAvatar: (isUser) => ({
-      width: 30,
-      height: 30,
-      borderRadius: "50%",
-      background: isUser ? "#E9ECEF" : "linear-gradient(135deg, #2B8A9C, #5CB85C)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      color: isUser ? "#6C757D" : "#fff",
-      fontSize: "0.75rem",
-      fontWeight: 700,
-      flexShrink: 0,
-    }),
-    msgBubble: (isUser) => ({
-      padding: "12px 16px",
-      borderRadius: isUser ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
-      background: isUser ? "linear-gradient(135deg, #2B8A9C, #237282)" : "#fff",
-      color: isUser ? "#fff" : "#343A40",
-      border: isUser ? "none" : "1px solid #E9ECEF",
-      fontSize: "0.9rem",
-      lineHeight: 1.55,
-      boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
-    }),
-    // Timer bar
-    timerBar: (seconds) => ({
-      background: "#fff",
-      borderBottom: "1px solid #E9ECEF",
-      padding: "8px 16px",
-      display: "flex",
-      alignItems: "center",
-      gap: 10,
-      flexShrink: 0,
-    }),
-    timerText: (seconds) => ({
-      fontWeight: 700,
-      fontSize: "0.9rem",
-      fontVariantNumeric: "tabular-nums",
-      color: seconds <= 30 ? "#DC3545" : seconds <= 60 ? "#E67E22" : "#2B8A9C",
-    }),
-    timerTrack: {
-      flex: 1,
-      height: 6,
-      background: "#E9ECEF",
-      borderRadius: 3,
-      overflow: "hidden",
-    },
-    timerFill: (pct, seconds) => ({
-      width: `${pct}%`,
-      height: "100%",
-      borderRadius: 3,
-      background:
-        seconds <= 30
-          ? "linear-gradient(90deg, #DC3545, #E67E22)"
-          : "linear-gradient(90deg, #2B8A9C, #5CB85C)",
-      transition: "width 1s linear",
-    }),
-    // Input area
-    inputArea: {
-      padding: "12px 16px",
-      background: "#fff",
-      borderTop: "1px solid #E9ECEF",
-      flexShrink: 0,
-    },
-    inputRow: {
-      display: "flex",
-      gap: 10,
-      alignItems: "flex-end",
-    },
-    textarea: {
-      flex: 1,
-      border: "1px solid #DEE2E6",
-      borderRadius: 14,
-      padding: "10px 14px",
-      fontSize: "0.95rem",
-      fontFamily: "'Plus Jakarta Sans', sans-serif",
-      resize: "none",
-      maxHeight: 120,
-      lineHeight: 1.5,
-      outline: "none",
-    },
-    sendBtn: {
-      width: 44,
-      height: 44,
-      borderRadius: "50%",
-      background: "linear-gradient(135deg, #2B8A9C, #237282)",
-      border: "none",
-      color: "#fff",
-      fontSize: "1.1rem",
-      cursor: "pointer",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      flexShrink: 0,
-    },
-    sendBtnDisabled: {
-      opacity: 0.4,
-      cursor: "not-allowed",
-    },
-    disclaimer: {
-      textAlign: "center",
-      fontSize: "0.68rem",
-      color: "#ADB5BD",
-      marginTop: 6,
-    },
-    // Loading dots
-    loadingDots: {
-      display: "flex",
-      gap: 5,
-      padding: "4px 0",
-    },
-    dot: (i) => ({
-      width: 8,
-      height: 8,
-      borderRadius: "50%",
-      background: "#ADB5BD",
-      animation: `bounce 1.2s ease-in-out ${i * 0.15}s infinite`,
-    }),
-    // End session btn
-    endBtn: {
-      background: "none",
-      border: "1px solid #DEE2E6",
-      borderRadius: 8,
-      padding: "6px 14px",
-      fontSize: "0.78rem",
-      fontWeight: 600,
-      color: "#6C757D",
-      cursor: "pointer",
-    },
-    // Tips box
-    tipsBox: {
-      background: "linear-gradient(135deg, rgba(43,138,156,0.08), rgba(92,184,92,0.08))",
-      border: "1px solid rgba(43,138,156,0.2)",
-      borderRadius: 14,
-      padding: "18px 16px",
-      margin: "0 16px 24px",
-      maxWidth: 668,
-      marginLeft: "auto",
-      marginRight: "auto",
-    },
-    tipsTitle: {
-      fontSize: "0.9rem",
-      fontWeight: 700,
-      color: "#2B8A9C",
-      marginBottom: 8,
-    },
-    tipItem: {
-      fontSize: "0.82rem",
-      color: "#495057",
-      lineHeight: 1.5,
-      marginBottom: 4,
-    },
-  };
+                // Finalize
+                finalizeMessage(aiMsgId, fullMessage);
+                state.conversationHistory.push({ role: 'assistant', content: fullMessage });
 
-  // ─── HOME SCREEN ───
-  if (screen === "home") {
-    return (
-      <div style={styles.app}>
-        <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-          @keyframes bounce {
-            0%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-6px); }
-          }
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-          .interview-card:hover {
-            transform: translateY(-3px) !important;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1) !important;
-          }
-          .cat-card:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.08) !important;
-            border-color: #2B8A9C !important;
-          }
-          textarea:focus {
-            border-color: #2B8A9C !important;
-            box-shadow: 0 0 0 3px rgba(43,138,156,0.15) !important;
-          }
-        `}</style>
+                // Update question count
+                if (fullMessage.toLowerCase().includes('question') || fullMessage.toLowerCase().includes('ready for the next')) {
+                    state.questionCount++;
+                    els.qBadge.textContent = 'Q' + state.questionCount;
+                }
 
-        {/* Top bar */}
-        <div style={styles.topBar}>
-          <div style={styles.brand}>
-            <span style={styles.brandPara}>para</span>
-            <span style={styles.brandMind}>mind</span>
-          </div>
-          <span style={{ fontSize: "0.78rem", color: "#6C757D", fontWeight: 500 }}>
-            Interview Prep
-          </span>
-        </div>
+                // Restart timer if hot seat mode
+                if (state.hotSeatMode) {
+                    startTimer();
+                }
 
-        {/* Hero */}
-        <div style={styles.hero}>
-          <div style={styles.heroPattern} />
-          <div style={styles.heroTitle}>Mock Interview Simulator</div>
-          <div style={styles.heroSub}>
-            Practice with AI-powered mock interviews tailored to UK paramedic roles. Get instant feedback on every answer.
-          </div>
-          <div style={styles.freeBadge}>✨ Free Tool — No Account Required</div>
-        </div>
+            } catch (error) {
+                removeElement(aiMsgId);
+                if (error.message === 'LIMIT_REACHED') {
+                    addMessage('assistant', "You've used all your free messages for today! 😊 Upgrade to Pro for unlimited interview practice, or come back tomorrow for 5 more free messages.");
+                } else {
+                    addMessage('assistant', "I'm having a moment of technical difficulty — but don't worry, that happens in real interviews too! 😄 Could you try sending your answer again?");
+                }
+            } finally {
+                state.isLoading = false;
+                els.sendBtn.disabled = !els.messageInput.value.trim();
+            }
+        }
 
-        {/* Tips */}
-        <div style={{ height: 20 }} />
-        <div style={styles.tipsBox}>
-          <div style={styles.tipsTitle}>💡 How It Works</div>
-          <div style={styles.tipItem}>
-            <strong>1.</strong> Choose your interview type below
-          </div>
-          <div style={styles.tipItem}>
-            <strong>2.</strong> Pick a question category (or mix it up)
-          </div>
-          <div style={styles.tipItem}>
-            <strong>3.</strong> Answer questions as you would in a real interview
-          </div>
-          <div style={styles.tipItem}>
-            <strong>4.</strong> Get instant AI feedback with strengths, improvements & model answers
-          </div>
-        </div>
+        // ==================== CHAT UI HELPERS ====================
+        function addMessage(role, content) {
+            const div = document.createElement('div');
+            div.className = `message ${role}`;
+            
+            const avatarText = role === 'user' ? 'You' : 'H';
+            const formattedContent = role === 'assistant' && typeof marked !== 'undefined' 
+                ? marked.parse(content) 
+                : content.replace(/\n/g, '<br>');
+            
+            div.innerHTML = `
+                <div class="message-avatar">${avatarText}</div>
+                <div class="message-content">${formattedContent}</div>
+            `;
+            els.chatMessages.appendChild(div);
+            scrollToBottom();
+        }
 
-        {/* Interview type cards */}
-        <div style={styles.cardsSection}>
-          <div style={styles.sectionTitle}>Choose Your Interview Type</div>
-          {INTERVIEW_TYPES.map((type) => (
-            <div
-              key={type.id}
-              className="interview-card"
-              style={styles.card(type.color)}
-              onClick={() => {
-                setSelectedType(type);
-                setScreen("categories");
-              }}
-            >
-              <div style={styles.cardIcon}>{type.icon}</div>
-              <div style={styles.cardTitle}>{type.title}</div>
-              <div style={styles.cardSubtitle}>{type.subtitle}</div>
-              <div style={styles.cardDesc}>{type.description}</div>
-              <div>
-                {type.tags.map((t) => (
-                  <span key={t} style={styles.tag}>
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // ─── CATEGORIES SCREEN ───
-  if (screen === "categories") {
-    const categories = QUESTION_CATEGORIES[selectedType?.id] || [];
-    return (
-      <div style={styles.app}>
-        <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-          .cat-card:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.08) !important;
-            border-color: #2B8A9C !important;
-          }
-        `}</style>
-
-        {/* Top bar */}
-        <div style={styles.topBar}>
-          <div style={styles.brand}>
-            <span style={styles.brandPara}>para</span>
-            <span style={styles.brandMind}>mind</span>
-          </div>
-        </div>
-
-        {/* Header */}
-        <div style={styles.catHeader}>
-          <button style={styles.backBtn} onClick={goHome}>
-            ← Back
-          </button>
-          <div style={{ marginTop: 12 }}>
-            <span style={{ fontSize: "1.5rem" }}>{selectedType?.icon}</span>
-            <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "#212529", margin: "4px 0 2px" }}>
-              {selectedType?.title}
-            </h2>
-            <p style={{ fontSize: "0.85rem", color: "#6C757D" }}>
-              Choose a category to focus on, or go with a random mix
-            </p>
-          </div>
-        </div>
-
-        {/* Hot seat toggle */}
-        <div style={styles.toggleRow}>
-          <span style={styles.toggleLabel}>⚡ Hot Seat Mode (2 min timer)</span>
-          <button
-            style={styles.toggle(hotSeatMode)}
-            onClick={() => setHotSeatMode(!hotSeatMode)}
-            aria-label="Toggle hot seat mode"
-          >
-            <div style={styles.toggleDot(hotSeatMode)} />
-          </button>
-        </div>
-
-        {/* Category grid */}
-        <div style={styles.catGrid}>
-          <div
-            className="cat-card"
-            style={{
-              ...styles.catCard,
-              background: "linear-gradient(135deg, #2B8A9C, #237282)",
-              color: "#fff",
-              gridColumn: "1 / -1",
-            }}
-            onClick={() => startInterview(selectedType, null)}
-          >
-            <div style={styles.catIcon}>🎲</div>
-            <div style={{ ...styles.catLabel, color: "#fff" }}>Random Mix — Surprise Me!</div>
-          </div>
-          {categories.map((cat) => (
-            <div
-              key={cat.id}
-              className="cat-card"
-              style={styles.catCard}
-              onClick={() => startInterview(selectedType, cat.id)}
-            >
-              <div style={styles.catIcon}>{cat.icon}</div>
-              <div style={styles.catLabel}>{cat.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // ─── CHAT SCREEN ───
-  if (screen === "chat") {
-    const timerPct = (timerSeconds / 120) * 100;
-    const timerMin = Math.floor(timerSeconds / 60);
-    const timerSec = timerSeconds % 60;
-
-    return (
-      <div style={styles.app}>
-        <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-          @keyframes bounce {
-            0%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-6px); }
-          }
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-          textarea:focus {
-            border-color: #2B8A9C !important;
-            box-shadow: 0 0 0 3px rgba(43,138,156,0.15) !important;
-          }
-        `}</style>
-
-        {/* Top bar */}
-        <div style={styles.topBar}>
-          <div style={styles.brand}>
-            <span style={styles.brandPara}>para</span>
-            <span style={styles.brandMind}>mind</span>
-          </div>
-          <button style={styles.endBtn} onClick={goHome}>
-            End Session
-          </button>
-        </div>
-
-        <div style={styles.chatContainer}>
-          {/* Chat header */}
-          <div style={styles.chatHeader}>
-            <div style={styles.chatHeaderLeft}>
-              <div style={styles.chatHeaderIcon}>H</div>
-              <div>
-                <div style={styles.chatHeaderTitle}>Hollie — Interview Panel</div>
-                <div style={styles.chatHeaderSub}>
-                  {selectedType?.title} · {QUESTION_CATEGORIES[selectedType?.id]?.find((c) => c.id === selectedCategory)?.label || "Random Mix"}
+        function showTypingIndicator(id) {
+            const div = document.createElement('div');
+            div.className = 'message assistant';
+            div.id = id;
+            div.innerHTML = `
+                <div class="message-avatar">H</div>
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <span></span><span></span><span></span>
+                    </div>
                 </div>
-              </div>
-            </div>
-            <div style={styles.qBadge}>Q{questionCount}</div>
-          </div>
+            `;
+            els.chatMessages.appendChild(div);
+            scrollToBottom();
+        }
 
-          {/* Timer bar (hot seat mode) */}
-          {hotSeatMode && (
-            <div style={styles.timerBar(timerSeconds)}>
-              <span style={{ fontSize: "0.8rem" }}>⚡</span>
-              <span style={styles.timerText(timerSeconds)}>
-                {timerMin}:{timerSec.toString().padStart(2, "0")}
-              </span>
-              <div style={styles.timerTrack}>
-                <div style={styles.timerFill(timerPct, timerSeconds)} />
-              </div>
-              {timerSeconds === 0 && (
-                <span style={{ fontSize: "0.75rem", color: "#DC3545", fontWeight: 600 }}>Time's up!</span>
-              )}
-            </div>
-          )}
+        function replaceTypingWithMessage(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                const contentEl = el.querySelector('.message-content');
+                contentEl.innerHTML = '<span class="streaming-text"></span>';
+            }
+        }
 
-          {/* Messages */}
-          <div style={styles.chatMessages}>
-            {messages.map((msg, i) => (
-              <div key={i} style={styles.msgRow(msg.role === "user")}>
-                <div style={styles.msgAvatar(msg.role === "user")}>
-                  {msg.role === "user" ? "You" : "H"}
-                </div>
-                <div
-                  style={styles.msgBubble(msg.role === "user")}
-                  dangerouslySetInnerHTML={{
-                    __html: msg.role === "user" ? msg.content.replace(/\n/g, "<br/>") : renderMarkdown(msg.content),
-                  }}
-                />
-              </div>
-            ))}
+        function updateStreamingMessage(id, content) {
+            const el = document.getElementById(id);
+            if (el) {
+                const contentEl = el.querySelector('.message-content');
+                if (typeof marked !== 'undefined') {
+                    contentEl.innerHTML = marked.parse(content);
+                } else {
+                    contentEl.innerHTML = content.replace(/\n/g, '<br>');
+                }
+            }
+            scrollToBottom();
+        }
 
-            {loading && (
-              <div style={styles.msgRow(false)}>
-                <div style={styles.msgAvatar(false)}>H</div>
-                <div style={styles.msgBubble(false)}>
-                  <div style={styles.loadingDots}>
-                    <div style={styles.dot(0)} />
-                    <div style={styles.dot(1)} />
-                    <div style={styles.dot(2)} />
-                  </div>
-                </div>
-              </div>
-            )}
+        function finalizeMessage(id, content) {
+            const el = document.getElementById(id);
+            if (el) {
+                const contentEl = el.querySelector('.message-content');
+                if (typeof marked !== 'undefined') {
+                    contentEl.innerHTML = marked.parse(content);
+                } else {
+                    contentEl.innerHTML = content.replace(/\n/g, '<br>');
+                }
+            }
+            scrollToBottom();
+        }
 
-            <div ref={chatEndRef} />
-          </div>
+        function removeElement(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
 
-          {/* Input */}
-          <div style={styles.inputArea}>
-            <div style={styles.inputRow}>
-              <textarea
-                ref={textareaRef}
-                style={styles.textarea}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                  }
-                }}
-                placeholder="Type your answer..."
-                rows={1}
-              />
-              <button
-                style={{
-                  ...styles.sendBtn,
-                  ...(loading || !input.trim() ? styles.sendBtnDisabled : {}),
-                }}
-                onClick={sendMessage}
-                disabled={loading || !input.trim()}
-              >
-                ▶
-              </button>
-            </div>
-            <div style={styles.disclaimer}>
-              Educational tool only — not for clinical decision-making
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+        function scrollToBottom() {
+            els.chatMessages.scrollTop = els.chatMessages.scrollHeight;
+        }
 
-  return null;
-}
+        // ==================== FORM HANDLING ====================
+        function handleSend(e) {
+            e.preventDefault();
+            const message = els.messageInput.value.trim();
+            if (!message || state.isLoading) return;
+
+            // Check message limit
+            if (!state.isPro && state.messagesRemaining <= 0) {
+                addMessage('assistant', "You've used all your free messages for today! Upgrade to Pro for unlimited access, or come back tomorrow. 😊");
+                return;
+            }
+
+            els.messageInput.value = '';
+            els.messageInput.style.height = 'auto';
+            els.sendBtn.disabled = true;
+
+            // Pause timer while AI is responding
+            if (state.hotSeatMode) {
+                clearInterval(state.timerInterval);
+            }
+
+            sendToAPI(message);
+        }
+
+        // Auto-resize textarea
+        els.messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            els.sendBtn.disabled = !this.value.trim() || state.isLoading;
+        });
+
+        // Enter to send (Shift+Enter for new line)
+        els.messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (this.value.trim() && !state.isLoading) {
+                    handleSend(e);
+                }
+            }
+        });
+
+        // ==================== MARKED.JS CONFIG ====================
+        if (typeof marked !== 'undefined') {
+            marked.setOptions({
+                breaks: true,
+                gfm: true
+            });
+        }
+    </script>
+</body>
+</html>
