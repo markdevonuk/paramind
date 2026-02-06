@@ -704,7 +704,8 @@
             <div class="hero-pattern"></div>
             <h1><i class="bi bi-mortarboard me-2"></i>Mock Interview Simulator</h1>
             <p>Practice with AI-powered mock interviews tailored to UK paramedic roles. Get instant feedback on every answer.</p>
-            <div class="free-badge">✨ Free Tool — Uses Your Daily Messages</div>
+            <div class="free-badge" id="heroBadgeFree">✨ Free Tool — Uses Your Daily Messages</div>
+            <div class="free-badge" id="heroBadgePro" style="display: none; background: rgba(255,215,0,0.2); border-color: rgba(255,215,0,0.4); color: #FFD700;">⭐ Unlimited Access — Pro Member</div>
         </div>
 
         <!-- Hollie Introduction -->
@@ -729,16 +730,7 @@
             <div class="tip"><strong>4.</strong> Get instant AI feedback with strengths, improvements & model answers</div>
         </div>
 
-        <!-- Login prompt (shown when not logged in) -->
-        <div id="loginPrompt" class="login-prompt" style="display: none;">
-            <i class="bi bi-person-circle"></i>
-            <h2>Sign in to start practising</h2>
-            <p>You need a free ParaMind account to use the Interview Simulator. It uses your daily message allowance.</p>
-            <a href="register.html" class="btn-login">Sign Up Free</a>
-            <p style="margin-top: 12px; font-size: 0.82rem;">Already have an account? <a href="login.html" style="color: var(--color-teal); font-weight: 600;">Log in</a></p>
-        </div>
-
-        <!-- Interview type cards (shown when logged in) -->
+        <!-- Interview type cards -->
         <div id="interviewCards" class="cards-section">
             <div class="section-title">Choose Your Interview Type</div>
             
@@ -993,7 +985,9 @@
             timerFill: document.getElementById('timerFill'),
             timesUp: document.getElementById('timesUp'),
             messageLimitBanner: document.getElementById('messageLimitBanner'),
-            msgRemaining: document.getElementById('msgRemaining')
+            msgRemaining: document.getElementById('msgRemaining'),
+            heroBadgeFree: document.getElementById('heroBadgeFree'),
+            heroBadgePro: document.getElementById('heroBadgePro')
         };
 
         // ==================== AUTH STATE ====================
@@ -1008,6 +1002,15 @@
                     if (userDoc.exists) {
                         state.userData = userDoc.data();
                         state.isPro = state.userData.subscriptionStatus === 'active';
+                        
+                        // Swap hero badge for Pro users
+                        if (state.isPro) {
+                            els.heroBadgeFree.style.display = 'none';
+                            els.heroBadgePro.style.display = 'inline-flex';
+                        } else {
+                            els.heroBadgeFree.style.display = 'inline-flex';
+                            els.heroBadgePro.style.display = 'none';
+                        }
                         
                         // Check remaining messages for free users
                         if (!state.isPro) {
