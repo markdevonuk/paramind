@@ -402,46 +402,41 @@ exports.stripeWebhook = onRequest(
 
     // Handle the event
     switch (event.type) {
+
 case "checkout.session.completed": {
-  const session = event.data.object;
-  const uid = session.metadata.firebaseUID;
+    const session = event.data.object;
+    const uid = session.metadata.firebaseUID;
 
-  if (uid) {
-    // Store subscription ID and discount info, but DON'T activate yet
-    // Activation happens when invoice.paid fires (confirming payment success)
-    const updateData = {
-      stripeSubscriptionId: session.subscription,
-      subscriptionStatus: "pending", // Mark as pending until payment confirmed
-    };
+    if (uid) {
+        // Check what the user's current status is BEFORE updating
+        const userRef = db.collection("users").doc(uid);
+        const userSnap = await userRef.get();
+        const currentStatus = userSnap.exists ? userSnap.data().subscriptionStatus : null;
 
-    // If there was a discount, store it for reference
-    if (session.total_details?.amount_discount > 0) {
-      updateData.discountApplied = true;
-      updateData.discountAmount = session.total_details.amount_discount;
-      
-      // Retrieve the full session from Stripe with discount details expanded
-      try {
-        const fullSession = await stripe.checkout.sessions.retrieve(session.id, {
-          expand: ['total_details.breakdown']
-        });
-        
-        const discounts = fullSession.total_details?.breakdown?.discounts;
-        if (discounts && discounts.length > 0 && discounts[0].discount?.promotion_code) {
-          const promoCodeId = discounts[0].discount.promotion_code;
-          const promoCode = await stripe.promotionCodes.retrieve(promoCodeId);
-          updateData.promoCodeUsed = promoCode.code;
-          console.log(`Promo code used: ${promoCode.code}`);
+        // Only set to "pending" if NOT already "active"
+        // This prevents overwriting "active" if invoice.paid arrived first
+        const updateData = {
+            stripeSubscriptionId: session.subscription,
+        };
+
+        if (currentStatus !== "active") {
+            updateData.subscriptionStatus = "pending";
         }
-      } catch (promoError) {
-        console.error("Error retrieving promo code details:", promoError.message);
-      }
-    }
 
-    await db.collection("users").doc(uid).update(updateData);
-    console.log(`Checkout completed for user: ${uid} - awaiting payment confirmation`);
-  }
-  break;
+        // If there was a discount, store it for reference
+        if (session.total_details?.amount_discount > 0) {
+            updateData.discountApplied = true;
+            updateData.discountAmount = session.total_details.amount_discount;
+        }
+
+        await userRef.update(updateData);
+        console.log(`Checkout completed for user: ${uid} - current status: ${currentStatus}`);
+    }
+    break;
 }
+
+
+
 
      case "customer.subscription.updated": {
   const subscription = event.data.object;
