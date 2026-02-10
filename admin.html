@@ -552,9 +552,9 @@
                         subscriptionStatus: userData.subscriptionStatus || 'free',
                         createdAt: userData.createdAt || null,
                         // CHANGE 5: Added lastLogin to user object
-                        lastLogin: userData.lastLogin || null
-                    };
-                    
+                       lastLogin: userData.lastLogin || null,
+						promoCodeUsed: userData.promoCodeUsed || ''
+					};
                     allUsers.push(user);
                     
                     // CHANGE 6: Fixed logic - only 'active' is paid, everything else is free
@@ -649,7 +649,7 @@
                     // CHANGE 11: Added lastLogin column to table row
                     return `
                         <tr>
-                            <td>${escapeHtml(fullName)}</td>
+                            <td>${escapeHtml(fullName)}${user.promoCodeUsed ? '<br><small class="text-muted"><i class="bi bi-tag me-1"></i>' + escapeHtml(user.promoCodeUsed) + '</small>' : ''}</td>
                             <td>${escapeHtml(user.email)}</td>
                             <td>${escapeHtml(user.trust)}</td>
                             <td>${statusBadge}</td>
@@ -661,7 +661,7 @@
                     // CHANGE 12: Added lastLogin column to table row (no status version)
                     return `
                         <tr>
-                            <td>${escapeHtml(fullName)}</td>
+                            <td>${escapeHtml(fullName)}${user.promoCodeUsed ? '<br><small class="text-muted"><i class="bi bi-tag me-1"></i>' + escapeHtml(user.promoCodeUsed) + '</small>' : ''}</td>
                             <td>${escapeHtml(user.email)}</td>
                             <td>${escapeHtml(user.trust)}</td>
                             <td>${lastLogin}</td>
