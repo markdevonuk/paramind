@@ -409,60 +409,88 @@
         }
     }
 
-    // ==================== INITIALIZE ====================
-    // FIX: Menu now builds even when Firebase is offline/slow
-    // Uses a 2-second safety timeout so the menu always appears
+   
+   // ==================== INITIALIZE ====================
+    // FIX: Menu builds IMMEDIATELY with defaults, then UPDATES when Firebase responds.
+    // This prevents the old bug where the 2-second timeout would lock in "not signed in"
+    // and block the real Firebase data from ever appearing.
     function init() {
         // Check if hamburger button exists
         const hamburgerBtn = document.getElementById('hamburgerBtn');
         if (!hamburgerBtn) {
-            console.error('Menu: Hamburger button not found. Please add: <button class="hamburger-btn" id="hamburgerBtn"><span></span><span></span><span></span></button>');
+            console.error('Menu: Hamburger button not found.');
             return;
         }
 
-        let menuInitialized = false;
+        // STEP 1: Build menu IMMEDIATELY with defaults (so it always appears fast)
+        buildMenuNow({ email: null, trust: null, isPro: false });
 
-        function buildMenu(userData) {
-            // Prevent double-initialization
-            if (menuInitialized) return;
-            menuInitialized = true;
-
-            // Remove existing menu if any (in case of re-init)
-            const existingMenu = document.getElementById('menuContainer');
-            if (existingMenu) {
-                existingMenu.remove();
-            }
-
-            // Inject menu HTML into the page
-            const menuContainer = document.createElement('div');
-            menuContainer.id = 'menuContainer';
-            menuContainer.innerHTML = buildMenuHTML(userData.isPro);
-            document.body.insertBefore(menuContainer, document.body.firstChild);
-
-            // Initialize functionality
-            initMenuFunctionality();
-
-            // Update user display
-            updateUserDisplay(userData.email, userData.trust);
-
-            console.log('Menu v2: Initialized successfully', userData.isPro ? '(Pro user)' : '(Free user)');
-        }
-
-        // SAFETY NET: If Firebase takes too long (offline/slow), build menu anyway after 2 seconds
-        const safetyTimeout = setTimeout(function() {
-            if (!menuInitialized) {
-                console.warn('Menu: Firebase timeout - building menu with defaults');
-                buildMenu({ email: null, trust: null, isPro: false });
-            }
-        }, 2000);
-
-        // Try to get user data from Firebase
+        // STEP 2: Get real user data from Firebase, then UPDATE the menu in-place
         getUserData(function(userData) {
-            clearTimeout(safetyTimeout);  // Cancel the safety net - Firebase responded
-            buildMenu(userData);
+            console.log('Menu v2: Firebase responded', userData.isPro ? '(Pro user)' : '(Free user)');
+            
+            // Update the email and trust display
+            updateUserDisplay(userData.email, userData.trust);
+            
+            // Update Pro badges - remove them if user IS Pro
+            if (userData.isPro) {
+                updateProStatus(true);
+            }
         });
     }
 
+    // Build the menu into the page (called once on load)
+    function buildMenuNow(userData) {
+        // Remove existing menu if any
+        const existingMenu = document.getElementById('menuContainer');
+        if (existingMenu) {
+            existingMenu.remove();
+        }
+
+        // Inject menu HTML into the page
+        const menuContainer = document.createElement('div');
+        menuContainer.id = 'menuContainer';
+        menuContainer.innerHTML = buildMenuHTML(userData.isPro);
+        document.body.insertBefore(menuContainer, document.body.firstChild);
+
+        // Initialize click handlers etc.
+        initMenuFunctionality();
+
+        // Update user display
+        updateUserDisplay(userData.email, userData.trust);
+
+        console.log('Menu v2: Built with defaults (waiting for Firebase...)');
+    }
+
+    // Update Pro status in-place WITHOUT rebuilding the entire menu
+    function updateProStatus(isPro) {
+        if (!isPro) return;
+
+        // 1. Remove all Pro badges from menu items
+        const proBadges = document.querySelectorAll('#menuContainer .pro-badge');
+        proBadges.forEach(function(badge) {
+            badge.remove();
+        });
+
+        // 2. Hide the upgrade button if it exists
+        const upgradeBtn = document.getElementById('menuUpgradeBtn');
+        if (upgradeBtn) {
+            upgradeBtn.style.display = 'none';
+        }
+
+        // 3. Update the user section to show Pro status
+        const menuUserTrust = document.getElementById('menuUserTrust');
+        if (menuUserTrust) {
+            if (menuUserTrust.textContent === '—' || menuUserTrust.textContent === '') {
+                menuUserTrust.textContent = '⭐ Pro Member';
+            }
+        }
+
+        console.log('Menu v2: Updated to Pro status');
+    }
+   
+   
+   
     // Run when DOM is ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
