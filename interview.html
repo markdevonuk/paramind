@@ -84,175 +84,130 @@
         .brand-para { color: var(--color-teal); }
         .brand-mind { color: var(--color-green); }
 
-        /* ==================== HERO SECTION ==================== */
-        .hero-section {
-            background: linear-gradient(135deg, #0f1923 0%, #1a3040 40%, #1e5a6e 80%, var(--color-teal) 100%);
-            padding: 22px 20px 20px;
-            color: #fff;
-            position: relative;
-            overflow: hidden;
-        }
-        .hero-pattern {
-            position: absolute;
-            inset: 0;
-            background-image:
-                radial-gradient(circle at 15% 50%, rgba(43,138,156,0.35) 0%, transparent 45%),
-                radial-gradient(circle at 85% 20%, rgba(92,184,92,0.25) 0%, transparent 40%),
-                radial-gradient(circle at 50% 100%, rgba(43,138,156,0.15) 0%, transparent 50%);
-            pointer-events: none;
-        }
-        /* Decorative dots */
-        .hero-pattern::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image: radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px);
-            background-size: 20px 20px;
-            pointer-events: none;
-        }
-        .hero-inner {
-            display: flex;
-            align-items: center;
-            gap: 16px;
+        /* ==================== HEADER SECTION ==================== */
+        .header-section {
+            text-align: center;
+            padding: 24px 16px 8px;
             max-width: 660px;
             margin: 0 auto;
-            position: relative;
         }
-        .hero-avatar {
-            width: 72px;
-            height: 72px;
+        .header-avatar {
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
-            border: 3px solid rgba(92,184,92,0.6);
+            border: 3px solid var(--color-teal);
             overflow: hidden;
-            flex-shrink: 0;
-            box-shadow: 0 4px 20px rgba(43,138,156,0.4);
-            animation: avatarGlow 3s ease-in-out infinite alternate;
+            margin: 0 auto 10px;
+            box-shadow: 0 4px 16px rgba(43,138,156,0.2);
         }
-        .hero-avatar img {
+        .header-avatar img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             border-radius: 50%;
         }
-        @keyframes avatarGlow {
-            from { box-shadow: 0 4px 20px rgba(43,138,156,0.3); }
-            to { box-shadow: 0 4px 28px rgba(92,184,92,0.5); }
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: rgba(43, 138, 156, 0.1);
+            color: var(--color-teal);
+            padding: 0.25rem 0.7rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 8px;
         }
-        .hero-text { flex: 1; min-width: 0; }
-        .hero-text h1 {
-            font-size: 1.25rem;
+        .header-section h1 {
+            font-size: 1.4rem;
             font-weight: 800;
+            color: var(--color-gray-800);
             margin: 0 0 4px;
-            color: #fff;
-            line-height: 1.2;
         }
-        .hero-text .hero-tagline {
-            font-size: 0.82rem;
-            opacity: 0.8;
-            line-height: 1.4;
-            margin: 0 0 10px;
+        .header-tagline {
+            font-size: 0.88rem;
+            color: var(--color-gray-600);
+            margin: 0 0 12px;
+            line-height: 1.45;
         }
-        /* Feature pills row */
-        .hero-pills {
+        /* Feature pills */
+        .header-pills {
             display: flex;
             flex-wrap: wrap;
+            justify-content: center;
             gap: 6px;
         }
-        .hero-pill {
+        .header-pill {
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            padding: 3px 10px;
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 0.68rem;
+            font-size: 0.72rem;
             font-weight: 600;
-            background: rgba(255,255,255,0.12);
-            color: rgba(255,255,255,0.9);
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: var(--color-white);
+            color: var(--color-gray-700);
+            border: 1px solid var(--color-gray-200);
+            box-shadow: var(--shadow-sm);
         }
-        .hero-pill.accent {
-            background: rgba(92,184,92,0.25);
-            border-color: rgba(92,184,92,0.4);
-            color: #7CDB7C;
-        }
-        .free-badge {
+        .status-badge {
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            padding: 3px 10px;
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 0.68rem;
+            font-size: 0.72rem;
             font-weight: 600;
-            background: rgba(92,184,92,0.25);
-            border: 1px solid rgba(92,184,92,0.4);
-            color: #7CDB7C;
+        }
+        .status-badge.free {
+            background: rgba(92,184,92,0.12);
+            color: var(--color-green-dark);
+            border: 1px solid rgba(92,184,92,0.3);
+        }
+        .status-badge.pro {
+            background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,165,0,0.1));
+            color: #b8860b;
+            border: 1px solid rgba(255,193,7,0.3);
         }
 
         /* ==================== INTERVIEW TYPE CARDS ==================== */
         .cards-section {
-            padding: 16px 16px 24px;
+            padding: 8px 16px 0;
             max-width: 660px;
             margin: 0 auto;
         }
         .section-title {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: var(--color-gray-500);
-            margin-bottom: 12px;
+            margin-bottom: 10px;
+            padding-left: 2px;
         }
         .interview-card {
+            background: var(--color-white);
             border-radius: 16px;
-            padding: 18px 18px 16px;
-            margin-bottom: 12px;
+            padding: 16px 18px;
+            margin-bottom: 10px;
             cursor: pointer;
             transition: all 0.25s ease;
             position: relative;
             overflow: hidden;
-            border: none;
-        }
-        .interview-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            transition: opacity 0.25s;
+            border: 1px solid var(--color-gray-200);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
         .interview-card:hover {
-            transform: translateY(-3px) scale(1.01);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
         }
         .interview-card:active {
             transform: translateY(0) scale(0.99);
         }
-        /* NHS Trust card */
-        .interview-card.card-nhs {
-            background: linear-gradient(135deg, #1a3a4a 0%, #1e5a6e 60%, #2B8A9C 100%);
-            color: #fff;
-            box-shadow: 0 4px 20px rgba(43,138,156,0.25);
-        }
-        .interview-card.card-nhs:hover {
-            box-shadow: 0 8px 30px rgba(43,138,156,0.35);
-        }
-        /* University card */
-        .interview-card.card-uni {
-            background: linear-gradient(135deg, #1a3a2a 0%, #2a6a3a 60%, #5CB85C 100%);
-            color: #fff;
-            box-shadow: 0 4px 20px rgba(92,184,92,0.2);
-        }
-        .interview-card.card-uni:hover {
-            box-shadow: 0 8px 30px rgba(92,184,92,0.3);
-        }
-        /* Promotion card */
-        .interview-card.card-promo {
-            background: linear-gradient(135deg, #3a2a1a 0%, #6a4a2a 60%, #E67E22 100%);
-            color: #fff;
-            box-shadow: 0 4px 20px rgba(230,126,34,0.2);
-        }
-        .interview-card.card-promo:hover {
-            box-shadow: 0 8px 30px rgba(230,126,34,0.3);
-        }
+        /* Accent left border per type */
+        .interview-card.card-nhs { border-left: 4px solid var(--color-teal); }
+        .interview-card.card-uni { border-left: 4px solid var(--color-green); }
+        .interview-card.card-promo { border-left: 4px solid var(--color-warning); }
         /* Card inner elements */
         .card-top {
             display: flex;
@@ -263,68 +218,111 @@
         .card-top-left {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
         .interview-card .card-icon {
-            font-size: 1.5rem;
-            width: 40px;
-            height: 40px;
+            font-size: 1.6rem;
+            width: 42px;
+            height: 42px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(255,255,255,0.15);
             border-radius: 12px;
             flex-shrink: 0;
         }
+        .card-nhs .card-icon { background: rgba(43,138,156,0.1); }
+        .card-uni .card-icon { background: rgba(92,184,92,0.1); }
+        .card-promo .card-icon { background: rgba(230,126,34,0.1); }
         .interview-card h3 {
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 700;
-            color: #fff;
+            color: var(--color-gray-900);
             margin: 0;
         }
         .interview-card .card-subtitle {
             font-size: 0.72rem;
             font-weight: 600;
-            color: rgba(255,255,255,0.65);
+            color: var(--color-gray-500);
             margin: 1px 0 0;
         }
         .card-arrow {
-            color: rgba(255,255,255,0.5);
-            font-size: 1.2rem;
+            color: var(--color-gray-400);
+            font-size: 1.1rem;
             transition: transform 0.2s;
         }
         .interview-card:hover .card-arrow {
             transform: translateX(3px);
-            color: rgba(255,255,255,0.9);
+            color: var(--color-teal);
         }
         .interview-card .card-desc {
             font-size: 0.82rem;
-            color: rgba(255,255,255,0.7);
+            color: var(--color-gray-600);
             line-height: 1.45;
-            margin: 0 0 10px;
+            margin: 0 0 8px;
         }
         .interview-card .tag {
             display: inline-block;
-            background: rgba(255,255,255,0.15);
-            color: rgba(255,255,255,0.9);
+            background: var(--color-gray-100);
+            color: var(--color-gray-600);
             border-radius: 6px;
-            padding: 3px 10px;
+            padding: 3px 9px;
             font-size: 0.68rem;
             font-weight: 600;
-            margin-right: 5px;
-            border: 1px solid rgba(255,255,255,0.1);
+            margin-right: 4px;
         }
 
-        /* Staggered entrance animations */
-        .interview-card {
-            animation: cardSlideUp 0.4s ease-out backwards;
+        /* ==================== WHY USE THIS SECTION ==================== */
+        .why-section {
+            max-width: 660px;
+            margin: 0 auto;
+            padding: 20px 16px 32px;
         }
-        .interview-card:nth-child(2) { animation-delay: 0.08s; }
-        .interview-card:nth-child(3) { animation-delay: 0.16s; }
-        .interview-card:nth-child(4) { animation-delay: 0.24s; }
-        @keyframes cardSlideUp {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
+        .why-card {
+            background: var(--color-white);
+            border-radius: 14px;
+            border: 1px solid var(--color-gray-200);
+            padding: 18px 18px 14px;
+            box-shadow: var(--shadow-sm);
+        }
+        .why-card h3 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin: 0 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .why-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+        .why-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .why-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.85rem;
+            background: rgba(43,138,156,0.08);
+        }
+        .why-item p {
+            margin: 0;
+            font-size: 0.82rem;
+            color: var(--color-gray-600);
+            line-height: 1.45;
+        }
+        .why-item strong {
+            color: var(--color-gray-800);
         }
 
         /* ==================== CATEGORY SCREEN ==================== */
@@ -758,28 +756,26 @@
     <!-- ==================== HOME VIEW ==================== -->
     <div id="homeView" class="view active">
         
-        <!-- Compact Hero with Hollie -->
-        <div class="hero-section">
-            <div class="hero-pattern"></div>
-            <div class="hero-inner">
-                <div class="hero-avatar">
-                    <img src="images/hollie.png" alt="Hollie - Interview Coach">
-                </div>
-                <div class="hero-text">
-                    <h1>Mock Interview Prep</h1>
-                    <p class="hero-tagline">Practice with Hollie, your AI interview coach. Get real-time feedback &amp; model answers.</p>
-                    <div class="hero-pills">
-                        <span class="hero-pill">🎯 STAR Method</span>
-                        <span class="hero-pill">💬 AI Feedback</span>
-                        <span class="hero-pill">📝 Model Answers</span>
-                        <span class="free-badge" id="heroBadgeFree">✨ Free</span>
-                        <span class="free-badge" id="heroBadgePro" style="display: none; background: rgba(255,215,0,0.25); border-color: rgba(255,215,0,0.4); color: #FFD700;">⭐ Pro</span>
-                    </div>
-                </div>
+        <!-- Clean Header with Hollie -->
+        <div class="header-section">
+            <div class="header-avatar">
+                <img src="images/hollie.png" alt="Hollie - Interview Coach">
+            </div>
+            <div class="header-badge">
+                <i class="bi bi-patch-check-fill"></i> Interview Coach
+            </div>
+            <h1>Mock Interview Prep</h1>
+            <p class="header-tagline">Practice with Hollie and get real-time feedback on every answer</p>
+            <div class="header-pills">
+                <span class="header-pill">🎯 STAR Method</span>
+                <span class="header-pill">💬 AI Feedback</span>
+                <span class="header-pill">📝 Model Answers</span>
+                <span class="status-badge free" id="heroBadgeFree">✨ Free</span>
+                <span class="status-badge pro" id="heroBadgePro" style="display: none;">⭐ Pro</span>
             </div>
         </div>
 
-        <!-- Interview type cards — immediately visible -->
+        <!-- Interview type cards -->
         <div id="interviewCards" class="cards-section">
             <div class="section-title">Choose Your Interview</div>
             
@@ -835,6 +831,33 @@
                 <span class="tag">Leadership</span>
                 <span class="tag">Management</span>
                 <span class="tag">Advanced</span>
+            </div>
+        </div>
+
+        <!-- Why This Tool Section -->
+        <div class="why-section">
+            <div class="why-card">
+                <h3>💡 Why practise here?</h3>
+                <div class="why-item">
+                    <div class="why-icon">🎯</div>
+                    <p><strong>Realistic questions</strong> — based on real NHS Trust, university and promotion interview panels across UK ambulance services</p>
+                </div>
+                <div class="why-item">
+                    <div class="why-icon">📊</div>
+                    <p><strong>Instant structured feedback</strong> — every answer is scored on strengths, areas to improve, and key points missed so you know exactly where to focus</p>
+                </div>
+                <div class="why-item">
+                    <div class="why-icon">✍️</div>
+                    <p><strong>Model answers included</strong> — see what a strong answer looks like after every question, so you can learn and adapt your technique</p>
+                </div>
+                <div class="why-item">
+                    <div class="why-icon">⚡</div>
+                    <p><strong>Hot Seat mode</strong> — turn on a 2-minute timer to simulate real interview pressure and practise thinking on your feet</p>
+                </div>
+                <div class="why-item">
+                    <div class="why-icon">🔄</div>
+                    <p><strong>Unlimited variety</strong> — questions are generated by AI so you'll never see the same one twice, keeping your preparation fresh</p>
+                </div>
             </div>
         </div>
     </div>
