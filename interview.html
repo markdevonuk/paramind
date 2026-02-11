@@ -416,15 +416,7 @@
         .toggle-switch.active .toggle-dot { left: 23px; }
 
         /* ==================== CHAT SCREEN ==================== */
-        .chat-container {
-            display: flex;
-            flex-direction: column;
-            height: calc(100vh - var(--header-height));
-            background: var(--color-gray-50);
-            max-width: 900px;
-            width: 100%;
-            margin: 0 auto;
-        }
+        /* Chat Container — not used, width set on .view-chat */
 
         /* Chat Header */
         .chat-header {
@@ -682,6 +674,9 @@
             display: flex;
             flex-direction: column;
             height: calc(100vh - var(--header-height));
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
         }
 
         /* ==================== HOLLIE AVATAR ==================== */
@@ -1116,9 +1111,8 @@
                     console.error('Error fetching user data:', err);
                 }
             } else {
-                // Not logged in — keep cards visible, auth check happens at startInterview
-                els.heroBadgeFree.style.display = 'inline-flex';
-                els.heroBadgePro.style.display = 'none';
+                // Not logged in — redirect to login (matches all other pages)
+                window.location.href = 'login.html';
             }
         });
 
