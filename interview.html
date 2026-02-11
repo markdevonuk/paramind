@@ -86,9 +86,8 @@
 
         /* ==================== HERO SECTION ==================== */
         .hero-section {
-            background: linear-gradient(135deg, #1a2634 0%, #2d4a5e 60%, var(--color-teal) 100%);
-            padding: 40px 20px 36px;
-            text-align: center;
+            background: linear-gradient(135deg, #0f1923 0%, #1a3040 40%, #1e5a6e 80%, var(--color-teal) 100%);
+            padding: 22px 20px 20px;
             color: #fff;
             position: relative;
             overflow: hidden;
@@ -97,102 +96,235 @@
             position: absolute;
             inset: 0;
             background-image:
-                radial-gradient(circle at 20% 50%, rgba(43,138,156,0.3) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(92,184,92,0.2) 0%, transparent 50%);
+                radial-gradient(circle at 15% 50%, rgba(43,138,156,0.35) 0%, transparent 45%),
+                radial-gradient(circle at 85% 20%, rgba(92,184,92,0.25) 0%, transparent 40%),
+                radial-gradient(circle at 50% 100%, rgba(43,138,156,0.15) 0%, transparent 50%);
             pointer-events: none;
         }
-        .hero-section h1 {
-            font-size: 1.6rem;
-            font-weight: 800;
-            margin-bottom: 6px;
-            position: relative;
-            color: #fff;
+        /* Decorative dots */
+        .hero-pattern::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
         }
-        .hero-section p {
-            font-size: 0.95rem;
-            opacity: 0.85;
-            max-width: 480px;
-            margin: 0 auto 16px;
-            line-height: 1.5;
+        .hero-inner {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            max-width: 660px;
+            margin: 0 auto;
             position: relative;
+        }
+        .hero-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            border: 3px solid rgba(92,184,92,0.6);
+            overflow: hidden;
+            flex-shrink: 0;
+            box-shadow: 0 4px 20px rgba(43,138,156,0.4);
+            animation: avatarGlow 3s ease-in-out infinite alternate;
+        }
+        .hero-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        @keyframes avatarGlow {
+            from { box-shadow: 0 4px 20px rgba(43,138,156,0.3); }
+            to { box-shadow: 0 4px 28px rgba(92,184,92,0.5); }
+        }
+        .hero-text { flex: 1; min-width: 0; }
+        .hero-text h1 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin: 0 0 4px;
+            color: #fff;
+            line-height: 1.2;
+        }
+        .hero-text .hero-tagline {
+            font-size: 0.82rem;
+            opacity: 0.8;
+            line-height: 1.4;
+            margin: 0 0 10px;
+        }
+        /* Feature pills row */
+        .hero-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            background: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.9);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .hero-pill.accent {
+            background: rgba(92,184,92,0.25);
+            border-color: rgba(92,184,92,0.4);
+            color: #7CDB7C;
         }
         .free-badge {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            background: rgba(92,184,92,0.2);
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            background: rgba(92,184,92,0.25);
             border: 1px solid rgba(92,184,92,0.4);
             color: #7CDB7C;
-            border-radius: 20px;
-            padding: 6px 16px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            position: relative;
-        }
-
-        /* ==================== HOW IT WORKS ==================== */
-        .tips-box {
-            background: linear-gradient(135deg, rgba(43,138,156,0.08), rgba(92,184,92,0.08));
-            border: 1px solid rgba(43,138,156,0.2);
-            border-radius: 14px;
-            padding: 18px 16px;
-            margin: 20px 16px 0;
-            max-width: 660px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .tips-box h3 {
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--color-teal);
-            margin-bottom: 8px;
-        }
-        .tips-box .tip {
-            font-size: 0.82rem;
-            color: var(--color-gray-700);
-            line-height: 1.5;
-            margin-bottom: 4px;
         }
 
         /* ==================== INTERVIEW TYPE CARDS ==================== */
         .cards-section {
-            padding: 24px 16px;
+            padding: 16px 16px 24px;
             max-width: 660px;
             margin: 0 auto;
         }
         .section-title {
-            font-size: 1.05rem;
+            font-size: 0.8rem;
             font-weight: 700;
-            color: var(--color-gray-800);
-            margin-bottom: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--color-gray-500);
+            margin-bottom: 12px;
         }
         .interview-card {
-            background: var(--color-white);
             border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 14px;
-            border: 1px solid var(--color-gray-200);
+            padding: 18px 18px 16px;
+            margin-bottom: 12px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: var(--shadow-sm);
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+            border: none;
+        }
+        .interview-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.25s;
         }
         .interview-card:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-lg);
+            transform: translateY(-3px) scale(1.01);
         }
-        .interview-card .card-icon { font-size: 2rem; margin-bottom: 8px; }
-        .interview-card h3 { font-size: 1.05rem; font-weight: 700; color: var(--color-gray-900); margin: 0; }
-        .interview-card .card-subtitle { font-size: 0.8rem; font-weight: 600; color: var(--color-gray-600); margin: 2px 0 6px; }
-        .interview-card .card-desc { font-size: 0.85rem; color: var(--color-gray-600); line-height: 1.5; margin: 0 0 10px; }
-        .interview-card .tag {
-            display: inline-block;
-            background: var(--color-gray-100);
-            color: var(--color-gray-700);
-            border-radius: 6px;
-            padding: 3px 10px;
+        .interview-card:active {
+            transform: translateY(0) scale(0.99);
+        }
+        /* NHS Trust card */
+        .interview-card.card-nhs {
+            background: linear-gradient(135deg, #1a3a4a 0%, #1e5a6e 60%, #2B8A9C 100%);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(43,138,156,0.25);
+        }
+        .interview-card.card-nhs:hover {
+            box-shadow: 0 8px 30px rgba(43,138,156,0.35);
+        }
+        /* University card */
+        .interview-card.card-uni {
+            background: linear-gradient(135deg, #1a3a2a 0%, #2a6a3a 60%, #5CB85C 100%);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(92,184,92,0.2);
+        }
+        .interview-card.card-uni:hover {
+            box-shadow: 0 8px 30px rgba(92,184,92,0.3);
+        }
+        /* Promotion card */
+        .interview-card.card-promo {
+            background: linear-gradient(135deg, #3a2a1a 0%, #6a4a2a 60%, #E67E22 100%);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(230,126,34,0.2);
+        }
+        .interview-card.card-promo:hover {
+            box-shadow: 0 8px 30px rgba(230,126,34,0.3);
+        }
+        /* Card inner elements */
+        .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .card-top-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .interview-card .card-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.15);
+            border-radius: 12px;
+            flex-shrink: 0;
+        }
+        .interview-card h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0;
+        }
+        .interview-card .card-subtitle {
             font-size: 0.72rem;
             font-weight: 600;
-            margin-right: 6px;
+            color: rgba(255,255,255,0.65);
+            margin: 1px 0 0;
+        }
+        .card-arrow {
+            color: rgba(255,255,255,0.5);
+            font-size: 1.2rem;
+            transition: transform 0.2s;
+        }
+        .interview-card:hover .card-arrow {
+            transform: translateX(3px);
+            color: rgba(255,255,255,0.9);
+        }
+        .interview-card .card-desc {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.45;
+            margin: 0 0 10px;
+        }
+        .interview-card .tag {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.9);
+            border-radius: 6px;
+            padding: 3px 10px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            margin-right: 5px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Staggered entrance animations */
+        .interview-card {
+            animation: cardSlideUp 0.4s ease-out backwards;
+        }
+        .interview-card:nth-child(2) { animation-delay: 0.08s; }
+        .interview-card:nth-child(3) { animation-delay: 0.16s; }
+        .interview-card:nth-child(4) { animation-delay: 0.24s; }
+        @keyframes cardSlideUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* ==================== CATEGORY SCREEN ==================== */
@@ -312,7 +444,7 @@
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.4);
+            border: 2px solid var(--color-teal);
             overflow: hidden;
             flex-shrink: 0;
         }
@@ -576,59 +708,6 @@
             height: 36px;
             border-width: 2px;
         }
-        .hollie-avatar.hero-size {
-            width: 100px;
-            height: 100px;
-            border-width: 4px;
-            margin: 0 auto 12px;
-            box-shadow: 0 8px 24px rgba(43, 138, 156, 0.25);
-        }
-
-        /* Hollie intro section on landing */
-        .hollie-intro-section {
-            text-align: center;
-            padding: 28px 20px 0;
-            max-width: 660px;
-            margin: 0 auto;
-        }
-        .hollie-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            background: rgba(43, 138, 156, 0.1);
-            color: var(--color-teal);
-            padding: 0.3rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        .hollie-speech {
-            font-size: 0.9rem;
-            color: var(--color-gray-700);
-            line-height: 1.55;
-            max-width: 500px;
-            margin: 0 auto;
-            background: var(--color-white);
-            border: 1px solid var(--color-gray-200);
-            border-radius: 16px;
-            padding: 14px 18px;
-            position: relative;
-            box-shadow: var(--shadow-sm);
-        }
-        .hollie-speech::before {
-            content: '';
-            position: absolute;
-            top: -8px;
-            left: 50%;
-            margin-left: -8px;
-            width: 16px;
-            height: 16px;
-            background: var(--color-white);
-            border-left: 1px solid var(--color-gray-200);
-            border-top: 1px solid var(--color-gray-200);
-            transform: rotate(45deg);
-        }
 
         /* ==================== ANIMATIONS ==================== */
         @keyframes fadeInUp {
@@ -658,26 +737,6 @@
         }
         .message-limit-banner.warning strong { color: var(--color-danger); }
 
-        /* ==================== NOT LOGGED IN OVERLAY ==================== */
-        .login-prompt {
-            text-align: center;
-            padding: 60px 20px;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        .login-prompt i { font-size: 3rem; color: var(--color-teal); margin-bottom: 16px; }
-        .login-prompt h2 { font-size: 1.2rem; margin-bottom: 8px; }
-        .login-prompt p { color: var(--color-gray-600); margin-bottom: 20px; font-size: 0.9rem; }
-        .login-prompt .btn-login {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark));
-            color: #fff;
-            padding: 12px 32px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
     </style>
 </head>
 
@@ -699,72 +758,83 @@
     <!-- ==================== HOME VIEW ==================== -->
     <div id="homeView" class="view active">
         
-        <!-- Hero -->
+        <!-- Compact Hero with Hollie -->
         <div class="hero-section">
             <div class="hero-pattern"></div>
-            <h1><i class="bi bi-mortarboard me-2"></i>Mock Interview Simulator</h1>
-            <p>Practice with AI-powered mock interviews tailored to UK paramedic roles. Get instant feedback on every answer.</p>
-            <div class="free-badge" id="heroBadgeFree">✨ Free Tool — Uses Your Daily Messages</div>
-            <div class="free-badge" id="heroBadgePro" style="display: none; background: rgba(255,215,0,0.2); border-color: rgba(255,215,0,0.4); color: #FFD700;">⭐ Unlimited Access — Pro Member</div>
+            <div class="hero-inner">
+                <div class="hero-avatar">
+                    <img src="images/hollie.png" alt="Hollie - Interview Coach">
+                </div>
+                <div class="hero-text">
+                    <h1>Mock Interview Prep</h1>
+                    <p class="hero-tagline">Practice with Hollie, your AI interview coach. Get real-time feedback &amp; model answers.</p>
+                    <div class="hero-pills">
+                        <span class="hero-pill">🎯 STAR Method</span>
+                        <span class="hero-pill">💬 AI Feedback</span>
+                        <span class="hero-pill">📝 Model Answers</span>
+                        <span class="free-badge" id="heroBadgeFree">✨ Free</span>
+                        <span class="free-badge" id="heroBadgePro" style="display: none; background: rgba(255,215,0,0.25); border-color: rgba(255,215,0,0.4); color: #FFD700;">⭐ Pro</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Hollie Introduction -->
-        <div class="hollie-intro-section">
-            <div class="hollie-avatar hero-size">
-                <img src="images/hollie.png" alt="Hollie - Your Interview Coach">
-            </div>
-            <div class="hollie-badge">
-                <i class="bi bi-patch-check-fill"></i> Interview Coach
-            </div>
-            <div class="hollie-speech">
-                Hey! 👋 I'm <strong>Hollie</strong>, your interview coach. I'll act as a realistic interview panel and ask you questions one at a time. After each answer, I'll give you honest feedback with a model answer so you know exactly how to improve. Let's smash that interview!
-            </div>
-        </div>
-
-        <!-- How It Works -->
-        <div class="tips-box">
-            <h3>💡 How It Works</h3>
-            <div class="tip"><strong>1.</strong> Choose your interview type below</div>
-            <div class="tip"><strong>2.</strong> Pick a question category (or go random)</div>
-            <div class="tip"><strong>3.</strong> Answer questions as you would in a real interview</div>
-            <div class="tip"><strong>4.</strong> Get instant AI feedback with strengths, improvements & model answers</div>
-        </div>
-
-        <!-- Interview type cards -->
+        <!-- Interview type cards — immediately visible -->
         <div id="interviewCards" class="cards-section">
-            <div class="section-title">Choose Your Interview Type</div>
+            <div class="section-title">Choose Your Interview</div>
             
             <!-- NHS Trust -->
-            <div class="interview-card" style="border-left: 4px solid #2B8A9C;" onclick="selectType('nhs_trust')">
-                <div class="card-icon">🏥</div>
-                <h3>NHS Trust Interview</h3>
-                <div class="card-subtitle">Band 5/6 Paramedic Posts</div>
-                <div class="card-desc">Practice for ambulance trust recruitment with values-based and competency questions</div>
+            <div class="interview-card card-nhs" onclick="selectType('nhs_trust')">
+                <div class="card-top">
+                    <div class="card-top-left">
+                        <div class="card-icon">🏥</div>
+                        <div>
+                            <h3>NHS Trust Interview</h3>
+                            <div class="card-subtitle">Band 5 / 6 Paramedic Posts</div>
+                        </div>
+                    </div>
+                    <i class="bi bi-chevron-right card-arrow"></i>
+                </div>
+                <div class="card-desc">Values-based &amp; competency questions for ambulance trust recruitment panels</div>
                 <span class="tag">Values-Based</span>
                 <span class="tag">Competency</span>
                 <span class="tag">Clinical</span>
             </div>
 
             <!-- University -->
-            <div class="interview-card" style="border-left: 4px solid #5CB85C;" onclick="selectType('university')">
-                <div class="card-icon">🎓</div>
-                <h3>University Admission</h3>
-                <div class="card-subtitle">BSc / MSc Paramedic Science</div>
-                <div class="card-desc">Prepare for university interviews with motivation and aptitude questions</div>
+            <div class="interview-card card-uni" onclick="selectType('university')">
+                <div class="card-top">
+                    <div class="card-top-left">
+                        <div class="card-icon">🎓</div>
+                        <div>
+                            <h3>University Admission</h3>
+                            <div class="card-subtitle">BSc / MSc Paramedic Science</div>
+                        </div>
+                    </div>
+                    <i class="bi bi-chevron-right card-arrow"></i>
+                </div>
+                <div class="card-desc">Motivation, aptitude &amp; ethical reasoning for university interview panels</div>
                 <span class="tag">Motivation</span>
                 <span class="tag">Aptitude</span>
                 <span class="tag">Ethics</span>
             </div>
 
             <!-- Promotion -->
-            <div class="interview-card" style="border-left: 4px solid #E67E22;" onclick="selectType('promotion')">
-                <div class="card-icon">📋</div>
-                <h3>Promotion & Progression</h3>
-                <div class="card-subtitle">Band 6/7 & Specialist Roles</div>
-                <div class="card-desc">Prepare for leadership, clinical specialist, and advanced practice interviews</div>
+            <div class="interview-card card-promo" onclick="selectType('promotion')">
+                <div class="card-top">
+                    <div class="card-top-left">
+                        <div class="card-icon">📋</div>
+                        <div>
+                            <h3>Promotion &amp; Progression</h3>
+                            <div class="card-subtitle">Band 6/7 &amp; Specialist Roles</div>
+                        </div>
+                    </div>
+                    <i class="bi bi-chevron-right card-arrow"></i>
+                </div>
+                <div class="card-desc">Leadership, governance &amp; advanced practice for senior role interviews</div>
                 <span class="tag">Leadership</span>
                 <span class="tag">Management</span>
-                <span class="tag">Advanced Practice</span>
+                <span class="tag">Advanced</span>
             </div>
         </div>
     </div>
