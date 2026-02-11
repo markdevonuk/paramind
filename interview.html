@@ -836,7 +836,7 @@
 
         <!-- Message Limit Banner -->
         <div class="message-limit-banner" id="messageLimitBanner" style="display: none;">
-            <strong id="msgRemaining">5</strong> free messages remaining today · <a href="register.html" style="color: var(--color-teal); font-weight: 600;">Upgrade for unlimited</a>
+            <strong id="msgRemaining">10</strong> free messages remaining today · <a href="register.html" style="color: var(--color-teal); font-weight: 600;">Upgrade for unlimited</a>
         </div>
 
         <!-- Chat Messages -->
@@ -958,7 +958,7 @@
             isLoading: false,
             questionCount: 0,
             isPro: false,
-            messagesRemaining: 5,
+            messagesRemaining: 10,
             hotSeatMode: false,
             timerSeconds: 120,
             timerInterval: null,
@@ -971,7 +971,6 @@
             categoriesView: document.getElementById('categoriesView'),
             chatView: document.getElementById('chatView'),
             interviewCards: document.getElementById('interviewCards'),
-            loginPrompt: document.getElementById('loginPrompt'),
             catTypeIcon: document.getElementById('catTypeIcon'),
             catTypeTitle: document.getElementById('catTypeTitle'),
             catGrid: document.getElementById('catGrid'),
@@ -993,10 +992,7 @@
         // ==================== AUTH STATE ====================
         auth.onAuthStateChanged(async (user) => {
             if (user) {
-                // User is logged in
-                els.loginPrompt.style.display = 'none';
-                els.interviewCards.style.display = 'block';
-                
+                // User is logged in — fetch their profile
                 try {
                     const userDoc = await db.collection('users').doc(user.uid).get();
                     if (userDoc.exists) {
@@ -1024,9 +1020,9 @@
                     console.error('Error fetching user data:', err);
                 }
             } else {
-                // Not logged in — show login prompt, hide cards
-                els.loginPrompt.style.display = 'block';
-                els.interviewCards.style.display = 'none';
+                // Not logged in — keep cards visible, auth check happens at startInterview
+                els.heroBadgeFree.style.display = 'inline-flex';
+                els.heroBadgePro.style.display = 'none';
             }
         });
 
@@ -1311,7 +1307,7 @@ CRITICAL RULES:
             } catch (error) {
                 removeElement(aiMsgId);
                 if (error.message === 'LIMIT_REACHED') {
-                    addMessage('assistant', "You've used all your free messages for today! 😊 Upgrade to Pro for unlimited interview practice, or come back tomorrow for 5 more free messages.");
+                    addMessage('assistant', "You've used all your free messages for today! 😊 Upgrade to Pro for unlimited interview practice, or come back tomorrow for 10 more free messages.");
                 } else {
                     addMessage('assistant', "I'm having a moment of technical difficulty — but don't worry, that happens in real interviews too! 😄 Could you try sending your answer again?");
                 }
