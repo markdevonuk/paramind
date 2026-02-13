@@ -723,6 +723,268 @@
             </div>
         </div>
     </section>
+    
+    
+    <!-- ==================== TESTIMONIALS SECTION ==================== -->
+<style>
+    /* Testimonials Styles */
+    .testimonials-section {
+        padding: 4rem 0;
+        background: linear-gradient(135deg, rgba(43, 138, 156, 0.04) 0%, rgba(92, 184, 92, 0.04) 100%);
+        overflow: hidden;
+    }
+
+    .testimonials-section .section-title {
+        text-align: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .testimonials-section .section-subtitle {
+        text-align: center;
+        color: var(--color-gray-600, #6C757D);
+        margin-bottom: 3rem;
+    }
+
+    .testimonial-carousel {
+        position: relative;
+        max-width: 700px;
+        margin: 0 auto;
+        min-height: 220px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .testimonial-card {
+        position: absolute;
+        width: 100%;
+        text-align: center;
+        padding: 2rem 2.5rem;
+        opacity: 0;
+        transform: translateX(80px);
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: none;
+    }
+
+    .testimonial-card.active {
+        opacity: 1;
+        transform: translateX(0);
+        pointer-events: auto;
+    }
+
+    .testimonial-card.exit-left {
+        opacity: 0;
+        transform: translateX(-80px);
+    }
+
+    .testimonial-quote-icon {
+        font-size: 2.5rem;
+        color: var(--color-teal, #2B8A9C);
+        opacity: 0.3;
+        margin-bottom: 0.5rem;
+        line-height: 1;
+    }
+
+    .testimonial-text {
+        font-family: var(--font-primary, 'Plus Jakarta Sans', sans-serif);
+        font-size: 1.35rem;
+        font-weight: 600;
+        color: var(--color-gray-800, #343A40);
+        line-height: 1.5;
+        margin-bottom: 1rem;
+        font-style: italic;
+    }
+
+    .testimonial-author {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, var(--color-teal, #2B8A9C) 0%, var(--color-green, #5CB85C) 100%);
+        color: white;
+        padding: 0.35rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .testimonial-author i {
+        font-size: 0.9rem;
+    }
+
+    /* Dots navigation */
+    .testimonial-dots {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 2rem;
+    }
+
+    .testimonial-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--color-gray-300, #DEE2E6);
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        padding: 0;
+    }
+
+    .testimonial-dot.active {
+        background: var(--color-teal, #2B8A9C);
+        transform: scale(1.3);
+    }
+
+    .testimonial-dot:hover {
+        background: var(--color-teal-light, #3DA4B8);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .testimonials-section {
+            padding: 3rem 0;
+        }
+
+        .testimonial-card {
+            padding: 1.5rem 1rem;
+        }
+
+        .testimonial-text {
+            font-size: 1.1rem;
+        }
+
+        .testimonial-carousel {
+            min-height: 200px;
+        }
+    }
+</style>
+
+
+
+<section class="testimonials-section">
+    <div class="container">
+        <h2 class="section-title">What Paramedics Are Saying</h2>
+        <p class="section-subtitle">Trusted by paramedics and educators across the UK</p>
+
+        <div class="testimonial-carousel" id="testimonialCarousel">
+            <div class="testimonial-card active">
+                <div class="testimonial-quote-icon">&ldquo;</div>
+                <p class="testimonial-text">It's a great piece of work, definitely something I'd recommend to students</p>
+                <span class="testimonial-author">
+                    <i class="bi bi-patch-check-fill"></i>
+                    HEMS Paramedic
+                </span>
+            </div>
+            
+            <div class="testimonial-card">
+                <div class="testimonial-quote-icon">&ldquo;</div>
+                <p class="testimonial-text">This is a brilliant idea</p>
+                <span class="testimonial-author">
+                    <i class="bi bi-patch-check-fill"></i>
+                    Paramedic Educator
+                </span>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="testimonial-quote-icon">&ldquo;</div>
+                <p class="testimonial-text">This looks epic</p>
+                <span class="testimonial-author">
+                    <i class="bi bi-patch-check-fill"></i>
+                    HEMS Paramedic
+                </span>
+            </div>
+
+ <div class="testimonial-card">
+                <div class="testimonial-quote-icon">&ldquo;</div>
+                <p class="testimonial-text">At last, why hasn't this been done before?</p>
+                <span class="testimonial-author">
+                    <i class="bi bi-patch-check-fill"></i>
+                    Lead Paramedic (Education)
+                </span>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="testimonial-quote-icon">&ldquo;</div>
+                <p class="testimonial-text">Looks awesome</p>
+                <span class="testimonial-author">
+                    <i class="bi bi-patch-check-fill"></i>
+                    HEMS Paramedic
+                </span>
+            </div>
+
+            
+        </div>
+
+        <div class="testimonial-dots" id="testimonialDots">
+            <button class="testimonial-dot active" data-index="0" aria-label="Quote 1"></button>
+            <button class="testimonial-dot" data-index="1" aria-label="Quote 2"></button>
+            <button class="testimonial-dot" data-index="2" aria-label="Quote 3"></button>
+            <button class="testimonial-dot" data-index="3" aria-label="Quote 4"></button>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Testimonial Carousel
+    (function() {
+        const cards = document.querySelectorAll('.testimonial-card');
+        const dots = document.querySelectorAll('.testimonial-dot');
+        let current = 0;
+        let interval;
+
+        function showTestimonial(index) {
+            // Exit current card to the left
+            cards[current].classList.remove('active');
+            cards[current].classList.add('exit-left');
+
+            // After the exit animation, reset the exited card
+            setTimeout(() => {
+                cards[current].classList.remove('exit-left');
+            }, 600);
+
+            // Update current index
+            current = index;
+
+            // Bring in new card from the right
+            cards[current].classList.add('active');
+
+            // Update dots
+            dots.forEach(d => d.classList.remove('active'));
+            dots[current].classList.add('active');
+        }
+
+        function nextTestimonial() {
+            const next = (current + 1) % cards.length;
+            showTestimonial(next);
+        }
+
+        // Auto-rotate every 4 seconds
+        function startAutoRotate() {
+            interval = setInterval(nextTestimonial, 4000);
+        }
+
+        // Click on dots
+        dots.forEach(dot => {
+            dot.addEventListener('click', function() {
+                const index = parseInt(this.dataset.index);
+                if (index !== current) {
+                    clearInterval(interval);
+                    showTestimonial(index);
+                    startAutoRotate();
+                }
+            });
+        });
+
+        // Start auto-rotation
+        startAutoRotate();
+    })();
+</script>
+<!-- ==================== END TESTIMONIALS SECTION ==================== -->
+    
+    
+    
+    
+    
 
     <!-- Pricing Section -->
     <section id="pricing" class="pricing-section py-5">
