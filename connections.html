@@ -604,139 +604,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* Pro Overlay */
-        .pro-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            padding: 1.5rem;
-        }
-        
-        .pro-overlay.visible {
-            display: flex;
-        }
-        
-        .pro-overlay-content {
-            background: var(--color-white);
-            border-radius: var(--radius-lg);
-            padding: 2.5rem;
-            max-width: 480px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-        }
-        
-        .pro-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--color-teal) 0%, #228B9D 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
-        }
-        
-        .pro-icon i {
-            font-size: 2.5rem;
-            color: white;
-        }
-        
-        .pro-overlay-content h2 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--color-gray-900);
-            margin: 0 0 0.75rem;
-        }
-        
-        .pro-feature-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.375rem;
-            background: linear-gradient(135deg, #ffc107 0%, #ffca2c 100%);
-            color: #000;
-            font-size: 0.8rem;
-            font-weight: 700;
-            padding: 0.375rem 0.875rem;
-            border-radius: 2rem;
-            margin-bottom: 1.25rem;
-        }
-        
-        .pro-description {
-            color: var(--color-gray-600);
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-        }
-        
-        .pro-benefits {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 2rem;
-            text-align: left;
-        }
-        
-        .pro-benefits li {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.625rem 0;
-            color: var(--color-gray-700);
-            font-size: 0.95rem;
-            border-bottom: 1px solid var(--color-gray-100);
-        }
-        
-        .pro-benefits li:last-child {
-            border-bottom: none;
-        }
-        
-        .pro-benefits li i {
-            color: var(--color-green);
-            font-size: 1.1rem;
-        }
-        
-        .pro-upgrade-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            width: 100%;
-            padding: 1rem 2rem;
-            background: linear-gradient(135deg, var(--color-green) 0%, #4a9f4a 100%);
-            color: white;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border-radius: var(--radius-md);
-            text-decoration: none;
-            transition: all var(--transition-fast);
-            margin-bottom: 1rem;
-        }
-        
-        .pro-upgrade-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(92, 184, 92, 0.4);
-            color: white;
-        }
-        
-        .pro-back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--color-gray-500);
-            font-size: 0.9rem;
-            text-decoration: none;
-        }
-        
-        .pro-back-link:hover {
-            color: var(--color-gray-700);
-        }
     </style>
 </head>
 <body class="clinical-page">
@@ -759,33 +626,6 @@
     </nav>
 
     <div class="clinical-container">
-        <!-- Pro Upgrade Overlay -->
-        <div class="pro-overlay" id="proOverlay">
-            <div class="pro-overlay-content">
-                <div class="pro-icon">
-                    <i class="bi bi-heart-pulse"></i>
-                </div>
-                <h2>Clinical Connections</h2>
-                <p class="pro-feature-badge"><i class="bi bi-star-fill"></i> Pro Feature</p>
-                <p class="pro-description">
-                    Understand the anatomy & physiology behind what you see on the road. 
-                    Get friendly, conversational explanations from Hollie, your AI paramedic tutor.
-                </p>
-                <ul class="pro-benefits">
-                    <li><i class="bi bi-check-circle-fill"></i> 8 body systems covered</li>
-                    <li><i class="bi bi-check-circle-fill"></i> 80+ clinical questions</li>
-                    <li><i class="bi bi-check-circle-fill"></i> AI-powered explanations</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Links A&P to clinical practice</li>
-                </ul>
-                <a href="#" class="pro-upgrade-btn" id="proUpgradeBtn">
-                    <i class="bi bi-star-fill"></i> Upgrade to Pro
-                </a>
-                <a href="chat.html" class="pro-back-link">
-                    <i class="bi bi-arrow-left"></i> Back to Chat
-                </a>
-            </div>
-        </div>
-
         <!-- VIEW 1: Body Systems Selection -->
         <div class="view-systems active" id="viewSystems">
             <div class="clinical-header">
@@ -883,9 +723,6 @@
     
     <!-- Marked.js for Markdown -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    
-    <!-- Load your existing app config -->
-    <script src="js/app.js"></script>
     
     <script type="module">
         // ==================== BODY SYSTEMS DATA ====================
@@ -1031,113 +868,21 @@
         // ==================== STATE ====================
         let currentSystem = null;
         let currentQuestion = null;
-        let auth = null;
-        let currentUser = null;
 
-        // ==================== FIREBASE AUTH ====================
-        async function initializeAuth() {
-            const { getAuth, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
-            const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
-            const { firebaseConfig } = await import('./js/firebase-config.js');
-            
-            const app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            
-            return new Promise((resolve) => {
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        currentUser = user;
-                        resolve(true);
-                    } else {
-                        window.location.href = 'login.html';
-                        resolve(false);
-                    }
-                });
-            });
-        }
-        
+        // ==================== AUTH TOKEN HELPER ====================
+        // Firebase is loaded by menu-v2.js — this gets the token for API calls
         async function getAuthToken() {
-            if (currentUser) {
-                return await currentUser.getIdToken(true);
+            const user = firebase.auth().currentUser;
+            if (user) {
+                return await user.getIdToken(true);
             }
             throw new Error('Not authenticated');
         }
 
         // ==================== INITIALIZATION ====================
-        async function initClinicalConnections() {
-    const isAuthenticated = await initializeAuth();
-    if (!isAuthenticated) return;
-    
-    // Render body systems IMMEDIATELY - don't wait for Pro check!
-    renderBodySystems();
-    setupEventListeners();
-    
-    // Check Pro status in the background
-    const isPro = await checkProStatus();
-    
-    // If not Pro, show overlay ON TOP of the already-rendered content
-    if (!isPro) {
-        document.getElementById('proOverlay').classList.add('visible');
-        document.getElementById('proUpgradeBtn').addEventListener('click', handleUpgrade);
-    }
-}
-        
-        async function checkProStatus() {
-            try {
-                const token = await getAuthToken();
-                const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}${window.paramind.CONFIG.api.user}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (response.ok) {
-                    const userProfile = await response.json();
-                    return userProfile.subscriptionStatus === 'pro' || 
-                           userProfile.subscriptionStatus === 'active' ||
-                           userProfile.isPro === true;
-                }
-                return false;
-            } catch (error) {
-                console.error('Error checking Pro status:', error);
-                return false;
-            }
-        }
-        
-        async function handleUpgrade(e) {
-            e.preventDefault();
-            const btn = document.getElementById('proUpgradeBtn');
-            const originalText = btn.innerHTML;
-            
-            try {
-                btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Loading...';
-                btn.style.pointerEvents = 'none';
-                
-                const token = await getAuthToken();
-                const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}${window.paramind.CONFIG.api.checkout || '/createCheckoutSession'}`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.url) {
-                        window.location.href = data.url;
-                    }
-                } else {
-                    throw new Error('Failed to create checkout session');
-                }
-            } catch (error) {
-                console.error('Upgrade error:', error);
-                alert('Unable to start checkout. Please try again.');
-                btn.innerHTML = originalText;
-                btn.style.pointerEvents = 'auto';
-            }
+        function initClinicalConnections() {
+            renderBodySystems();
+            setupEventListeners();
         }
 
         // ==================== RENDER FUNCTIONS ====================
@@ -1546,6 +1291,9 @@ Use UK spelling and terminology.`;
         document.addEventListener('DOMContentLoaded', initClinicalConnections);
     </script>
     
+    <!-- Standardised script loading -->
+    <script src="js/app.js"></script>
     <script src="js/menu-v2.js"></script>
+    <script src="js/pro-guard.js"></script>
 </body>
 </html>
