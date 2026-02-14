@@ -27,11 +27,11 @@
             { id: 'home', href: 'landing.html', icon: 'bi-house', label: 'Home' },
             { id: 'chat', href: 'chat.html', icon: 'bi-chat-dots', label: 'Chat' },
             { id: 'scenarios', href: 'scenarios.html', icon: 'bi-mortarboard', label: 'Scenarios' },
-            { id: 'differentials', href: 'differentials.html', icon: 'bi-clipboard2-pulse', label: 'Differentials' },
-			{ id: 'interview', href: 'interview.html', icon: 'bi-mortarboard', label: 'Interview Prep' }
+            { id: 'differentials', href: 'differentials.html', icon: 'bi-clipboard2-pulse', label: 'Differentials' }
         ],
        // Pro features
         proNav: [
+            { id: 'interview', href: 'interview.html', icon: 'bi-mic', label: 'Interview Prep', isPro: true },
             { id: 'connections', href: 'connections.html', icon: 'bi-heart-pulse', label: 'A&P Connections', isPro: true },
             { id: 'drugs', href: 'drugs.html', icon: 'bi-capsule', label: 'Drugs', isPro: true },
             { id: 'atmist', href: 'atmist.html', icon: 'bi-telephone-outbound', label: 'ATMIST', isPro: true },
