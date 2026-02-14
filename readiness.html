@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Readiness Score | Paramind – Free Paramedic Knowledge Assessment</title>
+    
+    <!-- SEO -->
+    <meta name="description" content="Test your paramedic clinical knowledge with the free Paramind Readiness Score. 20 timed questions across 6 domains. Shareable results. No sign-up required.">
+    <meta property="og:title" content="Paramind Readiness Score – How Ready Are You?">
+    <meta property="og:description" content="Free 5-minute paramedic knowledge assessment. 20 timed questions, instant results, shareable score card.">
+    <meta property="og:image" content="https://www.paramind.co.uk/images/paramind-social-preview.png">
+    <meta property="og:url" content="https://www.paramind.co.uk/readiness">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Menu CSS (your existing file) -->
+    <link rel="stylesheet" href="css/menu-v2.css">
+    
+    <style>
+        /* ── Reset & Base ──────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        :root {
+            --teal: #2B8A9C;
+            --teal-dark: #237282;
+            --teal-light: #3DA4B8;
+            --green: #5CB85C;
+            --green-dark: #4A9A4A;
+            --green-light: #72C772;
+            --bg: #0B1929;
+            --surface: rgba(255,255,255,0.04);
+            --border: rgba(255,255,255,0.08);
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --text-faint: #475569;
+            --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        html { scroll-behavior: smooth; }
+        
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+        
+        /* ── Ambient Orbs ──────────────────────────────── */
+        .orb { position: fixed; border-radius: 50%; pointer-events: none; z-index: 0; }
+        .orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(43,138,156,0.15) 0%, transparent 70%); top: -100px; right: -150px; }
+        .orb-2 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(92,184,92,0.08) 0%, transparent 70%); bottom: -100px; left: -100px; }
+        
+        /* ── Navbar ─────────────────────────────────────── */
+        .site-navbar {
+            background: rgba(11,25,41,0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .site-navbar .container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .brand-text { font-size: 1.35rem; font-weight: 700; text-decoration: none; }
+        .brand-para { color: var(--teal); }
+        .brand-mind { color: var(--green); }
+        
+        .hamburger-btn {
+            background: none; border: none; padding: 8px; cursor: pointer;
+            display: flex; flex-direction: column; gap: 5px; width: 40px; height: 40px;
+            justify-content: center; align-items: center; border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .hamburger-btn:hover { background: rgba(43,138,156,0.1); }
+        .hamburger-btn span { display: block; width: 22px; height: 2px; background: #e2e8f0; border-radius: 2px; transition: all 0.3s; }
+        
+        /* ── Container ─────────────────────────────────── */
+        .container-quiz {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 24px 20px 60px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* ── Shared UI ─────────────────────────────────── */
+        .tag {
+            display: inline-block; padding: 4px 12px; border-radius: 20px;
+            font-size: 12px; font-weight: 600;
+            background: rgba(43,138,156,0.15); color: var(--teal-light);
+        }
+        .tag-green { background: rgba(92,184,92,0.12); color: var(--green-light); }
+        
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 14px 32px; border-radius: 12px; border: none;
+            font-size: 16px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; font-family: var(--font); text-decoration: none;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-primary { background: linear-gradient(135deg, var(--teal), var(--teal-light)); color: #fff; box-shadow: 0 4px 24px rgba(43,138,156,0.3); }
+        .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+        .btn-white { background: #fff; color: var(--teal); font-weight: 700; }
+        .btn-block { width: 100%; justify-content: center; }
+        
+        .card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 16px; padding: 24px; margin-bottom: 12px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .card:hover { background: rgba(43,138,156,0.08); border-color: rgba(43,138,156,0.3); }
+        
+        /* ── Progress Bar ──────────────────────────────── */
+        .progress-bar { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; margin-bottom: 24px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--teal), var(--green)); border-radius: 2px; transition: width 0.4s ease; }
+        
+        /* ── Option Buttons ────────────────────────────── */
+        .option-btn {
+            display: block; width: 100%; text-align: left;
+            padding: 16px 20px; border-radius: 12px;
+            border: 1px solid var(--border); background: rgba(255,255,255,0.03);
+            color: var(--text); font-size: 15px; font-family: var(--font);
+            cursor: pointer; margin-bottom: 8px; transition: all 0.2s; line-height: 1.5;
+        }
+        .option-btn:hover:not(.answered) { background: rgba(43,138,156,0.08); border-color: rgba(43,138,156,0.3); }
+        .option-btn .letter {
+            display: inline-block; width: 24px; height: 24px; line-height: 24px;
+            text-align: center; border-radius: 6px; background: rgba(255,255,255,0.06);
+            font-size: 12px; font-weight: 700; margin-right: 12px; vertical-align: middle;
+        }
+        .option-correct { background: rgba(92,184,92,0.12) !important; border-color: rgba(92,184,92,0.4) !important; color: #86efac !important; }
+        .option-wrong { background: rgba(239,68,68,0.1) !important; border-color: rgba(239,68,68,0.35) !important; color: #fca5a5 !important; }
+        .option-dim { background: rgba(255,255,255,0.01) !important; border-color: rgba(255,255,255,0.05) !important; color: #475569 !important; }
+        
+        /* ── Explanation Box ───────────────────────────── */
+        .explanation {
+            background: rgba(43,138,156,0.08); border: 1px solid rgba(43,138,156,0.2);
+            border-radius: 12px; padding: 20px; margin-top: 16px;
+            font-size: 14px; line-height: 1.6; color: var(--text-muted);
+        }
+        .explanation .verdict { font-weight: 600; margin-bottom: 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .verdict-correct { color: var(--green-light); }
+        .verdict-wrong { color: #fca5a5; }
+        
+        /* ── Timer Ring ────────────────────────────────── */
+        .timer-wrap { position: relative; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .timer-wrap svg { transform: rotate(-90deg); position: absolute; top: 0; left: 0; }
+        .timer-num { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; z-index: 1; }
+        
+        /* ── Timeout Banner ────────────────────────────── */
+        .timeout-banner {
+            background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
+            border-radius: 12px; padding: 12px 20px; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 10px;
+            font-size: 14px; font-weight: 600; color: #fca5a5;
+            animation: shake 0.4s ease;
+        }
+        
+        /* ── Timer Callout (intro) ─────────────────────── */
+        .timer-callout {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 20px; border-radius: 12px;
+            background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2);
+            margin-bottom: 28px; max-width: 440px;
+        }
+        
+        /* ── Results Card ──────────────────────────────── */
+        .results-card {
+            background: linear-gradient(145deg, rgba(43,138,156,0.12) 0%, rgba(11,25,41,0.95) 100%);
+            border: 1px solid rgba(43,138,156,0.25); border-radius: 20px;
+            padding: 32px; text-align: center; margin-bottom: 24px;
+        }
+        .score-circle {
+            width: 140px; height: 140px; border-radius: 50%;
+            margin: 0 auto 20px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+        }
+        
+        /* ── Radar Chart ───────────────────────────────── */
+        .radar-wrap {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 16px; padding: 24px; margin-bottom: 24px; text-align: center;
+        }
+        .radar-wrap h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+        
+        /* ── Category Bars ─────────────────────────────── */
+        .cat-section {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 16px; padding: 24px; margin-bottom: 24px;
+        }
+        .cat-section h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+        .cat-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .cat-row:last-child { border-bottom: none; }
+        .cat-bar-track { width: 80px; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
+        .cat-bar-fill { height: 100%; border-radius: 3px; }
+        
+        /* ── Weakest Nudge ─────────────────────────────── */
+        .nudge-box {
+            background: rgba(43,138,156,0.06); border: 1px solid rgba(43,138,156,0.2);
+            border-radius: 16px; padding: 24px; margin-bottom: 24px;
+        }
+        
+        /* ── CTA Block ─────────────────────────────────── */
+        .cta-block {
+            background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+            border-radius: 16px; padding: 32px; text-align: center; margin-bottom: 24px;
+        }
+        
+        /* ── Chips ─────────────────────────────────────── */
+        .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+        .chip {
+            padding: 6px 14px; border-radius: 8px; font-size: 13px;
+            color: var(--text-muted); background: var(--surface); border: 1px solid var(--border);
+        }
+        
+        /* ── Disclaimer ────────────────────────────────── */
+        .disclaimer { font-size: 11px; color: var(--text-faint); text-align: center; margin-top: 32px; line-height: 1.5; padding: 0 20px; }
+        
+        /* ── Headings ──────────────────────────────────── */
+        .hero-heading {
+            font-size: 42px; font-weight: 800; line-height: 1.1; letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #ffffff 0%, var(--teal-light) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; margin-bottom: 16px;
+        }
+        
+        /* ── Animations ────────────────────────────────── */
+        @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-4px)} 40%{transform:translateX(4px)} 60%{transform:translateX(-3px)} 80%{transform:translateX(3px)} }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+        .fade-up { animation: fadeUp 0.3s ease forwards; }
+        .fade-out { opacity: 0; transform: translateY(12px); transition: all 0.2s ease; }
+        
+        /* ── Utilities ─────────────────────────────────── */
+        .mt-32 { margin-top: 32px; }
+        .mt-48 { margin-top: 48px; }
+        .mb-12 { margin-bottom: 12px; }
+        .mb-20 { margin-bottom: 20px; }
+        .mb-24 { margin-bottom: 24px; }
+        .mb-28 { margin-bottom: 28px; }
+        .hidden { display: none !important; }
+        .flex-col-gap { display: flex; flex-direction: column; gap: 10px; }
+        
+        /* ── Responsive ────────────────────────────────── */
+        @media (max-width: 480px) {
+            .hero-heading { font-size: 32px; }
+            .results-card { padding: 24px 16px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Ambient Orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    
+    <!-- Navbar -->
+    <nav class="site-navbar">
+        <div class="container">
+            <a href="index.html" class="brand-text">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </a>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- ═══════════════════════════════════════════════════════
+         PHASE: INTRO
+         ═══════════════════════════════════════════════════════ -->
+    <div id="phase-intro" class="container-quiz">
+        <div class="mt-48">
+            <span class="tag">FREE ASSESSMENT</span>
+            <h1 class="hero-heading" style="margin-top:12px">Readiness<br>Score</h1>
+            <p style="font-size:17px;color:var(--text-muted);line-height:1.6;margin-bottom:32px;max-width:500px">
+                20 clinical knowledge questions tailored to your level. No treatment questions. No drug calculations. Just pure paramedic knowledge.
+            </p>
+            
+            <div class="timer-callout">
+                <span style="font-size:28px;line-height:1">⏱</span>
+                <div>
+                    <div style="font-size:15px;font-weight:700;color:#fca5a5;margin-bottom:2px">15 seconds per question</div>
+                    <div style="font-size:13px;color:var(--text-muted)">No answer in time? It counts as wrong. No Googling.</div>
+                </div>
+            </div>
+            
+            <div class="chip-row">
+                <span class="chip">3 difficulty levels</span>
+                <span class="chip">6 clinical domains</span>
+                <span class="chip">Instant results</span>
+                <span class="chip">Shareable score</span>
+            </div>
+            
+            <button class="btn btn-primary" onclick="showPhase('level')">Start Assessment →</button>
+            
+            <p style="margin-top:48px;font-size:13px;color:var(--text-faint)">⏱ Takes about 5 minutes · Instant results · Shareable score card</p>
+        </div>
+        <p class="disclaimer">This assessment tests clinical knowledge only. It does not provide medical advice, treatment recommendations, or drug information. Not a medical device. For educational purposes only.</p>
+    </div>
+    
+    <!-- ═══════════════════════════════════════════════════════
+         PHASE: LEVEL SELECT
+         ═══════════════════════════════════════════════════════ -->
+    <div id="phase-level" class="container-quiz hidden">
+        <div class="mt-48">
+            <h2 style="font-size:28px;font-weight:700;margin-bottom:8px;letter-spacing:-0.02em">Choose your difficulty</h2>
+            <p style="color:var(--text-muted);margin-bottom:32px;font-size:15px">Each level has its own unique set of 20 questions matched to that stage of practice.</p>
+            
+            <div class="card" onclick="startQuiz('student')">
+                <div style="display:flex;align-items:center;gap:16px">
+                    <span style="font-size:32px">📚</span>
+                    <div style="flex:1">
+                        <div style="font-size:17px;font-weight:600">Student Paramedic</div>
+                        <div style="font-size:13px;color:var(--text-dim)">Year 1–3</div>
+                        <div style="font-size:12px;color:var(--teal-light);margin-top:4px;font-weight:500">Foundational knowledge</div>
+                    </div>
+                    <span style="font-size:20px;color:var(--text-faint)">→</span>
+                </div>
+            </div>
+            
+            <div class="card" onclick="startQuiz('nqp')">
+                <div style="display:flex;align-items:center;gap:16px">
+                    <span style="font-size:32px">🩺</span>
+                    <div style="flex:1">
+                        <div style="font-size:17px;font-weight:600">Newly Qualified</div>
+                        <div style="font-size:13px;color:var(--text-dim)">First 2 years</div>
+                        <div style="font-size:12px;color:var(--teal-light);margin-top:4px;font-weight:500">Applied clinical reasoning</div>
+                    </div>
+                    <span style="font-size:20px;color:var(--text-faint)">→</span>
+                </div>
+            </div>
+            
+            <div class="card" onclick="startQuiz('experienced')">
+                <div style="display:flex;align-items:center;gap:16px">
+                    <span style="font-size:32px">⭐</span>
+                    <div style="flex:1">
+                        <div style="font-size:17px;font-weight:600">Experienced</div>
+                        <div style="font-size:13px;color:var(--text-dim)">3+ years</div>
+                        <div style="font-size:12px;color:var(--teal-light);margin-top:4px;font-weight:500">Complex &amp; nuanced</div>
+                    </div>
+                    <span style="font-size:20px;color:var(--text-faint)">→</span>
+                </div>
+            </div>
+            
+            <button class="btn btn-secondary" style="margin-top:16px" onclick="showPhase('intro')">← Back</button>
+        </div>
+    </div>
+    
+    <!-- ═══════════════════════════════════════════════════════
+         PHASE: QUIZ
+         ═══════════════════════════════════════════════════════ -->
+    <div id="phase-quiz" class="container-quiz hidden">
+        <!-- Header -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+            <a href="index.html" class="brand-text" style="margin-bottom:0">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </a>
+            <div style="display:flex;align-items:center;gap:16px">
+                <span id="q-counter" style="font-size:14px;color:var(--text-dim);font-weight:600"></span>
+                <div class="timer-wrap" id="timer-wrap">
+                    <svg width="52" height="52">
+                        <circle cx="26" cy="26" r="20" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="3"/>
+                        <circle id="timer-ring" cx="26" cy="26" r="20" fill="none" stroke="var(--teal)" stroke-width="3" stroke-linecap="round" stroke-dasharray="125.66" stroke-dashoffset="0" style="transition:stroke-dashoffset 0.3s linear,stroke 0.3s ease"/>
+                    </svg>
+                    <span class="timer-num" id="timer-num"></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        
+        <div id="q-content" class="fade-up">
+            <div id="timeout-banner" class="timeout-banner hidden"><span style="font-size:20px">⏱</span> Time's up! This one counts as incorrect.</div>
+            <div id="q-tags" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"></div>
+            <h3 id="q-question" style="font-size:20px;font-weight:600;line-height:1.5;margin-bottom:28px"></h3>
+            <div id="q-options"></div>
+            <div id="q-explanation" class="explanation hidden"></div>
+            <button id="q-next-btn" class="btn btn-primary btn-block hidden" style="margin-top:20px" onclick="nextQuestion()"></button>
+        </div>
+    </div>
+    
+    <!-- ═══════════════════════════════════════════════════════
+         PHASE: RESULTS
+         ═══════════════════════════════════════════════════════ -->
+    <div id="phase-results" class="container-quiz hidden"></div>
+    
+    <!-- Menu JS (your existing file) -->
+    <script src="js/menu-v2.js"></script>
+    
+    <!-- ═══════════════════════════════════════════════════════
+         QUIZ ENGINE
+         ═══════════════════════════════════════════════════════ -->
+    <script>
+    /* ── QUESTION BANKS ────────────────────────────────────── */
+    const BANKS = {
+      student: [
+        { id:"s1", cat:"Anatomy & Physiology", q:"Which chamber of the heart pumps oxygenated blood into the systemic circulation?", o:["Right atrium","Right ventricle","Left atrium","Left ventricle"], c:3, ex:"The left ventricle pumps oxygenated blood through the aortic valve into the aorta and systemic circulation." },
+        { id:"s2", cat:"Anatomy & Physiology", q:"How many lobes does the right lung have?", o:["One","Two","Three","Four"], c:2, ex:"The right lung has three lobes (upper, middle, lower). The left lung has two lobes to accommodate the heart." },
+        { id:"s3", cat:"Anatomy & Physiology", q:"Which blood vessel carries deoxygenated blood from the heart to the lungs?", o:["Aorta","Pulmonary vein","Pulmonary artery","Superior vena cava"], c:2, ex:"The pulmonary artery is the only artery carrying deoxygenated blood, from the right ventricle to the lungs." },
+        { id:"s4", cat:"Anatomy & Physiology", q:"The trachea divides into the left and right main bronchi at which landmark?", o:["Cricoid cartilage","Carina","Hilum","Thyroid cartilage"], c:1, ex:"The carina is the cartilaginous ridge at the bifurcation of the trachea, at the level of T4/T5." },
+        { id:"s5", cat:"Pathophysiology", q:"What is the normal resting heart rate range for a healthy adult?", o:["40–60 bpm","60–100 bpm","80–120 bpm","100–140 bpm"], c:1, ex:"Normal adult resting heart rate is 60–100 bpm. Below 60 is bradycardia, above 100 is tachycardia." },
+        { id:"s6", cat:"Pathophysiology", q:"Which condition is characterised by high blood glucose due to insufficient insulin?", o:["Hypoglycaemia","Diabetes mellitus","Addison's disease","Hypothyroidism"], c:1, ex:"Diabetes mellitus is characterised by hyperglycaemia due to defects in insulin secretion or action." },
+        { id:"s7", cat:"Pathophysiology", q:"An acute asthma attack primarily narrows airways through which mechanism?", o:["Alveolar collapse","Bronchospasm, inflammation and mucus production","Pulmonary embolism","Pleural effusion"], c:1, ex:"Asthma involves a triad of bronchospasm, airway inflammation (oedema), and excess mucus production." },
+        { id:"s8", cat:"Pathophysiology", q:"What does 'CVA' stand for in the context of stroke?", o:["Cardiac Valve Abnormality","Cerebrovascular Accident","Central Venous Access","Costovertebral Angle"], c:1, ex:"CVA — Cerebrovascular Accident — is the medical term for stroke, caused by ischaemia or haemorrhage." },
+        { id:"s9", cat:"Patient Assessment", q:"What does the 'A' in ABCDE stand for?", o:["Assessment","Allergy","Airway","Auscultation"], c:2, ex:"ABCDE: Airway, Breathing, Circulation, Disability, Exposure. Airway comes first." },
+        { id:"s10", cat:"Patient Assessment", q:"What does the diastolic blood pressure reading represent?", o:["Pressure when the heart contracts","Pressure when the heart relaxes between beats","Average pressure over one minute","Pulmonary system pressure"], c:1, ex:"Diastolic is the lower number — pressure in arteries when the heart rests between beats." },
+        { id:"s11", cat:"Patient Assessment", q:"A pulse oximeter reading of 94% on room air in a healthy adult is:", o:["Normal","Borderline — may need monitoring","Critically low","Impossible to achieve"], c:1, ex:"Normal SpO2 is 94–98%. 94% is at the lower end of normal. Below 94% warrants further assessment." },
+        { id:"s12", cat:"Patient Assessment", q:"Which is NOT a Glasgow Coma Scale component?", o:["Eye opening","Verbal response","Motor response","Pupil response"], c:3, ex:"GCS assesses Eye (E), Verbal (V), and Motor (M). Pupil response is assessed separately." },
+        { id:"s13", cat:"Legislation & Ethics", q:"What does 'HCPC' stand for?", o:["Health and Care Professions Council","Hospital Clinical Practice Committee","Health Commissioners for Patient Care","Healthcare Practitioners Certification"], c:0, ex:"The Health and Care Professions Council is the statutory regulator for paramedics in the UK." },
+        { id:"s14", cat:"Legislation & Ethics", q:"Patient confidentiality in the UK is primarily governed by which legislation?", o:["Health and Safety at Work Act 1974","Data Protection Act 2018 / UK GDPR","Equality Act 2010","Freedom of Information Act 2000"], c:1, ex:"The Data Protection Act 2018 (UK GDPR) provides the legal framework for handling patient information." },
+        { id:"s15", cat:"Legislation & Ethics", q:"Informed consent requires which of the following?", o:["A written signature","Capacity, information, and voluntariness","Family approval","A witness present"], c:1, ex:"Valid informed consent requires: capacity, sufficient information, and voluntariness." },
+        { id:"s16", cat:"Legislation & Ethics", q:"At what age is a person legally an adult for consent in England?", o:["14","16","18","21"], c:2, ex:"Legally adult at 18. However, 16–17 year olds can consent, and younger children may if Gillick competent." },
+        { id:"s17", cat:"Communication & Handover", q:"What does 'S' in SBAR stand for?", o:["Signs","Situation","Scene","Summary"], c:1, ex:"SBAR: Situation, Background, Assessment, Recommendation." },
+        { id:"s18", cat:"Communication & Handover", q:"In the NATO phonetic alphabet, what is the word for 'M'?", o:["Metro","Mike","Maple","Mercury"], c:1, ex:"M = Mike in the NATO phonetic alphabet used by emergency services." },
+        { id:"s19", cat:"Communication & Handover", q:"When handing over, which should you communicate FIRST?", o:["Past medical history","Medications","Immediate life threats or current concern","Social circumstances"], c:2, ex:"Immediate life threats should always be communicated first." },
+        { id:"s20", cat:"Scene Management", q:"On arrival at any scene, what is the paramedic's first priority?", o:["Assess the patient","Call for backup","Ensure scene safety","Take history from bystanders"], c:2, ex:"Scene safety is always the first priority." },
+      ],
+      nqp: [
+        { id:"n1", cat:"Anatomy & Physiology", q:"Which cranial nerve is primarily responsible for parasympathetic regulation of heart rate?", o:["Glossopharyngeal (IX)","Vagus (X)","Accessory (XI)","Hypoglossal (XII)"], c:1, ex:"The vagus nerve (CN X) provides parasympathetic innervation to the heart, slowing rate via SA and AV nodes." },
+        { id:"n2", cat:"Anatomy & Physiology", q:"What is the normal intrinsic firing rate of the AV node if the SA node fails?", o:["60–100 bpm","40–60 bpm","20–40 bpm","15–20 bpm"], c:1, ex:"The AV node has an intrinsic rate of 40–60 bpm as a secondary pacemaker." },
+        { id:"n3", cat:"Anatomy & Physiology", q:"Which vessel is NOT part of the circle of Willis?", o:["Anterior communicating artery","Posterior cerebral artery","Middle meningeal artery","Internal carotid artery"], c:2, ex:"The middle meningeal artery supplies the dura mater and is associated with extradural haematomas." },
+        { id:"n4", cat:"Anatomy & Physiology", q:"The phrenic nerve originates from which roots and innervates which muscle?", o:["C1–C2; sternocleidomastoid","C3–C5; diaphragm","C5–C7; trapezius","C6–T1; intercostals"], c:1, ex:"C3, C4, C5 keeps the diaphragm alive. Injury above C3 = loss of spontaneous breathing." },
+        { id:"n5", cat:"Pathophysiology", q:"In acute anaphylaxis, which immunoglobulin mediates the type I hypersensitivity?", o:["IgA","IgG","IgE","IgM"], c:2, ex:"IgE antibodies bind to mast cells; re-exposure triggers massive histamine release." },
+        { id:"n6", cat:"Pathophysiology", q:"Kussmaul breathing is most commonly associated with which condition?", o:["Opioid overdose","Diabetic ketoacidosis","Tension pneumothorax","Acute asthma"], c:1, ex:"Kussmaul respiration compensates for the metabolic acidosis in DKA by blowing off CO₂." },
+        { id:"n7", cat:"Pathophysiology", q:"In tension pneumothorax, what causes tracheal deviation in late presentation?", o:["Lung collapse pulling trachea ipsilaterally","Rising pressure pushing mediastinum contralaterally","Sternocleidomastoid spasm","Tracheal wall oedema"], c:1, ex:"Rising intrapleural pressure pushes the mediastinum and trachea to the opposite side." },
+        { id:"n8", cat:"Pathophysiology", q:"Sudden 'worst headache of my life' — primary concern?", o:["Tension headache","Migraine with aura","Subarachnoid haemorrhage","Sinusitis"], c:2, ex:"Thunderclap headache = subarachnoid haemorrhage until proven otherwise." },
+        { id:"n9", cat:"Patient Assessment", q:"GCS: eyes to pain, incomprehensible sounds, abnormal flexion. Score?", o:["GCS 6","GCS 7","GCS 8","GCS 9"], c:2, ex:"E2 + V2 + M3 = GCS 8, the threshold for considering airway compromise." },
+        { id:"n10", cat:"Patient Assessment", q:"ST elevation in II, III, aVF — which artery territory?", o:["Left anterior descending","Left circumflex","Right coronary artery","Left main stem"], c:2, ex:"II, III, aVF = inferior STEMI, most commonly right coronary artery occlusion." },
+        { id:"n11", cat:"Patient Assessment", q:"One fixed dilated pupil, other reactive — indicates?", o:["Optic nerve damage","Raised ICP with uncal herniation","Sympathetic NS failure","Normal variant"], c:1, ex:"Unilateral fixed dilated pupil = CN III compression from uncal herniation." },
+        { id:"n12", cat:"Patient Assessment", q:"In FAST stroke assessment, 'A' stands for?", o:["Alertness","Arms","Airway","Assessment"], c:1, ex:"FAST: Face, Arms, Speech, Time." },
+        { id:"n13", cat:"Legislation & Ethics", q:"Under MCA 2005, which is NOT a capacity criterion?", o:["Understand the information","Retain the information","Demonstrate making the correct decision","Communicate the decision"], c:2, ex:"MCA does not require a 'correct' decision. Criteria: understand, retain, weigh/use, communicate." },
+        { id:"n14", cat:"Legislation & Ethics", q:"Gillick-competent 15yo refuses transport. Their refusal:", o:["Cannot be overridden","Can be overridden by parental responsibility","Requires two clinicians","Requires court order"], c:1, ex:"A competent minor's refusal can be overridden by someone with parental responsibility." },
+        { id:"n15", cat:"Legislation & Ethics", q:"Which law allows police to detain someone in public with mental disorder?", o:["MCA 2005 s5","MHA 1983 s136","HRA 1998 Art 5","PACE 1984 s17"], c:1, ex:"Section 136 MHA allows police to remove to a place of safety." },
+        { id:"n16", cat:"Legislation & Ethics", q:"Per HCPC Standards, the paramedic's primary duty?", o:["Follow trust protocols","Act in best interests of service users","Defer to receiving hospital","Complete documentation first"], c:1, ex:"HCPC: act in the best interests of service users at all times." },
+        { id:"n17", cat:"Communication & Handover", q:"In ATMIST, what does 'T' stand for?", o:["Treatment given","Time of incident","Triage category","Trend of observations"], c:1, ex:"ATMIST: Age, Time, Mechanism/Medical, Injuries/Investigations, Signs, Treatment." },
+        { id:"n18", cat:"Communication & Handover", q:"In METHANE, 'H' stands for?", o:["Hospital destination","Hazards","Handover point","Helicopter required"], c:1, ex:"METHANE: Major incident, Exact location, Type, Hazards, Access, Number, Emergency services." },
+        { id:"n19", cat:"Communication & Handover", q:"NHS England framework for escalating clinical concerns?", o:["ASHICE","SBAR","METHANE","CHALET"], c:1, ex:"SBAR: Situation, Background, Assessment, Recommendation." },
+        { id:"n20", cat:"Scene Management", q:"Inner cordon at an RTC exists primarily to:", o:["Keep media away","Define area for PPE-equipped personnel only","Stage resources","Mark police boundary"], c:1, ex:"Inner cordon = immediate danger zone, PPE and specific roles only." },
+      ],
+      experienced: [
+        { id:"e1", cat:"Anatomy & Physiology", q:"Damage to the recurrent laryngeal nerve would most likely result in:", o:["Loss of pharyngeal sensation","Hoarseness and vocal cord paralysis","Inability to swallow","Loss of cough reflex"], c:1, ex:"Recurrent laryngeal nerve innervates most intrinsic laryngeal muscles. Bilateral damage can obstruct the airway." },
+        { id:"e2", cat:"Anatomy & Physiology", q:"In Frank-Starling, what determines force of ventricular contraction?", o:["Heart rate","Afterload","End-diastolic volume (preload)","Myocardial O₂ consumption"], c:2, ex:"Greater EDV = greater stretch = greater force of contraction, up to a limit." },
+        { id:"e3", cat:"Anatomy & Physiology", q:"Blood-brain barrier is primarily formed by which cells?", o:["Schwann cells","Astrocyte foot processes and endothelial tight junctions","Oligodendrocytes","Ependymal cells"], c:1, ex:"BBB = tight junctions between capillary endothelial cells + astrocyte foot processes." },
+        { id:"e4", cat:"Anatomy & Physiology", q:"Monro-Kellie doctrine states:", o:["Skull can expand for volume","Increase in one intracranial component must be offset by decrease in another","CSF always compensates first","Only applies to TBI"], c:1, ex:"Fixed cranial volume (brain, blood, CSF). Increase in one must be compensated or ICP rises." },
+        { id:"e5", cat:"Pathophysiology", q:"Which is a qSOFA bedside score component for sepsis?", o:["Temp > 38°C","WBC > 12,000","Respiratory rate ≥ 22","Heart rate > 90"], c:2, ex:"qSOFA: RR ≥ 22, altered mentation (GCS < 15), systolic BP ≤ 100. No labs needed." },
+        { id:"e6", cat:"Pathophysiology", q:"In Cushing's triad, what drives the hypertension?", o:["Catecholamine surge","Cerebral vasospasm","Brainstem drives up BP to maintain cerebral perfusion","IV fluid overload"], c:2, ex:"Cushing reflex: brainstem forces systemic hypertension as ICP threatens perfusion." },
+        { id:"e7", cat:"Pathophysiology", q:"AF patient, sudden abdominal pain disproportionate to exam — diagnosis?", o:["Appendicitis","Mesenteric ischaemia","Pancreatitis","Ruptured AAA"], c:1, ex:"Pain out of proportion = classic mesenteric ischaemia. AF is a major risk factor." },
+        { id:"e8", cat:"Pathophysiology", q:"The trauma 'lethal triad' consists of:", o:["Hypoxia, hypotension, hypothermia","Hypothermia, acidosis, coagulopathy","Haemorrhage, head injury, hypotension","Shock, sepsis, organ failure"], c:1, ex:"Hypothermia + acidosis + coagulopathy = self-perpetuating lethal cycle." },
+        { id:"e9", cat:"Patient Assessment", q:"Beck's triad (muffled hearts, JVD, hypotension) indicates:", o:["Tension pneumothorax","Cardiac tamponade","Massive haemothorax","Aortic dissection"], c:1, ex:"Beck's triad = cardiac tamponade. Pericardial fluid compresses the heart." },
+        { id:"e10", cat:"Patient Assessment", q:"ST elevation V1–V4 with reciprocal II, III, aVF — vessel?", o:["Right coronary","Left circumflex","Left anterior descending","Posterior descending"], c:2, ex:"V1–V4 = anterior wall = LAD, the 'widow maker'." },
+        { id:"e11", cat:"Patient Assessment", q:"Right weakness, aphasia, left gaze preference — lesion?", o:["Right MCA","Left MCA","Posterior circulation","Right ACA"], c:1, ex:"Aphasia = dominant (left) hemisphere. Eyes look towards lesion. Left MCA." },
+        { id:"e12", cat:"Patient Assessment", q:"Most reliable early indicator of shock in paediatrics?", o:["Hypotension","Tachycardia with prolonged capillary refill","Altered consciousness","Bradycardia"], c:1, ex:"Children compensate well. Hypotension is pre-terminal. Tachycardia + CRT >2s = early sign." },
+        { id:"e13", cat:"Legislation & Ethics", q:"In MCA best interests, which must NOT influence the decision?", o:["Person's past wishes","Family views","Cost-effectiveness for NHS","Person's beliefs"], c:2, ex:"Best interests never considers cost. Must consider wishes, feelings, beliefs, values." },
+        { id:"e14", cat:"Legislation & Ethics", q:"A valid ADRT refuses the intervention you think is needed:", o:["ADRTs are advisory only","A valid ADRT is legally binding","Family can override","Only applies in hospital"], c:1, ex:"A valid, applicable ADRT is legally binding under the MCA." },
+        { id:"e15", cat:"Legislation & Ethics", q:"Under duty of candour, after a patient safety incident:", o:["Only report via Datix","Inform patient, apologise, explain fully","Wait for legal advice","Avoid documentation"], c:1, ex:"Duty of candour: inform, apologise, and provide truthful account." },
+        { id:"e16", cat:"Legislation & Ethics", q:"Confidentiality may be breached WITHOUT consent when:", o:["Family member asks","Serious risk of harm to others","Colleague is curious","Documenting care"], c:1, ex:"Breach without consent: serious harm to others, legal requirement, or court order." },
+        { id:"e17", cat:"Communication & Handover", q:"First ambulance clinician at a major incident assumes:", o:["Triage officer","Ambulance Incident Commander","Safety officer","Comms officer"], c:1, ex:"First on scene = Ambulance Incident Commander until relieved." },
+        { id:"e18", cat:"Communication & Handover", q:"Johari Window model is relevant because it illustrates:", o:["Handover structure","Self-awareness and communication effectiveness","Radio procedure","De-escalation"], c:1, ex:"Expanding the 'open' area through feedback improves team communication." },
+        { id:"e19", cat:"Communication & Handover", q:"Swiss cheese model (James Reason) describes:", o:["Nutrition and performance","Errors when holes in multiple defence layers align","PPE order","Infection spread"], c:1, ex:"Incidents occur when weaknesses in multiple defence layers align." },
+        { id:"e20", cat:"Scene Management", q:"At HAZMAT incident, the 'warm zone' is:", o:["Direct contamination","Decontamination corridor between hot and cold","Clean command area","Hospital receiving"], c:1, ex:"Warm zone = decontamination corridor between hot (contaminated) and cold (clean)." },
+      ]
+    };
+    
+    const CATS = ["Anatomy & Physiology","Pathophysiology","Patient Assessment","Legislation & Ethics","Communication & Handover","Scene Management"];
+    const CAT_SHORT = {"Anatomy & Physiology":"A&P","Pathophysiology":"Patho","Patient Assessment":"Assessment","Legislation & Ethics":"Law & Ethics","Communication & Handover":"Comms","Scene Management":"Scene Mgmt"};
+    const LEVEL_LABELS = { student:"Student Paramedic", nqp:"Newly Qualified", experienced:"Experienced" };
+    const TIMER_SEC = 15;
+    const CIRC = 2 * Math.PI * 20; // timer ring circumference
+    
+    /* ── State ─────────────────────────────────────────────── */
+    let level, questions, curQ, answers, showingExpl, timerExpired, timeoutsCount, timeLeft, timerInterval;
+    
+    /* ── Helpers ───────────────────────────────────────────── */
+    function shuffle(a) { const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; }
+    
+    function showPhase(id) {
+        ['intro','level','quiz','results'].forEach(p => document.getElementById('phase-'+p).classList.toggle('hidden', p!==id));
+        window.scrollTo(0,0);
+    }
+    
+    function getBand(pct) {
+        if(pct>=90) return {label:"Outstanding",color:"#10b981",msg:"Exceptional clinical knowledge. You're setting the standard."};
+        if(pct>=75) return {label:"Strong",color:"#2B8A9C",msg:"Solid foundation. A few areas to sharpen up."};
+        if(pct>=60) return {label:"Developing",color:"#f59e0b",msg:"Good core knowledge with some clear gaps to work on."};
+        if(pct>=40) return {label:"Building",color:"#f97316",msg:"You're on the journey. Focused revision will make a big difference."};
+        return {label:"Early Stage",color:"#ef4444",msg:"Everyone starts somewhere. Paramind can help accelerate your learning."};
+    }
+    
+    /* ── Timer ─────────────────────────────────────────────── */
+    function clearTimer() { if(timerInterval){clearInterval(timerInterval);timerInterval=null;} }
+    
+    function updateTimerUI() {
+        const ring = document.getElementById('timer-ring');
+        const num = document.getElementById('timer-num');
+        const col = timeLeft<=3?'#ef4444':timeLeft<=7?'#f59e0b':'#2B8A9C';
+        ring.setAttribute('stroke', col);
+        ring.setAttribute('stroke-dashoffset', CIRC*(1-timeLeft/TIMER_SEC));
+        num.style.color = timerExpired?'#ef4444':col;
+        num.textContent = timerExpired?'✗':timeLeft;
+    }
+    
+    function startTimer() {
+        clearTimer();
+        timeLeft = TIMER_SEC;
+        timerExpired = false;
+        document.getElementById('timer-wrap').classList.remove('hidden');
+        updateTimerUI();
+        timerInterval = setInterval(()=>{
+            timeLeft--;
+            updateTimerUI();
+            if(timeLeft<=0){ clearTimer(); handleTimeout(); }
+        },1000);
+    }
+    
+    function handleTimeout() {
+        timerExpired = true;
+        timeoutsCount++;
+        showingExpl = true;
+        answers[questions[curQ].id] = false;
+        updateTimerUI();
+        document.getElementById('timer-wrap').classList.add('hidden');
+        document.getElementById('timeout-banner').classList.remove('hidden');
+        showExplanation(-1);
+    }
+    
+    /* ── Quiz Flow ─────────────────────────────────────────── */
+    function startQuiz(lv) {
+        level = lv;
+        questions = shuffle(BANKS[lv]);
+        curQ = 0; answers = {}; showingExpl = false; timerExpired = false; timeoutsCount = 0;
+        showPhase('quiz');
+        renderQuestion();
+    }
+    
+    function renderQuestion() {
+        const q = questions[curQ];
+        showingExpl = false; timerExpired = false;
+        
+        document.getElementById('q-counter').textContent = (curQ+1)+'/'+questions.length;
+        document.getElementById('progress-fill').style.width = ((curQ)/questions.length*100)+'%';
+        document.getElementById('timeout-banner').classList.add('hidden');
+        document.getElementById('q-explanation').classList.add('hidden');
+        document.getElementById('q-next-btn').classList.add('hidden');
+        
+        document.getElementById('q-tags').innerHTML = 
+            '<span class="tag">'+q.cat+'</span>' +
+            '<span class="tag tag-green">'+LEVEL_LABELS[level]+'</span>';
+        document.getElementById('q-question').textContent = q.q;
+        
+        let html = '';
+        q.o.forEach((opt,i) => {
+            html += '<button class="option-btn" data-idx="'+i+'" onclick="selectAnswer('+i+')"><span class="letter">'+String.fromCharCode(65+i)+'</span>'+opt+'</button>';
+        });
+        document.getElementById('q-options').innerHTML = html;
+        
+        // Animate in
+        const content = document.getElementById('q-content');
+        content.classList.remove('fade-up');
+        void content.offsetWidth; // trigger reflow
+        content.classList.add('fade-up');
+        
+        startTimer();
+    }
+    
+    function selectAnswer(idx) {
+        if(showingExpl) return;
+        clearTimer();
+        showingExpl = true;
+        const q = questions[curQ];
+        answers[q.id] = (idx === q.c);
+        document.getElementById('timer-wrap').classList.add('hidden');
+        showExplanation(idx);
+    }
+    
+    function showExplanation(selectedIdx) {
+        const q = questions[curQ];
+        const btns = document.querySelectorAll('#q-options .option-btn');
+        
+        btns.forEach((btn,i) => {
+            btn.classList.add('answered');
+            if(i === q.c) btn.classList.add('option-correct');
+            else if(i === selectedIdx && i !== q.c) btn.classList.add('option-wrong');
+            else btn.classList.add('option-dim');
+        });
+        
+        const explEl = document.getElementById('q-explanation');
+        const isTimeout = selectedIdx === -1;
+        const isCorrect = selectedIdx === q.c;
+        explEl.innerHTML = '<div class="verdict '+(isTimeout||!isCorrect?'verdict-wrong':'verdict-correct')+'">'+
+            (isTimeout?'⏱ TIMED OUT':isCorrect?'✓ Correct':'✗ Incorrect')+
+            '</div>'+q.ex;
+        explEl.classList.remove('hidden');
+        
+        document.getElementById('progress-fill').style.width = ((curQ+1)/questions.length*100)+'%';
+        
+        const nextBtn = document.getElementById('q-next-btn');
+        nextBtn.textContent = (curQ+1>=questions.length)?'See My Results →':'Next Question →';
+        nextBtn.classList.remove('hidden');
+    }
+    
+    function nextQuestion() {
+        timeLeft = TIMER_SEC;
+        if(curQ+1 >= questions.length) { clearTimer(); showResults(); }
+        else { curQ++; renderQuestion(); }
+    }
+    
+    /* ── Results ───────────────────────────────────────────── */
+    function showResults() {
+        const catScores = {};
+        CATS.forEach(c => { catScores[c] = {correct:0,total:0}; });
+        questions.forEach(q => { catScores[q.cat].total++; if(answers[q.id]) catScores[q.cat].correct++; });
+        const totalCorrect = Object.values(answers).filter(Boolean).length;
+        const pct = Math.round((totalCorrect/questions.length)*100);
+        const band = getBand(pct);
+        
+        let weakest = null, weakPct = 101;
+        CATS.forEach(c => { if(catScores[c].total>0){ const p=(catScores[c].correct/catScores[c].total)*100; if(p<weakPct){weakPct=p;weakest=c;} } });
+        
+        let html = '';
+        
+        /* Score card */
+        html += '<div class="results-card mt-32">';
+        html += '<div style="font-size:12px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:20px;font-weight:600">Your Readiness Score</div>';
+        html += '<div class="score-circle" style="border:4px solid '+band.color+';box-shadow:0 0 40px '+band.color+'33">';
+        html += '<span style="font-size:48px;font-weight:800;letter-spacing:-0.03em;color:'+band.color+'">'+pct+'%</span>';
+        html += '<span style="font-size:12px;color:var(--text-dim);font-weight:600">'+totalCorrect+'/'+questions.length+'</span>';
+        html += '</div>';
+        html += '<div style="display:inline-block;padding:6px 20px;border-radius:20px;background:'+band.color+'22;color:'+band.color+';font-size:15px;font-weight:700;margin-bottom:12px">'+band.label+'</div>';
+        html += '<p style="color:var(--text-muted);font-size:14px;max-width:400px;margin:0 auto;line-height:1.6">'+band.msg+'</p>';
+        if(timeoutsCount>0) html += '<div style="margin-top:16px;font-size:13px;color:#f59e0b;display:flex;align-items:center;justify-content:center;gap:6px"><span>⏱</span>'+timeoutsCount+' question'+(timeoutsCount>1?'s':'')+' timed out</div>';
+        html += '<div style="font-size:12px;color:var(--text-faint);margin-top:12px">Level: '+LEVEL_LABELS[level]+'</div>';
+        html += '</div>';
+        
+        /* Radar chart (SVG) */
+        html += '<div class="radar-wrap"><h3>Knowledge Breakdown</h3>';
+        html += buildRadarSVG(catScores);
+        html += '</div>';
+        
+        /* Category bars */
+        html += '<div class="cat-section"><h3>By Category</h3>';
+        CATS.forEach(c => {
+            const sc = catScores[c];
+            const p = sc.total>0 ? Math.round((sc.correct/sc.total)*100) : 0;
+            const barCol = p>=75?'var(--green)':p>=50?'#f59e0b':'#ef4444';
+            html += '<div class="cat-row"><span style="font-size:14px">'+CAT_SHORT[c]+'</span>';
+            html += '<div style="display:flex;align-items:center;gap:12px"><div class="cat-bar-track"><div class="cat-bar-fill" style="width:'+p+'%;background:'+barCol+'"></div></div>';
+            html += '<span style="font-size:13px;font-weight:600;width:32px;text-align:right;color:var(--text-muted)">'+sc.correct+'/'+sc.total+'</span></div></div>';
+        });
+        html += '</div>';
+        
+        /* Weakest area nudge */
+        if(weakest && weakPct < 75) {
+            html += '<div class="nudge-box">';
+            html += '<div style="font-size:14px;font-weight:600;margin-bottom:8px;color:var(--teal-light)">💡 Your biggest growth area: '+weakest+'</div>';
+            html += '<p style="font-size:14px;color:var(--text-muted);line-height:1.6;margin:0">Paramind Pro has targeted scenarios and AI-powered revision for '+weakest.toLowerCase()+'. Hollie can help — £4.99/month.</p>';
+            html += '</div>';
+        }
+        
+        /* Buttons */
+        html += '<div class="flex-col-gap mb-24">';
+        html += '<button class="btn btn-primary btn-block" onclick="shareResults()">📋 Copy Share Text</button>';
+        html += '<button class="btn btn-secondary btn-block" onclick="showPhase(\'level\')">↺ Try a Different Level</button>';
+        html += '<button class="btn btn-secondary btn-block" onclick="startQuiz(\''+level+'\')">↺ Retake Same Level</button>';
+        html += '</div>';
+        
+        /* CTA */
+        html += '<div class="cta-block">';
+        html += '<h3 style="font-size:22px;font-weight:700;margin-bottom:8px;color:#fff">Ready to close those gaps?</h3>';
+        html += '<p style="color:rgba(255,255,255,0.8);font-size:14px;margin-bottom:20px;line-height:1.6">Paramind Pro gives you unlimited access to Hollie, interactive scenarios, ATMIST practice, and CPD certificates.</p>';
+        html += '<a href="register.html" class="btn btn-white">Try Paramind Free →</a>';
+        html += '<div style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:10px">20 free messages/day · Pro from £4.99/month</div>';
+        html += '</div>';
+        
+        html += '<p class="disclaimer">This assessment is for educational self-reflection only. Not clinical advice. Not a medical device.</p>';
+        
+        document.getElementById('phase-results').innerHTML = html;
+        showPhase('results');
+    }
+    
+    /* ── SVG Radar Chart ───────────────────────────────────── */
+    function buildRadarSVG(catScores) {
+        const cx=150, cy=140, maxR=110;
+        const n = CATS.length;
+        const points = [];
+        const labelPoints = [];
+        
+        CATS.forEach((c,i) => {
+            const angle = (Math.PI*2/n)*i - Math.PI/2;
+            const sc = catScores[c];
+            const val = sc.total>0 ? sc.correct/sc.total : 0;
+            points.push({
+                x: cx + maxR * val * Math.cos(angle),
+                y: cy + maxR * val * Math.sin(angle)
+            });
+            labelPoints.push({
+                x: cx + (maxR+22) * Math.cos(angle),
+                y: cy + (maxR+22) * Math.sin(angle),
+                label: CAT_SHORT[c]
+            });
+        });
+        
+        let svg = '<svg viewBox="0 0 300 290" style="width:100%;max-width:360px;margin:0 auto;display:block">';
+        
+        // Grid rings
+        [0.25,0.5,0.75,1].forEach(r => {
+            let ring = '';
+            for(let i=0;i<n;i++){
+                const angle = (Math.PI*2/n)*i - Math.PI/2;
+                ring += (i===0?'M':'L') + (cx+maxR*r*Math.cos(angle)).toFixed(1)+','+(cy+maxR*r*Math.sin(angle)).toFixed(1);
+            }
+            svg += '<path d="'+ring+'Z" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>';
+        });
+        
+        // Axis lines
+        for(let i=0;i<n;i++){
+            const angle = (Math.PI*2/n)*i - Math.PI/2;
+            svg += '<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+maxR*Math.cos(angle)).toFixed(1)+'" y2="'+(cy+maxR*Math.sin(angle)).toFixed(1)+'" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>';
+        }
+        
+        // Data polygon
+        let poly = points.map((p,i) => (i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1)).join('');
+        svg += '<path d="'+poly+'Z" fill="rgba(43,138,156,0.2)" stroke="#2B8A9C" stroke-width="2"/>';
+        
+        // Data dots
+        points.forEach(p => { svg += '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="3" fill="#2B8A9C"/>'; });
+        
+        // Labels
+        labelPoints.forEach(p => {
+            const anchor = p.x < cx-10 ? 'end' : p.x > cx+10 ? 'start' : 'middle';
+            svg += '<text x="'+p.x.toFixed(1)+'" y="'+(p.y+4).toFixed(1)+'" fill="#94a3b8" font-size="10" font-family="Plus Jakarta Sans,sans-serif" text-anchor="'+anchor+'">'+p.label+'</text>';
+        });
+        
+        svg += '</svg>';
+        return svg;
+    }
+    
+    /* ── Share ──────────────────────────────────────────────── */
+    function shareResults() {
+        const totalCorrect = Object.values(answers).filter(Boolean).length;
+        const pct = Math.round((totalCorrect/questions.length)*100);
+        const band = getBand(pct);
+        const text = '🩺 I scored '+pct+'% ('+band.label+') on the Paramind Readiness Score ('+LEVEL_LABELS[level]+' level)!\n\nHow ready are you? 👉 paramind.co.uk/readiness';
+        
+        if(navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(()=>{
+                const btn = document.querySelector('.cta-block ~ .flex-col-gap .btn-primary') || document.querySelector('.btn-primary');
+                // Brief visual feedback
+                const origText = event.target.textContent;
+                event.target.textContent = '✓ Copied!';
+                setTimeout(()=>{ event.target.textContent = origText; }, 1500);
+            });
+        }
+    }
+    </script>
+</body>
+</html>
