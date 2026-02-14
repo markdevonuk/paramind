@@ -624,105 +624,6 @@
             margin-right: 0.25rem;
         }
         
-        /* Pro Overlay */
-        .pro-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.98);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-        }
-        
-        .pro-overlay.show {
-            display: flex;
-        }
-        
-        .pro-overlay-content {
-            max-width: 400px;
-            text-align: center;
-        }
-        
-        .pro-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-green) 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
-        }
-        
-        .pro-icon i {
-            font-size: 2rem;
-            color: white;
-        }
-        
-        .pro-overlay h2 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .pro-feature-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: var(--color-gray-100);
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-full);
-            font-size: 0.9rem;
-            color: var(--color-green);
-            margin-bottom: 1rem;
-        }
-        
-        .pro-description {
-            color: var(--color-gray-600);
-            margin-bottom: 1.5rem;
-            line-height: 1.6;
-        }
-        
-        .pro-upgrade-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            width: 100%;
-            padding: 1rem 2rem;
-            background: linear-gradient(135deg, var(--color-green) 0%, #4a9f4a 100%);
-            color: white;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border-radius: var(--radius-md);
-            text-decoration: none;
-            transition: all var(--transition-fast);
-            margin-bottom: 1rem;
-        }
-        
-        .pro-upgrade-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(92, 184, 92, 0.4);
-            color: white;
-        }
-        
-        .pro-back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--color-gray-500);
-            font-size: 0.9rem;
-            text-decoration: none;
-        }
-        
-        .pro-back-link:hover {
-            color: var(--color-gray-700);
-        }
-        
         /* Responsive */
         @media (max-width: 768px) {
             .rhythm-grid {
@@ -921,30 +822,6 @@
             <p><i class="bi bi-shield-check"></i> For educational purposes only - not for clinical decision-making</p>
             <p><i class="bi bi-exclamation-circle"></i> These are simplified, single-lead examples only. Real ECGs can vary significantly in presentation across different leads, patients, and clinical contexts. Deeper learning and supervised clinical practice are essential for safe ECG interpretation.</p>
             <p>Part of the Paramind Learning Platform</p>
-        </div>
-    </div>
-
-    <!-- Pro Overlay (shown if not subscribed) -->
-    <div class="pro-overlay" id="proOverlay">
-        <div class="pro-overlay-content">
-            <div class="pro-icon">
-                <i class="bi bi-heart-pulse"></i>
-            </div>
-            <h2>ECG Rhythm Generator</h2>
-            <p class="pro-feature-badge"><i class="bi bi-star-fill"></i> Pro Feature</p>
-            <p class="pro-description">
-                Master ECG interpretation with our interactive rhythm generator. 
-                Practice identifying 23 different rhythms, including emergency arrhythmias, 
-                heart blocks, and more. Includes quiz mode to test your knowledge.
-            </p>
-            <a href="#" class="pro-upgrade-btn" id="proUpgradeBtn">
-                <i class="bi bi-lightning-charge"></i>
-                Upgrade to Paramind Pro
-            </a>
-            <a href="chat.html" class="pro-back-link">
-                <i class="bi bi-arrow-left"></i>
-                Go back
-            </a>
         </div>
     </div>
 
@@ -1203,9 +1080,6 @@
             document.getElementById('quizAnswer').addEventListener('change', function() {
                 document.getElementById('checkAnswerBtn').disabled = !this.value;
             });
-            
-            // Check subscription status
-            checkSubscription();
         });
         
         // ==================== RHYTHM GRID ====================
@@ -2035,96 +1909,11 @@
             return y;
         }
         
-       // ==================== SUBSCRIPTION CHECK ====================
-        // Waits for Firebase to be loaded by menu-v2.js, then checks subscription
-        function checkSubscription() {
-            // Wait for Firebase to be available (loaded by menu-v2.js)
-            if (typeof firebase === 'undefined' || !firebase.auth) {
-                // Firebase not ready yet, wait and retry
-                setTimeout(checkSubscription, 200);
-                return;
-            }
-            
-            firebase.auth().onAuthStateChanged(function(user) {
-                if (user) {
-                    firebase.firestore().collection('users').doc(user.uid).get()
-                        .then(function(doc) {
-                            if (doc.exists) {
-                                const data = doc.data();
-                                if (data.subscriptionStatus !== 'active') {
-                                    document.getElementById('proOverlay').classList.add('show');
-                                    // Set up the upgrade button
-                                    setupUpgradeButton();
-                                }
-                            }
-                        });
-                } else {
-                    document.getElementById('proOverlay').classList.add('show');
-                    setupUpgradeButton();
-                }
-            });
-        }
-        
-        // ==================== UPGRADE BUTTON SETUP ====================
-        function setupUpgradeButton() {
-            const upgradeBtn = document.getElementById('proUpgradeBtn');
-            if (upgradeBtn) {
-                upgradeBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    handleUpgrade();
-                });
-            }
-        }
-        
-        // ==================== HANDLE UPGRADE ====================
-        async function handleUpgrade() {
-            const btn = document.getElementById('proUpgradeBtn');
-            const originalText = btn ? btn.innerHTML : '';
-            
-            try {
-                if (btn) {
-                    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Loading...';
-                    btn.style.pointerEvents = 'none';
-                }
-                
-                const user = firebase.auth().currentUser;
-                if (!user) {
-                    window.location.href = 'login.html';
-                    return;
-                }
-                
-                const token = await user.getIdToken();
-                const baseUrl = window.paramind?.CONFIG?.api?.baseUrl || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
-                const checkoutEndpoint = window.paramind?.CONFIG?.api?.checkout || '/createCheckoutSession';
-                
-                const response = await fetch(`${baseUrl}${checkoutEndpoint}`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.url) {
-                        window.location.href = data.url;
-                    }
-                } else {
-                    throw new Error('Failed to create checkout session');
-                }
-            } catch (error) {
-                console.error('Upgrade error:', error);
-                alert('Unable to start checkout. Please try again.');
-                if (btn) {
-                    btn.innerHTML = originalText;
-                    btn.style.pointerEvents = 'auto';
-                }
-            }
-        }
     </script>
     
-    <!-- MENU SCRIPT - MUST BE LAST (after Firebase) -->
+    <!-- Standardised script loading -->
+    <script src="js/app.js"></script>
     <script src="js/menu-v2.js"></script>
+    <script src="js/pro-guard.js"></script>
 </body>
 </html>
