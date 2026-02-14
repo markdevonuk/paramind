@@ -599,7 +599,7 @@ html {
 
     <!-- Message Limit Banner (Free Users) -->
     <div class="message-limit-banner" id="messageLimitBanner">
-        <span>Daily messages: <span class="count"><span id="messagesUsed">0</span>/5</span></span>
+        <span>Daily messages: <span class="count"><span id="messagesUsed">0</span>/20</span></span>
         <a href="#" class="upgrade-link" onclick="handleUpgrade(); return false;">
             <i class="bi bi-star-fill me-1"></i>Upgrade for unlimited
         </a>
@@ -755,7 +755,7 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
         // ==================== STATE ====================
         const chatState = {
             isPro: false,
-            messagesRemaining: 5,
+            messagesRemaining: 20,
             conversationHistory: [],
             isLoading: false,
             userData: null
@@ -810,7 +810,7 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
         }
 
         function updateMessageCounter() {
-            const used = Math.max(0, 5 - chatState.messagesRemaining);
+            const used = Math.max(0, 20 - chatState.messagesRemaining);
             elements.messagesUsed.textContent = used;
             
             if (chatState.messagesRemaining <= 0) {
@@ -1228,7 +1228,7 @@ IMPORTANT: The learner just asked you to simplify your previous explanation. You
                 </div>
                 <div class="message-content">
                     <strong>Ah, you've hit your daily limit!</strong><br><br>
-                    You've used all 5 free messages for today - your limit resets at midnight. If you'd like unlimited chats with me, you can upgrade to Pro! 💚<br><br>
+                    You've used all 20 free messages for today - your limit resets at midnight. If you'd like unlimited chats with me, you can upgrade to Pro! 💚<br><br>
                     <button class="btn btn-primary btn-sm" onclick="handleUpgrade()">
                         <i class="bi bi-star me-1"></i>Upgrade to Pro - £4.99/month
                     </button>

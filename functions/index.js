@@ -18,7 +18,7 @@ admin.initializeApp();
 const db = admin.firestore();
 
 // Constants
-const FREE_DAILY_MESSAGES = 5;
+const FREE_DAILY_MESSAGES = 20;
 const SUBSCRIPTION_PRICE = 499; // £4.99 in pence
 
 // ============================================

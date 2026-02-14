@@ -891,7 +891,7 @@
 
     <!-- Message Limit Banner (Free Users) -->
     <div class="message-limit-banner" id="messageLimitBanner">
-        <span>Daily messages: <span class="count"><span id="messagesUsed">0</span>/5</span></span>
+        <span>Daily messages: <span class="count"><span id="messagesUsed">0</span>/20</span></span>
         <a href="#" class="upgrade-link" onclick="handleUpgrade(); return false;">
             <i class="bi bi-star-fill me-1"></i>Upgrade for unlimited
         </a>
@@ -1211,7 +1211,7 @@
         // ==================== STATE ====================
         const chatState = {
     isPro: false,
-    messagesRemaining: 5,
+    messagesRemaining: 20,
     conversationHistory: [],
     isLoading: false,
     currentScenario: null,
@@ -1313,7 +1313,7 @@
         }
 
         function updateMessageCounter() {
-            const used = Math.max(0, 5 - chatState.messagesRemaining);
+            const used = Math.max(0, 20 - chatState.messagesRemaining);
             elements.messagesUsed.textContent = used;
         }
 
@@ -1976,7 +1976,7 @@ elements.workingImpressionToolbar.style.display = 'none';
 
         // ==================== LIMIT REACHED ====================
         function showLimitReached() {
-            addMessage('assistant', `**Daily message limit reached**\n\nYou've used all 5 free messages for today. Your limit resets at midnight.\n\n[Upgrade to Pro - £4.99/month](javascript:handleUpgrade())`);
+            addMessage('assistant', `**Daily message limit reached**\n\nYou've used all 20 free messages for today. Your limit resets at midnight.\n\n[Upgrade to Pro - £4.99/month](javascript:handleUpgrade())`);
         }
 
         // ==================== UPGRADE ====================

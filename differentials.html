@@ -441,7 +441,7 @@
 
     <!-- Message Limit Banner (Free Users) -->
     <div class="message-limit-banner" id="messageLimitBanner">
-        <span>Daily messages: <span class="count"><span id="messagesUsed">0</span>/5</span></span>
+        <span>Daily messages: <span class="count"><span id="messagesUsed">0</span>/20</span></span>
         <a href="#" class="upgrade-link" onclick="handleUpgrade(); return false;">
             <i class="bi bi-star-fill me-1"></i>Upgrade for unlimited
         </a>
@@ -622,7 +622,7 @@
         // ==================== STATE ====================
         const pageState = {
             isPro: false,
-            messagesRemaining: 5,
+            messagesRemaining: 20,
             isLoading: false
         };
 
@@ -684,7 +684,7 @@
         }
 
         function updateMessageCounter() {
-            const used = Math.max(0, 5 - pageState.messagesRemaining);
+            const used = Math.max(0, 20 - pageState.messagesRemaining);
             elements.messagesUsed.textContent = used;
         }
 
@@ -898,7 +898,7 @@
                         ${buildPatientSummary(patientData)}
                         <div class="response-message">
                             <p><strong>Daily message limit reached</strong></p>
-                            <p>You've used all 5 free messages for today. Your limit resets at midnight.</p>
+                            <p>You've used all 20 free messages for today. Your limit resets at midnight.</p>
                             <button class="submit-btn" onclick="handleUpgrade()" style="margin-top: 1rem;">
                                 <i class="bi bi-star"></i> Upgrade to Pro - £4.99/month
                             </button>
