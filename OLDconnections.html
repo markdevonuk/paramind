@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Clinical Connections - A&P Learning | Paramind</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/menu-v2.css">
+    
+    <style>
+        /* Clinical Connections Page Styles */
+        .clinical-page {
+            min-height: 100vh;
+            background: var(--color-gray-50);
+        }
+        
+        .clinical-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1rem;
+            padding-bottom: 2rem;
+        }
+        
+        .clinical-header {
+            text-align: center;
+            padding: 1.5rem 0;
+        }
+        
+        .clinical-header h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .clinical-header p {
+            color: var(--color-gray-600);
+            margin: 0;
+        }
+        
+        /* Hollie Introduction Card */
+        .hollie-intro {
+            background: var(--color-white);
+            border-radius: var(--radius-xl);
+            padding: 1.25rem;
+            border: 2px solid rgba(43, 138, 156, 0.2);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .hollie-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 3px solid var(--color-teal);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        .hollie-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .hollie-intro-text h3 {
+            font-size: 1.1rem;
+            margin: 0 0 0.25rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .hollie-badge {
+            font-size: 0.7rem;
+            background: rgba(43, 138, 156, 0.1);
+            color: var(--color-teal);
+            padding: 0.2rem 0.5rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+        }
+        
+        .hollie-intro-text p {
+            margin: 0;
+            color: var(--color-gray-600);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        /* Body Systems Grid */
+        .systems-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        @media (min-width: 576px) {
+            .systems-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        .system-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem 1rem;
+            text-align: center;
+            border: 2px solid var(--color-gray-200);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .system-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .system-card.cardiovascular { border-color: #fee2e2; background: #fef2f2; }
+        .system-card.cardiovascular:hover { border-color: #ef4444; }
+        .system-card.cardiovascular .system-icon { background: #ef4444; }
+        .system-card.cardiovascular .system-name { color: #dc2626; }
+        
+        .system-card.respiratory { border-color: #e0f2fe; background: #f0f9ff; }
+        .system-card.respiratory:hover { border-color: #0ea5e9; }
+        .system-card.respiratory .system-icon { background: #0ea5e9; }
+        .system-card.respiratory .system-name { color: #0284c7; }
+        
+        .system-card.nervous { border-color: #f3e8ff; background: #faf5ff; }
+        .system-card.nervous:hover { border-color: #a855f7; }
+        .system-card.nervous .system-icon { background: #a855f7; }
+        .system-card.nervous .system-name { color: #9333ea; }
+        
+        .system-card.gastrointestinal { border-color: #fef3c7; background: #fffbeb; }
+        .system-card.gastrointestinal:hover { border-color: #f59e0b; }
+        .system-card.gastrointestinal .system-icon { background: #f59e0b; }
+        .system-card.gastrointestinal .system-name { color: #d97706; }
+        
+        .system-card.renal { border-color: #fef9c3; background: #fefce8; }
+        .system-card.renal:hover { border-color: #eab308; }
+        .system-card.renal .system-icon { background: #eab308; }
+        .system-card.renal .system-name { color: #ca8a04; }
+        
+        .system-card.endocrine { border-color: #d1fae5; background: #ecfdf5; }
+        .system-card.endocrine:hover { border-color: #10b981; }
+        .system-card.endocrine .system-icon { background: #10b981; }
+        .system-card.endocrine .system-name { color: #059669; }
+        
+        .system-card.musculoskeletal { border-color: #ffedd5; background: #fff7ed; }
+        .system-card.musculoskeletal:hover { border-color: #f97316; }
+        .system-card.musculoskeletal .system-icon { background: #f97316; }
+        .system-card.musculoskeletal .system-name { color: #ea580c; }
+        
+        .system-card.immune { border-color: #fce7f3; background: #fdf2f8; }
+        .system-card.immune:hover { border-color: #ec4899; }
+        .system-card.immune .system-icon { background: #ec4899; }
+        .system-card.immune .system-name { color: #db2777; }
+        
+        .system-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.75rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .system-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .system-count {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+        }
+        
+        /* Questions View */
+        .questions-header {
+            background: var(--color-white);
+            border-radius: var(--radius-xl);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border: 2px solid var(--color-gray-200);
+        }
+        
+        .questions-header.cardiovascular { border-color: #fee2e2; background: #fef2f2; }
+        .questions-header.cardiovascular .system-icon { background: #ef4444; }
+        .questions-header.respiratory { border-color: #e0f2fe; background: #f0f9ff; }
+        .questions-header.respiratory .system-icon { background: #0ea5e9; }
+        .questions-header.nervous { border-color: #f3e8ff; background: #faf5ff; }
+        .questions-header.nervous .system-icon { background: #a855f7; }
+        .questions-header.gastrointestinal { border-color: #fef3c7; background: #fffbeb; }
+        .questions-header.gastrointestinal .system-icon { background: #f59e0b; }
+        .questions-header.renal { border-color: #fef9c3; background: #fefce8; }
+        .questions-header.renal .system-icon { background: #eab308; }
+        .questions-header.endocrine { border-color: #d1fae5; background: #ecfdf5; }
+        .questions-header.endocrine .system-icon { background: #10b981; }
+        .questions-header.musculoskeletal { border-color: #ffedd5; background: #fff7ed; }
+        .questions-header.musculoskeletal .system-icon { background: #f97316; }
+        .questions-header.immune { border-color: #fce7f3; background: #fdf2f8; }
+        .questions-header.immune .system-icon { background: #ec4899; }
+        
+        .questions-header .system-icon {
+            margin: 0;
+            width: 55px;
+            height: 55px;
+            font-size: 1.75rem;
+        }
+        
+        .questions-header-text h2 {
+            font-size: 1.25rem;
+            margin: 0 0 0.25rem 0;
+        }
+        
+        .questions-header-text p {
+            margin: 0;
+            color: var(--color-gray-600);
+            font-size: 0.9rem;
+        }
+        
+        .questions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .question-btn {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .question-btn:hover {
+            border-color: var(--color-teal);
+            box-shadow: var(--shadow-sm);
+            transform: translateX(4px);
+        }
+        
+        .question-number {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            background: var(--color-gray-100);
+            color: var(--color-gray-600);
+        }
+        
+        .question-text {
+            flex: 1;
+            font-weight: 500;
+            color: var(--color-gray-800);
+        }
+        
+        .question-arrow {
+            color: var(--color-gray-400);
+            transition: all var(--transition-fast);
+        }
+        
+        .question-btn:hover .question-arrow {
+            color: var(--color-teal);
+            transform: translateX(3px);
+        }
+        
+        /* Chat View */
+        .chat-container {
+            background: var(--color-white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            background: linear-gradient(135deg, var(--color-teal) 0%, #228B9D 100%);
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .chat-header .hollie-avatar {
+            width: 45px;
+            height: 45px;
+            border-color: rgba(255,255,255,0.3);
+        }
+        
+        .chat-header-info h3 {
+            color: white;
+            font-size: 1rem;
+            margin: 0;
+        }
+        
+        .chat-header-info p {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.8rem;
+            margin: 0;
+        }
+        
+        .chat-system-badge {
+            margin-left: auto;
+            padding: 0.35rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .chat-messages {
+            padding: 1.25rem;
+            background: var(--color-gray-50);
+            min-height: 350px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        /* User message bubble */
+        .user-message {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1.25rem;
+        }
+        
+        .user-bubble {
+            background: linear-gradient(135deg, var(--color-teal) 0%, #228B9D 100%);
+            color: white;
+            padding: 0.875rem 1rem;
+            border-radius: 1.25rem 1.25rem 0.25rem 1.25rem;
+            max-width: 85%;
+            font-weight: 500;
+        }
+        
+        /* Hollie response */
+        .hollie-message {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        
+        .hollie-message .hollie-avatar {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .hollie-bubble {
+            background: var(--color-white);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-gray-200);
+            max-width: 90%;
+            box-shadow: var(--shadow-sm);
+            line-height: 1.6;
+        }
+        
+        .hollie-bubble p {
+            margin: 0 0 0.75rem 0;
+            color: var(--color-gray-700);
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+        
+        .hollie-bubble p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .hollie-bubble ul,
+        .hollie-bubble ol {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        .hollie-bubble li {
+            display: list-item;
+            margin-bottom: 0.35rem;
+        }
+        
+        .hollie-bubble h1, 
+        .hollie-bubble h2, 
+        .hollie-bubble h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 1rem 0 0.5rem 0;
+            color: var(--color-gray-800);
+        }
+        
+        .hollie-bubble h1:first-child,
+        .hollie-bubble h2:first-child,
+        .hollie-bubble h3:first-child {
+            margin-top: 0;
+        }
+        
+        .hollie-bubble strong {
+            color: var(--color-teal);
+        }
+        
+        /* Streaming cursor */
+        .streaming-cursor {
+            display: inline-block;
+            animation: cursorBlink 0.7s infinite;
+            color: var(--color-teal);
+            font-weight: bold;
+        }
+        
+        @keyframes cursorBlink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .streaming-text {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: inherit;
+            line-height: 1.6;
+        }
+        
+        /* Typing indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            background: var(--color-teal);
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dots span:nth-child(1) { animation-delay: 0s; }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-6px); }
+        }
+        
+        .typing-text {
+            color: var(--color-gray-500);
+            font-size: 0.85rem;
+        }
+        
+        /* Disclaimer */
+        .chat-disclaimer {
+            padding: 0.875rem 1.25rem;
+            background: #fffbeb;
+            border-top: 1px solid #fef3c7;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        
+        .chat-disclaimer i {
+            color: #f59e0b;
+            font-size: 1rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .chat-disclaimer p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #92400e;
+        }
+        
+        /* Action buttons */
+        .chat-actions {
+            padding: 1.5rem 1.25rem;
+            background: var(--color-white);
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .simplify-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+        
+        .simplify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+        }
+        
+        .simplify-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .another-question-btn {
+            background: linear-gradient(135deg, var(--color-teal) 0%, #228B9D 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .another-question-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        /* Back button */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--color-teal);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            transition: all var(--transition-fast);
+            background: none;
+            border: none;
+            padding: 0;
+        }
+        
+        .back-btn:hover {
+            color: var(--color-teal-dark);
+        }
+        
+        /* View states */
+        .view-systems,
+        .view-questions,
+        .view-chat {
+            display: none;
+        }
+        
+        .view-systems.active,
+        .view-questions.active,
+        .view-chat.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Pro Overlay */
+        .pro-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+        
+        .pro-overlay.visible {
+            display: flex;
+        }
+        
+        .pro-overlay-content {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+        
+        .pro-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--color-teal) 0%, #228B9D 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .pro-icon i {
+            font-size: 2.5rem;
+            color: white;
+        }
+        
+        .pro-overlay-content h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--color-gray-900);
+            margin: 0 0 0.75rem;
+        }
+        
+        .pro-feature-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            background: linear-gradient(135deg, #ffc107 0%, #ffca2c 100%);
+            color: #000;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 0.375rem 0.875rem;
+            border-radius: 2rem;
+            margin-bottom: 1.25rem;
+        }
+        
+        .pro-description {
+            color: var(--color-gray-600);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        
+        .pro-benefits {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 2rem;
+            text-align: left;
+        }
+        
+        .pro-benefits li {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.625rem 0;
+            color: var(--color-gray-700);
+            font-size: 0.95rem;
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+        
+        .pro-benefits li:last-child {
+            border-bottom: none;
+        }
+        
+        .pro-benefits li i {
+            color: var(--color-green);
+            font-size: 1.1rem;
+        }
+        
+        .pro-upgrade-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--color-green) 0%, #4a9f4a 100%);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            transition: all var(--transition-fast);
+            margin-bottom: 1rem;
+        }
+        
+        .pro-upgrade-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(92, 184, 92, 0.4);
+            color: white;
+        }
+        
+        .pro-back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--color-gray-500);
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+        
+        .pro-back-link:hover {
+            color: var(--color-gray-700);
+        }
+    </style>
+</head>
+<body class="clinical-page">
+    <!-- Navigation -->
+    <nav class="ecg-navbar">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="brand-text">
+                    <a class="navbar-brand" href="index.html">
+                        <span class="brand-para">para</span><span class="brand-mind">mind</span>
+                    </a>
+                </span>
+                <button class="hamburger-btn" id="hamburgerBtn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="clinical-container">
+        <!-- Pro Upgrade Overlay -->
+        <div class="pro-overlay" id="proOverlay">
+            <div class="pro-overlay-content">
+                <div class="pro-icon">
+                    <i class="bi bi-heart-pulse"></i>
+                </div>
+                <h2>Clinical Connections</h2>
+                <p class="pro-feature-badge"><i class="bi bi-star-fill"></i> Pro Feature</p>
+                <p class="pro-description">
+                    Understand the anatomy & physiology behind what you see on the road. 
+                    Get friendly, conversational explanations from Hollie, your AI paramedic tutor.
+                </p>
+                <ul class="pro-benefits">
+                    <li><i class="bi bi-check-circle-fill"></i> 8 body systems covered</li>
+                    <li><i class="bi bi-check-circle-fill"></i> 80+ clinical questions</li>
+                    <li><i class="bi bi-check-circle-fill"></i> AI-powered explanations</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Links A&P to clinical practice</li>
+                </ul>
+                <a href="#" class="pro-upgrade-btn" id="proUpgradeBtn">
+                    <i class="bi bi-star-fill"></i> Upgrade to Pro
+                </a>
+                <a href="chat.html" class="pro-back-link">
+                    <i class="bi bi-arrow-left"></i> Back to Chat
+                </a>
+            </div>
+        </div>
+
+        <!-- VIEW 1: Body Systems Selection -->
+        <div class="view-systems active" id="viewSystems">
+            <div class="clinical-header">
+                <h1>
+                    <i class="bi bi-heart-pulse text-teal"></i>
+                    Clinical Connections
+                </h1>
+                <p>Understand the A&P behind clinical presentations</p>
+            </div>
+            
+            <!-- Hollie Introduction -->
+            <div class="hollie-intro">
+                <div class="hollie-avatar">
+                    <img src="images/hollie.png" alt="Hollie" id="hollieImg">
+                </div>
+                <div class="hollie-intro-text">
+                    <h3>Hollie <span class="hollie-badge">Paramedic Tutor</span></h3>
+                    <p>"Hey! 👋 I'm Hollie, and I'm here to help you understand the A&P behind what we see on the road. Pick a body system below and I'll explain how it all connects to clinical practice!"</p>
+                </div>
+            </div>
+            
+            <!-- Body Systems Grid -->
+            <div class="systems-grid" id="systemsGrid">
+                <!-- Systems will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- VIEW 2: Questions List -->
+        <div class="view-questions" id="viewQuestions">
+            <button class="back-btn" id="backToSystems">
+                <i class="bi bi-arrow-left"></i> Back to body systems
+            </button>
+            
+            <div class="questions-header" id="questionsHeader">
+                <!-- Populated by JavaScript -->
+            </div>
+            
+            <div class="questions-list" id="questionsList">
+                <!-- Questions populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- VIEW 3: Chat with Hollie -->
+        <div class="view-chat" id="viewChat">
+            <button class="back-btn" id="backToQuestions">
+                <i class="bi bi-arrow-left"></i> Back to questions
+            </button>
+            
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="hollie-avatar">
+                        <img src="images/hollie.png" alt="Hollie">
+                    </div>
+                    <div class="chat-header-info">
+                        <h3>Hollie</h3>
+                        <p>Paramedic Tutor</p>
+                    </div>
+                    <div class="chat-system-badge" id="chatSystemBadge">
+                        <!-- System badge populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <!-- User question and Hollie's response -->
+                </div>
+                
+                <div class="chat-actions" id="chatActions" style="display: none;">
+                    <button class="simplify-btn" id="simplifyBtn">
+                        <i class="bi bi-emoji-smile"></i>
+                        Make it simpler, Hollie!
+                    </button>
+                    <button class="another-question-btn" id="anotherQuestionBtn">
+                        Ask another question
+                    </button>
+                </div>
+                
+                <div class="chat-disclaimer">
+                    <i class="bi bi-lightbulb"></i>
+                    <p><strong>Educational content only.</strong> Always refer to JRCalc and your clinical guidelines for treatment decisions.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="text-center mt-4">
+            <small class="text-muted">
+                <i class="bi bi-shield-lock me-1"></i>
+                This is a learning tool for educational purposes only.
+            </small>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Marked.js for Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Load your existing app config -->
+    <script src="js/app.js"></script>
+    
+    <script type="module">
+        // ==================== BODY SYSTEMS DATA ====================
+        const BODY_SYSTEMS = [
+            {
+                id: 'cardiovascular',
+                name: 'Cardiovascular',
+                icon: 'bi-heart-pulse',
+                questions: [
+                    "Why does a PE cause tachycardia?",
+                    "How does heart failure cause peripheral oedema?",
+                    "Why do we see JVP elevation in right heart failure?",
+                    "Explain why MI can cause referred pain to the arm and jaw",
+                    "Why does aortic stenosis cause syncope on exertion?",
+                    "How does atrial fibrillation increase stroke risk?",
+                    "Why do patients with heart failure get breathless when lying flat?",
+                    "Explain the pathophysiology of cardiogenic shock",
+                    "Why does severe bradycardia cause hypotension?",
+                    "How does cardiac tamponade affect blood pressure?"
+                ]
+            },
+            {
+                id: 'respiratory',
+                name: 'Respiratory',
+                icon: 'bi-wind',
+                questions: [
+                    "Explain the pathophysiology of anaphylaxis and airway compromise",
+                    "Why does COPD cause a barrel chest?",
+                    "How does asthma cause wheeze?",
+                    "Why do we see pursed lip breathing in COPD patients?",
+                    "Explain why tension pneumothorax causes tracheal deviation",
+                    "Why does pulmonary oedema cause pink frothy sputum?",
+                    "How does hyperventilation cause tingling in the hands?",
+                    "Why do asthmatics have a prolonged expiratory phase?",
+                    "Explain why oxygen can be dangerous in some COPD patients",
+                    "How does a flail chest affect ventilation?"
+                ]
+            },
+            {
+                id: 'nervous',
+                name: 'Nervous System',
+                icon: 'bi-lightning',
+                questions: [
+                    "Why does a stroke cause one-sided weakness?",
+                    "Explain the pathophysiology of a seizure",
+                    "How does raised intracranial pressure cause Cushing's triad?",
+                    "Why do patients become unconscious with hypoglycaemia?",
+                    "Explain why pupil changes occur in head injuries",
+                    "How does meningitis cause neck stiffness?",
+                    "Why does a subarachnoid haemorrhage cause sudden severe headache?",
+                    "Explain the difference between upper and lower motor neuron lesions",
+                    "Why does spinal cord injury cause neurogenic shock?",
+                    "How does the autonomic nervous system affect heart rate?"
+                ]
+            },
+            {
+                id: 'gastrointestinal',
+                name: 'Gastrointestinal',
+                icon: 'bi-droplet-half',
+                questions: [
+                    "Why does GI bleeding cause melaena vs fresh blood?",
+                    "Explain the pathophysiology of acute pancreatitis pain",
+                    "How does bowel obstruction cause vomiting?",
+                    "Why does liver failure cause confusion?",
+                    "Explain why appendicitis pain moves from umbilicus to RIF",
+                    "How does dehydration from D&V affect the cardiovascular system?",
+                    "Why does cholecystitis cause referred shoulder pain?",
+                    "Explain the pathophysiology of peritonitis",
+                    "How does a AAA cause back pain?",
+                    "Why do patients with GI bleeds become tachycardic before hypotensive?"
+                ]
+            },
+            {
+                id: 'renal',
+                name: 'Renal & Urinary',
+                icon: 'bi-droplet',
+                questions: [
+                    "How does acute kidney injury cause hyperkalaemia?",
+                    "Why does kidney failure cause fluid overload?",
+                    "Explain the pathophysiology of renal colic pain",
+                    "How does chronic kidney disease cause anaemia?",
+                    "Why do dialysis patients get breathless between treatments?",
+                    "Explain how UTIs can cause confusion in elderly patients",
+                    "Why does urinary retention cause lower abdominal pain?",
+                    "How does rhabdomyolysis affect the kidneys?",
+                    "Explain why kidney patients are prone to arrhythmias",
+                    "How does dehydration affect kidney function?"
+                ]
+            },
+            {
+                id: 'endocrine',
+                name: 'Endocrine',
+                icon: 'bi-lightning-charge',
+                questions: [
+                    "Explain the pathophysiology of diabetic ketoacidosis",
+                    "Why does hypoglycaemia cause sweating and tremor?",
+                    "How does Addison's disease cause hypotension?",
+                    "Why do diabetics get fruity-smelling breath in DKA?",
+                    "Explain how HHS differs from DKA",
+                    "Why does hyperthyroidism cause tachycardia and tremor?",
+                    "How does hypothyroidism affect the body?",
+                    "Explain why stress causes blood glucose to rise",
+                    "Why do Type 1 and Type 2 diabetes present differently?",
+                    "How does insulin work at a cellular level?"
+                ]
+            },
+            {
+                id: 'musculoskeletal',
+                name: 'Musculoskeletal',
+                icon: 'bi-bandaid',
+                questions: [
+                    "Why do fractures cause fat embolism syndrome?",
+                    "Explain compartment syndrome pathophysiology",
+                    "How does a femoral fracture cause significant blood loss?",
+                    "Why does a hip fracture cause leg shortening and rotation?",
+                    "Explain the pathophysiology of crush syndrome",
+                    "How do long bone fractures affect clotting?",
+                    "Why is pelvic fracture so dangerous?",
+                    "Explain why open fractures are high risk for infection",
+                    "How does muscle damage release potassium?",
+                    "Why do elderly patients fracture more easily?"
+                ]
+            },
+            {
+                id: 'immune',
+                name: 'Immune & Infection',
+                icon: 'bi-shield-plus',
+                questions: [
+                    "Explain the pathophysiology of sepsis",
+                    "Why does anaphylaxis cause widespread vasodilation?",
+                    "How does the body's immune response cause fever?",
+                    "Why does sepsis cause mottled skin?",
+                    "Explain why immunocompromised patients present atypically",
+                    "How do mast cells cause allergic reactions?",
+                    "Why does severe infection cause low blood pressure?",
+                    "Explain the difference between sepsis and septic shock",
+                    "How does the inflammatory response cause redness and swelling?",
+                    "Why do some infections cause rigors?"
+                ]
+            }
+        ];
+
+        // ==================== STATE ====================
+        let currentSystem = null;
+        let currentQuestion = null;
+        let auth = null;
+        let currentUser = null;
+
+        // ==================== FIREBASE AUTH ====================
+        async function initializeAuth() {
+            const { getAuth, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+            const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+            const { firebaseConfig } = await import('./js/firebase-config.js');
+            
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            
+            return new Promise((resolve) => {
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        currentUser = user;
+                        resolve(true);
+                    } else {
+                        window.location.href = 'login.html';
+                        resolve(false);
+                    }
+                });
+            });
+        }
+        
+        async function getAuthToken() {
+            if (currentUser) {
+                return await currentUser.getIdToken(true);
+            }
+            throw new Error('Not authenticated');
+        }
+
+        // ==================== INITIALIZATION ====================
+        async function initClinicalConnections() {
+    const isAuthenticated = await initializeAuth();
+    if (!isAuthenticated) return;
+    
+    // Render body systems IMMEDIATELY - don't wait for Pro check!
+    renderBodySystems();
+    setupEventListeners();
+    
+    // Check Pro status in the background
+    const isPro = await checkProStatus();
+    
+    // If not Pro, show overlay ON TOP of the already-rendered content
+    if (!isPro) {
+        document.getElementById('proOverlay').classList.add('visible');
+        document.getElementById('proUpgradeBtn').addEventListener('click', handleUpgrade);
+    }
+}
+        
+        async function checkProStatus() {
+            try {
+                const token = await getAuthToken();
+                const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}${window.paramind.CONFIG.api.user}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const userProfile = await response.json();
+                    return userProfile.subscriptionStatus === 'pro' || 
+                           userProfile.subscriptionStatus === 'active' ||
+                           userProfile.isPro === true;
+                }
+                return false;
+            } catch (error) {
+                console.error('Error checking Pro status:', error);
+                return false;
+            }
+        }
+        
+        async function handleUpgrade(e) {
+            e.preventDefault();
+            const btn = document.getElementById('proUpgradeBtn');
+            const originalText = btn.innerHTML;
+            
+            try {
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Loading...';
+                btn.style.pointerEvents = 'none';
+                
+                const token = await getAuthToken();
+                const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}${window.paramind.CONFIG.api.checkout || '/createCheckoutSession'}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.url) {
+                        window.location.href = data.url;
+                    }
+                } else {
+                    throw new Error('Failed to create checkout session');
+                }
+            } catch (error) {
+                console.error('Upgrade error:', error);
+                alert('Unable to start checkout. Please try again.');
+                btn.innerHTML = originalText;
+                btn.style.pointerEvents = 'auto';
+            }
+        }
+
+        // ==================== RENDER FUNCTIONS ====================
+        function renderBodySystems() {
+            const grid = document.getElementById('systemsGrid');
+            grid.innerHTML = BODY_SYSTEMS.map(system => `
+                <div class="system-card ${system.id}" data-system="${system.id}">
+                    <div class="system-icon">
+                        <i class="bi ${system.icon}"></i>
+                    </div>
+                    <div class="system-name">${system.name}</div>
+                    <div class="system-count">${system.questions.length} questions</div>
+                </div>
+            `).join('');
+        }
+        
+        function renderQuestions(system) {
+            const header = document.getElementById('questionsHeader');
+            const list = document.getElementById('questionsList');
+            
+            header.innerHTML = `
+                <div class="system-icon">
+                    <i class="bi ${system.icon}"></i>
+                </div>
+                <div class="questions-header-text">
+                    <h2>${system.name}</h2>
+                    <p>Select a question to ask Hollie</p>
+                </div>
+            `;
+            header.className = `questions-header ${system.id}`;
+            
+            list.innerHTML = system.questions.map((question, index) => `
+                <button class="question-btn" data-question="${index}">
+                    <div class="question-number">${index + 1}</div>
+                    <span class="question-text">${question}</span>
+                    <i class="bi bi-chevron-right question-arrow"></i>
+                </button>
+            `).join('');
+        }
+        
+        function renderChat(question, systemId) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const badge = document.getElementById('chatSystemBadge');
+            const system = BODY_SYSTEMS.find(s => s.id === systemId);
+            const simplifyBtn = document.getElementById('simplifyBtn');
+            
+            // Set system badge
+            badge.innerHTML = `<i class="bi ${system.icon}"></i> ${system.name}`;
+            
+            // Reset simplify button visibility
+            if (simplifyBtn) {
+                simplifyBtn.style.display = 'flex';
+            }
+            
+            // Render user question and typing indicator
+            messagesDiv.innerHTML = `
+                <div class="user-message">
+                    <div class="user-bubble">${question}</div>
+                </div>
+                <div class="hollie-message">
+                    <div class="hollie-avatar">
+                        <img src="images/hollie.png" alt="Hollie">
+                    </div>
+                    <div class="hollie-bubble" id="hollieBubble">
+                        <div class="typing-indicator">
+                            <div class="typing-dots">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                            <span class="typing-text">Hollie is typing...</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Hide action buttons while loading
+            document.getElementById('chatActions').style.display = 'none';
+        }
+
+        // ==================== VIEW SWITCHING ====================
+        function showView(viewName) {
+            document.querySelectorAll('[class^="view-"]').forEach(v => v.classList.remove('active'));
+            document.getElementById(`view${viewName.charAt(0).toUpperCase() + viewName.slice(1)}`).classList.add('active');
+        }
+
+        // ==================== EVENT LISTENERS ====================
+        function setupEventListeners() {
+            // System card clicks
+            document.getElementById('systemsGrid').addEventListener('click', (e) => {
+                const card = e.target.closest('.system-card');
+                if (card) {
+                    const systemId = card.dataset.system;
+                    currentSystem = BODY_SYSTEMS.find(s => s.id === systemId);
+                    renderQuestions(currentSystem);
+                    showView('questions');
+                }
+            });
+            
+            // Question clicks
+            document.getElementById('questionsList').addEventListener('click', (e) => {
+                const btn = e.target.closest('.question-btn');
+                if (btn) {
+                    const questionIndex = parseInt(btn.dataset.question);
+                    currentQuestion = currentSystem.questions[questionIndex];
+                    renderChat(currentQuestion, currentSystem.id);
+                    showView('chat');
+                    askHollie(currentQuestion);
+                }
+            });
+            
+            // Back buttons
+            document.getElementById('backToSystems').addEventListener('click', () => {
+                showView('systems');
+            });
+            
+            document.getElementById('backToQuestions').addEventListener('click', () => {
+                showView('questions');
+            });
+            
+            // Another question button
+            document.getElementById('anotherQuestionBtn').addEventListener('click', () => {
+                showView('questions');
+            });
+            
+            // Simplify button
+            document.getElementById('simplifyBtn').addEventListener('click', () => {
+                askHollieToSimplify();
+            });
+        }
+
+        // ==================== MESSAGE FORMATTING ====================
+        function formatMessage(content) {
+            // Convert bullet characters (•) to markdown list syntax
+            let processed = content.replace(/^[ \t]*•[ \t]*/gm, '- ');
+            
+            if (typeof marked !== 'undefined') {
+                return marked.parse(processed);
+            }
+            return processed
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+        }
+
+        // ==================== API CALL WITH STREAMING ====================
+        async function askHollie(question) {
+            const hollieBubble = document.getElementById('hollieBubble');
+            
+            const systemPrompt = `You are Hollie, a friendly and experienced UK paramedic who loves teaching anatomy and physiology to fellow paramedics and students. You explain things in a warm, conversational way - like you're chatting to a colleague over a cuppa.
+
+Your personality:
+- Friendly and approachable - use "you" and speak directly to the learner
+- Enthusiastic about A&P - you find it genuinely fascinating
+- Practical - always link theory to what we see on the road
+- Encouraging - make learners feel confident
+- Use phrases like "So basically...", "The cool thing is...", "You'll often see...", "Think of it like..."
+
+When explaining:
+1. Start with a friendly opener (e.g., "Great question!", "Ah, this is a really important one!", "Ooh I love this topic!")
+2. Give a simple overview first
+3. Explain the anatomy involved in plain terms
+4. Walk through the physiology step-by-step
+5. Link it to clinical signs we observe as paramedics
+6. End with an encouraging note or practical tip
+
+Keep it conversational - no formal headers or bullet points. Write in flowing paragraphs like you're actually talking. Use UK spelling and terminology.
+
+Keep responses around 250-350 words - detailed enough to be useful but not overwhelming.
+
+Remember: This is for EDUCATION only - never give treatment advice. If treatment comes up, remind them to check JRCalc.`;
+
+            try {
+                const token = await getAuthToken();
+                
+                const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}${window.paramind.CONFIG.api.chat}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: question,
+                        conversationHistory: [],
+                        systemPrompt: systemPrompt
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to get response');
+                }
+                
+                // Set up streaming display
+                hollieBubble.innerHTML = '<span class="streaming-text" id="streamingText"></span><span class="streaming-cursor">|</span>';
+                const streamingText = document.getElementById('streamingText');
+                
+                // Handle streaming response
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullMessage = '';
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    
+                    if (done) break;
+                    
+                    const text = decoder.decode(value, { stream: true });
+                    const lines = text.split('\n');
+                    
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                
+                                if (data.type === 'chunk') {
+                                    fullMessage += data.content;
+                                    
+                                    // Escape HTML during streaming and show with line breaks
+                                    const escaped = fullMessage
+                                        .replace(/&/g, '&amp;')
+                                        .replace(/</g, '&lt;')
+                                        .replace(/>/g, '&gt;')
+                                        .replace(/\n/g, '<br>');
+                                    streamingText.innerHTML = escaped;
+                                    
+                                    // Scroll to keep latest text visible during streaming
+                                    const chatMessages = document.getElementById('chatMessages');
+                                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                                    
+                                } else if (data.type === 'error') {
+                                    throw new Error(data.error);
+                                }
+                            } catch (parseError) {
+                                // Skip invalid JSON
+                            }
+                        }
+                    }
+                }
+                
+                // Finalize with formatted markdown
+                hollieBubble.innerHTML = formatMessage(fullMessage);
+                
+                // Show action buttons
+                document.getElementById('chatActions').style.display = 'flex';
+                
+                // Store conversation for potential simplification
+                conversationForSimplify = [
+                    { role: 'user', content: question },
+                    { role: 'assistant', content: fullMessage }
+                ];
+                
+                // Scroll back to top of response
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+            } catch (error) {
+                console.error('Error:', error);
+                hollieBubble.innerHTML = `<p style="color: #dc2626;">Sorry, I couldn't get a response. Please try again.</p>`;
+                document.getElementById('chatActions').style.display = 'flex';
+            }
+        }
+
+        // ==================== ASK HOLLIE TO SIMPLIFY ====================
+        
+        // Store the conversation for simplification
+        let conversationForSimplify = [];
+        
+        async function askHollieToSimplify() {
+            const chatMessages = document.getElementById('chatMessages');
+            const simplifyBtn = document.getElementById('simplifyBtn');
+            const chatActions = document.getElementById('chatActions');
+            
+            if (conversationForSimplify.length === 0) return;
+            
+            // Hide actions while processing
+            chatActions.style.display = 'none';
+            
+            // Add user request bubble
+            const userRequest = document.createElement('div');
+            userRequest.className = 'user-message';
+            userRequest.innerHTML = `
+                <div class="user-bubble">Make it simpler please, Hollie! 😊</div>
+            `;
+            chatMessages.appendChild(userRequest);
+            
+            // Add Hollie's typing indicator
+            const hollieResponse = document.createElement('div');
+            hollieResponse.className = 'hollie-message';
+            hollieResponse.innerHTML = `
+                <div class="hollie-avatar">
+                    <img src="images/hollie.png" alt="Hollie">
+                </div>
+                <div class="hollie-bubble" id="simplifyBubble">
+                    <div class="typing-indicator">
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <span class="typing-text">Hollie is typing...</span>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(hollieResponse);
+            
+            // Scroll to show the new messages
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            const simplifyBubble = document.getElementById('simplifyBubble');
+            
+            const simplifySystemPrompt = `You are Hollie, a friendly and experienced UK paramedic who loves teaching anatomy and physiology. 
+
+IMPORTANT: The learner just asked you to simplify your previous explanation. You MUST:
+- Re-explain the SAME topic you just discussed
+- Use simpler language and shorter sentences  
+- Use more analogies and everyday comparisons (like "think of it like...")
+- Avoid medical jargon or explain terms simply
+- Start with "No worries!" or "Of course!" or similar
+- Keep it friendly and encouraging
+- Do NOT introduce new topics - simplify what you already explained
+
+Use UK spelling and terminology.`;
+
+            try {
+                const token = await getAuthToken();
+                
+                const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}${window.paramind.CONFIG.api.chat}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Can you explain that again but in a simpler, easier-to-understand way please? Use simpler language, more analogies, and less medical jargon.',
+                        conversationHistory: conversationForSimplify,
+                        systemPrompt: simplifySystemPrompt
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to get response');
+                }
+                
+                // Set up streaming display
+                simplifyBubble.innerHTML = '<span class="streaming-text" id="simplifyStreamingText"></span><span class="streaming-cursor">|</span>';
+                const streamingText = document.getElementById('simplifyStreamingText');
+                
+                // Handle streaming response
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullMessage = '';
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    
+                    if (done) break;
+                    
+                    const text = decoder.decode(value, { stream: true });
+                    const lines = text.split('\n');
+                    
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                
+                                if (data.type === 'chunk') {
+                                    fullMessage += data.content;
+                                    
+                                    // Escape HTML during streaming
+                                    const escaped = fullMessage
+                                        .replace(/&/g, '&amp;')
+                                        .replace(/</g, '&lt;')
+                                        .replace(/>/g, '&gt;')
+                                        .replace(/\n/g, '<br>');
+                                    streamingText.innerHTML = escaped;
+                                    
+                                    // Scroll to keep latest text visible
+                                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                                    
+                                } else if (data.type === 'error') {
+                                    throw new Error(data.error);
+                                }
+                            } catch (parseError) {
+                                // Skip invalid JSON
+                            }
+                        }
+                    }
+                }
+                
+                // Finalize with formatted markdown
+                simplifyBubble.innerHTML = formatMessage(fullMessage);
+                
+                // Show action buttons but hide simplify (already used)
+                simplifyBtn.style.display = 'none';
+                chatActions.style.display = 'flex';
+                
+                // Scroll to top of response
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+            } catch (error) {
+                console.error('Error:', error);
+                simplifyBubble.innerHTML = `<p style="color: #dc2626;">Sorry, I couldn't simplify that. Please try again.</p>`;
+                chatActions.style.display = 'flex';
+            }
+        }
+
+        // ==================== INITIALIZE ====================
+        document.addEventListener('DOMContentLoaded', initClinicalConnections);
+    </script>
+    
+    <script src="js/menu-v2.js"></script>
+</body>
+</html>

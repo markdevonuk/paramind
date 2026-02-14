@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Chat with Hollie | ParaMind</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Menu CSS -->
+    <link rel="stylesheet" href="css/menu-v2.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        /* ==================== CHAT PAGE STYLES ==================== */
+        .chat-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--color-gray-50);
+        }
+        
+        /* Navbar */
+        .chat-navbar {
+            background: var(--color-white);
+            border-bottom: 1px solid var(--color-gray-200);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+        
+        .chat-navbar .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        /* Message Limit Banner */
+        .message-limit-banner {
+            background: linear-gradient(135deg, rgba(43, 138, 156, 0.1) 0%, rgba(92, 184, 92, 0.1) 100%);
+            padding: 0.5rem 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        
+        .message-limit-banner .count {
+            font-weight: 700;
+            color: var(--color-teal);
+        }
+        
+        .message-limit-banner .upgrade-link {
+            color: var(--color-teal);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        .message-limit-banner .upgrade-link:hover {
+            text-decoration: underline;
+        }
+        
+        .message-limit-banner.limit-reached {
+            background: rgba(220, 53, 69, 0.1);
+        }
+        
+        .message-limit-banner.limit-reached .count {
+            color: #dc3545;
+        }
+        
+        /* Chat Container */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        
+        /* Chat Toolbar */
+        .chat-toolbar {
+            padding: 0.75rem 1rem;
+            display: none;
+            justify-content: flex-end;
+            border-bottom: 1px solid var(--color-gray-100);
+            background: var(--color-white);
+        }
+        
+        .chat-toolbar.visible {
+            display: flex;
+        }
+        
+        /* Chat Messages */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        /* Message Styles */
+        .message {
+            display: flex;
+            gap: 0.75rem;
+            max-width: 85%;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        
+        .message.assistant {
+            align-self: flex-start;
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1rem;
+            overflow: hidden;
+        }
+        
+        .message.user .message-avatar {
+            background: var(--color-teal);
+            color: white;
+        }
+        
+        .message.assistant .message-avatar {
+            border: 2px solid var(--color-teal);
+            padding: 0;
+        }
+        
+        .message.assistant .message-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .message-content {
+            background: var(--color-white);
+            padding: 0.875rem 1rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            line-height: 1.6;
+        }
+        
+        .message.user .message-content {
+            background: var(--color-teal);
+            color: white;
+        }
+        
+        .message.assistant .message-content {
+            background: var(--color-white);
+        }
+        
+        /* Streaming cursor */
+        .streaming-cursor {
+            display: inline-block;
+            animation: blink 0.7s infinite;
+            color: var(--color-teal);
+            font-weight: bold;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        /* Streaming text - consistent sizing during streaming */
+        .streaming-text {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: inherit;
+            line-height: 1.6;
+        }
+        
+        /* Message content formatting */
+        .message-content ul,
+        .message-content ol {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        .message-content li {
+            display: list-item;
+            margin-bottom: 0.25rem;
+        }
+        
+        .message-content > li {
+            display: list-item;
+            list-style-type: disc;
+            list-style-position: inside;
+            margin-left: 0;
+        }
+        
+        .message-content p {
+            margin: 0 0 0.5rem 0;
+        }
+        
+        .message-content p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .message-content h1, .message-content h2, .message-content h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 0.75rem 0 0.5rem 0;
+        }
+        
+        .message-content h1:first-child,
+        .message-content h2:first-child,
+        .message-content h3:first-child {
+            margin-top: 0;
+        }
+        
+        .message-content strong {
+            color: var(--color-teal);
+        }
+        
+        .message.user .message-content strong {
+            color: white;
+        }
+        
+        /* Typing indicator */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 4px 0;
+        }
+        
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: var(--color-gray-400);
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-4px); }
+        }
+        
+        /* Welcome Message */
+        .welcome-message {
+            text-align: center;
+            padding: 2rem 1rem;
+            max-width: 500px;
+            margin: auto;
+        }
+        
+        .welcome-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid var(--color-teal);
+            overflow: hidden;
+            margin: 0 auto 1.25rem;
+        }
+        
+        .welcome-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .welcome-message h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 0.5rem;
+        }
+        
+        .hollie-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            background: rgba(43, 138, 156, 0.1);
+            color: var(--color-teal);
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .welcome-message .intro-text {
+            color: var(--color-gray-600);
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        .welcome-disclaimer {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem;
+            font-size: 0.8rem;
+            color: var(--color-gray-700);
+        }
+        
+        .pro-badge-welcome {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1a1a2e;
+            font-size: 0.6rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+        
+        /* Chat Input Area */
+        .chat-input-area {
+            padding: 1rem;
+            background: var(--color-white);
+            border-top: 1px solid var(--color-gray-200);
+            flex-shrink: 0;
+        }
+        
+        .chat-form {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-end;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .chat-input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+        
+        .chat-input {
+            width: 100%;
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--radius-lg);
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            resize: none;
+            max-height: 120px;
+            line-height: 1.5;
+            font-family: inherit;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--color-teal);
+            box-shadow: 0 0 0 3px rgba(43, 138, 156, 0.15);
+        }
+        
+        .send-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-teal-dark) 100%);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        
+        .send-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(43, 138, 156, 0.4);
+        }
+        
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .send-btn i {
+            font-size: 1.25rem;
+        }
+        
+      
+        
+        /* Message content formatting */
+        .message-content h1, .message-content h2, .message-content h3 {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .message-content h1:first-child, 
+        .message-content h2:first-child, 
+        .message-content h3:first-child {
+            margin-top: 0;
+        }
+        
+        .message-content ul, .message-content ol {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        .message-content p {
+            margin: 0.5rem 0;
+        }
+        
+        .message-content p:first-child {
+            margin-top: 0;
+        }
+        
+        .message-content p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .message-content code {
+            background: var(--color-gray-100);
+            padding: 0.125rem 0.375rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.875em;
+        }
+        
+        .message-content pre {
+            background: var(--color-gray-100);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            overflow-x: auto;
+            margin: 0.5rem 0;
+        }
+        
+        .message-content pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        
+        .quick-action-btn {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-full);
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            color: var(--color-gray-700);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .quick-action-btn:hover {
+            border-color: var(--color-teal);
+            color: var(--color-teal);
+            background: rgba(43, 138, 156, 0.05);
+        }
+        
+        /* Simplify Button - appears after assistant messages */
+        .simplify-container {
+            display: flex;
+            justify-content: flex-start;
+            padding-left: 52px; /* Align with message content (avatar width + gap) */
+            margin-top: -0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .simplify-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-full);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .simplify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+        }
+        
+        .simplify-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .simplify-btn i {
+            font-size: 1rem;
+        }
+
+        /* Make ParaMind header BIGGER */
+        .chat-navbar {
+            padding: 1.25rem 0;
+        }
+
+        .chat-navbar .navbar-brand {
+            font-size: 1.8rem;
+            line-height: 1;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .chat-navbar .brand-para,
+        .chat-navbar .brand-mind {
+            font-size: inherit;
+            line-height: inherit;
+        }
+        
+       /* ==================== MOBILE LAYOUT FIX ==================== */
+/* Simple fix - no env() which causes issues on some browsers */
+
+.chat-page {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+}
+
+html {
+    height: -webkit-fill-available;
+}
+
+/* Ensure input area has padding for iPhone home bar */
+.chat-input-area {
+    padding-bottom: 1.5rem;
+}
+
+
+
+/* On mobile, give extra bottom padding */
+@media (max-width: 767px) {
+    .chat-input-area {
+        padding-bottom: 2rem;
+    }
+    
+
+}
+    </style>
+</head>
+
+<body class="chat-page">
+    <!-- ==================== NAVIGATION ==================== -->
+    <nav class="chat-navbar">
+        <div class="container">
+            <span class="brand-text">
+                <a class="navbar-brand" href="landing.html">
+                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
+                </a>
+            </span>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Message Limit Banner (Free Users) -->
+    <div class="message-limit-banner" id="messageLimitBanner">
+        <span>Daily messages: <span class="count"><span id="messagesUsed">0</span>/20</span></span>
+        <a href="#" class="upgrade-link" onclick="handleUpgrade(); return false;">
+            <i class="bi bi-star-fill me-1"></i>Upgrade for unlimited
+        </a>
+    </div>
+
+    <!-- ==================== CHAT CONTAINER ==================== -->
+    <div class="chat-container">
+        
+        <!-- Chat Toolbar -->
+        <div class="chat-toolbar" id="chatToolbar">
+            <button class="btn btn-outline-secondary btn-sm" id="clearChatBtn">
+                <i class="bi bi-plus-lg me-1"></i>New Chat
+            </button>
+        </div>
+        
+        <!-- Chat Messages -->
+        <div class="chat-messages" id="chatMessages">
+            
+            <!-- Welcome Message -->
+            <div class="welcome-message" id="welcomeMessage">
+                <div class="welcome-avatar">
+                    <img src="images/hollie.png" alt="Hollie">
+                </div>
+                <h2>
+                    Hey, I'm Hollie! 👋
+                    <span id="proBadgeWelcome" class="pro-badge-welcome" style="display: none;">PRO</span>
+                </h2>
+                <div class="hollie-badge">
+                    <i class="bi bi-patch-check-fill"></i> Paramedic Tutor
+                </div>
+                <p class="intro-text">
+                    I'm your friendly AI paramedic tutor, here to help with your clinical learning. 
+                    Ask me anything about anatomy, physiology, pathophysiology, or paramedicine - I'll explain it like we're having a chat over a cuppa! ☕
+                </p>
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button class="quick-action-btn" onclick="sendQuickMessage('Explain the pathophysiology of MI')">
+                        <i class="bi bi-heart-pulse me-1"></i>MI Pathophysiology
+                    </button>
+                    <button class="quick-action-btn" onclick="sendQuickMessage('What are the signs of sepsis?')">
+                        <i class="bi bi-thermometer-half me-1"></i>Sepsis Signs
+                    </button>
+                    <button class="quick-action-btn" onclick="sendQuickMessage('Explain ABCDE assessment')">
+                        <i class="bi bi-list-check me-1"></i>ABCDE Assessment
+                    </button>
+                </div>
+                <p><br></p>
+                <div class="welcome-disclaimer">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    Educational tool only. Not to be used to treat real patients. Always verify information and follow your trust's guidelines.
+</div>
+            </div>
+            
+        </div>
+        
+        <!-- Chat Input Area -->
+        <div class="chat-input-area">
+            <form class="chat-form" id="chatForm">
+                <div class="chat-input-wrapper">
+                    <textarea 
+                        class="chat-input" 
+                        id="messageInput" 
+                        placeholder="Ask Hollie anything...."
+                        rows="1"
+                    ></textarea>
+                </div>
+                <button type="submit" class="send-btn" id="sendBtn">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </form>
+            
+        </div>
+        
+    </div>
+
+    <!-- ==================== SCRIPTS ==================== -->
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Marked.js for Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Menu JS -->
+    <script src="js/menu-v2.js"></script>
+    
+    <!-- App JS (shared config) -->
+    <script src="js/app.js"></script>
+    
+    <!-- Page Script -->
+    <script>
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
+            authDomain: "paramind-64b8e.firebaseapp.com",
+            projectId: "paramind-64b8e",
+            storageBucket: "paramind-64b8e.firebasestorage.app",
+            messagingSenderId: "452173393964",
+            appId: "1:452173393964:web:8599c0fe1983a6f441e189",
+            measurementId: "G-GW385S6L0L"
+        };
+
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ==================== API CONFIG ====================
+        const API_CONFIG = {
+            get baseUrl() {
+                return window.paramind?.CONFIG?.api?.baseUrl || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
+            },
+            get chatEndpoint() {
+                return window.paramind?.CONFIG?.api?.chat || '/chat';
+            }
+        };
+
+        // ==================== HOLLIE'S PERSONALITY ====================
+        const HOLLIE_SYSTEM_PROMPT = `You are Hollie, a friendly and experienced UK paramedic who loves teaching clinical knowledge to fellow paramedics and students. You explain things in a warm, conversational way - like you're chatting to a colleague over a cuppa.
+
+Your personality:
+- Friendly and approachable - use "you" and speak directly to the learner
+- Enthusiastic about your topics - you find paramedicine genuinely fascinating
+- Practical - always link theory to what we see on the road
+- Encouraging - make learners feel confident
+- Use phrases like "So basically...", "The cool thing is...", "You'll often see...", "Think of it like...", "In my experience..."
+
+Your style:
+- Start responses with a friendly opener when appropriate (e.g., "Great question!", "Ah, this is a really important one!", "Ooh I love this topic!")
+- Keep it conversational - write like you're talking, not lecturing
+- Use UK spelling and terminology (e.g., "colour", "organisation", "A&E", "999")
+- Link clinical concepts to real-world scenarios paramedics encounter
+- End with an encouraging note or practical tip when relevant
+
+Important rules:
+- This is for EDUCATION only - never give specific treatment advice for live patients
+- If treatment questions come up, remind them to check JRCalc and local guidelines
+- Never diagnose - you can discuss differentials for learning but always emphasise clinical assessment
+- Keep responses helpful but not overly long - be concise where possible
+- Use markdown formatting for lists and emphasis when it helps clarity
+
+Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable! 🚑`;
+
+        // ==================== STATE ====================
+        const chatState = {
+            isPro: false,
+            messagesRemaining: 20,
+            conversationHistory: [],
+            isLoading: false,
+            userData: null
+        };
+        
+        // Track the last response for simplification
+        let lastAssistantResponse = '';
+        let lastSimplifyBtnId = null;
+
+        // ==================== DOM ELEMENTS ====================
+        const elements = {
+            chatMessages: document.getElementById('chatMessages'),
+            chatForm: document.getElementById('chatForm'),
+            messageInput: document.getElementById('messageInput'),
+            sendBtn: document.getElementById('sendBtn'),
+            welcomeMessage: document.getElementById('welcomeMessage'),
+            chatToolbar: document.getElementById('chatToolbar'),
+            clearChatBtn: document.getElementById('clearChatBtn'),
+            messageLimitBanner: document.getElementById('messageLimitBanner'),
+            messagesUsed: document.getElementById('messagesUsed'),
+            proBadgeWelcome: document.getElementById('proBadgeWelcome')
+        };
+
+        // ==================== AUTH STATE ====================
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    const doc = await db.collection('users').doc(user.uid).get();
+                    if (doc.exists) {
+                        chatState.userData = doc.data();
+                        chatState.isPro = chatState.userData.subscriptionStatus === 'active' || chatState.userData.isPro === true;
+                        updateUIForUser();
+                    }
+                } catch (error) {
+                    console.error('Error fetching user data:', error);
+                }
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // ==================== UPDATE UI ====================
+        function updateUIForUser() {
+            if (chatState.isPro) {
+                elements.messageLimitBanner.style.display = 'none';
+                elements.proBadgeWelcome.style.display = 'inline';
+            } else {
+                elements.messageLimitBanner.style.display = 'flex';
+                elements.proBadgeWelcome.style.display = 'none';
+                updateMessageCounter();
+            }
+        }
+
+        function updateMessageCounter() {
+            const used = Math.max(0, 20 - chatState.messagesRemaining);
+            elements.messagesUsed.textContent = used;
+            
+            if (chatState.messagesRemaining <= 0) {
+                elements.messageLimitBanner.classList.add('limit-reached');
+            } else {
+                elements.messageLimitBanner.classList.remove('limit-reached');
+            }
+        }
+
+        // ==================== MESSAGE FORMATTING ====================
+        function formatMessage(content) {
+            // Convert bullet characters (•) to markdown list syntax
+            let processed = content.replace(/^[ \t]*•[ \t]*/gm, '- ');
+            
+            if (typeof marked !== 'undefined') {
+                return marked.parse(processed);
+            }
+            return processed
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>');
+        }
+
+        // ==================== CHAT FUNCTIONS ====================
+        async function handleSendMessage(e) {
+            e.preventDefault();
+            
+            const message = elements.messageInput.value.trim();
+            if (!message || chatState.isLoading) return;
+            
+            // Check message limit for free users
+            if (!chatState.isPro && chatState.messagesRemaining <= 0) {
+                showLimitReached();
+                return;
+            }
+            
+            // Clear input
+            elements.messageInput.value = '';
+            elements.messageInput.style.height = 'auto';
+            
+            // Hide welcome message
+            if (elements.welcomeMessage) {
+                elements.welcomeMessage.style.display = 'none';
+            }
+            
+            // Show toolbar
+            elements.chatToolbar.classList.add('visible');
+            
+            // Remove any existing simplify button
+            if (lastSimplifyBtnId) {
+                const oldBtn = document.getElementById(lastSimplifyBtnId);
+                if (oldBtn) oldBtn.remove();
+                lastSimplifyBtnId = null;
+            }
+            
+            // Add user message
+            addMessage('user', message);
+            chatState.conversationHistory.push({ role: 'user', content: message });
+            
+            // Create streaming message bubble
+            const aiMessageId = 'ai-msg-' + Date.now();
+            addStreamingMessage(aiMessageId);
+            
+            chatState.isLoading = true;
+            elements.sendBtn.disabled = true;
+            
+            try {
+                const response = await sendMessageToAPI(message, (partialMessage) => {
+                    updateStreamingMessage(aiMessageId, partialMessage);
+                });
+                
+                finalizeStreamingMessage(aiMessageId, response);
+                chatState.conversationHistory.push({ role: 'assistant', content: response });
+            } catch (error) {
+                removeStreamingMessage(aiMessageId);
+                handleChatError(error);
+            } finally {
+                chatState.isLoading = false;
+                elements.sendBtn.disabled = false;
+            }
+        }
+
+        async function sendMessageToAPI(message, onChunk) {
+            const user = auth.currentUser;
+            if (!user) throw new Error('Not authenticated');
+            
+            const token = await user.getIdToken();
+            
+            const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.chatEndpoint}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: message,
+                    conversationHistory: chatState.conversationHistory.slice(-10).filter(m => m.role !== 'system'),
+                    systemPrompt: HOLLIE_SYSTEM_PROMPT,
+                    scenarioId: null,
+                    scenarioPrompt: null
+                })
+            });
+            
+            if (!response.ok) {
+                if (response.status === 429) {
+                    throw new Error('LIMIT_REACHED');
+                }
+                throw new Error('Failed to send message');
+            }
+            
+            // Handle streaming response
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let fullMessage = '';
+            
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                
+                const text = decoder.decode(value, { stream: true });
+                const lines = text.split('\n');
+                
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        try {
+                            const data = JSON.parse(line.slice(6));
+                            
+                            if (data.type === 'meta') {
+                                if (data.remaining !== undefined && data.remaining >= 0) {
+                                    chatState.messagesRemaining = data.remaining;
+                                    updateMessageCounter();
+                                }
+                            } else if (data.type === 'chunk') {
+                                fullMessage += data.content;
+                                if (onChunk) onChunk(fullMessage);
+                            } else if (data.type === 'error') {
+                                throw new Error(data.error);
+                            }
+                        } catch (parseError) {
+                            // Skip invalid JSON lines
+                        }
+                    }
+                }
+            }
+            
+            return fullMessage;
+        }
+
+        function addMessage(role, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            let avatarContent;
+            if (role === 'user') {
+                avatarContent = '<i class="bi bi-person"></i>';
+            } else {
+                avatarContent = '<img src="images/hollie.png" alt="Hollie">';
+            }
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    ${avatarContent}
+                </div>
+                <div class="message-content">
+                    ${formatMessage(content)}
+                </div>
+            `;
+            
+            elements.chatMessages.appendChild(messageDiv);
+            
+            if (role === 'user') {
+                scrollToBottom();
+            } else {
+                messageDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function addStreamingMessage(messageId) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message assistant';
+            messageDiv.id = messageId;
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    <img src="images/hollie.png" alt="Hollie">
+                </div>
+                <div class="message-content">
+                    <span class="streaming-text"></span><span class="streaming-cursor">|</span>
+                </div>
+            `;
+            
+            elements.chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        // Track if user has scrolled up
+        let userHasScrolledUp = false;
+        let lastScrollTop = 0;
+        
+        elements.chatMessages.addEventListener('scroll', function() {
+            const isNearBottom = this.scrollHeight - this.scrollTop - this.clientHeight < 100;
+            userHasScrolledUp = !isNearBottom;
+            lastScrollTop = this.scrollTop;
+        });
+
+        function updateStreamingMessage(messageId, content) {
+            const messageDiv = document.getElementById(messageId);
+            if (messageDiv) {
+                const textSpan = messageDiv.querySelector('.streaming-text');
+                if (textSpan) {
+                    const escaped = content
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/\n/g, '<br>');
+                    textSpan.innerHTML = escaped;
+                }
+                
+                if (!userHasScrolledUp) {
+                    elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+                }
+            }
+        }
+
+        function finalizeStreamingMessage(messageId, content) {
+            const messageDiv = document.getElementById(messageId);
+            if (messageDiv) {
+                const contentDiv = messageDiv.querySelector('.message-content');
+                if (contentDiv) {
+                    contentDiv.innerHTML = formatMessage(content);
+                }
+                
+                // Always add simplify button after Hollie's response
+                addSimplifyButton(messageId, content);
+            }
+            userHasScrolledUp = false;
+        }
+        
+        function addSimplifyButton(messageId, content) {
+            // Store the response for potential simplification
+            lastAssistantResponse = content;
+            
+            // Remove any existing simplify button
+            if (lastSimplifyBtnId) {
+                const oldBtn = document.getElementById(lastSimplifyBtnId);
+                if (oldBtn) oldBtn.remove();
+            }
+            
+            // Create simplify button container
+            const simplifyContainer = document.createElement('div');
+            simplifyContainer.className = 'simplify-container';
+            simplifyContainer.id = 'simplify-' + messageId;
+            lastSimplifyBtnId = simplifyContainer.id;
+            
+            simplifyContainer.innerHTML = `
+                <button class="simplify-btn" onclick="askHollieToSimplify()">
+                    <i class="bi bi-emoji-smile"></i>
+                    Make it simpler, Hollie!
+                </button>
+            `;
+            
+            // Insert after the message
+            const messageElement = document.getElementById(messageId);
+            if (messageElement) {
+                messageElement.after(simplifyContainer);
+            }
+        }
+        
+        async function askHollieToSimplify() {
+            if (!lastAssistantResponse || chatState.isLoading) return;
+            
+            // Check message limit for free users
+            if (!chatState.isPro && chatState.messagesRemaining <= 0) {
+                showLimitReached();
+                return;
+            }
+            
+            // Remove the simplify button
+            if (lastSimplifyBtnId) {
+                const btn = document.getElementById(lastSimplifyBtnId);
+                if (btn) btn.remove();
+                lastSimplifyBtnId = null;
+            }
+            
+            // Add user request message
+            addMessage('user', 'Make it simpler please, Hollie! 😊');
+            
+            // Create streaming message bubble
+            const aiMessageId = 'ai-msg-' + Date.now();
+            addStreamingMessage(aiMessageId);
+            
+            chatState.isLoading = true;
+            elements.sendBtn.disabled = true;
+
+            try {
+                const user = auth.currentUser;
+                if (!user) throw new Error('Not authenticated');
+                
+                const token = await user.getIdToken();
+                
+                const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.chatEndpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Can you explain that again but in a simpler, easier-to-understand way please? Use simpler language, more analogies, and less medical jargon.',
+                        conversationHistory: chatState.conversationHistory.slice(-6),
+                        systemPrompt: HOLLIE_SYSTEM_PROMPT + `
+
+IMPORTANT: The learner just asked you to simplify your previous explanation. You MUST:
+- Re-explain the SAME topic you just discussed
+- Use simpler language and shorter sentences  
+- Use more analogies and everyday comparisons
+- Avoid medical jargon or explain terms simply
+- Start with "No worries!" or "Of course!" 
+- Do NOT introduce new topics - simplify what you already explained`,
+                        scenarioId: null,
+                        scenarioPrompt: null
+                    })
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 429) {
+                        throw new Error('LIMIT_REACHED');
+                    }
+                    throw new Error('Failed to send message');
+                }
+                
+                // Handle streaming response
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullMessage = '';
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const text = decoder.decode(value, { stream: true });
+                    const lines = text.split('\n');
+                    
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                
+                                if (data.type === 'meta') {
+                                    if (data.remaining !== undefined && data.remaining >= 0) {
+                                        chatState.messagesRemaining = data.remaining;
+                                        updateMessageCounter();
+                                    }
+                                } else if (data.type === 'chunk') {
+                                    fullMessage += data.content;
+                                    updateStreamingMessage(aiMessageId, fullMessage);
+                                } else if (data.type === 'error') {
+                                    throw new Error(data.error);
+                                }
+                            } catch (parseError) {
+                                // Skip invalid JSON lines
+                            }
+                        }
+                    }
+                }
+                
+                // Finalize and add simplify button to the new response too
+                const messageDiv = document.getElementById(aiMessageId);
+                if (messageDiv) {
+                    const contentDiv = messageDiv.querySelector('.message-content');
+                    if (contentDiv) {
+                        contentDiv.innerHTML = formatMessage(fullMessage);
+                    }
+                }
+                
+                // Add simplify button to this response too (so user can simplify again)
+                addSimplifyButton(aiMessageId, fullMessage);
+                
+                // Update conversation history
+                chatState.conversationHistory.push({ role: 'user', content: 'Make it simpler please!' });
+                chatState.conversationHistory.push({ role: 'assistant', content: fullMessage });
+                
+                // Store this as the new last response
+                lastAssistantResponse = fullMessage;
+                
+            } catch (error) {
+                removeStreamingMessage(aiMessageId);
+                handleChatError(error);
+            } finally {
+                chatState.isLoading = false;
+                elements.sendBtn.disabled = false;
+            }
+        }
+
+        function removeStreamingMessage(messageId) {
+            const messageDiv = document.getElementById(messageId);
+            if (messageDiv) messageDiv.remove();
+        }
+
+        function handleChatError(error) {
+            if (error.message === 'LIMIT_REACHED') {
+                showLimitReached();
+            } else {
+                addMessage('assistant', "Sorry, I'm having a bit of trouble right now. Give it another go in a moment! 🚑");
+                console.error('Chat error:', error);
+            }
+        }
+
+        function showLimitReached() {
+            const limitDiv = document.createElement('div');
+            limitDiv.className = 'message assistant';
+            
+            limitDiv.innerHTML = `
+                <div class="message-avatar">
+                    <img src="images/hollie.png" alt="Hollie">
+                </div>
+                <div class="message-content">
+                    <strong>Ah, you've hit your daily limit!</strong><br><br>
+                    You've used all 20 free messages for today - your limit resets at midnight. If you'd like unlimited chats with me, you can upgrade to Pro! 💚<br><br>
+                    <button class="btn btn-primary btn-sm" onclick="handleUpgrade()">
+                        <i class="bi bi-star me-1"></i>Upgrade to Pro - £4.99/month
+                    </button>
+                </div>
+            `;
+            
+            elements.chatMessages.appendChild(limitDiv);
+            scrollToBottom();
+        }
+
+        function clearChat() {
+            chatState.conversationHistory = [];
+            
+            // Clear simplify button state
+            lastAssistantResponse = '';
+            lastSimplifyBtnId = null;
+            
+            const messages = elements.chatMessages.querySelectorAll('.message, .simplify-container');
+            messages.forEach(msg => msg.remove());
+            
+            if (elements.welcomeMessage) {
+                elements.welcomeMessage.style.display = 'block';
+            }
+            
+            elements.chatToolbar.classList.remove('visible');
+        }
+
+        function scrollToBottom() {
+            elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+        }
+
+        // Make simplify function global for onclick
+        window.askHollieToSimplify = askHollieToSimplify;
+
+        // ==================== QUICK MESSAGES ====================
+        function sendQuickMessage(message) {
+            elements.messageInput.value = message;
+            elements.chatForm.dispatchEvent(new Event('submit'));
+        }
+
+        // ==================== UPGRADE HANDLER ====================
+        async function createCheckoutSession() {
+            try {
+                const user = auth.currentUser;
+                if (!user) {
+                    alert('Please sign in to upgrade');
+                    return;
+                }
+                
+                const token = await user.getIdToken();
+                const checkoutUrl = window.paramind?.CONFIG?.api?.createCheckout || '/createCheckoutSession';
+                
+                const response = await fetch(`${API_CONFIG.baseUrl}${checkoutUrl}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to create checkout session');
+                }
+                
+                window.location.href = data.url;
+            } catch (error) {
+                console.error('Checkout error:', error);
+                alert('Failed to start checkout. Please try again.');
+            }
+        }
+        
+        function handleUpgrade() {
+            createCheckoutSession();
+        }
+
+        // ==================== EVENT LISTENERS ====================
+        elements.chatForm.addEventListener('submit', handleSendMessage);
+
+        elements.messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        elements.messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                elements.chatForm.dispatchEvent(new Event('submit'));
+            }
+        });
+
+        elements.clearChatBtn.addEventListener('click', clearChat);
+    </script>
+</body>
+</html>

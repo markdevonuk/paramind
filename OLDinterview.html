@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Prep | ParaMind</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Menu CSS -->
+    <link rel="stylesheet" href="css/menu-v2.css">
+    
+    <style>
+        /* ==================== CSS VARIABLES ==================== */
+        :root {
+            --color-teal: #2B8A9C;
+            --color-teal-dark: #237282;
+            --color-teal-light: #3DA4B8;
+            --color-green: #5CB85C;
+            --color-green-dark: #4A9A4A;
+            --color-gray-50: #F8F9FA;
+            --color-gray-100: #F1F3F5;
+            --color-gray-200: #E9ECEF;
+            --color-gray-300: #DEE2E6;
+            --color-gray-400: #CED4DA;
+            --color-gray-500: #ADB5BD;
+            --color-gray-600: #6C757D;
+            --color-gray-700: #495057;
+            --color-gray-800: #343A40;
+            --color-gray-900: #212529;
+            --color-white: #FFFFFF;
+            --color-danger: #DC3545;
+            --color-warning: #E67E22;
+            --font-primary: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --header-height: 56px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: var(--font-primary);
+            background: var(--color-gray-50);
+            color: var(--color-gray-800);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* ==================== NAVBAR ==================== */
+        .page-navbar {
+            background: var(--color-white);
+            border-bottom: 1px solid var(--color-gray-200);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            height: var(--header-height);
+        }
+
+        .brand-text {
+            font-weight: 700;
+            font-size: 1.4rem;
+            text-decoration: none;
+        }
+        .brand-text a { text-decoration: none; }
+        .brand-para { color: var(--color-teal); }
+        .brand-mind { color: var(--color-green); }
+
+        /* ==================== HEADER SECTION ==================== */
+        .header-section {
+            text-align: center;
+            padding: 24px 16px 8px;
+            max-width: 660px;
+            margin: 0 auto;
+        }
+        .header-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid var(--color-teal);
+            overflow: hidden;
+            margin: 0 auto 10px;
+            box-shadow: 0 4px 16px rgba(43,138,156,0.2);
+        }
+        .header-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: rgba(43, 138, 156, 0.1);
+            color: var(--color-teal);
+            padding: 0.25rem 0.7rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .header-section h1 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--color-gray-800);
+            margin: 0 0 4px;
+        }
+        .header-tagline {
+            font-size: 0.88rem;
+            color: var(--color-gray-600);
+            margin: 0 0 12px;
+            line-height: 1.45;
+        }
+        /* Feature pills */
+        .header-pills {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px;
+        }
+        .header-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            background: var(--color-white);
+            color: var(--color-gray-700);
+            border: 1px solid var(--color-gray-200);
+            box-shadow: var(--shadow-sm);
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+        .status-badge.free {
+            background: rgba(92,184,92,0.12);
+            color: var(--color-green-dark);
+            border: 1px solid rgba(92,184,92,0.3);
+        }
+        .status-badge.pro {
+            background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,165,0,0.1));
+            color: #b8860b;
+            border: 1px solid rgba(255,193,7,0.3);
+        }
+
+        /* ==================== INTERVIEW TYPE CARDS ==================== */
+        .cards-section {
+            padding: 8px 16px 0;
+            max-width: 660px;
+            margin: 0 auto;
+        }
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--color-gray-500);
+            margin-bottom: 10px;
+            padding-left: 2px;
+        }
+        .interview-card {
+            background: var(--color-white);
+            border-radius: 16px;
+            padding: 16px 18px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--color-gray-200);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .interview-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        }
+        .interview-card:active {
+            transform: translateY(0) scale(0.99);
+        }
+        /* Accent left border per type */
+        .interview-card.card-nhs { border-left: 4px solid var(--color-teal); }
+        .interview-card.card-uni { border-left: 4px solid var(--color-green); }
+        .interview-card.card-promo { border-left: 4px solid var(--color-warning); }
+        /* Card inner elements */
+        .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .card-top-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .interview-card .card-icon {
+            font-size: 1.6rem;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            flex-shrink: 0;
+        }
+        .card-nhs .card-icon { background: rgba(43,138,156,0.1); }
+        .card-uni .card-icon { background: rgba(92,184,92,0.1); }
+        .card-promo .card-icon { background: rgba(230,126,34,0.1); }
+        .interview-card h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--color-gray-900);
+            margin: 0;
+        }
+        .interview-card .card-subtitle {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--color-gray-500);
+            margin: 1px 0 0;
+        }
+        .card-arrow {
+            color: var(--color-gray-400);
+            font-size: 1.1rem;
+            transition: transform 0.2s;
+        }
+        .interview-card:hover .card-arrow {
+            transform: translateX(3px);
+            color: var(--color-teal);
+        }
+        .interview-card .card-desc {
+            font-size: 0.82rem;
+            color: var(--color-gray-600);
+            line-height: 1.45;
+            margin: 0 0 8px;
+        }
+        .interview-card .tag {
+            display: inline-block;
+            background: var(--color-gray-100);
+            color: var(--color-gray-600);
+            border-radius: 6px;
+            padding: 3px 9px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            margin-right: 4px;
+        }
+
+        /* ==================== WHY USE THIS SECTION ==================== */
+        .why-section {
+            max-width: 660px;
+            margin: 0 auto;
+            padding: 20px 16px 32px;
+        }
+        .why-card {
+            background: var(--color-white);
+            border-radius: 14px;
+            border: 1px solid var(--color-gray-200);
+            padding: 18px 18px 14px;
+            box-shadow: var(--shadow-sm);
+        }
+        .why-card h3 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin: 0 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .why-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+        .why-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .why-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.85rem;
+            background: rgba(43,138,156,0.08);
+        }
+        .why-item p {
+            margin: 0;
+            font-size: 0.82rem;
+            color: var(--color-gray-600);
+            line-height: 1.45;
+        }
+        .why-item strong {
+            color: var(--color-gray-800);
+        }
+
+        /* ==================== CATEGORY SCREEN ==================== */
+        .cat-header {
+            padding: 24px 16px 8px;
+            max-width: 660px;
+            margin: 0 auto;
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--color-teal);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 4px 0;
+            font-family: var(--font-primary);
+        }
+        .cat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 12px 16px 24px;
+            max-width: 660px;
+            margin: 0 auto;
+        }
+        .cat-card {
+            background: var(--color-white);
+            border-radius: 14px;
+            padding: 18px 14px;
+            text-align: center;
+            border: 1px solid var(--color-gray-200);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+        .cat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--color-teal);
+        }
+        .cat-card .cat-icon { font-size: 1.6rem; margin-bottom: 6px; }
+        .cat-card .cat-label { font-size: 0.82rem; font-weight: 600; color: var(--color-gray-800); line-height: 1.3; }
+
+        .cat-card.random-mix {
+            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark));
+            color: #fff;
+            grid-column: 1 / -1;
+            border: none;
+        }
+        .cat-card.random-mix .cat-label { color: #fff; }
+
+        /* Hot Seat Toggle */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 16px;
+            max-width: 660px;
+            margin: 0 auto;
+        }
+        .toggle-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--color-gray-700);
+        }
+        .toggle-switch {
+            width: 44px;
+            height: 24px;
+            border-radius: 12px;
+            background: var(--color-gray-400);
+            position: relative;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+            transition: background 0.2s ease;
+        }
+        .toggle-switch.active { background: var(--color-teal); }
+        .toggle-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #fff;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: left 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .toggle-switch.active .toggle-dot { left: 23px; }
+
+        /* ==================== CHAT SCREEN ==================== */
+        /* Chat Container — not used, width set on .view-chat */
+
+        /* Chat Header */
+        .chat-header {
+            background: var(--color-white);
+            border-bottom: 1px solid var(--color-gray-200);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .chat-header-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid var(--color-teal);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .chat-header-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        .chat-header-title { font-size: 0.95rem; font-weight: 700; color: var(--color-gray-900); }
+        .chat-header-sub { font-size: 0.75rem; color: var(--color-gray-600); }
+        .q-badge {
+            background: var(--color-gray-100);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--color-gray-700);
+        }
+
+        /* Timer Bar */
+        .timer-bar {
+            background: var(--color-white);
+            border-bottom: 1px solid var(--color-gray-200);
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .timer-text {
+            font-weight: 700;
+            font-size: 0.9rem;
+            font-variant-numeric: tabular-nums;
+            color: var(--color-teal);
+        }
+        .timer-text.warning { color: var(--color-warning); }
+        .timer-text.danger { color: var(--color-danger); }
+        .timer-track {
+            flex: 1;
+            height: 6px;
+            background: var(--color-gray-200);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .timer-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--color-teal), var(--color-green));
+            transition: width 1s linear;
+        }
+        .timer-fill.warning {
+            background: linear-gradient(90deg, var(--color-danger), var(--color-warning));
+        }
+        .times-up {
+            font-size: 0.75rem;
+            color: var(--color-danger);
+            font-weight: 600;
+        }
+
+        /* Chat Messages Area */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        /* Messages */
+        .message {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            max-width: 85%;
+            animation: fadeInUp 0.3s ease;
+        }
+        .message.user {
+            flex-direction: row-reverse;
+            margin-left: auto;
+        }
+        .message-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .message-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        .message.user .message-avatar {
+            background: var(--color-gray-200);
+            color: var(--color-gray-600);
+            font-size: 0.85rem;
+        }
+        .message.assistant .message-avatar {
+            border: 2px solid var(--color-teal);
+            background: var(--color-white);
+        }
+        .message-content {
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            line-height: 1.55;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .message.user .message-content {
+            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark));
+            color: #fff;
+            border-bottom-right-radius: var(--radius-sm);
+        }
+        .message.assistant .message-content {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            color: var(--color-gray-800);
+            border-bottom-left-radius: var(--radius-sm);
+        }
+
+        /* Markdown in assistant messages */
+        .message.assistant .message-content h3,
+        .message.assistant .message-content h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin: 0.8em 0 0.3em;
+            color: var(--color-gray-900);
+        }
+        .message.assistant .message-content h3:first-child,
+        .message.assistant .message-content h4:first-child { margin-top: 0; }
+        .message.assistant .message-content p { margin: 0 0 0.5em; }
+        .message.assistant .message-content p:last-child { margin-bottom: 0; }
+        .message.assistant .message-content ul,
+        .message.assistant .message-content ol {
+            margin: 0.4em 0;
+            padding-left: 1.5rem;
+        }
+        .message.assistant .message-content li { margin-bottom: 0.2em; }
+        .message.assistant .message-content strong { color: var(--color-gray-900); }
+
+        /* Typing indicator */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 4px 0;
+        }
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: var(--color-gray-400);
+            border-radius: 50%;
+            animation: bounce 1.2s ease-in-out infinite;
+        }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.15s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.3s; }
+
+        /* Chat Input Area */
+        .chat-input-area {
+            padding: 12px 16px;
+            background: var(--color-white);
+            border-top: 1px solid var(--color-gray-200);
+            flex-shrink: 0;
+        }
+        .chat-form {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        .chat-input {
+            flex: 1;
+            border: 1px solid var(--color-gray-300);
+            border-radius: 14px;
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            font-family: var(--font-primary);
+            resize: none;
+            max-height: 120px;
+            line-height: 1.5;
+            outline: none;
+        }
+        .chat-input:focus {
+            border-color: var(--color-teal);
+            box-shadow: 0 0 0 3px rgba(43,138,156,0.15);
+        }
+        .send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark));
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: opacity 0.2s;
+        }
+        .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .input-disclaimer {
+            text-align: center;
+            margin-top: 6px;
+            color: var(--color-gray-500);
+            font-size: 0.7rem;
+        }
+
+        /* End session button */
+        .end-btn {
+            background: none;
+            border: 1px solid var(--color-gray-300);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--color-gray-600);
+            cursor: pointer;
+            font-family: var(--font-primary);
+            transition: all 0.2s;
+        }
+        .end-btn:hover {
+            background: var(--color-gray-100);
+            border-color: var(--color-gray-400);
+        }
+
+        /* ==================== VIEW MANAGEMENT ==================== */
+        .view { display: none; }
+        .view.active { display: block; }
+        .view-chat.active {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - var(--header-height));
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* ==================== HOLLIE AVATAR ==================== */
+        .hollie-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 3px solid var(--color-teal);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .hollie-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        .hollie-avatar.small {
+            width: 30px;
+            height: 30px;
+            border-width: 2px;
+        }
+        .hollie-avatar.medium {
+            width: 36px;
+            height: 36px;
+            border-width: 2px;
+        }
+
+        /* ==================== ANIMATIONS ==================== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-6px); }
+        }
+
+        /* ==================== MESSAGE COUNTER BANNER ==================== */
+        .message-limit-banner {
+            background: linear-gradient(135deg, rgba(43,138,156,0.1), rgba(92,184,92,0.1));
+            border: 1px solid rgba(43,138,156,0.2);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin: 12px 16px 0;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--color-gray-700);
+        }
+        .message-limit-banner strong { color: var(--color-teal); }
+        .message-limit-banner.warning { 
+            border-color: rgba(220,53,69,0.3);
+            background: rgba(220,53,69,0.06);
+        }
+        .message-limit-banner.warning strong { color: var(--color-danger); }
+
+    </style>
+</head>
+
+<body>
+    <!-- ==================== NAVBAR ==================== -->
+    <nav class="page-navbar">
+        <span class="brand-text">
+            <a href="landing.html">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </a>
+        </span>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <!-- ==================== HOME VIEW ==================== -->
+    <div id="homeView" class="view active">
+        
+        <!-- Clean Header with Hollie -->
+        <div class="header-section">
+            <div class="header-avatar">
+                <img src="images/hollie.png" alt="Hollie - Interview Coach">
+            </div>
+            <div class="header-badge">
+                <i class="bi bi-patch-check-fill"></i> Interview Coach
+            </div>
+            <h1>Mock Interview Prep</h1>
+            <p class="header-tagline">Practice with Hollie and get real-time feedback on every answer</p>
+            <div class="header-pills">
+                <span class="header-pill">🎯 STAR Method</span>
+                <span class="header-pill">💬 AI Feedback</span>
+                <span class="header-pill">📝 Model Answers</span>
+                <span class="status-badge free" id="heroBadgeFree">✨ Free</span>
+                <span class="status-badge pro" id="heroBadgePro" style="display: none;">⭐ Pro</span>
+            </div>
+        </div>
+
+        <!-- Interview type cards -->
+        <div id="interviewCards" class="cards-section">
+            <div class="section-title">Choose Your Interview</div>
+            
+            <!-- NHS Trust -->
+            <div class="interview-card card-nhs" onclick="selectType('nhs_trust')">
+                <div class="card-top">
+                    <div class="card-top-left">
+                        <div class="card-icon">🏥</div>
+                        <div>
+                            <h3>NHS Trust Interview</h3>
+                            <div class="card-subtitle">Band 5 / 6 Paramedic Posts</div>
+                        </div>
+                    </div>
+                    <i class="bi bi-chevron-right card-arrow"></i>
+                </div>
+                <div class="card-desc">Values-based &amp; competency questions for ambulance trust recruitment panels</div>
+                <span class="tag">Values-Based</span>
+                <span class="tag">Competency</span>
+                <span class="tag">Clinical</span>
+            </div>
+
+            <!-- University -->
+            <div class="interview-card card-uni" onclick="selectType('university')">
+                <div class="card-top">
+                    <div class="card-top-left">
+                        <div class="card-icon">🎓</div>
+                        <div>
+                            <h3>University Admission</h3>
+                            <div class="card-subtitle">BSc / MSc Paramedic Science</div>
+                        </div>
+                    </div>
+                    <i class="bi bi-chevron-right card-arrow"></i>
+                </div>
+                <div class="card-desc">Motivation, aptitude &amp; ethical reasoning for university interview panels</div>
+                <span class="tag">Motivation</span>
+                <span class="tag">Aptitude</span>
+                <span class="tag">Ethics</span>
+            </div>
+
+            <!-- Promotion -->
+            <div class="interview-card card-promo" onclick="selectType('promotion')">
+                <div class="card-top">
+                    <div class="card-top-left">
+                        <div class="card-icon">📋</div>
+                        <div>
+                            <h3>Promotion &amp; Progression</h3>
+                            <div class="card-subtitle">Band 6/7 &amp; Specialist Roles</div>
+                        </div>
+                    </div>
+                    <i class="bi bi-chevron-right card-arrow"></i>
+                </div>
+                <div class="card-desc">Leadership, governance &amp; advanced practice for senior role interviews</div>
+                <span class="tag">Leadership</span>
+                <span class="tag">Management</span>
+                <span class="tag">Advanced</span>
+            </div>
+        </div>
+
+        <!-- Why This Tool Section -->
+        <div class="why-section">
+            <div class="why-card">
+                <h3>💡 Why practise here?</h3>
+                <div class="why-item">
+                    <div class="why-icon">🎯</div>
+                    <p><strong>Realistic questions</strong> — based on real NHS Trust, university and promotion interview panels across UK ambulance services</p>
+                </div>
+                <div class="why-item">
+                    <div class="why-icon">📊</div>
+                    <p><strong>Instant structured feedback</strong> — every answer is scored on strengths, areas to improve, and key points missed so you know exactly where to focus</p>
+                </div>
+                <div class="why-item">
+                    <div class="why-icon">✍️</div>
+                    <p><strong>Model answers included</strong> — see what a strong answer looks like after every question, so you can learn and adapt your technique</p>
+                </div>
+                <div class="why-item">
+                    <div class="why-icon">⚡</div>
+                    <p><strong>Hot Seat mode</strong> — turn on a 2-minute timer to simulate real interview pressure and practise thinking on your feet</p>
+                </div>
+                <div class="why-item">
+                    <div class="why-icon">🔄</div>
+                    <p><strong>Unlimited variety</strong> — questions are generated by AI so you'll never see the same one twice, keeping your preparation fresh</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== CATEGORIES VIEW ==================== -->
+    <div id="categoriesView" class="view">
+        <div class="cat-header">
+            <button class="back-btn" onclick="goHome()">← Back</button>
+            <div style="margin-top: 12px;">
+                <span id="catTypeIcon" style="font-size: 1.5rem;"></span>
+                <h2 id="catTypeTitle" style="font-size: 1.2rem; font-weight: 700; margin: 4px 0 2px;"></h2>
+                <p style="font-size: 0.85rem; color: var(--color-gray-600);">Choose a category to focus on, or go with a random mix</p>
+            </div>
+        </div>
+
+        <!-- Hot Seat Toggle -->
+        <div class="toggle-row">
+            <span class="toggle-label">⚡ Hot Seat Mode (2 min timer)</span>
+            <button class="toggle-switch" id="hotSeatToggle" onclick="toggleHotSeat()">
+                <div class="toggle-dot"></div>
+            </button>
+        </div>
+
+        <!-- Hollie tip on categories -->
+        <div style="display: flex; align-items: center; gap: 10px; max-width: 628px; margin: 0 auto; padding: 0 16px 8px;">
+            <div class="hollie-avatar small">
+                <img src="images/hollie.png" alt="Hollie">
+            </div>
+            <div style="font-size: 0.82rem; color: var(--color-gray-600); line-height: 1.4;">
+                <strong style="color: var(--color-teal);">Hollie's tip:</strong> If you're not sure where to start, try <strong>Random Mix</strong> — it's the closest to a real interview!
+            </div>
+        </div>
+
+        <!-- Category Grid -->
+        <div class="cat-grid" id="catGrid">
+            <!-- Populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- ==================== CHAT VIEW ==================== -->
+    <div id="chatView" class="view view-chat">
+        
+        <!-- Chat Header -->
+        <div class="chat-header">
+            <div class="chat-header-left">
+                <div class="chat-header-avatar">
+                    <img src="images/hollie.png" alt="Hollie">
+                </div>
+                <div>
+                    <div class="chat-header-title">Hollie — Interview Panel</div>
+                    <div class="chat-header-sub" id="chatSubtitle">NHS Trust · Random Mix</div>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="q-badge" id="qBadge">Q1</div>
+                <button class="end-btn" onclick="goHome()">End</button>
+            </div>
+        </div>
+
+        <!-- Timer Bar (Hot Seat Mode) -->
+        <div class="timer-bar" id="timerBar" style="display: none;">
+            <span>⚡</span>
+            <span class="timer-text" id="timerText">2:00</span>
+            <div class="timer-track">
+                <div class="timer-fill" id="timerFill" style="width: 100%;"></div>
+            </div>
+            <span class="times-up" id="timesUp" style="display: none;">Time's up!</span>
+        </div>
+
+        <!-- Message Limit Banner -->
+        <div class="message-limit-banner" id="messageLimitBanner" style="display: none;">
+            <strong id="msgRemaining">10</strong> free messages remaining today · <a href="register.html" style="color: var(--color-teal); font-weight: 600;">Upgrade for unlimited</a>
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="chat-messages" id="chatMessages">
+            <!-- Messages populated by JavaScript -->
+        </div>
+
+        <!-- Chat Input -->
+        <div class="chat-input-area">
+            <form class="chat-form" id="chatForm" onsubmit="handleSend(event)">
+                <textarea
+                    class="chat-input"
+                    id="messageInput"
+                    placeholder="Type your answer..."
+                    rows="1"
+                ></textarea>
+                <button type="submit" class="send-btn" id="sendBtn" disabled>
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </form>
+            <div class="input-disclaimer">Educational tool only — not for clinical decision-making</div>
+        </div>
+    </div>
+
+    <!-- ==================== SCRIPTS ==================== -->
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Marked.js for Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- Menu JS -->
+    <script src="js/menu-v2.js"></script>
+
+    <!-- App JS (shared config) -->
+    <script src="js/app.js"></script>
+
+    <script>
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
+            authDomain: "paramind-64b8e.firebaseapp.com",
+            projectId: "paramind-64b8e",
+            storageBucket: "paramind-64b8e.firebasestorage.app",
+            messagingSenderId: "452173393964",
+            appId: "1:452173393964:web:8599c0fe1983a6f441e189",
+            measurementId: "G-GW385S6L0L"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ==================== API CONFIG ====================
+        const API_CONFIG = {
+            get baseUrl() {
+                return window.paramind?.CONFIG?.api?.baseUrl || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
+            },
+            get chatEndpoint() {
+                return window.paramind?.CONFIG?.api?.chat || '/chat';
+            }
+        };
+
+        // ==================== INTERVIEW DATA ====================
+        const INTERVIEW_TYPES = {
+            nhs_trust: {
+                icon: '🏥',
+                title: 'NHS Trust Interview',
+                categories: [
+                    { id: 'values', label: 'NHS Values & Constitution', icon: '💙' },
+                    { id: 'clinical', label: 'Clinical Scenarios', icon: '🩺' },
+                    { id: 'safeguarding', label: 'Safeguarding', icon: '🛡️' },
+                    { id: 'teamwork', label: 'Teamwork & Communication', icon: '🤝' },
+                    { id: 'pressure', label: 'Working Under Pressure', icon: '⚡' },
+                    { id: 'equality', label: 'Equality, Diversity & Inclusion', icon: '🌍' }
+                ]
+            },
+            university: {
+                icon: '🎓',
+                title: 'University Admission',
+                categories: [
+                    { id: 'motivation', label: 'Why Paramedicine?', icon: '❤️' },
+                    { id: 'nhs_awareness', label: 'NHS Awareness', icon: '🏥' },
+                    { id: 'ethics', label: 'Ethical Dilemmas', icon: '⚖️' },
+                    { id: 'teamwork', label: 'Teamwork & Communication', icon: '🤝' },
+                    { id: 'resilience', label: 'Resilience & Self-Care', icon: '💪' },
+                    { id: 'academic', label: 'Academic Readiness', icon: '📚' }
+                ]
+            },
+            promotion: {
+                icon: '📋',
+                title: 'Promotion & Progression',
+                categories: [
+                    { id: 'leadership', label: 'Leadership & Management', icon: '👔' },
+                    { id: 'governance', label: 'Clinical Governance', icon: '📊' },
+                    { id: 'change', label: 'Change Management', icon: '🔄' },
+                    { id: 'mentoring', label: 'Mentoring & Education', icon: '🎓' },
+                    { id: 'evidence', label: 'Evidence-Based Practice', icon: '🔬' },
+                    { id: 'patient_safety', label: 'Patient Safety & Quality', icon: '✅' }
+                ]
+            }
+        };
+
+        // ==================== STATE ====================
+        const state = {
+            currentType: null,
+            currentCategory: null,
+            categoryLabel: null,
+            conversationHistory: [],
+            isLoading: false,
+            questionCount: 0,
+            isPro: false,
+            messagesRemaining: 10,
+            hotSeatMode: false,
+            timerSeconds: 120,
+            timerInterval: null,
+            userData: null
+        };
+
+        // ==================== DOM ELEMENTS ====================
+        const els = {
+            homeView: document.getElementById('homeView'),
+            categoriesView: document.getElementById('categoriesView'),
+            chatView: document.getElementById('chatView'),
+            interviewCards: document.getElementById('interviewCards'),
+            catTypeIcon: document.getElementById('catTypeIcon'),
+            catTypeTitle: document.getElementById('catTypeTitle'),
+            catGrid: document.getElementById('catGrid'),
+            chatMessages: document.getElementById('chatMessages'),
+            messageInput: document.getElementById('messageInput'),
+            sendBtn: document.getElementById('sendBtn'),
+            chatSubtitle: document.getElementById('chatSubtitle'),
+            qBadge: document.getElementById('qBadge'),
+            timerBar: document.getElementById('timerBar'),
+            timerText: document.getElementById('timerText'),
+            timerFill: document.getElementById('timerFill'),
+            timesUp: document.getElementById('timesUp'),
+            messageLimitBanner: document.getElementById('messageLimitBanner'),
+            msgRemaining: document.getElementById('msgRemaining'),
+            heroBadgeFree: document.getElementById('heroBadgeFree'),
+            heroBadgePro: document.getElementById('heroBadgePro')
+        };
+
+        // ==================== AUTH STATE ====================
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // User is logged in — fetch their profile
+                try {
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    if (userDoc.exists) {
+                        state.userData = userDoc.data();
+                        state.isPro = state.userData.subscriptionStatus === 'active';
+                        
+                        // Swap hero badge for Pro users
+                        if (state.isPro) {
+                            els.heroBadgeFree.style.display = 'none';
+                            els.heroBadgePro.style.display = 'inline-flex';
+                        } else {
+                            els.heroBadgeFree.style.display = 'inline-flex';
+                            els.heroBadgePro.style.display = 'none';
+                        }
+                        
+                        // Check remaining messages for free users
+                        if (!state.isPro) {
+                            const today = new Date().toDateString();
+                            const lastDate = state.userData.lastMessageDate?.toDate?.()?.toDateString?.();
+                            const count = (lastDate === today) ? (state.userData.dailyMessageCount || 0) : 0;
+                            state.messagesRemaining = Math.max(0, 5 - count);
+                        }
+                    }
+                } catch (err) {
+                    console.error('Error fetching user data:', err);
+                }
+            } else {
+                // Not logged in — redirect to login (matches all other pages)
+                window.location.href = 'login.html';
+            }
+        });
+
+        // ==================== VIEW SWITCHING ====================
+        function switchView(viewName) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewName + 'View').classList.add('active');
+        }
+
+        function goHome() {
+            switchView('home');
+            state.conversationHistory = [];
+            state.questionCount = 0;
+            state.currentType = null;
+            state.currentCategory = null;
+            clearTimer();
+        }
+
+        // ==================== SELECT INTERVIEW TYPE ====================
+        function selectType(typeId) {
+            state.currentType = typeId;
+            const typeData = INTERVIEW_TYPES[typeId];
+
+            els.catTypeIcon.textContent = typeData.icon;
+            els.catTypeTitle.textContent = typeData.title;
+
+            // Build category grid
+            let html = `
+                <div class="cat-card random-mix" onclick="startInterview(null)">
+                    <div class="cat-icon">🎲</div>
+                    <div class="cat-label">Random Mix — Surprise Me!</div>
+                </div>
+            `;
+            typeData.categories.forEach(cat => {
+                html += `
+                    <div class="cat-card" onclick="startInterview('${cat.id}')">
+                        <div class="cat-icon">${cat.icon}</div>
+                        <div class="cat-label">${cat.label}</div>
+                    </div>
+                `;
+            });
+            els.catGrid.innerHTML = html;
+
+            switchView('categories');
+        }
+
+        // ==================== HOT SEAT TOGGLE ====================
+        function toggleHotSeat() {
+            state.hotSeatMode = !state.hotSeatMode;
+            document.getElementById('hotSeatToggle').classList.toggle('active', state.hotSeatMode);
+        }
+
+        // ==================== TIMER ====================
+        function startTimer() {
+            state.timerSeconds = 120;
+            els.timerBar.style.display = 'flex';
+            els.timesUp.style.display = 'none';
+            updateTimerDisplay();
+            
+            clearInterval(state.timerInterval);
+            state.timerInterval = setInterval(() => {
+                state.timerSeconds--;
+                updateTimerDisplay();
+                if (state.timerSeconds <= 0) {
+                    clearInterval(state.timerInterval);
+                    els.timesUp.style.display = 'inline';
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const min = Math.floor(state.timerSeconds / 60);
+            const sec = state.timerSeconds % 60;
+            const pct = (state.timerSeconds / 120) * 100;
+
+            els.timerText.textContent = `${min}:${sec.toString().padStart(2, '0')}`;
+            els.timerFill.style.width = pct + '%';
+
+            // Color classes
+            els.timerText.classList.remove('warning', 'danger');
+            els.timerFill.classList.remove('warning');
+            if (state.timerSeconds <= 30) {
+                els.timerText.classList.add('danger');
+                els.timerFill.classList.add('warning');
+            } else if (state.timerSeconds <= 60) {
+                els.timerText.classList.add('warning');
+            }
+        }
+
+        function clearTimer() {
+            clearInterval(state.timerInterval);
+            els.timerBar.style.display = 'none';
+        }
+
+        // ==================== SYSTEM PROMPT ====================
+        function getInterviewSystemPrompt(typeId, categoryLabel) {
+            const baseRules = `You are Hollie, ParaMind's AI interview coach for UK paramedics. You are warm, encouraging, and knowledgeable about NHS ambulance service recruitment.
+
+CRITICAL RULES:
+- Ask ONE question at a time. Wait for the user's answer before proceeding.
+- After the user answers, provide detailed feedback using this EXACT structure:
+
+### Feedback
+
+**🟢 Strengths:** [what was good about their answer]
+
+**🟡 Could Improve:** [what was missing or could be better]
+
+**🔴 Key Points Missed:** [important things they didn't mention, or say "None - great coverage!" if thorough]
+
+### Model Answer
+[Provide a strong example answer they could learn from]
+
+### STAR Check
+[If competency-based, note which STAR elements (Situation, Task, Action, Result) were present or missing. If not competency-based, skip this section.]
+
+- After feedback, ask "Ready for the next question?" before continuing.
+- Be encouraging but honest. This is practice — honest feedback helps them improve.
+- Keep questions realistic and relevant to current UK paramedic practice.
+- Reference NHS values, JRCALC, HCPC standards where appropriate.
+- NEVER provide clinical advice for real patients — this is interview practice only.`;
+
+            const contexts = {
+                nhs_trust: `\n\nCONTEXT: NHS Trust Band 5/6 Paramedic Interview. Questions should reflect real ambulance service recruitment panels. Focus on NHS Constitution values, competency-based questions using STAR method, and clinical reasoning scenarios. Category focus: ${categoryLabel || 'mixed'}.`,
+                university: `\n\nCONTEXT: University BSc/MSc Paramedic Science Admission Interview. Questions should assess motivation, aptitude, ethical reasoning, and readiness for healthcare education. Be slightly gentler as these candidates are aspiring paramedics. Category focus: ${categoryLabel || 'mixed'}.`,
+                promotion: `\n\nCONTEXT: Band 6/7 or Specialist Paramedic Role Interview. Questions should test leadership capability, clinical governance knowledge, change management, and advanced clinical reasoning. Expect more experienced answers. Category focus: ${categoryLabel || 'mixed'}.`
+            };
+
+            return baseRules + (contexts[typeId] || contexts.nhs_trust);
+        }
+
+        // ==================== START INTERVIEW ====================
+        async function startInterview(categoryId) {
+            const user = auth.currentUser;
+            if (!user) {
+                alert('Please sign in to use the Interview Simulator.');
+                return;
+            }
+
+            // Check message limit for free users
+            if (!state.isPro && state.messagesRemaining <= 0) {
+                alert('You\'ve used all your free messages for today. Upgrade to Pro for unlimited access!');
+                return;
+            }
+
+            state.currentCategory = categoryId;
+            const typeData = INTERVIEW_TYPES[state.currentType];
+            const catData = categoryId ? typeData.categories.find(c => c.id === categoryId) : null;
+            state.categoryLabel = catData ? catData.label : 'Random Mix';
+
+            // Update UI
+            els.chatSubtitle.textContent = `${typeData.title} · ${state.categoryLabel}`;
+            els.chatMessages.innerHTML = '';
+            state.conversationHistory = [];
+            state.questionCount = 1;
+            els.qBadge.textContent = 'Q1';
+
+            // Show message limit banner for free users
+            if (!state.isPro) {
+                els.messageLimitBanner.style.display = 'block';
+                els.msgRemaining.textContent = state.messagesRemaining;
+                if (state.messagesRemaining <= 2) {
+                    els.messageLimitBanner.classList.add('warning');
+                }
+            } else {
+                els.messageLimitBanner.style.display = 'none';
+            }
+
+            switchView('chat');
+
+            // Start timer if hot seat mode
+            if (state.hotSeatMode) {
+                startTimer();
+            } else {
+                els.timerBar.style.display = 'none';
+            }
+
+            // Send opening prompt to AI
+            const openingMessage = `Start the mock interview. Briefly introduce yourself as the interview panel, set the scene (make it feel realistic), then ask the first ${state.categoryLabel} question. Keep the introduction to 2-3 sentences max.`;
+            
+            await sendToAPI(openingMessage, true);
+        }
+
+        // ==================== SEND MESSAGE TO API (STREAMING) ====================
+        async function sendToAPI(message, isSystemInitiated = false) {
+            if (state.isLoading) return;
+            state.isLoading = true;
+            els.sendBtn.disabled = true;
+
+            // Show user message in chat (unless it's the system-initiated opening)
+            if (!isSystemInitiated) {
+                addMessage('user', message);
+                state.conversationHistory.push({ role: 'user', content: message });
+            }
+
+            // Show typing indicator
+            const aiMsgId = 'ai-' + Date.now();
+            showTypingIndicator(aiMsgId);
+
+            try {
+                const user = auth.currentUser;
+                if (!user) throw new Error('Not authenticated');
+                const token = await user.getIdToken();
+
+                const systemPrompt = getInterviewSystemPrompt(state.currentType, state.categoryLabel);
+
+                // Build conversation history for API
+                const apiHistory = state.conversationHistory.slice(-10).filter(m => m.role !== 'system');
+
+                const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.chatEndpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: isSystemInitiated ? message : message,
+                        conversationHistory: apiHistory,
+                        scenarioId: null,
+                        scenarioPrompt: systemPrompt
+                    })
+                });
+
+                if (!response.ok) {
+                    if (response.status === 429) throw new Error('LIMIT_REACHED');
+                    throw new Error('Failed to send message');
+                }
+
+                // Handle streaming response
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullMessage = '';
+
+                // Replace typing indicator with actual message bubble
+                replaceTypingWithMessage(aiMsgId);
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const text = decoder.decode(value, { stream: true });
+                    const lines = text.split('\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                if (data.type === 'meta' && data.remaining !== undefined && data.remaining >= 0) {
+                                    state.messagesRemaining = data.remaining;
+                                    els.msgRemaining.textContent = data.remaining;
+                                    if (data.remaining <= 2) {
+                                        els.messageLimitBanner.classList.add('warning');
+                                    }
+                                } else if (data.type === 'chunk') {
+                                    fullMessage += data.content;
+                                    updateStreamingMessage(aiMsgId, fullMessage);
+                                } else if (data.type === 'error') {
+                                    throw new Error(data.error);
+                                }
+                            } catch (parseError) {
+                                // Skip non-JSON lines
+                            }
+                        }
+                    }
+                }
+
+                // Finalize
+                finalizeMessage(aiMsgId, fullMessage);
+                state.conversationHistory.push({ role: 'assistant', content: fullMessage });
+
+                // Update question count
+                if (fullMessage.toLowerCase().includes('question') || fullMessage.toLowerCase().includes('ready for the next')) {
+                    state.questionCount++;
+                    els.qBadge.textContent = 'Q' + state.questionCount;
+                }
+
+                // Restart timer if hot seat mode
+                if (state.hotSeatMode) {
+                    startTimer();
+                }
+
+            } catch (error) {
+                removeElement(aiMsgId);
+                if (error.message === 'LIMIT_REACHED') {
+                    addMessage('assistant', "You've used all your free messages for today! 😊 Upgrade to Pro for unlimited interview practice, or come back tomorrow for 10 more free messages.");
+                } else {
+                    addMessage('assistant', "I'm having a moment of technical difficulty — but don't worry, that happens in real interviews too! 😄 Could you try sending your answer again?");
+                }
+            } finally {
+                state.isLoading = false;
+                els.sendBtn.disabled = !els.messageInput.value.trim();
+            }
+        }
+
+        // ==================== CHAT UI HELPERS ====================
+        function addMessage(role, content) {
+            const div = document.createElement('div');
+            div.className = `message ${role}`;
+            
+            const avatarHTML = role === 'assistant' 
+                ? '<img src="images/hollie.png" alt="Hollie">' 
+                : '<i class="bi bi-person-fill"></i>';
+            const formattedContent = role === 'assistant' && typeof marked !== 'undefined' 
+                ? marked.parse(content) 
+                : content.replace(/\n/g, '<br>');
+            
+            div.innerHTML = `
+                <div class="message-avatar">${avatarHTML}</div>
+                <div class="message-content">${formattedContent}</div>
+            `;
+            els.chatMessages.appendChild(div);
+            scrollToBottom();
+        }
+
+        function showTypingIndicator(id) {
+            const div = document.createElement('div');
+            div.className = 'message assistant';
+            div.id = id;
+            div.innerHTML = `
+                <div class="message-avatar">
+                    <img src="images/hollie.png" alt="Hollie">
+                </div>
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            `;
+            els.chatMessages.appendChild(div);
+            scrollToBottom();
+        }
+
+        function replaceTypingWithMessage(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                const contentEl = el.querySelector('.message-content');
+                contentEl.innerHTML = '<span class="streaming-text"></span>';
+            }
+        }
+
+        function updateStreamingMessage(id, content) {
+            const el = document.getElementById(id);
+            if (el) {
+                const contentEl = el.querySelector('.message-content');
+                if (typeof marked !== 'undefined') {
+                    contentEl.innerHTML = marked.parse(content);
+                } else {
+                    contentEl.innerHTML = content.replace(/\n/g, '<br>');
+                }
+            }
+            scrollToBottom();
+        }
+
+        function finalizeMessage(id, content) {
+            const el = document.getElementById(id);
+            if (el) {
+                const contentEl = el.querySelector('.message-content');
+                if (typeof marked !== 'undefined') {
+                    contentEl.innerHTML = marked.parse(content);
+                } else {
+                    contentEl.innerHTML = content.replace(/\n/g, '<br>');
+                }
+            }
+            scrollToBottom();
+        }
+
+        function removeElement(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        function scrollToBottom() {
+            els.chatMessages.scrollTop = els.chatMessages.scrollHeight;
+        }
+
+        // ==================== FORM HANDLING ====================
+        function handleSend(e) {
+            e.preventDefault();
+            const message = els.messageInput.value.trim();
+            if (!message || state.isLoading) return;
+
+            // Check message limit
+            if (!state.isPro && state.messagesRemaining <= 0) {
+                addMessage('assistant', "You've used all your free messages for today! Upgrade to Pro for unlimited access, or come back tomorrow. 😊");
+                return;
+            }
+
+            els.messageInput.value = '';
+            els.messageInput.style.height = 'auto';
+            els.sendBtn.disabled = true;
+
+            // Pause timer while AI is responding
+            if (state.hotSeatMode) {
+                clearInterval(state.timerInterval);
+            }
+
+            sendToAPI(message);
+        }
+
+        // Auto-resize textarea
+        els.messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            els.sendBtn.disabled = !this.value.trim() || state.isLoading;
+        });
+
+        // Enter to send (Shift+Enter for new line)
+        els.messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (this.value.trim() && !state.isLoading) {
+                    handleSend(e);
+                }
+            }
+        });
+
+        // ==================== MARKED.JS CONFIG ====================
+        if (typeof marked !== 'undefined') {
+            marked.setOptions({
+                breaks: true,
+                gfm: true
+            });
+        }
+    </script>
+</body>
+</html>
