@@ -470,6 +470,44 @@
                 height: 380px;
             }
         }
+        
+        
+        
+          /* ==================== FEATURE CARD PLAN BADGES ==================== */
+        .feature-plan-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            margin-top: 0.75rem;
+        }
+
+        .feature-plan-badge.badge-free {
+            background: linear-gradient(135deg, rgba(43, 138, 156, 0.12) 0%, rgba(92, 184, 92, 0.12) 100%);
+            color: #1a7a3a;
+            border: 1px solid rgba(92, 184, 92, 0.3);
+        }
+
+        .feature-plan-badge.badge-free i {
+            color: #5CB85C;
+            font-size: 0.8rem;
+        }
+
+        .feature-plan-badge.badge-pro {
+            background: linear-gradient(135deg, rgba(43, 138, 156, 0.1) 0%, rgba(43, 138, 156, 0.05) 100%);
+            color: var(--color-teal, #2B8A9C);
+            border: 1px solid rgba(43, 138, 156, 0.25);
+        }
+
+        .feature-plan-badge.badge-pro i {
+            color: var(--color-teal, #2B8A9C);
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
@@ -648,8 +686,9 @@
         </div>
     </section>
 
-    <!-- Features Section -->
-    <section id="features" class="features-section py-5">
+
+!-- FEATURES SECTION - Copy everything below this line -->
+<section id="features" class="features-section py-5">
         <div class="container py-4">
             <div class="text-center mb-5">
                <h2 class="section-title">Why Paramedics Choose <span class="brand-text" style="font-size: inherit;"><span class="brand-para">para</span><span class="brand-mind">mind</span></span></h2>
@@ -660,11 +699,11 @@
                         <span class="badge bg-light text-dark">All UK Ambulance Services</span>
                         <span class="badge bg-light text-dark">All UK Universities</span>
                         <span class="badge bg-light text-dark">Military Medics</span>
-                       
                     </div>
                 </div>
             </div>
             <div class="row g-4">
+                <!-- Card 1: Chat with Hollie - FREE + PRO -->
                 <div class="col-md-6 col-lg-4">
                     <div class="feature-card">
                         <div class="feature-icon">
@@ -672,8 +711,13 @@
                         </div>
                         <h3>Chat with Hollie</h3>
                         <p>Get friendly, conversational explanations from Hollie, your AI paramedic tutor. Ask about any clinical topic!</p>
+                        <span class="feature-plan-badge badge-free">
+                            <i class="bi bi-check-circle-fill"></i> Free + Pro
+                        </span>
                     </div>
                 </div>
+
+                <!-- Card 2: A&P Connections - PRO ONLY -->
                 <div class="col-md-6 col-lg-4">
                     <div class="feature-card">
                         <div class="feature-icon">
@@ -681,8 +725,13 @@
                         </div>
                         <h3>A&P Connections</h3>
                         <p>Understand the anatomy and physiology behind clinical presentations. Link theory to practice!</p>
+                        <span class="feature-plan-badge badge-pro">
+                            <i class="bi bi-star-fill"></i> Pro Only
+                        </span>
                     </div>
                 </div>
+
+                <!-- Card 3: Realistic Scenarios - FREE (limited) + PRO -->
                 <div class="col-md-6 col-lg-4">
                     <div class="feature-card feature-card-2">
                         <div class="feature-icon">
@@ -690,8 +739,13 @@
                         </div>
                         <h3>Realistic Scenarios</h3>
                         <p>Practice with AI-powered patient simulations from dispatch to handover.</p>
+                        <span class="feature-plan-badge badge-free">
+                            <i class="bi bi-check-circle-fill"></i> Free (limited) + Pro
+                        </span>
                     </div>
                 </div>
+
+                <!-- Card 4: AI Differentials - FREE + PRO -->
                 <div class="col-md-6 col-lg-4">
                     <div class="feature-card feature-card-3">
                         <div class="feature-icon">
@@ -699,8 +753,13 @@
                         </div>
                         <h3>AI Differentials</h3>
                         <p>Try our simple differentials helper. Get some ideas in seconds.</p>
+                        <span class="feature-plan-badge badge-free">
+                            <i class="bi bi-check-circle-fill"></i> Free + Pro
+                        </span>
                     </div>
                 </div>
+
+                <!-- Card 5: Interactive ECG Tool - PRO ONLY -->
                 <div class="col-md-6 col-lg-4">
                     <div class="feature-card feature-card-4">
                         <div class="feature-icon">
@@ -708,9 +767,41 @@
                         </div>
                         <h3>Interactive ECG Tool</h3>
                         <p>Improve your ECG skills with our interactive ECG viewer and then test yourself.</p>
+                        <span class="feature-plan-badge badge-pro">
+                            <i class="bi bi-star-fill"></i> Pro Only
+                        </span>
                     </div>
                 </div>
-                
+
+                <!-- Card 6: Interview Simulation - NEW - FREE + PRO -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-person-workspace"></i>
+                        </div>
+                        <h3>Interview Simulation</h3>
+                        <p>Prepare for paramedic interviews with realistic AI-powered practice sessions. Build confidence before the big day!</p>
+                        <span class="feature-plan-badge badge-free">
+                            <i class="bi bi-check-circle-fill"></i> Free + Pro
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Card 7: Common Medications - NEW - PRO ONLY -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-capsule"></i>
+                        </div>
+                        <h3>Common Medications</h3>
+                        <p>Revise the medications you'll encounter most on the road. Know your drugs, doses, and key considerations.</p>
+                        <span class="feature-plan-badge badge-pro">
+                            <i class="bi bi-star-fill"></i> Pro Only
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Card 8: CPD Certificates - PRO ONLY -->
                 <div class="col-md-6 col-lg-4">
                     <div class="feature-card feature-card-6">
                         <div class="feature-icon">
@@ -718,11 +809,19 @@
                         </div>
                         <h3>CPD Certificates</h3>
                         <p>Earn CPD certificates for completed learning scenarios. Track your professional development.</p>
+                        <span class="feature-plan-badge badge-pro">
+                            <i class="bi bi-star-fill"></i> Pro Only
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+
+
+
+
+
     
     
     <!-- ==================== TESTIMONIALS SECTION ==================== -->
