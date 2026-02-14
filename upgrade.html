@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Upgrade to Pro | Paramind</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Menu CSS -->
+    <link rel="stylesheet" href="css/menu-v2.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        /* ==================== UPGRADE PAGE STYLES ==================== */
+        
+        .upgrade-page {
+            min-height: 100vh;
+            background: var(--color-gray-50);
+        }
+        
+        /* Navbar */
+        .upgrade-navbar {
+            background: var(--color-white);
+            border-bottom: 1px solid var(--color-gray-200);
+            padding: 0.75rem 0;
+        }
+        
+        /* Hero Section */
+        .upgrade-hero {
+            text-align: center;
+            padding: 2.5rem 1rem 1.5rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .hero-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--color-teal) 0%, #228B9D 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.25rem;
+            box-shadow: 0 8px 30px rgba(43, 138, 156, 0.25);
+        }
+        
+        .hero-icon i {
+            font-size: 2.25rem;
+            color: white;
+        }
+        
+        .upgrade-hero h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--color-gray-900);
+            margin-bottom: 0.5rem;
+        }
+        
+        .upgrade-hero .subtitle {
+            color: var(--color-gray-600);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 0;
+        }
+        
+        /* Main Content */
+        .upgrade-content {
+            max-width: 520px;
+            margin: 0 auto;
+            padding: 0 1rem 3rem;
+        }
+        
+        /* Price Card */
+        .price-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 2px solid var(--color-teal);
+            text-align: center;
+        }
+        
+        .price-amount {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .price-currency {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+        }
+        
+        .price-value {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--color-gray-900);
+            line-height: 1;
+        }
+        
+        .price-period {
+            font-size: 1rem;
+            color: var(--color-gray-500);
+            font-weight: 500;
+        }
+        
+        .price-note {
+            font-size: 0.85rem;
+            color: var(--color-gray-500);
+            margin-top: 0.25rem;
+        }
+        
+        /* CTA Button */
+        .upgrade-cta-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--color-green) 0%, #4a9f4a 100%);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: var(--radius-md);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 1.25rem;
+            text-decoration: none;
+        }
+        
+        .upgrade-cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(92, 184, 92, 0.4);
+            color: white;
+        }
+        
+        .upgrade-cta-btn:disabled {
+            opacity: 0.7;
+            transform: none;
+            cursor: not-allowed;
+        }
+        
+        /* Features List */
+        .features-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }
+        
+        .features-card h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+        
+        .feature-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .feature-item i {
+            color: var(--color-green);
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+        
+        .feature-item .feature-text {
+            flex: 1;
+        }
+        
+        .feature-item .feature-name {
+            font-weight: 600;
+            color: var(--color-gray-800);
+            font-size: 0.95rem;
+        }
+        
+        .feature-item .feature-desc {
+            font-size: 0.85rem;
+            color: var(--color-gray-500);
+            margin-top: 0.125rem;
+        }
+        
+        /* Tools Grid */
+        .tools-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }
+        
+        .tools-card h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+        
+        .tool-item {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: 0.75rem;
+            background: var(--color-gray-50);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-gray-100);
+        }
+        
+        .tool-item i {
+            font-size: 1.25rem;
+            color: var(--color-teal);
+        }
+        
+        .tool-item span {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--color-gray-700);
+        }
+        
+        /* Back link */
+        .back-section {
+            text-align: center;
+            padding-top: 0.5rem;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--color-gray-500);
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        
+        .back-link:hover {
+            color: var(--color-gray-700);
+        }
+        
+        /* Loading spinner */
+        .btn-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: btnSpin 0.6s linear infinite;
+        }
+        
+        @keyframes btnSpin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 480px) {
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .upgrade-hero h1 {
+                font-size: 1.5rem;
+            }
+            
+            .price-value {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body class="upgrade-page">
+    <!-- ==================== NAVIGATION ==================== -->
+    <nav class="upgrade-navbar">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="brand-text">
+                    <a class="navbar-brand" href="landing.html">
+                        <span class="brand-para">para</span><span class="brand-mind">mind</span>
+                    </a>
+                </span>
+                <button class="hamburger-btn" id="hamburgerBtn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ==================== HERO ==================== -->
+    <div class="upgrade-hero">
+        <div class="hero-icon">
+            <i class="bi bi-rocket-takeoff"></i>
+        </div>
+        <h1>Unlock <span class="brand-para">para</span><span class="brand-mind">mind</span> Pro</h1>
+        <p class="subtitle">Get unlimited access to all learning tools built for paramedics, by paramedics.</p>
+    </div>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <div class="upgrade-content">
+        
+        <!-- Price Card -->
+        <div class="price-card">
+            <div class="price-amount">
+                <span class="price-currency">£</span>
+                <span class="price-value">4.99</span>
+                <span class="price-period">/ month</span>
+            </div>
+            <p class="price-note">Cancel anytime — no commitment</p>
+            
+            <button class="upgrade-cta-btn" id="upgradeBtn" onclick="handleUpgrade()">
+                <i class="bi bi-star-fill"></i>
+                Upgrade to Pro
+            </button>
+        </div>
+        
+        <!-- What's Included -->
+        <div class="features-card">
+            <h2><i class="bi bi-check-circle-fill" style="color: var(--color-green);"></i> What's included</h2>
+            
+            <div class="feature-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <div class="feature-text">
+                    <div class="feature-name">Unlimited chat with Hollie</div>
+                    <div class="feature-desc">No daily message limits — ask as much as you need</div>
+                </div>
+            </div>
+            
+            <div class="feature-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <div class="feature-text">
+                    <div class="feature-name">Full scenario library</div>
+                    <div class="feature-desc">Access every clinical scenario we offer</div>
+                </div>
+            </div>
+            
+            <div class="feature-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <div class="feature-text">
+                    <div class="feature-name">CPD certificates</div>
+                    <div class="feature-desc">Download certificates for completed learning scenarios</div>
+                </div>
+            </div>
+            
+            <div class="feature-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <div class="feature-text">
+                    <div class="feature-name">Priority support</div>
+                    <div class="feature-desc">Get help when you need it</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pro Tools -->
+        <div class="tools-card">
+            <h2><i class="bi bi-tools" style="color: var(--color-teal);"></i> Pro tools included</h2>
+            
+            <div class="tools-grid">
+                <div class="tool-item">
+                    <i class="bi bi-heart-pulse"></i>
+                    <span>A&P Connections</span>
+                </div>
+                <div class="tool-item">
+                    <i class="bi bi-capsule"></i>
+                    <span>Drug Guide</span>
+                </div>
+                <div class="tool-item">
+                    <i class="bi bi-telephone-outbound"></i>
+                    <span>ATMIST Tool</span>
+                </div>
+                <div class="tool-item">
+                    <i class="bi bi-activity"></i>
+                    <span>ECG Generator</span>
+                </div>
+                <div class="tool-item">
+                    <i class="bi bi-award"></i>
+                    <span>CPD Portfolio</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Back Link -->
+        <div class="back-section">
+            <a href="landing.html" class="back-link" id="backLink">
+                <i class="bi bi-arrow-left"></i> Back to free features
+            </a>
+        </div>
+        
+    </div>
+
+    <!-- ==================== SCRIPTS ==================== -->
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- App Config -->
+    <script src="js/app.js"></script>
+    
+    <!-- Menu -->
+    <script src="js/menu-v2.js"></script>
+    
+    <!-- Upgrade Logic -->
+    <script>
+        // ==================== UPGRADE HANDLER ====================
+        // Waits for Firebase (loaded by menu-v2.js), then creates Stripe checkout
+        
+        async function handleUpgrade() {
+            const btn = document.getElementById('upgradeBtn');
+            const originalText = btn.innerHTML;
+            
+            try {
+                // Show loading state
+                btn.innerHTML = '<span class="btn-spinner"></span> Loading...';
+                btn.disabled = true;
+                
+                // Wait for Firebase to be ready
+                await waitForFirebaseReady();
+                
+                const user = firebase.auth().currentUser;
+                if (!user) {
+                    // Not signed in — send to login, then come back here
+                    const returnUrl = encodeURIComponent(window.location.href);
+                    window.location.href = 'login.html?redirect=' + returnUrl;
+                    return;
+                }
+                
+                // Get auth token and call Stripe checkout endpoint
+                const token = await user.getIdToken();
+                const baseUrl = window.paramind?.CONFIG?.api?.baseUrl || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
+                const checkoutEndpoint = window.paramind?.CONFIG?.api?.createCheckout || '/createCheckoutSession';
+                
+                const response = await fetch(baseUrl + checkoutEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.url) {
+                        window.location.href = data.url;
+                        return;
+                    }
+                }
+                
+                throw new Error('Failed to create checkout session');
+                
+            } catch (error) {
+                console.error('Upgrade error:', error);
+                alert('Unable to start checkout. Please try again.');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+        
+        // Helper: wait for Firebase to be loaded by menu-v2.js
+        function waitForFirebaseReady() {
+            return new Promise(function(resolve, reject) {
+                var attempts = 0;
+                function check() {
+                    if (typeof firebase !== 'undefined' && firebase.auth) {
+                        resolve();
+                    } else if (attempts > 50) {
+                        reject(new Error('Firebase not available'));
+                    } else {
+                        attempts++;
+                        setTimeout(check, 100);
+                    }
+                }
+                check();
+            });
+        }
+        
+        // ==================== SMART BACK LINK ====================
+        // If we know which page the user came from, link back there
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            const from = params.get('from');
+            if (from) {
+                const backLink = document.getElementById('backLink');
+                if (backLink) {
+                    backLink.href = decodeURIComponent(from);
+                    backLink.innerHTML = '<i class="bi bi-arrow-left"></i> Go back';
+                }
+            }
+        })();
+    </script>
+</body>
+</html>
