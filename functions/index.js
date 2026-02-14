@@ -423,11 +423,36 @@ case "checkout.session.completed": {
             updateData.subscriptionStatus = "pending";
         }
 
-        // If there was a discount, store it for reference
-        if (session.total_details?.amount_discount > 0) {
-            updateData.discountApplied = true;
-            updateData.discountAmount = session.total_details.amount_discount;
+        // If there was a discount, store it AND retrieve the promo code name
+if (session.total_details?.amount_discount > 0) {
+    updateData.discountApplied = true;
+    updateData.discountAmount = session.total_details.amount_discount;
+
+    // Retrieve the checkout session with discount details expanded
+    try {
+        const fullSession = await stripe.checkout.sessions.retrieve(session.id, {
+            expand: ['total_details.breakdown'],
+        });
+
+        const discounts = fullSession.total_details?.breakdown?.discounts;
+        if (discounts && discounts.length > 0) {
+            const discount = discounts[0].discount;
+
+            // Get the promotion code (the user-facing code like "PARAMIND50")
+            if (discount.promotion_code) {
+                const promoCode = await stripe.promotionCodes.retrieve(discount.promotion_code);
+                updateData.promoCodeUsed = promoCode.code;  // e.g. "PARAMIND50"
+            } else if (discount.coupon?.name) {
+                // Fallback to coupon name if no promo code
+                updateData.promoCodeUsed = discount.coupon.name;
+            }
         }
+        console.log(`Discount code used: ${updateData.promoCodeUsed || 'unknown'}`);
+    } catch (promoError) {
+        console.error('Error retrieving promo code details:', promoError.message);
+        updateData.promoCodeUsed = 'discount-used';  // fallback so you know SOMETHING was used
+    }
+}
 
         await userRef.update(updateData);
         console.log(`Checkout completed for user: ${uid} - current status: ${currentStatus}`);
