@@ -742,7 +742,6 @@
 
 <body class="ecg-page">
     <!-- ==================== NAVIGATION ==================== -->
-    <!-- FIXED: Single flex container with hamburger button inside -->
     <nav class="ecg-navbar">
         <div class="container">
             <div class="d-flex align-items-center justify-content-between">
@@ -788,7 +787,7 @@
         <!-- Quiz Score (hidden by default) -->
         <div class="quiz-score" id="quizScore" style="display: none;">
             <span class="quiz-score-badge">
-                Question <span id="questionNumber">1</span> of 14 | 
+                Question <span id="questionNumber">1</span> of 23 | 
                 Score: <span id="scoreCorrect">0</span>/<span id="scoreTotal">0</span>
             </span>
         </div>
@@ -902,7 +901,7 @@
                         <div class="final-score-circle">
                             <span class="final-score-percent" id="finalPercent">0%</span>
                         </div>
-                        <p class="final-score-text">You got <span id="finalCorrect">0</span> out of 14 correct</p>
+                        <p class="final-score-text">You got <span id="finalCorrect">0</span> out of 23 correct</p>
                         <p class="final-score-message" id="finalMessage">Keep practising!</p>
                         <div class="quiz-buttons" style="margin-top: 1.5rem;">
                             <button class="quiz-btn quiz-btn-primary" onclick="restartQuiz()">
@@ -920,6 +919,7 @@
         <!-- Footer -->
         <div class="ecg-footer">
             <p><i class="bi bi-shield-check"></i> For educational purposes only - not for clinical decision-making</p>
+            <p><i class="bi bi-exclamation-circle"></i> These are simplified, single-lead examples only. Real ECGs can vary significantly in presentation across different leads, patients, and clinical contexts. Deeper learning and supervised clinical practice are essential for safe ECG interpretation.</p>
             <p>Part of the Paramind Learning Platform</p>
         </div>
     </div>
@@ -934,7 +934,7 @@
             <p class="pro-feature-badge"><i class="bi bi-star-fill"></i> Pro Feature</p>
             <p class="pro-description">
                 Master ECG interpretation with our interactive rhythm generator. 
-                Practice identifying 14 different rhythms, including emergency arrhythmias, 
+                Practice identifying 23 different rhythms, including emergency arrhythmias, 
                 heart blocks, and more. Includes quiz mode to test your knowledge.
             </p>
             <a href="#" class="pro-upgrade-btn" id="proUpgradeBtn">
@@ -983,6 +983,15 @@
                 maxRate: 180,
                 color: "#f59e0b"
             },
+            sinusArrhythmia: {
+                name: "Sinus Arrhythmia",
+                description: "Normal variant where heart rate increases with inspiration and decreases with expiration. Common in young, fit individuals.",
+                keyFeatures: ["Rate varies with breathing", "P wave before each QRS", "Normal PR and QRS", "Benign — no treatment needed"],
+                defaultRate: 70,
+                minRate: 55,
+                maxRate: 90,
+                color: "#22c55e"
+            },
             atrialFibrillation: {
                 name: "Atrial Fibrillation",
                 description: "Chaotic atrial activity with irregular ventricular response. No discernible P waves.",
@@ -1001,6 +1010,15 @@
                 maxRate: 150,
                 color: "#f97316"
             },
+            svt: {
+                name: "Supraventricular Tachycardia (SVT)",
+                description: "Rapid regular rhythm originating from above the ventricles. Characterised by sudden onset and offset.",
+                keyFeatures: ["Regular narrow complex", "Rate 150-250 bpm", "P waves often hidden", "Sudden onset/offset"],
+                defaultRate: 180,
+                minRate: 150,
+                maxRate: 250,
+                color: "#f59e0b"
+            },
             ventricularTachycardia: {
                 name: "Ventricular Tachycardia (VT)",
                 description: "Life-threatening rhythm arising from the ventricles. Wide QRS complexes at a rapid rate. Shockable rhythm if pulseless.",
@@ -1010,6 +1028,15 @@
                 maxRate: 250,
                 color: "#dc2626",
                 emergency: true
+            },
+            torsadesDePointes: {
+                name: "Torsades de Pointes",
+                description: "Polymorphic VT with characteristic 'twisting of the points' pattern. Associated with prolonged QT. Treat with IV MAGNESIUM, not amiodarone.",
+                keyFeatures: ["Twisting QRS axis", "Spindle-shaped amplitude", "Associated with long QT", "Treat with IV MAGNESIUM"],
+                defaultRate: 200,
+                minRate: 150,
+                maxRate: 300,
+                color: "#dc2626"
             },
             ventricularFibrillation: {
                 name: "Ventricular Fibrillation (VF)",
@@ -1028,6 +1055,16 @@
                 defaultRate: 0,
                 minRate: 0,
                 maxRate: 0,
+                color: "#dc2626",
+                emergency: true
+            },
+            pea: {
+                name: "Pulseless Electrical Activity (PEA)",
+                description: "CARDIAC ARREST RHYTHM. Organised electrical activity but no pulse. Non-shockable rhythm.",
+                keyFeatures: ["Any organised rhythm", "NO PULSE despite rhythm", "Non-shockable", "Consider reversible causes"],
+                defaultRate: 60,
+                minRate: 20,
+                maxRate: 100,
                 color: "#dc2626",
                 emergency: true
             },
@@ -1067,24 +1104,69 @@
                 maxRate: 50,
                 color: "#8b5cf6"
             },
-            svt: {
-                name: "Supraventricular Tachycardia (SVT)",
-                description: "Rapid regular rhythm originating from above the ventricles. Characterised by sudden onset and offset.",
-                keyFeatures: ["Regular narrow complex", "Rate 150-250 bpm", "P waves often hidden", "Sudden onset/offset"],
-                defaultRate: 180,
-                minRate: 150,
-                maxRate: 250,
+            junctionalRhythm: {
+                name: "Junctional Rhythm",
+                description: "Rhythm originating from the AV junction. No normal P waves — may see inverted P waves before, during, or after QRS.",
+                keyFeatures: ["Narrow QRS complex", "Rate 40-60 bpm", "Absent or inverted P waves", "Regular rhythm"],
+                defaultRate: 50,
+                minRate: 40,
+                maxRate: 60,
+                color: "#06b6d4"
+            },
+            wpw: {
+                name: "Wolff-Parkinson-White (WPW)",
+                description: "Pre-excitation syndrome with accessory pathway. Short PR, delta wave, wide QRS. AVOID adenosine and verapamil in AF with WPW.",
+                keyFeatures: ["Short PR interval (<0.12s)", "Delta wave (slurred QRS upstroke)", "Wide QRS complex", "AVOID AV nodal blockers in AF"],
+                defaultRate: 80,
+                minRate: 60,
+                maxRate: 100,
+                color: "#f97316"
+            },
+            pvcs: {
+                name: "Premature Ventricular Complexes (PVCs)",
+                description: "Early wide QRS beats arising from the ventricles, interrupting normal sinus rhythm. Usually benign if isolated.",
+                keyFeatures: ["Wide, bizarre QRS morphology", "Compensatory pause after PVC", "No preceding P wave for PVC", "Normal beats between PVCs"],
+                defaultRate: 72,
+                minRate: 60,
+                maxRate: 100,
                 color: "#f59e0b"
             },
-            pea: {
-                name: "Pulseless Electrical Activity (PEA)",
-                description: "CARDIAC ARREST RHYTHM. Organised electrical activity but no pulse. Non-shockable rhythm.",
-                keyFeatures: ["Any organised rhythm", "NO PULSE despite rhythm", "Non-shockable", "Consider reversible causes"],
-                defaultRate: 60,
-                minRate: 20,
+            pacs: {
+                name: "Premature Atrial Complexes (PACs)",
+                description: "Early beats arising from ectopic atrial focus. P wave morphology differs from sinus P waves. Usually benign.",
+                keyFeatures: ["Early P wave with different shape", "Narrow QRS usually follows", "Incomplete compensatory pause", "Common and usually benign"],
+                defaultRate: 75,
+                minRate: 60,
                 maxRate: 100,
+                color: "#f59e0b"
+            },
+            hyperkalaemia: {
+                name: "Hyperkalaemia Pattern",
+                description: "ECG changes caused by dangerously high potassium. Progressive: tall peaked T waves → widened QRS → sine wave → cardiac arrest. TREAT URGENTLY.",
+                keyFeatures: ["Tall, peaked T waves", "Widened QRS complex", "Flattened/absent P waves", "LIFE-THREATENING — treat urgently"],
+                defaultRate: 65,
+                minRate: 40,
+                maxRate: 80,
+                color: "#dc2626"
+            },
+            stemi: {
+                name: "ST-Elevation (STEMI Pattern)",
+                description: "ST-segment elevation indicating acute myocardial infarction. IMMEDIATE catheter lab activation. Look for reciprocal ST depression.",
+                keyFeatures: ["ST elevation ≥1mm in 2+ contiguous leads", "Reciprocal ST depression", "May have pathological Q waves", "TIME-CRITICAL — activate cath lab"],
+                defaultRate: 85,
+                minRate: 50,
+                maxRate: 120,
                 color: "#dc2626",
                 emergency: true
+            },
+            longQT: {
+                name: "Long QT Syndrome",
+                description: "Prolonged QT interval increasing risk of Torsades de Pointes. QTc upper limit: >0.45s in men, >0.47s in women (Bazett formula). Can be congenital or drug-induced (amiodarone, ondansetron, etc).",
+                keyFeatures: ["QTc > 0.45s men / > 0.47s women", "Risk of Torsades de Pointes", "May be drug-induced", "T wave may be broad/notched"],
+                defaultRate: 65,
+                minRate: 50,
+                maxRate: 90,
+                color: "#a855f7"
             }
         };
         
@@ -1104,6 +1186,9 @@
         
         // Canvas context
         let canvas, ctx;
+        
+        // Total number of rhythms (calculated dynamically)
+        const totalRhythms = Object.keys(rhythms).length;
         
         // ==================== INITIALIZATION ====================
         document.addEventListener('DOMContentLoaded', function() {
@@ -1315,7 +1400,7 @@
         }
         
         function showFinalResults() {
-            const percent = Math.round((score.correct / 14) * 100);
+            const percent = Math.round((score.correct / totalRhythms) * 100);
             
             document.getElementById('quizQuestion').style.display = 'none';
             document.getElementById('quizResult').style.display = 'none';
@@ -1490,6 +1575,42 @@
                     }
                     
                     y = generateAFBeat(beatPhase, baselineY);
+                } else if (rhythm === 'torsadesDePointes') {
+                    // Torsades de Pointes — wide complexes that twist polarity with waxing/waning amplitude
+                    const tdpRate = 250; // ~250 bpm
+                    const complexInterval = (60 / tdpRate) * pixelsPerSecond;
+                    const tdpCyclePos = (adjustedX % complexInterval) / complexInterval;
+                    
+                    // Spindle envelope — amplitude waxes and wanes over ~2-3 seconds
+                    const spindlePeriod = 250; // pixels for one full spindle cycle
+                    const spindlePhase = (adjustedX % spindlePeriod) / spindlePeriod;
+                    const envelope = Math.sin(spindlePhase * Math.PI) * 55 + 8;
+                    
+                    // Polarity twist — complexes gradually flip from upright to inverted
+                    const twistPhase = Math.sin(adjustedX * 0.006);
+                    
+                    // Generate wide QRS-like complexes (not smooth sine)
+                    if (tdpCyclePos < 0.15) {
+                        // Sharp Q-like downstroke
+                        y = baselineY + Math.sin((tdpCyclePos / 0.15) * Math.PI) * (envelope * 0.15) * twistPhase;
+                    } else if (tdpCyclePos >= 0.15 && tdpCyclePos < 0.40) {
+                        // Main wide QRS deflection
+                        const qrsPhase = (tdpCyclePos - 0.15) / 0.25;
+                        y = baselineY - Math.sin(qrsPhase * Math.PI) * envelope * twistPhase;
+                    } else if (tdpCyclePos >= 0.40 && tdpCyclePos < 0.60) {
+                        // S-wave / return
+                        const sPhase = (tdpCyclePos - 0.40) / 0.20;
+                        y = baselineY + Math.sin(sPhase * Math.PI) * (envelope * 0.3) * twistPhase;
+                    } else {
+                        // Brief baseline between complexes
+                        y = baselineY + (Math.random() - 0.5) * 2;
+                    }
+                } else if (rhythm === 'sinusArrhythmia') {
+                    // Rate varies cyclically (simulating breathing)
+                    const breathCycle = Math.sin(adjustedX * 0.003) * 0.3;
+                    const variedInterval = beatInterval * (1 + breathCycle);
+                    let cyclePos = (adjustedX % variedInterval) / variedInterval;
+                    y = generatePQRST('normalSinus', cyclePos, baselineY, adjustedX, variedInterval);
                 } else {
                     let cyclePos = (adjustedX % beatInterval) / beatInterval;
                     y = generatePQRST(rhythm, cyclePos, baselineY, adjustedX, beatInterval);
@@ -1664,6 +1785,235 @@
                     } else {
                         if (cyclePos >= 0.0 && cyclePos < 0.08) {
                             y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
+                        }
+                    }
+                    break;
+                
+                // ===== NEW RHYTHM WAVEFORMS =====
+                    
+                case 'junctionalRhythm':
+                    // No P wave before QRS, possible inverted P after
+                    if (cyclePos >= 0.16 && cyclePos < 0.18) {
+                        y = baselineY + Math.sin(((cyclePos - 0.16) / 0.02) * Math.PI) * 8;
+                    } else if (cyclePos >= 0.18 && cyclePos < 0.22) {
+                        y = baselineY - Math.sin(((cyclePos - 0.18) / 0.04) * Math.PI) * 60;
+                    } else if (cyclePos >= 0.22 && cyclePos < 0.26) {
+                        y = baselineY + Math.sin(((cyclePos - 0.22) / 0.04) * Math.PI) * 15;
+                    } else if (cyclePos >= 0.28 && cyclePos < 0.34) {
+                        // Inverted P wave AFTER QRS (retrograde conduction)
+                        y = baselineY + Math.sin(((cyclePos - 0.28) / 0.06) * Math.PI) * 6;
+                    } else if (cyclePos >= 0.40 && cyclePos < 0.55) {
+                        y = baselineY - Math.sin(((cyclePos - 0.40) / 0.15) * Math.PI) * 15;
+                    }
+                    break;
+                    
+                case 'wpw':
+                    // Short PR + very prominent delta wave ramp + tall R + deep S
+                    if (cyclePos >= 0.0 && cyclePos < 0.06) {
+                        // Normal P wave
+                        y = baselineY - Math.sin((cyclePos / 0.06) * Math.PI) * 10;
+                    } else if (cyclePos >= 0.08 && cyclePos < 0.18) {
+                        // DELTA WAVE — wide, obvious gradual ramp (the key WPW feature)
+                        // Starts almost immediately after P wave (short PR)
+                        const deltaPos = (cyclePos - 0.08) / 0.10;
+                        y = baselineY - deltaPos * 25;
+                    } else if (cyclePos >= 0.18 && cyclePos < 0.23) {
+                        // Sharp R wave spike (starts from where delta ramp ended)
+                        const rPhase = (cyclePos - 0.18) / 0.05;
+                        y = baselineY - 25 - Math.sin(rPhase * Math.PI) * 40;
+                    } else if (cyclePos >= 0.23 && cyclePos < 0.32) {
+                        // Deep S wave below baseline
+                        const sPhase = (cyclePos - 0.23) / 0.09;
+                        if (sPhase < 0.4) {
+                            // Sharp drop through baseline to S wave trough
+                            y = baselineY + (sPhase / 0.4) * 25;
+                        } else {
+                            // Return from S wave
+                            y = baselineY + 25 * (1 - ((sPhase - 0.4) / 0.6));
+                        }
+                    } else if (cyclePos >= 0.45 && cyclePos < 0.62) {
+                        // T wave
+                        y = baselineY - Math.sin(((cyclePos - 0.45) / 0.17) * Math.PI) * 15;
+                    }
+                    break;
+                    
+                case 'pvcs':
+                    // PVCs — mostly normal sinus with occasional EARLY wide bizarre beats
+                    // Pattern: 3 normal beats, then 1 early PVC, then a compensatory pause
+                    const pvcSuperCycle = beatInterval * 4.5; // 3 normal + 1 early + full compensatory pause
+                    const pvcSuperPos = adjustedX % pvcSuperCycle;
+                    
+                    const pvcBeat1Start = 0;
+                    const pvcBeat2Start = beatInterval;
+                    const pvcBeat3Start = beatInterval * 2;
+                    const pvcEarlyStart = beatInterval * 2.5; // PVC arrives EARLY
+                    // Full compensatory pause fills until next super-cycle
+                    
+                    let pvcLocalPhase = -1;
+                    let isPVCBeat = false;
+                    
+                    if (pvcSuperPos >= pvcBeat1Start && pvcSuperPos < pvcBeat2Start) {
+                        pvcLocalPhase = (pvcSuperPos - pvcBeat1Start) / beatInterval;
+                    } else if (pvcSuperPos >= pvcBeat2Start && pvcSuperPos < pvcBeat3Start) {
+                        pvcLocalPhase = (pvcSuperPos - pvcBeat2Start) / beatInterval;
+                    } else if (pvcSuperPos >= pvcBeat3Start && pvcSuperPos < pvcEarlyStart) {
+                        pvcLocalPhase = (pvcSuperPos - pvcBeat3Start) / beatInterval;
+                    } else if (pvcSuperPos >= pvcEarlyStart && pvcSuperPos < pvcEarlyStart + beatInterval) {
+                        pvcLocalPhase = (pvcSuperPos - pvcEarlyStart) / beatInterval;
+                        isPVCBeat = true;
+                    }
+                    
+                    if (pvcLocalPhase >= 0 && pvcLocalPhase <= 1) {
+                        if (isPVCBeat) {
+                            // PVC — wide, bizarre, no P wave, tall, with inverted T after
+                            if (pvcLocalPhase >= 0.05 && pvcLocalPhase < 0.18) {
+                                // Wide tall R wave
+                                y = baselineY - Math.sin(((pvcLocalPhase - 0.05) / 0.13) * Math.PI) * 75;
+                            } else if (pvcLocalPhase >= 0.18 && pvcLocalPhase < 0.32) {
+                                // Deep wide S wave
+                                y = baselineY + Math.sin(((pvcLocalPhase - 0.18) / 0.14) * Math.PI) * 30;
+                            } else if (pvcLocalPhase >= 0.36 && pvcLocalPhase < 0.56) {
+                                // Inverted (opposite direction) T wave
+                                y = baselineY + Math.sin(((pvcLocalPhase - 0.36) / 0.20) * Math.PI) * 14;
+                            }
+                        } else {
+                            // Normal sinus beat
+                            if (pvcLocalPhase >= 0.0 && pvcLocalPhase < 0.08) {
+                                y = baselineY - Math.sin((pvcLocalPhase / 0.08) * Math.PI) * 10;
+                            } else if (pvcLocalPhase >= 0.16 && pvcLocalPhase < 0.18) {
+                                y = baselineY + Math.sin(((pvcLocalPhase - 0.16) / 0.02) * Math.PI) * 8;
+                            } else if (pvcLocalPhase >= 0.18 && pvcLocalPhase < 0.22) {
+                                y = baselineY - Math.sin(((pvcLocalPhase - 0.18) / 0.04) * Math.PI) * 60;
+                            } else if (pvcLocalPhase >= 0.22 && pvcLocalPhase < 0.26) {
+                                y = baselineY + Math.sin(((pvcLocalPhase - 0.22) / 0.04) * Math.PI) * 15;
+                            } else if (pvcLocalPhase >= 0.35 && pvcLocalPhase < 0.50) {
+                                y = baselineY - Math.sin(((pvcLocalPhase - 0.35) / 0.15) * Math.PI) * 15;
+                            }
+                        }
+                    }
+                    break;
+                    
+                case 'pacs':
+                    // PACs — mostly normal sinus with occasional EARLY beats
+                    // Pattern: 3 normal beats, then 1 early PAC, then a pause
+                    // We use a longer super-cycle to create the irregular timing
+                    const pacSuperCycle = beatInterval * 4.3; // 3 normal + 1 early + pause
+                    const pacSuperPos = adjustedX % pacSuperCycle;
+                    
+                    // Beat positions within the super-cycle
+                    const pacBeat1Start = 0;
+                    const pacBeat2Start = beatInterval;
+                    const pacBeat3Start = beatInterval * 2;
+                    const pacEarlyStart = beatInterval * 2.65; // PAC arrives EARLY
+                    // Then a pause until the next super-cycle starts
+                    
+                    let pacLocalPhase = -1;
+                    let isPACBeat = false;
+                    
+                    if (pacSuperPos >= pacBeat1Start && pacSuperPos < pacBeat2Start) {
+                        pacLocalPhase = (pacSuperPos - pacBeat1Start) / beatInterval;
+                    } else if (pacSuperPos >= pacBeat2Start && pacSuperPos < pacBeat3Start) {
+                        pacLocalPhase = (pacSuperPos - pacBeat2Start) / beatInterval;
+                    } else if (pacSuperPos >= pacBeat3Start && pacSuperPos < pacEarlyStart) {
+                        pacLocalPhase = (pacSuperPos - pacBeat3Start) / beatInterval;
+                    } else if (pacSuperPos >= pacEarlyStart && pacSuperPos < pacEarlyStart + beatInterval) {
+                        pacLocalPhase = (pacSuperPos - pacEarlyStart) / beatInterval;
+                        isPACBeat = true;
+                    }
+                    
+                    if (pacLocalPhase >= 0 && pacLocalPhase <= 1) {
+                        if (isPACBeat) {
+                            // PAC beat — slightly different (taller/sharper) P wave, normal QRS
+                            if (pacLocalPhase >= 0.0 && pacLocalPhase < 0.06) {
+                                y = baselineY - Math.sin((pacLocalPhase / 0.06) * Math.PI) * 14;
+                            } else if (pacLocalPhase >= 0.14 && pacLocalPhase < 0.16) {
+                                y = baselineY + Math.sin(((pacLocalPhase - 0.14) / 0.02) * Math.PI) * 8;
+                            } else if (pacLocalPhase >= 0.16 && pacLocalPhase < 0.20) {
+                                y = baselineY - Math.sin(((pacLocalPhase - 0.16) / 0.04) * Math.PI) * 60;
+                            } else if (pacLocalPhase >= 0.20 && pacLocalPhase < 0.24) {
+                                y = baselineY + Math.sin(((pacLocalPhase - 0.20) / 0.04) * Math.PI) * 15;
+                            } else if (pacLocalPhase >= 0.33 && pacLocalPhase < 0.48) {
+                                y = baselineY - Math.sin(((pacLocalPhase - 0.33) / 0.15) * Math.PI) * 14;
+                            }
+                        } else {
+                            // Normal sinus beat
+                            if (pacLocalPhase >= 0.0 && pacLocalPhase < 0.08) {
+                                y = baselineY - Math.sin((pacLocalPhase / 0.08) * Math.PI) * 10;
+                            } else if (pacLocalPhase >= 0.16 && pacLocalPhase < 0.18) {
+                                y = baselineY + Math.sin(((pacLocalPhase - 0.16) / 0.02) * Math.PI) * 8;
+                            } else if (pacLocalPhase >= 0.18 && pacLocalPhase < 0.22) {
+                                y = baselineY - Math.sin(((pacLocalPhase - 0.18) / 0.04) * Math.PI) * 60;
+                            } else if (pacLocalPhase >= 0.22 && pacLocalPhase < 0.26) {
+                                y = baselineY + Math.sin(((pacLocalPhase - 0.22) / 0.04) * Math.PI) * 15;
+                            } else if (pacLocalPhase >= 0.35 && pacLocalPhase < 0.50) {
+                                y = baselineY - Math.sin(((pacLocalPhase - 0.35) / 0.15) * Math.PI) * 15;
+                            }
+                        }
+                    }
+                    break;
+                    
+                case 'hyperkalaemia':
+                    // Widened QRS + very tall peaked T waves + flattened P
+                    if (cyclePos >= 0.0 && cyclePos < 0.05) {
+                        // Flattened, barely visible P wave
+                        y = baselineY - Math.sin((cyclePos / 0.05) * Math.PI) * 3;
+                    } else if (cyclePos >= 0.12 && cyclePos < 0.16) {
+                        // Wide Q onset
+                        y = baselineY + Math.sin(((cyclePos - 0.12) / 0.04) * Math.PI) * 10;
+                    } else if (cyclePos >= 0.16 && cyclePos < 0.26) {
+                        // Wide QRS — takes longer than normal
+                        y = baselineY - Math.sin(((cyclePos - 0.16) / 0.10) * Math.PI) * 50;
+                    } else if (cyclePos >= 0.26 && cyclePos < 0.34) {
+                        // Wide S wave
+                        y = baselineY + Math.sin(((cyclePos - 0.26) / 0.08) * Math.PI) * 18;
+                    } else if (cyclePos >= 0.37 && cyclePos < 0.54) {
+                        // Very tall, peaked, narrow T wave (tent-shaped) — the hallmark sign
+                        const tPos = (cyclePos - 0.37) / 0.17;
+                        y = baselineY - Math.pow(Math.sin(tPos * Math.PI), 1.5) * 55;
+                    }
+                    break;
+                    
+                case 'stemi':
+                    // Normal QRS with ST elevation and possible Q waves
+                    if (cyclePos >= 0.0 && cyclePos < 0.08) {
+                        y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
+                    } else if (cyclePos >= 0.14 && cyclePos < 0.16) {
+                        // Pathological Q wave
+                        y = baselineY + Math.sin(((cyclePos - 0.14) / 0.02) * Math.PI) * 15;
+                    } else if (cyclePos >= 0.16 && cyclePos < 0.20) {
+                        y = baselineY - Math.sin(((cyclePos - 0.16) / 0.04) * Math.PI) * 60;
+                    } else if (cyclePos >= 0.20 && cyclePos < 0.24) {
+                        y = baselineY + Math.sin(((cyclePos - 0.20) / 0.04) * Math.PI) * 12;
+                    } else if (cyclePos >= 0.24 && cyclePos < 0.55) {
+                        // ST elevation — stays elevated above baseline
+                        const stBase = baselineY - 18;
+                        if (cyclePos < 0.35) {
+                            // ST segment — elevated plateau
+                            y = stBase;
+                        } else {
+                            // Elevated T wave merging with ST segment
+                            y = stBase - Math.sin(((cyclePos - 0.35) / 0.20) * Math.PI) * 12;
+                        }
+                    }
+                    break;
+                    
+                case 'longQT':
+                    // Normal PQRS but prolonged QT with broad T wave
+                    if (cyclePos >= 0.0 && cyclePos < 0.08) {
+                        y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
+                    } else if (cyclePos >= 0.16 && cyclePos < 0.18) {
+                        y = baselineY + Math.sin(((cyclePos - 0.16) / 0.02) * Math.PI) * 8;
+                    } else if (cyclePos >= 0.18 && cyclePos < 0.22) {
+                        y = baselineY - Math.sin(((cyclePos - 0.18) / 0.04) * Math.PI) * 60;
+                    } else if (cyclePos >= 0.22 && cyclePos < 0.26) {
+                        y = baselineY + Math.sin(((cyclePos - 0.22) / 0.04) * Math.PI) * 15;
+                    } else if (cyclePos >= 0.32 && cyclePos < 0.70) {
+                        // Very broad, prolonged T wave (the long QT)
+                        const tPos = (cyclePos - 0.32) / 0.38;
+                        y = baselineY - Math.sin(tPos * Math.PI) * 18;
+                        // Add slight notch in T wave (common in long QT)
+                        if (tPos > 0.4 && tPos < 0.6) {
+                            y += Math.sin(((tPos - 0.4) / 0.2) * Math.PI) * 4;
                         }
                     }
                     break;
