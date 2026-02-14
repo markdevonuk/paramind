@@ -1,3 +1,26 @@
+/* ==================== PRO GUARD - CENTRALISED ACCESS CONTROL ==================== */
+/* ParaMind - Pro Page Guard
+ * Version 1.0
+ * 
+ * PURPOSE: Single script that protects ALL Pro pages. Add to any Pro page and it handles:
+ *   1. Not signed in → redirects to login.html
+ *   2. Signed in + Free user → redirects to upgrade.html
+ *   3. Signed in + Pro user → page loads normally
+ *
+ * USAGE: Add these 3 scripts (in this order) before </body> on every Pro page:
+ *   <script src="js/app.js"></script>
+ *   <script src="js/menu-v2.js"></script>
+ *   <script src="js/pro-guard.js"></script>
+ *
+ * That's it. No other auth/subscription code needed in the page.
+ * 
+ * HOW IT WORKS:
+ *   - Shows a loading screen immediately (hides page content)
+ *   - Waits for Firebase (loaded by menu-v2.js) to report auth state
+ *   - Checks subscription status in Firestore
+ *   - Either reveals the page or redirects
+ */
+
 (function () {
     'use strict';
 
@@ -5,7 +28,16 @@
     const GUARD_CONFIG = {
         loginPage: 'login.html',
         upgradePage: 'upgrade.html',
-        maxWaitMs: 8000  // Max time to wait for Firebase before redirecting to login
+        maxWaitMs: 10000,  // Max time to wait for Firebase before redirecting to login
+        firebaseConfig: {
+            apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
+            authDomain: "paramind-64b8e.firebaseapp.com",
+            projectId: "paramind-64b8e",
+            storageBucket: "paramind-64b8e.firebasestorage.app",
+            messagingSenderId: "452173393964",
+            appId: "1:452173393964:web:8599c0fe1983a6f441e189",
+            measurementId: "G-GW385S6L0L"
+        }
     };
 
     // ==================== INJECT LOADING SCREEN ====================
@@ -68,26 +100,39 @@
     }
 
     // ==================== WAIT FOR FIREBASE ====================
-    // menu-v2.js dynamically loads Firebase — we wait for it to be ready
+    // menu-v2.js dynamically loads Firebase — we wait for it to be FULLY ready
+    // (SDK loaded AND app initialised, so auth persistence is available)
     function waitForFirebase(callback) {
         const startTime = Date.now();
 
         function check() {
-            // Firebase compat SDK loaded and ready?
-            if (typeof firebase !== 'undefined' && firebase.auth && firebase.firestore) {
+            // Firebase compat SDK loaded AND at least one app initialised?
+            if (typeof firebase !== 'undefined' && firebase.auth && firebase.firestore && firebase.apps && firebase.apps.length > 0) {
                 callback(true);
                 return;
             }
 
             // Timed out?
             if (Date.now() - startTime > GUARD_CONFIG.maxWaitMs) {
+                // Last resort: try to init ourselves if SDK is loaded but app isn't
+                if (typeof firebase !== 'undefined' && firebase.auth && firebase.firestore) {
+                    try {
+                        if (!firebase.apps || firebase.apps.length === 0) {
+                            firebase.initializeApp(GUARD_CONFIG.firebaseConfig);
+                        }
+                        callback(true);
+                        return;
+                    } catch (e) {
+                        // Fall through to failure
+                    }
+                }
                 console.warn('Pro Guard: Firebase did not load in time');
                 callback(false);
                 return;
             }
 
             // Keep waiting
-            setTimeout(check, 100);
+            setTimeout(check, 150);
         }
 
         check();
@@ -102,28 +147,17 @@
                 return;
             }
 
-            // Ensure Firebase is initialised
-            // (menu-v2.js usually handles this, but just in case)
-            const FIREBASE_CONFIG = {
-                apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
-                authDomain: "paramind-64b8e.firebaseapp.com",
-                projectId: "paramind-64b8e",
-                storageBucket: "paramind-64b8e.firebasestorage.app",
-                messagingSenderId: "452173393964",
-                appId: "1:452173393964:web:8599c0fe1983a6f441e189",
-                measurementId: "G-GW385S6L0L"
-            };
-
-            try {
-                if (!firebase.apps || firebase.apps.length === 0) {
-                    firebase.initializeApp(FIREBASE_CONFIG);
-                }
-            } catch (e) {
-                // Already initialised — that's fine
-            }
+            console.log('Pro Guard: Firebase ready, checking auth state...');
 
             // Listen for auth state
+            // onAuthStateChanged fires once auth persistence is resolved
+            var authHandled = false;
+
             firebase.auth().onAuthStateChanged(function (user) {
+                // Only act on the FIRST auth state callback
+                if (authHandled) return;
+                authHandled = true;
+
                 if (!user) {
                     // ========== NOT SIGNED IN → LOGIN ==========
                     console.log('Pro Guard: Not signed in → login');
@@ -131,12 +165,19 @@
                     return;
                 }
 
+                console.log('Pro Guard: User signed in, checking subscription...');
+
                 // User is signed in — now check subscription
                 firebase.firestore().collection('users').doc(user.uid).get()
                     .then(function (doc) {
                         if (doc.exists) {
                             var data = doc.data();
-                            var isPro = data.subscriptionStatus === 'active' || data.isPro === true;
+                            var status = data.subscriptionStatus;
+                            var isPro = status === 'active' || 
+                                        status === 'pro' || 
+                                        data.isPro === true;
+
+                            console.log('Pro Guard: subscriptionStatus =', status, '| isPro =', data.isPro, '| result =', isPro);
 
                             if (isPro) {
                                 // ========== PRO USER → SHOW PAGE ==========
