@@ -2450,14 +2450,11 @@ function formatScenarioType(scenario) {
                 const firstBtn = document.querySelector('.dispatch-btn');
                 if (firstBtn) openScenarioModal(firstBtn.dataset.scenarioId);
                 setTimeout(() => {
-                    const modalEl = document.getElementById('scenarioModal');
-                    if (modalEl) modalEl.style.zIndex = '9005';
-                    // Raise the Bootstrap backdrop above the tour overlay too
-                    const backdrop = document.querySelector('.modal-backdrop');
-                    if (backdrop) backdrop.style.zIndex = '9003';
-                    // Hide the spotlight — the modal backdrop acts as the dark overlay
+                    // Move tooltip OUT of the overlay so it escapes the stacking context
+                    document.body.appendChild(tour.tooltip);
+                    tour.tooltip.style.zIndex = '99999';
+                    tour.tooltip.style.position = 'fixed';
                     tour.spotlight.style.display = 'none';
-                    tour.tooltip.style.zIndex = '9010';
                 }, 350);
             }
         },
@@ -2466,11 +2463,13 @@ function formatScenarioType(scenario) {
             title: 'You\'re On Scene',
             desc: 'The active incident banner shows the patient details and triage category. You can end the scenario at any time with the End button.',
             action: () => {
-                // Clean up modal z-index overrides
-                const modalEl = document.getElementById('scenarioModal');
-                if (modalEl) modalEl.style.zIndex = '';
+                // Move tooltip back into the tour overlay
+                tour.overlay.appendChild(tour.tooltip);
                 tour.tooltip.style.zIndex = '';
                 tour.spotlight.style.display = '';
+                // Close the modal
+                const modalEl = document.getElementById('scenarioModal');
+                if (modalEl) modalEl.style.zIndex = '';
                 const modal = bootstrap.Modal.getInstance(modalEl);
                 if (modal) modal.hide();
                 // Clean up any lingering modal backdrop
@@ -2666,6 +2665,10 @@ function formatScenarioType(scenario) {
 
     function endTour() {
         tour.overlay.classList.remove('active');
+        // Move tooltip back into overlay if it was moved to body
+        if (tour.tooltip.parentElement !== tour.overlay) {
+            tour.overlay.appendChild(tour.tooltip);
+        }
         tour.tooltip.style.zIndex = '';
         tour.spotlight.style.display = '';
         markTourDone();
