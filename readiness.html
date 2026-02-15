@@ -826,7 +826,17 @@
     
     function shareFB() {
         const s = getShareText();
-        window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(s.url)+'&quote='+encodeURIComponent(s.text), '_blank');
+        const fullText = s.text + ' ' + s.url;
+        if(navigator.clipboard) {
+            navigator.clipboard.writeText(fullText).then(()=>{
+                showToast('Score copied — paste it into your Facebook post!');
+                setTimeout(()=>{
+                    window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(s.url), '_blank');
+                }, 600);
+            });
+        } else {
+            window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(s.url), '_blank');
+        }
     }
     
     function shareX() {
@@ -837,7 +847,17 @@
     
     function shareLI() {
         const s = getShareText();
-        window.open('https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(s.url), '_blank');
+        const fullText = s.text + ' ' + s.url;
+        if(navigator.clipboard) {
+            navigator.clipboard.writeText(fullText).then(()=>{
+                showToast('Score copied — paste it into your LinkedIn post!');
+                setTimeout(()=>{
+                    window.open('https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(s.url), '_blank');
+                }, 600);
+            });
+        } else {
+            window.open('https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(s.url), '_blank');
+        }
     }
     
     function copyShareText(btn) {
@@ -852,6 +872,33 @@
                 setTimeout(()=>{ btn.innerHTML = orig; btn.style.color = ''; btn.style.borderColor = ''; }, 2000);
             });
         }
+    }
+    
+    /* ── Toast notification ────────────────────────────────── */
+    function showToast(msg) {
+        const existing = document.getElementById('share-toast');
+        if(existing) existing.remove();
+        const toast = document.createElement('div');
+        toast.id = 'share-toast';
+        toast.textContent = msg;
+        Object.assign(toast.style, {
+            position:'fixed', bottom:'24px', left:'50%', transform:'translateX(-50%) translateY(20px)',
+            background:'#1e293b', color:'#5CB85C', padding:'12px 24px', borderRadius:'12px',
+            fontSize:'14px', fontWeight:'600', fontFamily:'Plus Jakarta Sans,sans-serif',
+            boxShadow:'0 8px 32px rgba(0,0,0,0.4)', border:'1px solid rgba(92,184,92,0.2)',
+            zIndex:'9999', opacity:'0', transition:'all 0.3s ease', whiteSpace:'nowrap',
+            maxWidth:'90vw', textAlign:'center'
+        });
+        document.body.appendChild(toast);
+        requestAnimationFrame(()=>{
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(-50%) translateY(0)';
+        });
+        setTimeout(()=>{
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(-50%) translateY(20px)';
+            setTimeout(()=> toast.remove(), 300);
+        }, 3000);
     }
     </script>
 </body>
