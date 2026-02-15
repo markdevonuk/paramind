@@ -2452,6 +2452,11 @@ function formatScenarioType(scenario) {
                 setTimeout(() => {
                     const modalEl = document.getElementById('scenarioModal');
                     if (modalEl) modalEl.style.zIndex = '9005';
+                    // Raise the Bootstrap backdrop above the tour overlay too
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) backdrop.style.zIndex = '9003';
+                    // Hide the spotlight — the modal backdrop acts as the dark overlay
+                    tour.spotlight.style.display = 'none';
                     tour.tooltip.style.zIndex = '9010';
                 }, 350);
             }
@@ -2465,6 +2470,7 @@ function formatScenarioType(scenario) {
                 const modalEl = document.getElementById('scenarioModal');
                 if (modalEl) modalEl.style.zIndex = '';
                 tour.tooltip.style.zIndex = '';
+                tour.spotlight.style.display = '';
                 const modal = bootstrap.Modal.getInstance(modalEl);
                 if (modal) modal.hide();
                 // Clean up any lingering modal backdrop
@@ -2661,6 +2667,7 @@ function formatScenarioType(scenario) {
     function endTour() {
         tour.overlay.classList.remove('active');
         tour.tooltip.style.zIndex = '';
+        tour.spotlight.style.display = '';
         markTourDone();
         // Close any open modal and reset z-index
         const modalEl = document.getElementById('scenarioModal');
