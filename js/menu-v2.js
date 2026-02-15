@@ -34,6 +34,7 @@
             { id: 'interview', href: 'interview.html', icon: 'bi-mic', label: 'Interview Prep', isPro: true },
             { id: 'connections', href: 'connections.html', icon: 'bi-heart-pulse', label: 'A&P Connections', isPro: true },
             { id: 'drugs', href: 'drugs.html', icon: 'bi-capsule', label: 'Drugs', isPro: true },
+            { id: 'bonelab', href: 'bone-lab.html', icon: 'bi-body-text', label: 'Bone Lab', isPro: true },
             { id: 'atmist', href: 'atmist.html', icon: 'bi-telephone-outbound', label: 'ATMIST', isPro: true },
             { id: 'ecg', href: 'ecg.html', icon: 'bi-activity', label: 'ECG Tool', isPro: true },
             { id: 'cpd', href: 'cpd.html', icon: 'bi-award', label: 'CPD Portfolio', isPro: true }
@@ -55,6 +56,7 @@
         if (path.includes('interview')) return 'interview';
         if (path.includes('connections') || path.includes('connections')) return 'connections';
         if (path.includes('drugs')) return 'drugs';
+        if (path.includes('bone-lab')) return 'bonelab';
         if (path.includes('atmist')) return 'atmist';
         if (path.includes('ecg')) return 'ecg';
         if (path.includes('cpd')) return 'cpd';

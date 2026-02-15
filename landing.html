@@ -321,6 +321,7 @@
         .card-atmist .card-glow        { background: rgba(220,53,69,0.1); }
         .card-ecg .card-glow           { background: rgba(245,158,11,0.12); }
         .card-cpd .card-glow           { background: rgba(139,92,246,0.1); }
+        .card-bonelab .card-glow       { background: rgba(20,184,166,0.1); }
         
         /* Top gradient accent line */
         .tool-card .card-line {
@@ -346,6 +347,7 @@
         .card-atmist        { --card-gradient: linear-gradient(135deg, #dc3545, #c82333); }
         .card-ecg           { --card-gradient: linear-gradient(135deg, #f59e0b, #fbbf24); }
         .card-cpd           { --card-gradient: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+        .card-bonelab       { --card-gradient: linear-gradient(135deg, #14b8a6, #2dd4bf); }
         
         .tool-card-header {
             display: flex; align-items: flex-start; gap: 1rem;
@@ -367,6 +369,7 @@
         .card-atmist .tool-card-icon        { background: rgba(220,53,69,0.12); color: #dc3545; }
         .card-ecg .tool-card-icon           { background: rgba(245,158,11,0.15); color: #d97706; }
         .card-cpd .tool-card-icon           { background: rgba(139,92,246,0.12); color: #8b5cf6; }
+        .card-bonelab .tool-card-icon       { background: rgba(20,184,166,0.12); color: #14b8a6; }
         
         .tool-card-title { font-weight: 700; font-size: 1.05rem; color: var(--color-gray-800); margin-bottom: 0.1rem; display: flex; align-items: center; gap: 0.5rem; }
         .tool-card-subtitle { font-size: 0.72rem; color: var(--color-gray-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -736,6 +739,21 @@
                     <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
                 </a>
                 
+                <!-- Bone Lab -->
+                <a href="bone-lab.html" class="tool-card card-bonelab reveal-element" id="bonelabCard">
+                    <div class="card-glow"></div>
+                    <div class="card-line"></div>
+                    <div class="tool-card-header">
+                        <div class="tool-card-icon"><i class="bi bi-body-text"></i></div>
+                        <div class="tool-card-info">
+                            <div class="tool-card-title">Bone Lab <span class="card-pro-badge" id="bonelabProBadge">Pro</span></div>
+                            <div class="tool-card-subtitle">Skeletal Anatomy</div>
+                        </div>
+                    </div>
+                    <p class="tool-card-desc">Interactive skeleton with 63 landmarks, quiz mode, and 15 clinical fracture scenarios.</p>
+                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
+                </a>
+                
                 <!-- ATMIST -->
                 <a href="atmist.html" class="tool-card card-atmist reveal-element" id="atmistCard">
                     <div class="card-glow"></div>
@@ -1041,6 +1059,7 @@
         const atmistProBadge = document.getElementById('atmistProBadge');
         const ecgProBadge = document.getElementById('ecgProBadge');
         const cpdProBadge = document.getElementById('cpdProBadge');
+        const bonelabProBadge = document.getElementById('bonelabProBadge');
 
         // ==================== AUTH STATE ====================
         auth.onAuthStateChanged(async (user) => {
@@ -1092,6 +1111,7 @@
                 if (atmistProBadge) atmistProBadge.style.display = 'none';
                 if (ecgProBadge) ecgProBadge.style.display = 'none';
                 if (cpdProBadge) cpdProBadge.style.display = 'none';
+                if (bonelabProBadge) bonelabProBadge.style.display = 'none';
                 
                 document.querySelectorAll('.tool-card').forEach(card => {
                     card.classList.remove('locked');
@@ -1106,6 +1126,7 @@
                 document.getElementById('atmistCard')?.classList.add('locked');
                 document.getElementById('ecgCard')?.classList.add('locked');
                 document.getElementById('cpdCard')?.classList.add('locked');
+                document.getElementById('bonelabCard')?.classList.add('locked');
                 
                 updateMessageCount();
             }
