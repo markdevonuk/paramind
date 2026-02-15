@@ -485,18 +485,86 @@
         }
         .sheet-landmarks {
             display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
+            flex-direction: column;
+            gap: 6px;
             margin-bottom: 8px;
         }
-        .sheet-landmarks span {
-            display: inline-block;
-            background: rgba(43,138,156,0.1);
-            color: var(--color-teal-dark);
-            font-size: 0.75rem;
+        .landmark-card {
+            border: 1px solid var(--color-gray-200);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            background: var(--color-white);
+        }
+        .landmark-card.open {
+            border-color: var(--color-teal);
+            box-shadow: 0 2px 8px rgba(43,138,156,0.1);
+        }
+        .landmark-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 9px 12px;
+            cursor: pointer;
+            gap: 8px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .landmark-header:active {
+            background: var(--color-gray-50);
+        }
+        .landmark-name {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.8rem;
             font-weight: 600;
-            padding: 4px 10px;
-            border-radius: var(--radius-full);
+            color: var(--color-teal-dark);
+        }
+        .landmark-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--color-teal);
+            flex-shrink: 0;
+            opacity: 0.6;
+        }
+        .landmark-card.open .landmark-dot {
+            opacity: 1;
+        }
+        .landmark-chevron {
+            font-size: 0.75rem;
+            color: var(--color-gray-400);
+            transition: transform 0.25s ease;
+            flex-shrink: 0;
+        }
+        .landmark-card.open .landmark-chevron {
+            transform: rotate(180deg);
+            color: var(--color-teal);
+        }
+        .landmark-detail {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s cubic-bezier(0.32, 0.72, 0, 1), padding 0.3s ease;
+            padding: 0 12px;
+        }
+        .landmark-card.open .landmark-detail {
+            max-height: 200px;
+            padding: 0 12px 10px;
+        }
+        .landmark-detail p {
+            font-size: 0.8rem;
+            line-height: 1.55;
+            color: var(--color-gray-600);
+            margin: 0;
+            border-top: 1px solid var(--color-gray-100);
+            padding-top: 8px;
+        }
+        .landmark-hint {
+            font-size: 0.7rem;
+            color: var(--color-gray-400);
+            text-align: center;
+            margin-top: 6px;
+            font-weight: 500;
         }
         .sheet-scenario-text {
             font-size: 0.9rem;
@@ -935,25 +1003,107 @@
 <script>
     // ==================== BONE DATA ====================
     const BONES = {
-        skull: { name: "Skull", region: "Head", desc: "The bony structure of the head protecting the brain. Key for assessing head injuries — check for Battle's sign, raccoon eyes, and palpable depressions.", landmarks: ["Frontal bone", "Temporal bone", "Occipital bone", "Mastoid process"], views: ["anterior", "posterior"] },
-        cervical_spine: { name: "Cervical Spine (C1–C7)", region: "Spine", desc: "Seven vertebrae of the neck. C-spine immobilisation is critical in trauma. C1 (atlas) and C2 (axis) injuries can be fatal.", landmarks: ["C1 Atlas", "C2 Axis (odontoid peg)", "C7 vertebra prominens"], views: ["anterior", "posterior"] },
-        thoracic_spine: { name: "Thoracic Spine (T1–T12)", region: "Spine", desc: "Twelve vertebrae that articulate with the ribs. Thoracic spine fractures often result from significant force (falls from height, RTCs).", landmarks: ["Spinous processes", "Rib articulations", "T4 (Angle of Louis level)"], views: ["anterior", "posterior"] },
-        lumbar_spine: { name: "Lumbar Spine (L1–L5)", region: "Spine", desc: "Five large vertebrae of the lower back. Burst fractures common in falls from height (axial loading). Cauda equina syndrome is a red flag.", landmarks: ["L4–L5 (most common disc herniation)", "Cauda equina below L1–L2"], views: ["anterior", "posterior"] },
-        sacrum: { name: "Sacrum & Coccyx", region: "Spine / Pelvis", desc: "Fused vertebrae at the base of the spine forming the posterior pelvis. Sacral fractures often accompany pelvic ring injuries.", landmarks: ["Sacroiliac joints", "Coccyx"], views: ["posterior"] },
-        sternum: { name: "Sternum", region: "Thorax", desc: "The breastbone. Sternal fractures are associated with significant blunt chest trauma (seatbelt injuries) and may indicate underlying cardiac contusion.", landmarks: ["Manubrium", "Body of sternum", "Xiphoid process", "Angle of Louis (T2)"], views: ["anterior"] },
-        ribs: { name: "Ribs (1–12)", region: "Thorax", desc: "Twelve pairs forming the thoracic cage. Fractures of ribs 1–3 suggest major force. Lower rib fractures (9–12) may indicate splenic or hepatic injury. Flail chest = 3+ ribs fractured in 2+ places.", landmarks: ["True ribs (1–7)", "False ribs (8–10)", "Floating ribs (11–12)"], views: ["anterior", "posterior"] },
-        clavicle: { name: "Clavicle", region: "Upper Limb", desc: "The collarbone — one of the most commonly fractured bones. Usually from FOOSH or direct shoulder impact. Middle third fractures most common.", landmarks: ["Sternoclavicular joint", "Acromioclavicular joint", "Mid-shaft"], views: ["anterior"] },
-        scapula: { name: "Scapula", region: "Upper Limb", desc: "The shoulder blade. Scapula fractures require significant force and often indicate other serious injuries (pulmonary contusion, rib fractures).", landmarks: ["Acromion", "Coracoid process", "Glenoid fossa", "Spine of scapula"], views: ["posterior"] },
-        humerus: { name: "Humerus", region: "Upper Limb", desc: "Upper arm bone. Proximal fractures common in elderly falls. Mid-shaft fractures risk radial nerve damage (wrist drop).", landmarks: ["Head", "Greater tuberosity", "Surgical neck", "Medial/lateral epicondyles"], views: ["anterior", "posterior"] },
-        radius: { name: "Radius", region: "Upper Limb", desc: "Lateral forearm bone (thumb side). Distal radius fractures (Colles') are extremely common — classic 'dinner fork' deformity from FOOSH.", landmarks: ["Radial head", "Radial styloid", "Distal radius"], views: ["anterior", "posterior"] },
-        ulna: { name: "Ulna", region: "Upper Limb", desc: "Medial forearm bone (little finger side). Olecranon fractures from direct elbow impact. 'Nightstick fracture' — isolated ulna shaft from defensive injury.", landmarks: ["Olecranon", "Ulnar styloid", "Coronoid process"], views: ["anterior", "posterior"] },
-        hand: { name: "Hand & Wrist", region: "Upper Limb", desc: "8 carpals, 5 metacarpals, 14 phalanges. Scaphoid fractures are commonly missed — anatomical snuffbox tenderness is the key sign. Boxer's fracture = 5th metacarpal neck.", landmarks: ["Scaphoid (snuffbox)", "5th metacarpal", "Anatomical snuffbox"], views: ["anterior"] },
-        pelvis: { name: "Pelvis", region: "Pelvis", desc: "A ring structure — if broken in one place, often broken in another. Pelvic fractures can cause life-threatening haemorrhage. Use pelvic binder. Never 'spring' the pelvis.", landmarks: ["Iliac crest", "ASIS", "Pubic symphysis", "Ischial tuberosity", "Acetabulum"], views: ["anterior"] },
-        femur: { name: "Femur", region: "Lower Limb", desc: "Longest and strongest bone. #NOF extremely common in elderly — look for shortened, externally rotated leg. Shaft fractures can lose 1–1.5L blood.", landmarks: ["Head", "Neck", "Greater trochanter", "Lesser trochanter", "Condyles"], views: ["anterior", "posterior"] },
-        patella: { name: "Patella", region: "Lower Limb", desc: "The kneecap — a sesamoid bone. Fractures from direct impact (dashboard injury). Test: can the patient straight-leg raise?", landmarks: ["Anterior surface", "Patellar tendon"], views: ["anterior"] },
-        tibia: { name: "Tibia", region: "Lower Limb", desc: "The shinbone — main weight-bearing bone of the lower leg. Open fractures common due to minimal soft tissue anteriorly.", landmarks: ["Tibial plateau", "Tibial tuberosity", "Medial malleolus", "Anterior border"], views: ["anterior", "posterior"] },
-        fibula: { name: "Fibula", region: "Lower Limb", desc: "Thin lateral bone of lower leg. Not weight-bearing but crucial for ankle stability. Lateral malleolus fractures are the most common ankle fracture.", landmarks: ["Fibular head", "Lateral malleolus"], views: ["anterior", "posterior"] },
-        foot: { name: "Foot & Ankle", region: "Lower Limb", desc: "7 tarsals, 5 metatarsals, 14 phalanges. Calcaneal fractures from falls — always check lumbar spine too. Use Ottawa Ankle Rules.", landmarks: ["Calcaneus", "Talus", "5th metatarsal base", "Navicular"], views: ["anterior"] }
+        skull: { name: "Skull", region: "Head", desc: "The bony structure of the head protecting the brain. Key for assessing head injuries — check for Battle's sign, raccoon eyes, and palpable depressions.", landmarks: [
+            { name: "Frontal bone", info: "Forms the forehead. Fractures here from direct impact can cause underlying frontal lobe contusion. Palpate gently for depressions or crepitus in head trauma." },
+            { name: "Temporal bone", info: "Thin bone on the side of the skull — the weakest part. Houses the middle meningeal artery; fractures here can cause extradural haematoma (lucid interval → rapid deterioration)." },
+            { name: "Occipital bone", info: "Back of the skull. Occipital fractures may be missed if the patient isn't log-rolled. Check for boggy swelling or haematoma posteriorly." },
+            { name: "Mastoid process", info: "Bony lump behind the ear. Bruising here (Battle's sign) takes 12–24 hrs to develop and indicates base of skull fracture. Do NOT insert a nasopharyngeal airway." }
+        ], views: ["anterior", "posterior"] },
+        cervical_spine: { name: "Cervical Spine (C1–C7)", region: "Spine", desc: "Seven vertebrae of the neck. C-spine immobilisation is critical in trauma. C1 (atlas) and C2 (axis) injuries can be fatal.", landmarks: [
+            { name: "C1 Atlas", info: "Ring-shaped vertebra supporting the skull. Allows nodding ('yes' movement). Jefferson fracture (burst of C1) from axial loading — e.g. diving into shallow water." },
+            { name: "C2 Axis (odontoid peg)", info: "Has the odontoid peg (dens) which C1 rotates around ('no' movement). Hangman's fracture or odontoid peg fracture — can be fatal if unstable. Common in elderly falls." },
+            { name: "C7 vertebra prominens", info: "The most prominent spinous process — easily palpable at the base of the neck. Used as a landmark when assessing spinal tenderness in trauma." }
+        ], views: ["anterior", "posterior"] },
+        thoracic_spine: { name: "Thoracic Spine (T1–T12)", region: "Spine", desc: "Twelve vertebrae that articulate with the ribs. Thoracic spine fractures often result from significant force (falls from height, RTCs).", landmarks: [
+            { name: "Spinous processes", info: "Palpable down the midline of the back. Midline tenderness is a key red flag for spinal fracture — triggers full immobilisation in trauma patients." },
+            { name: "Rib articulations", info: "Each thoracic vertebra articulates with a pair of ribs. Fracture-dislocations here can damage the spinal cord, which has very poor blood supply in the thoracic region." },
+            { name: "T4 (Angle of Louis level)", info: "T4 corresponds to the Angle of Louis (sternal angle) anteriorly. Key landmark: marks the level of the tracheal bifurcation and the aortic arch." }
+        ], views: ["anterior", "posterior"] },
+        lumbar_spine: { name: "Lumbar Spine (L1–L5)", region: "Spine", desc: "Five large vertebrae of the lower back. Burst fractures common in falls from height (axial loading). Cauda equina syndrome is a red flag.", landmarks: [
+            { name: "L4–L5 (most common disc herniation)", info: "The most mobile and most loaded lumbar segments. Disc herniation here compresses the L5 or S1 nerve roots. Ask about leg pain, numbness, and foot weakness." },
+            { name: "Cauda equina below L1–L2", info: "The spinal cord ends at L1–L2 (conus medullaris). Below this is the cauda equina — nerve roots floating in CSF. Cauda equina syndrome: bilateral leg pain, saddle anaesthesia, urinary retention. Surgical emergency." }
+        ], views: ["anterior", "posterior"] },
+        sacrum: { name: "Sacrum & Coccyx", region: "Spine / Pelvis", desc: "Fused vertebrae at the base of the spine forming the posterior pelvis. Sacral fractures often accompany pelvic ring injuries.", landmarks: [
+            { name: "Sacroiliac joints", info: "Where the sacrum meets the ilium on each side. SI joint disruption is part of pelvic ring injuries — suspect if there's asymmetry or posterior pelvic pain after trauma. Apply pelvic binder." },
+            { name: "Coccyx", info: "The 'tailbone' — 3–5 fused vertebrae. Coccyx fractures from direct falls onto the bottom. Very painful but rarely dangerous. Treat with analgesia and ring cushion." }
+        ], views: ["posterior"] },
+        sternum: { name: "Sternum", region: "Thorax", desc: "The breastbone. Sternal fractures are associated with significant blunt chest trauma (seatbelt injuries) and may indicate underlying cardiac contusion.", landmarks: [
+            { name: "Manubrium", info: "The top section of the sternum. Articulates with the clavicles and first ribs. Fractures here suggest high-energy impact — assess for mediastinal injury." },
+            { name: "Body of sternum", info: "The main flat section. CPR compressions are performed on the lower half of the sternum. Sternal fractures here are most common from seatbelt loading in RTCs." },
+            { name: "Xiphoid process", info: "Small cartilaginous projection at the bottom of the sternum. Avoid compressing this during CPR — it can lacerate the liver. Landmark for the diaphragm level." },
+            { name: "Angle of Louis (T2)", info: "The palpable ridge where the manubrium meets the body (2nd rib level). Key landmark: marks T4 posteriorly, tracheal bifurcation, aortic arch, and where to count ribs from." }
+        ], views: ["anterior"] },
+        ribs: { name: "Ribs (1–12)", region: "Thorax", desc: "Twelve pairs forming the thoracic cage. Fractures of ribs 1–3 suggest major force. Lower rib fractures (9–12) may indicate splenic or hepatic injury. Flail chest = 3+ ribs fractured in 2+ places.", landmarks: [
+            { name: "True ribs (1–7)", info: "Attach directly to the sternum via costal cartilage. Ribs 1–3 are protected by the shoulder girdle — fractures here indicate severe force and are associated with great vessel and brachial plexus injury." },
+            { name: "False ribs (8–10)", info: "Attach to the sternum indirectly via the costal cartilage of rib 7. Fractures in this region can injure the spleen (left) or liver (right) — monitor for signs of intra-abdominal haemorrhage." },
+            { name: "Floating ribs (11–12)", info: "No anterior attachment at all. Fractures here are associated with renal injury (kidneys sit posteriorly). Check for haematuria and loin pain/bruising." }
+        ], views: ["anterior", "posterior"] },
+        clavicle: { name: "Clavicle", region: "Upper Limb", desc: "The collarbone — one of the most commonly fractured bones. Usually from FOOSH or direct shoulder impact. Middle third fractures most common.", landmarks: [
+            { name: "Sternoclavicular joint", info: "Where the clavicle meets the sternum. Posterior SC joint dislocation is a rare but serious emergency — the clavicle can compress the trachea, oesophagus, or great vessels." },
+            { name: "Acromioclavicular joint", info: "Where the clavicle meets the acromion of the scapula. AC joint separation ('shoulder separation') causes a visible step deformity. Grade by the amount of displacement." },
+            { name: "Mid-shaft", info: "The middle third — where 80% of clavicle fractures occur. Often from falls onto the shoulder. Check for skin tenting (risk of open fracture). Support with a broad arm sling." }
+        ], views: ["anterior"] },
+        scapula: { name: "Scapula", region: "Upper Limb", desc: "The shoulder blade. Scapula fractures require significant force and often indicate other serious injuries (pulmonary contusion, rib fractures).", landmarks: [
+            { name: "Acromion", info: "The bony projection at the top of the shoulder. Forms the roof of the shoulder joint. Palpated when assessing AC joint injuries — compare both sides for step deformity." },
+            { name: "Coracoid process", info: "Hook-shaped process on the anterior scapula. Attachment point for muscles and ligaments. Palpable in the deltopectoral groove — tenderness here can indicate fracture or dislocation." },
+            { name: "Glenoid fossa", info: "The shallow socket that articulates with the humeral head. Its shallowness allows huge shoulder mobility but makes it the most commonly dislocated joint in the body." },
+            { name: "Spine of scapula", info: "The bony ridge across the posterior scapula. Easily palpable through the skin. The spine of scapula corresponds to T3 — a useful landmark when assessing the back." }
+        ], views: ["posterior"] },
+        humerus: { name: "Humerus", region: "Upper Limb", desc: "Upper arm bone. Proximal fractures common in elderly falls. Mid-shaft fractures risk radial nerve damage (wrist drop).", landmarks: [
+            { name: "Head", info: "Articulates with the glenoid fossa to form the shoulder joint. Proximal humerus fractures are common in osteoporotic elderly after falls — look for bruising tracking down the arm." },
+            { name: "Greater tuberosity", info: "Lateral bony prominence near the humeral head. Avulsed in some shoulder dislocations. Tenderness here after a reduced dislocation suggests a tuberosity fracture — needs X-ray." },
+            { name: "Surgical neck", info: "The narrowing just below the head — the most common proximal humerus fracture site. Named because it's where surgeons operate, not because it needs surgery. Risk to axillary nerve (check deltoid sensation)." },
+            { name: "Medial/lateral epicondyles", info: "Bony bumps at the elbow. Lateral epicondyle: 'tennis elbow' site. In children, medial epicondyle avulsion fractures are easily missed on X-ray — the CRITOE mnemonic helps." }
+        ], views: ["anterior", "posterior"] },
+        radius: { name: "Radius", region: "Upper Limb", desc: "Lateral forearm bone (thumb side). Distal radius fractures (Colles') are extremely common — classic 'dinner fork' deformity from FOOSH.", landmarks: [
+            { name: "Radial head", info: "At the elbow — rotates to allow supination/pronation (turning the palm up/down). Radial head fractures cause pain when rotating the forearm. Tender over the lateral elbow." },
+            { name: "Radial styloid", info: "Bony bump on the lateral (thumb side) wrist. Palpated when checking radial pulse location. Chauffeur's fracture is an isolated radial styloid fracture." },
+            { name: "Distal radius", info: "The most commonly fractured site in the body. Colles' fracture: dorsal displacement ('dinner fork'). Smith's fracture: volar displacement ('garden spade'). Always check median nerve function and distal pulses." }
+        ], views: ["anterior", "posterior"] },
+        ulna: { name: "Ulna", region: "Upper Limb", desc: "Medial forearm bone (little finger side). Olecranon fractures from direct elbow impact. 'Nightstick fracture' — isolated ulna shaft from defensive injury.", landmarks: [
+            { name: "Olecranon", info: "The pointy part of the elbow. Fractures from direct falls onto the elbow. Patient cannot extend the elbow against resistance. Often needs surgical fixation." },
+            { name: "Ulnar styloid", info: "Bony bump on the medial (little finger) wrist. Ulnar styloid fractures often accompany distal radius fractures — check both when assessing wrist injuries." },
+            { name: "Coronoid process", info: "Anterior projection that prevents posterior elbow dislocation. Fractures are associated with 'terrible triad' of the elbow (dislocation + radial head + coronoid fracture)." }
+        ], views: ["anterior", "posterior"] },
+        hand: { name: "Hand & Wrist", region: "Upper Limb", desc: "8 carpals, 5 metacarpals, 14 phalanges. Scaphoid fractures are commonly missed — anatomical snuffbox tenderness is the key sign. Boxer's fracture = 5th metacarpal neck.", landmarks: [
+            { name: "Scaphoid (snuffbox)", info: "Most commonly fractured carpal bone. Anatomical snuffbox tenderness is the hallmark — the hollow between the thumb tendons on the dorsal wrist. X-rays miss 20% initially. Missed fractures risk avascular necrosis because blood supply enters distally." },
+            { name: "5th metacarpal", info: "Boxer's fracture = fracture of the 5th metacarpal neck. Classic mechanism: punching a wall or person. The knuckle appears depressed. Always check for 'fight bite' — a wound from teeth carries high infection risk." },
+            { name: "Anatomical snuffbox", info: "The triangular depression on the radial dorsal wrist between the extensor pollicis longus and brevis tendons. Tenderness here + pain on telescoping the thumb = treat as scaphoid fracture until proven otherwise." }
+        ], views: ["anterior"] },
+        pelvis: { name: "Pelvis", region: "Pelvis", desc: "A ring structure — if broken in one place, often broken in another. Pelvic fractures can cause life-threatening haemorrhage. Use pelvic binder. Never 'spring' the pelvis.", landmarks: [
+            { name: "Iliac crest", info: "The curved top of the hip bone — easily palpable. Used as a landmark for many procedures. The iliac crest level corresponds to L4 (used for spinal needle insertion). Avulsion fractures occur in young athletes." },
+            { name: "ASIS", info: "Anterior Superior Iliac Spine — the bony point at the front of the hip. Key pelvic landmark. Used to assess pelvic symmetry and leg length. Avulsion fractures from sudden muscle contraction in sprinters." },
+            { name: "Pubic symphysis", info: "The joint connecting the two pubic bones anteriorly. Widening (diastasis) indicates pelvic ring disruption — a life-threatening injury. Pelvic binder should be centred over the greater trochanters, not the iliac crests." },
+            { name: "Ischial tuberosity", info: "The 'sitting bones' — you're sitting on them now. Avulsion fractures from hamstring origin in athletes. In elderly patients, ischial fractures can cause perineal bruising." },
+            { name: "Acetabulum", info: "The socket of the hip joint. Acetabular fractures from dashboard injuries (force through the knee → femur → acetabulum). Associated with sciatic nerve injury — check foot dorsiflexion." }
+        ], views: ["anterior"] },
+        femur: { name: "Femur", region: "Lower Limb", desc: "Longest and strongest bone. #NOF extremely common in elderly — look for shortened, externally rotated leg. Shaft fractures can lose 1–1.5L blood.", landmarks: [
+            { name: "Head", info: "Articulates with the acetabulum. Has a precarious blood supply via the retinacular arteries — disrupted in displaced neck fractures, leading to avascular necrosis. This is why #NOF management is time-critical." },
+            { name: "Neck", info: "The most commonly fractured part of the femur in elderly patients. Intracapsular fractures risk blood supply to the head. Classic signs: shortened, externally rotated leg, unable to weight-bear." },
+            { name: "Greater trochanter", info: "Large lateral bony prominence at the top of the femur — easily palpable. Pelvic binder should be centred at this level. Trochanteric fractures are extracapsular — better blood supply, better prognosis." },
+            { name: "Lesser trochanter", info: "Small medial bony projection below the neck. Attachment for the iliopsoas muscle. Isolated avulsion fractures in young athletes or pathological fractures in adults — can indicate metastatic disease." },
+            { name: "Condyles", info: "The two rounded ends at the knee. Supracondylar fractures can compromise the popliteal artery — always check distal pulses and capillary refill in the foot after distal femur injuries." }
+        ], views: ["anterior", "posterior"] },
+        patella: { name: "Patella", region: "Lower Limb", desc: "The kneecap — a sesamoid bone. Fractures from direct impact (dashboard injury). Test: can the patient straight-leg raise?", landmarks: [
+            { name: "Anterior surface", info: "The front of the kneecap — subcutaneous with no soft tissue protection. Direct impact (falls, dashboard injuries) causes fractures. Palpable gap between fragments if displaced. Pre-patellar bursitis ('housemaid's knee') from prolonged kneeling." },
+            { name: "Patellar tendon", info: "Connects the patella to the tibial tuberosity. Rupture causes loss of active knee extension — the patient cannot do a straight-leg raise. Suspect if: fell, heard a pop, can't straighten the knee, gap palpable below the kneecap." }
+        ], views: ["anterior"] },
+        tibia: { name: "Tibia", region: "Lower Limb", desc: "The shinbone — main weight-bearing bone of the lower leg. Open fractures common due to minimal soft tissue anteriorly.", landmarks: [
+            { name: "Tibial plateau", info: "The flat top surface of the tibia at the knee. Fractures from valgus/varus forces (pedestrian hit by car bumper). Can cause massive knee swelling (lipohaemarthrosis). Check for compartment syndrome — severe pain on passive toe extension." },
+            { name: "Tibial tuberosity", info: "The bony bump below the kneecap where the patellar tendon attaches. Osgood-Schlatter disease in adolescents (painful lump). In adults, avulsion fracture causes loss of knee extension." },
+            { name: "Medial malleolus", info: "The bony prominence on the inner ankle. One of the points assessed in the Ottawa Ankle Rules: tenderness here or inability to weight-bear for 4 steps = X-ray needed." },
+            { name: "Anterior border", info: "The sharp ridge down the front of the shin — subcutaneous with almost no soft tissue coverage. This is why tibial shaft fractures so often become open (compound) fractures. Cover exposed bone, don't push it back." }
+        ], views: ["anterior", "posterior"] },
+        fibula: { name: "Fibula", region: "Lower Limb", desc: "Thin lateral bone of lower leg. Not weight-bearing but crucial for ankle stability. Lateral malleolus fractures are the most common ankle fracture.", landmarks: [
+            { name: "Fibular head", info: "Palpable just below the lateral knee. The common peroneal nerve wraps around it — injury causes foot drop (inability to dorsiflex). Check peroneal nerve function after any proximal fibula injury or tight bandaging." },
+            { name: "Lateral malleolus", info: "The bony prominence on the outer ankle — the most commonly fractured ankle bone. Assessed in the Ottawa Ankle Rules: tenderness over the posterior 6cm or tip = X-ray needed." }
+        ], views: ["anterior", "posterior"] },
+        foot: { name: "Foot & Ankle", region: "Lower Limb", desc: "7 tarsals, 5 metatarsals, 14 phalanges. Calcaneal fractures from falls — always check lumbar spine too. Use Ottawa Ankle Rules.", landmarks: [
+            { name: "Calcaneus", info: "The heel bone — largest tarsal. Fractured by axial loading (falls from height, landing on feet). Critical association: 10% have concurrent lumbar spine compression fracture. Always examine the spine too." },
+            { name: "Talus", info: "Sits between the tibia/fibula and the calcaneus. Transmits body weight. Talar fractures risk avascular necrosis (like the scaphoid, blood supply enters distally). 'Aviator's fracture' from forced dorsiflexion." },
+            { name: "5th metatarsal base", info: "Assessed in the Ottawa Foot Rules: tenderness here = X-ray needed. Jones fracture (5th metatarsal base) is commonly missed. Mechanism: ankle inversion injury where the peroneus brevis avulses the bone." },
+            { name: "Navicular", info: "Also assessed in the Ottawa Foot Rules. Navicular stress fractures are common in runners and military recruits. Midfoot tenderness after twisting injury — don't dismiss as 'just a sprain'." }
+        ], views: ["anterior"] }
     };
 
     // ==================== FRACTURE SCENARIOS ====================
@@ -1074,13 +1224,44 @@
         if (!bone) return;
         document.querySelectorAll('.bone-group.highlighted').forEach(b => b.classList.remove('highlighted'));
         document.querySelectorAll(`[data-bone="${id}"]`).forEach(b => b.classList.add('highlighted'));
-        const landmarks = bone.landmarks.map(l => `<span>${l}</span>`).join('');
+
+        const landmarkCards = bone.landmarks.map((lm, i) => `
+            <div class="landmark-card" data-lm="${i}">
+                <div class="landmark-header">
+                    <div class="landmark-name">
+                        <span class="landmark-dot"></span>
+                        ${lm.name}
+                    </div>
+                    <i class="bi bi-chevron-down landmark-chevron"></i>
+                </div>
+                <div class="landmark-detail">
+                    <p>${lm.info}</p>
+                </div>
+            </div>
+        `).join('');
+
         openSheet(bone.name, `
             <div class="sheet-region">${bone.region}</div>
             <div class="sheet-desc">${bone.desc}</div>
             <div class="sheet-subtitle">Key Landmarks</div>
-            <div class="sheet-landmarks">${landmarks}</div>
+            <div class="sheet-landmarks">${landmarkCards}</div>
+            <div class="landmark-hint"><i class="bi bi-hand-index"></i> Tap a landmark to learn more</div>
         `);
+
+        // Attach toggle listeners
+        dom.sheetBody.querySelectorAll('.landmark-card').forEach(card => {
+            card.querySelector('.landmark-header').addEventListener('click', () => {
+                const wasOpen = card.classList.contains('open');
+                // Close all others
+                dom.sheetBody.querySelectorAll('.landmark-card.open').forEach(c => c.classList.remove('open'));
+                // Toggle this one
+                if (!wasOpen) {
+                    card.classList.add('open');
+                    // Scroll into view if needed
+                    setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+                }
+            });
+        });
     }
 
     // ==================== QUIZ MODE ====================
