@@ -1106,18 +1106,7 @@
                 <h2 class="section-title">Simple, Affordable Pricing</h2>
                 <p class="section-subtitle">Start free, upgrade when you're ready</p>
 
-<!-- Billing Toggle -->
-<div class="billing-toggle" id="billingToggle">
-    <span class="billing-option active" data-plan="monthly">Monthly</span>
-    <label class="toggle-switch">
-        <input type="checkbox" id="billingSwitch">
-        <span class="toggle-slider"></span>
-    </label>
-    <span class="billing-option" data-plan="annual">
-        Annual
-        <span class="save-badge">Save £10</span>
-    </span>
-</div>
+
             </div>
             <div class="row justify-content-center g-4">
                 <div class="col-md-6 col-lg-5">
@@ -1151,13 +1140,28 @@
                         <div class="pricing-badge">Most Popular</div>
                         <div class="pricing-header">
                             <h3><span class="brand-para">para</span><span class="brand-mind">mind</span> Pro</h3>
-                            <div class="pricing-amount" id="proPrice">
-    <span class="price" id="proPriceValue">£4.99</span>
-    <span class="period" id="proPricePeriod">/month</span>
-</div>
-<div class="annual-equivalent" id="annualEquivalent" style="display:none;">
-    <span>Just £4.17/month — billed annually</span>
-</div>
+                            
+                            <!-- Monthly price (shown by default) -->
+                            <div class="pricing-amount" id="monthlyDisplay">
+                                <span class="price">£4.99</span>
+                                <span class="period">/month</span>
+                            </div>
+                            <div class="plan-switch" id="showAnnual">
+                                <span class="save-banner"><i class="bi bi-tag-fill"></i> Save £10 — switch to annual plan</span>
+                            </div>
+                            
+                            <!-- Annual price (hidden by default) -->
+                            <div class="pricing-amount" id="annualDisplay" style="display:none;">
+                                <span class="price">£49.99</span>
+                                <span class="period">/year</span>
+                            </div>
+                            <div class="annual-breakdown" id="annualBreakdown" style="display:none;">
+                                Just £4.17/month — save £10 per year
+                            </div>
+                            <div class="plan-switch" id="showMonthly" style="display:none;">
+                                <span class="switch-link">or £4.99/month</span>
+                            </div>
+                        </div>
                         </div>
                         <ul class="pricing-features">
                             <li><i class="bi bi-check-circle text-success"></i> <strong>Unlimited</strong> messages</li>
@@ -1503,33 +1507,37 @@
             }, 1000);
         });
     </script>
-    <!-- Billing Toggle Script -->
-<script>
-    const billingSwitch = document.getElementById('billingSwitch');
-    const proPriceValue = document.getElementById('proPriceValue');
-    const proPricePeriod = document.getElementById('proPricePeriod');
-    const annualEquivalent = document.getElementById('annualEquivalent');
-    const billingOptions = document.querySelectorAll('.billing-option');
+    <!-- Annual/Monthly Plan Switcher -->
+    <script>
+        let selectedPlan = 'monthly';
 
-    if (billingSwitch) {
-        billingSwitch.addEventListener('change', function () {
-            if (this.checked) {
-                // Annual selected
-                proPriceValue.textContent = '£49.99';
-                proPricePeriod.textContent = '/year';
-                annualEquivalent.style.display = 'block';
-                billingOptions[0].classList.remove('active');
-                billingOptions[1].classList.add('active');
-            } else {
-                // Monthly selected
-                proPriceValue.textContent = '£4.99';
-                proPricePeriod.textContent = '/month';
-                annualEquivalent.style.display = 'none';
-                billingOptions[0].classList.add('active');
-                billingOptions[1].classList.remove('active');
-            }
-        });
-    }
-</script>
+        const showAnnualBtn = document.getElementById('showAnnual');
+        const showMonthlyBtn = document.getElementById('showMonthly');
+        const monthlyDisplay = document.getElementById('monthlyDisplay');
+        const annualDisplay = document.getElementById('annualDisplay');
+        const annualBreakdown = document.getElementById('annualBreakdown');
+
+        if (showAnnualBtn) {
+            showAnnualBtn.addEventListener('click', function () {
+                selectedPlan = 'annual';
+                monthlyDisplay.style.display = 'none';
+                showAnnualBtn.style.display = 'none';
+                annualDisplay.style.display = 'flex';
+                annualBreakdown.style.display = 'block';
+                showMonthlyBtn.style.display = 'block';
+            });
+        }
+
+        if (showMonthlyBtn) {
+            showMonthlyBtn.addEventListener('click', function () {
+                selectedPlan = 'monthly';
+                annualDisplay.style.display = 'none';
+                annualBreakdown.style.display = 'none';
+                showMonthlyBtn.style.display = 'none';
+                monthlyDisplay.style.display = 'flex';
+                showAnnualBtn.style.display = 'block';
+            });
+        }
+    </script>
 </body>
 </html>
