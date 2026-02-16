@@ -1,6 +1,6 @@
 /* ==================== PRO GUARD - CENTRALISED ACCESS CONTROL ==================== */
 /* ParaMind - Pro Page Guard
- * Version 1.0
+ * Version 1.1 — FIXED for iPhone Safari auth delay
  * 
  * PURPOSE: Single script that protects ALL Pro pages. Add to any Pro page and it handles:
  *   1. Not signed in → redirects to login.html
@@ -19,6 +19,11 @@
  *   - Waits for Firebase (loaded by menu-v2.js) to report auth state
  *   - Checks subscription status in Firestore
  *   - Either reveals the page or redirects
+ *
+ * v1.1 FIX: On iPhone Safari, onAuthStateChanged fires with null FIRST
+ *   before restoring the real session. Old code acted on that first null
+ *   and redirected to login. Now we wait for a real user to appear, and
+ *   only treat null as "not logged in" after a timeout.
  */
 
 (function () {
@@ -29,6 +34,7 @@
         loginPage: 'login.html',
         upgradePage: 'upgrade.html',
         maxWaitMs: 10000,  // Max time to wait for Firebase before redirecting to login
+        authTimeoutMs: 3000, // Time to wait for Safari to restore auth session
         firebaseConfig: {
             apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
             authDomain: "paramind-64b8e.firebaseapp.com",
@@ -138,7 +144,7 @@
         check();
     }
 
-    // ==================== CHECK ACCESS ====================
+    // ==================== CHECK ACCESS (v1.1 — Safari fix) ====================
     function checkAccess() {
         waitForFirebase(function (firebaseReady) {
             if (!firebaseReady) {
@@ -149,58 +155,90 @@
 
             console.log('Pro Guard: Firebase ready, checking auth state...');
 
-            // Listen for auth state
-            // onAuthStateChanged fires once auth persistence is resolved
-            var authHandled = false;
+            // v1.1 FIX: On iPhone Safari, onAuthStateChanged fires with null
+            // BEFORE restoring the real session from IndexedDB. The old code
+            // acted on that first null and redirected. Now we:
+            //   1. If we get a real user → act immediately (fast path)
+            //   2. If we get null → wait up to authTimeoutMs for the real
+            //      user to appear before treating it as genuinely not logged in
 
-            firebase.auth().onAuthStateChanged(function (user) {
-                // Only act on the FIRST auth state callback
-                if (authHandled) return;
-                authHandled = true;
+            var resolved = false;
+            var authTimeout = null;
 
-                if (!user) {
-                    // ========== NOT SIGNED IN → LOGIN ==========
-                    console.log('Pro Guard: Not signed in → login');
-                    redirectToLogin();
-                    return;
-                }
+            var unsubscribe = firebase.auth().onAuthStateChanged(function (user) {
+                if (resolved) return;
 
-                console.log('Pro Guard: User signed in, checking subscription...');
+                if (user) {
+                    // ========== USER FOUND → check subscription ==========
+                    resolved = true;
+                    clearTimeout(authTimeout);
+                    unsubscribe();
 
-                // User is signed in — now check subscription
-                firebase.firestore().collection('users').doc(user.uid).get()
-                    .then(function (doc) {
-                        if (doc.exists) {
-                            var data = doc.data();
-                            var status = data.subscriptionStatus;
-                            var isPro = status === 'active' || 
-                                        status === 'pro' || 
-                                        data.isPro === true;
+                    console.log('Pro Guard: User signed in, checking subscription...');
+                    checkSubscription(user);
 
-                            console.log('Pro Guard: subscriptionStatus =', status, '| isPro =', data.isPro, '| result =', isPro);
+                } else {
+                    // ========== GOT NULL — might be Safari's false first fire ==========
+                    // Don't act yet. Set a timeout to wait for the real user.
+                    // If a real user arrives before the timeout, we'll handle it above.
+                    if (!authTimeout) {
+                        console.log('Pro Guard: Got null user, waiting for Safari auth restore...');
+                        authTimeout = setTimeout(function () {
+                            if (resolved) return;
+                            resolved = true;
+                            unsubscribe();
 
-                            if (isPro) {
-                                // ========== PRO USER → SHOW PAGE ==========
-                                console.log('Pro Guard: Pro user ✓ — loading page');
-                                removeLoadingScreen();
+                            // Final check — did a user appear while we were waiting?
+                            var currentUser = firebase.auth().currentUser;
+                            if (currentUser) {
+                                console.log('Pro Guard: User found after wait, checking subscription...');
+                                checkSubscription(currentUser);
                             } else {
-                                // ========== FREE USER → UPGRADE ==========
-                                console.log('Pro Guard: Free user → upgrade');
-                                redirectToUpgrade();
+                                // Genuinely not signed in
+                                console.log('Pro Guard: Not signed in → login');
+                                redirectToLogin();
                             }
-                        } else {
-                            // No user document — treat as free
-                            console.log('Pro Guard: No user doc → upgrade');
-                            redirectToUpgrade();
-                        }
-                    })
-                    .catch(function (error) {
-                        console.error('Pro Guard: Error checking subscription:', error);
-                        // On error, let them through rather than blocking
-                        removeLoadingScreen();
-                    });
+                        }, GUARD_CONFIG.authTimeoutMs);
+                    }
+                }
             });
         });
+    }
+
+    // ==================== CHECK SUBSCRIPTION ====================
+    // Separated out from checkAccess for clarity
+    function checkSubscription(user) {
+        firebase.firestore().collection('users').doc(user.uid).get()
+            .then(function (doc) {
+                if (doc.exists) {
+                    var data = doc.data();
+                    var status = data.subscriptionStatus;
+                    var isPro = status === 'active' || 
+                                status === 'pro' || 
+                                data.isPro === true;
+
+                    console.log('Pro Guard: subscriptionStatus =', status, '| isPro =', data.isPro, '| result =', isPro);
+
+                    if (isPro) {
+                        // ========== PRO USER → SHOW PAGE ==========
+                        console.log('Pro Guard: Pro user ✓ — loading page');
+                        removeLoadingScreen();
+                    } else {
+                        // ========== FREE USER → UPGRADE ==========
+                        console.log('Pro Guard: Free user → upgrade');
+                        redirectToUpgrade();
+                    }
+                } else {
+                    // No user document — treat as free
+                    console.log('Pro Guard: No user doc → upgrade');
+                    redirectToUpgrade();
+                }
+            })
+            .catch(function (error) {
+                console.error('Pro Guard: Error checking subscription:', error);
+                // On error, let them through rather than blocking
+                removeLoadingScreen();
+            });
     }
 
     // ==================== INIT ====================
