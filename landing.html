@@ -382,6 +382,113 @@
         .tool-card.locked .tool-card-arrow { background: linear-gradient(135deg, #FFD700, #FFA500); color: #1a1a2e; }
         .tool-card.locked:hover .tool-card-arrow { background: linear-gradient(135deg, #FFD700, #FFA500); box-shadow: 0 4px 16px rgba(255,193,7,0.35); }
         
+        
+        /* ==================== PRO VIDEO MODAL ==================== */
+.pro-video-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    padding: 1rem;
+}
+.pro-video-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+.pro-video-modal {
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+    background: var(--color-white);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+.pro-video-overlay.active .pro-video-modal {
+    transform: scale(1) translateY(0);
+}
+.pro-video-close {
+    position: absolute;
+    top: 12px; right: 12px;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+.pro-video-close:hover {
+    background: rgba(0,0,0,0.7);
+}
+.pro-video-container {
+    position: relative;
+    width: 100%;
+    padding-top: 177.78%; /* 9:16 aspect ratio */
+    background: #000;
+}
+.pro-video-container iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+.pro-video-footer {
+    padding: 1.25rem;
+    text-align: center;
+    background: var(--color-white);
+}
+.pro-video-footer h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--color-gray-800);
+    margin: 0 0 0.35rem;
+}
+.pro-video-footer p {
+    font-size: 0.82rem;
+    color: var(--color-gray-500);
+    margin: 0 0 1rem;
+    line-height: 1.4;
+}
+.pro-video-upgrade-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.75rem;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #2B8A9C, #5cb85c);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    width: 100%;
+    justify-content: center;
+}
+.pro-video-upgrade-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(43,138,156,0.35);
+}
+        
+        
+        
         /* ============================================================
            UPGRADE BANNER
            ============================================================ */
@@ -777,7 +884,7 @@
                 </a>
                 
                 <!-- Interview Prep -->
-                <a href="interview.html" class="tool-card card-scenarios reveal-element">
+                <a href="interview.html" class="tool-card card-interview reveal-element">
                     <div class="card-glow"></div>
                     <div class="card-line"></div>
                     <div class="tool-card-header">
@@ -793,6 +900,31 @@
             </div>
         </div>
         
+        
+<!-- ==================== PRO VIDEO MODAL ==================== -->
+<div class="pro-video-overlay" id="proVideoOverlay">
+    <div class="pro-video-modal">
+        <button class="pro-video-close" id="proVideoClose" aria-label="Close">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        <div class="pro-video-container">
+            <iframe id="proVideoIframe"
+                src=""
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+            </iframe>
+        </div>
+        <div class="pro-video-footer">
+            <h3>Unlock Pro Tools</h3>
+            <p>Get unlimited access to all learning tools, CPD certificates, and more.</p>
+            <button class="pro-video-upgrade-btn" onclick="handleUpgrade()">
+                <i class="bi bi-star-fill"></i>
+                Upgrade to Pro — £4.99/month
+            </button>
+        </div>
+    </div>
+</div>
+
         <!-- ==================== UPGRADE BANNER ==================== -->
         <div class="upgrade-banner reveal-element" id="upgradeBanner">
             <div class="upgrade-header">
@@ -981,6 +1113,7 @@
         const ecgProBadge = document.getElementById('ecgProBadge');
         const cpdProBadge = document.getElementById('cpdProBadge');
         const bonelabProBadge = document.getElementById('bonelabProBadge');
+        const bonelabProBadge = document.getElementById('interviewProBadge');
 
         // ==================== AUTH STATE ====================
         auth.onAuthStateChanged(async (user) => {
@@ -1033,6 +1166,7 @@
                 if (ecgProBadge) ecgProBadge.style.display = 'none';
                 if (cpdProBadge) cpdProBadge.style.display = 'none';
                 if (bonelabProBadge) bonelabProBadge.style.display = 'none';
+                if (interviewProBadge) interviewProBadge.style.display = 'none';
                 
                 document.querySelectorAll('.tool-card').forEach(card => {
                     card.classList.remove('locked');
@@ -1048,6 +1182,7 @@
                 document.getElementById('ecgCard')?.classList.add('locked');
                 document.getElementById('cpdCard')?.classList.add('locked');
                 document.getElementById('bonelabCard')?.classList.add('locked');
+                 document.getElementById('interviewCard')?.classList.add('locked');
                 
                 updateMessageCount();
             }
@@ -1104,6 +1239,78 @@ function updateMessageCount() {
         function handleUpgrade() {
             createCheckoutSession();
         }
+
+
+// ==================== PRO VIDEO MODAL ====================
+(function() {
+    const YOUTUBE_VIDEO_ID = 'lR8qd_BzWcI';
+    const overlay = document.getElementById('proVideoOverlay');
+    const iframe  = document.getElementById('proVideoIframe');
+    const closeBtn = document.getElementById('proVideoClose');
+    
+    // Cards that are PRO-only
+    const proCardIds = ['connectionsCard', 'drugsCard', 'atmistCard', 'ecgCard', 'cpdCard', 'bonelabCard', 'interviewCard'];
+    
+    function openVideoModal(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        iframe.src = `https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&rel=0&modestbranding=1`;
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeVideoModal() {
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+        // Stop the video by clearing the src
+        iframe.src = '';
+    }
+    
+    // Close button
+    closeBtn.addEventListener('click', closeVideoModal);
+    
+    // Click outside modal to close
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) closeVideoModal();
+    });
+    
+    // Escape key to close
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeVideoModal();
+    });
+    
+    // Attach click interceptors to locked PRO cards
+    // We need to wait until after auth state resolves and cards get .locked class
+    // So we use a MutationObserver + periodic check
+    function attachProCardListeners() {
+        proCardIds.forEach(function(cardId) {
+            const card = document.getElementById(cardId);
+            if (card && card.classList.contains('locked')) {
+                // Remove existing href behaviour and add video modal
+                card.addEventListener('click', function(e) {
+                    if (this.classList.contains('locked')) {
+                        openVideoModal(e);
+                    }
+                });
+            }
+        });
+    }
+    
+    // Check periodically until cards are locked (auth resolves async)
+    let checkCount = 0;
+    const checker = setInterval(function() {
+        checkCount++;
+        const anyLocked = proCardIds.some(function(id) {
+            const el = document.getElementById(id);
+            return el && el.classList.contains('locked');
+        });
+        if (anyLocked || checkCount > 20) {
+            clearInterval(checker);
+            attachProCardListeners();
+        }
+    }, 250);
+})();
+
 
         // ==================== CHECK FOR URL PARAMS ====================
         const urlParams = new URLSearchParams(window.location.search);
