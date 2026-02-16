@@ -96,33 +96,63 @@
             text-align: center;
         }
         
-        .price-amount {
+        /* Plan Options */
+        .plan-options {
             display: flex;
-            align-items: baseline;
-            justify-content: center;
-            gap: 0.25rem;
-            margin-bottom: 0.25rem;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
         }
-        
-        .price-currency {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--color-gray-800);
+        .plan-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            border: 2px solid var(--color-gray-200);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
         }
-        
-        .price-value {
-            font-size: 3rem;
-            font-weight: 800;
-            color: var(--color-gray-900);
-            line-height: 1;
+        .plan-option:hover { border-color: rgba(43,138,156,0.4); }
+        .plan-option.plan-selected {
+            border-color: var(--color-teal);
+            background: rgba(43, 138, 156, 0.04);
         }
-        
-        .price-period {
-            font-size: 1rem;
-            color: var(--color-gray-500);
-            font-weight: 500;
+        .plan-radio {
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            flex-shrink: 0;
+            position: relative;
+            transition: all 0.2s ease;
         }
-        
+        .plan-selected .plan-radio { border-color: var(--color-teal); }
+        .plan-selected .plan-radio::after {
+            content: '';
+            position: absolute;
+            top: 3px; left: 3px;
+            width: 10px; height: 10px;
+            background: var(--color-teal);
+            border-radius: 50%;
+        }
+        .plan-info { flex: 1; text-align: left; }
+        .plan-name { font-weight: 600; color: var(--color-gray-800); font-size: 0.95rem; }
+        .plan-price { font-size: 1.25rem; font-weight: 700; color: var(--color-gray-900); }
+        .plan-price span { font-size: 0.85rem; font-weight: 400; color: var(--color-gray-500); }
+        .plan-equiv { font-size: 0.8rem; color: var(--color-teal); font-weight: 500; }
+        .plan-save-badge {
+            position: absolute;
+            top: -10px; right: 12px;
+            background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-green) 100%);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.15rem 0.6rem;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
         .price-note {
             font-size: 0.85rem;
             color: var(--color-gray-500);
@@ -306,10 +336,6 @@
             .upgrade-hero h1 {
                 font-size: 1.5rem;
             }
-            
-            .price-value {
-                font-size: 2.5rem;
-            }
         }
     </style>
 </head>
@@ -347,10 +373,24 @@
         
         <!-- Price Card -->
         <div class="price-card">
-            <div class="price-amount">
-                <span class="price-currency">£</span>
-                <span class="price-value">4.99</span>
-                <span class="price-period">/ month</span>
+            <!-- Plan Options -->
+            <div class="plan-options">
+                <div class="plan-option plan-selected" id="planMonthly" data-plan="monthly">
+                    <div class="plan-radio"></div>
+                    <div class="plan-info">
+                        <div class="plan-name">Monthly</div>
+                        <div class="plan-price">£4.99<span>/month</span></div>
+                    </div>
+                </div>
+                <div class="plan-option" id="planAnnual" data-plan="annual">
+                    <div class="plan-save-badge">Save £10</div>
+                    <div class="plan-radio"></div>
+                    <div class="plan-info">
+                        <div class="plan-name">Annual</div>
+                        <div class="plan-price">£49.99<span>/year</span></div>
+                        <div class="plan-equiv">Just £4.17/month</div>
+                    </div>
+                </div>
             </div>
             <p class="price-note">Cancel anytime — no commitment</p>
             
@@ -451,6 +491,20 @@
     
     <!-- Upgrade Logic -->
     <script>
+        // ==================== PLAN SELECTION ====================
+        let selectedPlan = 'monthly';
+        const planMonthly = document.getElementById('planMonthly');
+        const planAnnual = document.getElementById('planAnnual');
+
+        function selectPlan(plan) {
+            selectedPlan = plan;
+            planMonthly.classList.toggle('plan-selected', plan === 'monthly');
+            planAnnual.classList.toggle('plan-selected', plan === 'annual');
+        }
+
+        planMonthly.addEventListener('click', function() { selectPlan('monthly'); });
+        planAnnual.addEventListener('click', function() { selectPlan('annual'); });
+
         // ==================== UPGRADE HANDLER ====================
         // Waits for Firebase (loaded by menu-v2.js), then creates Stripe checkout
         
@@ -484,7 +538,8 @@
                     headers: {
                         'Authorization': 'Bearer ' + token,
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify({ plan: selectedPlan })
                 });
                 
                 if (response.ok) {
@@ -537,6 +592,5 @@
             }
         })();
     </script>
-    <script src="js/upgrade-modal.js"></script>
 </body>
 </html>
