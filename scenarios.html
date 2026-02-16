@@ -1081,6 +1081,91 @@
             transition: color 0.2s;
         }
         .tour-dismiss-btn:hover { color: var(--color-gray-700); }
+        
+        /* ==================== ASSESSMENT PICKER MODAL ==================== */
+.assessment-modal-content {
+    background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+    border: 1px solid #0f3460;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.assessment-modal-header {
+    background: rgba(0, 217, 255, 0.1);
+    border-bottom: 1px solid #0f3460;
+    padding: 1rem 1.25rem;
+}
+
+.assessment-modal-header .modal-title {
+    color: #00d9ff;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.assessment-modal-body {
+    padding: 1rem 1.25rem 1.5rem;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.assessment-group {
+    margin-bottom: 1.25rem;
+}
+
+.assessment-group:last-child {
+    margin-bottom: 0;
+}
+
+.assessment-group-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #8892b0;
+    margin-bottom: 0.5rem;
+    padding-left: 0.25rem;
+}
+
+.assessment-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.assessment-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.assessment-option:hover {
+    background: rgba(0, 217, 255, 0.15);
+    border-color: #00d9ff;
+    color: #00d9ff;
+    transform: translateY(-1px);
+}
+
+.assessment-option i {
+    color: #00d9ff;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+    .assessment-grid {
+        grid-template-columns: 1fr;
+    }
+}
     </style>
 </head>
 
@@ -1162,34 +1247,10 @@
             <div class="chat-input-area">
                 <!-- Assessment Toolbar -->
                 <div class="assessment-toolbar" id="assessmentToolbar">
-                    <div class="dropdown flex-grow-1">
-                        <button class="btn dropdown-toggle assessment-btn" type="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-clipboard2-pulse me-1"></i>
-                            Perform Assessment
-                        </button>
-                        <ul class="dropdown-menu assessment-dropdown">
-                            <li><h6 class="dropdown-header">Primary Survey</h6></li>
-                            <li><a class="dropdown-item" href="#" data-assessment="obs"><i class="bi bi-heart-pulse me-2"></i>Observations (Vital Signs)</a></li>
-                            <li><a class="dropdown-item" href="#" data-assessment="ecg"><i class="bi bi-activity me-2"></i>ECG / Rhythm Check</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><h6 class="dropdown-header">Physical Examination</h6></li>
-                            <li><a class="dropdown-item" href="#" data-assessment="chest"><i class="bi bi-lungs me-2"></i>Chest Examination</a></li>
-                            <li><a class="dropdown-item" href="#" data-assessment="abdo"><i class="bi bi-bandaid me-2"></i>Abdominal Examination</a></li>
-                            <li><a class="dropdown-item" href="#" data-assessment="neuro"><i class="bi bi-lightning me-2"></i>Neurological Exam</a></li>
-                            <li><a class="dropdown-item" href="#" data-assessment="skin"><i class="bi bi-droplet me-2"></i>Skin Assessment</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><h6 class="dropdown-header">Stroke Assessment</h6></li>
-                            <li><a class="dropdown-item" href="#" data-assessment="fast"><i class="bi bi-speedometer me-2"></i>FAST Assessment</a></li>
-                            <li><a class="dropdown-item" href="#" data-assessment="mend"><i class="bi bi-diagram-3 me-2"></i>MEND Assessment</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><h6 class="dropdown-header">History Taking</h6></li>
-                            <li><a class="dropdown-item" href="#" data-assessment="history"><i class="bi bi-card-list me-2"></i>Full History (SAMPLE)</a></li>
-                            <li><a class="dropdown-item" href="#" data-assessment="pain"><i class="bi bi-thermometer-half me-2"></i>Pain Assessment (SOCRATES)</a></li>
-                            <li><a class="dropdown-item" href="#" data-assessment="meds"><i class="bi bi-capsule me-2"></i>Medications</a></li>
-                            <li><a class="dropdown-item" href="#" data-assessment="social"><i class="bi bi-house me-2"></i>Social History</a></li>
-                            <li><a class="dropdown-item" href="#" data-assessment="scene"><i class="bi bi-eye me-2"></i>Scene Assessment</a></li>
-                        </ul>
-                    </div>
+                    <button class="btn assessment-btn flex-grow-1" type="button" id="openAssessmentModal">
+    <i class="bi bi-clipboard2-pulse me-1"></i>
+    Perform Assessment
+</button>
                     <button class="btn hint-btn" id="hintBtn">
                         <i class="bi bi-lightbulb me-1"></i>Hint
                     </button>
@@ -1350,6 +1411,97 @@
             </div>
         </div>
     </div>
+    
+    <!-- ==================== ASSESSMENT PICKER MODAL ==================== -->
+<div class="modal fade" id="assessmentPickerModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content assessment-modal-content">
+            <div class="modal-header assessment-modal-header">
+                <h5 class="modal-title"><i class="bi bi-clipboard2-pulse me-2"></i>Perform Assessment</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body assessment-modal-body">
+                
+                <div class="assessment-group">
+                    <h6 class="assessment-group-title">Primary Survey</h6>
+                    <div class="assessment-grid">
+                        <button class="assessment-option" data-assessment="obs">
+                            <i class="bi bi-heart-pulse"></i>
+                            <span>Observations (Vital Signs)</span>
+                        </button>
+                        <button class="assessment-option" data-assessment="ecg">
+                            <i class="bi bi-activity"></i>
+                            <span>ECG / Rhythm Check</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="assessment-group">
+                    <h6 class="assessment-group-title">Physical Examination</h6>
+                    <div class="assessment-grid">
+                        <button class="assessment-option" data-assessment="chest">
+                            <i class="bi bi-lungs"></i>
+                            <span>Chest Examination</span>
+                        </button>
+                        <button class="assessment-option" data-assessment="abdo">
+                            <i class="bi bi-bandaid"></i>
+                            <span>Abdominal Examination</span>
+                        </button>
+                        <button class="assessment-option" data-assessment="neuro">
+                            <i class="bi bi-lightning"></i>
+                            <span>Neurological Exam</span>
+                        </button>
+                        <button class="assessment-option" data-assessment="skin">
+                            <i class="bi bi-droplet"></i>
+                            <span>Skin Assessment</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="assessment-group">
+                    <h6 class="assessment-group-title">Stroke Assessment</h6>
+                    <div class="assessment-grid">
+                        <button class="assessment-option" data-assessment="fast">
+                            <i class="bi bi-speedometer"></i>
+                            <span>FAST Assessment</span>
+                        </button>
+                        <button class="assessment-option" data-assessment="mend">
+                            <i class="bi bi-diagram-3"></i>
+                            <span>MEND Assessment</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="assessment-group">
+                    <h6 class="assessment-group-title">History Taking</h6>
+                    <div class="assessment-grid">
+                        <button class="assessment-option" data-assessment="history">
+                            <i class="bi bi-card-list"></i>
+                            <span>Full History (SAMPLE)</span>
+                        </button>
+                        <button class="assessment-option" data-assessment="pain">
+                            <i class="bi bi-thermometer-half"></i>
+                            <span>Pain Assessment (SOCRATES)</span>
+                        </button>
+                        <button class="assessment-option" data-assessment="meds">
+                            <i class="bi bi-capsule"></i>
+                            <span>Medications</span>
+                        </button>
+                        <button class="assessment-option" data-assessment="social">
+                            <i class="bi bi-house"></i>
+                            <span>Social History</span>
+                        </button>
+                        <button class="assessment-option" data-assessment="scene">
+                            <i class="bi bi-eye"></i>
+                            <span>Scene Assessment</span>
+                        </button>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
     
     <!-- ==================== FOOTER ==================== -->
 <footer class="member-footer">
@@ -2422,13 +2574,20 @@ function formatScenarioType(scenario) {
         
         elements.submitImpressionBtn.addEventListener('click', submitWorkingImpression);
 
-        // Assessment dropdown items
-        document.querySelectorAll('[data-assessment]').forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                handleAssessment(item.dataset.assessment);
-            });
-        });
+// Assessment modal - open button
+const assessmentModal = new bootstrap.Modal(document.getElementById('assessmentPickerModal'));
+document.getElementById('openAssessmentModal').addEventListener('click', () => {
+    assessmentModal.show();
+});
+
+// Assessment modal - option clicks
+document.querySelectorAll('.assessment-option[data-assessment]').forEach(item => {
+    item.addEventListener('click', (e) => {
+        e.preventDefault();
+        assessmentModal.hide();
+        handleAssessment(item.dataset.assessment);
+    });
+});
 
         // Difficulty selector
         document.querySelectorAll('input[name="difficultyLevel"]').forEach(radio => {
