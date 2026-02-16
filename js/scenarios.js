@@ -933,7 +933,7 @@ const SCENARIOS = [
                 "IM Adrenaline is first-line treatment"
             ]
         },
-        starterMessage: "*distressed, voice hoarse* I can't breathe properly... my throat feels really tight... I'm so itchy everywhere and my lips feel huge."
+        starterMessage: "*distressed, voice hoarse* I can't breathe properly... my throat feels really tight... I'm so itchy everywhere and my lips feel huge. "
     },
     {
         id: "resp-006",
