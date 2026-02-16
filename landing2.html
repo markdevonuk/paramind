@@ -247,7 +247,24 @@
         .info-chip.pro-chip i { color: #1a1a2e; }
         .info-chip.messages-chip .count { font-weight: 700; color: var(--color-teal); }
         
-        
+        /* Pro content stats — upsell row below Pro Tools header */
+        .pro-stats-row {
+            display: flex; justify-content: center; gap: 0.5rem;
+            flex-wrap: wrap;
+            margin: -0.5rem 0 1.25rem;
+        }
+        .pro-stat-chip {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            background: linear-gradient(135deg, rgba(255,215,0,0.08), rgba(255,165,0,0.05));
+            border: 1px solid rgba(255,193,7,0.15);
+            padding: 0.35rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem; color: var(--color-gray-600);
+            font-weight: 500;
+        }
+        .pro-stat-chip .pro-stat-number {
+            font-weight: 800; color: #d97706;
+        }
         
         /* ============================================================
            SECTION HEADERS
@@ -677,6 +694,12 @@
                 <span class="label-icon pro"><i class="bi bi-star-fill"></i></span>
                 Pro Tools
             </div>
+            <div class="pro-stats-row">
+                <div class="pro-stat-chip"><span class="pro-stat-number">23</span> ECG Rhythms</div>
+                <div class="pro-stat-chip"><span class="pro-stat-number">75</span> Common Drugs</div>
+                <div class="pro-stat-chip"><span class="pro-stat-number">63</span> Bone Landmarks</div>
+                <div class="pro-stat-chip"><span class="pro-stat-number">80</span> A&amp;P Explanations</div>
+            </div>
             <div class="tools-grid">
                 <!-- A&P Connections -->
                 <a href="connections.html" class="tool-card card-connections reveal-element" id="connectionsCard">
@@ -968,7 +991,7 @@
             card.addEventListener('mouseleave', () => { card.style.transform = ''; });
         });
         
-        /* ========== 4. (Stats row removed) ========== */
+        /* ========== 4. (Stats moved to pro section) ========== */
         
         /* ========== 5. NAVBAR SCROLL ========== */
         const nav = document.getElementById('mainNav');
