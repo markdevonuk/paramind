@@ -764,21 +764,30 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
 
         // ==================== AUTH STATE ====================
         auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                try {
-                    const doc = await db.collection('users').doc(user.uid).get();
-                    if (doc.exists) {
-                        chatState.userData = doc.data();
-                        chatState.isPro = chatState.userData.subscriptionStatus === 'active' || chatState.userData.isPro === true;
-                        updateUIForUser();
-                    }
-                } catch (error) {
-                    console.error('Error fetching user data:', error);
+    if (user) {
+        try {
+            const doc = await db.collection('users').doc(user.uid).get();
+            if (doc.exists) {
+                chatState.userData = doc.data();
+                chatState.isPro = chatState.userData.subscriptionStatus === 'active' || chatState.userData.isPro === true;
+                
+                // Calculate actual messages remaining from Firestore data
+                if (!chatState.isPro) {
+                    const today = new Date().toDateString();
+                    const lastDate = chatState.userData.lastMessageDate?.toDate?.()?.toDateString?.();
+                    const count = (lastDate === today) ? (chatState.userData.dailyMessageCount || 0) : 0;
+                    chatState.messagesRemaining = Math.max(0, 5 - count);
                 }
-            } else {
-                window.location.href = 'login.html';
+                
+                updateUIForUser();
             }
-        });
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
+    } else {
+        window.location.href = 'login.html';
+    }
+});
 
         // ==================== UPDATE UI ====================
         function updateUIForUser() {
