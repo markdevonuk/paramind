@@ -1662,10 +1662,7 @@
                                 <span class="dispatch-label">Condition:</span>
                                 <span class="dispatch-value highlight">${d.chiefComplaint}</span>
                             </div>
-                            <div class="dispatch-row">
-                                <span class="dispatch-label">Info:</span>
-                                <span class="dispatch-value">${d.details}</span>
-                            </div>
+                            
                         </div>
                         <div class="dispatch-footer">
                             <div class="dispatch-status">AWAITING RESOURCE</div>
@@ -1712,7 +1709,7 @@
             elements.modalPatient.textContent = d.age ? `${ageDisplay} ${genderDisplay}` : 'Multiple patients';
             elements.modalCategory.innerHTML = `<span class="dispatch-category ${d.category === 1 ? 'cat-1' : d.category === 2 ? 'cat-2' : 'cat-3'}">CAT ${d.category}</span>`;
             elements.modalCondition.textContent = d.chiefComplaint;
-            elements.modalDetails.textContent = d.details;
+            elements.<span class="modal-label">.textContent = 'No further information available from caller.';
             
             const modal = new bootstrap.Modal(elements.scenarioModal);
             modal.show();
