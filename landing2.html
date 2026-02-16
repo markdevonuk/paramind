@@ -117,61 +117,53 @@
         }
         
         /* ============================================================
-           HERO SECTION — COMPACT HORIZONTAL LAYOUT
+           HERO SECTION
            ============================================================ */
         .hero-section {
-            padding: 0.75rem 0 1.25rem;
+            text-align: center;
+            padding: 0.5rem 0 1rem;
             position: relative;
         }
         
-        /* Horizontal hero layout */
-        .hero-row {
-            display: flex;
-            align-items: center;
-            gap: 1.25rem;
-        }
-        
-        /* Avatar with orbiting ring + heartbeat pulses — compact */
+        /* Avatar with orbiting ring + heartbeat pulses */
         .avatar-stage {
             position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 68px; height: 68px;
-            flex-shrink: 0;
+            display: inline-block;
+            width: 90px; height: 90px;
+            margin-bottom: 0.75rem;
         }
         .orbit-ring {
-            position: absolute; inset: -4px;
+            position: absolute; inset: -6px;
             border-radius: 50%;
-            border: 1.5px dashed rgba(43,138,156,0.2);
+            border: 2px dashed rgba(43,138,156,0.2);
             animation: orbitSpin 20s linear infinite;
         }
         .orbit-dot {
             position: absolute;
-            width: 5px; height: 5px;
+            width: 8px; height: 8px;
             border-radius: 50%;
-            top: -3px; left: 50%; margin-left: -3px;
+            top: -4px; left: 50%; margin-left: -4px;
         }
-        .orbit-dot.dot-teal  { background: var(--color-teal); box-shadow: 0 0 8px rgba(43,138,156,0.6); }
-        .orbit-dot.dot-green { background: var(--color-green); box-shadow: 0 0 8px rgba(92,184,92,0.6); top: auto; bottom: -3px; }
-        .orbit-dot.dot-gold  { background: #FFD700; box-shadow: 0 0 8px rgba(255,215,0,0.6); top: 50%; left: -3px; margin-left: 0; }
+        .orbit-dot.dot-teal  { background: var(--color-teal); box-shadow: 0 0 12px rgba(43,138,156,0.6); }
+        .orbit-dot.dot-green { background: var(--color-green); box-shadow: 0 0 12px rgba(92,184,92,0.6); top: auto; bottom: -4px; }
+        .orbit-dot.dot-gold  { background: #FFD700; box-shadow: 0 0 12px rgba(255,215,0,0.6); top: 50%; left: -4px; margin-left: 0; }
         @keyframes orbitSpin { to { transform: rotate(360deg); } }
         
         .avatar-glow {
-            position: absolute; inset: -12px;
+            position: absolute; inset: -14px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(43,138,156,0.10) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(43,138,156,0.12) 0%, transparent 70%);
             animation: glowPulse 3s ease-in-out infinite;
         }
         @keyframes glowPulse {
             0%, 100% { transform: scale(1); opacity: 0.6; }
-            50%      { transform: scale(1.12); opacity: 1; }
+            50%      { transform: scale(1.15); opacity: 1; }
         }
         
         .heartbeat-ring {
             position: absolute; inset: 0;
             border-radius: 50%;
-            border: 1.5px solid rgba(43,138,156,0.2);
+            border: 2px solid rgba(43,138,156,0.25);
             animation: heartbeatPulse 2.5s cubic-bezier(0.4,0,0.2,1) infinite;
         }
         .heartbeat-ring:nth-child(2) { animation-delay: 0.8s; }
@@ -183,49 +175,33 @@
         }
         
         .hollie-avatar {
-            width: 56px; height: 56px;
+            width: 72px; height: 72px;
             border-radius: 50%; overflow: hidden;
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             z-index: 2;
             border: 3px solid #fff;
-            box-shadow: 0 4px 16px rgba(43,138,156,0.18);
+            box-shadow: 0 6px 24px rgba(43,138,156,0.2);
         }
         .hollie-avatar img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* Hero text column */
-        .hero-text {
-            flex: 1;
-            min-width: 0;
-        }
-        
-        /* Top line: greeting + badge */
-        .hero-top-line {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            flex-wrap: wrap;
-            margin-bottom: 0.15rem;
-        }
-
         .hollie-badge {
-            display: inline-flex; align-items: center; gap: 0.3rem;
+            display: inline-flex; align-items: center; gap: 0.4rem;
             background: rgba(43,138,156,0.08);
             color: var(--color-teal);
-            padding: 0.2rem 0.6rem;
+            padding: 0.35rem 0.85rem;
             border-radius: var(--radius-full);
-            font-size: 0.68rem; font-weight: 600;
+            font-size: 0.8rem; font-weight: 600;
+            margin-bottom: 0.4rem;
             border: 1px solid rgba(43,138,156,0.12);
-            white-space: nowrap;
         }
         
         /* Animated gradient heading */
         .hero-greeting {
-            font-size: 1.35rem; font-weight: 800;
-            line-height: 1.3;
+            font-size: 1.5rem; font-weight: 800;
+            margin-bottom: 0.2rem; line-height: 1.3;
             color: var(--color-gray-800);
-            margin: 0;
         }
         .hero-greeting .gradient-name {
             background: linear-gradient(135deg, #2B8A9C 0%, #5CB85C 50%, #2B8A9C 100%);
@@ -242,27 +218,28 @@
         
         .hero-subtitle {
             color: var(--color-gray-500);
-            margin: 0.2rem 0 0.6rem; font-size: 0.88rem;
-            line-height: 1.4;
+            margin: 0 auto 0.6rem; font-size: 0.95rem;
+            max-width: 400px;
+            text-align: center;
         }
         
         /* User info row */
         .user-info-row {
             display: flex; flex-wrap: wrap;
-            gap: 0.4rem;
+            justify-content: center; gap: 0.5rem;
         }
         .info-chip {
-            display: inline-flex; align-items: center; gap: 0.35rem;
+            display: inline-flex; align-items: center; gap: 0.4rem;
             background: rgba(248,249,250,0.8);
             backdrop-filter: blur(8px);
             border: 1px solid var(--color-gray-200);
-            padding: 0.25rem 0.65rem;
+            padding: 0.4rem 0.85rem;
             border-radius: var(--radius-full);
-            font-size: 0.72rem; color: var(--color-gray-600);
+            font-size: 0.8rem; color: var(--color-gray-600);
             transition: all 0.3s ease;
         }
         .info-chip:hover { border-color: var(--color-teal); background: rgba(43,138,156,0.04); }
-        .info-chip i { color: var(--color-teal); font-size: 0.75rem; }
+        .info-chip i { color: var(--color-teal); }
         .info-chip.pro-chip {
             background: linear-gradient(135deg, #FFD700, #FFA500);
             border: none; color: #1a1a2e; font-weight: 700;
@@ -270,15 +247,7 @@
         .info-chip.pro-chip i { color: #1a1a2e; }
         .info-chip.messages-chip .count { font-weight: 700; color: var(--color-teal); }
         
-        /* Mobile: stack vertically below ~400px */
-        @media (max-width: 420px) {
-            .hero-row { flex-direction: column; text-align: center; gap: 0.6rem; }
-            .avatar-stage { width: 60px; height: 60px; }
-            .hollie-avatar { width: 48px; height: 48px; }
-            .hero-top-line { justify-content: center; }
-            .hero-subtitle { text-align: center; }
-            .user-info-row { justify-content: center; }
-        }
+        
         
         /* ============================================================
            SECTION HEADERS
@@ -567,7 +536,7 @@
         }
         
         @media (max-width: 480px) {
-            .hero-greeting { font-size: 1.2rem; }
+            .hero-greeting { font-size: 1.3rem; }
         }
     </style>
 </head>
@@ -608,46 +577,41 @@
             </div>
         </div>
         
-        <!-- Hero Section — Compact -->
-        <div class="hero-section page-load-2">
-            <div class="hero-row">
-                <div class="avatar-stage">
-                    <div class="avatar-glow"></div>
-                    <div class="heartbeat-ring"></div>
-                    <div class="heartbeat-ring"></div>
-                    <div class="heartbeat-ring"></div>
-                    <div class="orbit-ring">
-                        <div class="orbit-dot dot-teal"></div>
-                        <div class="orbit-dot dot-green"></div>
-                        <div class="orbit-dot dot-gold"></div>
-                    </div>
-                    <div class="hollie-avatar">
-                        <img src="images/hollie.png" alt="Hollie - Your Paramedic Tutor">
-                    </div>
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <div class="avatar-stage page-load-2">
+                <div class="avatar-glow"></div>
+                <div class="heartbeat-ring"></div>
+                <div class="heartbeat-ring"></div>
+                <div class="heartbeat-ring"></div>
+                <div class="orbit-ring">
+                    <div class="orbit-dot dot-teal"></div>
+                    <div class="orbit-dot dot-green"></div>
+                    <div class="orbit-dot dot-gold"></div>
                 </div>
-                
-                <div class="hero-text">
-                    <div class="hero-top-line">
-                        <h1 class="hero-greeting">Hey <span class="gradient-name" id="userFirstName">there</span>! 👋</h1>
-                        <div class="hollie-badge">
-                            <i class="bi bi-patch-check-fill"></i> Paramedic Tutor
-                        </div>
-                    </div>
-                    <p class="hero-subtitle">I'm Hollie, your AI paramedic tutor. What shall we learn today?</p>
-                    
-                    <div class="user-info-row">
-                        <div class="info-chip">
-                            <i class="bi bi-hospital"></i>
-                            <span id="userTrust">Loading...</span>
-                        </div>
-                        <div class="info-chip pro-chip" id="proBadge" style="display: none;">
-                            <i class="bi bi-star-fill"></i> Pro
-                        </div>
-                        <div class="info-chip messages-chip" id="messageCounter" style="display: none;">
-                            <i class="bi bi-chat-dots"></i>
-                            <span><span class="count" id="messagesUsed">0</span>/20 today</span>
-                        </div>
-                    </div>
+                <div class="hollie-avatar">
+                    <img src="images/hollie.png" alt="Hollie - Your Paramedic Tutor">
+                </div>
+            </div>
+            
+            <div class="hollie-badge page-load-3">
+                <i class="bi bi-patch-check-fill"></i> Paramedic Tutor
+            </div>
+            
+            <h1 class="hero-greeting page-load-3">Hey <span class="gradient-name" id="userFirstName">there</span>! 👋</h1>
+            <p class="hero-subtitle page-load-4">I'm Hollie, your AI paramedic tutor. What shall we learn today?</p>
+            
+            <div class="user-info-row page-load-5">
+                <div class="info-chip">
+                    <i class="bi bi-hospital"></i>
+                    <span id="userTrust">Loading...</span>
+                </div>
+                <div class="info-chip pro-chip" id="proBadge" style="display: none;">
+                    <i class="bi bi-star-fill"></i> Pro
+                </div>
+                <div class="info-chip messages-chip" id="messageCounter" style="display: none;">
+                    <i class="bi bi-chat-dots"></i>
+                    <span><span class="count" id="messagesUsed">0</span>/5 today</span>
                 </div>
             </div>
         </div>
