@@ -776,7 +776,7 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
                     const today = new Date().toDateString();
                     const lastDate = chatState.userData.lastMessageDate?.toDate?.()?.toDateString?.();
                     const count = (lastDate === today) ? (chatState.userData.dailyMessageCount || 0) : 0;
-                    chatState.messagesRemaining = Math.max(0, 5 - count);
+                    chatState.messagesRemaining = Math.max(0, 20 - count);
                 }
                 
                 updateUIForUser();
@@ -801,8 +801,10 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
             }
         }
 
-        function updateMessageCounter() {
-            const used = Math.max(0, 20 - chatState.messagesRemaining);
+       function updateMessageCounter() {
+            const today = new Date().toDateString();
+            const lastDate = chatState.userData?.lastMessageDate?.toDate?.()?.toDateString?.();
+            const used = (lastDate === today) ? (chatState.userData?.dailyMessageCount || 0) : 0;
             elements.messagesUsed.textContent = used;
             
             if (chatState.messagesRemaining <= 0) {
@@ -811,6 +813,8 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
                 elements.messageLimitBanner.classList.remove('limit-reached');
             }
         }
+            
+    
 
         // ==================== MESSAGE FORMATTING ====================
         function formatMessage(content) {
