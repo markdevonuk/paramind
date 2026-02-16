@@ -247,23 +247,25 @@
         .info-chip.pro-chip i { color: #1a1a2e; }
         .info-chip.messages-chip .count { font-weight: 700; color: var(--color-teal); }
         
-        /* Pro content stats — upsell row below Pro Tools header */
+        /* Pro content stats — counter row below Pro Tools header */
         .pro-stats-row {
-            display: flex; justify-content: center; gap: 0.5rem;
+            display: flex; justify-content: center; gap: 2rem;
             flex-wrap: wrap;
-            margin: -0.5rem 0 1.25rem;
+            margin: -0.25rem 0 1.5rem;
+            padding: 1rem 0;
+            border-top: 1px solid var(--color-gray-100);
+            border-bottom: 1px solid var(--color-gray-100);
         }
-        .pro-stat-chip {
-            display: inline-flex; align-items: center; gap: 0.4rem;
-            background: linear-gradient(135deg, rgba(255,215,0,0.08), rgba(255,165,0,0.05));
-            border: 1px solid rgba(255,193,7,0.15);
-            padding: 0.35rem 0.75rem;
-            border-radius: var(--radius-full);
-            font-size: 0.75rem; color: var(--color-gray-600);
-            font-weight: 500;
+        .pro-stat-item { text-align: center; }
+        .pro-stat-number {
+            font-size: 1.5rem; font-weight: 800;
+            color: var(--color-teal);
+            line-height: 1; margin-bottom: 0.2rem;
         }
-        .pro-stat-chip .pro-stat-number {
-            font-weight: 800; color: #d97706;
+        .pro-stat-label {
+            font-size: 0.7rem; text-transform: uppercase;
+            letter-spacing: 1px; color: var(--color-gray-400);
+            font-weight: 600;
         }
         
         /* ============================================================
@@ -554,6 +556,8 @@
         
         @media (max-width: 480px) {
             .hero-greeting { font-size: 1.3rem; }
+            .pro-stats-row { gap: 1.25rem; }
+            .pro-stat-number { font-size: 1.25rem; }
         }
     </style>
 </head>
@@ -695,10 +699,22 @@
                 Pro Tools
             </div>
             <div class="pro-stats-row">
-                <div class="pro-stat-chip"><span class="pro-stat-number">23</span> ECG Rhythms</div>
-                <div class="pro-stat-chip"><span class="pro-stat-number">75</span> Common Drugs</div>
-                <div class="pro-stat-chip"><span class="pro-stat-number">63</span> Bone Landmarks</div>
-                <div class="pro-stat-chip"><span class="pro-stat-number">80</span> A&amp;P Explanations</div>
+                <div class="pro-stat-item">
+                    <div class="pro-stat-number" data-target="23">0</div>
+                    <div class="pro-stat-label">ECG Rhythms</div>
+                </div>
+                <div class="pro-stat-item">
+                    <div class="pro-stat-number" data-target="75">0</div>
+                    <div class="pro-stat-label">Common Drugs</div>
+                </div>
+                <div class="pro-stat-item">
+                    <div class="pro-stat-number" data-target="63">0</div>
+                    <div class="pro-stat-label">Bone Landmarks</div>
+                </div>
+                <div class="pro-stat-item">
+                    <div class="pro-stat-number" data-target="80">0</div>
+                    <div class="pro-stat-label">A&amp;P Explanations</div>
+                </div>
             </div>
             <div class="tools-grid">
                 <!-- A&P Connections -->
@@ -991,7 +1007,21 @@
             card.addEventListener('mouseleave', () => { card.style.transform = ''; });
         });
         
-        /* ========== 4. (Stats moved to pro section) ========== */
+        /* ========== 4. PRO STAT COUNTERS (5s duration) ========== */
+        function animProCounters() {
+            document.querySelectorAll('.pro-stat-number').forEach(el => {
+                const t = +el.dataset.target, st = performance.now();
+                (function step(now) {
+                    const p = Math.min((now-st)/5000, 1);
+                    const eased = p < 0.5 ? 4*p*p*p : 1 - Math.pow(-2*p+2,3)/2;
+                    el.textContent = Math.round(eased*t);
+                    if (p < 1) requestAnimationFrame(step);
+                })(st);
+            });
+        }
+        const psObs = new IntersectionObserver(e => { if (e[0].isIntersecting) { setTimeout(animProCounters, 400); psObs.unobserve(e[0].target); } }, { threshold: 0.5 });
+        const psr = document.querySelector('.pro-stats-row');
+        if (psr) psObs.observe(psr);
         
         /* ========== 5. NAVBAR SCROLL ========== */
         const nav = document.getElementById('mainNav');
