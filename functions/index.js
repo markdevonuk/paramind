@@ -19,7 +19,13 @@ const db = admin.firestore();
 
 // Constants
 const FREE_DAILY_MESSAGES = 20;
-const SUBSCRIPTION_PRICE = 499; // £4.99 in pence
+const SUBSCRIPTION_PRICE = 499; // £4.99 in pence (kept for reference)
+
+// Stripe Price IDs
+const PRICE_IDS = {
+  monthly: 'price_1Sk64YCnRSLTR8bs2KeBB9Ud',
+  annual: 'price_1T1Q3oCnRSLTR8bsHZFwqsDC',
+};
 
 // ============================================
 // HELPER FUNCTIONS
@@ -331,23 +337,17 @@ exports.createCheckoutSession = onRequest(
         });
       }
 
-      // Create checkout session with promotion codes enabled
+      // Determine which plan the user selected (default to monthly)
+      const plan = req.body.plan || 'monthly';
+      const priceId = PRICE_IDS[plan] || PRICE_IDS.monthly;
+
+      // Create checkout session with the selected price
       const session = await stripe.checkout.sessions.create({
         customer: customerId,
         payment_method_types: ["card"],
         line_items: [
           {
-            price_data: {
-              currency: "gbp",
-              product_data: {
-                name: "Paramind Pro",
-                description: "Unlimited messages, full scenario library, save conversations",
-              },
-              unit_amount: SUBSCRIPTION_PRICE,
-              recurring: {
-                interval: "month",
-              },
-            },
+            price: priceId,
             quantity: 1,
           },
         ],
@@ -357,6 +357,7 @@ exports.createCheckoutSession = onRequest(
         cancel_url: `${req.headers.origin}/landing.html?canceled=true`,
         metadata: {
           firebaseUID: uid,
+          plan: plan,
         },
       });
 
