@@ -897,20 +897,17 @@
         const rr = parseInt(p.vitals?.rr) || 16;
 
         // ==================== PATIENT VOICE ====================
-        // Pick a distinct OpenAI voice based on age + gender
+        // Ballad = most British-sounding voice (confirmed by OpenAI community)
+        // Ash = deeper male voice; Fable = good for children
         let patientVoice, patientDesc;
         if (age < 5)       { patientVoice = 'fable';   patientDesc = `a very young child, about ${age} years old`; }
         else if (age < 13) { patientVoice = 'fable';   patientDesc = `a ${age}-year-old ${gender === 'F' ? 'girl' : 'boy'}`; }
         else if (age < 18) { patientVoice = 'fable';   patientDesc = `a ${age}-year-old teenager`; }
-        else if (gender === 'F' && age >= 70) { patientVoice = 'nova';    patientDesc = `a ${age}-year-old elderly woman`; }
-        else if (gender === 'F' && age >= 50) { patientVoice = 'nova';    patientDesc = `a ${age}-year-old middle-aged woman`; }
-        else if (gender === 'F')              { patientVoice = 'shimmer'; patientDesc = `a ${age}-year-old woman`; }
-        else if (gender === 'M' && age >= 70) { patientVoice = 'onyx';   patientDesc = `a ${age}-year-old elderly man`; }
-        else if (gender === 'M' && age >= 50) { patientVoice = 'onyx';   patientDesc = `a ${age}-year-old middle-aged man`; }
-        else                                  { patientVoice = 'echo';   patientDesc = `a ${age}-year-old man`; }
+        else if (gender === 'F') { patientVoice = 'ballad';  patientDesc = `a ${age}-year-old woman`; }
+        else                     { patientVoice = 'ash';     patientDesc = `a ${age}-year-old man`; }
 
-        // Override for mental health — alloy has a more neutral, vulnerable quality
-        if (category === 'mental-health') patientVoice = 'alloy';
+        // Override for mental health — ballad has a softer, more empathetic quality
+        if (category === 'mental-health') patientVoice = 'ballad';
 
         // ==================== EMOTIONAL DELIVERY ====================
         // Build rich, specific emotion instructions based on clinical picture
@@ -977,25 +974,23 @@
 
         // ==================== BUILD PATIENT INSTRUCTIONS ====================
         const patientInstructions = [
-            `ACCENT: Speak with a Standard Southern British English accent (like someone from London or the Home Counties). Pronounce "bath" with a long "ah", drop the R at the end of words like "better" and "water". Say "can't" as "cahnt" not "cant". This accent must remain IDENTICAL throughout every line you speak — never change it.`,
-            `You are ${patientDesc} from England.`,
+            `You are ${patientDesc}.`,
             emotionParts.join(' '),
             'Keep your responses SHORT — 1 to 3 sentences maximum.',
-            'Use everyday British language, NOT medical terminology. Say things like "me chest" not "my chest", "I reckon" not "I think", "poorly" not "sick", "rang 999" not "called 911".',
-            'Sound like a real British person, not an AI. Use natural filler words like "umm", "well", "I dunno", "sort of" where appropriate.'
+            'Use natural filler words like "umm", "well", "I dunno", "sort of" where appropriate.',
+            'Sound like a real person, not an AI.'
         ].join(' ');
 
         // ==================== RELATIVE VOICE ====================
-        // Always a contrasting voice to the patient so they sound different
+        // Contrasting voice: patient=ballad(F)/ash(M), so relative gets the opposite
         let relativeVoice, relativeInstructions;
 
         if (category === 'paediatric') {
             // Parent of a child — the most anxious relative type
-            relativeVoice = gender === 'M' ? 'shimmer' : 'echo';
+            relativeVoice = gender === 'M' ? 'ballad' : 'ash';
             const parentGender = gender === 'M' ? 'mother' : 'father';
             const parentLabel = gender === 'M' ? 'Mother' : 'Father';
             relativeInstructions = [
-                `ACCENT: Speak with a Standard Southern British English accent. Pronounce "bath" with a long "ah", drop the R at the end of words. Say "can't" as "cahnt". This accent must remain IDENTICAL on every line.`,
                 `You are the child's ${parentGender}.`,
                 'You are extremely worried and anxious. Speak rapidly, sometimes talking over yourself.',
                 'Your voice trembles with concern. You want answers and reassurance.',
@@ -1006,11 +1001,10 @@
             var starterIsRelative = age < 8; // Very young children — parent speaks first
         } else if (age >= 65) {
             // Elderly patient — relative is likely adult child or spouse
-            relativeVoice = gender === 'M' ? 'shimmer' : 'echo';
+            relativeVoice = gender === 'M' ? 'ballad' : 'ash';
             const relOptions = gender === 'M' ? ['Wife', 'Daughter'] : ['Husband', 'Son'];
             var relativeLabel = relOptions[Math.floor(Math.random() * relOptions.length)];
             relativeInstructions = [
-                `ACCENT: Speak with a Standard Southern British English accent. Pronounce "bath" with a long "ah", drop the R at the end of words. Say "can't" as "cahnt". This accent must remain IDENTICAL on every line.`,
                 `You are the patient's ${relativeLabel.toLowerCase()}.`,
                 'You are very worried. Speak quickly and anxiously, sometimes interrupting.',
                 'You want to give the paramedic information to help. You hover protectively.',
@@ -1020,10 +1014,9 @@
             var starterIsRelative = false;
         } else {
             // Default — partner or friend
-            relativeVoice = gender === 'M' ? 'shimmer' : 'echo';
-            var relativeLabel = gender === 'M' ? 'Partner' : 'Partner';
+            relativeVoice = gender === 'M' ? 'ballad' : 'ash';
+            var relativeLabel = 'Partner';
             relativeInstructions = [
-                'ACCENT: Speak with a Standard Southern British English accent. Pronounce "bath" with a long "ah", drop the R at the end of words. Say "can\'t" as "cahnt". This accent must remain IDENTICAL on every line.',
                 'You are the patient\'s partner.',
                 'You are worried and tense. Speak with urgency.',
                 'You want to help but feel helpless. Occasionally ask the paramedic if they will be OK.',
@@ -1037,7 +1030,6 @@
 
         // ==================== BYSTANDER VOICE ====================
         const bystanderInstructions = [
-            'ACCENT: Speak with a Standard Southern British English accent. Pronounce "bath" with a long "ah", drop the R at the end of words. Say "can\'t" as "cahnt". This accent must remain IDENTICAL on every line.',
             'You are a bystander at the scene.',
             'You are calm but concerned. Speak clearly and factually, as if reporting what you saw to emergency services.',
             'You are helpful and cooperative. Keep to 1-2 short sentences.',
@@ -1047,7 +1039,7 @@
         return {
             patient:   { voice: patientVoice,  instructions: patientInstructions, label: patientLabel },
             relative:  { voice: relativeVoice,  instructions: relativeInstructions, label: relativeLabel || 'Relative' },
-            bystander: { voice: 'alloy',        instructions: bystanderInstructions, label: 'Bystander' },
+            bystander: { voice: 'coral',        instructions: bystanderInstructions, label: 'Bystander' },
             starterIsRelative: starterIsRelative || false
         };
     }

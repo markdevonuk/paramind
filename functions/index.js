@@ -355,7 +355,7 @@ exports.createCheckoutSession = onRequest(
           },
         ],
         mode: "subscription",
-        allow_promotion_codes: true,
+        allow_promotion_codes: plan === 'monthly',
         success_url: `${req.headers.origin}/landing.html?session_id={CHECKOUT_SESSION_ID}&success=true`,
         cancel_url: `${req.headers.origin}/landing.html?canceled=true`,
         metadata: {
@@ -1004,46 +1004,15 @@ exports.transcribe = onRequest(
 );
 
 
+
 /**
  * POST /speak
- * Converts AI text response to spoken audio using OpenAI gpt-4o-mini-tts
- * Supports multiple characters (patient, relative, bystander) with different voices
- * Pro users only
- *
- * Expects JSON body: {
- *   segments: [
- *     {
- *       text: "Oh love, this pain in me chest...",
- *       character: "PATIENT",
- *       voice: "nova",
- *       instructions: "Speak with a Northern English accent. Elderly woman in pain..."
- *     },
- *     {
- *       text: "She's been like this for an hour!",
- *       character: "RELATIVE",
- *       voice: "echo",
- *       instructions: "Speak with a British accent. Worried middle-aged man..."
- *     }
- *   ]
- * }
- *
- * Returns JSON: {
- *   audioSegments: [
- *     { character: "PATIENT", audio: "base64-mp3-data", text: "Oh love..." },
- *     { character: "RELATIVE", audio: "base64-mp3-data", text: "She's been..." }
- *   ]
- * }
  */
-// Simple hash to generate consistent seed per character voice
-function hashCode(str) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash) + str.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash);
-}
-
+/**
+ * POST /speak
+ * Converts AI text response to spoken audio using OpenAI TTS
+ * Pro users only
+ */
 exports.speak = onRequest(
   { 
     cors: true,
@@ -1051,18 +1020,18 @@ exports.speak = onRequest(
     timeoutSeconds: 60
   }, 
   async (req, res) => {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
 
     try {
-      // Initialize OpenAI with secret
       const openai = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY,
       });
 
-      // Verify authentication
       const uid = await verifyAuth(req);
       const user = await getUser(uid);
 
-      // Pro users only
       if (user.subscriptionStatus !== "active") {
         return res.status(403).json({
           error: "Pro subscription required",
@@ -1071,63 +1040,39 @@ exports.speak = onRequest(
         });
       }
 
-      // Get segments from request body
       const { segments } = req.body;
 
       if (!segments || !Array.isArray(segments) || segments.length === 0) {
         return res.status(400).json({ error: "Segments array is required" });
       }
 
-      // Safety limit — prevent abuse (a normal response has 1-3 segments)
       if (segments.length > 5) {
         return res.status(400).json({ error: "Maximum 5 segments per request" });
       }
 
-      // Process ALL segments in parallel for speed
-      // Uses Chat Completions API with audio output — this is the ONLY way
-      // to get British accents to work (the simple TTS endpoint ignores accents)
       const audioPromises = segments.map(async (segment) => {
-        const defaultInstructions = "Speak with a British English accent in a natural, conversational tone.";
+        const defaultInstructions = "Speak in a natural, conversational tone.";
         const instructions = segment.instructions || defaultInstructions;
 
-        const completion = await openai.chat.completions.create({
-          model: "gpt-4o-mini-audio-preview",
-          modalities: ["text", "audio"],
-          seed: hashCode(segment.voice + segment.character),
-          audio: {
-            voice: segment.voice || "nova",
-            format: "mp3"
-          },
-          messages: [
-            {
-              role: "system",
-              content: "You are a text-to-speech system. Your ONLY job is to read aloud the EXACT text the user provides. Do NOT respond to it. Do NOT add words. Do NOT change any words. Do NOT improvise. Read it EXACTLY as written, word for word, nothing more. " + instructions
-            },
-            {
-              role: "user",
-              content: "Read this text aloud exactly as written: " + segment.text
-            }
-          ]
+        const response = await openai.audio.speech.create({
+          model: "gpt-4o-mini-tts-2025-03-20",
+          voice: segment.voice || "ballad",
+          input: segment.text,
+          instructions: instructions,
+          response_format: "mp3"
         });
 
-        // Chat Completions API returns audio as base64 directly
-        const audioData = completion.choices[0].message.audio;
-        
-        if (!audioData || !audioData.data) {
-          console.warn(`No audio returned for segment: "${segment.text.substring(0, 30)}..."`);
-          return null;
-        }
+        const arrayBuffer = await response.arrayBuffer();
+        const base64Audio = Buffer.from(arrayBuffer).toString("base64");
 
         return {
           character: segment.character || "PATIENT",
-          audio: audioData.data,
+          audio: base64Audio,
           text: segment.text
         };
       });
 
-      const audioResults = await Promise.all(audioPromises);
-      // Filter out any segments that failed to generate audio
-      const audioSegments = audioResults.filter(seg => seg !== null);
+      const audioSegments = await Promise.all(audioPromises);
 
       console.log(`Generated ${audioSegments.length} audio segments for user ${uid}`);
 
@@ -1140,9 +1085,9 @@ exports.speak = onRequest(
         return res.status(401).json({ error: error.message });
       }
 
-      return res.status(500).json({
+      return res.status(500).json({ 
         error: "Failed to generate speech",
-        details: error.message
+        details: error.message 
       });
     }
   }
