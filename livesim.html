@@ -1178,6 +1178,22 @@
         }
     };
 
+    // ==================== AUDIO CONTEXT (MOBILE FIX) ====================
+    // Mobile browsers block audio.play() unless it's within a user gesture.
+    // The starter message works (triggered by tap) but subsequent audio fails
+    // because too many async hops break the gesture chain.
+    // Fix: Use Web Audio API with an AudioContext that gets "unlocked" on taps.
+    let audioCtx = null;
+    function ensureAudioContext() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        return audioCtx;
+    }
+
     // ==================== DOM ELEMENTS ====================
     const el = {
         loadingState: document.getElementById('loadingState'),
@@ -1322,6 +1338,7 @@
     });
     
     el.beginSimBtn.addEventListener('click', () => {
+        ensureAudioContext();
         bootstrap.Modal.getInstance(el.difficultyModal).hide();
         startVoiceSim();
     });
@@ -1544,6 +1561,7 @@ VOICE MODE RULES:
     function disableMic() { el.micBtn.classList.add('disabled'); el.micLabel.textContent = 'Please wait...'; }
     
     el.micBtn.addEventListener('click', async () => {
+        ensureAudioContext();
         if (state.isProcessing || state.isPlayingAudio) return;
         if (!state.isRecording) await startRecording(); else await stopRecording();
     });
@@ -1717,10 +1735,33 @@ VOICE MODE RULES:
         el.audioWaveIndicator.classList.remove('visible', 'playing');
         state.isPlayingAudio = false;
     }
-    function playAudio(base64Mp3) { return new Promise((resolve) => { const audio = new Audio(`data:audio/mp3;base64,${base64Mp3}`); state.currentAudio = audio; audio.onended = () => { state.currentAudio = null; resolve(); }; audio.onerror = () => { state.currentAudio = null; resolve(); }; audio.play().catch(() => resolve()); }); }
+    function playAudio(base64Mp3) {
+        return new Promise(async (resolve) => {
+            try {
+                const ctx = ensureAudioContext();
+                // Decode base64 to ArrayBuffer
+                const binaryString = atob(base64Mp3);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+                const audioBuffer = await ctx.decodeAudioData(bytes.buffer.slice(0));
+                const source = ctx.createBufferSource();
+                source.buffer = audioBuffer;
+                source.connect(ctx.destination);
+                // Wrap so endScenario's state.currentAudio.pause() still works
+                state.currentAudio = { pause: () => { try { source.stop(); } catch(e) {} } };
+                source.onended = () => { state.currentAudio = null; resolve(); };
+                source.start(0);
+            } catch (err) {
+                console.error('Audio playback error:', err);
+                state.currentAudio = null;
+                resolve();
+            }
+        });
+    }
 
     // ==================== ASSESSMENT BUTTONS ====================
     document.getElementById('assessmentRow').addEventListener('click', async (e) => {
+        ensureAudioContext();
         const btn = e.target.closest('.sim-assess-btn');
         if (!btn || state.isProcessing || state.isPlayingAudio) return;
         const assessKey = btn.dataset.assess;
@@ -1738,7 +1779,7 @@ VOICE MODE RULES:
     });
 
     // ==================== HINTS ====================
-    el.hintBtn.addEventListener('click', async () => { if (state.isProcessing) return; await processUserMessage('HINT', 'Requesting hint...'); });
+    el.hintBtn.addEventListener('click', async () => { ensureAudioContext(); if (state.isProcessing) return; await processUserMessage('HINT', 'Requesting hint...'); });
     function showHint(text) { el.hintPopup.textContent = '💡 ' + text; el.hintPopup.classList.add('visible'); setTimeout(() => el.hintPopup.classList.remove('visible'), 8000); }
 
     // ==================== WORKING IMPRESSION ====================
