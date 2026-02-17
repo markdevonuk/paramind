@@ -395,7 +395,7 @@ const SCENARIOS = [
                 "Cardiac risk factors (HTN, DM, ex-smoker)"
             ]
         },
-        starterMessage: "Hello... I've called the ambulance because I've got this terrible pain in my chest. It's really quite bad... I feel a bit sick too."
+        starterMessage: "I've got this terrible pain in my chest. I was just sitting watching telly, it's really quite bad... I feel a bit sick too."
     },
     {
         id: "cardiac-002",
@@ -433,7 +433,7 @@ const SCENARIOS = [
                 "Epigastric pain mimicking GI cause"
             ]
         },
-        starterMessage: "I don't know what's wrong with me... I've been feeling awful for the past hour. My husband made me call because he says I look grey."
+        starterMessage: "I don't know what's wrong with me... I've been feeling awful for the past hour. My stomach hurts, I keep sweating. My husband made me call because he says I look grey."
     },
     {
         id: "cardiac-003",
@@ -471,7 +471,7 @@ const SCENARIOS = [
                 "Pre-syncope symptoms"
             ]
         },
-        starterMessage: "My heart's going absolutely crazy! I was just sitting having my lunch and suddenly it started racing. I can feel it pounding in my chest and throat."
+        starterMessage: "My heart's going absolutely crazy! It just started about 20 minutes ago - I was just sitting having my lunch and suddenly it started racing. I can feel it pounding in my chest and throat. I feel a bit lightheaded and short of breath."
     },
     {
         id: "cardiac-004",
@@ -509,7 +509,7 @@ const SCENARIOS = [
                 "Tachypnoea and respiratory distress"
             ]
         },
-        starterMessage: "*breathless* I can't... catch my breath. It's been getting worse."
+        starterMessage: "*breathless* I can't... catch my breath. It's been getting worse for two days... I had to sleep sitting up in the chair last night. My ankles are really swollen and I've got this horrible bubbly feeling in my chest."
     },
     {
         id: "cardiac-005",
@@ -547,7 +547,7 @@ const SCENARIOS = [
                 "Need to consider anticoagulation"
             ]
         },
-        starterMessage: "My heart keeps going really fast and then slow... it feels like it's fluttering in my chest."
+        starterMessage: "My heart keeps going really fast and then slowing down... it feels like it's fluttering in my chest. It's been doing this on and off for a couple of days now. I feel a bit tired and short of breath when I walk upstairs."
     },
     {
         id: "cardiac-006",
@@ -585,7 +585,7 @@ const SCENARIOS = [
                 "Haemodynamic compromise"
             ]
         },
-        starterMessage: "*weak voice* I just came over all funny... everything went dark and my wife says I went down.... everything looks a bit grey."
+        starterMessage: "*weak voice* I just came over all funny... everything went dark and my wife says I went down. I feel really dizzy and weak... everything looks a bit grey. I've been feeling tired for a few days actually."
     },
     {
         id: "cardiac-007",
@@ -623,7 +623,7 @@ const SCENARIOS = [
                 "High risk of progression to MI"
             ]
         },
-        starterMessage: "I've had angina for years and I know what it feels like. But this is different... My spray helps a bit but doesn't take it away completely like it used to."
+        starterMessage: "I've had angina for years and I know what it feels like. But this is different... it's been coming on when I'm just sitting still. Normally it only happens when I walk up the hill. My spray helps a bit but doesn't take it away completely like it used to."
     },
     {
         id: "cardiac-008",
@@ -700,7 +700,7 @@ const SCENARIOS = [
                 "TIME CRITICAL - needs CT aorta/surgery"
             ]
         },
-        starterMessage: "*writhing in agony* The pain... it's like something tearing inside me! I've never felt anything like it. I feel like I'm going to die! Please help me."
+        starterMessage: "*writhing in agony* The pain... it's like something tearing inside me! It started in my chest and went straight through to my back between my shoulders. I've never felt anything like it - it was worst right at the beginning. I feel like I'm going to die!"
     },
     {
         id: "cardiac-010",
@@ -739,7 +739,7 @@ const SCENARIOS = [
                 "Avoid rate-limiting drugs"
             ]
         },
-        starterMessage: "I keep going all dizzy and nearly falling over. It's happened about five times today. I've had these funny turns on and off for a while but never this bad."
+        starterMessage: "I keep going all dizzy and nearly falling over. It's happened about five times today. Sometimes my heart races like mad, and other times it feels really slow - like now. I've had these funny turns on and off for a while but never this bad."
     },
 
     // ==================== RESPIRATORY (10 scenarios) ====================
@@ -780,7 +780,7 @@ const SCENARIOS = [
                 "Silent chest would indicate life-threatening"
             ]
         },
-        starterMessage: "*wheeze* I can't... catch my breath... *wheeze* My inhaler isn't helping... I've used it about... *wheeze* ...ten times."
+        starterMessage: "*wheeze* I can't... catch my breath... *wheeze* My inhaler isn't helping... I've used it about... *wheeze* ...ten times. I had a cold last week and... *struggling* ...it's just got worse and worse."
     },
     {
         id: "resp-002",
@@ -818,7 +818,7 @@ const SCENARIOS = [
                 "Beware CO2 retention with high-flow O2"
             ]
         },
-        starterMessage: "*coughing* I've been bringing up loads of horrible green stuff... *cough cough*"
+        starterMessage: "*coughing* I've been bringing up loads of horrible green stuff... *cough cough* I'm more breathless than usual and I feel really hot and shivery. I've had this cough for about a week but it's got much worse."
     },
     {
         id: "resp-003",
@@ -894,7 +894,7 @@ const SCENARIOS = [
                 "S1Q3T3 pattern on ECG"
             ]
         },
-        starterMessage: "I was just sitting watching TV and suddenly got this really sharp pain in my chest. It hurts when I breathe in."
+        starterMessage: "I was just sitting watching TV and suddenly got this really sharp pain in my chest. It hurts when I breathe in. I feel really short of breath and my heart is racing. I flew back from Australia 3 days ago... could that be related?"
     },
     {
         id: "resp-005",
@@ -933,7 +933,7 @@ const SCENARIOS = [
                 "IM Adrenaline is first-line treatment"
             ]
         },
-        starterMessage: "*distressed, voice hoarse* I can't breathe properly... my throat feels really tight... I'm so itchy everywhere and my lips feel huge. "
+        starterMessage: "*distressed, voice hoarse* I can't breathe properly... my throat feels really tight... I just ate some prawns at a restaurant and I'm allergic... *scratching* I'm so itchy everywhere and my lips feel huge... I have my EpiPen but I'm scared to use it..."
     },
     {
         id: "resp-006",
@@ -971,7 +971,7 @@ const SCENARIOS = [
                 "May need CPAP/hospital care"
             ]
         },
-        starterMessage: "I tested positive for COVID a week ago and I've been managing at home... but today I just can't catch my breath. I've been checking my oxygen with that thing on my finger and it's been dropping all day. I feel awful."
+        starterMessage: "I tested positive for COVID a week ago and I've been managing at home... but today I just can't catch my breath. I've been checking my oxygen with that thing on my finger and it's been dropping all day. I feel exhausted just talking to you."
     },
     {
         id: "resp-007",
@@ -1009,7 +1009,7 @@ const SCENARIOS = [
                 "Watch for tension (tracheal deviation, hypotension)"
             ]
         },
-        starterMessage: "I was just sitting playing video games and suddenly got this really sharp pain on the right side of my chest. Now I can't catch my breath properly. I've never had anything like this."
+        starterMessage: "I was just sitting playing video games and suddenly got this really sharp pain on the right side of my chest. Now I can't catch my breath properly. It came on completely out of nowhere. I'm quite fit normally - I've never had anything like this."
     },
     {
         id: "resp-008",
@@ -1707,7 +1707,7 @@ const SCENARIOS = [
                 "Look for cause (missed meal, infection, overdose)"
             ]
         },
-        starterMessage: "*confused, speech slow* I don't... I don't know what's happening... *sweating* ...my neighbour came round and... *trailing off* ..."
+        starterMessage: "*confused, speech slow* I don't... I don't know what's happening... *sweating* ...my neighbour came round and... *trailing off* ...I can't remember what I was doing. I feel really shaky..."
     },
     {
         id: "neuro-006",
@@ -1747,7 +1747,7 @@ const SCENARIOS = [
                 "Do not give triptans"
             ]
         },
-        starterMessage: "*holding head, eyes closed* This headache is different... liliterally the worst pain I've ever felt. I get migraines but this is nothing like them."
+        starterMessage: "*holding head, eyes closed* This headache is different... it came on like a thunderclap - literally the worst pain I've ever felt. I get migraines but this is nothing like them. I've been sick and I can't bear the light. My neck feels stiff too."
     },
     {
         id: "neuro-007",
@@ -1786,7 +1786,7 @@ const SCENARIOS = [
                 "Start Aspirin 300mg"
             ]
         },
-        starterMessage: "I feel fine now but earlier my left arm went completely numb and weak - I couldn't grip anything. My wife said my face looked droopy too. I almost didn't call but my wife insisted."
+        starterMessage: "I feel fine now but about 40 minutes ago my left arm went completely numb and weak - I couldn't grip anything. My wife said my face looked droopy too. It lasted about 20 minutes and then everything went back to normal. I almost didn't call but my wife insisted."
     },
     {
         id: "neuro-008",
@@ -1825,7 +1825,7 @@ const SCENARIOS = [
                 "Needs urgent stroke assessment"
             ]
         },
-        starterMessage: "The room is spinning terribly... I tried to walk to the bathroom and I was all over the place, bouncing off the walls. I've been sick several times. I feel like I'm drunk."
+        starterMessage: "The room is spinning terribly... I tried to walk to the bathroom and I was all over the place, bouncing off the walls. I've been sick several times. I feel like I'm drunk. My speech feels a bit thick too. I've had a mini-stroke before..."
     },
     {
         id: "neuro-009",
@@ -1903,7 +1903,7 @@ const SCENARIOS = [
                 "Needs urgent neurology admission"
             ]
         },
-        starterMessage: "It started in my feet about 5 days ago - they felt tingly and numb. Now it's spreading up my legs and they feel weak. I'm struggling to walk and my legs feel like jelly."
+        starterMessage: "It started in my feet about 5 days ago - they felt tingly and numb. Now it's spreading up my legs and they feel weak. I'm struggling to walk and my legs feel like jelly. I had a bad stomach bug a couple of weeks ago but I thought I was over that."
     },
 
     // ==================== TRAUMA (10 scenarios) ====================
@@ -1984,7 +1984,7 @@ const SCENARIOS = [
                 "Major Trauma Centre"
             ]
         },
-        starterMessage: "*lying still, colleagues holding his head* Don't move me! My neck really hurts... the scaffolding just gave way. My mates are holding my head still like they learned on a first aid course."
+        starterMessage: "*lying still, colleagues holding his head* Don't move me! My neck really hurts and I've got pins and needles in my hands. I landed on my back... the scaffolding just gave way. My mates are holding my head still like they learned on a first aid course."
     },
     {
         id: "trauma-003",
@@ -2141,7 +2141,7 @@ const SCENARIOS = [
                 "Spinal cord injury centre"
             ]
         },
-        starterMessage: "*calm but scared, lying by pool* I dived in and hit the bottom... I can't feel anything below my shoulders. My friends pulled me out of the water. I've had a few drinks... is this serious? Why can't I feel anything?"
+        starterMessage: "*calm but scared, lying by pool* I dived in and hit the bottom... I can't feel anything below my shoulders. I can't move my legs or my arms properly. My friends pulled me out of the water. I've had a few drinks... is this serious? Why can't I feel anything?"
     },
     {
         id: "trauma-007",
@@ -2258,7 +2258,7 @@ const SCENARIOS = [
                 "Monitor ECG during and after release"
             ]
         },
-        starterMessage: "The jack slipped while I was under the car changing a tyre... my leg's been stuck. The neighbours managed to get the jack back up so it's not crushing me anymore but my leg is still trapped."
+        starterMessage: "The jack slipped while I was under the car changing a tyre... my leg's been stuck for about half an hour. The neighbours managed to get the jack back up so it's not crushing me anymore but my leg is still trapped. It's really swollen and looks bruised already."
     },
     {
         id: "trauma-010",
@@ -2338,7 +2338,7 @@ const SCENARIOS = [
                 "Oral dexamethasone is first line"
             ]
         },
-        starterMessage: "*Mother speaking, child crying in background with cough* She's making this horrible noise when she coughs and she's really struggling to breathe. She's only 2... I'm so scared."
+        starterMessage: "*Mother speaking, child crying in background with barking cough* She's making this horrible barking noise when she coughs and she's really struggling to breathe. It started in the night and she's got this weird noise when she breathes in. She had this before when she was smaller. She's only 2... I'm so scared."
     },
     {
         id: "paed-002",
@@ -2378,7 +2378,7 @@ const SCENARIOS = [
                 "Mainly supportive care - oxygen, NG feeds if needed"
             ]
         },
-        starterMessage: "*Mother speaking* He started with a cold a few days ago but now he's breathing really fast and his tummy keeps sucking in. He won't take his bottle properly - he takes a few sucks then has to stop to breathe. He's only 6 months old."
+        starterMessage: "*Mother speaking* He started with a cold a few days ago but now he's breathing really fast and his tummy keeps sucking in. He won't take his bottle properly - he takes a few sucks then has to stop to breathe. He's only 6 months old. His big sister had a cold last week."
     },
     {
         id: "paed-003",
@@ -2417,7 +2417,7 @@ const SCENARIOS = [
                 "First febrile convulsion needs assessment"
             ]
         },
-        starterMessage: "*Father speaking, clearly shaken* He just started shaking all over - his whole body went stiff and then he was jerking. His eyes rolled back. He's really sleepy now. Has he got meningitis? Is he going to be okay?"
+        starterMessage: "*Father speaking, clearly shaken* He just started shaking all over - his whole body went stiff and then he was jerking. His eyes rolled back. It lasted about 2 minutes I think. He's been hot all day with a cold. He's really sleepy now. Has he got meningitis? Is he going to be okay?"
     },
     {
         id: "paed-004",
@@ -2457,7 +2457,7 @@ const SCENARIOS = [
                 "Aggressive fluid resuscitation"
             ]
         },
-        starterMessage: "*Mother speaking, very distressed* She was fine this morning and now look at her! She's got this rash all over. Her hands and feet are freezing but she's burning up. She won't talk to me properly and she keeps being sick. Please help her!"
+        starterMessage: "*Mother speaking, very distressed* She was fine this morning and now look at her! She's got this rash all over that won't go away when I press it. Her hands and feet are freezing but she's burning up. She won't talk to me properly and she keeps being sick. Please help her!"
     },
     {
         id: "paed-005",
@@ -2577,7 +2577,7 @@ const SCENARIOS = [
                 "TIME CRITICAL - needs IV antibiotics urgently"
             ]
         },
-        starterMessage: "*Mother speaking, very frightened* Something's really wrong with her. She's not acting right - she's all floppy and won't look at me properly. She hasn't had her bottle for hours and she's not crying like she normally does."
+        starterMessage: "*Mother speaking, very frightened* Something's really wrong with her. She's not acting right - she's all floppy and won't look at me properly. She feels really cold even though she's wrapped up. She hasn't had her bottle for hours and she's not crying like she normally does."
     },
     {
         id: "paed-008",
@@ -2617,7 +2617,7 @@ const SCENARIOS = [
                 "Needs IV fluids and insulin sliding scale"
             ]
         },
-        starterMessage: "*Mother speaking* Tyler's been really unwell since yesterday. He keeps being sick. He's breathing really heavily and he's not making sense when he talks."
+        starterMessage: "*Mother speaking* Tyler's been really unwell since yesterday. He keeps being sick and his breath smells really weird - sort of sweet and fruity. He's breathing really heavily and he's not making sense when he talks. He's diabetic but I don't think he's been taking his insulin properly lately."
     },
     {
         id: "paed-009",
@@ -2657,7 +2657,7 @@ const SCENARIOS = [
                 "Do NOT delay transport"
             ]
         },
-        starterMessage: "*Mother speaking, worried* I think Oscar swallowed something. He keeps pointing to his chest and he's dribbling a lot. He gagged a few times but nothing came up."
+        starterMessage: "*Mother speaking, worried* I think Oscar swallowed a battery from one of his toys - it's one of those round flat ones. He keeps pointing to his chest and he's dribbling a lot. He gagged a few times but nothing came up. I found the toy with the battery compartment open. It happened about 30 minutes ago."
     },
     {
         id: "paed-010",
@@ -2696,7 +2696,7 @@ const SCENARIOS = [
                 "Higher perforation risk in children (atypical presentation)"
             ]
         },
-        starterMessage: "*Ella speaking, holding tummy* My tummy really hurts. I don't want to eat anything and I've been sick once. *Mother adds* She's been hot and she never refuses food normally."
+        starterMessage: "*Ella speaking, holding tummy* My tummy really hurts. It started near my belly button but now it's more down here on the right. It hurts more when I walk or jump. I don't want to eat anything and I've been sick once. *Mother adds* She's been hot and she never refuses food normally."
     },
 
     // ==================== OBSTETRIC (10 scenarios) ====================
@@ -2738,7 +2738,7 @@ const SCENARIOS = [
                 "Skin to skin and delayed cord clamping if normal"
             ]
         },
-        starterMessage: "*between contractions* The baby's coming NOW! I can feel it... *groaning* ...I need to push! My midwife was supposed to be here but she's stuck in traffic."
+        starterMessage: "*between contractions* The baby's coming NOW! I can feel it... *groaning* ...I need to push! My midwife was supposed to be here but she's stuck in traffic. My waters broke an hour ago and the contractions just got really strong really quickly. I can feel the head!"
     },
     {
         id: "obs-002",
@@ -2778,7 +2778,7 @@ const SCENARIOS = [
                 "May need surgical intervention"
             ]
         },
-        starterMessage: "*Midwife speaking* Mum delivered about 20 minutes ago, big baby, placenta's out but the uterus isn't contracting. I've given Syntometrine and I'm rubbing up the uterus but she's still bleeding heavily. She's gone really pale and her pulse is thready."
+        starterMessage: "*Midwife speaking* I need emergency backup - I've got a PPH. Mum delivered about 20 minutes ago, big baby, placenta's out but the uterus isn't contracting. I've given Syntometrine and I'm rubbing up the uterus but she's still bleeding heavily. She's gone really pale and her pulse is thready. Estimated loss over a litre."
     },
     {
         id: "obs-003",
@@ -2818,7 +2818,7 @@ const SCENARIOS = [
                 "Obstetric emergency - consultant led unit"
             ]
         },
-        starterMessage: "*Husband speaking* She just started fitting! Her whole body was shaking for about two minutes. She's 38 weeks pregnant. She's been having bad headaches and seeing spots. She's still not making sense... Sarah, can you hear me?"
+        starterMessage: "*Husband speaking* She just started fitting! Her whole body was shaking for about two minutes. She's 38 weeks pregnant and the doctors said her blood pressure was high last week. She's been having bad headaches and seeing spots. She's still not making sense... Sarah, can you hear me?"
     },
     {
         id: "obs-004",
@@ -2858,7 +2858,7 @@ const SCENARIOS = [
                 "Monitor cord pulsation"
             ]
         },
-        starterMessage: "*panicking* Something's really wrong! My waters just broke and I went to the toilet and there's something coming out... I can see it! I'm only 34 weeks. What do I do? Is my baby going to die?"
+        starterMessage: "*panicking* Something's really wrong! My waters just broke and I went to the toilet and there's something coming out - it looks like the cord! I can see it! I'm only 34 weeks - the baby was breech. What do I do? Is my baby going to die?"
     },
     {
         id: "obs-005",
@@ -2898,7 +2898,7 @@ const SCENARIOS = [
                 "May need emergency caesarean section"
             ]
         },
-        starterMessage: "I woke up in a pool of blood - it's bright red and there's quite a lot of it. I don't have any pain which seems strange. They told me at my scan that my placenta was low down and might cause problems. I'm really scared for the baby."
+        starterMessage: "I woke up in a pool of blood - it's bright red and there's quite a lot of it. I'm 30 weeks pregnant. I don't have any pain which seems strange. They told me at my scan that my placenta was low down and might cause problems. I'm really scared for the baby."
     },
     {
         id: "obs-006",
@@ -2938,7 +2938,7 @@ const SCENARIOS = [
                 "TIME CRITICAL - needs emergency delivery"
             ]
         },
-        starterMessage: "*in severe pain, clutching abdomen* The pain came on suddenly about 20 minutes ago and it's constant. I've had a bit of dark blood. The baby hasn't moved much since it started. Something's really wrong, I know it is."
+        starterMessage: "*in severe pain, clutching abdomen* The pain came on suddenly about 20 minutes ago and it's constant - it's not coming in waves like contractions. My bump feels really hard and I've had a bit of dark blood. The baby hasn't moved much since it started. Something's really wrong, I know it is."
     },
     {
         id: "obs-007",
@@ -2979,7 +2979,7 @@ const SCENARIOS = [
                 "May need episiotomy"
             ]
         },
-        starterMessage: "*Midwife speaking, urgent* The head's out but baby isn't coming. I need help NOW. First baby was big and she's got gestational diabetes."
+        starterMessage: "*Midwife speaking, urgent* I've got a shoulder dystocia! The head's out but the shoulders are stuck. I need help NOW. I've called for McRoberts and suprapubic pressure but the baby isn't coming. The head delivered about 2 minutes ago. First baby was big and she's got gestational diabetes."
     },
     {
         id: "obs-008",
@@ -3019,7 +3019,7 @@ const SCENARIOS = [
                 "May need surgical management"
             ]
         },
-        starterMessage: "*crying* I'm scared... there's so much blood and I keep passing clots. I am 8 weeks pregnant - we only just found out. The pain is like really bad period cramps. Is there anything you can do to save my baby? This is my first pregnancy..."
+        starterMessage: "*crying* I'm losing my baby... there's so much blood and I keep passing clots. I was 8 weeks pregnant - we only just found out. The pain is like really bad period cramps. Is there anything you can do to save my baby? This is my first pregnancy..."
     },
     {
         id: "obs-009",
@@ -3059,7 +3059,7 @@ const SCENARIOS = [
                 "Pre-alert obstetric unit"
             ]
         },
-        starterMessage: "*panicking, between contractions* The baby's coming but I can't feel it's head, it's something else? I was supposed to have a caesarean next week. My contractions just started an hour ago and now it's coming! I can't stop pushing!"
+        starterMessage: "*panicking, between contractions* The baby's coming but it's the wrong way round - I can feel the bottom! I was supposed to have a caesarean next week because the baby was breech. My contractions just started an hour ago and now it's coming! I can't stop pushing!"
     },
     {
         id: "obs-010",
@@ -3099,7 +3099,7 @@ const SCENARIOS = [
                 "Needs hospital for BP control and monitoring"
             ]
         },
-        starterMessage: "I've got a terrible headache that won't go away with paracetamol. I keep seeing flashing lights and my face looks really puffy - look at my hands, my rings won't come off. I've got this pain under my ribs on the right too. I'm 34 weeks pregnant."
+        starterMessage: "I've got a terrible headache that won't go away with paracetamol. I keep seeing flashing lights and my face looks really puffy - look at my hands, my rings won't come off. I've got this pain under my ribs on the right too. I'm 34 weeks pregnant. My midwife said my blood pressure was a bit high last week."
     },
 
     // ==================== MENTAL HEALTH (10 scenarios) ====================
@@ -3182,7 +3182,7 @@ const SCENARIOS = [
                 "Requires mental health assessment"
             ]
         },
-        starterMessage: "*flat affect, not making eye contact* I don't know why my sister called you. There's nothing you can do. I've had enough.... what's the point anymore? I just want it all to stop. Everyone would be better off without me."
+        starterMessage: "*flat affect, not making eye contact* I don't know why my sister called you. There's nothing you can do. I've had enough. I've lost my wife, my job, my house... what's the point anymore? I just want it all to stop. Everyone would be better off without me."
     },
     {
         id: "mh-003",
@@ -3262,7 +3262,7 @@ const SCENARIOS = [
                 "Hospital for paracetamol levels and NAC"
             ]
         },
-        starterMessage: "*tearful* I took some tablets about 2 hours ago... I regret it now, I don't really want to die, I just wanted everything to stop for a while. My stomach hurts a bit. I'm so stupid... am I going to be okay?"
+        starterMessage: "*tearful* I took some tablets about 2 hours ago... paracetamol. A lot of them - the whole box, 32 I think. I regret it now, I don't really want to die, I just wanted everything to stop for a while. My stomach hurts a bit. I'm so stupid... am I going to be okay?"
     },
     {
         id: "mh-005",
@@ -3464,7 +3464,7 @@ const SCENARIOS = [
                 "Hospital admission required"
             ]
         },
-        starterMessage: "*trembling violently, looking around fearfully* There's things crawling everywhere! Can't you see them? *brushing at arms* Get them off me! I stopped drinking because I wanted to get better but now I feel terrible. What's happening to me? I'm so scared."
+        starterMessage: "*trembling violently, looking around fearfully* There's things crawling everywhere! Can't you see them? *brushing at arms* Get them off me! I stopped drinking 3 days ago because I wanted to get better but now I feel terrible. What's happening to me? I'm so scared."
     },
     {
         id: "mh-010",
