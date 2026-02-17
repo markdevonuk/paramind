@@ -1085,32 +1085,49 @@ exports.speak = onRequest(
       }
 
       // Process ALL segments in parallel for speed
-      // This means 3 character lines take the same time as 1
+      // Uses Chat Completions API with audio output — this is the ONLY way
+      // to get British accents to work (the simple TTS endpoint ignores accents)
       const audioPromises = segments.map(async (segment) => {
-        // Build voice instructions — always include British accent as baseline
         const defaultInstructions = "Speak with a British English accent in a natural, conversational tone.";
         const instructions = segment.instructions || defaultInstructions;
 
-        const response = await openai.audio.speech.create({
+        const completion = await openai.chat.completions.create({
           model: "gpt-4o-mini-tts",
-          voice: segment.voice || "nova",
-          input: segment.text,
-          instructions: instructions,
-          response_format: "mp3"
+          modalities: ["text", "audio"],
+          audio: {
+            voice: segment.voice || "nova",
+            format: "mp3"
+          },
+          messages: [
+            {
+              role: "system",
+              content: instructions
+            },
+            {
+              role: "user",
+              content: segment.text
+            }
+          ]
         });
 
-        // Convert the audio response to base64 for sending to the browser
-        const arrayBuffer = await response.arrayBuffer();
-        const base64Audio = Buffer.from(arrayBuffer).toString("base64");
+        // Chat Completions API returns audio as base64 directly
+        const audioData = completion.choices[0].message.audio;
+        
+        if (!audioData || !audioData.data) {
+          console.warn(`No audio returned for segment: "${segment.text.substring(0, 30)}..."`);
+          return null;
+        }
 
         return {
           character: segment.character || "PATIENT",
-          audio: base64Audio,
+          audio: audioData.data,
           text: segment.text
         };
       });
 
-      const audioSegments = await Promise.all(audioPromises);
+      const audioResults = await Promise.all(audioPromises);
+      // Filter out any segments that failed to generate audio
+      const audioSegments = audioResults.filter(seg => seg !== null);
 
       console.log(`Generated ${audioSegments.length} audio segments for user ${uid}`);
 
