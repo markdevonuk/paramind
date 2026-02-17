@@ -598,6 +598,70 @@
             50% { transform: scaleY(1.2); }
         }
         
+        
+        /* ==================== Deterioration Alerts ==================== */
+        .deterioration-alert {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            animation: alertSlideIn 0.5s ease;
+        }
+
+        @keyframes alertSlideIn {
+            0% { transform: translateY(-10px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        .deterioration-warning {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 152, 0, 0.15) 100%);
+            border: 1px solid #ffc107;
+            border-left: 4px solid #ffc107;
+        }
+
+        .deterioration-critical {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.15) 0%, rgba(200, 35, 51, 0.15) 100%);
+            border: 1px solid #dc3545;
+            border-left: 4px solid #dc3545;
+            animation: alertSlideIn 0.5s ease, criticalPulse 2s infinite;
+        }
+
+        @keyframes criticalPulse {
+            0%, 100% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.3); }
+            50% { box-shadow: 0 0 15px rgba(220, 53, 69, 0.5); }
+        }
+
+        .deterioration-icon {
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        .deterioration-content {
+            flex: 1;
+        }
+
+        .deterioration-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .deterioration-warning .deterioration-title {
+            color: #856404;
+        }
+
+        .deterioration-critical .deterioration-title {
+            color: #721c24;
+        }
+
+        .deterioration-message {
+            font-size: 0.85rem;
+            color: var(--color-gray-700);
+            line-height: 1.4;
+        }
+
         /* ==================== BOTTOM CONTROLS ==================== */
         .sim-controls {
             flex-shrink: 0;
@@ -1104,7 +1168,14 @@
         conversationHistory: [], voiceConfig: null,
         assessmentsPerformed: [],
         isRecording: false, isProcessing: false, isPlayingAudio: false,
-        mediaRecorder: null, audioChunks: [], currentAudio: null
+        mediaRecorder: null, audioChunks: [], currentAudio: null,
+        // Deterioration tracking (mirrors scenarios.html)
+        deterioration: {
+            exchangesSinceKeyAssessment: 0,
+            currentPhase: null,
+            warningShown: false,
+            criticalShown: false
+        }
     };
 
     // ==================== DOM ELEMENTS ====================
@@ -1262,6 +1333,12 @@
         
         state.conversationHistory = [];
         state.assessmentsPerformed = [];
+        state.deterioration = {
+            exchangesSinceKeyAssessment: 0,
+            currentPhase: null,
+            warningShown: false,
+            criticalShown: false
+        };
         state.voiceConfig = getVoiceConfig(scenario);
         
         const d = scenario.dispatch;
@@ -1270,7 +1347,7 @@
         el.incidentCat.textContent = `CAT ${d.category}`;
         el.incidentCat.className = `dispatch-cat ${d.category === 1 ? 'cat-1' : d.category === 2 ? 'cat-2' : 'cat-3'}`;
         
-        el.transcript.querySelectorAll('.sim-msg, .sim-clinical-card, .sim-scene-card, .sim-debrief-card').forEach(m => m.remove());
+        el.transcript.querySelectorAll('.sim-msg, .sim-clinical-card, .sim-scene-card, .sim-debrief-card, .deterioration-alert').forEach(m => m.remove());
         
         el.scenarioSelectView.style.display = 'none';
         el.simFooter.style.display = 'none';
@@ -1303,6 +1380,7 @@ VOICE MODE RULES:
 - Multiple characters can speak in one response
 
 `;
+        state.voicePrefix = voicePrefix;
         const systemPrompt = voicePrefix + window.scenarioData.getScenarioSystemPrompt(state.currentScenario, state.difficultyLevel);
         state.conversationHistory.push({ role: 'system', content: systemPrompt });
         
@@ -1413,6 +1491,54 @@ VOICE MODE RULES:
     function formatClinicalData(text) { return escapeHtml(text).replace(/•/g, '<br>•').replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); }
     function escapeHtml(text) { const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
 
+    // ==================== DETERIORATION SYSTEM ====================
+    // (Mirrors scenarios.html — adapted for livesim transcript)
+
+    function addDeteriorationAlert(phase) {
+        const config = window.scenarioData.DETERIORATION_CONFIG.alerts[phase];
+        if (!config) return;
+        
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `deterioration-alert deterioration-${phase}`;
+        alertDiv.innerHTML = `
+            <div class="deterioration-icon">${config.icon}</div>
+            <div class="deterioration-content">
+                <div class="deterioration-title">${config.title}</div>
+                <div class="deterioration-message">${config.message}</div>
+            </div>
+        `;
+        
+        el.transcript.insertBefore(alertDiv, el.thinkingIndicator);
+        el.transcript.scrollTop = el.transcript.scrollHeight;
+    }
+
+    function checkDeterioration() {
+        if (!state.currentScenario) return;
+        
+        const phase = window.scenarioData.getDeteriorationPhase(
+            state.deterioration.exchangesSinceKeyAssessment,
+            state.difficultyLevel
+        );
+        
+        if (phase === 'critical' && !state.deterioration.criticalShown) {
+            state.deterioration.currentPhase = 'critical';
+            state.deterioration.criticalShown = true;
+            addDeteriorationAlert('critical');
+        } else if (phase === 'warning' && !state.deterioration.warningShown) {
+            state.deterioration.currentPhase = 'warning';
+            state.deterioration.warningShown = true;
+            addDeteriorationAlert('warning');
+        }
+    }
+
+    function resetDeteriorationCounter() {
+        state.deterioration.exchangesSinceKeyAssessment = 0;
+    }
+
+    function incrementDeteriorationCounter() {
+        state.deterioration.exchangesSinceKeyAssessment++;
+    }
+
     // ==================== VOICE RECORDING ====================
     function enableMic() { el.micBtn.classList.remove('disabled'); el.micLabel.textContent = 'Tap to speak'; }
     function disableMic() { el.micBtn.classList.add('disabled'); el.micLabel.textContent = 'Please wait...'; }
@@ -1473,21 +1599,47 @@ VOICE MODE RULES:
         
         // Track assessments from voice queries (keyword detection)
         const lower = text.toLowerCase();
+        let voiceAssessmentDetected = false;
         if (/pain|where does it hurt|how bad|score.*out of|socrates/i.test(lower) && !state.assessmentsPerformed.includes('Pain assessment (voice)')) {
             state.assessmentsPerformed.push('Pain assessment (voice)');
+            voiceAssessmentDetected = true;
         }
         if (/observation|vital|blood pressure|pulse|sats|oxygen|temperature|resp.*rate/i.test(lower) && !state.assessmentsPerformed.includes('Observations (voice)')) {
             state.assessmentsPerformed.push('Observations (voice)');
+            voiceAssessmentDetected = true;
         }
         if (/medication|medicine|tablets|pills|what.*taking|allergic|allergy/i.test(lower) && !state.assessmentsPerformed.includes('Medications/allergies (voice)')) {
             state.assessmentsPerformed.push('Medications/allergies (voice)');
+            voiceAssessmentDetected = true;
         }
         if (/history|medical history|past medical|previous|before|happen before/i.test(lower) && !state.assessmentsPerformed.includes('History (voice)')) {
             state.assessmentsPerformed.push('History (voice)');
+            voiceAssessmentDetected = true;
+        }
+        
+        // Deterioration tracking (mirrors scenarios.html)
+        if (voiceAssessmentDetected) {
+            resetDeteriorationCounter();
+        } else if (!text.startsWith('[CLINICAL ASSESSMENT')) {
+            // Not a button assessment and not a voice assessment — increment
+            incrementDeteriorationCounter();
         }
         
         // Use more history for debrief so AI can see the full scenario
         const historyLimit = text.includes('DEBRIEF') ? -30 : -12;
+        
+        // Update system prompt with deterioration phase if it has changed
+        if (state.deterioration.currentPhase) {
+            const sysIdx = state.conversationHistory.findIndex(m => m.role === 'system');
+            if (sysIdx !== -1 && state.voicePrefix) {
+                const updatedScenarioPrompt = window.scenarioData.getScenarioSystemPrompt(
+                    state.currentScenario, state.difficultyLevel, state.deterioration.currentPhase
+                );
+                if (updatedScenarioPrompt) {
+                    state.conversationHistory[sysIdx].content = state.voicePrefix + updatedScenarioPrompt;
+                }
+            }
+        }
         
         el.thinkingIndicator.classList.add('visible');
         el.micLabel.textContent = 'Patient is responding...';
@@ -1498,6 +1650,7 @@ VOICE MODE RULES:
             el.thinkingIndicator.classList.remove('visible');
             state.conversationHistory.push({ role: 'assistant', content: fullText });
             await parseAndDisplayResponse(fullText);
+            checkDeterioration();
         } catch (err) { console.error('Chat error:', err); el.thinkingIndicator.classList.remove('visible'); el.micLabel.textContent = 'Error — try again'; setTimeout(enableMic, 2000); }
         state.isProcessing = false;
     }
@@ -1580,6 +1733,12 @@ VOICE MODE RULES:
         if (!state.assessmentsPerformed.includes(assess.name)) {
             state.assessmentsPerformed.push(assess.name);
         }
+        // Deterioration: reset counter if key assessment, otherwise increment
+        if (window.scenarioData.isKeyAssessment(assessKey)) {
+            resetDeteriorationCounter();
+        } else {
+            incrementDeteriorationCounter();
+        }
         await processUserMessage(assess.prompt, `Performing: ${assess.name}`);
     });
 
@@ -1608,6 +1767,7 @@ VOICE MODE RULES:
         if (state.currentAudio) { state.currentAudio.pause(); state.currentAudio = null; }
         if (state.isRecording && state.mediaRecorder) { state.mediaRecorder.stop(); state.mediaRecorder.stream.getTracks().forEach(t => t.stop()); state.isRecording = false; }
         state.isProcessing = false; state.isPlayingAudio = false; state.currentScenario = null; state.conversationHistory = []; state.assessmentsPerformed = [];
+        state.deterioration = { exchangesSinceKeyAssessment: 0, currentPhase: null, warningShown: false, criticalShown: false };
         el.voiceSimView.classList.remove('active'); el.scenarioSelectView.style.display = ''; el.simFooter.style.display = '';
     });
     </script>
