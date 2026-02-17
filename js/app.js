@@ -12,7 +12,9 @@ const CONFIG = {
         user: "/user",
         saveConversation: "/saveConversation",
         conversations: "/conversations",
-        deleteConversation: "/deleteConversation"
+        deleteConversation: "/deleteConversation",
+        transcribe: "/transcribe",
+    	speak: "/speak"
     },
     // Free tier limits
     freeTier: {

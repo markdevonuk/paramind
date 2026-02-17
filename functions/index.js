@@ -9,6 +9,9 @@ const { setGlobalOptions } = require("firebase-functions/v2/options");
 const admin = require("firebase-admin");
 const { OpenAI } = require("openai");
 const Stripe = require("stripe");
+const fs = require("fs");
+const os = require("os");
+const path = require("path");
 
 // Set global options - deploy to London region
 setGlobalOptions({ region: "europe-west2" });
@@ -905,3 +908,225 @@ exports.deleteCpdRecord = onRequest({ cors: true }, async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
+
+
+// ============================================
+// LIVE SIM - VOICE SCENARIO FUNCTIONS
+// ============================================
+
+/**
+ * POST /transcribe
+ * Converts user's voice recording to text using OpenAI Whisper
+ * Pro users only
+ *
+ * Expects JSON body: { audio: "base64-encoded-audio", mimeType: "audio/webm" }
+ * Returns JSON: { text: "transcribed text" }
+ */
+exports.transcribe = onRequest(
+  {
+    cors: true,
+    secrets: ["OPENAI_API_KEY"],
+    timeoutSeconds: 60
+  },
+  async (req, res) => {
+    // Only allow POST
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+      // Initialize OpenAI with secret
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
+
+      // Verify authentication
+      const uid = await verifyAuth(req);
+      const user = await getUser(uid);
+
+      // Pro users only — Live Sim is a premium feature
+      if (user.subscriptionStatus !== "active") {
+        return res.status(403).json({
+          error: "Pro subscription required",
+          message: "Live Sim is a Pro feature. Upgrade to access voice scenarios.",
+          upgrade: true
+        });
+      }
+
+      // Get audio data from request body
+      const { audio, mimeType } = req.body;
+
+      if (!audio) {
+        return res.status(400).json({ error: "Audio data is required" });
+      }
+
+      // Convert base64 audio to a buffer
+      const audioBuffer = Buffer.from(audio, "base64");
+
+      // Determine file extension from mime type
+      let extension = "webm";
+      if (mimeType) {
+        if (mimeType.includes("wav")) extension = "wav";
+        else if (mimeType.includes("mp4")) extension = "mp4";
+        else if (mimeType.includes("ogg")) extension = "ogg";
+        else if (mimeType.includes("mpeg") || mimeType.includes("mp3")) extension = "mp3";
+      }
+
+      // Write audio to a temporary file (Whisper needs a file, not raw bytes)
+      const tempFilePath = path.join(os.tmpdir(), `voice-${uid}-${Date.now()}.${extension}`);
+      fs.writeFileSync(tempFilePath, audioBuffer);
+
+      try {
+        // Send to OpenAI Whisper for transcription
+        const transcription = await openai.audio.transcriptions.create({
+          model: "whisper-1",
+          file: fs.createReadStream(tempFilePath),
+          language: "en",
+        });
+
+        console.log(`Transcribed ${audioBuffer.length} bytes for user ${uid}: "${transcription.text.substring(0, 50)}..."`);
+
+        return res.status(200).json({
+          text: transcription.text
+        });
+
+      } finally {
+        // Always clean up the temporary file
+        try { fs.unlinkSync(tempFilePath); } catch (e) { /* ignore cleanup errors */ }
+      }
+
+    } catch (error) {
+      console.error("Transcribe error:", error);
+
+      if (error.message.includes("Unauthorized")) {
+        return res.status(401).json({ error: error.message });
+      }
+
+      return res.status(500).json({
+        error: "Failed to transcribe audio",
+        details: error.message
+      });
+    }
+  }
+);
+
+
+/**
+ * POST /speak
+ * Converts AI text response to spoken audio using OpenAI gpt-4o-mini-tts
+ * Supports multiple characters (patient, relative, bystander) with different voices
+ * Pro users only
+ *
+ * Expects JSON body: {
+ *   segments: [
+ *     {
+ *       text: "Oh love, this pain in me chest...",
+ *       character: "PATIENT",
+ *       voice: "nova",
+ *       instructions: "Speak with a Northern English accent. Elderly woman in pain..."
+ *     },
+ *     {
+ *       text: "She's been like this for an hour!",
+ *       character: "RELATIVE",
+ *       voice: "echo",
+ *       instructions: "Speak with a British accent. Worried middle-aged man..."
+ *     }
+ *   ]
+ * }
+ *
+ * Returns JSON: {
+ *   audioSegments: [
+ *     { character: "PATIENT", audio: "base64-mp3-data", text: "Oh love..." },
+ *     { character: "RELATIVE", audio: "base64-mp3-data", text: "She's been..." }
+ *   ]
+ * }
+ */
+exports.speak = onRequest(
+  {
+    cors: true,
+    secrets: ["OPENAI_API_KEY"],
+    timeoutSeconds: 60
+  },
+  async (req, res) => {
+    // Only allow POST
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+      // Initialize OpenAI with secret
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
+
+      // Verify authentication
+      const uid = await verifyAuth(req);
+      const user = await getUser(uid);
+
+      // Pro users only
+      if (user.subscriptionStatus !== "active") {
+        return res.status(403).json({
+          error: "Pro subscription required",
+          message: "Live Sim is a Pro feature.",
+          upgrade: true
+        });
+      }
+
+      // Get segments from request body
+      const { segments } = req.body;
+
+      if (!segments || !Array.isArray(segments) || segments.length === 0) {
+        return res.status(400).json({ error: "Segments array is required" });
+      }
+
+      // Safety limit — prevent abuse (a normal response has 1-3 segments)
+      if (segments.length > 5) {
+        return res.status(400).json({ error: "Maximum 5 segments per request" });
+      }
+
+      // Process ALL segments in parallel for speed
+      // This means 3 character lines take the same time as 1
+      const audioPromises = segments.map(async (segment) => {
+        // Build voice instructions — always include British accent as baseline
+        const defaultInstructions = "Speak with a British English accent in a natural, conversational tone.";
+        const instructions = segment.instructions || defaultInstructions;
+
+        const response = await openai.audio.speech.create({
+          model: "gpt-4o-mini-tts",
+          voice: segment.voice || "nova",
+          input: segment.text,
+          instructions: instructions,
+          response_format: "mp3"
+        });
+
+        // Convert the audio response to base64 for sending to the browser
+        const arrayBuffer = await response.arrayBuffer();
+        const base64Audio = Buffer.from(arrayBuffer).toString("base64");
+
+        return {
+          character: segment.character || "PATIENT",
+          audio: base64Audio,
+          text: segment.text
+        };
+      });
+
+      const audioSegments = await Promise.all(audioPromises);
+
+      console.log(`Generated ${audioSegments.length} audio segments for user ${uid}`);
+
+      return res.status(200).json({ audioSegments });
+
+    } catch (error) {
+      console.error("Speak error:", error);
+
+      if (error.message.includes("Unauthorized")) {
+        return res.status(401).json({ error: error.message });
+      }
+
+      return res.status(500).json({
+        error: "Failed to generate speech",
+        details: error.message
+      });
+    }
+  }
+);
