@@ -2199,10 +2199,8 @@ function incrementDeteriorationCounter() {
             }
             
             chatState.scenarioProgress.assessmentsPerformed++;
-            // Check if this is a key assessment that resets deterioration
-if (window.scenarioData.isKeyAssessment(assessmentType)) {
-    resetDeteriorationCounter();
-} else {
+            // Key assessments are neutral (don't affect counter), non-key assessments still count as exchanges
+if (!window.scenarioData.isKeyAssessment(assessmentType)) {
     incrementDeteriorationCounter();
 }
             

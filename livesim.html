@@ -1617,11 +1617,8 @@ VOICE MODE RULES:
             voiceAssessmentDetected = true;
         }
         
-        // Deterioration tracking (mirrors scenarios.html)
-        if (voiceAssessmentDetected) {
-            resetDeteriorationCounter();
-        } else if (!text.startsWith('[CLINICAL ASSESSMENT')) {
-            // Not a button assessment and not a voice assessment — increment
+        // Deterioration tracking — assessments are neutral, regular messages increment
+        if (!voiceAssessmentDetected && !text.startsWith('[CLINICAL ASSESSMENT')) {
             incrementDeteriorationCounter();
         }
         
@@ -1733,10 +1730,8 @@ VOICE MODE RULES:
         if (!state.assessmentsPerformed.includes(assess.name)) {
             state.assessmentsPerformed.push(assess.name);
         }
-        // Deterioration: reset counter if key assessment, otherwise increment
-        if (window.scenarioData.isKeyAssessment(assessKey)) {
-            resetDeteriorationCounter();
-        } else {
+        // Key assessments are neutral (don't affect counter), non-key assessments still count as exchanges
+        if (!window.scenarioData.isKeyAssessment(assessKey)) {
             incrementDeteriorationCounter();
         }
         await processUserMessage(assess.prompt, `Performing: ${assess.name}`);
