@@ -977,11 +977,12 @@
 
         // ==================== BUILD PATIENT INSTRUCTIONS ====================
         const patientInstructions = [
-            `Speak with a British English accent. You are ${patientDesc} from England.`,
+            `ACCENT: You MUST speak with a British English accent — specifically an everyday English accent from England. Do NOT use an American accent under any circumstances. Use British pronunciations, British slang, and British speech patterns throughout.`,
+            `You are ${patientDesc} from England.`,
             emotionParts.join(' '),
             'Keep your responses SHORT — 1 to 3 sentences maximum.',
-            'Use everyday language, NOT medical terminology.',
-            'Sound like a real person, not an AI. Use natural filler words like "umm", "well", "I dunno" where appropriate.'
+            'Use everyday British language, NOT medical terminology. Say things like "me chest" not "my chest", "I reckon" not "I think", "poorly" not "sick", "rang 999" not "called 911".',
+            'Sound like a real British person, not an AI. Use natural filler words like "umm", "well", "I dunno", "sort of" where appropriate.'
         ].join(' ');
 
         // ==================== RELATIVE VOICE ====================
@@ -994,7 +995,8 @@
             const parentGender = gender === 'M' ? 'mother' : 'father';
             const parentLabel = gender === 'M' ? 'Mother' : 'Father';
             relativeInstructions = [
-                `Speak with a British English accent. You are the child's ${parentGender}.`,
+                `ACCENT: You MUST speak with a British English accent from England. Do NOT use an American accent. Use British speech patterns and vocabulary throughout.`,
+                `You are the child's ${parentGender}.`,
                 'You are extremely worried and anxious. Speak rapidly, sometimes talking over yourself.',
                 'Your voice trembles with concern. You want answers and reassurance.',
                 'Occasionally stroke or comfort your child between speaking.',
@@ -1008,7 +1010,8 @@
             const relOptions = gender === 'M' ? ['Wife', 'Daughter'] : ['Husband', 'Son'];
             var relativeLabel = relOptions[Math.floor(Math.random() * relOptions.length)];
             relativeInstructions = [
-                `Speak with a British English accent. You are the patient's ${relativeLabel.toLowerCase()}.`,
+                `ACCENT: You MUST speak with a British English accent from England. Do NOT use an American accent. Use British speech patterns and vocabulary throughout.`,
+                `You are the patient's ${relativeLabel.toLowerCase()}.`,
                 'You are very worried. Speak quickly and anxiously, sometimes interrupting.',
                 'You want to give the paramedic information to help. You hover protectively.',
                 'Sound genuinely concerned — your voice wavers slightly.',
@@ -1020,7 +1023,8 @@
             relativeVoice = gender === 'M' ? 'shimmer' : 'echo';
             var relativeLabel = gender === 'M' ? 'Partner' : 'Partner';
             relativeInstructions = [
-                'Speak with a British English accent. You are the patient\'s partner.',
+                'ACCENT: You MUST speak with a British English accent from England. Do NOT use an American accent. Use British speech patterns and vocabulary throughout.',
+                'You are the patient\'s partner.',
                 'You are worried and tense. Speak with urgency.',
                 'You want to help but feel helpless. Occasionally ask the paramedic if they will be OK.',
                 'Keep to 1-2 sentences. Sound like a real concerned person.'
@@ -1033,7 +1037,8 @@
 
         // ==================== BYSTANDER VOICE ====================
         const bystanderInstructions = [
-            'Speak with a British English accent. You are a bystander at the scene.',
+            'ACCENT: You MUST speak with a British English accent from England. Do NOT use an American accent. Use British speech patterns and vocabulary throughout.',
+            'You are a bystander at the scene.',
             'You are calm but concerned. Speak clearly and factually, as if reporting what you saw to emergency services.',
             'You are helpful and cooperative. Keep to 1-2 short sentences.',
             'Sound like an ordinary member of the public.'
@@ -1213,6 +1218,7 @@
         state.voiceConfig = getVoiceConfig(scenario);
         
         const d = scenario.dispatch;
+        const gcs = parseInt(scenario.patient?.vitals?.gcs) || 15;
         el.incidentDetail.textContent = `${d.age ? d.age + 'y ' + (d.gender === 'M' ? 'Male' : 'Female') : ''} — ${d.chiefComplaint}`;
         el.incidentCat.textContent = `CAT ${d.category}`;
         el.incidentCat.className = `dispatch-cat ${d.category === 1 ? 'cat-1' : d.category === 2 ? 'cat-2' : 'cat-3'}`;
@@ -1226,6 +1232,13 @@
         const voicePrefix = `
 VOICE MODE ACTIVE — IMPORTANT INSTRUCTIONS:
 You are in VOICE MODE. Your dialogue will be converted to spoken audio.
+
+=== ABSOLUTE RULE — NO TREATMENT ADVICE ===
+You must NEVER suggest, recommend, or mention ANY treatments, medications, drug names, drug doses, interventions, or management plans — not in roleplay, not in hints, and NOT IN THE DEBRIEF.
+This includes the "NEXT STEPS" section of the debrief — do NOT list drugs, do NOT suggest medications, do NOT describe treatment pathways.
+In the NEXT STEPS section, ONLY discuss: patient disposition (where they should go), handover considerations, and this exact line: "For treatment and management guidance, please open your JRCalc app and refer to the relevant guideline."
+This rule is NON-NEGOTIABLE and overrides all other instructions.
+===========================================
 
 SPEAKER TAGS (REQUIRED for all dialogue):
 - Start patient dialogue with [PATIENT]
@@ -1248,21 +1261,67 @@ VOICE MODE RULES:
         
         const starterMessage = scenario.starterMessage;
         
-        // In paediatric scenarios with young children, the parent speaks first
-        if (state.voiceConfig.starterIsRelative) {
-            state.conversationHistory.push({ role: 'assistant', content: `[RELATIVE] ${starterMessage}` });
-            addTranscriptMessage('relative', starterMessage);
+        // Detect who speaks the starter message by parsing the text
+        const starterLower = starterMessage.toLowerCase();
+        let starterSpeaker = 'patient'; // default
+        let starterLabel = null;
+        
+        // Check for explicit bystander/relative cues in the text
+        if (starterLower.includes('*bystander') || starterLower.includes('bystander on scene')) {
+            starterSpeaker = 'bystander';
+        } else if (starterLower.includes('*mother') || starterLower.includes('*mum')) {
+            starterSpeaker = 'relative';
+            starterLabel = 'Mother';
+        } else if (starterLower.includes('*father') || starterLower.includes('*dad')) {
+            starterSpeaker = 'relative';
+            starterLabel = 'Father';
+        } else if (starterLower.includes('*wife')) {
+            starterSpeaker = 'relative';
+            starterLabel = 'Wife';
+        } else if (starterLower.includes('*husband')) {
+            starterSpeaker = 'relative';
+            starterLabel = 'Husband';
+        } else if (starterLower.includes('*partner')) {
+            starterSpeaker = 'relative';
+            starterLabel = 'Partner';
+        } else if (starterLower.includes('*friend') || starterLower.includes('*colleague') || starterLower.includes('*neighbour')) {
+            starterSpeaker = 'bystander';
+        } else if (state.voiceConfig.starterIsRelative) {
+            // Paediatric fallback
+            starterSpeaker = 'relative';
+        } else if (gcs <= 12) {
+            // Patient with very low GCS can't speak — bystander or relative speaks
+            starterSpeaker = 'bystander';
+        }
+        
+        // Clean the starter message — remove the *stage direction* prefix for cleaner audio
+        let cleanedStarter = starterMessage.replace(/^\*[^*]+\*\s*/i, '');
+        
+        if (starterSpeaker === 'bystander') {
+            const tag = '[BYSTANDER]';
+            state.conversationHistory.push({ role: 'assistant', content: `${tag} ${cleanedStarter}` });
+            addTranscriptMessage('relative', cleanedStarter, state.voiceConfig.bystander.label);
             await speakSegments([{
-                text: starterMessage,
+                text: cleanedStarter,
+                character: 'BYSTANDER',
+                voice: state.voiceConfig.bystander.voice,
+                instructions: state.voiceConfig.bystander.instructions
+            }]);
+        } else if (starterSpeaker === 'relative') {
+            const label = starterLabel || state.voiceConfig.relative.label;
+            state.conversationHistory.push({ role: 'assistant', content: `[RELATIVE] ${cleanedStarter}` });
+            addTranscriptMessage('relative', cleanedStarter, label);
+            await speakSegments([{
+                text: cleanedStarter,
                 character: 'RELATIVE',
                 voice: state.voiceConfig.relative.voice,
                 instructions: state.voiceConfig.relative.instructions
             }]);
         } else {
-            state.conversationHistory.push({ role: 'assistant', content: `[PATIENT] ${starterMessage}` });
-            addTranscriptMessage('patient', starterMessage);
+            state.conversationHistory.push({ role: 'assistant', content: `[PATIENT] ${cleanedStarter}` });
+            addTranscriptMessage('patient', cleanedStarter);
             await speakSegments([{
-                text: starterMessage,
+                text: cleanedStarter,
                 character: 'PATIENT',
                 voice: state.voiceConfig.patient.voice,
                 instructions: state.voiceConfig.patient.instructions
@@ -1450,7 +1509,7 @@ VOICE MODE RULES:
         if (!impression) { el.impressionInput.style.borderColor = 'var(--color-danger)'; return; }
         bootstrap.Modal.getInstance(el.impressionModal).hide();
         el.impressionInput.value = ''; el.impressionReasoning.value = '';
-        await processUserMessage(`DEBRIEF\n\nMy working impression: ${impression}\n${reasoning ? 'My reasoning: ' + reasoning : ''}`);
+        await processUserMessage(`DEBRIEF\n\nMy working impression: ${impression}\n${reasoning ? 'My reasoning: ' + reasoning : ''}\n\nREMINDER: In the NEXT STEPS section, do NOT suggest any treatments, drugs, or medications. Only discuss disposition and say "For treatment and management guidance, please open your JRCalc app and refer to the relevant guideline."`);
     });
 
     // ==================== END SCENARIO ====================
