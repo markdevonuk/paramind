@@ -1501,7 +1501,9 @@ VOICE MODE RULES:
         if (!impression) { el.impressionInput.style.borderColor = 'var(--color-danger)'; return; }
         bootstrap.Modal.getInstance(el.impressionModal).hide();
         el.impressionInput.value = ''; el.impressionReasoning.value = '';
-        await processUserMessage(`DEBRIEF\n\nMy working impression: ${impression}\n${reasoning ? 'My reasoning: ' + reasoning : ''}\n\nREMINDER: In the NEXT STEPS section, do NOT suggest any treatments, drugs, or medications. Only discuss disposition and say "For treatment and management guidance, please open your JRCalc app and refer to the relevant guideline."`);
+        const displayMsg = `DEBRIEF\n\nMy working impression: ${impression}${reasoning ? '\nMy reasoning: ' + reasoning : ''}`;
+        const aiMsg = displayMsg + `\n\nREMINDER: In the NEXT STEPS section, do NOT suggest any treatments, drugs, or medications. Only discuss disposition and say "For treatment and management guidance, please open your JRCalc app and refer to the relevant guideline."`;
+        await processUserMessage(aiMsg, displayMsg);
     });
 
     // ==================== END SCENARIO ====================
