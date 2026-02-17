@@ -1225,9 +1225,9 @@ VOICE MODE RULES:
     function blobToBase64(blob) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result.split(',')[1]); reader.onerror = reject; reader.readAsDataURL(blob); }); }
 
     // ==================== PROCESS USER MESSAGE ====================
-    async function processUserMessage(text) {
+    async function processUserMessage(text, displayText) {
         state.isProcessing = true; disableMic();
-        addTranscriptMessage('user', text);
+        if (displayText !== false) addTranscriptMessage('user', displayText || text);
         state.conversationHistory.push({ role: 'user', content: text });
         el.thinkingIndicator.classList.add('visible');
         el.micLabel.textContent = 'Patient is responding...';
@@ -1299,12 +1299,11 @@ VOICE MODE RULES:
         if (!btn || state.isProcessing || state.isPlayingAudio) return;
         const assess = ASSESS_PROMPTS[btn.dataset.assess];
         if (!assess) return;
-        addTranscriptMessage('user', `Performing: ${assess.name}`);
-        await processUserMessage(assess.prompt);
+        await processUserMessage(assess.prompt, `Performing: ${assess.name}`);
     });
 
     // ==================== HINTS ====================
-    el.hintBtn.addEventListener('click', async () => { if (state.isProcessing) return; await processUserMessage('HINT'); });
+    el.hintBtn.addEventListener('click', async () => { if (state.isProcessing) return; await processUserMessage('HINT', 'Requesting hint...'); });
     function showHint(text) { el.hintPopup.textContent = '💡 ' + text; el.hintPopup.classList.add('visible'); setTimeout(() => el.hintPopup.classList.remove('visible'), 8000); }
 
     // ==================== WORKING IMPRESSION ====================
