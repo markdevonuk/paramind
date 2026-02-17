@@ -413,19 +413,12 @@ case "checkout.session.completed": {
 
     if (uid) {
         // Check what the user's current status is BEFORE updating
-        const userRef = db.collection("users").doc(uid);
-        const userSnap = await userRef.get();
-        const currentStatus = userSnap.exists ? userSnap.data().subscriptionStatus : null;
-
-        // Only set to "pending" if NOT already "active"
-        // This prevents overwriting "active" if invoice.paid arrived first
+       const userRef = db.collection("users").doc(uid);
+        // Activate immediately - payment is already confirmed at this point
         const updateData = {
             stripeSubscriptionId: session.subscription,
+            subscriptionStatus: "active",
         };
-
-        if (currentStatus !== "active") {
-            updateData.subscriptionStatus = "pending";
-        }
 
         // If there was a discount, store it AND retrieve the promo code name
 if (session.total_details?.amount_discount > 0) {
@@ -1041,17 +1034,23 @@ exports.transcribe = onRequest(
  *   ]
  * }
  */
+// Simple hash to generate consistent seed per character voice
+function hashCode(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
 exports.speak = onRequest(
-  {
+  { 
     cors: true,
     secrets: ["OPENAI_API_KEY"],
     timeoutSeconds: 60
-  },
+  }, 
   async (req, res) => {
-    // Only allow POST
-    if (req.method !== "POST") {
-      return res.status(405).json({ error: "Method not allowed" });
-    }
 
     try {
       // Initialize OpenAI with secret
@@ -1092,8 +1091,9 @@ exports.speak = onRequest(
         const instructions = segment.instructions || defaultInstructions;
 
         const completion = await openai.chat.completions.create({
-          model: "gpt-4o-mini-tts",
+          model: "gpt-4o-mini-audio-preview",
           modalities: ["text", "audio"],
+          seed: hashCode(segment.voice + segment.character),
           audio: {
             voice: segment.voice || "nova",
             format: "mp3"
@@ -1101,11 +1101,11 @@ exports.speak = onRequest(
           messages: [
             {
               role: "system",
-              content: instructions
+              content: "You are a text-to-speech system. Your ONLY job is to read aloud the EXACT text the user provides. Do NOT respond to it. Do NOT add words. Do NOT change any words. Do NOT improvise. Read it EXACTLY as written, word for word, nothing more. " + instructions
             },
             {
               role: "user",
-              content: segment.text
+              content: "Read this text aloud exactly as written: " + segment.text
             }
           ]
         });
