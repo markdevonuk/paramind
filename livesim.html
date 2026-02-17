@@ -890,44 +890,151 @@
         const gender = d.gender || 'M';
         const category = scenario.category;
         const p = scenario.patient;
-        
-        let patientVoice, patientDesc;
-        if (age < 18) { patientVoice = 'fable'; patientDesc = `a ${age}-year-old ${gender === 'F' ? 'girl' : 'boy'}`; }
-        else if (gender === 'F' && age >= 60) { patientVoice = 'nova'; patientDesc = `a ${age}-year-old woman`; }
-        else if (gender === 'M' && age >= 60) { patientVoice = 'onyx'; patientDesc = `a ${age}-year-old man`; }
-        else if (gender === 'F') { patientVoice = 'shimmer'; patientDesc = `a ${age}-year-old woman`; }
-        else { patientVoice = 'echo'; patientDesc = `a ${age}-year-old man`; }
-        if (category === 'mental-health') patientVoice = 'alloy';
-        
-        let emotion = '';
+        const condition = (p.condition || '').toLowerCase();
+        const chiefComplaint = (d.chiefComplaint || '').toLowerCase();
         const pain = p.vitals?.pain || 0;
         const gcs = parseInt(p.vitals?.gcs) || 15;
-        const condition = (p.condition || '').toLowerCase();
-        if (pain >= 8) emotion = 'You are in severe pain. Speak through gritted teeth, pausing and wincing.';
-        else if (pain >= 5) emotion = 'You are in moderate pain. Sound uncomfortable.';
-        else if (gcs < 14) emotion = 'You are confused and drowsy. Speak slowly, trail off mid-sentence.';
-        else if (condition.includes('anxiety') || condition.includes('panic')) emotion = 'You are panicking. Speak very fast, breathless.';
-        else emotion = 'Sound appropriately concerned but able to communicate.';
-        
-        const patientInstructions = `Speak with a British English accent. You are ${patientDesc} from England. ${emotion} Keep responses SHORT — 1 to 3 sentences max. Do NOT use medical terminology.`;
-        
+        const rr = parseInt(p.vitals?.rr) || 16;
+
+        // ==================== PATIENT VOICE ====================
+        // Pick a distinct OpenAI voice based on age + gender
+        let patientVoice, patientDesc;
+        if (age < 5)       { patientVoice = 'fable';   patientDesc = `a very young child, about ${age} years old`; }
+        else if (age < 13) { patientVoice = 'fable';   patientDesc = `a ${age}-year-old ${gender === 'F' ? 'girl' : 'boy'}`; }
+        else if (age < 18) { patientVoice = 'fable';   patientDesc = `a ${age}-year-old teenager`; }
+        else if (gender === 'F' && age >= 70) { patientVoice = 'nova';    patientDesc = `a ${age}-year-old elderly woman`; }
+        else if (gender === 'F' && age >= 50) { patientVoice = 'nova';    patientDesc = `a ${age}-year-old middle-aged woman`; }
+        else if (gender === 'F')              { patientVoice = 'shimmer'; patientDesc = `a ${age}-year-old woman`; }
+        else if (gender === 'M' && age >= 70) { patientVoice = 'onyx';   patientDesc = `a ${age}-year-old elderly man`; }
+        else if (gender === 'M' && age >= 50) { patientVoice = 'onyx';   patientDesc = `a ${age}-year-old middle-aged man`; }
+        else                                  { patientVoice = 'echo';   patientDesc = `a ${age}-year-old man`; }
+
+        // Override for mental health — alloy has a more neutral, vulnerable quality
+        if (category === 'mental-health') patientVoice = 'alloy';
+
+        // ==================== EMOTIONAL DELIVERY ====================
+        // Build rich, specific emotion instructions based on clinical picture
+        let emotionParts = [];
+
+        // Pain-based delivery
+        if (pain >= 9) {
+            emotionParts.push('You are in agonising pain. Cry out, gasp, and struggle to get words out. Speak in short bursts between groans. Sometimes just moan instead of speaking.');
+        } else if (pain >= 7) {
+            emotionParts.push('You are in severe pain. Speak through gritted teeth with strained effort. Pause frequently to wince or catch your breath. Sound genuinely frightened.');
+        } else if (pain >= 5) {
+            emotionParts.push('You are in moderate pain. Sound uncomfortable and distracted by the pain. Occasionally grimace mid-sentence.');
+        } else if (pain >= 3) {
+            emotionParts.push('You have mild pain. Sound a bit uncomfortable but able to talk normally.');
+        }
+
+        // Consciousness / GCS-based delivery
+        if (gcs <= 10) {
+            emotionParts.push('You are barely conscious. Mumble single words or fragments. Long pauses. Drift in and out. Sometimes just groan.');
+        } else if (gcs <= 12) {
+            emotionParts.push('You are very drowsy and confused. Slur your words. Give wrong answers sometimes. Trail off mid-sentence and need prompting to continue.');
+        } else if (gcs <= 14) {
+            emotionParts.push('You are confused and slightly drowsy. Speak slowly, sometimes lose your train of thought. Occasionally give answers that do not quite match the question.');
+        }
+
+        // Breathing difficulty
+        if (chiefComplaint.includes('breath') || chiefComplaint.includes('asthma') || chiefComplaint.includes('copd') || rr >= 24) {
+            emotionParts.push('You are struggling to breathe. Speak in short phrases, pausing to gasp for air between every few words. Sound breathless and frightened.');
+        }
+
+        // Condition-specific delivery
+        if (condition.includes('anxiety') || condition.includes('panic') || chiefComplaint.includes('panic')) {
+            emotionParts.push('You are having a panic attack. Speak very rapidly, sometimes hyperventilating. Your voice trembles. You sound terrified and unable to calm down.');
+        }
+        if (condition.includes('stroke') || chiefComplaint.includes('stroke') || chiefComplaint.includes('facial droop')) {
+            emotionParts.push('You may have slurred speech. Speak as if one side of your mouth is not working properly. Sound confused and scared.');
+        }
+        if (condition.includes('seizure') || chiefComplaint.includes('seizure') || chiefComplaint.includes('fit')) {
+            emotionParts.push('You are post-ictal — very drowsy, confused, and disoriented. Speak very slowly with long pauses. You do not know where you are.');
+        }
+        if (condition.includes('anaphyla') || chiefComplaint.includes('allergic')) {
+            emotionParts.push('Your throat feels tight. Speak with a hoarse, strained voice. Sound panicked because you cannot breathe properly.');
+        }
+        if (condition.includes('overdose') || condition.includes('intox') || chiefComplaint.includes('overdose')) {
+            emotionParts.push('You are drowsy or intoxicated. Slur your words. Speak very slowly with poor coordination. You may be emotionally flat or tearful.');
+        }
+        if (condition.includes('diabetic') || chiefComplaint.includes('hypo')) {
+            emotionParts.push('You are confused and agitated from low blood sugar. Speak irritably, sometimes not making sense. Sound sweaty and shaky.');
+        }
+        if (category === 'trauma') {
+            if (!emotionParts.some(e => e.includes('pain'))) {
+                emotionParts.push('You are shaken and frightened from the injury. Sound shocked and anxious.');
+            }
+        }
+        if (chiefComplaint.includes('cardiac arrest') || chiefComplaint.includes('unresponsive')) {
+            // Patient is unresponsive — no speech needed, but just in case
+            emotionParts.push('You are unresponsive. Do not speak. Only occasional groans if anything.');
+        }
+
+        // Default if nothing specific matched
+        if (emotionParts.length === 0) {
+            emotionParts.push('You are concerned about your condition. Sound worried but able to communicate clearly. Be cooperative but naturally anxious.');
+        }
+
+        // ==================== BUILD PATIENT INSTRUCTIONS ====================
+        const patientInstructions = [
+            `Speak with a British English accent. You are ${patientDesc} from England.`,
+            emotionParts.join(' '),
+            'Keep your responses SHORT — 1 to 3 sentences maximum.',
+            'Use everyday language, NOT medical terminology.',
+            'Sound like a real person, not an AI. Use natural filler words like "umm", "well", "I dunno" where appropriate.'
+        ].join(' ');
+
+        // ==================== RELATIVE VOICE ====================
+        // Always a contrasting voice to the patient so they sound different
         let relativeVoice, relativeInstructions;
-        if (gender === 'M') {
-            relativeVoice = 'shimmer';
-            relativeInstructions = 'Speak with a British English accent. You are a worried woman. Speak quickly and anxiously. 1-2 sentences.';
-        } else {
-            relativeVoice = 'echo';
-            relativeInstructions = 'Speak with a British English accent. You are a worried man. Sound tense. 1-2 sentences.';
-        }
+
         if (category === 'paediatric') {
+            // Parent of a child — the most anxious relative type
             relativeVoice = gender === 'M' ? 'shimmer' : 'echo';
-            relativeInstructions = 'Speak with a British English accent. You are the anxious parent. Very worried.';
+            const parentGender = gender === 'M' ? 'mother' : 'father';
+            relativeInstructions = [
+                `Speak with a British English accent. You are the child's ${parentGender}.`,
+                'You are extremely worried and anxious. Speak rapidly, sometimes talking over yourself.',
+                'Your voice trembles with concern. You want answers and reassurance.',
+                'Occasionally stroke or comfort your child between speaking.',
+                'Keep to 1-2 sentences. Sound like a genuinely frightened parent.'
+            ].join(' ');
+        } else if (age >= 65) {
+            // Elderly patient — relative is likely adult child or spouse
+            relativeVoice = gender === 'M' ? 'shimmer' : 'echo';
+            const relType = Math.random() > 0.5 ? 'wife' : 'daughter';
+            const relTypeM = Math.random() > 0.5 ? 'husband' : 'son';
+            const rel = gender === 'M' ? relType : relTypeM;
+            relativeInstructions = [
+                `Speak with a British English accent. You are the patient's ${rel}.`,
+                'You are very worried. Speak quickly and anxiously, sometimes interrupting.',
+                'You want to give the paramedic information to help. You hover protectively.',
+                'Sound genuinely concerned — your voice wavers slightly.',
+                'Keep to 1-2 sentences.'
+            ].join(' ');
+        } else {
+            // Default — partner or friend
+            relativeVoice = gender === 'M' ? 'shimmer' : 'echo';
+            relativeInstructions = [
+                'Speak with a British English accent. You are the patient\'s partner.',
+                'You are worried and tense. Speak with urgency.',
+                'You want to help but feel helpless. Occasionally ask the paramedic if they will be OK.',
+                'Keep to 1-2 sentences. Sound like a real concerned person.'
+            ].join(' ');
         }
-        
+
+        // ==================== BYSTANDER VOICE ====================
+        const bystanderInstructions = [
+            'Speak with a British English accent. You are a bystander at the scene.',
+            'You are calm but concerned. Speak clearly and factually, as if reporting what you saw to emergency services.',
+            'You are helpful and cooperative. Keep to 1-2 short sentences.',
+            'Sound like an ordinary member of the public.'
+        ].join(' ');
+
         return {
-            patient: { voice: patientVoice, instructions: patientInstructions },
-            relative: { voice: relativeVoice, instructions: relativeInstructions },
-            bystander: { voice: 'alloy', instructions: 'Speak with a British English accent. Calm bystander. Brief and factual.' }
+            patient:   { voice: patientVoice,  instructions: patientInstructions },
+            relative:  { voice: relativeVoice,  instructions: relativeInstructions },
+            bystander: { voice: 'alloy',        instructions: bystanderInstructions }
         };
     }
 
