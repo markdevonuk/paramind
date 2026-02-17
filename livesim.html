@@ -992,6 +992,7 @@
             // Parent of a child — the most anxious relative type
             relativeVoice = gender === 'M' ? 'shimmer' : 'echo';
             const parentGender = gender === 'M' ? 'mother' : 'father';
+            const parentLabel = gender === 'M' ? 'Mother' : 'Father';
             relativeInstructions = [
                 `Speak with a British English accent. You are the child's ${parentGender}.`,
                 'You are extremely worried and anxious. Speak rapidly, sometimes talking over yourself.',
@@ -999,29 +1000,36 @@
                 'Occasionally stroke or comfort your child between speaking.',
                 'Keep to 1-2 sentences. Sound like a genuinely frightened parent.'
             ].join(' ');
+            var relativeLabel = parentLabel;
+            var starterIsRelative = age < 8; // Very young children — parent speaks first
         } else if (age >= 65) {
             // Elderly patient — relative is likely adult child or spouse
             relativeVoice = gender === 'M' ? 'shimmer' : 'echo';
-            const relType = Math.random() > 0.5 ? 'wife' : 'daughter';
-            const relTypeM = Math.random() > 0.5 ? 'husband' : 'son';
-            const rel = gender === 'M' ? relType : relTypeM;
+            const relOptions = gender === 'M' ? ['Wife', 'Daughter'] : ['Husband', 'Son'];
+            var relativeLabel = relOptions[Math.floor(Math.random() * relOptions.length)];
             relativeInstructions = [
-                `Speak with a British English accent. You are the patient's ${rel}.`,
+                `Speak with a British English accent. You are the patient's ${relativeLabel.toLowerCase()}.`,
                 'You are very worried. Speak quickly and anxiously, sometimes interrupting.',
                 'You want to give the paramedic information to help. You hover protectively.',
                 'Sound genuinely concerned — your voice wavers slightly.',
                 'Keep to 1-2 sentences.'
             ].join(' ');
+            var starterIsRelative = false;
         } else {
             // Default — partner or friend
             relativeVoice = gender === 'M' ? 'shimmer' : 'echo';
+            var relativeLabel = gender === 'M' ? 'Partner' : 'Partner';
             relativeInstructions = [
                 'Speak with a British English accent. You are the patient\'s partner.',
                 'You are worried and tense. Speak with urgency.',
                 'You want to help but feel helpless. Occasionally ask the paramedic if they will be OK.',
                 'Keep to 1-2 sentences. Sound like a real concerned person.'
             ].join(' ');
+            var starterIsRelative = false;
         }
+
+        // ==================== PATIENT LABEL ====================
+        const patientLabel = category === 'paediatric' && age < 8 ? 'Child' : 'Patient';
 
         // ==================== BYSTANDER VOICE ====================
         const bystanderInstructions = [
@@ -1032,9 +1040,10 @@
         ].join(' ');
 
         return {
-            patient:   { voice: patientVoice,  instructions: patientInstructions },
-            relative:  { voice: relativeVoice,  instructions: relativeInstructions },
-            bystander: { voice: 'alloy',        instructions: bystanderInstructions }
+            patient:   { voice: patientVoice,  instructions: patientInstructions, label: patientLabel },
+            relative:  { voice: relativeVoice,  instructions: relativeInstructions, label: relativeLabel || 'Relative' },
+            bystander: { voice: 'alloy',        instructions: bystanderInstructions, label: 'Bystander' },
+            starterIsRelative: starterIsRelative || false
         };
     }
 
@@ -1238,27 +1247,46 @@ VOICE MODE RULES:
         state.conversationHistory.push({ role: 'system', content: systemPrompt });
         
         const starterMessage = scenario.starterMessage;
-        state.conversationHistory.push({ role: 'assistant', content: `[PATIENT] ${starterMessage}` });
         
-        addTranscriptMessage('patient', starterMessage);
-        await speakSegments([{
-            text: starterMessage,
-            character: 'PATIENT',
-            voice: state.voiceConfig.patient.voice,
-            instructions: state.voiceConfig.patient.instructions
-        }]);
+        // In paediatric scenarios with young children, the parent speaks first
+        if (state.voiceConfig.starterIsRelative) {
+            state.conversationHistory.push({ role: 'assistant', content: `[RELATIVE] ${starterMessage}` });
+            addTranscriptMessage('relative', starterMessage);
+            await speakSegments([{
+                text: starterMessage,
+                character: 'RELATIVE',
+                voice: state.voiceConfig.relative.voice,
+                instructions: state.voiceConfig.relative.instructions
+            }]);
+        } else {
+            state.conversationHistory.push({ role: 'assistant', content: `[PATIENT] ${starterMessage}` });
+            addTranscriptMessage('patient', starterMessage);
+            await speakSegments([{
+                text: starterMessage,
+                character: 'PATIENT',
+                voice: state.voiceConfig.patient.voice,
+                instructions: state.voiceConfig.patient.instructions
+            }]);
+        }
         enableMic();
     }
 
     // ==================== TRANSCRIPT MESSAGES ====================
     function addTranscriptMessage(type, text, speakerLabel) {
         const div = document.createElement('div');
+        // Get dynamic labels from voice config
+        const vc = state.voiceConfig || {};
+        const patientLabel = vc.patient?.label || 'Patient';
+        const relativeLabel = vc.relative?.label || 'Relative';
+        const bystanderLabel = vc.bystander?.label || 'Bystander';
+        
         if (type === 'patient') {
             div.className = 'sim-msg patient';
-            div.innerHTML = `<div class="msg-speaker"><i class="bi bi-person-fill"></i> Patient</div><div class="msg-text">${escapeHtml(text)}</div>`;
+            div.innerHTML = `<div class="msg-speaker"><i class="bi bi-person-fill"></i> ${patientLabel}</div><div class="msg-text">${escapeHtml(text)}</div>`;
         } else if (type === 'relative') {
             div.className = 'sim-msg relative';
-            div.innerHTML = `<div class="msg-speaker"><i class="bi bi-people-fill"></i> ${speakerLabel || 'Relative'}</div><div class="msg-text">${escapeHtml(text)}</div>`;
+            const label = speakerLabel || relativeLabel;
+            div.innerHTML = `<div class="msg-speaker"><i class="bi bi-people-fill"></i> ${label}</div><div class="msg-text">${escapeHtml(text)}</div>`;
         } else if (type === 'user') {
             div.className = 'sim-msg user';
             div.innerHTML = `<div class="msg-speaker"><i class="bi bi-mic-fill"></i> You</div><div class="msg-text">${escapeHtml(text)}</div>`;
@@ -1362,7 +1390,8 @@ VOICE MODE RULES:
         const voiceSegments = [];
         for (const seg of segments) {
             if (seg.type === 'patient') { addTranscriptMessage('patient', seg.text); voiceSegments.push({ text: seg.text, character: 'PATIENT', voice: state.voiceConfig.patient.voice, instructions: state.voiceConfig.patient.instructions }); }
-            else if (seg.type === 'relative' || seg.type === 'bystander') { addTranscriptMessage('relative', seg.text, seg.type === 'bystander' ? 'Bystander' : 'Relative'); const vc = seg.type === 'bystander' ? state.voiceConfig.bystander : state.voiceConfig.relative; voiceSegments.push({ text: seg.text, character: seg.type.toUpperCase(), voice: vc.voice, instructions: vc.instructions }); }
+            else if (seg.type === 'relative') { addTranscriptMessage('relative', seg.text); const vc = state.voiceConfig.relative; voiceSegments.push({ text: seg.text, character: 'RELATIVE', voice: vc.voice, instructions: vc.instructions }); }
+            else if (seg.type === 'bystander') { addTranscriptMessage('relative', seg.text, state.voiceConfig.bystander.label); const vc = state.voiceConfig.bystander; voiceSegments.push({ text: seg.text, character: 'BYSTANDER', voice: vc.voice, instructions: vc.instructions }); }
             else if (seg.type === 'clinical') { addTranscriptMessage('clinical', seg.text); }
             else if (seg.type === 'scene') { addTranscriptMessage('scene', seg.text); }
         }
