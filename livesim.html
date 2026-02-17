@@ -1236,7 +1236,7 @@
         const scenario = window.scenarioData.getScenarioById(scenarioId);
         const d = scenario.dispatch;
         el.modalCondition.textContent = d.chiefComplaint;
-        el.modalDetails.textContent = `${d.age ? d.age + 'y ' + (d.gender === 'M' ? 'Male' : 'Female') : ''} — ${d.details}`;
+        el.modalDetails.textContent = `${d.age ? d.age + 'y ' + (d.gender === 'M' ? 'Male' : 'Female') : ''};
         document.querySelectorAll('.difficulty-option').forEach(o => o.classList.remove('selected'));
         document.getElementById('diffOpt1').classList.add('selected');
         new bootstrap.Modal(el.difficultyModal).show();
