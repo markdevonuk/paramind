@@ -1166,7 +1166,7 @@ const SCENARIOS = [
                 "Risk of perforation if delayed"
             ]
         },
-        starterMessage: "The pain started around my belly button last night but now it's moved down here to my right side. It really hurts when I move or cough. I've been sick twice and I really don't feel like eating anything."
+        starterMessage: "The pain started around my belly button last night. It really hurts when I move or cough. I've been sick twice and I really don't feel like eating anything."
     },
     {
         id: "abdo-002",
