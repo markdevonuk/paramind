@@ -27,42 +27,21 @@
     <style>
         /* ============================================================
            LIVE SIM PAGE STYLES
-           Dark immersive theme for voice simulation
+           Matches ParaMind light theme — white backgrounds, teal/green brand
            ============================================================ */
         
-        :root {
-            --sim-bg: #0a0e17;
-            --sim-surface: #111827;
-            --sim-surface-light: #1a2236;
-            --sim-border: #1e293b;
-            --sim-text: #e2e8f0;
-            --sim-text-dim: #64748b;
-            --sim-accent: #2dd4bf;
-            --sim-accent-glow: rgba(45, 212, 191, 0.3);
-            --sim-red: #ef4444;
-            --sim-amber: #f59e0b;
-            --sim-blue: #3b82f6;
-            --sim-patient: #2dd4bf;
-            --sim-relative: #a78bfa;
-            --sim-you: #60a5fa;
-            --sim-clinical: #f59e0b;
-        }
-        
-        /* ---- Base Layout ---- */
         .livesim-page {
-            background: var(--sim-bg);
             min-height: 100vh;
             min-height: 100dvh;
             display: flex;
             flex-direction: column;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: var(--sim-text);
+            background: var(--color-gray-50);
         }
         
-        /* ---- Shared Navbar Override (dark theme) ---- */
+        /* ---- Navbar (same as scenarios.html) ---- */
         .livesim-navbar {
-            background: var(--sim-surface) !important;
-            border-bottom: 1px solid var(--sim-border) !important;
+            background: var(--color-white);
+            border-bottom: 1px solid var(--color-gray-200);
             padding: 0.75rem 0;
             position: sticky;
             top: 0;
@@ -74,17 +53,14 @@
             align-items: center;
             justify-content: space-between;
         }
-        .livesim-navbar .brand-para { color: #ffffff; }
-        .livesim-navbar .brand-mind { color: var(--sim-accent); }
-        .livesim-navbar .hamburger-btn span { background-color: var(--sim-text); }
         
-        /* ---- Pro Overlay ---- */
+        /* ---- Pro Overlay (same pattern as ecg.html, atmist.html) ---- */
         .pro-overlay {
             display: none;
             position: fixed;
             inset: 0;
             z-index: 500;
-            background: rgba(10, 14, 23, 0.95);
+            background: rgba(248, 249, 250, 0.97);
             align-items: center;
             justify-content: center;
             padding: 2rem;
@@ -92,26 +68,27 @@
         .pro-overlay.visible { display: flex; }
         
         .pro-overlay-card {
-            background: var(--sim-surface);
-            border: 1px solid var(--sim-border);
-            border-radius: 20px;
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-xl);
             padding: 2.5rem;
             max-width: 420px;
             text-align: center;
+            box-shadow: var(--shadow-lg);
         }
         .pro-overlay-card .lock-icon {
             font-size: 3rem;
-            color: var(--sim-accent);
+            color: var(--color-teal);
             margin-bottom: 1rem;
         }
         .pro-overlay-card h2 {
             font-size: 1.5rem;
             font-weight: 700;
             margin-bottom: 0.75rem;
-            color: #fff;
+            color: var(--color-gray-900);
         }
         .pro-overlay-card p {
-            color: var(--sim-text-dim);
+            color: var(--color-gray-600);
             margin-bottom: 1.5rem;
             line-height: 1.6;
         }
@@ -119,30 +96,30 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            background: linear-gradient(135deg, var(--sim-accent), #14b8a6);
-            color: #000;
+            background: linear-gradient(135deg, var(--color-green) 0%, #4a9f4a 100%);
+            color: white;
             font-weight: 700;
             border: none;
-            border-radius: 12px;
+            border-radius: var(--radius-md);
             padding: 0.875rem 2rem;
             font-size: 1rem;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.2s;
             text-decoration: none;
         }
         .pro-upgrade-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px var(--sim-accent-glow);
-            color: #000;
+            box-shadow: 0 6px 20px rgba(92, 184, 92, 0.4);
+            color: white;
         }
         .pro-back-link {
             display: block;
             margin-top: 1rem;
-            color: var(--sim-text-dim);
+            color: var(--color-gray-500);
             font-size: 0.85rem;
             text-decoration: none;
         }
-        .pro-back-link:hover { color: var(--sim-text); }
+        .pro-back-link:hover { color: var(--color-gray-700); }
         
         /* ---- Loading State ---- */
         .sim-loading {
@@ -152,18 +129,16 @@
             justify-content: center;
         }
         .sim-loading .spinner-border {
-            color: var(--sim-accent);
+            color: var(--color-teal);
             width: 2.5rem;
             height: 2.5rem;
         }
         
         /* ==================== SCENARIO SELECTION VIEW ==================== */
-        
         .scenario-select-view {
             flex: 1;
             overflow-y: auto;
-            padding: 1.5rem;
-            padding-bottom: 2rem;
+            padding: 1.5rem 1rem;
         }
         
         .sim-hero {
@@ -174,9 +149,8 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            background: rgba(45, 212, 191, 0.1);
-            border: 1px solid rgba(45, 212, 191, 0.2);
-            color: var(--sim-accent);
+            background: linear-gradient(135deg, rgba(43, 138, 156, 0.1) 0%, rgba(92, 184, 92, 0.1) 100%);
+            color: var(--color-teal);
             font-size: 0.8rem;
             font-weight: 600;
             padding: 0.4rem 1rem;
@@ -184,117 +158,147 @@
             margin-bottom: 1rem;
         }
         .sim-hero h1 {
-            font-size: 2rem;
-            font-weight: 800;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
             margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, #ffffff, var(--sim-accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
         .sim-hero p {
-            color: var(--sim-text-dim);
+            color: var(--color-gray-600);
             max-width: 500px;
             margin: 0 auto;
             line-height: 1.6;
         }
         
-        /* Category Grid */
+        /* Category Grid (matches scenarios.html) */
         .sim-category-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
-            max-width: 600px;
+            gap: 1rem;
+            max-width: 800px;
             margin: 0 auto;
+        }
+        @media (min-width: 768px) {
+            .sim-category-grid { grid-template-columns: repeat(4, 1fr); }
         }
         
         .sim-category-card {
-            background: var(--sim-surface);
-            border: 1px solid var(--sim-border);
-            border-radius: 14px;
-            padding: 1.25rem;
+            background: var(--color-white);
+            border: 2px solid var(--color-gray-200);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem 1rem;
+            text-align: center;
             cursor: pointer;
-            transition: all 0.25s;
-            text-decoration: none;
-            color: inherit;
+            transition: all 0.2s ease;
         }
         .sim-category-card:hover {
-            border-color: var(--sim-accent);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--color-teal);
         }
         .sim-category-card .cat-icon {
-            font-size: 1.4rem;
-            margin-bottom: 0.5rem;
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.75rem;
+            font-size: 1.5rem;
+            color: white;
         }
         .sim-category-card h3 {
             font-size: 0.9rem;
-            font-weight: 700;
+            font-weight: 600;
             margin-bottom: 0.25rem;
-            color: var(--sim-text);
+            color: var(--color-gray-800);
         }
         .sim-category-card .cat-count {
             font-size: 0.75rem;
-            color: var(--sim-text-dim);
+            color: var(--color-gray-500);
         }
         
-        /* Dispatch Cards */
+        /* Dispatch Cards (dark themed like scenarios.html) */
         .sim-back-btn {
-            display: inline-flex;
+            display: flex;
             align-items: center;
             gap: 0.5rem;
-            color: var(--sim-accent);
+            color: var(--color-teal);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
             background: none;
             border: none;
-            font-size: 0.9rem;
-            font-weight: 600;
             cursor: pointer;
-            padding: 0.5rem 0;
             margin-bottom: 1rem;
         }
         
         .sim-dispatch-card {
-            background: var(--sim-surface);
-            border: 1px solid var(--sim-border);
-            border-radius: 14px;
-            padding: 1.25rem;
-            margin-bottom: 0.75rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            max-width: 600px;
+            background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+            border: 1px solid #0f3460;
+            border-radius: 12px;
+            overflow: hidden;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 1rem;
+            max-width: 700px;
             margin-left: auto;
             margin-right: auto;
+            cursor: pointer;
+            transition: all 0.2s;
         }
-        .sim-dispatch-card:hover { border-color: var(--sim-accent); }
+        .sim-dispatch-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
         .sim-dispatch-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.75rem;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
-            color: var(--sim-text-dim);
+            padding: 0.75rem 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid #0f3460;
+        }
+        .sim-dispatch-incident {
+            color: #00d9ff;
+            font-size: 0.8rem;
+            font-weight: 600;
         }
         .dispatch-cat {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
             font-size: 0.7rem;
             font-weight: 700;
-            padding: 0.2rem 0.6rem;
-            border-radius: 6px;
         }
-        .dispatch-cat.cat-1 { background: rgba(239,68,68,0.2); color: #ef4444; }
-        .dispatch-cat.cat-2 { background: rgba(245,158,11,0.2); color: #f59e0b; }
-        .dispatch-cat.cat-3 { background: rgba(34,197,94,0.2); color: #22c55e; }
+        .dispatch-cat.cat-1 { background: #dc3545; color: white; }
+        .dispatch-cat.cat-2 { background: #ffc107; color: #1a1a2e; }
+        .dispatch-cat.cat-3 { background: #28a745; color: white; }
         
-        .sim-dispatch-complaint { font-weight: 700; font-size: 1rem; margin-bottom: 0.25rem; color: #fff; }
-        .sim-dispatch-details { font-size: 0.85rem; color: var(--sim-text-dim); margin-bottom: 0.75rem; }
-        .sim-dispatch-footer { display: flex; justify-content: space-between; align-items: center; }
-        .sim-dispatch-patient { font-size: 0.8rem; color: var(--sim-text-dim); }
+        .sim-dispatch-body { padding: 1rem; }
+        .sim-dispatch-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+        }
+        .sim-dispatch-label { color: #8892b0; min-width: 80px; }
+        .sim-dispatch-value { color: #ffffff; flex: 1; }
+        .sim-dispatch-value.highlight { color: #e94560; font-weight: 600; }
+        
+        .sim-dispatch-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid #0f3460;
+        }
+        .sim-dispatch-patient { font-size: 0.8rem; color: #8892b0; }
         .sim-start-btn {
-            background: var(--sim-accent);
-            color: #000;
+            background: #00d9ff;
+            color: #1a1a2e;
             border: none;
-            border-radius: 8px;
-            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            padding: 0.4rem 1.25rem;
             font-size: 0.8rem;
             font-weight: 700;
             cursor: pointer;
@@ -304,35 +308,27 @@
         
         /* ==================== DIFFICULTY MODAL ==================== */
         .sim-modal .modal-content {
-            background: var(--sim-surface);
-            border: 1px solid var(--sim-border);
-            border-radius: 20px;
-            color: var(--sim-text);
+            border-radius: var(--radius-xl);
         }
-        .sim-modal .modal-header { border-bottom: 1px solid var(--sim-border); padding: 1.25rem 1.5rem; }
-        .sim-modal .modal-header .btn-close { filter: invert(1); }
-        .sim-modal .modal-body { padding: 1.5rem; }
-        .sim-modal .modal-footer { border-top: 1px solid var(--sim-border); padding: 1rem 1.5rem; }
-        
         .difficulty-option {
-            background: var(--sim-surface-light);
-            border: 2px solid var(--sim-border);
-            border-radius: 12px;
+            background: var(--color-gray-50);
+            border: 2px solid var(--color-gray-200);
+            border-radius: var(--radius-lg);
             padding: 1rem;
             margin-bottom: 0.5rem;
             cursor: pointer;
             transition: 0.2s;
         }
-        .difficulty-option:hover, .difficulty-option.selected { border-color: var(--sim-accent); }
-        .difficulty-option.selected { background: rgba(45, 212, 191, 0.05); }
+        .difficulty-option:hover, .difficulty-option.selected { border-color: var(--color-teal); }
+        .difficulty-option.selected { background: rgba(43, 138, 156, 0.05); }
         .difficulty-option h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.25rem; }
-        .difficulty-option p { font-size: 0.8rem; color: var(--sim-text-dim); margin: 0; }
+        .difficulty-option p { font-size: 0.8rem; color: var(--color-gray-600); margin: 0; }
         
         .sim-begin-btn {
-            background: linear-gradient(135deg, var(--sim-accent), #14b8a6);
-            color: #000;
+            background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-teal-dark) 100%);
+            color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: var(--radius-md);
             padding: 0.75rem 2rem;
             font-weight: 700;
             font-size: 1rem;
@@ -340,18 +336,7 @@
             cursor: pointer;
             transition: 0.2s;
         }
-        .sim-begin-btn:hover { box-shadow: 0 4px 20px var(--sim-accent-glow); }
-        
-        .sim-modal .form-control, .sim-modal .form-select {
-            background: var(--sim-surface-light);
-            border: 1px solid var(--sim-border);
-            color: var(--sim-text);
-        }
-        .sim-modal .form-control:focus, .sim-modal .form-select:focus {
-            border-color: var(--sim-accent);
-            box-shadow: 0 0 0 2px var(--sim-accent-glow);
-        }
-        .sim-modal .form-control::placeholder { color: var(--sim-text-dim); }
+        .sim-begin-btn:hover { box-shadow: 0 4px 15px rgba(43, 138, 156, 0.3); }
         
         /* ==================== VOICE SIM INTERFACE ==================== */
         .voice-sim-view {
@@ -362,10 +347,10 @@
         }
         .voice-sim-view.active { display: flex; }
         
-        /* Incident Banner */
+        /* Incident Banner (keeps the dark dispatch look) */
         .sim-incident-banner {
-            background: linear-gradient(135deg, #0f172a, #1a2236);
-            border-bottom: 1px solid var(--sim-border);
+            background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+            border-bottom: 1px solid #0f3460;
             padding: 0.75rem 1rem;
             display: flex;
             align-items: center;
@@ -376,23 +361,23 @@
         .sim-incident-info { flex: 1; min-width: 0; }
         .sim-incident-label {
             font-size: 0.65rem;
-            color: var(--sim-accent);
+            color: #00d9ff;
             font-weight: 600;
             letter-spacing: 1px;
             text-transform: uppercase;
         }
         .sim-incident-detail {
             font-size: 0.8rem;
-            color: var(--sim-text);
+            color: #ffffff;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         .sim-end-btn {
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--sim-red);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 8px;
+            background: rgba(220, 53, 69, 0.15);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            border-radius: 6px;
             padding: 0.35rem 0.75rem;
             font-size: 0.75rem;
             font-weight: 600;
@@ -401,7 +386,7 @@
             margin-left: 0.75rem;
             transition: 0.2s;
         }
-        .sim-end-btn:hover { background: rgba(239, 68, 68, 0.25); }
+        .sim-end-btn:hover { background: rgba(220, 53, 69, 0.25); }
         
         /* Transcript Area */
         .sim-transcript {
@@ -412,6 +397,7 @@
             flex-direction: column;
             gap: 0.75rem;
             scroll-behavior: smooth;
+            background: var(--color-white);
         }
         
         /* Message Bubbles */
@@ -430,41 +416,41 @@
         
         .sim-msg.patient {
             align-self: flex-start;
-            background: var(--sim-surface-light);
-            border: 1px solid var(--sim-border);
+            background: var(--color-gray-50);
+            border: 1px solid var(--color-gray-200);
             border-bottom-left-radius: 4px;
         }
         .sim-msg.patient .msg-speaker {
-            font-size: 0.7rem; font-weight: 700; color: var(--sim-patient);
+            font-size: 0.7rem; font-weight: 700; color: var(--color-teal);
             margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.4rem;
         }
         
         .sim-msg.relative {
             align-self: flex-start;
-            background: rgba(167, 139, 250, 0.08);
-            border: 1px solid rgba(167, 139, 250, 0.2);
+            background: #faf5ff;
+            border: 1px solid #f3e8ff;
             border-bottom-left-radius: 4px;
         }
         .sim-msg.relative .msg-speaker {
-            font-size: 0.7rem; font-weight: 700; color: var(--sim-relative);
+            font-size: 0.7rem; font-weight: 700; color: #9333ea;
             margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.4rem;
         }
         
         .sim-msg.user {
             align-self: flex-end;
-            background: rgba(59, 130, 246, 0.15);
-            border: 1px solid rgba(59, 130, 246, 0.25);
+            background: linear-gradient(135deg, rgba(43, 138, 156, 0.1) 0%, rgba(92, 184, 92, 0.1) 100%);
+            border: 1px solid rgba(43, 138, 156, 0.2);
             border-bottom-right-radius: 4px;
         }
         .sim-msg.user .msg-speaker {
-            font-size: 0.7rem; font-weight: 700; color: var(--sim-you); margin-bottom: 0.3rem;
+            font-size: 0.7rem; font-weight: 700; color: var(--color-teal); margin-bottom: 0.3rem;
         }
         
         /* Clinical Data Card */
         .sim-clinical-card {
             align-self: center;
-            background: rgba(245, 158, 11, 0.06);
-            border: 1px solid rgba(245, 158, 11, 0.2);
+            background: #fffbeb;
+            border: 1px solid #fef3c7;
             border-radius: 12px;
             padding: 1rem 1.25rem;
             max-width: 95%;
@@ -474,7 +460,7 @@
             animation: simMsgIn 0.3s ease;
         }
         .sim-clinical-card .card-label {
-            font-size: 0.7rem; font-weight: 700; color: var(--sim-clinical);
+            font-size: 0.7rem; font-weight: 700; color: #d97706;
             letter-spacing: 0.5px; text-transform: uppercase;
             margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;
         }
@@ -482,8 +468,8 @@
         /* Scene Card */
         .sim-scene-card {
             align-self: center;
-            background: rgba(59, 130, 246, 0.06);
-            border: 1px solid rgba(59, 130, 246, 0.2);
+            background: #f0f9ff;
+            border: 1px solid #e0f2fe;
             border-radius: 12px;
             padding: 1rem 1.25rem;
             max-width: 95%;
@@ -492,7 +478,7 @@
             animation: simMsgIn 0.3s ease;
         }
         .sim-scene-card .card-label {
-            font-size: 0.7rem; font-weight: 700; color: var(--sim-blue);
+            font-size: 0.7rem; font-weight: 700; color: #0284c7;
             letter-spacing: 0.5px; text-transform: uppercase;
             margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;
         }
@@ -500,8 +486,8 @@
         /* Debrief Card */
         .sim-debrief-card {
             align-self: stretch;
-            background: var(--sim-surface-light);
-            border: 1px solid var(--sim-border);
+            background: var(--color-white);
+            border: 2px solid var(--color-teal);
             border-radius: 16px;
             padding: 1.5rem;
             font-size: 0.9rem;
@@ -509,10 +495,10 @@
             animation: simMsgIn 0.3s ease;
         }
         .sim-debrief-card h2, .sim-debrief-card h3 {
-            color: var(--sim-accent); font-size: 1rem; margin-top: 1rem;
+            color: var(--color-teal); font-size: 1rem; margin-top: 1rem;
         }
         .sim-debrief-card h2:first-child { margin-top: 0; }
-        .sim-debrief-card strong { color: #ffffff; }
+        .sim-debrief-card strong { color: var(--color-gray-900); }
         
         /* Hint Popup */
         .sim-hint-popup {
@@ -521,15 +507,16 @@
             bottom: 200px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(245, 158, 11, 0.15);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            color: var(--sim-amber);
+            background: #fffbeb;
+            border: 1px solid #fef3c7;
+            color: #92400e;
             border-radius: 12px;
             padding: 0.875rem 1.25rem;
             font-size: 0.85rem;
             max-width: 90%;
             z-index: 200;
             text-align: center;
+            box-shadow: var(--shadow-lg);
             animation: hintIn 0.3s ease;
         }
         .sim-hint-popup.visible { display: block; }
@@ -545,13 +532,13 @@
             align-items: center;
             gap: 0.75rem;
             padding: 0.75rem 1rem;
-            color: var(--sim-text-dim);
+            color: var(--color-gray-500);
             font-size: 0.85rem;
         }
         .sim-thinking.visible { display: flex; }
         .thinking-dots { display: flex; gap: 4px; }
         .thinking-dots span {
-            width: 6px; height: 6px; background: var(--sim-accent);
+            width: 6px; height: 6px; background: var(--color-teal);
             border-radius: 50%; animation: dotPulse 1.4s ease-in-out infinite;
         }
         .thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
@@ -561,29 +548,11 @@
             40% { opacity: 1; transform: scale(1.2); }
         }
         
-        /* Audio Playing Indicator */
-        .audio-indicator {
-            display: none; align-items: center; gap: 3px; margin-left: 0.5rem;
-        }
-        .audio-indicator.playing { display: inline-flex; }
-        .audio-indicator span {
-            width: 3px; background: var(--sim-accent); border-radius: 2px;
-            animation: audioBar 0.8s ease-in-out infinite;
-        }
-        .audio-indicator span:nth-child(1) { height: 8px; animation-delay: 0s; }
-        .audio-indicator span:nth-child(2) { height: 14px; animation-delay: 0.15s; }
-        .audio-indicator span:nth-child(3) { height: 10px; animation-delay: 0.3s; }
-        .audio-indicator span:nth-child(4) { height: 16px; animation-delay: 0.45s; }
-        @keyframes audioBar {
-            0%, 100% { transform: scaleY(0.5); }
-            50% { transform: scaleY(1.2); }
-        }
-        
         /* ==================== BOTTOM CONTROLS ==================== */
         .sim-controls {
             flex-shrink: 0;
-            background: var(--sim-surface);
-            border-top: 1px solid var(--sim-border);
+            background: var(--color-white);
+            border-top: 1px solid var(--color-gray-200);
             padding: 0.75rem 1rem 1.25rem;
         }
         
@@ -598,19 +567,20 @@
         
         .sim-assess-btn {
             flex-shrink: 0;
-            background: var(--sim-surface-light);
-            border: 1px solid var(--sim-border);
-            color: var(--sim-text-dim);
+            background: var(--color-gray-50);
+            border: 1px solid var(--color-gray-200);
+            color: var(--color-gray-600);
             font-size: 0.7rem;
             font-weight: 600;
             padding: 0.4rem 0.7rem;
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
             transition: 0.2s;
             white-space: nowrap;
         }
         .sim-assess-btn:hover, .sim-assess-btn:active {
-            border-color: var(--sim-accent); color: var(--sim-accent);
+            border-color: var(--color-teal); color: var(--color-teal);
+            background: rgba(43, 138, 156, 0.05);
         }
         .sim-assess-btn i { margin-right: 0.3rem; }
         
@@ -624,69 +594,61 @@
         
         .sim-hint-btn, .sim-impression-btn {
             width: 44px; height: 44px; border-radius: 50%;
-            background: var(--sim-surface-light);
-            border: 1px solid var(--sim-border);
-            color: var(--sim-text-dim);
+            background: var(--color-gray-50);
+            border: 1px solid var(--color-gray-200);
+            color: var(--color-gray-500);
             font-size: 1.1rem;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; transition: 0.2s;
         }
-        .sim-hint-btn:hover { color: var(--sim-amber); border-color: var(--sim-amber); }
-        .sim-impression-btn:hover { color: var(--sim-accent); border-color: var(--sim-accent); }
+        .sim-hint-btn:hover { color: #d97706; border-color: #fbbf24; background: #fffbeb; }
+        .sim-impression-btn:hover { color: var(--color-teal); border-color: var(--color-teal); background: rgba(43, 138, 156, 0.05); }
         
         /* The Big Mic Button */
         .sim-mic-btn {
             width: 72px; height: 72px; border-radius: 50%;
-            background: linear-gradient(135deg, var(--sim-accent), #14b8a6);
-            border: none; color: #000; font-size: 1.6rem;
+            background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-teal-dark) 100%);
+            border: none; color: white; font-size: 1.6rem;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; transition: all 0.2s; position: relative;
         }
         .sim-mic-btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 30px var(--sim-accent-glow);
+            box-shadow: 0 6px 25px rgba(43, 138, 156, 0.35);
         }
         .sim-mic-btn:active { transform: scale(0.95); }
         
         .sim-mic-btn.recording {
-            background: linear-gradient(135deg, var(--sim-red), #dc2626);
+            background: linear-gradient(135deg, #dc3545, #c82333);
             animation: micPulse 1.5s ease-in-out infinite;
         }
         @keyframes micPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-            50% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+            50% { box-shadow: 0 0 0 20px rgba(220, 53, 69, 0); }
         }
         .sim-mic-btn.disabled { opacity: 0.4; pointer-events: none; }
         
         .sim-mic-label {
-            font-size: 0.7rem; color: var(--sim-text-dim);
+            font-size: 0.7rem; color: var(--color-gray-500);
             text-align: center; margin-top: 0.5rem;
         }
         
-        /* ---- Shared Footer Override (dark theme) ---- */
+        /* ---- Footer (matches site) ---- */
         .livesim-footer {
-            background: var(--sim-bg);
-            border-top: 1px solid var(--sim-border);
+            background: var(--color-gray-900);
+            color: var(--color-gray-400);
             padding: 1.5rem 1rem;
             text-align: center;
             font-size: 0.75rem;
-            color: var(--sim-text-dim);
         }
-        .livesim-footer a { color: var(--sim-text-dim); text-decoration: none; }
-        .livesim-footer a:hover { color: var(--sim-accent); }
-        
-        /* Responsive */
-        @media (min-width: 768px) {
-            .sim-hero h1 { font-size: 2.5rem; }
-            .sim-category-grid { grid-template-columns: repeat(4, 1fr); }
-            .sim-transcript { padding: 1.5rem 2rem; }
-        }
+        .livesim-footer a { color: var(--color-gray-400); text-decoration: none; }
+        .livesim-footer a:hover { color: var(--color-white); }
     </style>
 </head>
 
 <body class="livesim-page">
 
-    <!-- ==================== SHARED NAVIGATION ==================== -->
+    <!-- ==================== SHARED NAVIGATION (same as scenarios.html) ==================== -->
     <nav class="livesim-navbar">
         <div class="container">
             <span class="brand-text">
@@ -727,11 +689,11 @@
     <div class="scenario-select-view" id="scenarioSelectView" style="display: none;">
         <div class="sim-hero">
             <div class="sim-hero-badge"><i class="bi bi-mic-fill"></i> Voice-Powered</div>
-            <h1>Live Sim</h1>
+            <h1><i class="bi bi-mic-fill me-2"></i>Live Sim</h1>
             <p>Speak to your patient. Hear them respond. Practice realistic scenarios using your voice — just like being on scene.</p>
         </div>
         <div class="sim-category-grid" id="categoryGrid"></div>
-        <div id="dispatchList" style="display: none;">
+        <div id="dispatchList" style="display: none; max-width: 700px; margin: 0 auto;">
             <button class="sim-back-btn" id="backToCategories"><i class="bi bi-arrow-left"></i> Back to categories</button>
             <div id="dispatchCards"></div>
         </div>
@@ -786,13 +748,13 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-mic-fill me-2" style="color: var(--sim-accent);"></i>Start Live Sim</h5>
+                    <h5 class="modal-title"><i class="bi bi-mic-fill me-2" style="color: var(--color-teal);"></i>Start Live Sim</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <div class="sim-dispatch-complaint" id="modalCondition">Chest Pain</div>
-                        <div class="sim-dispatch-details" id="modalDetails">65y Male — Started within last hour</div>
+                        <div style="font-weight: 700; font-size: 1rem;" id="modalCondition">Chest Pain</div>
+                        <div style="font-size: 0.85rem; color: var(--color-gray-600);" id="modalDetails">65y Male — Started within last hour</div>
                     </div>
                     <div class="mb-2" style="font-size: 0.85rem; font-weight: 600;">Select difficulty:</div>
                     <div class="difficulty-option selected" data-level="1" id="diffOpt1"><h4>🎓 Level 1 — Student</h4><p>Classic presentations, cooperative patients</p></div>
@@ -811,27 +773,27 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-clipboard-check me-2" style="color: var(--sim-accent);"></i>Working Impression</h5>
+                    <h5 class="modal-title"><i class="bi bi-clipboard-check me-2" style="color: var(--color-teal);"></i>Working Impression</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p style="font-size: 0.85rem; color: var(--sim-text-dim);">What is your working impression for this patient?</p>
+                    <p style="font-size: 0.85rem; color: var(--color-gray-600);">What is your working impression for this patient?</p>
                     <input type="text" class="form-control mb-3" id="impressionInput" placeholder="e.g., STEMI, Acute Coronary Syndrome">
                     <textarea class="form-control" id="impressionReasoning" rows="3" placeholder="Briefly explain your clinical reasoning..."></textarea>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: var(--sim-surface-light); border-color: var(--sim-border); color: var(--sim-text);">Cancel</button>
-                    <button class="sim-begin-btn" id="submitImpressionBtn" style="width: auto;"><i class="bi bi-check-lg me-1"></i>Submit for Debrief</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" id="submitImpressionBtn"><i class="bi bi-check-lg me-1"></i>Submit for Debrief</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ==================== SHARED FOOTER (dark themed) ==================== -->
+    <!-- ==================== SHARED FOOTER (same as other pages) ==================== -->
     <div class="livesim-footer" id="simFooter">
         <div style="margin-bottom: 0.5rem;">
             <span class="brand-text" style="font-size: 0.9rem;">
-                <span class="brand-para" style="color: #fff;">para</span><span class="brand-mind" style="color: var(--sim-accent);">mind</span>
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
             </span>
         </div>
         <div style="display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 0.5rem;">
@@ -844,7 +806,7 @@
 
     <!-- ==================== SHARED SCRIPTS ==================== -->
     
-    <!-- Firebase (SHARED - same as scenarios.html, chat.html, etc) -->
+    <!-- Firebase (SHARED) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -861,7 +823,7 @@
     <!-- Scenarios Data (SHARED) -->
     <script src="js/UDscenarios.js"></script>
     
-    <!-- Menu JS (SHARED - builds hamburger menu) -->
+    <!-- Menu JS (SHARED) -->
     <script src="js/menu-v2.js"></script>
 
     <script>
@@ -882,7 +844,7 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // ==================== API CONFIG (SHARED pattern) ====================
+    // ==================== API CONFIG (SHARED) ====================
     const API = {
         get base() { return window.paramind?.CONFIG?.api?.baseUrl || 'https://europe-west2-paramind-64b8e.cloudfunctions.net'; },
         get chat() { return this.base + (window.paramind?.CONFIG?.api?.chat || '/chat'); },
@@ -904,23 +866,21 @@
             });
             const data = await res.json();
             if (data.url) window.location.href = data.url;
-        } catch (err) {
-            console.error('Upgrade error:', err);
-        }
+        } catch (err) { console.error('Upgrade error:', err); }
     }
 
     // ==================== ASSESSMENT PROMPTS ====================
     const ASSESS_PROMPTS = {
         obs: { name: "Observations", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is taking observations. Provide realistic vital signs:\n\nOBSERVATIONS:\n• HR: [rate] bpm, [regular/irregular]\n• BP: [systolic/diastolic] mmHg\n• RR: [rate] breaths/min\n• SpO2: [percentage]% on [air/O2]\n• Temp: [temperature]°C\n• GCS: [score] (E[x] V[x] M[x])\n• BM: [blood glucose] mmol/L\n• Pain: [score]/10\n• AVPU: [status]\n• Pupils: [findings]\n\nJust provide the clinical findings." },
-        ecg: { name: "ECG", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a 12-lead ECG. Provide the ECG interpretation:\n\nECG FINDINGS:\n• Rate: [bpm]\n• Rhythm: [description]\n• Axis: [normal/left/right]\n• P waves: [present/absent/description]\n• PR interval: [duration/description]\n• QRS complex: [duration/description]\n• ST segment: [description]\n• T waves: [description]\n• Clinical interpretation: [summary]\n\nJust provide the clinical findings." },
+        ecg: { name: "ECG", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a 12-lead ECG. Provide the ECG interpretation:\n\nECG FINDINGS:\n• Rate: [bpm]\n• Rhythm: [description]\n• Axis: [normal/left/right]\n• P waves\n• PR interval\n• QRS complex\n• ST segment\n• T waves\n• Clinical interpretation\n\nJust provide the clinical findings." },
         history: { name: "SAMPLE History", prompt: "[CLINICAL ASSESSMENT]\n\nThe paramedic is taking a SAMPLE history. Respond in character as the patient providing their history." },
         pain: { name: "Pain (SOCRATES)", prompt: "[CLINICAL ASSESSMENT]\n\nThe paramedic is assessing pain using SOCRATES. Respond as the patient describing their pain." },
         meds: { name: "Medications", prompt: "[CLINICAL ASSESSMENT]\n\nThe paramedic is asking about medications. Provide the patient's medication list with doses if known." },
         scene: { name: "Scene Assessment", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is assessing the scene. Provide third-person observations:\n\nSCENE FINDINGS:\n• Location/environment\n• Safety hazards\n• Clues: medication boxes, medical equipment, alcohol etc\n• Other people present\n• Access/egress considerations" },
-        chest: { name: "Chest Exam", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is examining the chest. Provide findings:\n\nCHEST EXAMINATION:\n• Inspection: [chest wall movement, wounds, deformity]\n• Palpation: [tenderness, crepitus, trachea]\n• Auscultation: [breath sounds bilateral, added sounds]\n• Percussion: [resonance]" },
-        abdo: { name: "Abdominal Exam", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is examining the abdomen. Provide findings:\n\nABDOMINAL EXAMINATION:\n• Inspection: [distension, bruising, scars]\n• Palpation: [tenderness, guarding, rigidity, masses]\n• Auscultation: [bowel sounds]" },
-        neuro: { name: "Neuro Exam", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a neurological assessment:\n\nNEURO ASSESSMENT:\n• GCS: [breakdown]\n• Pupils: [size, reactivity, equality]\n• Limb movements: [all 4 limbs]\n• Facial symmetry\n• Speech\n• FAST assessment: [positive/negative]" },
-        skin: { name: "Skin Assessment", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is assessing the skin:\n\nSKIN ASSESSMENT:\n• Colour: [normal/pale/cyanosed/flushed/mottled]\n• Temperature: [warm/cool/hot]\n• Moisture: [dry/diaphoretic/clammy]\n• Capillary refill: [seconds]\n• Rashes/wounds\n• Oedema" }
+        chest: { name: "Chest Exam", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is examining the chest. Provide findings:\n\nCHEST EXAMINATION:\n• Inspection\n• Palpation\n• Auscultation\n• Percussion" },
+        abdo: { name: "Abdominal Exam", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is examining the abdomen. Provide findings:\n\nABDOMINAL EXAMINATION:\n• Inspection\n• Palpation\n• Auscultation" },
+        neuro: { name: "Neuro Exam", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a neurological assessment:\n\nNEURO ASSESSMENT:\n• GCS breakdown\n• Pupils\n• Limb movements\n• Facial symmetry\n• Speech\n• FAST assessment" },
+        skin: { name: "Skin Assessment", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is assessing the skin:\n\nSKIN ASSESSMENT:\n• Colour\n• Temperature\n• Moisture\n• Capillary refill\n• Rashes/wounds\n• Oedema" }
     };
 
     // ==================== VOICE MAPPING ====================
@@ -937,22 +897,19 @@
         else if (gender === 'M' && age >= 60) { patientVoice = 'onyx'; patientDesc = `a ${age}-year-old man`; }
         else if (gender === 'F') { patientVoice = 'shimmer'; patientDesc = `a ${age}-year-old woman`; }
         else { patientVoice = 'echo'; patientDesc = `a ${age}-year-old man`; }
-        
         if (category === 'mental-health') patientVoice = 'alloy';
         
-        // Emotion based on condition
         let emotion = '';
         const pain = p.vitals?.pain || 0;
         const gcs = parseInt(p.vitals?.gcs) || 15;
         const condition = (p.condition || '').toLowerCase();
-        
         if (pain >= 8) emotion = 'You are in severe pain. Speak through gritted teeth, pausing and wincing.';
         else if (pain >= 5) emotion = 'You are in moderate pain. Sound uncomfortable.';
         else if (gcs < 14) emotion = 'You are confused and drowsy. Speak slowly, trail off mid-sentence.';
         else if (condition.includes('anxiety') || condition.includes('panic')) emotion = 'You are panicking. Speak very fast, breathless.';
         else emotion = 'Sound appropriately concerned but able to communicate.';
         
-        const patientInstructions = `Speak with a British English accent. You are ${patientDesc} from England. ${emotion} Keep responses SHORT — 1 to 3 sentences max. Do NOT use medical terminology — speak like a real patient.`;
+        const patientInstructions = `Speak with a British English accent. You are ${patientDesc} from England. ${emotion} Keep responses SHORT — 1 to 3 sentences max. Do NOT use medical terminology.`;
         
         let relativeVoice, relativeInstructions;
         if (gender === 'M') {
@@ -960,34 +917,26 @@
             relativeInstructions = 'Speak with a British English accent. You are a worried woman. Speak quickly and anxiously. 1-2 sentences.';
         } else {
             relativeVoice = 'echo';
-            relativeInstructions = 'Speak with a British English accent. You are a worried man. Sound tense and concerned. 1-2 sentences.';
+            relativeInstructions = 'Speak with a British English accent. You are a worried man. Sound tense. 1-2 sentences.';
         }
-        
         if (category === 'paediatric') {
             relativeVoice = gender === 'M' ? 'shimmer' : 'echo';
-            relativeInstructions = 'Speak with a British English accent. You are the anxious parent. Speak quickly, very worried.';
+            relativeInstructions = 'Speak with a British English accent. You are the anxious parent. Very worried.';
         }
         
         return {
             patient: { voice: patientVoice, instructions: patientInstructions },
             relative: { voice: relativeVoice, instructions: relativeInstructions },
-            bystander: { voice: 'alloy', instructions: 'Speak with a British English accent. You are a calm bystander. Be brief and factual.' }
+            bystander: { voice: 'alloy', instructions: 'Speak with a British English accent. Calm bystander. Brief and factual.' }
         };
     }
 
     // ==================== STATE ====================
     const state = {
-        isPro: false,
-        currentScenario: null,
-        difficultyLevel: 1,
-        conversationHistory: [],
-        voiceConfig: null,
-        isRecording: false,
-        isProcessing: false,
-        isPlayingAudio: false,
-        mediaRecorder: null,
-        audioChunks: [],
-        currentAudio: null
+        isPro: false, currentScenario: null, difficultyLevel: 1,
+        conversationHistory: [], voiceConfig: null,
+        isRecording: false, isProcessing: false, isPlayingAudio: false,
+        mediaRecorder: null, audioChunks: [], currentAudio: null
     };
 
     // ==================== DOM ELEMENTS ====================
@@ -1022,32 +971,21 @@
         submitImpressionBtn: document.getElementById('submitImpressionBtn')
     };
 
-    // ==================== AUTH STATE (SHARED pattern) ====================
+    // ==================== AUTH STATE (SHARED) ====================
     auth.onAuthStateChanged(async (user) => {
-        if (!user) {
-            window.location.href = 'login.html';
-            return;
-        }
-        
+        if (!user) { window.location.href = 'login.html'; return; }
         try {
-            // Get user profile from Firestore (same pattern as scenarios.html)
             const doc = await db.collection('users').doc(user.uid).get();
             if (doc.exists) {
                 const userData = doc.data();
                 state.isPro = userData.subscriptionStatus === 'active' || userData.isPro === true;
             }
-            
             el.loadingState.style.display = 'none';
-            
-            if (!state.isPro) {
-                el.proOverlay.classList.add('visible');
-            } else {
-                el.scenarioSelectView.style.display = '';
-                buildCategoryGrid();
-            }
+            if (!state.isPro) { el.proOverlay.classList.add('visible'); }
+            else { el.scenarioSelectView.style.display = ''; buildCategoryGrid(); }
         } catch (err) {
             console.error('Init error:', err);
-            el.loadingState.innerHTML = '<p style="color: var(--sim-red); text-align: center; padding: 2rem;">Failed to load. Please refresh.</p>';
+            el.loadingState.innerHTML = '<p style="color: var(--color-danger); text-align: center; padding: 2rem;">Failed to load. Please refresh.</p>';
         }
     });
 
@@ -1058,7 +996,9 @@
         
         el.categoryGrid.innerHTML = Object.values(categories).map(cat => `
             <div class="sim-category-card" data-cat="${cat.id}">
-                <div class="cat-icon"><i class="bi ${cat.icon}" style="color: ${cat.color};"></i></div>
+                <div class="cat-icon" style="background: ${cat.color};">
+                    <i class="bi ${cat.icon}"></i>
+                </div>
                 <h3>${cat.title}</h3>
                 <div class="cat-count">${counts[cat.id] || 0} scenarios</div>
             </div>
@@ -1072,23 +1012,36 @@
     function showDispatchCards(categoryId) {
         const scenarios = window.scenarioData.getScenariosByCategory(categoryId);
         
-        el.dispatchCards.innerHTML = scenarios.map(s => {
+        el.dispatchCards.innerHTML = scenarios.map((s, i) => {
             const d = s.dispatch;
             const genderStr = d.gender === 'M' ? 'Male' : d.gender === 'F' ? 'Female' : '';
-            const ageStr = d.age ? `${d.age}y ${genderStr}` : 'Multiple patients';
+            const ageStr = d.age ? `${d.age} years, ${genderStr}` : 'Multiple patients';
             const catClass = d.category === 1 ? 'cat-1' : d.category === 2 ? 'cat-2' : 'cat-3';
+            const incNum = `INC-${Date.now().toString().slice(-6)}-${(i + 1).toString().padStart(3, '0')}`;
             
             return `
                 <div class="sim-dispatch-card" data-id="${s.id}">
                     <div class="sim-dispatch-header">
-                        <span>INC-${Date.now().toString().slice(-4)}-${s.id.slice(-3).toUpperCase()}</span>
+                        <span class="sim-dispatch-incident">${incNum}</span>
                         <span class="dispatch-cat ${catClass}">CAT ${d.category}</span>
                     </div>
-                    <div class="sim-dispatch-complaint">${d.chiefComplaint}</div>
-                    <div class="sim-dispatch-details">${d.details}</div>
+                    <div class="sim-dispatch-body">
+                        <div class="sim-dispatch-row">
+                            <span class="sim-dispatch-label">CALL:</span>
+                            <span class="sim-dispatch-value highlight">${d.chiefComplaint}</span>
+                        </div>
+                        <div class="sim-dispatch-row">
+                            <span class="sim-dispatch-label">DETAIL:</span>
+                            <span class="sim-dispatch-value">${d.details}</span>
+                        </div>
+                        <div class="sim-dispatch-row">
+                            <span class="sim-dispatch-label">PATIENT:</span>
+                            <span class="sim-dispatch-value">${ageStr}</span>
+                        </div>
+                    </div>
                     <div class="sim-dispatch-footer">
-                        <span class="sim-dispatch-patient">${ageStr}</span>
-                        <button class="sim-start-btn"><i class="bi bi-mic-fill me-1"></i>Start</button>
+                        <span class="sim-dispatch-patient"><i class="bi bi-mic-fill me-1"></i>Voice Sim</span>
+                        <button class="sim-start-btn">Start Sim →</button>
                     </div>
                 </div>
             `;
@@ -1113,17 +1066,12 @@
     function openDifficultyModal(scenarioId) {
         state.currentScenario = scenarioId;
         state.difficultyLevel = 1;
-        
         const scenario = window.scenarioData.getScenarioById(scenarioId);
         const d = scenario.dispatch;
-        const ageStr = d.age ? `${d.age}y ${d.gender === 'M' ? 'Male' : 'Female'}` : '';
-        
         el.modalCondition.textContent = d.chiefComplaint;
-        el.modalDetails.textContent = `${ageStr} — ${d.details}`;
-        
+        el.modalDetails.textContent = `${d.age ? d.age + 'y ' + (d.gender === 'M' ? 'Male' : 'Female') : ''} — ${d.details}`;
         document.querySelectorAll('.difficulty-option').forEach(o => o.classList.remove('selected'));
         document.getElementById('diffOpt1').classList.add('selected');
-        
         new bootstrap.Modal(el.difficultyModal).show();
     }
     
@@ -1149,20 +1097,16 @@
         state.voiceConfig = getVoiceConfig(scenario);
         
         const d = scenario.dispatch;
-        const ageStr = d.age ? `${d.age}y ${d.gender === 'M' ? 'Male' : 'Female'}` : '';
-        el.incidentDetail.textContent = `${ageStr} — ${d.chiefComplaint}`;
+        el.incidentDetail.textContent = `${d.age ? d.age + 'y ' + (d.gender === 'M' ? 'Male' : 'Female') : ''} — ${d.chiefComplaint}`;
         el.incidentCat.textContent = `CAT ${d.category}`;
         el.incidentCat.className = `dispatch-cat ${d.category === 1 ? 'cat-1' : d.category === 2 ? 'cat-2' : 'cat-3'}`;
         
-        // Clear previous transcript
         el.transcript.querySelectorAll('.sim-msg, .sim-clinical-card, .sim-scene-card, .sim-debrief-card').forEach(m => m.remove());
         
-        // Switch to sim view
         el.scenarioSelectView.style.display = 'none';
         el.simFooter.style.display = 'none';
         el.voiceSimView.classList.add('active');
         
-        // Build system prompt
         const voicePrefix = `
 VOICE MODE ACTIVE — IMPORTANT INSTRUCTIONS:
 You are in VOICE MODE. Your dialogue will be converted to spoken audio.
@@ -1186,7 +1130,6 @@ VOICE MODE RULES:
         const systemPrompt = voicePrefix + window.scenarioData.getScenarioSystemPrompt(state.currentScenario, state.difficultyLevel);
         state.conversationHistory.push({ role: 'system', content: systemPrompt });
         
-        // Show and speak starter message
         const starterMessage = scenario.starterMessage;
         state.conversationHistory.push({ role: 'assistant', content: `[PATIENT] ${starterMessage}` });
         
@@ -1197,14 +1140,12 @@ VOICE MODE RULES:
             voice: state.voiceConfig.patient.voice,
             instructions: state.voiceConfig.patient.instructions
         }]);
-        
         enableMic();
     }
 
     // ==================== TRANSCRIPT MESSAGES ====================
     function addTranscriptMessage(type, text, speakerLabel) {
         const div = document.createElement('div');
-        
         if (type === 'patient') {
             div.className = 'sim-msg patient';
             div.innerHTML = `<div class="msg-speaker"><i class="bi bi-person-fill"></i> Patient</div><div class="msg-text">${escapeHtml(text)}</div>`;
@@ -1224,37 +1165,20 @@ VOICE MODE RULES:
             div.className = 'sim-debrief-card';
             div.innerHTML = typeof marked !== 'undefined' ? marked.parse(text) : text.replace(/\n/g, '<br>');
         }
-        
         el.transcript.insertBefore(div, el.thinkingIndicator);
         el.transcript.scrollTop = el.transcript.scrollHeight;
         return div;
     }
-    
-    function formatClinicalData(text) {
-        return escapeHtml(text).replace(/•/g, '<br>•').replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    }
-    
-    function escapeHtml(text) {
-        const d = document.createElement('div');
-        d.textContent = text;
-        return d.innerHTML;
-    }
+    function formatClinicalData(text) { return escapeHtml(text).replace(/•/g, '<br>•').replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); }
+    function escapeHtml(text) { const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
 
     // ==================== VOICE RECORDING ====================
-    function enableMic() {
-        el.micBtn.classList.remove('disabled');
-        el.micLabel.textContent = 'Tap to speak';
-    }
-    
-    function disableMic() {
-        el.micBtn.classList.add('disabled');
-        el.micLabel.textContent = 'Please wait...';
-    }
+    function enableMic() { el.micBtn.classList.remove('disabled'); el.micLabel.textContent = 'Tap to speak'; }
+    function disableMic() { el.micBtn.classList.add('disabled'); el.micLabel.textContent = 'Please wait...'; }
     
     el.micBtn.addEventListener('click', async () => {
         if (state.isProcessing || state.isPlayingAudio) return;
-        if (!state.isRecording) await startRecording();
-        else await stopRecording();
+        if (!state.isRecording) await startRecording(); else await stopRecording();
     });
     
     async function startRecording() {
@@ -1279,167 +1203,68 @@ VOICE MODE RULES:
         state.isRecording = false;
         el.micBtn.classList.remove('recording');
         el.micIcon.className = 'bi bi-mic-fill';
-        
         return new Promise((resolve) => {
             state.mediaRecorder.onstop = async () => {
                 state.mediaRecorder.stream.getTracks().forEach(t => t.stop());
                 const blob = new Blob(state.audioChunks, { type: state.mediaRecorder.mimeType });
-                
-                if (blob.size < 1000) {
-                    el.micLabel.textContent = 'Too short — try again';
-                    setTimeout(enableMic, 1500);
-                    resolve();
-                    return;
-                }
-                
-                disableMic();
-                el.micLabel.textContent = 'Transcribing...';
-                
+                if (blob.size < 1000) { el.micLabel.textContent = 'Too short — try again'; setTimeout(enableMic, 1500); resolve(); return; }
+                disableMic(); el.micLabel.textContent = 'Transcribing...';
                 try {
                     const base64 = await blobToBase64(blob);
                     const token = await auth.currentUser.getIdToken();
-                    const res = await fetch(API.transcribe, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ audio: base64, mimeType: state.mediaRecorder.mimeType })
-                    });
+                    const res = await fetch(API.transcribe, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ audio: base64, mimeType: state.mediaRecorder.mimeType }) });
                     const data = await res.json();
-                    
-                    if (data.text && data.text.trim()) {
-                        await processUserMessage(data.text.trim());
-                    } else {
-                        el.micLabel.textContent = "Couldn't hear that — try again";
-                        setTimeout(enableMic, 1500);
-                    }
-                } catch (err) {
-                    console.error('Transcribe error:', err);
-                    el.micLabel.textContent = 'Error — try again';
-                    setTimeout(enableMic, 2000);
-                }
+                    if (data.text && data.text.trim()) { await processUserMessage(data.text.trim()); }
+                    else { el.micLabel.textContent = "Couldn't hear that — try again"; setTimeout(enableMic, 1500); }
+                } catch (err) { console.error('Transcribe error:', err); el.micLabel.textContent = 'Error — try again'; setTimeout(enableMic, 2000); }
                 resolve();
             };
             state.mediaRecorder.stop();
         });
     }
-    
-    function blobToBase64(blob) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result.split(',')[1]);
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-        });
-    }
+    function blobToBase64(blob) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result.split(',')[1]); reader.onerror = reject; reader.readAsDataURL(blob); }); }
 
     // ==================== PROCESS USER MESSAGE ====================
     async function processUserMessage(text) {
-        state.isProcessing = true;
-        disableMic();
-        
+        state.isProcessing = true; disableMic();
         addTranscriptMessage('user', text);
         state.conversationHistory.push({ role: 'user', content: text });
-        
         el.thinkingIndicator.classList.add('visible');
         el.micLabel.textContent = 'Patient is responding...';
-        
         try {
             const token = await auth.currentUser.getIdToken();
-            const response = await fetch(API.chat, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message: text,
-                    conversationHistory: state.conversationHistory.slice(-12).filter(m => m.role !== 'system'),
-                    scenarioPrompt: state.conversationHistory.find(m => m.role === 'system')?.content
-                })
-            });
-            
+            const response = await fetch(API.chat, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text, conversationHistory: state.conversationHistory.slice(-12).filter(m => m.role !== 'system'), scenarioPrompt: state.conversationHistory.find(m => m.role === 'system')?.content }) });
             const fullText = await readStreamedResponse(response);
             el.thinkingIndicator.classList.remove('visible');
             state.conversationHistory.push({ role: 'assistant', content: fullText });
             await parseAndDisplayResponse(fullText);
-        } catch (err) {
-            console.error('Chat error:', err);
-            el.thinkingIndicator.classList.remove('visible');
-            el.micLabel.textContent = 'Error — try again';
-            setTimeout(enableMic, 2000);
-        }
-        
+        } catch (err) { console.error('Chat error:', err); el.thinkingIndicator.classList.remove('visible'); el.micLabel.textContent = 'Error — try again'; setTimeout(enableMic, 2000); }
         state.isProcessing = false;
     }
-    
     async function readStreamedResponse(response) {
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let fullText = '';
-        
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            const chunk = decoder.decode(value, { stream: true });
-            for (const line of chunk.split('\n')) {
-                if (line.startsWith('data: ')) {
-                    try {
-                        const data = JSON.parse(line.slice(6));
-                        if (data.type === 'chunk' && data.content) fullText += data.content;
-                    } catch (e) { /* skip */ }
-                }
-            }
-        }
+        const reader = response.body.getReader(); const decoder = new TextDecoder(); let fullText = '';
+        while (true) { const { done, value } = await reader.read(); if (done) break; const chunk = decoder.decode(value, { stream: true }); for (const line of chunk.split('\n')) { if (line.startsWith('data: ')) { try { const data = JSON.parse(line.slice(6)); if (data.type === 'chunk' && data.content) fullText += data.content; } catch (e) {} } } }
         return fullText;
     }
 
     // ==================== PARSE & DISPLAY RESPONSE ====================
     async function parseAndDisplayResponse(text) {
-        // Check for debrief
-        if (text.includes('## 1.') && text.includes('DIAGNOSIS')) {
-            addTranscriptMessage('debrief', text);
-            disableMic();
-            el.micLabel.textContent = 'Scenario complete';
-            return;
-        }
-        
-        // Check for hint
-        if (text.trim().startsWith('HINT:')) {
-            showHint(text.replace('HINT:', '').trim());
-            enableMic();
-            return;
-        }
-        
+        if (text.includes('## 1.') && text.includes('DIAGNOSIS')) { addTranscriptMessage('debrief', text); disableMic(); el.micLabel.textContent = 'Scenario complete'; return; }
+        if (text.trim().startsWith('HINT:')) { showHint(text.replace('HINT:', '').trim()); enableMic(); return; }
         const segments = parseResponseSegments(text);
         const voiceSegments = [];
-        
         for (const seg of segments) {
-            if (seg.type === 'patient') {
-                addTranscriptMessage('patient', seg.text);
-                voiceSegments.push({ text: seg.text, character: 'PATIENT', voice: state.voiceConfig.patient.voice, instructions: state.voiceConfig.patient.instructions });
-            } else if (seg.type === 'relative' || seg.type === 'bystander') {
-                const label = seg.type === 'bystander' ? 'Bystander' : 'Relative';
-                addTranscriptMessage('relative', seg.text, label);
-                const vc = seg.type === 'bystander' ? state.voiceConfig.bystander : state.voiceConfig.relative;
-                voiceSegments.push({ text: seg.text, character: seg.type.toUpperCase(), voice: vc.voice, instructions: vc.instructions });
-            } else if (seg.type === 'clinical') {
-                addTranscriptMessage('clinical', seg.text);
-            } else if (seg.type === 'scene') {
-                addTranscriptMessage('scene', seg.text);
-            }
+            if (seg.type === 'patient') { addTranscriptMessage('patient', seg.text); voiceSegments.push({ text: seg.text, character: 'PATIENT', voice: state.voiceConfig.patient.voice, instructions: state.voiceConfig.patient.instructions }); }
+            else if (seg.type === 'relative' || seg.type === 'bystander') { addTranscriptMessage('relative', seg.text, seg.type === 'bystander' ? 'Bystander' : 'Relative'); const vc = seg.type === 'bystander' ? state.voiceConfig.bystander : state.voiceConfig.relative; voiceSegments.push({ text: seg.text, character: seg.type.toUpperCase(), voice: vc.voice, instructions: vc.instructions }); }
+            else if (seg.type === 'clinical') { addTranscriptMessage('clinical', seg.text); }
+            else if (seg.type === 'scene') { addTranscriptMessage('scene', seg.text); }
         }
-        
         if (voiceSegments.length > 0) await speakSegments(voiceSegments);
         enableMic();
     }
-    
     function parseResponseSegments(text) {
-        const segments = [];
-        const lines = text.split('\n');
-        let currentType = null, currentText = '';
-        
-        for (const line of lines) {
-            const trimmed = line.trim();
-            if (!trimmed) continue;
-            
-            let newType = null, newText = trimmed;
-            
+        const segments = []; const lines = text.split('\n'); let currentType = null, currentText = '';
+        for (const line of lines) { const trimmed = line.trim(); if (!trimmed) continue; let newType = null, newText = trimmed;
             if (/^\[?PATIENT\]?:?\s*/i.test(trimmed)) { newType = 'patient'; newText = trimmed.replace(/^\[?PATIENT\]?:?\s*/i, ''); }
             else if (/^\[?RELATIVE\]?:?\s*/i.test(trimmed)) { newType = 'relative'; newText = trimmed.replace(/^\[?RELATIVE\]?:?\s*/i, ''); }
             else if (/^\[?BYSTANDER\]?:?\s*/i.test(trimmed)) { newType = 'bystander'; newText = trimmed.replace(/^\[?BYSTANDER\]?:?\s*/i, ''); }
@@ -1447,10 +1272,8 @@ VOICE MODE RULES:
             else if (/^SCENE:?\s*/i.test(trimmed)) { newType = 'scene'; newText = trimmed.replace(/^SCENE:?\s*/i, ''); }
             else if (currentType) { currentText += '\n' + trimmed; continue; }
             else { newType = 'patient'; newText = trimmed; }
-            
             if (currentType && currentText) segments.push({ type: currentType, text: currentText.trim() });
-            currentType = newType;
-            currentText = newText;
+            currentType = newType; currentText = newText;
         }
         if (currentType && currentText) segments.push({ type: currentType, text: currentText.trim() });
         return segments;
@@ -1458,38 +1281,17 @@ VOICE MODE RULES:
 
     // ==================== TEXT-TO-SPEECH ====================
     async function speakSegments(segments) {
-        if (!segments.length) return;
-        state.isPlayingAudio = true;
-        
+        if (!segments.length) return; state.isPlayingAudio = true;
         try {
             const token = await auth.currentUser.getIdToken();
-            const res = await fetch(API.speak, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ segments })
-            });
-            
-            if (!res.ok) { console.error('Speak error:', res.status); state.isPlayingAudio = false; return; }
-            
+            const res = await fetch(API.speak, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ segments }) });
+            if (!res.ok) { state.isPlayingAudio = false; return; }
             const data = await res.json();
-            for (const seg of data.audioSegments) {
-                await playAudio(seg.audio);
-                if (data.audioSegments.length > 1) await new Promise(r => setTimeout(r, 250));
-            }
+            for (const seg of data.audioSegments) { await playAudio(seg.audio); if (data.audioSegments.length > 1) await new Promise(r => setTimeout(r, 250)); }
         } catch (err) { console.error('TTS error:', err); }
-        
         state.isPlayingAudio = false;
     }
-    
-    function playAudio(base64Mp3) {
-        return new Promise((resolve) => {
-            const audio = new Audio(`data:audio/mp3;base64,${base64Mp3}`);
-            state.currentAudio = audio;
-            audio.onended = () => { state.currentAudio = null; resolve(); };
-            audio.onerror = () => { state.currentAudio = null; resolve(); };
-            audio.play().catch(() => resolve());
-        });
-    }
+    function playAudio(base64Mp3) { return new Promise((resolve) => { const audio = new Audio(`data:audio/mp3;base64,${base64Mp3}`); state.currentAudio = audio; audio.onended = () => { state.currentAudio = null; resolve(); }; audio.onerror = () => { state.currentAudio = null; resolve(); }; audio.play().catch(() => resolve()); }); }
 
     // ==================== ASSESSMENT BUTTONS ====================
     document.getElementById('assessmentRow').addEventListener('click', async (e) => {
@@ -1502,53 +1304,27 @@ VOICE MODE RULES:
     });
 
     // ==================== HINTS ====================
-    el.hintBtn.addEventListener('click', async () => {
-        if (state.isProcessing) return;
-        await processUserMessage('HINT');
-    });
-    
-    function showHint(text) {
-        el.hintPopup.textContent = '💡 ' + text;
-        el.hintPopup.classList.add('visible');
-        setTimeout(() => el.hintPopup.classList.remove('visible'), 8000);
-    }
+    el.hintBtn.addEventListener('click', async () => { if (state.isProcessing) return; await processUserMessage('HINT'); });
+    function showHint(text) { el.hintPopup.textContent = '💡 ' + text; el.hintPopup.classList.add('visible'); setTimeout(() => el.hintPopup.classList.remove('visible'), 8000); }
 
     // ==================== WORKING IMPRESSION ====================
-    el.impressionBtn.addEventListener('click', () => {
-        new bootstrap.Modal(el.impressionModal).show();
-    });
-    
+    el.impressionBtn.addEventListener('click', () => { new bootstrap.Modal(el.impressionModal).show(); });
     el.submitImpressionBtn.addEventListener('click', async () => {
         const impression = el.impressionInput.value.trim();
         const reasoning = el.impressionReasoning.value.trim();
-        if (!impression) { el.impressionInput.style.borderColor = 'var(--sim-red)'; return; }
-        
+        if (!impression) { el.impressionInput.style.borderColor = 'var(--color-danger)'; return; }
         bootstrap.Modal.getInstance(el.impressionModal).hide();
-        el.impressionInput.value = '';
-        el.impressionReasoning.value = '';
-        
+        el.impressionInput.value = ''; el.impressionReasoning.value = '';
         await processUserMessage(`DEBRIEF\n\nMy working impression: ${impression}\n${reasoning ? 'My reasoning: ' + reasoning : ''}`);
     });
 
     // ==================== END SCENARIO ====================
     el.endScenarioBtn.addEventListener('click', () => {
         if (state.currentAudio) { state.currentAudio.pause(); state.currentAudio = null; }
-        if (state.isRecording && state.mediaRecorder) {
-            state.mediaRecorder.stop();
-            state.mediaRecorder.stream.getTracks().forEach(t => t.stop());
-            state.isRecording = false;
-        }
-        
-        state.isProcessing = false;
-        state.isPlayingAudio = false;
-        state.currentScenario = null;
-        state.conversationHistory = [];
-        
-        el.voiceSimView.classList.remove('active');
-        el.scenarioSelectView.style.display = '';
-        el.simFooter.style.display = '';
+        if (state.isRecording && state.mediaRecorder) { state.mediaRecorder.stop(); state.mediaRecorder.stream.getTracks().forEach(t => t.stop()); state.isRecording = false; }
+        state.isProcessing = false; state.isPlayingAudio = false; state.currentScenario = null; state.conversationHistory = [];
+        el.voiceSimView.classList.remove('active'); el.scenarioSelectView.style.display = ''; el.simFooter.style.display = '';
     });
-
     </script>
 </body>
 </html>
