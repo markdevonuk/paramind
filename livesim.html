@@ -553,38 +553,37 @@
             align-self: flex-start;
             display: none;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
             color: var(--color-gray-500);
-            font-size: 0.85rem;
+            font-size: 1rem;
+            font-weight: 600;
+            background: rgba(43, 138, 156, 0.06);
+            border: 1px solid rgba(43, 138, 156, 0.15);
+            border-radius: 12px;
+            margin: 0.25rem 0;
         }
-.sim-audio-wave {
-    align-self: flex-start;
-    display: none;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 1.25rem;
-    color: var(--color-gray-500);
-    font-size: 1rem;
-    font-weight: 600;
-    background: rgba(43, 138, 156, 0.06);
-    border: 1px solid rgba(43, 138, 156, 0.15);
-    border-radius: 12px;
-    margin: 0.25rem 0;
-}
-.wave-bars span {
-    width: 5px;
-    background: var(--color-teal);
-    border-radius: 3px;
-    animation: waveBar 1.2s ease-in-out infinite;
-}
-.wave-bars span:nth-child(1) { height: 14px; animation-delay: 0.0s; }
-.wave-bars span:nth-child(2) { height: 24px; animation-delay: 0.1s; }
-.wave-bars span:nth-child(3) { height: 34px; animation-delay: 0.2s; }
-.wave-bars span:nth-child(4) { height: 24px; animation-delay: 0.3s; }
-.wave-bars span:nth-child(5) { height: 14px; animation-delay: 0.4s; }
-.wave-bars span:nth-child(6) { height: 28px; animation-delay: 0.15s; }
-.wave-bars span:nth-child(7) { height: 18px; animation-delay: 0.25s; }
+        .sim-audio-wave.visible { display: flex; }
+        .sim-audio-wave.playing .wave-label { color: var(--color-teal); }
+        .wave-bars {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            height: 40px;
+        }
+        .wave-bars span {
+            width: 5px;
+            background: var(--color-teal);
+            border-radius: 3px;
+            animation: waveBar 1.2s ease-in-out infinite;
+        }
+        .wave-bars span:nth-child(1) { height: 14px; animation-delay: 0.0s; }
+        .wave-bars span:nth-child(2) { height: 24px; animation-delay: 0.1s; }
+        .wave-bars span:nth-child(3) { height: 34px; animation-delay: 0.2s; }
+        .wave-bars span:nth-child(4) { height: 24px; animation-delay: 0.3s; }
+        .wave-bars span:nth-child(5) { height: 14px; animation-delay: 0.4s; }
+        .wave-bars span:nth-child(6) { height: 28px; animation-delay: 0.15s; }
+        .wave-bars span:nth-child(7) { height: 18px; animation-delay: 0.25s; }
         /* Waiting state: gentle pulse */
         @keyframes waveBar {
             0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
