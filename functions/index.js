@@ -1050,29 +1050,35 @@ exports.speak = onRequest(
         return res.status(400).json({ error: "Maximum 5 segments per request" });
       }
 
-      const audioPromises = segments.map(async (segment) => {
+   const audioPromises = segments.map(async (segment) => {
         const defaultInstructions = "Speak in a natural, conversational tone.";
         const instructions = segment.instructions || defaultInstructions;
 
-        const response = await openai.audio.speech.create({
-          model: "gpt-4o-mini-tts-2025-03-20",
-          voice: segment.voice || "ballad",
-          input: segment.text,
-          instructions: instructions,
-          response_format: "mp3"
-        });
+        try {
+          const response = await openai.audio.speech.create({
+            model: "gpt-4o-mini-tts-2025-03-20",
+            voice: segment.voice || "ballad",
+            input: segment.text,
+            instructions: instructions,
+            response_format: "mp3"
+          });
 
-        const arrayBuffer = await response.arrayBuffer();
-        const base64Audio = Buffer.from(arrayBuffer).toString("base64");
+          const arrayBuffer = await response.arrayBuffer();
+          const base64Audio = Buffer.from(arrayBuffer).toString("base64");
 
-        return {
-          character: segment.character || "PATIENT",
-          audio: base64Audio,
-          text: segment.text
-        };
+          return {
+            character: segment.character || "PATIENT",
+            audio: base64Audio,
+            text: segment.text
+          };
+        } catch (segError) {
+          console.error(`Audio failed for ${segment.character} (voice: ${segment.voice}): ${segError.message}`);
+          return null;
+        }
       });
 
-      const audioSegments = await Promise.all(audioPromises);
+      const audioResults = await Promise.all(audioPromises);
+      const audioSegments = audioResults.filter(seg => seg !== null);
 
       console.log(`Generated ${audioSegments.length} audio segments for user ${uid}`);
 

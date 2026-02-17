@@ -1455,6 +1455,9 @@ VOICE MODE RULES:
             if (/^\[?PATIENT\]?:?\s*/i.test(trimmed)) { newType = 'patient'; newText = trimmed.replace(/^\[?PATIENT\]?:?\s*/i, ''); }
             else if (/^\[?RELATIVE\]?:?\s*/i.test(trimmed)) { newType = 'relative'; newText = trimmed.replace(/^\[?RELATIVE\]?:?\s*/i, ''); }
             else if (/^\[?BYSTANDER\]?:?\s*/i.test(trimmed)) { newType = 'bystander'; newText = trimmed.replace(/^\[?BYSTANDER\]?:?\s*/i, ''); }
+            else if (/^(Mother|Father|Mum|Dad|Wife|Husband|Daughter|Son|Partner|Carer):?\s*/i.test(trimmed)) { newType = 'relative'; newText = trimmed.replace(/^(Mother|Father|Mum|Dad|Wife|Husband|Daughter|Son|Partner|Carer):?\s*/i, ''); }
+            else if (/^(Bystander|Friend|Colleague|Neighbour|Witness|Passer-?by):?\s*/i.test(trimmed)) { newType = 'bystander'; newText = trimmed.replace(/^(Bystander|Friend|Colleague|Neighbour|Witness|Passer-?by):?\s*/i, ''); }
+            else if (/^(Child|Patient name):?\s*/i.test(trimmed)) { newType = 'patient'; newText = trimmed.replace(/^(Child|Patient name):?\s*/i, ''); }
             else if (/^CLINICAL DATA:?\s*/i.test(trimmed)) { newType = 'clinical'; newText = trimmed.replace(/^CLINICAL DATA:?\s*/i, ''); }
             else if (/^SCENE:?\s*/i.test(trimmed)) { newType = 'scene'; newText = trimmed.replace(/^SCENE:?\s*/i, ''); }
             else if (currentType) { currentText += '\n' + trimmed; continue; }
