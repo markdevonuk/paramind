@@ -1048,6 +1048,7 @@
     const state = {
         isPro: false, currentScenario: null, difficultyLevel: 1,
         conversationHistory: [], voiceConfig: null,
+        assessmentsPerformed: [],
         isRecording: false, isProcessing: false, isPlayingAudio: false,
         mediaRecorder: null, audioChunks: [], currentAudio: null
     };
@@ -1207,6 +1208,7 @@
         if (!scenario) return;
         
         state.conversationHistory = [];
+        state.assessmentsPerformed = [];
         state.voiceConfig = getVoiceConfig(scenario);
         
         const d = scenario.dispatch;
@@ -1415,11 +1417,30 @@ VOICE MODE RULES:
         state.isProcessing = true; disableMic();
         if (displayText !== false) addTranscriptMessage('user', displayText || text);
         state.conversationHistory.push({ role: 'user', content: text });
+        
+        // Track assessments from voice queries (keyword detection)
+        const lower = text.toLowerCase();
+        if (/pain|where does it hurt|how bad|score.*out of|socrates/i.test(lower) && !state.assessmentsPerformed.includes('Pain assessment (voice)')) {
+            state.assessmentsPerformed.push('Pain assessment (voice)');
+        }
+        if (/observation|vital|blood pressure|pulse|sats|oxygen|temperature|resp.*rate/i.test(lower) && !state.assessmentsPerformed.includes('Observations (voice)')) {
+            state.assessmentsPerformed.push('Observations (voice)');
+        }
+        if (/medication|medicine|tablets|pills|what.*taking|allergic|allergy/i.test(lower) && !state.assessmentsPerformed.includes('Medications/allergies (voice)')) {
+            state.assessmentsPerformed.push('Medications/allergies (voice)');
+        }
+        if (/history|medical history|past medical|previous|before|happen before/i.test(lower) && !state.assessmentsPerformed.includes('History (voice)')) {
+            state.assessmentsPerformed.push('History (voice)');
+        }
+        
+        // Use more history for debrief so AI can see the full scenario
+        const historyLimit = text.includes('DEBRIEF') ? -30 : -12;
+        
         el.thinkingIndicator.classList.add('visible');
         el.micLabel.textContent = 'Patient is responding...';
         try {
             const token = await auth.currentUser.getIdToken();
-            const response = await fetch(API.chat, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text, conversationHistory: state.conversationHistory.slice(-12).filter(m => m.role !== 'system'), scenarioPrompt: state.conversationHistory.find(m => m.role === 'system')?.content }) });
+            const response = await fetch(API.chat, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text, conversationHistory: state.conversationHistory.slice(historyLimit).filter(m => m.role !== 'system'), scenarioPrompt: state.conversationHistory.find(m => m.role === 'system')?.content }) });
             const fullText = await readStreamedResponse(response);
             el.thinkingIndicator.classList.remove('visible');
             state.conversationHistory.push({ role: 'assistant', content: fullText });
@@ -1487,8 +1508,13 @@ VOICE MODE RULES:
     document.getElementById('assessmentRow').addEventListener('click', async (e) => {
         const btn = e.target.closest('.sim-assess-btn');
         if (!btn || state.isProcessing || state.isPlayingAudio) return;
-        const assess = ASSESS_PROMPTS[btn.dataset.assess];
+        const assessKey = btn.dataset.assess;
+        const assess = ASSESS_PROMPTS[assessKey];
         if (!assess) return;
+        // Track that this assessment was performed
+        if (!state.assessmentsPerformed.includes(assess.name)) {
+            state.assessmentsPerformed.push(assess.name);
+        }
         await processUserMessage(assess.prompt, `Performing: ${assess.name}`);
     });
 
@@ -1504,8 +1530,11 @@ VOICE MODE RULES:
         if (!impression) { el.impressionInput.style.borderColor = 'var(--color-danger)'; return; }
         bootstrap.Modal.getInstance(el.impressionModal).hide();
         el.impressionInput.value = ''; el.impressionReasoning.value = '';
+        const assessList = state.assessmentsPerformed.length > 0 
+            ? `\n\nASSESSMENTS THE PARAMEDIC PERFORMED DURING THIS SCENARIO (do NOT say they missed these):\n- ${state.assessmentsPerformed.join('\n- ')}`
+            : '';
         const displayMsg = `DEBRIEF\n\nMy working impression: ${impression}${reasoning ? '\nMy reasoning: ' + reasoning : ''}`;
-        const aiMsg = displayMsg + `\n\nREMINDER: In the NEXT STEPS section, do NOT suggest any treatments, drugs, or medications. Only discuss disposition and say "For treatment and management guidance, please open your JRCalc app and refer to the relevant guideline."`;
+        const aiMsg = displayMsg + assessList + `\n\nREMINDER: In the NEXT STEPS section, do NOT suggest any treatments, drugs, or medications. Only discuss disposition and say "For treatment and management guidance, please open your JRCalc app and refer to the relevant guideline."`;
         await processUserMessage(aiMsg, displayMsg);
     });
 
@@ -1513,7 +1542,7 @@ VOICE MODE RULES:
     el.endScenarioBtn.addEventListener('click', () => {
         if (state.currentAudio) { state.currentAudio.pause(); state.currentAudio = null; }
         if (state.isRecording && state.mediaRecorder) { state.mediaRecorder.stop(); state.mediaRecorder.stream.getTracks().forEach(t => t.stop()); state.isRecording = false; }
-        state.isProcessing = false; state.isPlayingAudio = false; state.currentScenario = null; state.conversationHistory = [];
+        state.isProcessing = false; state.isPlayingAudio = false; state.currentScenario = null; state.conversationHistory = []; state.assessmentsPerformed = [];
         el.voiceSimView.classList.remove('active'); el.scenarioSelectView.style.display = ''; el.simFooter.style.display = '';
     });
     </script>
