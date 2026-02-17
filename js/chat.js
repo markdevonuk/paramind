@@ -709,10 +709,7 @@ function showScenarioSubcategory(categoryId) {
                         <span class="dispatch-label">Condition:</span>
                         <span class="dispatch-value highlight">${d.chiefComplaint}</span>
                     </div>
-                    <div class="dispatch-row">
-                        <span class="dispatch-label">Info:</span>
-                        <span class="dispatch-value">${d.details}</span>
-                    </div>
+                    
                 </div>
                 <div class="dispatch-footer">
                     <div class="dispatch-status">AWAITING RESOURCE</div>
