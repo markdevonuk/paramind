@@ -1,0 +1,626 @@
+/* ============================================
+   ROIS MODE STYLES
+   ECG Systematic Review Mode
+   ============================================ */
+
+/* ===== PocketParamedic Credit Banner ===== */
+.rois-credit {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 2px solid #2d6a7a;
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.rois-credit::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #2B8A9C, #5CB85C, #2B8A9C);
+}
+
+.rois-credit-framework {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.25rem;
+    letter-spacing: 0.5px;
+}
+
+.rois-credit-framework .rois-letters {
+    color: #22c55e;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.3rem;
+}
+
+.rois-credit-by {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    margin-bottom: 0.5rem;
+}
+
+.rois-credit-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #2B8A9C, #237282);
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.rois-credit-link:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(43, 138, 156, 0.4);
+    color: white;
+}
+
+.rois-credit-tagline {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: 0.5rem;
+    font-style: italic;
+}
+
+/* ===== ROIS Progress Bar ===== */
+.rois-progress-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-sm);
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.rois-progress-rhythm {
+    font-weight: 700;
+    color: var(--color-gray-800);
+    font-size: 0.95rem;
+}
+
+.rois-progress-rhythm span {
+    color: var(--color-teal);
+}
+
+.rois-progress-step {
+    font-size: 0.85rem;
+    color: var(--color-gray-500);
+    font-weight: 500;
+}
+
+.rois-progress-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-teal);
+    background: rgba(43, 138, 156, 0.1);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+}
+
+/* ===== ROIS Letter Indicators (R O I S) ===== */
+.rois-letter-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.rois-letter-indicator {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.25rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.indicator-pending {
+    background: var(--color-gray-100);
+    color: var(--color-gray-400);
+    border-color: var(--color-gray-200);
+}
+
+.indicator-active {
+    background: linear-gradient(135deg, var(--color-teal), #237282);
+    color: white;
+    border-color: var(--color-teal);
+    box-shadow: 0 4px 12px rgba(43, 138, 156, 0.3);
+    transform: scale(1.1);
+}
+
+.indicator-correct {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+    border-color: #22c55e;
+}
+
+.indicator-incorrect {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border-color: #ef4444;
+}
+
+/* ===== ROIS Step Card ===== */
+.rois-step-card {
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.rois-step-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.rois-letter-big {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--color-teal), #237282);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.rois-step-label {
+    font-size: 0.85rem;
+    color: var(--color-gray-500);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.rois-question {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-gray-800);
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
+}
+
+/* ===== ROIS Options ===== */
+.rois-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+
+.rois-option-btn {
+    width: 100%;
+    text-align: left;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-md);
+    border: 2px solid var(--color-gray-200);
+    background: var(--color-white);
+    color: var(--color-gray-700);
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    line-height: 1.4;
+}
+
+.rois-option-btn:hover:not(:disabled) {
+    border-color: var(--color-teal);
+    background: rgba(43, 138, 156, 0.05);
+    transform: translateX(4px);
+}
+
+.rois-option-btn:active:not(:disabled) {
+    transform: translateX(2px);
+}
+
+.rois-option-btn.rois-correct {
+    border-color: #22c55e;
+    background: rgba(34, 197, 94, 0.1);
+    color: #166534;
+    font-weight: 600;
+}
+
+.rois-option-btn.rois-correct::before {
+    content: '✓ ';
+    font-weight: 700;
+}
+
+.rois-option-btn.rois-incorrect {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    color: #991b1b;
+    text-decoration: line-through;
+    opacity: 0.8;
+}
+
+.rois-option-btn.rois-incorrect::before {
+    content: '✗ ';
+    font-weight: 700;
+}
+
+.rois-option-btn:disabled:not(.rois-correct):not(.rois-incorrect) {
+    opacity: 0.5;
+}
+
+/* ===== ROIS Feedback ===== */
+.rois-feedback {
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    margin-top: 1.25rem;
+    animation: roisFadeIn 0.3s ease;
+}
+
+@keyframes roisFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.rois-feedback-correct {
+    background: rgba(34, 197, 94, 0.1);
+    border: 2px solid #22c55e;
+}
+
+.rois-feedback-incorrect {
+    background: rgba(239, 68, 68, 0.1);
+    border: 2px solid #ef4444;
+}
+
+.rois-feedback-reveal {
+    background: linear-gradient(135deg, rgba(43, 138, 156, 0.1), rgba(92, 184, 92, 0.1));
+    border: 2px solid var(--color-teal);
+}
+
+.rois-feedback-icon {
+    font-size: 1.75rem;
+    margin-bottom: 0.25rem;
+}
+
+.rois-feedback-text {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-gray-800);
+    margin-bottom: 0.5rem;
+}
+
+.rois-feedback-explanation {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+    line-height: 1.6;
+}
+
+/* ===== ROIS Next Button ===== */
+.rois-next-btn {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    border-radius: var(--radius-md);
+    background: var(--color-teal);
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: all 0.2s ease;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.rois-next-btn:hover {
+    background: var(--color-teal-dark, #237282);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(43, 138, 156, 0.3);
+}
+
+/* ===== ROIS Exit Button ===== */
+.rois-exit-btn {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    background: var(--color-gray-200);
+    color: var(--color-gray-700);
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: all 0.2s ease;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.rois-exit-btn:hover {
+    background: var(--color-gray-300);
+}
+
+/* ===== ROIS Final Results ===== */
+.rois-final-results {
+    text-align: center;
+    padding: 1rem 0;
+}
+
+.rois-final-title {
+    font-size: 1.75rem;
+    color: var(--color-gray-800);
+    margin-bottom: 1.5rem;
+}
+
+.rois-final-score-circle {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-green) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    box-shadow: 0 8px 30px rgba(43, 138, 156, 0.3);
+}
+
+.rois-final-percent {
+    font-size: 2.75rem;
+    font-weight: 700;
+    color: white;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.rois-final-score-text {
+    font-size: 1.1rem;
+    color: var(--color-gray-700);
+    margin-bottom: 0.5rem;
+}
+
+.rois-final-message {
+    font-size: 1rem;
+    color: var(--color-gray-500);
+    margin-bottom: 1.5rem;
+}
+
+/* ===== ROIS Letter Breakdown ===== */
+.rois-section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-gray-700);
+    margin-bottom: 0.75rem;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rois-letter-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    margin-bottom: 1.5rem;
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-sm);
+    text-align: left;
+}
+
+.rois-letter-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.rois-letter-stat-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 110px;
+}
+
+.rois-letter-stat-letter {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--color-teal), #237282);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.rois-letter-stat-label {
+    font-size: 0.85rem;
+    color: var(--color-gray-600);
+    font-weight: 500;
+}
+
+.rois-letter-stat-bar {
+    flex: 1;
+    height: 10px;
+    background: var(--color-gray-100);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.rois-letter-stat-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.6s ease;
+}
+
+.rois-letter-stat-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-gray-700);
+    min-width: 32px;
+    text-align: right;
+}
+
+/* ===== ROIS Rhythm Breakdown ===== */
+.rois-rhythm-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-sm);
+    text-align: left;
+}
+
+.rois-rhythm-result {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.625rem 0;
+    border-bottom: 1px solid var(--color-gray-100);
+}
+
+.rois-rhythm-result:last-child {
+    border-bottom: none;
+}
+
+.rois-rhythm-result-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rois-rhythm-result-steps {
+    display: flex;
+    gap: 0.375rem;
+    flex-shrink: 0;
+    margin: 0 0.75rem;
+}
+
+.rois-step-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.dot-correct {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+    border: 1px solid #22c55e;
+}
+
+.dot-incorrect {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid #ef4444;
+}
+
+.rois-rhythm-result-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-gray-700);
+    min-width: 32px;
+    text-align: right;
+}
+
+/* ===== Weakest Tip ===== */
+.rois-weakest-tip {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+    font-size: 0.9rem;
+    color: var(--color-gray-700);
+    line-height: 1.5;
+}
+
+.rois-weakest-tip i {
+    color: #f59e0b;
+    margin-right: 0.25rem;
+}
+
+/* ===== ROIS Final Buttons ===== */
+.rois-final-buttons {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.rois-final-buttons .quiz-btn {
+    flex: 1;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .rois-letter-indicator {
+        width: 42px;
+        height: 42px;
+        font-size: 1.1rem;
+    }
+    
+    .rois-letter-big {
+        width: 48px;
+        height: 48px;
+        font-size: 1.5rem;
+    }
+    
+    .rois-progress-bar {
+        justify-content: center;
+        text-align: center;
+    }
+    
+    .rois-letter-stat {
+        flex-wrap: wrap;
+    }
+    
+    .rois-letter-stat-header {
+        min-width: 90px;
+    }
+    
+    .rois-rhythm-result-name {
+        font-size: 0.8rem;
+    }
+    
+    .rois-final-buttons {
+        flex-direction: column;
+    }
+}
