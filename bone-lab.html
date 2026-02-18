@@ -56,10 +56,10 @@
             --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
             --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
             --header-height: 56px;
-            --bone-fill: #F5F0E8;
-            --bone-stroke: #C4B9A8;
-            --bone-fill-dark: #EBE4D8;
-            --bone-joint: #DDD5C5;
+            --bone-fill: #EEF4F5;
+            --bone-stroke: #8AACB3;
+            --bone-fill-dark: #D8E6E9;
+            --bone-joint: #A8C4CB;
             --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
 
@@ -224,20 +224,20 @@
         }
         .bone-group .bone-detail {
             fill: none;
-            stroke: var(--bone-joint);
-            stroke-width: 0.5;
+            stroke: #6B979F;
+            stroke-width: 0.6;
             pointer-events: none;
-            opacity: 0.7;
+            opacity: 0.85;
         }
         .bone-group .bone-shading {
             fill: var(--bone-fill-dark);
             stroke: none;
             pointer-events: none;
-            opacity: 0.4;
+            opacity: 0.5;
         }
         .bone-group:hover .bone-shape,
         .bone-group.hovered .bone-shape {
-            fill: #D4F0F1;
+            fill: #D4EAEE;
             stroke: var(--color-teal);
             stroke-width: 1.5;
         }
@@ -257,6 +257,57 @@
             fill: #fef3c7;
             stroke: var(--color-amber);
             stroke-width: 2;
+            animation: glowPulse 1.5s ease infinite;
+        }
+        /* Enhanced bone classes for gradient fills */
+        .bone-group .bone-shape-gradient {
+            stroke: var(--bone-stroke);
+            stroke-width: 0.7;
+            stroke-linejoin: round;
+            transition: fill 0.15s ease, stroke 0.15s ease, stroke-width 0.15s ease;
+            pointer-events: all;
+            cursor: pointer;
+        }
+        .bone-group .bone-highlight {
+            fill: rgba(255,255,255,0.35);
+            stroke: none;
+            pointer-events: none;
+        }
+        .bone-group .bone-cartilage {
+            fill: #D4E5E8;
+            stroke: #A0C4CB;
+            stroke-width: 0.4;
+            pointer-events: none;
+            opacity: 0.85;
+        }
+        .bone-group .bone-foramen {
+            fill: #7BA8B0;
+            stroke: none;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+        .bone-group:hover .bone-shape-gradient,
+        .bone-group.hovered .bone-shape-gradient {
+            fill: #D4EAEE !important;
+            stroke: var(--color-teal) !important;
+            stroke-width: 1.5 !important;
+        }
+        .bone-group.correct .bone-shape-gradient {
+            fill: #bbf7d0 !important;
+            stroke: var(--color-emerald) !important;
+            stroke-width: 2 !important;
+            animation: correctPulse 0.5s ease;
+        }
+        .bone-group.incorrect .bone-shape-gradient {
+            fill: #fecaca !important;
+            stroke: var(--color-red) !important;
+            stroke-width: 2 !important;
+            animation: shake 0.4s ease;
+        }
+        .bone-group.highlighted .bone-shape-gradient {
+            fill: #fef3c7 !important;
+            stroke: var(--color-amber) !important;
+            stroke-width: 2 !important;
             animation: glowPulse 1.5s ease infinite;
         }
 
@@ -330,288 +381,53 @@
             -webkit-backdrop-filter: blur(8px);
         }
         .scenario-bar.visible { display: block; animation: fadeInDown 0.25s ease; }
-        .scenario-bar-badge {
-            font-size: 0.65rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--color-amber);
-            margin-bottom: 3px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .scenario-bar-text {
-            font-size: 0.82rem;
-            line-height: 1.45;
-            color: var(--color-gray-700);
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .scenario-bar-expand {
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: var(--color-amber);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .scenario-bar-instruction {
-            font-size: 0.72rem;
-            color: var(--color-teal);
-            font-weight: 600;
-            margin-top: 3px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
+        .scenario-bar-badge { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-amber); margin-bottom: 3px; display: flex; align-items: center; gap: 4px; }
+        .scenario-bar-text { font-size: 0.82rem; line-height: 1.45; color: var(--color-gray-700); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .scenario-bar-expand { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: var(--color-amber); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .scenario-bar-instruction { font-size: 0.72rem; color: var(--color-teal); font-weight: 600; margin-top: 3px; display: flex; align-items: center; gap: 4px; }
 
         /* ==================== BOTTOM SHEET ==================== */
-        .sheet-backdrop {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.35);
-            z-index: 500;
-            opacity: 0;
-            transition: opacity 0.25s ease;
-        }
+        .sheet-backdrop { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.35); z-index: 500; opacity: 0; transition: opacity 0.25s ease; }
         .sheet-backdrop.visible { display: block; opacity: 1; }
-
-        .bottom-sheet {
-            position: fixed;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 501;
-            background: var(--color-white);
-            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
-            max-height: 70vh;
-            display: flex;
-            flex-direction: column;
-            padding-bottom: var(--safe-bottom);
-        }
+        .bottom-sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 501; background: var(--color-white); border-radius: var(--radius-xl) var(--radius-xl) 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.15); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); max-height: 70vh; display: flex; flex-direction: column; padding-bottom: var(--safe-bottom); }
         .bottom-sheet.open { transform: translateY(0); }
-
-        .sheet-handle {
-            width: 36px;
-            height: 4px;
-            background: var(--color-gray-300);
-            border-radius: 2px;
-            margin: 8px auto 0;
-            flex-shrink: 0;
-        }
-        .sheet-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 16px 6px;
-            flex-shrink: 0;
-        }
-        .sheet-title {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: var(--color-gray-900);
-        }
-        .sheet-close {
-            background: var(--color-gray-100);
-            border: none;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            color: var(--color-gray-500);
-            transition: all 0.2s ease;
-        }
+        .sheet-handle { width: 36px; height: 4px; background: var(--color-gray-300); border-radius: 2px; margin: 8px auto 0; flex-shrink: 0; }
+        .sheet-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px 6px; flex-shrink: 0; }
+        .sheet-title { font-size: 1.05rem; font-weight: 700; color: var(--color-gray-900); }
+        .sheet-close { background: var(--color-gray-100); border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--color-gray-500); transition: all 0.2s ease; }
         .sheet-close:hover { background: var(--color-gray-200); color: var(--color-gray-700); }
-
-        .sheet-body {
-            padding: 0 16px 16px;
-            overflow-y: auto;
-            flex: 1;
-            -webkit-overflow-scrolling: touch;
-        }
-        .sheet-region {
-            font-size: 0.72rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--color-gray-500);
-            margin-bottom: 6px;
-        }
-        .sheet-desc {
-            font-size: 0.9rem;
-            line-height: 1.6;
-            color: var(--color-gray-700);
-            margin-bottom: 10px;
-        }
-        .sheet-landmarks {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-bottom: 8px;
-        }
-        .landmark-card {
-            border: 1px solid var(--color-gray-200);
-            border-radius: 12px;
-            overflow: hidden;
-            transition: all 0.2s ease;
-            background: var(--color-white);
-        }
-        .landmark-card.open {
-            border-color: var(--color-teal);
-            box-shadow: 0 2px 8px rgba(43,138,156,0.1);
-        }
-        .landmark-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 9px 12px;
-            cursor: pointer;
-            gap: 8px;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .landmark-header:active {
-            background: var(--color-gray-50);
-        }
-        .landmark-name {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--color-teal-dark);
-        }
-        .landmark-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: var(--color-teal);
-            flex-shrink: 0;
-            opacity: 0.6;
-        }
-        .landmark-card.open .landmark-dot {
-            opacity: 1;
-        }
-        .landmark-chevron {
-            font-size: 0.75rem;
-            color: var(--color-gray-400);
-            transition: transform 0.25s ease;
-            flex-shrink: 0;
-        }
-        .landmark-card.open .landmark-chevron {
-            transform: rotate(180deg);
-            color: var(--color-teal);
-        }
-        .landmark-detail {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s cubic-bezier(0.32, 0.72, 0, 1), padding 0.3s ease;
-            padding: 0 12px;
-        }
-        .landmark-card.open .landmark-detail {
-            max-height: 200px;
-            padding: 0 12px 10px;
-        }
-        .landmark-detail p {
-            font-size: 0.8rem;
-            line-height: 1.55;
-            color: var(--color-gray-600);
-            margin: 0;
-            border-top: 1px solid var(--color-gray-100);
-            padding-top: 8px;
-        }
-        .landmark-hint {
-            font-size: 0.7rem;
-            color: var(--color-gray-400);
-            text-align: center;
-            margin-top: 6px;
-            font-weight: 500;
-        }
-        .sheet-scenario-text {
-            font-size: 0.9rem;
-            line-height: 1.6;
-            color: var(--color-gray-700);
-            margin-bottom: 10px;
-            padding: 10px;
-            background: var(--color-gray-50);
-            border-radius: var(--radius-md);
-            border-left: 3px solid var(--color-amber);
-        }
-        .sheet-subtitle {
-            font-size: 0.82rem;
-            font-weight: 700;
-            color: var(--color-gray-700);
-            margin-bottom: 8px;
-        }
-        .fracture-option {
-            display: block;
-            width: 100%;
-            padding: 10px 14px;
-            margin-bottom: 6px;
-            border: 1.5px solid var(--color-gray-200);
-            border-radius: var(--radius-lg);
-            background: var(--color-white);
-            font-size: 0.88rem;
-            color: var(--color-gray-700);
-            cursor: pointer;
-            text-align: left;
-            transition: all 0.2s ease;
-            font-family: var(--font-primary);
-        }
+        .sheet-body { padding: 0 16px 16px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+        .sheet-region { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-gray-500); margin-bottom: 6px; }
+        .sheet-desc { font-size: 0.9rem; line-height: 1.6; color: var(--color-gray-700); margin-bottom: 10px; }
+        .sheet-landmarks { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+        .landmark-card { border: 1px solid var(--color-gray-200); border-radius: 12px; overflow: hidden; transition: all 0.2s ease; background: var(--color-white); }
+        .landmark-card.open { border-color: var(--color-teal); box-shadow: 0 2px 8px rgba(43,138,156,0.1); }
+        .landmark-header { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; cursor: pointer; gap: 8px; -webkit-tap-highlight-color: transparent; }
+        .landmark-header:active { background: var(--color-gray-50); }
+        .landmark-name { display: flex; align-items: center; gap: 7px; font-size: 0.8rem; font-weight: 600; color: var(--color-teal-dark); }
+        .landmark-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-teal); flex-shrink: 0; opacity: 0.6; }
+        .landmark-card.open .landmark-dot { opacity: 1; }
+        .landmark-chevron { font-size: 0.75rem; color: var(--color-gray-400); transition: transform 0.25s ease; flex-shrink: 0; }
+        .landmark-card.open .landmark-chevron { transform: rotate(180deg); color: var(--color-teal); }
+        .landmark-detail { max-height: 0; overflow: hidden; transition: max-height 0.3s cubic-bezier(0.32, 0.72, 0, 1), padding 0.3s ease; padding: 0 12px; }
+        .landmark-card.open .landmark-detail { max-height: 200px; padding: 0 12px 10px; }
+        .landmark-detail p { font-size: 0.8rem; line-height: 1.55; color: var(--color-gray-600); margin: 0; border-top: 1px solid var(--color-gray-100); padding-top: 8px; }
+        .landmark-hint { font-size: 0.7rem; color: var(--color-gray-400); text-align: center; margin-top: 6px; font-weight: 500; }
+        .sheet-scenario-text { font-size: 0.9rem; line-height: 1.6; color: var(--color-gray-700); margin-bottom: 10px; padding: 10px; background: var(--color-gray-50); border-radius: var(--radius-md); border-left: 3px solid var(--color-amber); }
+        .sheet-subtitle { font-size: 0.82rem; font-weight: 700; color: var(--color-gray-700); margin-bottom: 8px; }
+        .fracture-option { display: block; width: 100%; padding: 10px 14px; margin-bottom: 6px; border: 1.5px solid var(--color-gray-200); border-radius: var(--radius-lg); background: var(--color-white); font-size: 0.88rem; color: var(--color-gray-700); cursor: pointer; text-align: left; transition: all 0.2s ease; font-family: var(--font-primary); }
         .fracture-option:hover { border-color: var(--color-teal); background: var(--color-gray-50); }
         .fracture-option:active { transform: scale(0.98); }
         .fracture-option.correct { border-color: var(--color-emerald); background: #ecfdf5; color: #065f46; }
         .fracture-option.incorrect { border-color: var(--color-red); background: #fef2f2; color: #991b1b; }
-
-        .sheet-feedback {
-            padding: 12px;
-            border-radius: var(--radius-lg);
-            margin-top: 10px;
-            animation: slideUp 0.25s ease;
-        }
+        .sheet-feedback { padding: 12px; border-radius: var(--radius-lg); margin-top: 10px; animation: slideUp 0.25s ease; }
         .sheet-feedback.success { background: #ecfdf5; border: 1px solid #a7f3d0; }
         .sheet-feedback.fail { background: #fef2f2; border: 1px solid #fecaca; }
         .sheet-feedback h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 4px; }
         .sheet-feedback.success h4 { color: #065f46; }
         .sheet-feedback.fail h4 { color: #991b1b; }
         .sheet-feedback p { font-size: 0.85rem; line-height: 1.6; color: var(--color-gray-700); }
-
-        .next-scenario-btn {
-            width: 100%;
-            margin-top: 10px;
-            padding: 10px 16px;
-            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark));
-            color: white;
-            border: none;
-            border-radius: var(--radius-lg);
-            font-size: 0.88rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-family: var(--font-primary);
-        }
+        .next-scenario-btn { width: 100%; margin-top: 10px; padding: 10px 16px; background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark)); color: white; border: none; border-radius: var(--radius-lg); font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; font-family: var(--font-primary); }
         .next-scenario-btn:hover { box-shadow: var(--shadow-md); }
         .next-scenario-btn:active { transform: scale(0.98); }
 
@@ -624,237 +440,42 @@
         @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
         /* ==================== GUIDED TOUR ==================== */
-        .tour-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            z-index: 9000;
-        }
+        .tour-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9000; }
         .tour-overlay.active { display: block; }
-
-        /* The dark backdrop with a cut-out hole */
-        .tour-backdrop {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            /* Using box-shadow to create spotlight — the "hole" is the element itself */
-            transition: all 0.35s cubic-bezier(0.32, 0.72, 0, 1);
-        }
-
-        /* Spotlight ring around the highlighted element */
-        .tour-spotlight {
-            position: absolute;
-            border-radius: 12px;
-            box-shadow: 0 0 0 4000px rgba(0,0,0,0.55);
-            transition: all 0.35s cubic-bezier(0.32, 0.72, 0, 1);
-            pointer-events: none;
-        }
-
-        /* Tooltip card */
-        .tour-tooltip {
-            position: absolute;
-            background: var(--color-white);
-            border-radius: 16px;
-            padding: 16px 18px 14px;
-            width: min(320px, calc(100vw - 32px));
-            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
-            z-index: 9001;
-            animation: tourFadeIn 0.3s ease;
-        }
-        .tour-tooltip-arrow {
-            position: absolute;
-            width: 14px;
-            height: 14px;
-            background: var(--color-white);
-            transform: rotate(45deg);
-            box-shadow: -2px -2px 4px rgba(0,0,0,0.05);
-        }
-        .tour-tooltip-arrow.arrow-top {
-            top: -7px;
-            left: 28px;
-        }
-        .tour-tooltip-arrow.arrow-bottom {
-            bottom: -7px;
-            left: 28px;
-        }
-        .tour-tooltip-step {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: 6px;
-        }
-        .tour-step-num {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark));
-            color: white;
-            font-size: 0.7rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        .tour-step-label {
-            font-size: 0.68rem;
-            font-weight: 600;
-            color: var(--color-gray-500);
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-        .tour-tooltip h4 {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--color-gray-900);
-            margin: 0 0 4px;
-        }
-        .tour-tooltip p {
-            font-size: 0.82rem;
-            line-height: 1.5;
-            color: var(--color-gray-600);
-            margin: 0 0 12px;
-        }
-        .tour-actions {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .tour-skip-btn {
-            background: none;
-            border: none;
-            color: var(--color-gray-500);
-            font-size: 0.78rem;
-            font-weight: 600;
-            cursor: pointer;
-            padding: 4px 0;
-            font-family: var(--font-primary);
-            transition: color 0.2s;
-        }
+        .tour-backdrop { position: absolute; top: 0; left: 0; right: 0; bottom: 0; transition: all 0.35s cubic-bezier(0.32, 0.72, 0, 1); }
+        .tour-spotlight { position: absolute; border-radius: 12px; box-shadow: 0 0 0 4000px rgba(0,0,0,0.55); transition: all 0.35s cubic-bezier(0.32, 0.72, 0, 1); pointer-events: none; }
+        .tour-tooltip { position: absolute; background: var(--color-white); border-radius: 16px; padding: 16px 18px 14px; width: min(320px, calc(100vw - 32px)); box-shadow: 0 12px 40px rgba(0,0,0,0.2); z-index: 9001; animation: tourFadeIn 0.3s ease; }
+        .tour-tooltip-arrow { position: absolute; width: 14px; height: 14px; background: var(--color-white); transform: rotate(45deg); box-shadow: -2px -2px 4px rgba(0,0,0,0.05); }
+        .tour-tooltip-arrow.arrow-top { top: -7px; left: 28px; }
+        .tour-tooltip-arrow.arrow-bottom { bottom: -7px; left: 28px; }
+        .tour-tooltip-step { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+        .tour-step-num { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark)); color: white; font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .tour-step-label { font-size: 0.68rem; font-weight: 600; color: var(--color-gray-500); text-transform: uppercase; letter-spacing: 0.04em; }
+        .tour-tooltip h4 { font-size: 0.95rem; font-weight: 700; color: var(--color-gray-900); margin: 0 0 4px; }
+        .tour-tooltip p { font-size: 0.82rem; line-height: 1.5; color: var(--color-gray-600); margin: 0 0 12px; }
+        .tour-actions { display: flex; align-items: center; justify-content: space-between; }
+        .tour-skip-btn { background: none; border: none; color: var(--color-gray-500); font-size: 0.78rem; font-weight: 600; cursor: pointer; padding: 4px 0; font-family: var(--font-primary); transition: color 0.2s; }
         .tour-skip-btn:hover { color: var(--color-gray-700); }
-        .tour-next-btn {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 8px 16px;
-            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark));
-            color: white;
-            border: none;
-            border-radius: var(--radius-full);
-            font-size: 0.82rem;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: var(--font-primary);
-            transition: all 0.2s ease;
-        }
+        .tour-next-btn { display: flex; align-items: center; gap: 5px; padding: 8px 16px; background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark)); color: white; border: none; border-radius: var(--radius-full); font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: var(--font-primary); transition: all 0.2s ease; }
         .tour-next-btn:hover { box-shadow: var(--shadow-md); }
         .tour-next-btn:active { transform: scale(0.97); }
+        .tour-dots { display: flex; gap: 5px; align-items: center; }
+        .tour-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-gray-300); transition: all 0.2s ease; }
+        .tour-dot.active { background: var(--color-teal); width: 18px; border-radius: 3px; }
+        .tour-dot.done { background: var(--color-teal); }
+        @keyframes tourFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Progress dots */
-        .tour-dots {
-            display: flex;
-            gap: 5px;
-            align-items: center;
-        }
-        .tour-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--color-gray-300);
-            transition: all 0.2s ease;
-        }
-        .tour-dot.active {
-            background: var(--color-teal);
-            width: 18px;
-            border-radius: 3px;
-        }
-        .tour-dot.done {
-            background: var(--color-teal);
-        }
-
-        @keyframes tourFadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ==================== WELCOME SPLASH (step 0) ==================== */
-        .tour-welcome {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            z-index: 9002;
-            background: rgba(0,0,0,0.6);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-        }
+        /* ==================== WELCOME SPLASH ==================== */
+        .tour-welcome { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9002; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; padding: 24px; }
         .tour-welcome.active { display: flex; }
-        .tour-welcome-card {
-            background: var(--color-white);
-            border-radius: 20px;
-            padding: 28px 24px 22px;
-            max-width: 340px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-            animation: tourFadeIn 0.35s ease;
-        }
-        .tour-welcome-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 16px;
-            background: linear-gradient(135deg, rgba(43,138,156,0.12), rgba(92,184,92,0.1));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.6rem;
-            margin: 0 auto 12px;
-        }
-        .tour-welcome-card h3 {
-            font-size: 1.15rem;
-            font-weight: 800;
-            color: var(--color-gray-900);
-            margin: 0 0 6px;
-        }
-        .tour-welcome-card p {
-            font-size: 0.85rem;
-            line-height: 1.5;
-            color: var(--color-gray-600);
-            margin: 0 0 18px;
-        }
-        .tour-welcome-btns {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .tour-start-btn {
-            width: 100%;
-            padding: 11px 20px;
-            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark));
-            color: white;
-            border: none;
-            border-radius: var(--radius-full);
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: var(--font-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            transition: all 0.2s ease;
-        }
+        .tour-welcome-card { background: var(--color-white); border-radius: 20px; padding: 28px 24px 22px; max-width: 340px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: tourFadeIn 0.35s ease; }
+        .tour-welcome-icon { width: 60px; height: 60px; border-radius: 16px; background: linear-gradient(135deg, rgba(43,138,156,0.12), rgba(92,184,92,0.1)); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin: 0 auto 12px; }
+        .tour-welcome-card h3 { font-size: 1.15rem; font-weight: 800; color: var(--color-gray-900); margin: 0 0 6px; }
+        .tour-welcome-card p { font-size: 0.85rem; line-height: 1.5; color: var(--color-gray-600); margin: 0 0 18px; }
+        .tour-welcome-btns { display: flex; flex-direction: column; gap: 8px; }
+        .tour-start-btn { width: 100%; padding: 11px 20px; background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark)); color: white; border: none; border-radius: var(--radius-full); font-size: 0.9rem; font-weight: 600; cursor: pointer; font-family: var(--font-primary); display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s ease; }
         .tour-start-btn:hover { box-shadow: var(--shadow-md); }
-        .tour-dismiss-btn {
-            background: none;
-            border: none;
-            color: var(--color-gray-500);
-            font-size: 0.82rem;
-            font-weight: 600;
-            cursor: pointer;
-            padding: 8px;
-            font-family: var(--font-primary);
-            transition: color 0.2s;
-        }
+        .tour-dismiss-btn { background: none; border: none; color: var(--color-gray-500); font-size: 0.82rem; font-weight: 600; cursor: pointer; padding: 8px; font-family: var(--font-primary); transition: color 0.2s; }
         .tour-dismiss-btn:hover { color: var(--color-gray-700); }
     </style>
 </head>
@@ -905,7 +526,6 @@
     <!-- ==================== SKELETON VIEWPORT ==================== -->
     <div class="skeleton-viewport" id="skeletonViewport">
         <div class="view-label" id="viewLabel">Anterior View</div>
-
         <div class="quiz-prompt-float" id="quizPrompt">
             <span class="find-label">Find the:</span> <span id="quizBoneName">—</span>
         </div>
@@ -915,14 +535,12 @@
             <span class="qs-streak"><i class="bi bi-lightning-fill"></i> <span id="qStreak">0</span></span>
         </div>
         <div class="quiz-flash" id="quizFlash"></div>
-
         <div class="scenario-bar" id="scenarioBar">
             <div class="scenario-bar-badge"><i class="bi bi-ambulance"></i> Patient Presentation</div>
             <div class="scenario-bar-text" id="scenarioBarText"></div>
             <div class="scenario-bar-instruction"><i class="bi bi-hand-index"></i> Tap the injured bone</div>
             <button class="scenario-bar-expand" id="scenarioExpand" title="Read full scenario"><i class="bi bi-chevron-down"></i></button>
         </div>
-
         <div class="skeleton-svg-wrap" id="skeletonWrap"></div>
     </div>
 </div>
@@ -941,25 +559,18 @@
 </div>
 
 <!-- ==================== GUIDED TOUR ==================== -->
-
-<!-- Welcome splash -->
 <div class="tour-welcome" id="tourWelcome">
     <div class="tour-welcome-card">
         <div class="tour-welcome-icon">🦴</div>
         <h3>Welcome to Bone Lab</h3>
         <p>An interactive skeleton for learning bones, testing yourself, and practising real fracture scenarios — all designed for paramedics.</p>
         <div class="tour-welcome-btns">
-            <button class="tour-start-btn" id="tourStartBtn">
-                Show me around <i class="bi bi-arrow-right"></i>
-            </button>
-            <button class="tour-dismiss-btn" id="tourDismissBtn">
-                I'll explore on my own
-            </button>
+            <button class="tour-start-btn" id="tourStartBtn">Show me around <i class="bi bi-arrow-right"></i></button>
+            <button class="tour-dismiss-btn" id="tourDismissBtn">I'll explore on my own</button>
         </div>
     </div>
 </div>
 
-<!-- Step-by-step overlay -->
 <div class="tour-overlay" id="tourOverlay">
     <div class="tour-spotlight" id="tourSpotlight"></div>
     <div class="tour-tooltip" id="tourTooltip">
@@ -973,13 +584,10 @@
         <div class="tour-actions">
             <button class="tour-skip-btn" id="tourSkipBtn">Skip tour</button>
             <div class="tour-dots" id="tourDots"></div>
-            <button class="tour-next-btn" id="tourNextBtn">
-                Next <i class="bi bi-arrow-right"></i>
-            </button>
+            <button class="tour-next-btn" id="tourNextBtn">Next <i class="bi bi-arrow-right"></i></button>
         </div>
     </div>
 </div>
-
 
 <!-- ==================== FOOTER ==================== -->
 <footer class="member-footer">
@@ -999,11 +607,7 @@
     </div>
 </footer>
 
-
-
 <!-- ==================== SCRIPTS ==================== -->
-
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
@@ -1132,9 +736,708 @@
     ];
 
     // ==================== SVG BUILDERS ====================
-    function buildAnteriorSVG() { return `<svg viewBox="0 0 240 560" xmlns="http://www.w3.org/2000/svg"><defs><filter id="bs" x="-2%" y="-2%" width="104%" height="104%"><feDropShadow dx="0.3" dy="0.5" stdDeviation="0.5" flood-opacity="0.12"/></filter></defs><g class="bone-group" data-bone="skull" filter="url(#bs)"><path class="bone-shape" d="M120,6C98,6 80,16 74,34C70,46 70,58 74,68C76,73 82,82 86,86C84,90 82,94 84,96C86,100 92,100 94,98C98,104 106,108 120,108C134,108 142,104 146,98C148,100 154,100 156,96C158,94 156,90 154,86C158,82 164,73 166,68C170,58 170,46 166,34C160,16 142,6 120,6Z"/><ellipse class="bone-detail" cx="107" cy="56" rx="10" ry="8"/><ellipse class="bone-detail" cx="133" cy="56" rx="10" ry="8"/><path class="bone-detail" d="M117,62L120,78L123,62"/><path class="bone-detail" d="M92,82Q96,94 108,100Q120,104 132,100Q144,94 148,82"/><path class="bone-detail" d="M96,60Q88,62 86,68M144,60Q152,62 154,68"/><path class="bone-detail" d="M82,36Q78,50 80,64M158,36Q162,50 160,64" opacity="0.4"/></g><g class="bone-group" data-bone="cervical_spine" filter="url(#bs)"><path class="bone-shape" d="M113,108L127,108Q130,110 130,114L130,128Q130,132 128,134L112,134Q110,132 110,128L110,114Q110,110 113,108Z"/><path class="bone-detail" d="M112,114L128,114M112,120L128,120M112,126L128,126M110,116L106,115M130,116L134,115M110,122L106,121M130,122L134,121"/></g><g class="bone-group" data-bone="clavicle" filter="url(#bs)"><path class="bone-shape" d="M112,118Q100,114 88,114Q78,115 72,120Q70,122 72,124Q74,126 78,125Q86,122 98,122Q108,122 112,124Z"/><path class="bone-shape" d="M128,118Q140,114 152,114Q162,115 168,120Q170,122 168,124Q166,126 162,125Q154,122 142,122Q132,122 128,124Z"/></g><g class="bone-group" data-bone="sternum" filter="url(#bs)"><path class="bone-shape" d="M114,124L126,124L128,130L128,142L126,146L114,146L112,142L112,130Z"/><path class="bone-shape" d="M114,147L126,147L125,192L115,192Z"/><path class="bone-shape" d="M118,192L122,192L121,200L119,200Z"/><path class="bone-detail" d="M113,146L127,146M115,158L125,158M115,168L125,168M115,178L125,178M115,188L125,188"/></g><g class="bone-group" data-bone="ribs" filter="url(#bs)"><path class="bone-shape" d="M112,130Q96,132 82,142Q74,150 72,156Q74,158 76,157Q78,150 86,144Q98,136 112,134Z"/><path class="bone-shape" d="M112,140Q94,143 78,155Q70,164 68,172Q70,174 72,173Q74,164 82,156Q96,147 112,144Z"/><path class="bone-shape" d="M113,152Q95,156 78,168Q70,178 68,186Q70,188 72,187Q74,178 82,170Q96,160 113,156Z"/><path class="bone-shape" d="M114,164Q98,168 84,178Q76,186 74,194Q76,196 78,195Q80,188 88,180Q100,172 114,168Z"/><path class="bone-shape" d="M114,174Q100,178 88,186Q82,192 80,198Q82,200 84,199Q86,194 92,188Q102,182 114,178Z"/><path class="bone-shape" d="M128,130Q144,132 158,142Q166,150 168,156Q166,158 164,157Q162,150 154,144Q142,136 128,134Z"/><path class="bone-shape" d="M128,140Q146,143 162,155Q170,164 172,172Q170,174 168,173Q166,164 158,156Q144,147 128,144Z"/><path class="bone-shape" d="M127,152Q145,156 162,168Q170,178 172,186Q170,188 168,187Q166,178 158,170Q144,160 127,156Z"/><path class="bone-shape" d="M126,164Q142,168 156,178Q164,186 166,194Q164,196 162,195Q160,188 152,180Q140,172 126,168Z"/><path class="bone-shape" d="M126,174Q140,178 152,186Q158,192 160,198Q158,200 156,199Q154,194 148,188Q138,182 126,178Z"/></g><g class="bone-group" data-bone="thoracic_spine"><rect class="bone-shape" x="117" y="132" width="6" height="60" rx="2" opacity="0.3"/></g><g class="bone-group" data-bone="lumbar_spine" filter="url(#bs)"><path class="bone-shape" d="M113,200Q110,202 108,206L106,216Q106,220 108,222L108,226Q106,228 106,232L104,242Q104,246 108,248L112,250Q114,250 116,248L116,246Q118,248 120,248Q122,248 124,246L124,248Q126,250 128,250L132,248Q136,246 136,242L134,232Q134,228 132,226L132,222Q134,220 134,216L132,206Q130,202 127,200Z"/><path class="bone-detail" d="M108,210L132,210M106,220L134,220M106,230L134,230M106,240L134,240M108,205L100,204M132,205L140,204M106,215L98,214M134,215L142,214M106,225L98,224M134,225L142,224M106,235L98,234M134,235L142,234M108,245L100,244M132,245L140,244"/></g><g class="bone-group" data-bone="pelvis" filter="url(#bs)"><path class="bone-shape" d="M112,250Q108,245 96,238Q82,234 70,240Q60,248 58,264Q58,278 64,290Q70,298 80,304Q86,306 92,304L96,298Q100,290 108,286Q114,283 118,282Z"/><path class="bone-shape" d="M128,250Q132,245 144,238Q158,234 170,240Q180,248 182,264Q182,278 176,290Q170,298 160,304Q154,306 148,304L144,298Q140,290 132,286Q126,283 122,282Z"/><path class="bone-shape" d="M108,286Q106,296 110,306Q116,312 120,312Q124,312 130,306Q134,296 132,286Q126,282 120,280Q114,282 108,286Z"/><ellipse class="bone-detail" cx="92" cy="290" rx="10" ry="12"/><ellipse class="bone-detail" cx="148" cy="290" rx="10" ry="12"/><circle class="bone-detail" cx="80" cy="298" r="6"/><circle class="bone-detail" cx="160" cy="298" r="6"/></g><g class="bone-group" data-bone="humerus" filter="url(#bs)"><ellipse class="bone-shape" cx="67" cy="126" rx="9" ry="10"/><path class="bone-shape" d="M62,134Q58,136 56,142L48,208Q46,214 44,218Q42,222 46,224Q50,226 54,222Q58,218 60,212L68,146Q70,140 68,136Z"/><ellipse class="bone-shading" cx="48" cy="220" rx="6" ry="4"/><ellipse class="bone-shape" cx="173" cy="126" rx="9" ry="10"/><path class="bone-shape" d="M178,134Q182,136 184,142L192,208Q194,214 196,218Q198,222 194,224Q190,226 186,222Q182,218 180,212L172,146Q170,140 172,136Z"/><ellipse class="bone-shading" cx="192" cy="220" rx="6" ry="4"/></g><g class="bone-group" data-bone="radius" filter="url(#bs)"><path class="bone-shape" d="M44,226Q40,228 38,232L26,296Q24,302 22,306Q20,310 24,312Q28,312 30,308L42,240Q44,234 44,226Z"/><ellipse class="bone-detail" cx="42" cy="228" rx="4" ry="3"/><path class="bone-shape" d="M196,226Q200,228 202,232L214,296Q216,302 218,306Q220,310 216,312Q212,312 210,308L198,240Q196,234 196,226Z"/><ellipse class="bone-detail" cx="198" cy="228" rx="4" ry="3"/></g><g class="bone-group" data-bone="ulna" filter="url(#bs)"><path class="bone-shape" d="M52,224Q56,226 56,232L42,296Q40,304 36,308Q34,312 32,310Q30,308 32,302L46,238Q48,230 52,224Z"/><path class="bone-shape" d="M188,224Q184,226 184,232L198,296Q200,304 204,308Q206,312 208,310Q210,308 208,302L194,238Q192,230 188,224Z"/></g><g class="bone-group" data-bone="hand" filter="url(#bs)"><path class="bone-shape" d="M18,312Q14,314 12,320Q10,326 14,330Q18,334 26,336Q32,336 36,332Q38,328 36,322Q34,316 30,312Z"/><path class="bone-shape" d="M14,330L8,350Q6,356 10,358L12,352L16,334Z"/><path class="bone-shape" d="M18,334L12,356Q10,362 14,364L16,358L20,336Z"/><path class="bone-shape" d="M24,336L20,360Q18,366 22,368L24,362L26,338Z"/><path class="bone-shape" d="M30,334L28,356Q28,362 32,362L32,356Z"/><path class="bone-shape" d="M34,330L36,346Q36,352 34,354L32,348L34,332Z"/><path class="bone-shape" d="M222,312Q226,314 228,320Q230,326 226,330Q222,334 214,336Q208,336 204,332Q202,328 204,322Q206,316 210,312Z"/><path class="bone-shape" d="M226,330L232,350Q234,356 230,358L228,352L224,334Z"/><path class="bone-shape" d="M222,334L228,356Q230,362 226,364L224,358L220,336Z"/><path class="bone-shape" d="M216,336L220,360Q222,366 218,368L216,362L214,338Z"/><path class="bone-shape" d="M210,334L212,356Q212,362 208,362L208,356Z"/><path class="bone-shape" d="M206,330L204,346Q204,352 206,354L208,348L206,332Z"/></g><g class="bone-group" data-bone="femur" filter="url(#bs)"><circle class="bone-shape" cx="82" cy="300" r="7"/><path class="bone-shape" d="M86,306Q90,308 92,312L90,322Q86,318 82,314L80,306Z"/><path class="bone-shape" d="M86,322Q82,324 80,330L72,410Q70,418 68,424L66,430Q64,436 68,438Q72,440 76,436Q80,430 82,422L90,340Q92,330 90,324Z"/><path class="bone-detail" d="M92,310Q98,308 100,314Q98,318 92,316"/><ellipse class="bone-shading" cx="70" cy="434" rx="8" ry="5"/><circle class="bone-shape" cx="158" cy="300" r="7"/><path class="bone-shape" d="M154,306Q150,308 148,312L150,322Q154,318 158,314L160,306Z"/><path class="bone-shape" d="M154,322Q158,324 160,330L168,410Q170,418 172,424L174,430Q176,436 172,438Q168,440 164,436Q160,430 158,422L150,340Q148,330 150,324Z"/><path class="bone-detail" d="M148,310Q142,308 140,314Q142,318 148,316"/><ellipse class="bone-shading" cx="170" cy="434" rx="8" ry="5"/></g><g class="bone-group" data-bone="patella" filter="url(#bs)"><path class="bone-shape" d="M68,440Q64,442 62,448Q62,456 66,460Q70,462 76,460Q80,456 80,448Q78,442 74,440Z"/><path class="bone-shape" d="M172,440Q176,442 178,448Q178,456 174,460Q170,462 164,460Q160,456 160,448Q162,442 166,440Z"/></g><g class="bone-group" data-bone="tibia" filter="url(#bs)"><path class="bone-shape" d="M66,464Q60,466 58,472Q56,478 58,484L54,520Q52,530 50,538Q48,544 52,546Q56,548 60,544L64,530L68,484Q70,476 70,470Q70,466 66,464Z"/><path class="bone-detail" d="M58,468L74,468" opacity="0.4"/><circle class="bone-detail" cx="68" cy="476" r="2"/><path class="bone-shading" d="M52,540Q48,544 50,548Q54,550 56,546Z"/><path class="bone-shape" d="M174,464Q180,466 182,472Q184,478 182,484L186,520Q188,530 190,538Q192,544 188,546Q184,548 180,544L176,530L172,484Q170,476 170,470Q170,466 174,464Z"/><path class="bone-detail" d="M166,468L182,468" opacity="0.4"/><circle class="bone-detail" cx="172" cy="476" r="2"/><path class="bone-shading" d="M188,540Q192,544 190,548Q186,550 184,546Z"/></g><g class="bone-group" data-bone="fibula" filter="url(#bs)"><path class="bone-shape" d="M78,466Q82,468 84,474L82,530Q82,538 80,542Q78,546 76,544Q74,542 74,536L76,476Q76,470 78,466Z"/><ellipse class="bone-detail" cx="82" cy="468" rx="3" ry="3"/><path class="bone-shape" d="M162,466Q158,468 156,474L158,530Q158,538 160,542Q162,546 164,544Q166,542 166,536L164,476Q164,470 162,466Z"/><ellipse class="bone-detail" cx="158" cy="468" rx="3" ry="3"/></g><g class="bone-group" data-bone="foot" filter="url(#bs)"><path class="bone-shape" d="M46,548L56,548Q62,550 64,556Q64,564 60,572L56,576L46,576Q40,574 36,570Q34,564 36,556Q38,550 46,548Z"/><path class="bone-shape" d="M42,576L34,586Q32,590 36,592L42,582L48,576Z"/><path class="bone-shape" d="M46,576Q42,582 40,588Q38,592 42,594L48,584L52,576Z"/><path class="bone-shape" d="M52,576Q50,582 48,588Q46,592 50,594L54,584L56,576Z"/><path class="bone-shape" d="M56,576Q56,582 56,588Q56,592 58,592L60,586L60,574Z"/><path class="bone-shape" d="M60,572Q62,576 64,580Q64,584 62,584L60,580Z"/><path class="bone-detail" d="M44,560L58,560M48,556L48,572"/><path class="bone-shape" d="M194,548L184,548Q178,550 176,556Q176,564 180,572L184,576L194,576Q200,574 204,570Q206,564 204,556Q202,550 194,548Z"/><path class="bone-shape" d="M198,576L206,586Q208,590 204,592L198,582L192,576Z"/><path class="bone-shape" d="M194,576Q198,582 200,588Q202,592 198,594L192,584L188,576Z"/><path class="bone-shape" d="M188,576Q190,582 192,588Q194,592 190,594L186,584L184,576Z"/><path class="bone-shape" d="M184,576Q184,582 184,588Q184,592 182,592L180,586L180,574Z"/><path class="bone-shape" d="M180,572Q178,576 176,580Q176,584 178,584L180,580Z"/><path class="bone-detail" d="M196,560L182,560M192,556L192,572"/></g></svg>`; }
+    function buildAnteriorSVG() {
+    return `<svg viewBox="0 0 240 560" xmlns="http://www.w3.org/2000/svg">
+<defs>
+    <!-- Bone gradient: teal-tinted for brand consistency -->
+    <linearGradient id="boneGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#F4F9FA"/>
+        <stop offset="40%" stop-color="#EEF4F5"/>
+        <stop offset="100%" stop-color="#D8E6E9"/>
+    </linearGradient>
+    <!-- Lighter edge highlight -->
+    <linearGradient id="boneHL" x1="0" y1="0" x2="0.3" y2="1">
+        <stop offset="0%" stop-color="rgba(255,255,255,0.55)"/>
+        <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </linearGradient>
+    <!-- Joint cartilage gradient -->
+    <radialGradient id="jointGrad">
+        <stop offset="0%" stop-color="#E2EEF0"/>
+        <stop offset="100%" stop-color="#C4D9DD"/>
+    </radialGradient>
+    <!-- Shadow filter -->
+    <filter id="ebs" x="-3%" y="-3%" width="106%" height="106%">
+        <feDropShadow dx="0.4" dy="0.8" stdDeviation="0.8" flood-color="#237282" flood-opacity="0.12"/>
+    </filter>
+    <!-- Subtle inner glow -->
+    <filter id="iglow" x="-5%" y="-5%" width="110%" height="110%">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="1" result="blur"/>
+        <feOffset dx="0.3" dy="0.5"/>
+        <feComposite in2="SourceAlpha" operator="arithmetic" k1="0" k2="1" k3="-0.2" k4="0"/>
+    </filter>
+</defs>
 
-    function buildPosteriorSVG() { return `<svg viewBox="0 0 240 560" xmlns="http://www.w3.org/2000/svg"><defs><filter id="bsp" x="-2%" y="-2%" width="104%" height="104%"><feDropShadow dx="0.3" dy="0.5" stdDeviation="0.5" flood-opacity="0.12"/></filter></defs><g class="bone-group" data-bone="skull" filter="url(#bsp)"><path class="bone-shape" d="M120,6C98,6 80,18 76,36C72,50 74,64 78,74C82,82 88,88 96,92Q108,98 120,98Q132,98 144,92C152,88 158,82 162,74C166,64 168,50 164,36C160,18 142,6 120,6Z"/><path class="bone-detail" d="M90,58Q120,72 150,58" opacity="0.4"/><path class="bone-detail" d="M92,34Q120,48 148,34" opacity="0.3"/><circle class="bone-detail" cx="120" cy="64" r="3"/><ellipse class="bone-detail" cx="88" cy="86" rx="4" ry="5"/><ellipse class="bone-detail" cx="152" cy="86" rx="4" ry="5"/></g><g class="bone-group" data-bone="cervical_spine" filter="url(#bsp)"><path class="bone-shape" d="M110,98L130,98Q134,100 134,104L134,132Q134,136 130,138L110,138Q106,136 106,132L106,104Q106,100 110,98Z"/><path class="bone-detail" d="M120,100L120,136M116,104L124,104M114,110L126,110M114,116L126,116M114,122L126,122M114,128L126,128M116,134L124,134M106,108L98,106M134,108L142,106M106,116L96,114M134,116L144,114M106,124L96,122M134,124L144,122"/></g><g class="bone-group" data-bone="scapula" filter="url(#bsp)"><path class="bone-shape" d="M72,126Q86,120 100,122L106,128L106,136Q108,140 104,180L94,196L70,180Q62,164 62,148Q62,136 72,126Z"/><path class="bone-detail" d="M72,130L104,138"/><path class="bone-detail" d="M80,148Q90,152 100,156" opacity="0.3"/><path class="bone-detail" d="M72,128Q68,148 70,178" opacity="0.4"/><path class="bone-detail" d="M72,126Q66,124 62,126"/><path class="bone-shape" d="M168,126Q154,120 140,122L134,128L134,136Q132,140 136,180L146,196L170,180Q178,164 178,148Q178,136 168,126Z"/><path class="bone-detail" d="M168,130L136,138"/><path class="bone-detail" d="M160,148Q150,152 140,156" opacity="0.3"/><path class="bone-detail" d="M168,128Q172,148 170,178" opacity="0.4"/><path class="bone-detail" d="M168,126Q174,124 178,126"/></g><g class="bone-group" data-bone="thoracic_spine" filter="url(#bsp)"><path class="bone-shape" d="M114,138L126,138Q130,140 130,144L130,196Q130,200 126,202L114,202Q110,200 110,196L110,144Q110,140 114,138Z"/><path class="bone-detail" d="M120,140L120,200M112,144L128,144M112,150L128,150M112,156L128,156M112,162L128,162M112,168L128,168M112,174L128,174M112,180L128,180M112,186L128,186M112,192L128,192M112,198L128,198M110,148L106,147M130,148L134,147M110,160L106,159M130,160L134,159M110,172L106,171M130,172L134,171M110,184L106,183M130,184L134,183"/></g><g class="bone-group" data-bone="ribs" filter="url(#bsp)"><path class="bone-shape" d="M110,144Q92,148 78,160Q72,168 70,174Q72,176 74,175Q76,168 84,160Q96,152 110,148Z"/><path class="bone-shape" d="M110,156Q90,162 76,174Q70,182 68,188Q70,190 72,189Q74,182 82,174Q94,164 110,160Z"/><path class="bone-shape" d="M110,170Q92,175 78,186Q72,192 70,198Q72,200 74,199Q76,192 84,186Q94,178 110,174Z"/><path class="bone-shape" d="M110,184Q96,188 84,196Q78,202 76,206Q78,208 80,207Q82,202 88,196Q98,190 110,188Z"/><path class="bone-shape" d="M130,144Q148,148 162,160Q168,168 170,174Q168,176 166,175Q164,168 156,160Q144,152 130,148Z"/><path class="bone-shape" d="M130,156Q150,162 164,174Q170,182 172,188Q170,190 168,189Q166,182 158,174Q146,164 130,160Z"/><path class="bone-shape" d="M130,170Q148,175 162,186Q168,192 170,198Q168,200 166,199Q164,192 156,186Q146,178 130,174Z"/><path class="bone-shape" d="M130,184Q144,188 156,196Q162,202 164,206Q162,208 160,207Q158,202 152,196Q142,190 130,188Z"/></g><g class="bone-group" data-bone="lumbar_spine" filter="url(#bsp)"><path class="bone-shape" d="M112,204Q108,206 106,210L104,220Q104,224 106,226L104,232Q102,234 102,238L100,248Q100,252 104,254L112,256Q116,256 118,254L118,252Q120,254 122,254L124,254Q126,256 128,256L136,254Q140,252 140,248L138,238Q138,234 136,232L134,226Q136,224 136,220L134,210Q132,206 128,204Z"/><path class="bone-detail" d="M120,206L120,254M106,212L134,212M104,224L136,224M102,236L138,236M102,248L138,248M106,208L96,206M134,208L144,206M104,218L92,216M136,218L148,216M102,230L90,228M138,230L150,228M102,242L90,240M138,242L150,240"/></g><g class="bone-group" data-bone="sacrum" filter="url(#bsp)"><path class="bone-shape" d="M108,256L132,256L136,260Q138,268 134,280Q130,290 120,296Q110,290 106,280Q102,268 104,260Z"/><circle class="bone-detail" cx="112" cy="268" r="1.5"/><circle class="bone-detail" cx="128" cy="268" r="1.5"/><circle class="bone-detail" cx="112" cy="278" r="1.5"/><circle class="bone-detail" cx="128" cy="278" r="1.5"/><path class="bone-detail" d="M120,258L120,292"/><path class="bone-shape" d="M116,296L124,296L122,308Q121,312 120,312Q119,312 118,308Z"/></g><g class="bone-group" data-bone="pelvis" filter="url(#bsp)"><path class="bone-shape" d="M108,256Q104,250 92,244Q78,240 66,248Q58,256 58,270Q60,284 70,296Q78,304 86,306L100,298L104,284Q106,272 108,264Z"/><path class="bone-shape" d="M132,256Q136,250 148,244Q162,240 174,248Q182,256 182,270Q180,284 170,296Q162,304 154,306L140,298L136,284Q134,272 132,264Z"/><path class="bone-detail" d="M108,258Q106,270 104,282M132,258Q134,270 136,282"/></g><g class="bone-group" data-bone="humerus" filter="url(#bsp)"><ellipse class="bone-shape" cx="60" cy="132" rx="9" ry="10"/><path class="bone-shape" d="M56,140Q52,142 50,148L42,216Q40,222 38,226Q36,230 40,232Q44,234 48,230Q52,226 54,220L62,152Q64,146 62,142Z"/><ellipse class="bone-shape" cx="180" cy="132" rx="9" ry="10"/><path class="bone-shape" d="M184,140Q188,142 190,148L198,216Q200,222 202,226Q204,230 200,232Q196,234 192,230Q188,226 186,220L178,152Q176,146 178,142Z"/></g><g class="bone-group" data-bone="radius" filter="url(#bsp)"><path class="bone-shape" d="M38,234Q34,236 32,240L20,304Q18,310 16,314Q14,318 18,320Q22,320 24,316L36,248Q38,242 38,234Z"/><path class="bone-shape" d="M202,234Q206,236 208,240L220,304Q222,310 224,314Q226,318 222,320Q218,320 216,316L204,248Q202,242 202,234Z"/></g><g class="bone-group" data-bone="ulna" filter="url(#bsp)"><path class="bone-shape" d="M46,232Q50,234 50,240L36,304Q34,312 30,316Q28,320 26,318Q24,316 26,310L40,246Q42,238 46,232Z"/><path class="bone-shape" d="M194,232Q190,234 190,240L204,304Q206,312 210,316Q212,320 214,318Q216,316 214,310L200,246Q198,238 194,232Z"/></g><g class="bone-group" data-bone="femur" filter="url(#bsp)"><circle class="bone-shape" cx="82" cy="302" r="7"/><path class="bone-shape" d="M86,308Q90,310 92,314L90,324Q86,320 82,316L80,308Z"/><path class="bone-shape" d="M86,324Q82,326 80,332L72,412Q70,420 68,426L66,432Q64,438 68,440Q72,442 76,438Q80,432 82,424L90,342Q92,332 90,326Z"/><circle class="bone-shape" cx="158" cy="302" r="7"/><path class="bone-shape" d="M154,308Q150,310 148,314L150,324Q154,320 158,316L160,308Z"/><path class="bone-shape" d="M154,324Q158,326 160,332L168,412Q170,420 172,426L174,432Q176,438 172,440Q168,442 164,438Q160,432 158,424L150,342Q148,332 150,326Z"/></g><g class="bone-group" data-bone="tibia" filter="url(#bsp)"><path class="bone-shape" d="M66,448Q60,450 58,456Q56,462 58,468L54,510Q52,520 50,528Q48,534 52,536Q56,538 60,534L64,520L68,468Q70,460 70,454Q70,450 66,448Z"/><path class="bone-shape" d="M174,448Q180,450 182,456Q184,462 182,468L186,510Q188,520 190,528Q192,534 188,536Q184,538 180,534L176,520L172,468Q170,460 170,454Q170,450 174,448Z"/></g><g class="bone-group" data-bone="fibula" filter="url(#bsp)"><path class="bone-shape" d="M78,450Q82,452 84,458L82,520Q82,528 80,532Q78,536 76,534Q74,532 74,526L76,460Q76,454 78,450Z"/><path class="bone-shape" d="M162,450Q158,452 156,458L158,520Q158,528 160,532Q162,536 164,534Q166,532 166,526L164,460Q164,454 162,450Z"/></g><g class="bone-group" data-bone="foot" filter="url(#bsp)"><path class="bone-shape" d="M46,538Q38,540 34,548Q30,558 34,566Q38,572 48,574Q58,574 64,568Q68,560 66,550Q64,542 56,538Z"/><path class="bone-detail" d="M42,554L58,554M50,548L50,566"/><path class="bone-shape" d="M194,538Q202,540 206,548Q210,558 206,566Q202,572 192,574Q182,574 176,568Q172,560 174,550Q176,542 184,538Z"/><path class="bone-detail" d="M198,554L182,554M190,548L190,566"/></g></svg>`; }
+<!-- ===== SKULL — proper cranial vault with sutures ===== -->
+<g class="bone-group" data-bone="skull" filter="url(#ebs)">
+    <!-- Cranial vault — rounder with frontal, parietal, temporal bones suggested -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M120,4C96,4 78,16 72,36C68,48 68,62 72,72C75,79 80,84 86,88Q84,91 83,94C85,98 90,99 93,97Q98,104 108,108L120,110L132,108Q142,104 147,97C150,99 155,98 157,94Q156,91 154,88C160,84 165,79 168,72C172,62 172,48 168,36C162,16 144,4 120,4Z"/>
+    <!-- Cranial highlight -->
+    <path class="bone-highlight" d="M120,6C100,6 84,14 78,30C74,42 76,54 78,62Q90,20 120,16Q150,20 162,62C164,54 166,42 162,30C156,14 140,6 120,6Z" opacity="0.3"/>
+    <!-- Coronal suture -->
+    <path class="bone-detail" d="M82,34Q90,30 100,28Q110,27 120,28Q130,27 140,28Q150,30 158,34" opacity="0.25" stroke-dasharray="1.5,1"/>
+    <!-- Sagittal suture (midline) -->
+    <path class="bone-detail" d="M120,6L120,28" opacity="0.2" stroke-dasharray="1,1"/>
+    <!-- Squamosal suture line (temporal) -->
+    <path class="bone-detail" d="M80,48Q78,56 80,66M160,48Q162,56 160,66" opacity="0.2"/>
+    <!-- Orbits — more anatomical shape -->
+    <path class="bone-detail" d="M100,52Q102,48 108,47Q114,48 116,52Q114,58 108,60Q102,58 100,52Z"/>
+    <path class="bone-detail" d="M124,52Q126,48 132,47Q138,48 140,52Q138,58 132,60Q126,58 124,52Z"/>
+    <!-- Nasal bone -->
+    <path class="bone-detail" d="M117,58L120,74L123,58" stroke-width="0.6"/>
+    <path class="bone-detail" d="M116,60L120,62L124,60" opacity="0.5"/>
+    <!-- Nasal aperture -->
+    <ellipse class="bone-foramen" cx="120" cy="70" rx="4" ry="5"/>
+    <!-- Zygomatic arches -->
+    <path class="bone-detail" d="M98,58Q92,62 88,68Q86,72 88,74" stroke-width="0.4"/>
+    <path class="bone-detail" d="M142,58Q148,62 152,68Q154,72 152,74" stroke-width="0.4"/>
+    <!-- Maxilla / mandible suggestion -->
+    <path class="bone-detail" d="M96,80Q100,88 108,94Q114,98 120,100Q126,98 132,94Q140,88 144,80"/>
+    <path class="bone-detail" d="M100,84Q110,92 120,94Q130,92 140,84" opacity="0.4"/>
+    <!-- Temporal bone mass -->
+    <path class="bone-shading" d="M78,42Q76,52 78,62Q82,68 86,66Q82,56 82,46Q82,42 78,42Z"/>
+    <path class="bone-shading" d="M162,42Q164,52 162,62Q158,68 154,66Q158,56 158,46Q158,42 162,42Z"/>
+    <!-- Mastoid process -->
+    <path class="bone-detail" d="M86,86Q84,90 84,94" stroke-width="0.4"/>
+    <path class="bone-detail" d="M154,86Q156,90 156,94" stroke-width="0.4"/>
+</g>
+
+<!-- ===== CERVICAL SPINE — individual vertebra outlines ===== -->
+<g class="bone-group" data-bone="cervical_spine" filter="url(#ebs)">
+    <!-- C1-C7 vertebral bodies with transverse processes -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M113,110L127,110Q130,112 131,116L131,118Q131,120 129,121L129,123Q131,124 131,128L131,130Q131,132 128,134L112,134Q109,132 109,130L109,128Q109,124 111,123L111,121Q109,120 109,118L109,116Q109,112 113,110Z"/>
+    <!-- Vertebral body outlines -->
+    <path class="bone-detail" d="M112,116L128,116M112,121L128,121M112,126L128,126M112,131L128,131"/>
+    <!-- Spinous processes (anterior view hints) -->
+    <path class="bone-detail" d="M120,110L120,134" opacity="0.3"/>
+    <!-- Transverse processes -->
+    <path class="bone-detail" d="M109,113L104,112M131,113L136,112" stroke-width="0.5"/>
+    <path class="bone-detail" d="M109,118L103,117M131,118L137,117" stroke-width="0.5"/>
+    <path class="bone-detail" d="M109,124L103,123M131,124L137,123" stroke-width="0.5"/>
+    <path class="bone-detail" d="M109,129L104,128M131,129L136,128" stroke-width="0.5"/>
+    <!-- Shading for depth -->
+    <path class="bone-shading" d="M126,111Q128,112 129,116L129,134L127,134Q128,132 128,128L128,116Q128,112 126,111Z"/>
+</g>
+
+<!-- ===== CLAVICLE — proper S-curve ===== -->
+<g class="bone-group" data-bone="clavicle" filter="url(#ebs)">
+    <!-- Left clavicle — S-shaped with proper thickness variation -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M112,118Q106,114 96,113Q86,113 78,115Q72,118 70,121Q69,123 71,125Q73,127 77,126Q82,124 90,122Q100,121 108,122Q112,123 112,125Z"/>
+    <!-- Highlight on top surface -->
+    <path class="bone-highlight" d="M112,118Q106,114 96,113.5Q88,113.5 80,115Q74,117 72,119Q78,116 88,114.5Q98,114 108,116Q112,118 112,118Z"/>
+    <!-- Sternal end -->
+    <ellipse class="bone-cartilage" cx="112" cy="121" rx="2" ry="3"/>
+    <!-- Acromial end -->
+    <ellipse class="bone-cartilage" cx="70" cy="122" rx="2.5" ry="2.5"/>
+
+    <!-- Right clavicle -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M128,118Q134,114 144,113Q154,113 162,115Q168,118 170,121Q171,123 169,125Q167,127 163,126Q158,124 150,122Q140,121 132,122Q128,123 128,125Z"/>
+    <path class="bone-highlight" d="M128,118Q134,114 144,113.5Q152,113.5 160,115Q166,117 168,119Q162,116 152,114.5Q142,114 132,116Q128,118 128,118Z"/>
+    <ellipse class="bone-cartilage" cx="128" cy="121" rx="2" ry="3"/>
+    <ellipse class="bone-cartilage" cx="170" cy="122" rx="2.5" ry="2.5"/>
+</g>
+
+<!-- ===== STERNUM — manubrium, body, xiphoid ===== -->
+<g class="bone-group" data-bone="sternum" filter="url(#ebs)">
+    <!-- Manubrium (wider top, distinct shape) -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M113,124L127,124Q129,126 129,130L128,140Q128,144 126,146L114,146Q112,144 112,140L111,130Q111,126 113,124Z"/>
+    <!-- Jugular notch -->
+    <path class="bone-detail" d="M116,124Q120,126 124,124" stroke-width="0.4"/>
+    <!-- Sternal angle (angle of Louis) -->
+    <path class="bone-detail" d="M112,146L128,146" stroke-width="0.6" opacity="0.8"/>
+    <!-- Body of sternum -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M114,147L126,147L126,190L114,190Z"/>
+    <!-- Costal notch pairs -->
+    <path class="bone-detail" d="M114,152L112,152M126,152L128,152"/>
+    <path class="bone-detail" d="M114,160L112,160M126,160L128,160"/>
+    <path class="bone-detail" d="M114,168L112,168M126,168L128,168"/>
+    <path class="bone-detail" d="M114,176L112,176M126,176L128,176"/>
+    <path class="bone-detail" d="M114,184L112,184M126,184L128,184"/>
+    <!-- Xiphoid process -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M118,190L122,190L121,200Q120.5,203 120,203Q119.5,203 119,200Z"/>
+    <!-- Sternal highlight -->
+    <path class="bone-highlight" d="M115,124L118,124Q114,126 114,130L115,146L116,147L116,190L118,190Z" opacity="0.25"/>
+</g>
+
+<!-- ===== RIBS — proper curvature with intercostal spacing ===== -->
+<g class="bone-group" data-bone="ribs" filter="url(#ebs)">
+    <!-- LEFT RIBS — 4 pairs visible, better curvature -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M112,130Q98,132 86,140Q78,147 74,154Q72,157 74,158Q76,159 78,156Q82,149 90,143Q100,136 112,134Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M112,142Q96,145 82,154Q74,162 70,170Q68,173 70,174Q72,175 74,172Q78,163 86,156Q98,148 112,146Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M112,154Q94,158 80,168Q72,176 68,184Q66,187 68,188Q70,189 72,186Q76,177 84,170Q96,162 112,158Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M112,166Q98,170 86,178Q78,185 76,192Q74,195 76,196Q78,197 80,194Q84,186 90,180Q100,172 112,170Z"/>
+    <!-- Costal cartilage (anterior ends) — subtle -->
+    <path class="bone-cartilage" d="M74,155Q72,156 72,158" stroke-width="0.4" opacity="0.5"/>
+    <path class="bone-cartilage" d="M70,171Q68,173 68,175" stroke-width="0.4" opacity="0.5"/>
+
+    <!-- RIGHT RIBS -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M128,130Q142,132 154,140Q162,147 166,154Q168,157 166,158Q164,159 162,156Q158,149 150,143Q140,136 128,134Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M128,142Q144,145 158,154Q166,162 170,170Q172,173 170,174Q168,175 166,172Q162,163 154,156Q142,148 128,146Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M128,154Q146,158 160,168Q168,176 172,184Q174,187 172,188Q170,189 168,186Q164,177 156,170Q144,162 128,158Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M128,166Q142,170 154,178Q162,185 164,192Q166,195 164,196Q162,197 160,194Q156,186 150,180Q140,172 128,170Z"/>
+    <path class="bone-cartilage" d="M166,155Q168,156 168,158" stroke-width="0.4" opacity="0.5"/>
+</g>
+
+<!-- ===== HUMERUS — with head, neck, deltoid tuberosity, epicondyles ===== -->
+<g class="bone-group" data-bone="humerus" filter="url(#ebs)">
+    <!-- LEFT HUMERUS -->
+    <!-- Humeral head (greater detail) -->
+    <ellipse class="bone-shape-gradient" fill="url(#boneGrad)" cx="67" cy="126" rx="10" ry="11"/>
+    <ellipse class="bone-highlight" cx="65" cy="123" rx="5" ry="6" opacity="0.25"/>
+    <!-- Anatomical neck line -->
+    <path class="bone-detail" d="M58,128Q62,134 67,136Q72,134 76,128" opacity="0.5"/>
+    <!-- Greater tuberosity -->
+    <path class="bone-detail" d="M76,122Q78,126 76,130" opacity="0.4" stroke-width="0.6"/>
+    <!-- Shaft with deltoid tuberosity -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M62,135Q57,138 55,144L52,168Q50,172 50,172L48,208Q46,215 44,220Q42,224 44,226L50,228Q54,228 56,224L58,216L62,178Q64,168 64,162L66,148Q68,142 68,138Z"/>
+    <!-- Deltoid tuberosity bump -->
+    <path class="bone-detail" d="M56,158Q53,162 52,168" opacity="0.3"/>
+    <!-- Medial & lateral epicondyles -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M42,222Q40,226 42,230Q46,232 50,230Q48,226 46,222Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M54,222Q56,226 56,230Q52,232 50,230Q50,226 52,222Z"/>
+    <!-- Olecranon fossa hint -->
+    <ellipse class="bone-foramen" cx="48" cy="222" rx="3" ry="2"/>
+    <!-- Shaft shading -->
+    <path class="bone-shading" d="M62,136Q60,140 58,148L56,176L54,210Q52,218 50,224L52,226L56,224Q58,218 60,210L64,178Q66,166 66,156L68,142Q68,138 66,136Z"/>
+
+    <!-- RIGHT HUMERUS (mirrored) -->
+    <ellipse class="bone-shape-gradient" fill="url(#boneGrad)" cx="173" cy="126" rx="10" ry="11"/>
+    <ellipse class="bone-highlight" cx="175" cy="123" rx="5" ry="6" opacity="0.25"/>
+    <path class="bone-detail" d="M164,128Q168,134 173,136Q178,134 182,128" opacity="0.5"/>
+    <path class="bone-detail" d="M164,122Q162,126 164,130" opacity="0.4" stroke-width="0.6"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M178,135Q183,138 185,144L188,168Q190,172 190,172L192,208Q194,215 196,220Q198,224 196,226L190,228Q186,228 184,224L182,216L178,178Q176,168 176,162L174,148Q172,142 172,138Z"/>
+    <path class="bone-detail" d="M184,158Q187,162 188,168" opacity="0.3"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M198,222Q200,226 198,230Q194,232 190,230Q192,226 194,222Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M186,222Q184,226 184,230Q188,232 190,230Q190,226 188,222Z"/>
+    <ellipse class="bone-foramen" cx="192" cy="222" rx="3" ry="2"/>
+    <path class="bone-shading" d="M178,136Q180,140 182,148L184,176L186,210Q188,218 190,224L188,226L184,224Q182,218 180,210L176,178Q174,166 174,156L172,142Q172,138 174,136Z"/>
+</g>
+
+<!-- ===== RADIUS — with radial head, shaft, styloid process ===== -->
+<g class="bone-group" data-bone="radius" filter="url(#ebs)">
+    <!-- Left radius -->
+    <ellipse class="bone-shape-gradient" fill="url(#jointGrad)" cx="44" cy="230" rx="4" ry="3.5"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M42,234Q38,236 36,242L28,290Q26,298 24,306Q22,311 24,314Q26,316 28,314Q30,310 32,302L40,252Q42,244 44,236Z"/>
+    <!-- Styloid process -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M22,310Q20,316 22,318Q26,318 26,314Z"/>
+    <path class="bone-shading" d="M42,236Q40,240 38,250L30,298Q28,306 26,312L28,314Q30,310 32,300L40,248Q42,240 44,234Z"/>
+
+    <!-- Right radius -->
+    <ellipse class="bone-shape-gradient" fill="url(#jointGrad)" cx="196" cy="230" rx="4" ry="3.5"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M198,234Q202,236 204,242L212,290Q214,298 216,306Q218,311 216,314Q214,316 212,314Q210,310 208,302L200,252Q198,244 196,236Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M218,310Q220,316 218,318Q214,318 214,314Z"/>
+    <path class="bone-shading" d="M198,236Q200,240 202,250L210,298Q212,306 214,312L212,314Q210,310 208,300L200,248Q198,240 196,234Z"/>
+</g>
+
+<!-- ===== ULNA — with olecranon, shaft, ulnar styloid ===== -->
+<g class="bone-group" data-bone="ulna" filter="url(#ebs)">
+    <!-- Left ulna — olecranon process -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M50,224Q54,222 56,226Q56,230 54,234L42,296Q40,306 36,310Q34,314 32,312Q30,310 32,304L44,240Q46,232 50,226Z"/>
+    <!-- Olecranon tip -->
+    <path class="bone-detail" d="M52,224Q54,222 54,224" stroke-width="0.4"/>
+    <!-- Ulnar styloid -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M34,310Q32,314 34,316Q36,316 36,312Z"/>
+
+    <!-- Right ulna -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M190,224Q186,222 184,226Q184,230 186,234L198,296Q200,306 204,310Q206,314 208,312Q210,310 208,304L196,240Q194,232 190,226Z"/>
+    <path class="bone-detail" d="M188,224Q186,222 186,224" stroke-width="0.4"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M206,310Q208,314 206,316Q204,316 204,312Z"/>
+</g>
+
+<!-- ===== HAND — carpals, metacarpals, phalanges ===== -->
+<g class="bone-group" data-bone="hand" filter="url(#ebs)">
+    <!-- LEFT HAND -->
+    <!-- Carpals (2 rows of blocks) -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M20,314Q16,316 14,320Q12,324 14,328Q16,330 22,332L32,332Q36,330 38,326Q38,322 36,318Q34,316 30,314Z"/>
+    <path class="bone-detail" d="M20,322L30,322M25,316L25,330" opacity="0.35"/>
+    <!-- Metacarpals (5 individual bones) -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M15,330L12,348Q10,354 12,356L14,356L17,340L19,332Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M20,332L16,352Q14,358 16,360L18,360L22,342L24,334Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M25,334L22,356Q20,362 22,364L24,364L27,344L28,336Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M30,333L28,352Q28,358 30,360L32,358L32,344L32,334Z"/>
+    <!-- Thumb -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M36,326L38,340Q38,346 36,350L34,348L34,336L34,328Z"/>
+    <!-- Fingertips (distal phalanges) -->
+    <ellipse class="bone-cartilage" cx="12" cy="357" rx="1.5" ry="1.5"/>
+    <ellipse class="bone-cartilage" cx="17" cy="361" rx="1.5" ry="1.5"/>
+    <ellipse class="bone-cartilage" cx="23" cy="365" rx="1.5" ry="1.5"/>
+    <ellipse class="bone-cartilage" cx="31" cy="361" rx="1.5" ry="1.5"/>
+    <ellipse class="bone-cartilage" cx="36" cy="351" rx="1.5" ry="1.5"/>
+
+    <!-- RIGHT HAND (mirrored) -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M220,314Q224,316 226,320Q228,324 226,328Q224,330 218,332L208,332Q204,330 202,326Q202,322 204,318Q206,316 210,314Z"/>
+    <path class="bone-detail" d="M220,322L210,322M215,316L215,330" opacity="0.35"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M225,330L228,348Q230,354 228,356L226,356L223,340L221,332Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M220,332L224,352Q226,358 224,360L222,360L218,342L216,334Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M215,334L218,356Q220,362 218,364L216,364L213,344L212,336Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M210,333L212,352Q212,358 210,360L208,358L208,344L208,334Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M204,326L202,340Q202,346 204,350L206,348L206,336L206,328Z"/>
+    <ellipse class="bone-cartilage" cx="228" cy="357" rx="1.5" ry="1.5"/>
+    <ellipse class="bone-cartilage" cx="223" cy="361" rx="1.5" ry="1.5"/>
+    <ellipse class="bone-cartilage" cx="217" cy="365" rx="1.5" ry="1.5"/>
+    <ellipse class="bone-cartilage" cx="209" cy="361" rx="1.5" ry="1.5"/>
+    <ellipse class="bone-cartilage" cx="204" cy="351" rx="1.5" ry="1.5"/>
+</g>
+
+<!-- ===== PELVIS — iliac wings, obturator foramen, ASIS ===== -->
+<g class="bone-group" data-bone="pelvis" filter="url(#ebs)">
+    <!-- LEFT PELVIS — iliac wing with proper flare -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M108,254Q102,248 92,242Q80,238 68,240Q58,244 54,254Q52,266 54,278Q58,290 66,300Q72,306 80,308L98,298Q104,288 106,278Q108,268 110,258Z"/>
+    <!-- Iliac crest highlight -->
+    <path class="bone-highlight" d="M106,254Q100,248 90,243Q80,239 70,241Q62,244 58,250Q66,240 80,238Q92,240 102,247Q106,252 108,254Z" opacity="0.25"/>
+    <!-- ASIS landmark -->
+    <circle class="bone-detail" cx="66" cy="260" r="1.5" opacity="0.6"/>
+    <!-- Obturator foramen -->
+    <ellipse class="bone-foramen" cx="82" cy="294" rx="5" ry="6.5"/>
+    <!-- Acetabulum -->
+    <circle class="bone-detail" cx="80" cy="302" r="5" opacity="0.5"/>
+    <circle class="bone-cartilage" cx="80" cy="302" r="3"/>
+    <!-- Pubic symphysis line -->
+    <path class="bone-detail" d="M100,300Q110,310 120,312Q130,310 140,300" opacity="0.3"/>
+
+    <!-- RIGHT PELVIS -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M132,254Q138,248 148,242Q160,238 172,240Q182,244 186,254Q188,266 186,278Q182,290 174,300Q168,306 160,308L142,298Q136,288 134,278Q132,268 130,258Z"/>
+    <path class="bone-highlight" d="M134,254Q140,248 150,243Q160,239 170,241Q178,244 182,250Q174,240 160,238Q148,240 138,247Q134,252 132,254Z" opacity="0.25"/>
+    <circle class="bone-detail" cx="174" cy="260" r="1.5" opacity="0.6"/>
+    <ellipse class="bone-foramen" cx="158" cy="294" rx="5" ry="6.5"/>
+    <circle class="bone-detail" cx="160" cy="302" r="5" opacity="0.5"/>
+    <circle class="bone-cartilage" cx="160" cy="302" r="3"/>
+
+    <!-- Pelvic shading -->
+    <path class="bone-shading" d="M100,254Q94,248 84,244Q74,242 66,246Q60,252 58,264Q58,276 62,288Q66,296 72,302L74,300Q66,292 62,280Q60,268 62,256Q66,248 74,244Q84,242 94,246Q100,250 104,254Z"/>
+</g>
+
+<!-- ===== FEMUR — with head, neck, trochanters, shaft, condyles ===== -->
+<g class="bone-group" data-bone="femur" filter="url(#ebs)">
+    <!-- LEFT FEMUR -->
+    <!-- Femoral head -->
+    <circle class="bone-shape-gradient" fill="url(#boneGrad)" cx="82" cy="300" r="7.5"/>
+    <circle class="bone-highlight" cx="80" cy="298" r="4" opacity="0.25"/>
+    <!-- Fovea capitis -->
+    <circle class="bone-foramen" cx="83" cy="301" r="1"/>
+    <!-- Femoral neck -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M86,306Q90,308 92,312L92,320Q88,318 84,314L80,308Z"/>
+    <!-- Greater trochanter -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M92,308Q96,306 100,308Q102,312 100,316Q96,318 92,316Z"/>
+    <path class="bone-detail" d="M94,308L98,310" opacity="0.4"/>
+    <!-- Lesser trochanter -->
+    <path class="bone-detail" d="M86,318Q82,320 80,318" stroke-width="0.5"/>
+    <!-- Shaft — proper slight anterior bow -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M88,320Q84,324 82,332L76,392Q74,408 72,418L70,426Q68,432 66,436L64,440Q64,444 68,444L76,442Q80,440 80,436L82,428Q84,420 86,410L92,346Q94,334 92,326Z"/>
+    <!-- Linea aspera (posterior ridge visible as shadow) -->
+    <path class="bone-shading" d="M86,324Q84,330 82,340L78,396Q76,412 74,424L72,434L68,440L66,442Q64,444 66,444L68,444L72,440L76,428Q78,418 80,406L86,342Q88,332 88,326Z"/>
+    <!-- Medial condyle -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M64,440Q60,442 58,448Q58,454 62,456Q66,456 68,452Q68,446 66,442Z"/>
+    <!-- Lateral condyle -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M76,440Q80,442 82,448Q82,454 78,456Q74,456 72,452Q72,446 74,442Z"/>
+    <!-- Intercondylar notch -->
+    <path class="bone-detail" d="M68,448Q70,452 72,448" opacity="0.5"/>
+    <!-- Joint surface cartilage -->
+    <path class="bone-cartilage" d="M60,454Q64,458 68,456M72,456Q76,458 80,454" opacity="0.4"/>
+
+    <!-- RIGHT FEMUR (mirrored) -->
+    <circle class="bone-shape-gradient" fill="url(#boneGrad)" cx="158" cy="300" r="7.5"/>
+    <circle class="bone-highlight" cx="160" cy="298" r="4" opacity="0.25"/>
+    <circle class="bone-foramen" cx="157" cy="301" r="1"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M154,306Q150,308 148,312L148,320Q152,318 156,314L160,308Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M148,308Q144,306 140,308Q138,312 140,316Q144,318 148,316Z"/>
+    <path class="bone-detail" d="M146,308L142,310" opacity="0.4"/>
+    <path class="bone-detail" d="M154,318Q158,320 160,318" stroke-width="0.5"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M152,320Q156,324 158,332L164,392Q166,408 168,418L170,426Q172,432 174,436L176,440Q176,444 172,444L164,442Q160,440 160,436L158,428Q156,420 154,410L148,346Q146,334 148,326Z"/>
+    <path class="bone-shading" d="M154,324Q156,330 158,340L162,396Q164,412 166,424L168,434L172,440L174,442Q176,444 174,444L172,444L168,440L164,428Q162,418 160,406L154,342Q152,332 152,326Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M176,440Q180,442 182,448Q182,454 178,456Q174,456 172,452Q172,446 174,442Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M164,440Q160,442 158,448Q158,454 162,456Q166,456 168,452Q168,446 166,442Z"/>
+    <path class="bone-detail" d="M172,448Q170,452 168,448" opacity="0.5"/>
+    <path class="bone-cartilage" d="M180,454Q176,458 172,456M168,456Q164,458 160,454" opacity="0.4"/>
+</g>
+
+<!-- ===== PATELLA — proper sesamoid with articular surface ===== -->
+<g class="bone-group" data-bone="patella" filter="url(#ebs)">
+    <!-- Left patella — shield shape -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M72,442Q68,440 64,442Q60,446 60,452Q62,458 66,462Q70,464 74,462Q78,458 80,452Q80,446 76,442Z"/>
+    <path class="bone-highlight" d="M70,442Q66,442 64,444Q62,448 62,452Q66,446 70,444Z" opacity="0.3"/>
+    <path class="bone-detail" d="M66,448Q70,450 74,448" opacity="0.3"/>
+
+    <!-- Right patella -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M168,442Q172,440 176,442Q180,446 180,452Q178,458 174,462Q170,464 166,462Q162,458 160,452Q160,446 164,442Z"/>
+    <path class="bone-highlight" d="M170,442Q174,442 176,444Q178,448 178,452Q174,446 170,444Z" opacity="0.3"/>
+    <path class="bone-detail" d="M174,448Q170,450 166,448" opacity="0.3"/>
+</g>
+
+<!-- ===== TIBIA — with plateau, tuberosity, shaft, medial malleolus ===== -->
+<g class="bone-group" data-bone="tibia" filter="url(#ebs)">
+    <!-- LEFT TIBIA -->
+    <!-- Tibial plateau (wider proximal end) -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M58,464Q54,466 52,470Q50,474 52,478L54,482Q52,486 50,500L48,524Q46,534 46,542Q46,548 50,550Q54,550 56,546Q58,540 58,534L60,510L64,482Q66,474 66,470Q66,466 62,464Z"/>
+    <!-- Tibial plateau surface -->
+    <path class="bone-detail" d="M54,466L66,466" opacity="0.5"/>
+    <path class="bone-detail" d="M56,470L64,470" opacity="0.3"/>
+    <!-- Tibial tuberosity -->
+    <path class="bone-detail" d="M64,476Q66,478 66,482Q64,484 62,482" stroke-width="0.5" opacity="0.5"/>
+    <!-- Anterior crest (sharp edge) -->
+    <path class="bone-detail" d="M62,480L58,530" opacity="0.2"/>
+    <!-- Medial malleolus -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M48,544Q46,548 48,552Q52,554 54,550Q52,546 50,544Z"/>
+    <!-- Shaft shading -->
+    <path class="bone-shading" d="M62,468Q64,472 64,478L62,500L60,524Q58,536 56,544L54,548L52,546Q54,538 56,528L58,504L62,478Q64,472 64,468Z"/>
+
+    <!-- RIGHT TIBIA -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M182,464Q186,466 188,470Q190,474 188,478L186,482Q188,486 190,500L192,524Q194,534 194,542Q194,548 190,550Q186,550 184,546Q182,540 182,534L180,510L176,482Q174,474 174,470Q174,466 178,464Z"/>
+    <path class="bone-detail" d="M186,466L174,466" opacity="0.5"/>
+    <path class="bone-detail" d="M184,470L176,470" opacity="0.3"/>
+    <path class="bone-detail" d="M176,476Q174,478 174,482Q176,484 178,482" stroke-width="0.5" opacity="0.5"/>
+    <path class="bone-detail" d="M178,480L182,530" opacity="0.2"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M192,544Q194,548 192,552Q188,554 186,550Q188,546 190,544Z"/>
+    <path class="bone-shading" d="M178,468Q176,472 176,478L178,500L180,524Q182,536 184,544L186,548L188,546Q186,538 184,528L182,504L178,478Q176,472 176,468Z"/>
+</g>
+
+<!-- ===== FIBULA — with head and lateral malleolus ===== -->
+<g class="bone-group" data-bone="fibula" filter="url(#ebs)">
+    <!-- Left fibula -->
+    <!-- Fibular head (distinct rounded shape) -->
+    <ellipse class="bone-shape-gradient" fill="url(#jointGrad)" cx="78" cy="468" rx="4" ry="3.5"/>
+    <!-- Shaft -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M80,472Q82,474 82,480L80,524Q80,534 78,540Q76,544 74,542Q72,540 74,534L76,480Q76,474 78,472Z"/>
+    <!-- Lateral malleolus (extends lower than medial) -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M78,540Q80,544 80,550Q78,554 76,552Q74,548 74,544Q76,542 78,540Z"/>
+
+    <!-- Right fibula -->
+    <ellipse class="bone-shape-gradient" fill="url(#jointGrad)" cx="162" cy="468" rx="4" ry="3.5"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M160,472Q158,474 158,480L160,524Q160,534 162,540Q164,544 166,542Q168,540 166,534L164,480Q164,474 162,472Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M162,540Q160,544 160,550Q162,554 164,552Q166,548 166,544Q164,542 162,540Z"/>
+</g>
+
+<!-- ===== FOOT — calcaneus, talus, metatarsals, phalanges ===== -->
+<g class="bone-group" data-bone="foot" filter="url(#ebs)">
+    <!-- LEFT FOOT -->
+    <!-- Calcaneus (heel) -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M40,548Q36,550 34,554Q34,560 38,564L42,566Q40,564 38,560Q38,554 40,550Z"/>
+    <!-- Talus -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M46,548Q42,550 40,554Q38,560 40,564L44,568L54,568Q58,564 60,558Q60,552 58,548Z"/>
+    <path class="bone-detail" d="M48,554L56,554" opacity="0.3"/>
+    <!-- Navicular + cuboid + cuneiforms -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M42,568L58,568Q62,570 64,574L60,576L42,576Q38,574 36,572Q38,570 42,568Z"/>
+    <path class="bone-detail" d="M46,568L46,576M52,568L52,576" opacity="0.3"/>
+    <!-- Metatarsals -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M38,576L34,588Q32,592 36,594L40,584L44,576Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M44,576Q42,582 40,590Q38,594 42,596L48,586L50,576Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M50,576Q50,584 50,590Q48,594 52,596L56,586L56,576Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M56,576Q58,582 58,588Q58,592 60,592L62,586L62,574Z"/>
+    <!-- Hallux (big toe) -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M62,572Q64,576 66,582Q66,586 64,586L62,580Z"/>
+    <!-- Phalanx tips -->
+    <ellipse class="bone-cartilage" cx="35" cy="594" rx="1.5" ry="1"/>
+    <ellipse class="bone-cartilage" cx="41" cy="596" rx="1.5" ry="1"/>
+    <ellipse class="bone-cartilage" cx="51" cy="596" rx="1.5" ry="1"/>
+    <ellipse class="bone-cartilage" cx="60" cy="592" rx="1" ry="1"/>
+    <ellipse class="bone-cartilage" cx="65" cy="586" rx="1" ry="1"/>
+
+    <!-- RIGHT FOOT (mirrored) -->
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M200,548Q204,550 206,554Q206,560 202,564L198,566Q200,564 202,560Q202,554 200,550Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M194,548Q198,550 200,554Q202,560 200,564L196,568L186,568Q182,564 180,558Q180,552 182,548Z"/>
+    <path class="bone-detail" d="M192,554L184,554" opacity="0.3"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M198,568L182,568Q178,570 176,574L180,576L198,576Q202,574 204,572Q202,570 198,568Z"/>
+    <path class="bone-detail" d="M194,568L194,576M188,568L188,576" opacity="0.3"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M202,576L206,588Q208,592 204,594L200,584L196,576Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M196,576Q198,582 200,590Q202,594 198,596L192,586L190,576Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M190,576Q190,584 190,590Q192,594 188,596L184,586L184,576Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M184,576Q182,582 182,588Q182,592 180,592L178,586L178,574Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGrad)" d="M178,572Q176,576 174,582Q174,586 176,586L178,580Z"/>
+    <ellipse class="bone-cartilage" cx="205" cy="594" rx="1.5" ry="1"/>
+    <ellipse class="bone-cartilage" cx="199" cy="596" rx="1.5" ry="1"/>
+    <ellipse class="bone-cartilage" cx="189" cy="596" rx="1.5" ry="1"/>
+    <ellipse class="bone-cartilage" cx="180" cy="592" rx="1" ry="1"/>
+    <ellipse class="bone-cartilage" cx="175" cy="586" rx="1" ry="1"/>
+</g>
+</svg>`;
+}
+
+    function buildPosteriorSVG() {
+    return `<svg viewBox="0 0 240 560" xmlns="http://www.w3.org/2000/svg">
+<defs>
+    <linearGradient id="boneGradP" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#F4F9FA"/>
+        <stop offset="40%" stop-color="#EEF4F5"/>
+        <stop offset="100%" stop-color="#D8E6E9"/>
+    </linearGradient>
+    <radialGradient id="jointGradP">
+        <stop offset="0%" stop-color="#E2EEF0"/>
+        <stop offset="100%" stop-color="#C4D9DD"/>
+    </radialGradient>
+    <filter id="ebsp" x="-3%" y="-3%" width="106%" height="106%">
+        <feDropShadow dx="0.4" dy="0.8" stdDeviation="0.8" flood-color="#237282" flood-opacity="0.12"/>
+    </filter>
+</defs>
+
+<!-- ===== SKULL (posterior) — occiput with sutures ===== -->
+<g class="bone-group" data-bone="skull" filter="url(#ebsp)">
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M120,6C96,6 78,18 74,38C70,52 72,66 76,76C80,84 88,90 96,94Q108,100 120,100Q132,100 144,94C152,90 160,84 164,76C168,66 170,52 166,38C162,18 144,6 120,6Z"/>
+    <path class="bone-highlight" d="M120,8C102,8 86,16 80,32C76,44 78,58 80,66Q100,14 120,12Q140,14 160,66C162,58 164,44 160,32C154,16 138,8 120,8Z" opacity="0.2"/>
+    <!-- Sagittal suture -->
+    <path class="bone-detail" d="M120,8L120,50" opacity="0.2" stroke-dasharray="1.5,1"/>
+    <!-- Lambdoid suture -->
+    <path class="bone-detail" d="M86,54Q100,66 120,68Q140,66 154,54" opacity="0.25" stroke-dasharray="1.5,1"/>
+    <!-- External occipital protuberance -->
+    <circle class="bone-detail" cx="120" cy="66" r="3" opacity="0.35"/>
+    <!-- Superior nuchal line -->
+    <path class="bone-detail" d="M94,64Q107,70 120,72Q133,70 146,64" opacity="0.2"/>
+    <!-- Mastoid processes -->
+    <ellipse class="bone-detail" cx="88" cy="88" rx="4" ry="5" opacity="0.4"/>
+    <ellipse class="bone-detail" cx="152" cy="88" rx="4" ry="5" opacity="0.4"/>
+    <!-- Foramen magnum hint -->
+    <ellipse class="bone-foramen" cx="120" cy="90" rx="6" ry="4" opacity="0.4"/>
+</g>
+
+<!-- ===== CERVICAL SPINE (posterior) — spinous processes visible ===== -->
+<g class="bone-group" data-bone="cervical_spine" filter="url(#ebsp)">
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M110,100L130,100Q134,102 134,106L134,134Q134,138 130,140L110,140Q106,138 106,134L106,106Q106,102 110,100Z"/>
+    <!-- Spinous processes (midline bumps) -->
+    <path class="bone-detail" d="M120,100L120,140" stroke-width="0.7" opacity="0.5"/>
+    <!-- Individual vertebra lines -->
+    <path class="bone-detail" d="M114,106L126,106M112,112L128,112M112,118L128,118M112,124L128,124M112,130L128,130M114,136L126,136"/>
+    <!-- Transverse processes -->
+    <path class="bone-detail" d="M106,108L98,106M134,108L142,106"/>
+    <path class="bone-detail" d="M106,114L96,112M134,114L144,112"/>
+    <path class="bone-detail" d="M106,120L96,118M134,120L144,118"/>
+    <path class="bone-detail" d="M106,126L96,124M134,126L144,124"/>
+    <path class="bone-detail" d="M106,132L98,130M134,132L142,130"/>
+    <!-- Bifid spinous process tips -->
+    <circle class="bone-detail" cx="120" cy="106" r="0.8" opacity="0.4"/>
+    <circle class="bone-detail" cx="120" cy="112" r="0.8" opacity="0.4"/>
+    <circle class="bone-detail" cx="120" cy="118" r="0.8" opacity="0.4"/>
+    <circle class="bone-detail" cx="120" cy="124" r="0.8" opacity="0.4"/>
+    <circle class="bone-detail" cx="120" cy="130" r="1" opacity="0.5"/>
+    <circle class="bone-detail" cx="120" cy="136" r="1.2" opacity="0.5"/>
+</g>
+
+<!-- ===== SCAPULA — spine, acromion, medial border, inferior angle ===== -->
+<g class="bone-group" data-bone="scapula" filter="url(#ebsp)">
+    <!-- LEFT SCAPULA -->
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M74,128Q86,122 100,124L106,130L106,138Q108,142 104,180L94,198L70,182Q62,166 62,150Q62,138 74,128Z"/>
+    <!-- Spine of scapula -->
+    <path class="bone-detail" d="M74,132L104,140" stroke-width="0.8" opacity="0.7"/>
+    <!-- Acromion process -->
+    <path class="bone-detail" d="M74,128Q68,126 64,128Q62,130 64,132" stroke-width="0.6"/>
+    <!-- Medial (vertebral) border -->
+    <path class="bone-detail" d="M100,126Q104,140 104,160Q102,178 94,198" opacity="0.4" stroke-width="0.6"/>
+    <!-- Lateral border -->
+    <path class="bone-detail" d="M74,132Q68,150 68,170Q70,182 74,190" opacity="0.3"/>
+    <!-- Infraspinous fossa shading -->
+    <path class="bone-shading" d="M80,148Q90,152 100,156Q102,165 100,176L94,194Q84,184 76,170Q72,160 74,150Z"/>
+    <!-- Supraspinous fossa -->
+    <path class="bone-shading" d="M80,128Q90,126 100,128L104,134L74,132Z" opacity="0.25"/>
+    <!-- Inferior angle -->
+    <circle class="bone-detail" cx="94" cy="197" r="1" opacity="0.5"/>
+
+    <!-- RIGHT SCAPULA -->
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M166,128Q154,122 140,124L134,130L134,138Q132,142 136,180L146,198L170,182Q178,166 178,150Q178,138 166,128Z"/>
+    <path class="bone-detail" d="M166,132L136,140" stroke-width="0.8" opacity="0.7"/>
+    <path class="bone-detail" d="M166,128Q172,126 176,128Q178,130 176,132" stroke-width="0.6"/>
+    <path class="bone-detail" d="M140,126Q136,140 136,160Q138,178 146,198" opacity="0.4" stroke-width="0.6"/>
+    <path class="bone-detail" d="M166,132Q172,150 172,170Q170,182 166,190" opacity="0.3"/>
+    <path class="bone-shading" d="M160,148Q150,152 140,156Q138,165 140,176L146,194Q156,184 164,170Q168,160 166,150Z"/>
+    <path class="bone-shading" d="M160,128Q150,126 140,128L136,134L166,132Z" opacity="0.25"/>
+    <circle class="bone-detail" cx="146" cy="197" r="1" opacity="0.5"/>
+</g>
+
+<!-- ===== THORACIC SPINE (posterior) — prominent spinous processes ===== -->
+<g class="bone-group" data-bone="thoracic_spine" filter="url(#ebsp)">
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M114,140L126,140Q130,142 130,146L130,198Q130,202 126,204L114,204Q110,202 110,198L110,146Q110,142 114,140Z"/>
+    <!-- Midline spinous process ridge -->
+    <path class="bone-detail" d="M120,142L120,202" stroke-width="0.8" opacity="0.6"/>
+    <!-- Individual vertebra separations -->
+    <path class="bone-detail" d="M112,146L128,146M112,151L128,151M112,156L128,156M112,161L128,161M112,166L128,166M112,171L128,171M112,176L128,176M112,181L128,181M112,186L128,186M112,191L128,191M112,196L128,196M112,201L128,201"/>
+    <!-- Transverse processes (every other) -->
+    <path class="bone-detail" d="M110,148L106,147M130,148L134,147"/>
+    <path class="bone-detail" d="M110,158L106,157M130,158L134,157"/>
+    <path class="bone-detail" d="M110,168L106,167M130,168L134,167"/>
+    <path class="bone-detail" d="M110,178L106,177M130,178L134,177"/>
+    <path class="bone-detail" d="M110,188L106,187M130,188L134,187"/>
+    <path class="bone-detail" d="M110,198L106,197M130,198L134,197"/>
+    <!-- Spinous process tips -->
+    <circle class="bone-detail" cx="120" cy="148" r="0.7" opacity="0.4"/>
+    <circle class="bone-detail" cx="120" cy="158" r="0.7" opacity="0.4"/>
+    <circle class="bone-detail" cx="120" cy="168" r="0.7" opacity="0.4"/>
+    <circle class="bone-detail" cx="120" cy="178" r="0.7" opacity="0.4"/>
+    <circle class="bone-detail" cx="120" cy="188" r="0.7" opacity="0.4"/>
+    <circle class="bone-detail" cx="120" cy="198" r="0.7" opacity="0.4"/>
+    <!-- Depth shading -->
+    <path class="bone-shading" d="M124,141Q128,142 129,146L129,198Q129,202 126,204L124,204Q126,202 126,198L126,146Q126,142 124,141Z"/>
+</g>
+
+<!-- ===== RIBS (posterior) ===== -->
+<g class="bone-group" data-bone="ribs" filter="url(#ebsp)">
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M110,146Q92,150 78,162Q72,170 70,176Q72,178 74,177Q76,170 84,162Q96,154 110,150Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M110,158Q90,164 76,176Q70,184 68,190Q70,192 72,191Q74,184 82,176Q94,166 110,162Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M110,172Q92,177 78,188Q72,194 70,200Q72,202 74,201Q76,194 84,188Q94,180 110,176Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M110,186Q96,190 84,198Q78,204 76,208Q78,210 80,209Q82,204 88,198Q98,192 110,190Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M130,146Q148,150 162,162Q168,170 170,176Q168,178 166,177Q164,170 156,162Q144,154 130,150Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M130,158Q150,164 164,176Q170,184 172,190Q170,192 168,191Q166,184 158,176Q146,166 130,162Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M130,172Q148,177 162,188Q168,194 170,200Q168,202 166,201Q164,194 156,188Q146,180 130,176Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M130,186Q144,190 156,198Q162,204 164,208Q162,210 160,209Q158,204 152,198Q142,192 130,190Z"/>
+</g>
+
+<!-- ===== LUMBAR SPINE (posterior) — large vertebral bodies ===== -->
+<g class="bone-group" data-bone="lumbar_spine" filter="url(#ebsp)">
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M112,206Q108,208 106,212L104,222Q104,226 106,228L104,234Q102,236 102,240L100,250Q100,254 104,256L112,258Q116,258 120,256L120,254Q120,256 124,258L128,258L136,256Q140,254 140,250L138,240Q138,236 136,234L134,228Q136,226 136,222L134,212Q132,208 128,206Z"/>
+    <!-- Midline -->
+    <path class="bone-detail" d="M120,208L120,256" stroke-width="0.8" opacity="0.5"/>
+    <!-- Vertebra separations -->
+    <path class="bone-detail" d="M106,214L134,214M104,226L136,226M102,238L138,238M102,250L138,250"/>
+    <!-- Prominent transverse processes -->
+    <path class="bone-detail" d="M106,210L94,208M134,210L146,208" stroke-width="0.6"/>
+    <path class="bone-detail" d="M104,220L90,218M136,220L150,218" stroke-width="0.6"/>
+    <path class="bone-detail" d="M102,232L88,230M138,232L152,230" stroke-width="0.6"/>
+    <path class="bone-detail" d="M102,244L88,242M138,244L152,242" stroke-width="0.6"/>
+    <!-- Spinous process bumps -->
+    <circle class="bone-detail" cx="120" cy="210" r="1" opacity="0.5"/>
+    <circle class="bone-detail" cx="120" cy="220" r="1.2" opacity="0.5"/>
+    <circle class="bone-detail" cx="120" cy="232" r="1.2" opacity="0.5"/>
+    <circle class="bone-detail" cx="120" cy="244" r="1.2" opacity="0.5"/>
+    <circle class="bone-detail" cx="120" cy="254" r="1.2" opacity="0.5"/>
+</g>
+
+<!-- ===== SACRUM & COCCYX ===== -->
+<g class="bone-group" data-bone="sacrum" filter="url(#ebsp)">
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M108,258L132,258L136,262Q138,270 134,282Q130,292 120,298Q110,292 106,282Q102,270 104,262Z"/>
+    <!-- Sacral foramina -->
+    <circle class="bone-foramen" cx="112" cy="270" r="1.8"/>
+    <circle class="bone-foramen" cx="128" cy="270" r="1.8"/>
+    <circle class="bone-foramen" cx="112" cy="280" r="1.8"/>
+    <circle class="bone-foramen" cx="128" cy="280" r="1.8"/>
+    <!-- Median sacral crest -->
+    <path class="bone-detail" d="M120,260L120,294" stroke-width="0.7" opacity="0.5"/>
+    <!-- Sacral hiatus -->
+    <path class="bone-detail" d="M116,292Q120,296 124,292" opacity="0.4"/>
+    <!-- Coccyx -->
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M116,298L124,298L122,310Q121,314 120,314Q119,314 118,310Z"/>
+    <path class="bone-detail" d="M118,302L122,302M119,306L121,306" opacity="0.3"/>
+    <!-- Highlight -->
+    <path class="bone-highlight" d="M110,258L128,258L130,260Q124,262 120,262Q116,262 110,260Z" opacity="0.2"/>
+</g>
+
+<!-- ===== PELVIS (posterior) ===== -->
+<g class="bone-group" data-bone="pelvis" filter="url(#ebsp)">
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M108,258Q104,252 92,246Q78,242 66,250Q58,258 58,272Q60,286 70,298Q78,306 86,308L100,300L104,286Q106,274 108,266Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M132,258Q136,252 148,246Q162,242 174,250Q182,258 182,272Q180,286 170,298Q162,306 154,308L140,300L136,286Q134,274 132,266Z"/>
+    <!-- SI joint lines -->
+    <path class="bone-detail" d="M108,260Q106,272 104,284" opacity="0.5" stroke-width="0.6"/>
+    <path class="bone-detail" d="M132,260Q134,272 136,284" opacity="0.5" stroke-width="0.6"/>
+    <!-- Iliac crest -->
+    <path class="bone-highlight" d="M104,256Q94,248 82,244Q72,244 66,250Q74,244 84,244Q96,246 106,254Z" opacity="0.2"/>
+    <path class="bone-highlight" d="M136,256Q146,248 158,244Q168,244 174,250Q166,244 156,244Q144,246 134,254Z" opacity="0.2"/>
+    <!-- PSIS landmarks -->
+    <circle class="bone-detail" cx="102" cy="262" r="1.5" opacity="0.5"/>
+    <circle class="bone-detail" cx="138" cy="262" r="1.5" opacity="0.5"/>
+    <!-- Ischial tuberosities -->
+    <ellipse class="bone-detail" cx="82" cy="306" rx="3" ry="2" opacity="0.4"/>
+    <ellipse class="bone-detail" cx="158" cy="306" rx="3" ry="2" opacity="0.4"/>
+</g>
+
+<!-- ===== HUMERUS (posterior) ===== -->
+<g class="bone-group" data-bone="humerus" filter="url(#ebsp)">
+    <ellipse class="bone-shape-gradient" fill="url(#boneGradP)" cx="60" cy="134" rx="10" ry="11"/>
+    <ellipse class="bone-highlight" cx="58" cy="131" rx="5" ry="6" opacity="0.2"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M56,142Q52,144 50,150L42,216Q40,222 38,228Q36,232 40,234Q44,236 48,232Q52,228 54,222L62,154Q64,148 62,144Z"/>
+    <path class="bone-shading" d="M60,144Q58,148 56,156L50,218Q48,226 46,232L44,234L42,234Q44,234 46,232Q48,228 50,220L56,158Q58,150 60,146Z"/>
+    <ellipse class="bone-shape-gradient" fill="url(#boneGradP)" cx="180" cy="134" rx="10" ry="11"/>
+    <ellipse class="bone-highlight" cx="182" cy="131" rx="5" ry="6" opacity="0.2"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M184,142Q188,144 190,150L198,216Q200,222 202,228Q204,232 200,234Q196,236 192,232Q188,228 186,222L178,154Q176,148 178,144Z"/>
+    <path class="bone-shading" d="M180,144Q182,148 184,156L190,218Q192,226 194,232L196,234L198,234Q196,234 194,232Q192,228 190,220L184,158Q182,150 180,146Z"/>
+</g>
+
+<!-- ===== RADIUS (posterior) ===== -->
+<g class="bone-group" data-bone="radius" filter="url(#ebsp)">
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M38,236Q34,238 32,242L20,306Q18,312 16,316Q14,320 18,322Q22,322 24,318L36,250Q38,244 38,236Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M202,236Q206,238 208,242L220,306Q222,312 224,316Q226,320 222,322Q218,322 216,318L204,250Q202,244 202,236Z"/>
+</g>
+
+<!-- ===== ULNA (posterior) ===== -->
+<g class="bone-group" data-bone="ulna" filter="url(#ebsp)">
+    <!-- Prominent olecranon -->
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M46,232Q50,230 52,232Q54,236 52,240L38,306Q36,314 32,318Q30,322 28,320Q26,318 28,312L42,244Q44,236 46,234Z"/>
+    <ellipse class="bone-detail" cx="50" cy="232" rx="3" ry="2.5" opacity="0.4"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M194,232Q190,230 188,232Q186,236 188,240L202,306Q204,314 208,318Q210,322 212,320Q214,318 212,312L198,244Q196,236 194,234Z"/>
+    <ellipse class="bone-detail" cx="190" cy="232" rx="3" ry="2.5" opacity="0.4"/>
+</g>
+
+<!-- ===== HAND (posterior) ===== -->
+<g class="bone-group" data-bone="hand" filter="url(#ebsp)">
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M14,322Q10,324 8,328Q6,334 8,338Q12,342 20,344Q26,344 30,340Q32,336 30,330Q28,324 24,322Z"/>
+    <path class="bone-detail" d="M16,330L28,330M22,324L22,340" opacity="0.3"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M10,340L4,360Q2,366 6,368L8,362L12,344Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M14,342L8,364Q6,370 10,372L12,366L16,344Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M20,344L16,368Q14,374 18,376L20,370L22,346Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M26,342L24,364Q24,370 28,370L28,364Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M30,338L32,354Q32,360 30,362L28,356L30,340Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M226,322Q230,324 232,328Q234,334 232,338Q228,342 220,344Q214,344 210,340Q208,336 210,330Q212,324 216,322Z"/>
+    <path class="bone-detail" d="M224,330L212,330M218,324L218,340" opacity="0.3"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M230,340L236,360Q238,366 234,368L232,362L228,344Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M226,342L232,364Q234,370 230,372L228,366L224,344Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M220,344L224,368Q226,374 222,376L220,370L218,346Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M214,342L216,364Q216,370 212,370L212,364Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M210,338L208,354Q208,360 210,362L212,356L210,340Z"/>
+</g>
+
+<!-- ===== FEMUR (posterior) ===== -->
+<g class="bone-group" data-bone="femur" filter="url(#ebsp)">
+    <circle class="bone-shape-gradient" fill="url(#boneGradP)" cx="86" cy="310" r="7.5"/>
+    <circle class="bone-highlight" cx="84" cy="308" r="4" opacity="0.2"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M90,316Q94,318 96,322L94,332Q90,328 86,324L84,316Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M96,318Q100,316 104,318Q106,322 104,326Q100,328 96,326Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M90,332Q86,334 84,340L76,420Q74,428 72,434L70,440Q68,446 72,448L80,446Q84,444 84,440L86,432Q88,422 90,412L96,350Q98,340 96,334Z"/>
+    <path class="bone-shading" d="M92,334Q90,338 88,348L84,400Q82,416 80,430L78,440L76,446L74,448Q72,448 74,448L76,446L80,436Q82,424 84,410L90,346Q92,336 92,332Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M68,444Q64,446 62,452Q62,458 66,460Q70,460 72,456Q72,450 70,446Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M80,444Q84,446 86,452Q86,458 82,460Q78,460 76,456Q76,450 78,446Z"/>
+    <path class="bone-detail" d="M72,450Q74,454 76,450" opacity="0.5"/>
+    <!-- Right femur -->
+    <circle class="bone-shape-gradient" fill="url(#boneGradP)" cx="154" cy="310" r="7.5"/>
+    <circle class="bone-highlight" cx="156" cy="308" r="4" opacity="0.2"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M150,316Q146,318 144,322L146,332Q150,328 154,324L156,316Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M144,318Q140,316 136,318Q134,322 136,326Q140,328 144,326Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M150,332Q154,334 156,340L164,420Q166,428 168,434L170,440Q172,446 168,448L160,446Q156,444 156,440L154,432Q152,422 150,412L144,350Q142,340 144,334Z"/>
+    <path class="bone-shading" d="M148,334Q150,338 152,348L156,400Q158,416 160,430L162,440L164,446L166,448Q168,448 166,448L164,446L160,436Q158,424 156,410L150,346Q148,336 148,332Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M172,444Q176,446 178,452Q178,458 174,460Q170,460 168,456Q168,450 170,446Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M160,444Q156,446 154,452Q154,458 158,460Q162,460 164,456Q164,450 162,446Z"/>
+    <path class="bone-detail" d="M168,450Q166,454 164,450" opacity="0.5"/>
+</g>
+
+<!-- ===== TIBIA (posterior) ===== -->
+<g class="bone-group" data-bone="tibia" filter="url(#ebsp)">
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M70,454Q64,456 62,462Q60,468 62,474L58,510Q56,520 54,528Q52,534 56,536Q60,538 64,534L68,520L72,474Q74,466 74,460Q74,456 70,454Z"/>
+    <path class="bone-detail" d="M64,458L74,458" opacity="0.4"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M170,454Q176,456 178,462Q180,468 178,474L182,510Q184,520 186,528Q188,534 184,536Q180,538 176,534L172,520L168,474Q166,466 166,460Q166,456 170,454Z"/>
+    <path class="bone-detail" d="M176,458L166,458" opacity="0.4"/>
+</g>
+
+<!-- ===== FIBULA (posterior) ===== -->
+<g class="bone-group" data-bone="fibula" filter="url(#ebsp)">
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M82,456Q86,458 88,464L86,520Q86,528 84,532Q82,536 80,534Q78,532 78,526L80,466Q80,460 82,456Z"/>
+    <ellipse class="bone-detail" cx="86" cy="458" rx="3" ry="2.5" opacity="0.4"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M158,456Q154,458 152,464L154,520Q154,528 156,532Q158,536 160,534Q162,532 162,526L160,466Q160,460 158,456Z"/>
+    <ellipse class="bone-detail" cx="154" cy="458" rx="3" ry="2.5" opacity="0.4"/>
+</g>
+
+<!-- ===== FOOT (posterior) ===== -->
+<g class="bone-group" data-bone="foot" filter="url(#ebsp)">
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M50,538L60,538Q66,540 68,546Q68,554 64,562L60,566L50,566Q44,564 40,560Q38,554 40,546Q42,540 50,538Z"/>
+    <path class="bone-detail" d="M48,548L62,548M54,542L54,560" opacity="0.3"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M46,566L38,576Q36,580 40,582L46,572L52,566Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M50,566Q46,572 44,578Q42,582 46,584L52,574L56,566Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M56,566Q54,572 52,578Q50,582 54,584L58,574L60,566Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M60,566Q60,572 60,578Q60,582 62,582L64,576L64,564Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M64,562Q66,566 68,570Q68,574 66,574L64,570Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M190,538L180,538Q174,540 172,546Q172,554 176,562L180,566L190,566Q196,564 200,560Q202,554 200,546Q198,540 190,538Z"/>
+    <path class="bone-detail" d="M192,548L178,548M186,542L186,560" opacity="0.3"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M194,566L202,576Q204,580 200,582L194,572L188,566Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M190,566Q194,572 196,578Q198,582 194,584L188,574L184,566Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M184,566Q186,572 188,578Q190,582 186,584L182,574L180,566Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M180,566Q180,572 180,578Q180,582 178,582L176,576L176,564Z"/>
+    <path class="bone-shape-gradient" fill="url(#boneGradP)" d="M176,562Q174,566 172,570Q172,574 174,574L176,570Z"/>
+</g>
+</svg>`;
+}
+
+
 
     // ==================== STATE ====================
     const state = {
@@ -1254,16 +1557,12 @@
             <div class="landmark-hint"><i class="bi bi-hand-index"></i> Tap a landmark to learn more</div>
         `);
 
-        // Attach toggle listeners
         dom.sheetBody.querySelectorAll('.landmark-card').forEach(card => {
             card.querySelector('.landmark-header').addEventListener('click', () => {
                 const wasOpen = card.classList.contains('open');
-                // Close all others
                 dom.sheetBody.querySelectorAll('.landmark-card.open').forEach(c => c.classList.remove('open'));
-                // Toggle this one
                 if (!wasOpen) {
                     card.classList.add('open');
-                    // Scroll into view if needed
                     setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
                 }
             });
@@ -1290,12 +1589,12 @@
         if (id === state.quizCurrentBone) {
             document.querySelectorAll(`[data-bone="${id}"]`).forEach(b => b.classList.add('correct'));
             state.quizCorrect++; state.quizStreak++; updateQuizScore();
-            showQuizFlash('✓', '#10b981');
+            showQuizFlash('\u2713', '#10b981');
             setTimeout(() => nextQuizQuestion(), 700);
         } else {
             el.classList.add('incorrect');
             state.quizIncorrect++; state.quizStreak = 0; updateQuizScore();
-            showQuizFlash('✗', '#ef4444');
+            showQuizFlash('\u2717', '#ef4444');
             setTimeout(() => document.querySelectorAll(`[data-bone="${state.quizCurrentBone}"]`).forEach(b => b.classList.add('correct')), 400);
             setTimeout(() => nextQuizQuestion(), 1200);
         }
@@ -1498,7 +1797,7 @@
         {
             target: '[data-submode="quiz"]',
             title: 'Quiz Mode',
-            desc: "You'll be given a bone name — tap the correct one on the skeleton. Tracks your score and streak. Great for revision!",
+            desc: "You'll be given a bone name \u2014 tap the correct one on the skeleton. Tracks your score and streak. Great for revision!",
             arrow: 'top'
         }
     ];
@@ -1522,10 +1821,9 @@
     };
 
     function initTour() {
-        // Only show on first visit
         try {
             if (localStorage.getItem('boneLab_tourDone')) return;
-        } catch (e) { /* storage blocked — show tour anyway */ }
+        } catch (e) {}
 
         tour.welcome.classList.add('active');
 
@@ -1544,7 +1842,6 @@
         tour.step = 0;
         tour.overlay.classList.add('active');
 
-        // Build dots
         tour.dots.innerHTML = TOUR_STEPS.map((_, i) =>
             `<div class="tour-dot ${i === 0 ? 'active' : ''}" data-dot="${i}"></div>`
         ).join('');
@@ -1552,7 +1849,6 @@
         tour.nextBtn.addEventListener('click', nextTourStep);
         tour.skipBtn.addEventListener('click', endTour);
 
-        // Block clicks on the backdrop from reaching the page
         tour.overlay.addEventListener('click', (e) => {
             if (e.target === tour.overlay || e.target === tour.spotlight) {
                 e.stopPropagation();
@@ -1567,27 +1863,23 @@
         const targetEl = document.querySelector(step.target);
         if (!targetEl) { nextTourStep(); return; }
 
-        // Update content
         tour.stepNum.textContent = idx + 1;
         tour.stepLabel.textContent = `Step ${idx + 1} of ${TOUR_STEPS.length}`;
         tour.title.textContent = step.title;
         tour.desc.textContent = step.desc;
 
-        // Last step changes button text
         if (idx === TOUR_STEPS.length - 1) {
             tour.nextBtn.innerHTML = 'Get started <i class="bi bi-check-lg"></i>';
         } else {
             tour.nextBtn.innerHTML = 'Next <i class="bi bi-arrow-right"></i>';
         }
 
-        // Update dots
         tour.dots.querySelectorAll('.tour-dot').forEach((dot, i) => {
             dot.classList.remove('active', 'done');
             if (i < idx) dot.classList.add('done');
             if (i === idx) dot.classList.add('active');
         });
 
-        // Position spotlight around target
         const rect = targetEl.getBoundingClientRect();
         const pad = 6;
         tour.spotlight.style.top = (rect.top - pad) + 'px';
@@ -1595,33 +1887,28 @@
         tour.spotlight.style.width = (rect.width + pad * 2) + 'px';
         tour.spotlight.style.height = (rect.height + pad * 2) + 'px';
 
-        // Position tooltip below or above the spotlight
         tour.tooltip.style.animation = 'none';
-        void tour.tooltip.offsetWidth; // force reflow
+        void tour.tooltip.offsetWidth;
         tour.tooltip.style.animation = 'tourFadeIn 0.3s ease';
 
         const spotBottom = rect.bottom + pad;
         const spaceBelow = window.innerHeight - spotBottom;
-        const tooltipHeight = 200; // approximate
+        const tooltipHeight = 200;
 
         if (spaceBelow > tooltipHeight + 20) {
-            // Place below
             tour.tooltip.style.top = (spotBottom + 12) + 'px';
             tour.tooltip.style.bottom = 'auto';
             tour.arrow.className = 'tour-tooltip-arrow arrow-top';
         } else {
-            // Place above
             tour.tooltip.style.top = 'auto';
             tour.tooltip.style.bottom = (window.innerHeight - rect.top + pad + 12) + 'px';
             tour.arrow.className = 'tour-tooltip-arrow arrow-bottom';
         }
 
-        // Horizontally: centre on the target, but clamp to screen
-        let tooltipLeft = rect.left + rect.width / 2 - 160; // 160 = half of 320 max-width
+        let tooltipLeft = rect.left + rect.width / 2 - 160;
         tooltipLeft = Math.max(16, Math.min(tooltipLeft, window.innerWidth - 336));
         tour.tooltip.style.left = tooltipLeft + 'px';
 
-        // Position arrow to point at target centre
         const arrowLeft = Math.max(20, Math.min(rect.left + rect.width / 2 - tooltipLeft - 7, 280));
         tour.arrow.style.left = arrowLeft + 'px';
     }
@@ -1644,8 +1931,8 @@
         try { localStorage.setItem('boneLab_tourDone', '1'); } catch (e) {}
     }
 
-    // Kick off tour after a tiny delay to let the page settle
     setTimeout(initTour, 400);
+
 </script>
 
 <!-- Standardised script loading -->
