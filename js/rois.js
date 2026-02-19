@@ -543,9 +543,15 @@ function roisScrollHandler() {
 
 function enableROISSticky() {
     var monitor = document.querySelector('.ecg-monitor-card');
+    var navbar = document.querySelector('.member-navbar');
     if (monitor) {
         // Calculate where the monitor sits on the page
         roisStickyOffset = monitor.getBoundingClientRect().top + window.scrollY;
+    }
+    // Measure navbar height and set as CSS variable for the fixed top offset
+    if (navbar) {
+        var navHeight = navbar.offsetHeight;
+        document.documentElement.style.setProperty('--rois-nav-height', navHeight + 'px');
     }
     roisStickyActive = true;
     window.addEventListener('scroll', roisScrollHandler, { passive: true });
