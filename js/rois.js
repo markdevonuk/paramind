@@ -533,18 +533,3 @@ if (monitor) monitor.classList.remove('rois-sticky');
     else if (mode === 'quiz') startQuiz();
 }
 
-/* ===== Sticky Monitor in ROIS Mode ===== */
-.ecg-monitor-card.rois-sticky {
-    position: sticky;
-    top: 60px; /* below the navbar */
-    z-index: 50;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-}
-
-.ecg-monitor-card.rois-sticky .ecg-canvas-container {
-    padding: 0.5rem;
-}
-
-.ecg-monitor-card.rois-sticky #ecgCanvas {
-    height: 120px;
-}
