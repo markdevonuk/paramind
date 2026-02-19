@@ -270,6 +270,7 @@ function setModeROIS() {
     document.getElementById('monitorHR').style.display = 'flex';
     document.getElementById('emergencyBanner').style.display = 'none';
     document.getElementById('noPulseIndicator').style.display = 'none';
+    enableROISSticky();
     startROIS();
 }
 
@@ -507,8 +508,51 @@ function updateROISLetterIndicators() {
 
 function restartROIS() {
     document.getElementById('roisFinalResults').style.display = 'none';
-    document.querySelector('.ecg-monitor-card').classList.add('rois-sticky');
+    enableROISSticky();
     startROIS();
+}
+
+// ==================== JS-POWERED STICKY MONITOR ====================
+var roisStickyActive = false;
+var roisStickyOffset = 0;
+
+function roisScrollHandler() {
+    var monitor = document.querySelector('.ecg-monitor-card');
+    var placeholder = document.getElementById('ecgMonitorPlaceholder');
+    if (!monitor || !placeholder) return;
+
+    if (window.scrollY >= roisStickyOffset) {
+        if (!monitor.classList.contains('rois-fixed')) {
+            // Save the monitor's height so content doesn't jump
+            placeholder.style.display = 'block';
+            placeholder.style.height = monitor.offsetHeight + 'px';
+            monitor.classList.add('rois-fixed');
+        }
+    } else {
+        if (monitor.classList.contains('rois-fixed')) {
+            monitor.classList.remove('rois-fixed');
+            placeholder.style.display = 'none';
+        }
+    }
+}
+
+function enableROISSticky() {
+    var monitor = document.querySelector('.ecg-monitor-card');
+    if (monitor) {
+        // Calculate where the monitor sits on the page
+        roisStickyOffset = monitor.getBoundingClientRect().top + window.scrollY;
+    }
+    roisStickyActive = true;
+    window.addEventListener('scroll', roisScrollHandler, { passive: true });
+}
+
+function disableROISSticky() {
+    roisStickyActive = false;
+    window.removeEventListener('scroll', roisScrollHandler);
+    var monitor = document.querySelector('.ecg-monitor-card');
+    var placeholder = document.getElementById('ecgMonitorPlaceholder');
+    if (monitor) monitor.classList.remove('rois-fixed');
+    if (placeholder) placeholder.style.display = 'none';
 }
 
 // ==================== PATCH MODE SWITCHING ====================
@@ -518,8 +562,7 @@ function setMode(mode) {
     if (roisContent) roisContent.style.display = 'none';
     var roisBtn = document.getElementById('roisModeBtn');
     if (roisBtn) roisBtn.classList.remove('active');
-    var monitor = document.querySelector('.ecg-monitor-card');
-if (monitor) monitor.classList.remove('rois-sticky');
+    disableROISSticky();
     var rIndicator = document.getElementById('roisIndicatorR');
     if (rIndicator) rIndicator.textContent = 'R';
     currentMode = mode;

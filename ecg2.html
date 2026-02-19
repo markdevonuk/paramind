@@ -853,29 +853,30 @@
         .tour-dismiss-btn:hover { color: var(--color-gray-700); }
         
         
-        /* ===== Sticky Monitor in ROIS Mode ===== */
-.ecg-monitor-card.rois-sticky {
-    position: -webkit-sticky;
-    position: sticky;
+        /* ===== Fixed Monitor in ROIS Mode (JS-powered) ===== */
+.ecg-monitor-card.rois-fixed {
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 50;
+    border-radius: 0;
     box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    max-width: 900px;
+    margin: 0 auto;
 }
 
-/* Ensure no ancestor blocks sticky behaviour */
-.ecg-page,
-.ecg-page > *,
-.ecg-container {
-    overflow: visible !important;
-}
-
-.ecg-monitor-card.rois-sticky .ecg-canvas-container {
+.ecg-monitor-card.rois-fixed .ecg-canvas-container {
     padding: 0.5rem;
 }
 
-.ecg-monitor-card.rois-sticky #ecgCanvas {
+.ecg-monitor-card.rois-fixed #ecgCanvas {
     height: 120px;
+}
+
+/* Placeholder keeps page from jumping when monitor becomes fixed */
+.ecg-monitor-placeholder {
+    display: none;
 }
     </style>
 </head>
@@ -958,6 +959,9 @@
                 <span>⚠️ EMERGENCY RHYTHM - IMMEDIATE INTERVENTION REQUIRED</span>
             </div>
         </div>
+        
+        <!-- Placeholder to prevent page jump when monitor becomes fixed -->
+        <div class="ecg-monitor-placeholder" id="ecgMonitorPlaceholder"></div>
         
         <!-- Learn Mode Content -->
         <div id="learnContent">
