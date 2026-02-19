@@ -267,7 +267,7 @@ function setModeROIS() {
     document.getElementById('quizScore').style.display = 'none';
     document.getElementById('quizFinalResults').style.display = 'none';
     document.getElementById('roisContent').style.display = 'block';
-    document.getElementById('monitorHR').style.display = 'flex';
+    document.getElementById('monitorHR').style.display = 'none';
     document.getElementById('emergencyBanner').style.display = 'none';
     document.getElementById('noPulseIndicator').style.display = 'none';
     enableROISSticky();
@@ -299,6 +299,7 @@ function showROISRhythm() {
     selectedRhythm = rhythmKey;
     document.getElementById('hrValue').textContent = roisData.roisRate;
     document.getElementById('monitorHR').style.color = '#22c55e';
+    document.getElementById('monitorHR').style.display = 'none';
     updateROISProgress();
     roisState.currentStep = 0;
     roisState.results.push({ rhythmKey: rhythmKey, steps: [] });
@@ -355,6 +356,10 @@ function selectROISAnswer(selectedIndex) {
     document.getElementById('roisFeedbackIcon').textContent = isCorrect ? '\u2705' : '\u274c';
     document.getElementById('roisFeedbackText').textContent = isCorrect ? 'Correct!' : 'Incorrect';
     document.getElementById('roisFeedbackExplanation').textContent = step.explanation;
+    // Reveal BPM after the Rate question (step 0) is answered
+    if (roisState.currentStep === 0) {
+        document.getElementById('monitorHR').style.display = 'flex';
+    }
     updateROISLetterIndicators();
     var nextBtn = document.getElementById('roisNextBtn');
     nextBtn.style.display = 'block';
