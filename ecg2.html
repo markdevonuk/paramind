@@ -855,10 +855,19 @@
         
         /* ===== Sticky Monitor in ROIS Mode ===== */
 .ecg-monitor-card.rois-sticky {
+    position: -webkit-sticky;
     position: sticky;
-    top: 60px; /* below the navbar */
+    top: 0;
     z-index: 50;
     box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+/* Ensure no ancestor blocks sticky behaviour */
+.ecg-page,
+.ecg-page > *,
+.ecg-container {
+    overflow: visible !important;
 }
 
 .ecg-monitor-card.rois-sticky .ecg-canvas-container {
@@ -1348,8 +1357,8 @@
             },
             torsadesDePointes: {
                 name: "Torsades de Pointes",
-                description: "Polymorphic VT with characteristic 'twisting of the points' pattern. Associated with prolonged QT. Treat with IV MAGNESIUM, not amiodarone.",
-                keyFeatures: ["Twisting QRS axis", "Spindle-shaped amplitude", "Associated with long QT", "Treat with IV MAGNESIUM"],
+                description: "Polymorphic VT with characteristic 'twisting of the points' pattern. Associated with prolonged QT interval.",
+                keyFeatures: ["Twisting QRS axis", "Spindle-shaped amplitude", "Associated with long QT", "Waxing and waning QRS amplitude"],
                 defaultRate: 200,
                 minRate: 150,
                 maxRate: 300,
@@ -1432,8 +1441,8 @@
             },
             wpw: {
                 name: "Wolff-Parkinson-White (WPW)",
-                description: "Pre-excitation syndrome with accessory pathway. Short PR, delta wave, wide QRS. AVOID adenosine and verapamil in AF with WPW.",
-                keyFeatures: ["Short PR interval (<0.12s)", "Delta wave (slurred QRS upstroke)", "Wide QRS complex", "AVOID AV nodal blockers in AF"],
+                description: "Pre-excitation syndrome with accessory pathway. Short PR, delta wave, wide QRS. Requires specialist assessment if arrhythmia develops.",
+                keyFeatures: ["Short PR interval (<0.12s)", "Delta wave (slurred QRS upstroke)", "Wide QRS complex", "Requires specialist input if complicated by arrhythmia"],
                 defaultRate: 80,
                 minRate: 60,
                 maxRate: 100,
@@ -1478,8 +1487,8 @@
             },
             longQT: {
                 name: "Long QT Syndrome",
-                description: "Prolonged QT interval increasing risk of Torsades de Pointes. QTc upper limit: >0.45s in men, >0.47s in women (Bazett formula). Can be congenital or drug-induced (amiodarone, ondansetron, etc).",
-                keyFeatures: ["QTc > 0.45s men / > 0.47s women", "Risk of Torsades de Pointes", "May be drug-induced", "T wave may be broad/notched"],
+                description: "Prolonged QT interval increasing risk of Torsades de Pointes. QTc upper limit: >0.45s in men, >0.47s in women (Bazett formula). Can be congenital or acquired.",
+                keyFeatures: ["QTc > 0.45s men / > 0.47s women", "Risk of Torsades de Pointes", "Can be congenital or acquired", "T wave may be broad/notched"],
                 defaultRate: 65,
                 minRate: 50,
                 maxRate: 90,
