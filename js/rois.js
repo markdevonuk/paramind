@@ -507,6 +507,7 @@ function updateROISLetterIndicators() {
 
 function restartROIS() {
     document.getElementById('roisFinalResults').style.display = 'none';
+    document.querySelector('.ecg-monitor-card').classList.add('rois-sticky');
     startROIS();
 }
 
@@ -517,6 +518,8 @@ function setMode(mode) {
     if (roisContent) roisContent.style.display = 'none';
     var roisBtn = document.getElementById('roisModeBtn');
     if (roisBtn) roisBtn.classList.remove('active');
+    var monitor = document.querySelector('.ecg-monitor-card');
+if (monitor) monitor.classList.remove('rois-sticky');
     var rIndicator = document.getElementById('roisIndicatorR');
     if (rIndicator) rIndicator.textContent = 'R';
     currentMode = mode;
@@ -528,4 +531,20 @@ function setMode(mode) {
     document.getElementById('monitorHR').style.display = mode === 'learn' ? 'flex' : (mode === 'quiz' ? 'none' : 'flex');
     if (mode === 'learn') selectRhythm(selectedRhythm || 'normalSinus');
     else if (mode === 'quiz') startQuiz();
+}
+
+/* ===== Sticky Monitor in ROIS Mode ===== */
+.ecg-monitor-card.rois-sticky {
+    position: sticky;
+    top: 60px; /* below the navbar */
+    z-index: 50;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+.ecg-monitor-card.rois-sticky .ecg-canvas-container {
+    padding: 0.5rem;
+}
+
+.ecg-monitor-card.rois-sticky #ecgCanvas {
+    height: 120px;
 }
