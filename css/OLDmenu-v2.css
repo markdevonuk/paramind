@@ -1,0 +1,239 @@
+/* ==================== HAMBURGER MENU STYLES V2 ==================== */
+/* ParaMind - Centralised Menu Styles */
+/* Version 2: Updated for separate pages structure */
+/* Add to your pages: <link rel="stylesheet" href="css/menu-v2.css"> */
+
+/* ==================== HAMBURGER BUTTON ==================== */
+.hamburger-btn {
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+    z-index: 1000;
+    -webkit-tap-highlight-color: transparent;  
+    touch-action: manipulation;                 
+}
+
+.hamburger-btn:hover {
+    background-color: rgba(43, 138, 156, 0.1);
+}
+
+.hamburger-btn span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background-color: #1a1a2e;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+/* Animated X when menu is open */
+.hamburger-btn.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger-btn.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-btn.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* ==================== MENU OVERLAY ==================== */
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 998;
+}
+
+.menu-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ==================== SLIDE-OUT MENU ==================== */
+.slide-menu {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 300px;
+    height: 100%;
+    background: #ffffff;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+    transition: right 0.3s ease;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.slide-menu.active {
+    right: 0;
+}
+
+/* ==================== MENU HEADER ==================== */
+.menu-header {
+    padding: 20px;
+    background: linear-gradient(135deg, #2B8A9C 0%, #5CB85C 100%);
+    color: white;
+    flex-shrink: 0;
+}
+
+.menu-header .brand-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.menu-header .brand-para {
+    color: white;
+}
+
+.menu-header .brand-mind {
+    color: #c8f7c5;
+}
+
+.menu-user-info {
+    margin-top: 12px;
+    font-size: 0.85rem;
+    opacity: 0.9;
+}
+
+.menu-user-trust {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    margin-top: 8px;
+}
+
+/* ==================== MENU NAVIGATION ==================== */
+.menu-nav {
+    flex: 1;
+    padding: 16px 0;
+    overflow-y: auto;
+}
+
+.menu-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 24px;
+    color: #495057;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.menu-nav-item:hover {
+    background: rgba(43, 138, 156, 0.08);
+    color: #2B8A9C;
+}
+
+.menu-nav-item.active {
+    background: rgba(43, 138, 156, 0.12);
+    color: #2B8A9C;
+    border-right: 3px solid #2B8A9C;
+}
+
+.menu-nav-item i {
+    font-size: 1.25rem;
+    width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* ==================== SECTION LABEL (NEW in V2) ==================== */
+.menu-section-label {
+    padding: 8px 24px 4px 24px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #868e96;
+}
+
+/* ==================== PRO BADGE ==================== */
+.menu-nav-item .pro-badge {
+    margin-left: auto;
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    color: #1a1a2e;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+}
+
+/* ==================== MENU DIVIDER ==================== */
+.menu-divider {
+    height: 1px;
+    background: #e9ecef;
+    margin: 12px 24px;
+}
+
+/* ==================== LOGOUT BUTTON ==================== */
+.menu-nav-item.logout {
+    color: #dc3545;
+}
+
+.menu-nav-item.logout:hover {
+    background: rgba(220, 53, 69, 0.08);
+    color: #dc3545;
+}
+
+/* ==================== UPGRADE BUTTON ==================== */
+.menu-nav-item.upgrade {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 165, 0, 0.15) 100%);
+    color: #b8860b;
+    margin: 0 12px;
+    border-radius: 8px;
+    padding: 12px 16px;
+}
+
+.menu-nav-item.upgrade:hover {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.25) 0%, rgba(255, 165, 0, 0.25) 100%);
+}
+
+.menu-nav-item.upgrade i {
+    color: #FFD700;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 350px) {
+    .slide-menu {
+        width: 280px;
+        right: -280px;
+    }
+}
+
+/* Prevent body scroll when menu is open */
+body.menu-open {
+    overflow: hidden;
+}
