@@ -127,11 +127,84 @@
 
         // Check if user is already logged in
         let isGoogleSigningIn = false;
+        let isBiometricSigningIn = false;
         onAuthStateChanged(auth, (user) => {
-            if (user && !isGoogleSigningIn) {
+            if (user && !isGoogleSigningIn && !isBiometricSigningIn) {
                 window.location.href = 'landing.html';
             }
         });
+
+        // ==================== BIOMETRIC AUTO-LOGIN ====================
+        async function tryBiometricLogin() {
+            // Only works on native platforms
+            if (!window.Capacitor || !window.Capacitor.isNativePlatform()) return;
+            
+            const NativeBiometric = window.Capacitor.Plugins.NativeBiometric;
+            if (!NativeBiometric) return;
+
+            try {
+                // Check if biometrics is available on this device
+                const result = await NativeBiometric.isAvailable();
+                if (!result.isAvailable) return;
+
+                // Check if we have stored credentials
+                let credentials;
+                try {
+                    credentials = await NativeBiometric.getCredentials({ server: 'paramind.co.uk' });
+                } catch (e) {
+                    // No stored credentials — skip biometric prompt
+                    return;
+                }
+
+                if (!credentials || !credentials.username || !credentials.password) return;
+
+                // Prompt for biometric verification
+                await NativeBiometric.verifyIdentity({
+                    reason: 'Sign in to ParaMind',
+                    title: 'ParaMind Login',
+                    subtitle: 'Use biometrics to sign in',
+                    description: ''
+                });
+
+                // Biometric verified — sign in with stored credentials
+                isBiometricSigningIn = true;
+                console.log('Biometric verified — signing in...');
+
+                const userCredential = await signInWithEmailAndPassword(auth, credentials.username, credentials.password);
+                const user = userCredential.user;
+
+                // Cache Firestore data
+                try {
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        localStorage.setItem('paramind_user', JSON.stringify({
+                            uid: user.uid,
+                            firstName: userData.firstName || null,
+                            surname: userData.surname || null,
+                            email: userData.email,
+                            trust: userData.trust,
+                            trustFullName: userData.trustFullName,
+                            subscriptionStatus: userData.subscriptionStatus,
+                            dailyMessageCount: userData.dailyMessageCount || 0,
+                            lastMessageDate: userData.lastMessageDate
+                        }));
+                    }
+                } catch (e) {
+                    console.warn('Biometric login: Could not fetch Firestore data', e);
+                }
+
+                window.location.href = 'landing.html';
+
+            } catch (error) {
+                console.log('Biometric login skipped or failed:', error.message || error);
+                isBiometricSigningIn = false;
+                // User cancelled or biometric failed — just show normal login form
+            }
+        }
+
+        // Try biometric login on page load
+        tryBiometricLogin();
 
         // Toggle password visibility
         document.getElementById('togglePassword').addEventListener('click', function() {
@@ -253,6 +326,24 @@
                 }
 
                 showSuccess('Signed in successfully! Redirecting...');
+                
+                // Store credentials for biometric login (native only)
+                if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+                    try {
+                        const NativeBiometric = window.Capacitor.Plugins.NativeBiometric;
+                        const bioResult = await NativeBiometric.isAvailable();
+                        if (bioResult.isAvailable) {
+                            await NativeBiometric.setCredentials({
+                                username: email,
+                                password: password,
+                                server: 'paramind.co.uk'
+                            });
+                            console.log('Credentials stored for biometric login');
+                        }
+                    } catch (bioError) {
+                        console.warn('Could not store biometric credentials:', bioError);
+                    }
+                }
                 
                 // Redirect to chat
                 setTimeout(() => {

@@ -414,6 +414,24 @@ isRegistering = true;
 
             showSuccess('Account created successfully! Redirecting...');
             
+            // Store credentials for biometric login (email/password users, native only)
+            if (!isGooglePending && window.Capacitor && window.Capacitor.isNativePlatform()) {
+                try {
+                    const NativeBiometric = window.Capacitor.Plugins.NativeBiometric;
+                    const bioResult = await NativeBiometric.isAvailable();
+                    if (bioResult.isAvailable) {
+                        await NativeBiometric.setCredentials({
+                            username: email,
+                            password: password,
+                            server: 'paramind.co.uk'
+                        });
+                        console.log('Credentials stored for biometric login');
+                    }
+                } catch (bioError) {
+                    console.warn('Could not store biometric credentials:', bioError);
+                }
+            }
+            
             // Clean up Google pending data if present
             localStorage.removeItem('paramind_google_pending');
             
