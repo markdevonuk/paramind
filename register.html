@@ -45,7 +45,7 @@
                     <div class="auth-card">
                         <div class="auth-header">
                             <h1>Create your account</h1>
-                            <p>Start with 5 free messages per day</p>
+                            <p>Start with 20 free messages/interactions per day</p>
                         </div>
                         
                         <form id="registerForm" class="auth-form">
@@ -359,9 +359,9 @@ isRegistering = true;
             
             let user;
             
-            if (isGooglePending && googlePendingData) {
+            if (isGooglePending) {
                 // Google user completing registration — already authenticated
-                const gData = JSON.parse(googlePendingData);
+                const freshGoogleData = localStorage.getItem('paramind_google_pending');
                 user = auth.currentUser;
                 
                 if (!user) {
