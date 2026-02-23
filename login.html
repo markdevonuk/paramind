@@ -128,8 +128,9 @@
         // Check if user is already logged in
         let isGoogleSigningIn = false;
         let isBiometricSigningIn = false;
+        let isFormSigningIn = false;
         onAuthStateChanged(auth, (user) => {
-            if (user && !isGoogleSigningIn && !isBiometricSigningIn) {
+            if (user && !isGoogleSigningIn && !isBiometricSigningIn && !isFormSigningIn) {
                 window.location.href = 'landing.html';
             }
         });
@@ -292,6 +293,7 @@
             document.getElementById('errorMessage').classList.add('d-none');
             document.getElementById('successMessage').classList.add('d-none');
 
+            isFormSigningIn = true;
             setLoading(true);
 
             try {
@@ -352,6 +354,7 @@
 
             } catch (error) {
                 console.error('Login error:', error);
+                isFormSigningIn = false;
                 setLoading(false);
                 showError(getErrorMessage(error.code));
             }
