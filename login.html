@@ -318,24 +318,17 @@
                     }));
                     console.log('Existing user — cached Firestore data');
                 } else {
-                    // New Google user — create their Firestore document
+                    // New Google user — send to register to pick their trust
                     const nameParts = (user.displayName || '').split(' ');
-                    const newUserData = {
+                    localStorage.setItem('paramind_google_pending', JSON.stringify({
                         uid: user.uid,
                         firstName: nameParts[0] || '',
                         surname: nameParts.slice(1).join(' ') || '',
-                        email: user.email,
-                        trust: null,
-                        trustFullName: null,
-                        subscriptionStatus: 'free',
-                        stripeCustomerId: null,
-                        dailyMessageCount: 0,
-                        lastMessageDate: null,
-                        createdAt: new Date().toISOString()
-                    };
-                    await setDoc(doc(db, 'users', user.uid), newUserData);
-                    localStorage.setItem('paramind_user', JSON.stringify(newUserData));
-                    console.log('New Google user — created Firestore document');
+                        email: user.email
+                    }));
+                    console.log('New Google user — redirecting to register');
+                    window.location.href = 'register.html?google=1';
+                    return;
                 }
 
                 showSuccess('Signed in successfully! Redirecting...');

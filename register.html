@@ -196,9 +196,42 @@
 
   // Check if user is already logged in (but not during registration)
 let isRegistering = false;
+let isGooglePending = false;
+
+// Check if this is a Google user completing registration
+const urlParams = new URLSearchParams(window.location.search);
+const googlePendingData = localStorage.getItem('paramind_google_pending');
+if (urlParams.get('google') === '1' && googlePendingData) {
+    isGooglePending = true;
+    const gData = JSON.parse(googlePendingData);
+    
+    // Pre-fill fields
+    document.getElementById('firstName').value = gData.firstName || '';
+    document.getElementById('surname').value = gData.surname || '';
+    document.getElementById('email').value = gData.email || '';
+    document.getElementById('email').readOnly = true;
+    document.getElementById('email').style.background = '#f0f0f0';
+    
+    // Hide password fields
+    const pwField = document.getElementById('password').closest('.mb-3');
+    const cpwField = document.getElementById('confirmPassword').closest('.mb-3');
+    if (pwField) pwField.style.display = 'none';
+    if (cpwField) cpwField.style.display = 'none';
+    document.getElementById('password').removeAttribute('required');
+    document.getElementById('confirmPassword').removeAttribute('required');
+    
+    // Update button text
+    document.getElementById('submitText').textContent = 'Complete Registration';
+    
+    // Update heading if there is one
+    const heading = document.querySelector('.auth-form h2, .auth-form h3, h2');
+    if (heading && heading.textContent.includes('Create')) {
+        heading.textContent = 'Complete Your Account';
+    }
+}
 
 onAuthStateChanged(auth, (user) => {
-    if (user && !isRegistering) {
+    if (user && !isRegistering && !isGooglePending) {
         window.location.href = 'landing.html';
     }
 });
@@ -288,16 +321,18 @@ const trust = document.getElementById('trust').value;
         document.getElementById('errorMessage').classList.add('d-none');
         document.getElementById('successMessage').classList.add('d-none');
 
-        // Validate passwords match
-        if (password !== confirmPassword) {
-            showError('Passwords do not match');
-            return;
-        }
+        // Validate passwords match (skip for Google users)
+        if (!isGooglePending) {
+            if (password !== confirmPassword) {
+                showError('Passwords do not match');
+                return;
+            }
 
-        // Validate password length
-        if (password.length < 8) {
-            showError('Password must be at least 8 characters long');
-            return;
+            // Validate password length
+            if (password.length < 8) {
+                showError('Password must be at least 8 characters long');
+                return;
+            }
         }
 
 // Validate names
@@ -322,11 +357,25 @@ isRegistering = true;
     try {
             console.log('Step 1: Starting registration');
             
-            // Create user account with Firebase Authentication
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
+            let user;
             
-            console.log('Step 2: Auth user created:', user.uid);
+            if (isGooglePending && googlePendingData) {
+                // Google user completing registration — already authenticated
+                const gData = JSON.parse(googlePendingData);
+                user = auth.currentUser;
+                
+                if (!user) {
+                    showError('Google session expired. Please try signing in again.');
+                    setLoading(false);
+                    return;
+                }
+                console.log('Step 2: Using existing Google auth user:', user.uid);
+            } else {
+                // Normal email/password registration
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                user = userCredential.user;
+                console.log('Step 2: Auth user created:', user.uid);
+            }
 
             // Get trust full name
             const trustFullName = TRUSTS[trust] || trust;
@@ -364,6 +413,9 @@ isRegistering = true;
 }));
 
             showSuccess('Account created successfully! Redirecting...');
+            
+            // Clean up Google pending data if present
+            localStorage.removeItem('paramind_google_pending');
             
             // Redirect to chat after short delay
             setTimeout(() => {
@@ -428,23 +480,38 @@ isRegistering = true;
                         lastMessageDate: userData.lastMessageDate
                     }));
                 } else {
-                    // New user — create Firestore document
+                    // New user — pre-fill the form so they can pick their trust
                     const nameParts = (user.displayName || '').split(' ');
-                    const newUserData = {
+                    localStorage.setItem('paramind_google_pending', JSON.stringify({
                         uid: user.uid,
                         firstName: nameParts[0] || '',
                         surname: nameParts.slice(1).join(' ') || '',
-                        email: user.email,
-                        trust: null,
-                        trustFullName: null,
-                        subscriptionStatus: 'free',
-                        stripeCustomerId: null,
-                        dailyMessageCount: 0,
-                        lastMessageDate: null,
-                        createdAt: new Date().toISOString()
-                    };
-                    await setDoc(doc(db, 'users', user.uid), newUserData);
-                    localStorage.setItem('paramind_user', JSON.stringify(newUserData));
+                        email: user.email
+                    }));
+                    
+                    // Pre-fill fields on current page
+                    document.getElementById('firstName').value = nameParts[0] || '';
+                    document.getElementById('surname').value = nameParts.slice(1).join(' ') || '';
+                    document.getElementById('email').value = user.email || '';
+                    document.getElementById('email').readOnly = true;
+                    document.getElementById('email').style.background = '#f0f0f0';
+                    
+                    // Hide password fields
+                    const pwField = document.getElementById('password').closest('.mb-3');
+                    const cpwField = document.getElementById('confirmPassword').closest('.mb-3');
+                    if (pwField) pwField.style.display = 'none';
+                    if (cpwField) cpwField.style.display = 'none';
+                    document.getElementById('password').removeAttribute('required');
+                    document.getElementById('confirmPassword').removeAttribute('required');
+                    
+                    // Update button and flag
+                    document.getElementById('submitText').textContent = 'Complete Registration';
+                    isGooglePending = true;
+                    
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    showSuccess('Almost there! Please select your ambulance trust and click Complete Registration.');
+                    return;
                 }
 
                 showSuccess('Signed in successfully! Redirecting...');
