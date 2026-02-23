@@ -4,7 +4,7 @@
    This file enables offline functionality and caching
 */
 
-const CACHE_NAME = 'paramind-v3';
+const CACHE_NAME = 'paramind-v4';
 
 // Files to cache for offline use
 // Add your main pages and essential assets here
@@ -98,47 +98,29 @@ self.addEventListener('fetch', (event) => {
   }
   
   event.respondWith(
-    caches.match(event.request)
-      .then((cachedResponse) => {
-        if (cachedResponse) {
-          // Return cached version
-          console.log('[ServiceWorker] Serving from cache:', event.request.url);
-          
-          // Also fetch updated version in background (stale-while-revalidate)
-          fetch(event.request)
-            .then((networkResponse) => {
-              if (networkResponse && networkResponse.status === 200) {
-                caches.open(CACHE_NAME).then((cache) => {
-                  cache.put(event.request, networkResponse);
-                });
-              }
-            })
-            .catch(() => {
-              // Network failed, but we already served from cache
-            });
-          
-          return cachedResponse;
+    fetch(event.request)
+      .then((networkResponse) => {
+        // Network succeeded — cache the fresh response and return it
+        if (networkResponse && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
         }
-        
-        // Not in cache - fetch from network
-        return fetch(event.request)
-          .then((networkResponse) => {
-            // Cache successful responses for next time
-            if (networkResponse && networkResponse.status === 200) {
-              const responseToCache = networkResponse.clone();
-              caches.open(CACHE_NAME).then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
+        return networkResponse;
+      })
+      .catch(() => {
+        // Network failed — fall back to cache
+        return caches.match(event.request)
+          .then((cachedResponse) => {
+            if (cachedResponse) {
+              console.log('[ServiceWorker] Network failed, serving from cache:', event.request.url);
+              return cachedResponse;
             }
-            return networkResponse;
-          })
-          .catch(() => {
-            // Network failed and not in cache
-            // Return offline page for navigation requests
+            // Not in cache either — return offline page for navigation
             if (event.request.mode === 'navigate') {
               return caches.match('/offline.html');
             }
-            // For other requests, just fail
             return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
           });
       })
