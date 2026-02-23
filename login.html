@@ -174,27 +174,7 @@
                 const userCredential = await signInWithEmailAndPassword(auth, credentials.username, credentials.password);
                 const user = userCredential.user;
 
-                // Cache Firestore data
-                try {
-                    const userDoc = await getDoc(doc(db, 'users', user.uid));
-                    if (userDoc.exists()) {
-                        const userData = userDoc.data();
-                        localStorage.setItem('paramind_user', JSON.stringify({
-                            uid: user.uid,
-                            firstName: userData.firstName || null,
-                            surname: userData.surname || null,
-                            email: userData.email,
-                            trust: userData.trust,
-                            trustFullName: userData.trustFullName,
-                            subscriptionStatus: userData.subscriptionStatus,
-                            dailyMessageCount: userData.dailyMessageCount || 0,
-                            lastMessageDate: userData.lastMessageDate
-                        }));
-                    }
-                } catch (e) {
-                    console.warn('Biometric login: Could not fetch Firestore data', e);
-                }
-
+                // Redirect immediately — landing.html will handle Firestore caching
                 window.location.href = 'landing.html';
 
             } catch (error) {
