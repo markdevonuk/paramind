@@ -205,16 +205,6 @@
             menuLogoutBtn.addEventListener('click', function() {
                 closeMenu();
                 
-                // Clear biometric credentials (native only)
-                if (window.Capacitor && window.Capacitor.isNativePlatform()) {
-                    try {
-                        var NativeBiometric = window.Capacitor.Plugins.NativeBiometric;
-                        if (NativeBiometric) {
-                            NativeBiometric.deleteCredentials({ server: 'paramind.co.uk' }).catch(function() {});
-                        }
-                    } catch(e) {}
-                }
-                
                 // Try Firebase auth first
                 if (typeof firebase !== 'undefined' && firebase.auth) {
                     firebase.auth().signOut().then(() => {
