@@ -34,7 +34,7 @@
             { id: 'interview', href: 'interview.html', icon: 'bi-mic', label: 'Interview Prep', isPro: true },
             { id: 'connections', href: 'connections.html', icon: 'bi-heart-pulse', label: 'A&P Connections', isPro: true },
             { id: 'drugs', href: 'drugs.html', icon: 'bi-capsule', label: 'Drugs', isPro: true },
-            { id: 'bonelab', href: 'bone-lab.html', icon: 'bi-person', label: 'Bone Lab', isPro: true },
+            { id: 'bonelab', href: 'bone-lab.html', icon: 'bi-body-text', label: 'Bone Lab', isPro: true },
             { id: 'atmist', href: 'atmist.html', icon: 'bi-telephone-outbound', label: 'ATMIST', isPro: true },
             { id: 'ecg', href: 'ecg.html', icon: 'bi-activity', label: 'ECG Tool', isPro: true },
             { id: 'cpd', href: 'cpd.html', icon: 'bi-award', label: 'CPD Portfolio', isPro: true }
@@ -204,6 +204,17 @@
         if (menuLogoutBtn) {
             menuLogoutBtn.addEventListener('click', function() {
                 closeMenu();
+                
+                // Clear biometric credentials (native only)
+                if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+                    try {
+                        var NativeBiometric = window.Capacitor.Plugins.NativeBiometric;
+                        if (NativeBiometric) {
+                            NativeBiometric.deleteCredentials({ server: 'paramind.co.uk' }).catch(function() {});
+                        }
+                    } catch(e) {}
+                }
+                
                 // Try Firebase auth first
                 if (typeof firebase !== 'undefined' && firebase.auth) {
                     firebase.auth().signOut().then(() => {
