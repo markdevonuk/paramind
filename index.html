@@ -39,11 +39,6 @@
     
     <!-- Additional Styles -->
     <style>
-        /* Adjust hero section for fixed nav */
-        .hero-section {
-            padding-top: 80px;
-        }
-        
         .group-discount-card {
             background: linear-gradient(135deg, rgba(43, 138, 156, 0.05) 0%, rgba(92, 184, 92, 0.05) 100%);
             border: 2px dashed var(--color-teal, #2B8A9C);
@@ -494,13 +489,15 @@
 </head>
 <body>
     <!-- Navigation - New Hamburger Menu -->
-    <nav class="home-navbar">
+    <nav class="member-navbar">
     <div class="container">
-        <a class="navbar-brand" href="index.html">
-            <span class="brand-text"><span class="brand-para">para</span><span class="brand-mind">mind</span></span>
-        </a>
+        <span class="brand-text">
+            <a class="navbar-brand" href="landing.html">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </a>
+        </span>
         <div style="display: flex; align-items: center; gap: 1rem;">
-            <a href="login.html" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 0.9rem; color: #2B8A9C; text-decoration: none;">Login</a>
+            <a href="login.html" id="navLoginLink" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 0.9rem; color: #2B8A9C; text-decoration: none;">Login</a>
             <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
                 <span></span>
                 <span></span>
@@ -1323,6 +1320,23 @@
     
     <!-- Menu JS -->
     <script src="js/menu-v2.js"></script>
+    <script>
+    // Hide Login link if user is already signed in
+    (function() {
+        var loginLink = document.getElementById('navLoginLink');
+        if (!loginLink) return;
+        var check = setInterval(function() {
+            if (typeof firebase !== 'undefined' && firebase.auth) {
+                clearInterval(check);
+                firebase.auth().onAuthStateChanged(function(user) {
+                    if (user) loginLink.style.display = 'none';
+                });
+            }
+        }, 200);
+        // Stop checking after 5 seconds
+        setTimeout(function() { clearInterval(check); }, 5000);
+    })();
+    </script>
     
     <script>
         // ==================== PARTNER DETECTION ====================
