@@ -1666,6 +1666,7 @@ h1, h2, h3, h4, h5, h6 {
     position: sticky;
     top: 0;
     z-index: 100;
+    flex-shrink: 0;
 }
 
 .member-navbar .container {
@@ -1686,6 +1687,111 @@ h1, h2, h3, h4, h5, h6 {
 .member-navbar .brand-mind {
     font-size: inherit;
     line-height: inherit;
+}
+
+/* ============================================
+   PAGE NAVBAR - SEO/info pages (contact, terms, etc.)
+   ============================================ */
+.page-navbar {
+    background: var(--color-white);
+    border-bottom: 1px solid var(--color-gray-200);
+    padding: 0.75rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.page-navbar .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* ============================================
+   HOME NAVBAR - Public homepage (index.html)
+   ============================================ */
+.home-navbar {
+    background: var(--color-white, #ffffff);
+    border-bottom: 1px solid var(--color-gray-200, #e5e7eb);
+    padding: 0.75rem 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
+.home-navbar .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* ============================================
+   UPGRADE NAVBAR - Upgrade page
+   ============================================ */
+.upgrade-navbar {
+    background: var(--color-white);
+    border-bottom: 1px solid var(--color-gray-200);
+    padding: 0.75rem 0;
+}
+
+/* ============================================
+   LIVESIM NAVBAR - Live simulation page
+   ============================================ */
+.livesim-navbar {
+    background: var(--color-white);
+    border-bottom: 1px solid var(--color-gray-200);
+    padding: 0.75rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-shrink: 0;
+}
+
+.livesim-navbar .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* ============================================
+   PAGE FOOTER - Info pages (contact, terms, etc.)
+   ============================================ */
+.page-footer {
+    background: var(--color-white);
+    border-top: 1px solid var(--color-gray-200);
+    padding: 2rem 0;
+    text-align: center;
+}
+
+.page-footer .footer-brand {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.page-footer .footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.page-footer .footer-links a {
+    color: var(--color-gray-600);
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.page-footer .footer-links a:hover {
+    color: var(--color-teal);
+}
+
+.page-footer .footer-copyright {
+    color: var(--color-gray-500);
+    font-size: 0.85rem;
 }
 
 /* ============================================
@@ -1731,6 +1837,10 @@ h1, h2, h3, h4, h5, h6 {
 /* ==================== CAPACITOR SAFE AREA FIX ==================== */
 .member-navbar,
 .page-navbar,
+.home-navbar,
+.upgrade-navbar,
+.livesim-navbar,
+.site-navbar,
 .navbar {
     padding-top: calc(0.75rem + env(safe-area-inset-top, 0px));
 }
