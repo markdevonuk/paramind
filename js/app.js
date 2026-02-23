@@ -163,3 +163,25 @@ window.paramind = {
     utils,
     storage
 };
+
+// ============================================
+// CAPACITOR - Android back button handling
+// ============================================
+(function() {
+    // Only run inside Capacitor native app
+    if (typeof window.Capacitor === 'undefined' || !window.Capacitor.isNativePlatform()) return;
+
+    // Import the App plugin from Capacitor
+    var App = window.Capacitor.Plugins.App;
+    if (!App) return;
+
+    App.addListener('backButton', function(event) {
+        // If the WebView can go back, go back
+        if (window.history.length > 1) {
+            window.history.back();
+        } else {
+            // No history left — minimise the app (don't kill it)
+            App.minimizeApp();
+        }
+    });
+})();
