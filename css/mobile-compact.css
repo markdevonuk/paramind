@@ -1,0 +1,106 @@
+/* ============================================================
+   MOBILE COMPACT — index.html only
+   Reduces scroll length on mobile phones.
+   Desktop is completely unaffected.
+   ============================================================ */
+
+/* ----- 1. HIDE TESTIMONIALS ON MOBILE ----- */
+@media (max-width: 767px) {
+    .testimonials-section {
+        display: none !important;
+    }
+}
+
+/* ----- 2. REDUCE SECTION SPACING ON MOBILE ----- */
+@media (max-width: 767px) {
+    /* Tighten the large py-5 padding on sections */
+    .features-section.py-5 {
+        padding-top: 1.5rem !important;
+        padding-bottom: 1.5rem !important;
+    }
+
+    .features-section .container.py-4 {
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+    }
+
+    .pricing-section.py-5 {
+        padding-top: 1.5rem !important;
+        padding-bottom: 1.5rem !important;
+    }
+
+    .pricing-section .container.py-5 {
+        padding-top: 1rem !important;
+        padding-bottom: 1.5rem !important;
+    }
+
+    /* Reduce the gap between the section title and cards */
+    .features-section .text-center.mb-5 {
+        margin-bottom: 1.5rem !important;
+    }
+
+    .pricing-section .text-center.mb-5 {
+        margin-bottom: 1.5rem !important;
+    }
+
+    /* Tighten the hero section bottom padding */
+    .hero-section .hero-row.py-5 {
+        padding-top: 2rem !important;
+        padding-bottom: 1.5rem !important;
+    }
+}
+
+/* ----- 3. COLLAPSE FEATURE CARDS ON MOBILE ----- */
+@media (max-width: 767px) {
+    /* Hide cards 5 and beyond by default */
+    .features-section .row.g-4 > .col-md-6:nth-child(n+5) {
+        display: none;
+    }
+
+    /* When expanded, show them all */
+    .features-section .row.g-4.features-expanded > .col-md-6:nth-child(n+5) {
+        display: block;
+    }
+
+    /* "Show All Features" button styling */
+    .show-all-features-btn {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.85rem 1.5rem;
+        margin-top: 1rem;
+        background: linear-gradient(135deg, rgba(43, 138, 156, 0.08) 0%, rgba(92, 184, 92, 0.08) 100%);
+        color: var(--color-teal, #2B8A9C);
+        border: 1.5px solid rgba(43, 138, 156, 0.25);
+        border-radius: 12px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .show-all-features-btn:hover,
+    .show-all-features-btn:active {
+        background: linear-gradient(135deg, rgba(43, 138, 156, 0.15) 0%, rgba(92, 184, 92, 0.15) 100%);
+        border-color: rgba(43, 138, 156, 0.4);
+    }
+
+    .show-all-features-btn i {
+        transition: transform 0.3s ease;
+    }
+
+    /* Rotate arrow when expanded */
+    .show-all-features-btn.expanded i {
+        transform: rotate(180deg);
+    }
+}
+
+/* Hide the button on desktop — it should never appear */
+@media (min-width: 768px) {
+    .show-all-features-btn {
+        display: none !important;
+    }
+}
