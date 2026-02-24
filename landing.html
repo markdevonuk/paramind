@@ -774,24 +774,6 @@
                 <span class="label-icon pro"><i class="bi bi-star-fill"></i></span>
                 Pro Tools
             </div>
-            <div class="pro-stats-row">
-                <div class="pro-stat-item">
-                    <div class="pro-stat-number" data-target="23">0</div>
-                    <div class="pro-stat-label">ECG Rhythms</div>
-                </div>
-                <div class="pro-stat-item">
-                    <div class="pro-stat-number" data-target="75">0</div>
-                    <div class="pro-stat-label">Common Drugs</div>
-                </div>
-                <div class="pro-stat-item">
-                    <div class="pro-stat-number" data-target="63">0</div>
-                    <div class="pro-stat-label">Bone Landmarks</div>
-                </div>
-                <div class="pro-stat-item">
-                    <div class="pro-stat-number" data-target="80">0</div>
-                    <div class="pro-stat-label">A&amp;P Explanations</div>
-                </div>
-            </div>
             <div class="tools-grid">
                 <!-- A&P Connections -->
                 <a href="connections.html" class="tool-card card-connections reveal-element" id="connectionsCard">
@@ -962,38 +944,6 @@
         </div>
         
         <!-- ==================== UPDATES ==================== -->
-        <div class="updates-section reveal-element">
-            <div class="updates-header">
-                <i class="bi bi-megaphone-fill"></i>
-                <h3>What's New</h3>
-            </div>
-            
-            
-             <div class="update-item">
-                <span class="update-badge">ALL users</span>
-                <p class="update-text"><strong>Interview Tool</strong> — Mock interviews for university, ambulance trusts and band 7 promotion</p>
-            </div>
-            <div class="update-item">
-                <span class="update-badge">PRO users</span>
-                <p class="update-text"><strong>Drugs Tool</strong> — The most common medications you will see in practice, with full (plain English) descriptions and considerations</p>
-            </div>
-            
-            <div class="update-item">
-                <span class="update-badge">PRO users</span>
-                <p class="update-text"><strong>ECG Tool</strong> — Interactive rhythm training with 14 key cardiac rhythms. Learn the patterns, then test yourself with the quiz!</p>
-            </div>
-            
-            <div class="update-item">
-                <span class="update-badge">PRO users</span>
-                <p class="update-text"><strong>A&P Connections</strong> — Ever wondered "Why does sepsis cause mottled skin?" Now you can find out with 80+ clinical questions.</p>
-            </div>
-            
-            <div class="update-item">
-                <span class="update-badge">ALL users</span>
-                <p class="update-text"><strong>Simplify Button</strong> — Hit simplify in Chat and A&P Connections when you need things explained in plain English!</p>
-            </div>
-        </div>
-        
     </div>
     
     
@@ -1055,21 +1005,6 @@
             card.addEventListener('mouseleave', () => { card.style.transform = ''; });
         });
         
-        /* ========== 4. PRO STAT COUNTERS (5s duration) ========== */
-        function animProCounters() {
-            document.querySelectorAll('.pro-stat-number').forEach(el => {
-                const t = +el.dataset.target, st = performance.now();
-                (function step(now) {
-                    const p = Math.min((now-st)/5000, 1);
-                    const eased = p < 0.5 ? 4*p*p*p : 1 - Math.pow(-2*p+2,3)/2;
-                    el.textContent = Math.round(eased*t);
-                    if (p < 1) requestAnimationFrame(step);
-                })(st);
-            });
-        }
-        const psObs = new IntersectionObserver(e => { if (e[0].isIntersecting) { setTimeout(animProCounters, 400); psObs.unobserve(e[0].target); } }, { threshold: 0.5 });
-        const psr = document.querySelector('.pro-stats-row');
-        if (psr) psObs.observe(psr);
         
     })();
     </script>
