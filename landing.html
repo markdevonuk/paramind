@@ -218,6 +218,13 @@
         .info-chip.pro-chip i { color: #1a1a2e; }
         .info-chip.messages-chip .count { font-weight: 700; color: var(--color-teal); }
         
+        .info-chip.streak-chip {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(239, 68, 68, 0.08) 100%);
+            border-color: rgba(245, 158, 11, 0.25);
+            color: #d97706;
+            font-weight: 600;
+        }
+        
         /* Pro content stats — counter row below Pro Tools header */
         .pro-stats-row {
             display: flex; justify-content: center; gap: 2rem;
@@ -695,10 +702,14 @@
                 <i class="bi bi-patch-check-fill"></i> Paramedic Tutor
             </div>
             
-            <h1 class="hero-greeting page-load-3">Hey <span class="gradient-name" id="userFirstName">there</span>! 👋</h1>
+            <h1 class="hero-greeting page-load-3"><span id="heroGreeting">Hey</span> <span class="gradient-name" id="userFirstName">there</span>! <span id="greetingEmoji">👋</span></h1>
             <p class="hero-subtitle page-load-4">I'm Hollie, your AI paramedic tutor. What shall we learn today?</p>
             
             <div class="user-info-row page-load-5">
+                <div class="info-chip streak-chip" id="streakChip" style="display: none;">
+                    <span id="streakIcon">🔥</span>
+                    <span><span id="streakCount">0</span> day streak</span>
+                </div>
                 <div class="info-chip">
                     <i class="bi bi-hospital"></i>
                     <span id="userTrust">Loading...</span>
@@ -1074,6 +1085,29 @@
 
         // ==================== UPDATE UI ====================
         function updateUI() {
+            // Update greeting based on time of day
+            const hour = new Date().getHours();
+            const greetingEl = document.getElementById('heroGreeting');
+            const emojiEl = document.getElementById('greetingEmoji');
+            if (greetingEl && emojiEl) {
+                if (hour < 12) {
+                    greetingEl.textContent = 'Good morning';
+                    emojiEl.textContent = '☀️';
+                } else if (hour < 17) {
+                    greetingEl.textContent = 'Good afternoon';
+                    emojiEl.textContent = '👋';
+                } else if (hour < 21) {
+                    greetingEl.textContent = 'Good evening';
+                    emojiEl.textContent = '🌆';
+                } else {
+                    greetingEl.textContent = 'Burning the midnight oil';
+                    emojiEl.textContent = '🌙';
+                }
+            }
+
+            // Update learning streak
+            updateStreak();
+
             // Update first name
             if (userData.firstName) {
                 userFirstNameEl.textContent = userData.firstName;
@@ -1120,6 +1154,64 @@
                  document.getElementById('interviewCard')?.classList.add('locked');
                 
                 updateMessageCount();
+            }
+        }
+
+        // ==================== LEARNING STREAK ====================
+        function updateStreak() {
+            try {
+                const today = new Date().toDateString();
+                const streakKey = 'paramind_streak_days';
+                let days = JSON.parse(localStorage.getItem(streakKey) || '[]');
+                
+                // Add today if not already recorded
+                if (!days.includes(today)) {
+                    days.push(today);
+                }
+                
+                // Keep only last 365 days
+                if (days.length > 365) days = days.slice(-365);
+                localStorage.setItem(streakKey, JSON.stringify(days));
+                
+                // Calculate consecutive streak (counting backwards from today)
+                let streak = 0;
+                const now = new Date();
+                for (let i = 0; i < 365; i++) {
+                    const checkDate = new Date(now);
+                    checkDate.setDate(checkDate.getDate() - i);
+                    if (days.includes(checkDate.toDateString())) {
+                        streak++;
+                    } else {
+                        break;
+                    }
+                }
+                
+                // Update UI
+                const streakChip = document.getElementById('streakChip');
+                const streakCount = document.getElementById('streakCount');
+                const streakIcon = document.getElementById('streakIcon');
+                
+                if (streakChip && streakCount && streak > 0) {
+                    streakCount.textContent = streak;
+                    // Plural handling
+                    streakChip.querySelector('span:last-child').innerHTML = 
+                        '<span id="streakCount">' + streak + '</span> day' + (streak !== 1 ? 's' : '') + ' streak';
+                    
+                    // Different icons for different streak lengths
+                    if (streak >= 30) {
+                        streakIcon.textContent = '💎';
+                    } else if (streak >= 14) {
+                        streakIcon.textContent = '⚡';
+                    } else if (streak >= 7) {
+                        streakIcon.textContent = '🔥';
+                    } else {
+                        streakIcon.textContent = '✨';
+                    }
+                    
+                    streakChip.style.display = 'inline-flex';
+                }
+            } catch (e) {
+                console.warn('Streak tracking error:', e);
             }
         }
 
