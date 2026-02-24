@@ -1324,15 +1324,19 @@
     <script src="js/menu-v2.js"></script>
     <script src="js/mobile-compact.js"></script>
     <script>
-    // Hide Login link if user is already signed in
+    // Redirect logged-in users straight to landing.html
     (function() {
         var loginLink = document.getElementById('navLoginLink');
-        if (!loginLink) return;
         var check = setInterval(function() {
             if (typeof firebase !== 'undefined' && firebase.auth) {
                 clearInterval(check);
                 firebase.auth().onAuthStateChanged(function(user) {
-                    if (user) loginLink.style.display = 'none';
+                    if (user) {
+                        // User is logged in — redirect to dashboard
+                        window.location.href = 'landing.html';
+                    }
+                    // If loginLink exists, hide it when logged in (fallback)
+                    if (user && loginLink) loginLink.style.display = 'none';
                 });
             }
         }, 200);
