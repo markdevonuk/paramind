@@ -1,7 +1,7 @@
 /* ============================================================
-   MOBILE COMPACT — Feature Card Collapse (index.html only)
-   Adds a "Show All Features" / "Show Less" toggle button
-   on mobile. Does nothing on desktop.
+   MOBILE COMPACT — index.html only
+   Feature card collapse + Pricing list collapse on mobile.
+   Does nothing on desktop.
    ============================================================ */
 
 (function () {
@@ -10,45 +10,71 @@
     // Only run on mobile-sized screens
     if (window.innerWidth >= 768) return;
 
-    // Wait for the page to load
     document.addEventListener('DOMContentLoaded', function () {
-        // Find the features row (the .row.g-4 inside #features)
+
+        /* ==================== FEATURE CARDS COLLAPSE ==================== */
         var featuresSection = document.getElementById('features');
-        if (!featuresSection) return;
+        if (featuresSection) {
+            var featuresRow = featuresSection.querySelector('.row.g-4');
+            if (featuresRow) {
+                var cards = featuresRow.querySelectorAll('.col-md-6');
+                if (cards.length > 4) {
+                    // Create the "Show All Features" button
+                    var featBtn = document.createElement('button');
+                    featBtn.className = 'show-all-features-btn';
+                    featBtn.type = 'button';
+                    featBtn.innerHTML = '<span>Show All Features (' + cards.length + ')</span> <i class="bi bi-chevron-down"></i>';
 
-        var featuresRow = featuresSection.querySelector('.row.g-4');
-        if (!featuresRow) return;
+                    // Insert after the features row
+                    featuresRow.parentNode.insertBefore(featBtn, featuresRow.nextSibling);
 
-        // Count how many feature cards there are
-        var cards = featuresRow.querySelectorAll('.col-md-6');
-        if (cards.length <= 4) return; // No need for a button if 4 or fewer
-
-        // Create the "Show All Features" button
-        var btn = document.createElement('button');
-        btn.className = 'show-all-features-btn';
-        btn.type = 'button';
-        btn.innerHTML = '<span>Show All Features (' + cards.length + ')</span> <i class="bi bi-chevron-down"></i>';
-
-        // Insert the button right after the features row
-        featuresRow.parentNode.insertBefore(btn, featuresRow.nextSibling);
-
-        // Toggle on click
-        var expanded = false;
-        btn.addEventListener('click', function () {
-            expanded = !expanded;
-
-            if (expanded) {
-                featuresRow.classList.add('features-expanded');
-                btn.classList.add('expanded');
-                btn.innerHTML = '<span>Show Less</span> <i class="bi bi-chevron-down"></i>';
-            } else {
-                featuresRow.classList.remove('features-expanded');
-                btn.classList.remove('expanded');
-                btn.innerHTML = '<span>Show All Features (' + cards.length + ')</span> <i class="bi bi-chevron-down"></i>';
-
-                // Scroll back up to the features section so they're not lost
-                featuresSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    var featExpanded = false;
+                    featBtn.addEventListener('click', function () {
+                        featExpanded = !featExpanded;
+                        if (featExpanded) {
+                            featuresRow.classList.add('features-expanded');
+                            featBtn.classList.add('expanded');
+                            featBtn.innerHTML = '<span>Show Less</span> <i class="bi bi-chevron-down"></i>';
+                        } else {
+                            featuresRow.classList.remove('features-expanded');
+                            featBtn.classList.remove('expanded');
+                            featBtn.innerHTML = '<span>Show All Features (' + cards.length + ')</span> <i class="bi bi-chevron-down"></i>';
+                            featuresSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    });
+                }
             }
+        }
+
+        /* ==================== PRICING LISTS COLLAPSE ==================== */
+        var pricingCards = document.querySelectorAll('.pricing-card');
+        pricingCards.forEach(function (card) {
+            var featureList = card.querySelector('.pricing-features');
+            if (!featureList) return;
+
+            // Create the "See what's included" button
+            var priceBtn = document.createElement('button');
+            priceBtn.className = 'see-whats-included-btn';
+            priceBtn.type = 'button';
+            priceBtn.innerHTML = '<i class="bi bi-chevron-down"></i> <span>See what\'s included</span>';
+
+            // Insert the button directly before the feature list
+            featureList.parentNode.insertBefore(priceBtn, featureList);
+
+            var priceExpanded = false;
+            priceBtn.addEventListener('click', function () {
+                priceExpanded = !priceExpanded;
+                if (priceExpanded) {
+                    featureList.classList.add('pricing-list-expanded');
+                    priceBtn.classList.add('expanded');
+                    priceBtn.innerHTML = '<i class="bi bi-chevron-down"></i> <span>Hide details</span>';
+                } else {
+                    featureList.classList.remove('pricing-list-expanded');
+                    priceBtn.classList.remove('expanded');
+                    priceBtn.innerHTML = '<i class="bi bi-chevron-down"></i> <span>See what\'s included</span>';
+                }
+            });
         });
+
     });
 })();

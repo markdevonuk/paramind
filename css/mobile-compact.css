@@ -98,9 +98,66 @@
     }
 }
 
-/* Hide the button on desktop — it should never appear */
+/* Hide the features button on desktop */
 @media (min-width: 768px) {
     .show-all-features-btn {
+        display: none !important;
+    }
+}
+
+/* ----- 4. COLLAPSE PRICING LISTS ON MOBILE ----- */
+@media (max-width: 767px) {
+    /* Hide pricing feature lists by default on mobile */
+    .pricing-card .pricing-features {
+        display: none;
+        margin-bottom: 1rem;
+    }
+
+    /* Show when expanded */
+    .pricing-card .pricing-features.pricing-list-expanded {
+        display: block;
+    }
+
+    /* "See what's included" button styling */
+    .see-whats-included-btn {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.7rem 1rem;
+        margin-bottom: 1rem;
+        background: transparent;
+        color: var(--color-teal, #2B8A9C);
+        border: 1.5px dashed rgba(43, 138, 156, 0.3);
+        border-radius: 10px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .see-whats-included-btn:hover,
+    .see-whats-included-btn:active {
+        background: rgba(43, 138, 156, 0.05);
+        border-color: rgba(43, 138, 156, 0.5);
+    }
+
+    .see-whats-included-btn i {
+        font-size: 0.8rem;
+        transition: transform 0.3s ease;
+    }
+
+    /* Rotate arrow when expanded */
+    .see-whats-included-btn.expanded i {
+        transform: rotate(180deg);
+    }
+}
+
+/* Hide the pricing toggle button on desktop */
+@media (min-width: 768px) {
+    .see-whats-included-btn {
         display: none !important;
     }
 }
