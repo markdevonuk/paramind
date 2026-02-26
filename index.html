@@ -544,6 +544,10 @@
 <p style="margin-top: 1rem; font-size: 0.9rem; color: #6b7280;">
     Already have an account? <a href="login.html" style="color: #2B8A9C; font-weight: 600; text-decoration: none;">Login here</a>
 </p>
+<a href="readiness.html" style="display:block; margin:1.25rem auto 0; padding:1rem 1.25rem; background:rgba(43,138,156,0.08); border:1px solid rgba(43,138,156,0.25); border-radius:12px; text-decoration:none; max-width:420px; text-align:center;">
+    <span style="font-size:1rem; font-weight:700; color:#2B8A9C;">🎯 Free Readiness Score</span>
+    <span style="display:block; font-size:0.85rem; color:#6b7280; margin-top:0.25rem;">20 timed questions. Instant results. No sign-up needed.</span>
+</a>
                 </div>
                 
                 <!-- Right side: Chat Preview OR Partner Logo -->
@@ -591,10 +595,6 @@
                             <span class="chat-demo-feature-pill">
                                 <i class="bi bi-heart-pulse"></i>
                                 UK Paramedic focused
-                            </span>
-                            <span class="chat-demo-feature-pill">
-                                <i class="bi bi-shield-check"></i>
-                                Evidence-based
                             </span>
                         </div>
                     </div>
@@ -664,10 +664,6 @@
                 <span class="chat-demo-feature-pill">
                     <i class="bi bi-heart-pulse"></i>
                     UK Paramedic focused
-                </span>
-                <span class="chat-demo-feature-pill">
-                    <i class="bi bi-shield-check"></i>
-                    Evidence-based
                 </span>
             </div>
         </div>
@@ -1331,15 +1327,19 @@
     <script src="js/menu-v2.js"></script>
     <script src="js/mobile-compact.js"></script>
     <script>
-    // Hide Login link if user is already signed in
+    // Redirect logged-in users straight to landing.html
     (function() {
         var loginLink = document.getElementById('navLoginLink');
-        if (!loginLink) return;
         var check = setInterval(function() {
             if (typeof firebase !== 'undefined' && firebase.auth) {
                 clearInterval(check);
                 firebase.auth().onAuthStateChanged(function(user) {
-                    if (user) loginLink.style.display = 'none';
+                    if (user) {
+                        // User is logged in — redirect to dashboard
+                        window.location.href = 'landing.html';
+                    }
+                    // If loginLink exists, hide it when logged in (fallback)
+                    if (user && loginLink) loginLink.style.display = 'none';
                 });
             }
         }, 200);

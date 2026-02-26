@@ -218,6 +218,13 @@
         .info-chip.pro-chip i { color: #1a1a2e; }
         .info-chip.messages-chip .count { font-weight: 700; color: var(--color-teal); }
         
+        .info-chip.streak-chip {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(239, 68, 68, 0.08) 100%);
+            border-color: rgba(245, 158, 11, 0.25);
+            color: #d97706;
+            font-weight: 600;
+        }
+        
         /* Pro content stats — counter row below Pro Tools header */
         .pro-stats-row {
             display: flex; justify-content: center; gap: 2rem;
@@ -695,16 +702,20 @@
                 <i class="bi bi-patch-check-fill"></i> Paramedic Tutor
             </div>
             
-            <h1 class="hero-greeting page-load-3">Hey <span class="gradient-name" id="userFirstName">there</span>! 👋</h1>
+            <h1 class="hero-greeting page-load-3"><span id="heroGreeting">Hey</span> <span class="gradient-name" id="userFirstName">there</span>! <span id="greetingEmoji">👋</span></h1>
             <p class="hero-subtitle page-load-4">I'm Hollie, your AI paramedic tutor. What shall we learn today?</p>
             
             <div class="user-info-row page-load-5">
+                <div class="info-chip streak-chip" id="streakChip" style="display: none;">
+                    <span id="streakIcon">🔥</span>
+                    <span><span id="streakCount">0</span> day streak</span>
+                </div>
                 <div class="info-chip">
                     <i class="bi bi-hospital"></i>
                     <span id="userTrust">Loading...</span>
                 </div>
                 <div class="info-chip pro-chip" id="proBadge" style="display: none;">
-                    <i class="bi bi-star-fill"></i> Pro
+                    <i class="bi bi-star-fill"></i> Pro user
                 </div>
                 <div class="info-chip messages-chip" id="messageCounter" style="display: none;">
                     <i class="bi bi-chat-dots"></i>
@@ -773,24 +784,6 @@
             <div class="section-label">
                 <span class="label-icon pro"><i class="bi bi-star-fill"></i></span>
                 Pro Tools
-            </div>
-            <div class="pro-stats-row">
-                <div class="pro-stat-item">
-                    <div class="pro-stat-number" data-target="23">0</div>
-                    <div class="pro-stat-label">ECG Rhythms</div>
-                </div>
-                <div class="pro-stat-item">
-                    <div class="pro-stat-number" data-target="75">0</div>
-                    <div class="pro-stat-label">Common Drugs</div>
-                </div>
-                <div class="pro-stat-item">
-                    <div class="pro-stat-number" data-target="63">0</div>
-                    <div class="pro-stat-label">Bone Landmarks</div>
-                </div>
-                <div class="pro-stat-item">
-                    <div class="pro-stat-number" data-target="80">0</div>
-                    <div class="pro-stat-label">A&amp;P Explanations</div>
-                </div>
             </div>
             <div class="tools-grid">
                 <!-- A&P Connections -->
@@ -962,38 +955,6 @@
         </div>
         
         <!-- ==================== UPDATES ==================== -->
-        <div class="updates-section reveal-element">
-            <div class="updates-header">
-                <i class="bi bi-megaphone-fill"></i>
-                <h3>What's New</h3>
-            </div>
-            
-            
-             <div class="update-item">
-                <span class="update-badge">ALL users</span>
-                <p class="update-text"><strong>Interview Tool</strong> — Mock interviews for university, ambulance trusts and band 7 promotion</p>
-            </div>
-            <div class="update-item">
-                <span class="update-badge">PRO users</span>
-                <p class="update-text"><strong>Drugs Tool</strong> — The most common medications you will see in practice, with full (plain English) descriptions and considerations</p>
-            </div>
-            
-            <div class="update-item">
-                <span class="update-badge">PRO users</span>
-                <p class="update-text"><strong>ECG Tool</strong> — Interactive rhythm training with 14 key cardiac rhythms. Learn the patterns, then test yourself with the quiz!</p>
-            </div>
-            
-            <div class="update-item">
-                <span class="update-badge">PRO users</span>
-                <p class="update-text"><strong>A&P Connections</strong> — Ever wondered "Why does sepsis cause mottled skin?" Now you can find out with 80+ clinical questions.</p>
-            </div>
-            
-            <div class="update-item">
-                <span class="update-badge">ALL users</span>
-                <p class="update-text"><strong>Simplify Button</strong> — Hit simplify in Chat and A&P Connections when you need things explained in plain English!</p>
-            </div>
-        </div>
-        
     </div>
     
     
@@ -1055,21 +1016,6 @@
             card.addEventListener('mouseleave', () => { card.style.transform = ''; });
         });
         
-        /* ========== 4. PRO STAT COUNTERS (5s duration) ========== */
-        function animProCounters() {
-            document.querySelectorAll('.pro-stat-number').forEach(el => {
-                const t = +el.dataset.target, st = performance.now();
-                (function step(now) {
-                    const p = Math.min((now-st)/5000, 1);
-                    const eased = p < 0.5 ? 4*p*p*p : 1 - Math.pow(-2*p+2,3)/2;
-                    el.textContent = Math.round(eased*t);
-                    if (p < 1) requestAnimationFrame(step);
-                })(st);
-            });
-        }
-        const psObs = new IntersectionObserver(e => { if (e[0].isIntersecting) { setTimeout(animProCounters, 400); psObs.unobserve(e[0].target); } }, { threshold: 0.5 });
-        const psr = document.querySelector('.pro-stats-row');
-        if (psr) psObs.observe(psr);
         
     })();
     </script>
@@ -1139,6 +1085,29 @@
 
         // ==================== UPDATE UI ====================
         function updateUI() {
+            // Update greeting based on time of day
+            const hour = new Date().getHours();
+            const greetingEl = document.getElementById('heroGreeting');
+            const emojiEl = document.getElementById('greetingEmoji');
+            if (greetingEl && emojiEl) {
+                if (hour < 12) {
+                    greetingEl.textContent = 'Good morning';
+                    emojiEl.textContent = '👋';
+                } else if (hour < 17) {
+                    greetingEl.textContent = 'Good afternoon';
+                    emojiEl.textContent = '👋';
+                } else if (hour < 21) {
+                    greetingEl.textContent = 'Good evening';
+                    emojiEl.textContent = '👋';
+                } else {
+                    greetingEl.textContent = 'Burning the midnight oil';
+                    emojiEl.textContent = '👋';
+                }
+            }
+
+            // Update learning streak
+            updateStreak();
+
             // Update first name
             if (userData.firstName) {
                 userFirstNameEl.textContent = userData.firstName;
@@ -1185,6 +1154,64 @@
                  document.getElementById('interviewCard')?.classList.add('locked');
                 
                 updateMessageCount();
+            }
+        }
+
+        // ==================== LEARNING STREAK ====================
+        function updateStreak() {
+            try {
+                const today = new Date().toDateString();
+                const streakKey = 'paramind_streak_days';
+                let days = JSON.parse(localStorage.getItem(streakKey) || '[]');
+                
+                // Add today if not already recorded
+                if (!days.includes(today)) {
+                    days.push(today);
+                }
+                
+                // Keep only last 365 days
+                if (days.length > 365) days = days.slice(-365);
+                localStorage.setItem(streakKey, JSON.stringify(days));
+                
+                // Calculate consecutive streak (counting backwards from today)
+                let streak = 0;
+                const now = new Date();
+                for (let i = 0; i < 365; i++) {
+                    const checkDate = new Date(now);
+                    checkDate.setDate(checkDate.getDate() - i);
+                    if (days.includes(checkDate.toDateString())) {
+                        streak++;
+                    } else {
+                        break;
+                    }
+                }
+                
+                // Update UI
+                const streakChip = document.getElementById('streakChip');
+                const streakCount = document.getElementById('streakCount');
+                const streakIcon = document.getElementById('streakIcon');
+                
+                if (streakChip && streakCount && streak > 0) {
+                    streakCount.textContent = streak;
+                    // Plural handling
+                    streakChip.querySelector('span:last-child').innerHTML = 
+                        '<span id="streakCount">' + streak + '</span> day' + (streak !== 1 ? 's' : '') + ' streak';
+                    
+                    // Different icons for different streak lengths
+                    if (streak >= 30) {
+                        streakIcon.textContent = '💎';
+                    } else if (streak >= 14) {
+                        streakIcon.textContent = '⚡';
+                    } else if (streak >= 7) {
+                        streakIcon.textContent = '🔥';
+                    } else {
+                        streakIcon.textContent = '✨';
+                    }
+                    
+                    streakChip.style.display = 'inline-flex';
+                }
+            } catch (e) {
+                console.warn('Streak tracking error:', e);
             }
         }
 
