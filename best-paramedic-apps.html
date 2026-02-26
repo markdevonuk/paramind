@@ -175,11 +175,7 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/styles.css">
     
-    <!-- Menu CSS -->
-    <link rel="stylesheet" href="css/menu-v2.css">
     
     <style>
         /* ==================== PAGE VARIABLES ==================== */
@@ -273,8 +269,45 @@
         
         /* ==================== HERO ==================== */
         .page-hero {
+            position: relative;
+            padding: 0;
+            margin-bottom: 1.5rem;
+            margin-left: calc(-50vw + 50%);
+            margin-right: calc(-50vw + 50%);
+            border-radius: 0;
+            overflow: hidden;
+            min-height: 380px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background: url('images/hero-paramedic-apps.jpeg') center center / cover no-repeat;
+            z-index: 0;
+        }
+        
+        .hero-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.4) 100%);
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem 2rem;
+            margin: 2rem 1.5rem;
+            max-width: 620px;
             text-align: center;
-            padding: 3rem 0 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
         }
         
         .hero-badge {
@@ -291,18 +324,18 @@
         }
         
         .page-hero h1 {
-            font-size: 2.25rem;
+            font-size: 2rem;
             font-weight: 800;
             color: var(--color-gray-800);
             line-height: 1.2;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
         }
         
         .page-hero .subtitle {
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: var(--color-gray-600);
-            max-width: 600px;
-            margin: 0 auto 1.5rem;
+            max-width: 520px;
+            margin: 0 auto 1rem;
         }
         
         .last-updated {
@@ -702,7 +735,16 @@
         /* ==================== RESPONSIVE ==================== */
         @media (max-width: 768px) {
             .page-hero h1 {
-                font-size: 1.75rem;
+                font-size: 1.5rem;
+            }
+            
+            .hero-content {
+                margin: 1.25rem 1rem;
+                padding: 1.75rem 1.25rem;
+            }
+            
+            .page-hero {
+                min-height: 300px;
             }
             
             .content-section,
@@ -730,16 +772,11 @@
     <!-- ==================== NAVIGATION ==================== -->
     <nav class="page-navbar">
         <div class="container">
-            <a href="index.html" class="text-decoration-none">
-                <span class="brand-text">
-                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            <a href="https://paramind.co.uk" class="text-decoration-none">
+                <span class="brand-text" style="font-size: 1.2rem; font-weight: 800; color: var(--color-gray-800);">
+                    Top 10 Student Paramedic Resources
                 </span>
             </a>
-            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
         </div>
     </nav>
 
@@ -748,13 +785,16 @@
         
         <!-- ==================== HERO SECTION ==================== -->
         <div class="page-hero">
-            <div class="hero-badge">
-                <i class="bi bi-phone"></i>
-                Updated <span id="heroMonth"></span>
+            <div class="hero-bg"></div>
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="bi bi-phone"></i>
+                    Updated <span id="heroMonth"></span>
+                </div>
+                <h1>Best Paramedic Apps in <span id="heroYear"></span></h1>
+                <p class="subtitle">The top 10 apps every UK paramedic and student paramedic should have on their phone — from AI scenario practice to drug calculators and clinical references.</p>
+                <p class="last-updated">Last reviewed: <span id="reviewMonth"></span> · Written by UK paramedic educators</p>
             </div>
-            <h1>Best Paramedic Apps in <span id="heroYear"></span></h1>
-            <p class="subtitle">The top 10 apps every UK paramedic and student paramedic should have on their phone — from AI scenario practice to drug calculators and clinical references.</p>
-            <p class="last-updated">Last reviewed: <span id="reviewMonth"></span> · Written by the Paramind team</p>
         </div>
 
         <!-- ==================== INTRO SECTION ==================== -->
@@ -801,7 +841,7 @@
                 <p><strong>Our Verdict:</strong> Paramind is the most comprehensive paramedic learning app available. The AI-powered scenarios feel genuinely realistic, and the CPD tracking is a game-changer for HCPC portfolio evidence. The free plan is generous enough to try before committing to Pro.</p>
             </div>
             
-            <a href="register.html" class="app-cta primary">
+            <a href="https://paramind.co.uk" class="app-cta primary">
                 Try Paramind Free <i class="bi bi-arrow-right"></i>
             </a>
         </article>
@@ -1284,7 +1324,7 @@
         <div class="cta-section">
             <h2>Ready to Level Up Your Learning?</h2>
             <p>Join thousands of UK paramedics and students using Paramind to sharpen their clinical skills.</p>
-            <a href="register.html" class="btn">
+            <a href="https://paramind.co.uk" class="btn">
                 Get Started Free <i class="bi bi-arrow-right"></i>
             </a>
             <p style="font-size: 0.8rem; color: var(--color-gray-500); margin-top: 0.75rem; margin-bottom: 0;">No credit card required · Free plan available</p>
@@ -1329,34 +1369,13 @@
         <div class="cta-section">
             <h2>Try the #1 Paramedic Learning App</h2>
             <p>Paramind combines AI scenarios, a clinical tutor, ATMIST practice, and CPD tracking — all in one place.</p>
-            <a href="register.html" class="btn">
+            <a href="https://paramind.co.uk" class="btn">
                 Start Free Today <i class="bi bi-arrow-right"></i>
             </a>
         </div>
 
     </main>
 
-    <!-- ==================== FOOTER ==================== -->
-    <footer class="page-footer">
-        <div class="container">
-            <div class="footer-brand">
-                <span class="brand-text">
-                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
-                </span>
-            </div>
-            <div class="footer-links">
-                <a href="terms.html">Terms of Service</a>
-                <a href="privacy.html">Privacy Policy</a>
-                <a href="purpose.html">Intended Purpose</a>
-                <a href="contact.html">Contact</a>
-            </div>
-            <p class="footer-copyright">&copy; <span id="footerYear"></span> Paramind. All rights reserved.</p>
-        </div>
-    </footer>
-
-    <!-- ==================== SHARED SCRIPTS ==================== -->
-    <script src="js/app.js"></script>
-    <script src="js/menu-v2.js"></script>
     <!-- ==================== DYNAMIC DATE SCRIPT ==================== -->
     <script>
         // Auto-update all dates to current month/year so page always looks fresh
@@ -1375,10 +1394,6 @@
             if (heroMonth) heroMonth.textContent = monthYear;
             if (reviewMonth) reviewMonth.textContent = monthYear;
             if (heroYear) heroYear.textContent = year;
-
-            // Update footer copyright year
-            const footerYear = document.getElementById('footerYear');
-            if (footerYear) footerYear.textContent = year;
 
             // Update page title
             document.title = 'Best Paramedic Apps ' + year + ' | Top 10 Apps for UK Paramedics | Paramind';
