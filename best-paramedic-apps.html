@@ -214,7 +214,7 @@
         .page-navbar {
             background: var(--color-white);
             border-bottom: 1px solid var(--color-gray-200);
-            padding: 0.75rem 0;
+            padding: 1rem 0;
             position: sticky;
             top: 0;
             z-index: 100;
@@ -226,16 +226,40 @@
             padding: 0 1.5rem;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
         }
         
-        .brand-text {
+        .site-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.15rem;
+            user-select: none;
+        }
+        
+        .site-logo .logo-top {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--color-teal);
+        }
+        
+        .site-logo .logo-main {
+            font-size: 1.15rem;
             font-weight: 800;
-            font-size: 1.5rem;
+            color: var(--color-gray-800);
+            letter-spacing: -0.02em;
+            line-height: 1;
         }
         
-        .brand-para { color: var(--color-gray-800); }
-        .brand-mind { color: var(--color-teal); }
+        .site-logo .logo-line {
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--color-teal), var(--color-green));
+            border-radius: 2px;
+            margin-top: 0.2rem;
+        }
         
         .hamburger-btn {
             background: none;
@@ -772,11 +796,11 @@
     <!-- ==================== NAVIGATION ==================== -->
     <nav class="page-navbar">
         <div class="container">
-            <a href="https://paramind.co.uk" class="text-decoration-none">
-                <span class="brand-text" style="font-size: 1.2rem; font-weight: 800; color: var(--color-gray-800);">
-                    Top 10 Student Paramedic Resources
-                </span>
-            </a>
+            <div class="site-logo">
+                <span class="logo-top">Top 10</span>
+                <span class="logo-main">Student Paramedic Resources</span>
+                <span class="logo-line"></span>
+            </div>
         </div>
     </nav>
 
