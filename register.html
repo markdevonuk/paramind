@@ -465,8 +465,8 @@ isRegistering = true;
     });
 
         // ==================== GOOGLE SIGN-IN ====================
-        // Show Apple Sign-In button only on native platforms
-        if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+        // Show Apple Sign-In button only on native platforms (and not when already signed in via redirect)
+        if (window.Capacitor && window.Capacitor.isNativePlatform() && !isGooglePending) {
             const appleBtn = document.getElementById('appleSignInBtn');
             if (appleBtn) appleBtn.style.display = 'flex';
         }
