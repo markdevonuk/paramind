@@ -264,6 +264,117 @@
         if (e.target === overlay) overlay.classList.remove('pm-visible');
     });
 
+    // ==================== DETECT NATIVE PLATFORM ====================
+    const isNativePlatform = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+    const isIOS = isNativePlatform && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'ios';
+
+    // Update footer text for iOS
+    if (isIOS) {
+        const footer = document.querySelector('.pm-upgrade-footer');
+        if (footer) {
+            footer.innerHTML = 'Cancel anytime. Secure payment via Apple.<br><a href="#" id="pmRestorePurchases" style="color: #2B8A9C; text-decoration: underline; font-size: 0.75rem;">Restore previous purchase</a>';
+        }
+        // Restore purchases handler
+        setTimeout(function() {
+            const restoreLink = document.getElementById('pmRestorePurchases');
+            if (restoreLink) {
+                restoreLink.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    try {
+                        restoreLink.textContent = 'Restoring...';
+                        const NativePurchases = window.Capacitor.Plugins.NativePurchases;
+                        await NativePurchases.restorePurchases();
+
+                        // Check if any active subscriptions were found
+                        const purchases = await NativePurchases.getPurchases({ productType: 'subs' });
+                        if (purchases && purchases.transactions && purchases.transactions.length > 0) {
+                            // Found active subscription — update Firestore
+                            let token;
+                            if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+                                token = await firebase.auth().currentUser.getIdToken();
+                            }
+                            if (token) {
+                                const baseUrl = window.paramind?.CONFIG?.api?.baseUrl
+                                    || (typeof API_CONFIG !== 'undefined' ? API_CONFIG.baseUrl : null)
+                                    || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
+                                try {
+                                    const tx = purchases.transactions[0];
+                                    await fetch(baseUrl + '/verifyApplePurchase', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Authorization': 'Bearer ' + token,
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({
+                                            productId: tx.productId || null,
+                                            transactionId: tx.transactionId || null,
+                                            receipt: tx.receipt || null,
+                                            restored: true
+                                        })
+                                    });
+                                } catch (verifyErr) {
+                                    // Fallback: update locally
+                                    const uid = firebase.auth().currentUser.uid;
+                                    await firebase.firestore().collection('users').doc(uid).update({
+                                        subscriptionStatus: 'active',
+                                        subscriptionPlatform: 'apple',
+                                        subscriptionUpdatedAt: new Date().toISOString()
+                                    });
+                                }
+                            }
+                            // Update local cache
+                            try {
+                                const cached = JSON.parse(localStorage.getItem('paramind_user') || '{}');
+                                cached.subscriptionStatus = 'active';
+                                localStorage.setItem('paramind_user', JSON.stringify(cached));
+                            } catch (e) {}
+
+                            overlay.classList.remove('pm-visible');
+                            alert('Your Pro subscription has been restored! 🎉');
+                            window.location.reload();
+                        } else {
+                            restoreLink.textContent = 'Restore previous purchase';
+                            alert('No previous subscription found for this Apple ID.');
+                        }
+                    } catch (err) {
+                        console.error('Restore failed:', err);
+                        restoreLink.textContent = 'Restore previous purchase';
+                        alert('Could not restore purchases. Please try again.');
+                    }
+                });
+            }
+        }, 100);
+    }
+
+    // Try to load real App Store prices when on iOS
+    if (isIOS) {
+        (async function loadAppStorePrices() {
+            try {
+                const NativePurchases = window.Capacitor.Plugins.NativePurchases;
+                if (!NativePurchases) return;
+
+                const result = await NativePurchases.getProducts({
+                    productIds: ['paramind_pro_monthly', 'paramind_pro_annual']
+                });
+
+                if (result && result.products) {
+                    result.products.forEach(function(product) {
+                        if (product.productId === 'paramind_pro_monthly') {
+                            const priceEl = document.querySelector('#pmPlanMonthly .pm-plan-price');
+                            if (priceEl) priceEl.innerHTML = product.localizedPrice + '<span>/month</span>';
+                        }
+                        if (product.productId === 'paramind_pro_annual') {
+                            const priceEl = document.querySelector('#pmPlanAnnual .pm-plan-price');
+                            if (priceEl) priceEl.innerHTML = product.localizedPrice + '<span>/year</span>';
+                        }
+                    });
+                }
+            } catch (e) {
+                console.log('Could not load App Store prices:', e);
+            }
+        })();
+    }
+
     // ==================== CHECKOUT ====================
     checkoutBtn.addEventListener('click', async function () {
         const btn = checkoutBtn;
@@ -273,6 +384,77 @@
             btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Loading...';
             btn.disabled = true;
 
+            // ==================== iOS IN-APP PURCHASE ====================
+            if (isIOS) {
+                const NativePurchases = window.Capacitor.Plugins.NativePurchases;
+                const productId = selectedPlan === 'monthly' ? 'paramind_pro_monthly' : 'paramind_pro_annual';
+
+                // Process the purchase via Apple
+                const transaction = await NativePurchases.purchaseProduct({ productId: productId });
+                console.log('Apple purchase successful:', transaction);
+
+                // Get the auth token to call our backend
+                let token;
+                if (typeof getAuthToken === 'function') {
+                    token = await getAuthToken();
+                } else if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+                    token = await firebase.auth().currentUser.getIdToken();
+                } else if (typeof auth !== 'undefined' && auth.currentUser) {
+                    token = await auth.currentUser.getIdToken();
+                }
+
+                if (token) {
+                    // Notify our backend about the purchase
+                    const baseUrl = window.paramind?.CONFIG?.api?.baseUrl
+                        || (typeof API_CONFIG !== 'undefined' ? API_CONFIG.baseUrl : null)
+                        || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
+
+                    try {
+                        await fetch(baseUrl + '/verifyApplePurchase', {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': 'Bearer ' + token,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                productId: productId,
+                                transactionId: transaction.transactionId || null,
+                                receipt: transaction.receipt || null,
+                                jwsRepresentation: transaction.jwsRepresentation || null
+                            })
+                        });
+                    } catch (verifyError) {
+                        console.warn('Backend verification failed, updating locally:', verifyError);
+                        // Fallback: update Firestore directly if backend fails
+                        // This ensures the user gets access even if backend is temporarily down
+                        if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+                            const uid = firebase.auth().currentUser.uid;
+                            await firebase.firestore().collection('users').doc(uid).update({
+                                subscriptionStatus: 'active',
+                                subscriptionPlatform: 'apple',
+                                appleProductId: productId,
+                                appleTransactionId: transaction.transactionId || null,
+                                subscriptionUpdatedAt: new Date().toISOString()
+                            });
+                        }
+                    }
+                }
+
+                // Update local cache
+                try {
+                    const cached = JSON.parse(localStorage.getItem('paramind_user') || '{}');
+                    cached.subscriptionStatus = 'active';
+                    localStorage.setItem('paramind_user', JSON.stringify(cached));
+                } catch (e) {}
+
+                // Success — close modal and reload
+                overlay.classList.remove('pm-visible');
+                alert('Welcome to Paramind Pro! 🎉');
+                window.location.reload();
+                return;
+            }
+
+            // ==================== WEB — STRIPE CHECKOUT ====================
             // Get the auth token — try multiple methods used across the app
             let token;
             if (typeof getAuthToken === 'function') {
@@ -312,7 +494,15 @@
             }
         } catch (error) {
             console.error('Upgrade error:', error);
-            alert('Unable to start checkout. Please try again.');
+            // Don't show error if user cancelled Apple purchase
+            const errorMsg = (error.message || error.code || '').toLowerCase();
+            if (errorMsg.includes('cancel') || errorMsg.includes('user_canceled') || errorMsg.includes('paymentcancelled')) {
+                // User cancelled — just reset button
+            } else if (isIOS) {
+                alert('Purchase could not be completed. Please try again.');
+            } else {
+                alert('Unable to start checkout. Please try again.');
+            }
             btn.innerHTML = originalText;
             btn.disabled = false;
         }

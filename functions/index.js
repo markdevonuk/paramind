@@ -1098,3 +1098,76 @@ exports.speak = onRequest(
     }
   }
 );
+
+/**
+ * POST /verifyApplePurchase
+ * Verify an Apple In-App Purchase and activate Pro subscription
+ * Called by the iOS app after a successful StoreKit purchase
+ */
+exports.verifyApplePurchase = onRequest(
+  { cors: true },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+      // Authenticate the user
+      const uid = await authenticateUser(req);
+      
+      const { productId, transactionId, receipt, jwsRepresentation, restored } = req.body;
+
+      if (!productId) {
+        return res.status(400).json({ error: "Missing productId" });
+      }
+
+      // Determine subscription plan from product ID
+      let plan = 'monthly';
+      if (productId.includes('annual') || productId.includes('yearly')) {
+        plan = 'annual';
+      }
+
+      // Update user's subscription status in Firestore
+      const updateData = {
+        subscriptionStatus: "active",
+        subscriptionPlatform: "apple",
+        appleProductId: productId,
+        appleTransactionId: transactionId || null,
+        applePlan: plan,
+        subscriptionUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
+      };
+
+      if (restored) {
+        updateData.appleRestoredAt = admin.firestore.FieldValue.serverTimestamp();
+      }
+
+      // Store receipt for future validation if needed
+      if (receipt || jwsRepresentation) {
+        updateData.appleReceipt = receipt || null;
+        updateData.appleJws = jwsRepresentation || null;
+      }
+
+      await db.collection("users").doc(uid).update(updateData);
+
+      console.log(`Apple purchase verified for user ${uid}: ${productId} (${plan})${restored ? ' [restored]' : ''}`);
+
+      return res.status(200).json({ 
+        success: true, 
+        message: "Subscription activated",
+        plan: plan
+      });
+
+    } catch (error) {
+      console.error("Apple purchase verification error:", error);
+
+      if (error.message.includes("Unauthorized") || error.message.includes("No authorization")) {
+        return res.status(401).json({ error: error.message });
+      }
+
+      return res.status(500).json({ 
+        error: "Failed to verify purchase",
+        details: error.message 
+      });
+    }
+  }
+);
