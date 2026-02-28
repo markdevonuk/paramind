@@ -223,6 +223,7 @@
                                         <th>Email</th>
                                         <th>Trust</th>
                                         <th>Status</th>
+                                        <th>Platform</th>
                                         <!-- CHANGE 1: Added Last Login column -->
                                         <th>Last Login</th>
                                         <th>Joined</th>
@@ -230,8 +231,8 @@
                                 </thead>
                                 <tbody id="allUsersBody">
                                     <tr>
-                                        <!-- CHANGE 2: Updated colspan from 5 to 6 -->
-                                        <td colspan="6" class="text-center py-4">
+                                        <!-- Updated colspan to 7 for Platform column -->
+                                        <td colspan="7" class="text-center py-4">
                                             <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
                                             Loading users...
                                         </td>
@@ -270,6 +271,7 @@
                                         <th>Name</th>
                                         <th>Email</th>
                                         <th>Trust</th>
+                                        <th>Platform</th>
                                         <!-- CHANGE 4: Added Last Login column -->
                                         <th>Last Login</th>
                                         <th>Joined</th>
@@ -551,14 +553,23 @@
                         trustFullName: userData.trustFullName || userData.trust || '',
                         subscriptionStatus: userData.subscriptionStatus || 'free',
                         createdAt: userData.createdAt || null,
-                        // CHANGE 5: Added lastLogin to user object
-                       lastLogin: userData.lastLogin || null,
-						promoCodeUsed: userData.promoCodeUsed || ''
-					};
+                        lastLogin: userData.lastLogin || null,
+                        promoCodeUsed: userData.promoCodeUsed || '',
+                        // Fields for platform column and £0 detection
+                        subscriptionPlatform: userData.subscriptionPlatform || '',
+                        stripeSubscriptionId: userData.stripeSubscriptionId || '',
+                        discountApplied: userData.discountApplied || false,
+                        discountAmount: userData.discountAmount || 0
+                    };
+
+                    // Work out if this user paid £0 (100% discount on monthly = 499p)
+                    user.isZeroPaid = user.subscriptionStatus === 'active' 
+                        && user.discountApplied 
+                        && user.discountAmount >= 499;
                     allUsers.push(user);
                     
-                    // CHANGE 6: Fixed logic - only 'active' is paid, everything else is free
-                    if (user.subscriptionStatus === 'active') {
+                    // Paid = active AND actually paid money. £0 promo users go to Free.
+                    if (user.subscriptionStatus === 'active' && !user.isZeroPaid) {
                         paidUsersList.push(user);
                     } else {
                         freeUsersList.push(user);
@@ -581,10 +592,10 @@
                 document.getElementById('freeUsers').textContent = freeUsersList.length;
                 document.getElementById('paidUsers').textContent = paidUsersList.length;
                 
-                // Render tables
-                renderTable('allUsersBody', allUsers, true);
-                renderTable('freeUsersBody', freeUsersList, false);
-                renderTable('paidUsersBody', paidUsersList, false);
+                // Render tables (showStatus, showPlatform)
+                renderTable('allUsersBody', allUsers, true, true);
+                renderTable('freeUsersBody', freeUsersList, false, false);
+                renderTable('paidUsersBody', paidUsersList, false, true);
                 
                 // Update last refresh time
                 document.getElementById('lastRefresh').textContent = new Date().toLocaleString();
@@ -593,8 +604,8 @@
                 console.error('Error loading users:', error);
                 document.getElementById('allUsersBody').innerHTML = `
                     <tr>
-                        <!-- CHANGE 7: Updated colspan from 5 to 6 -->
-                        <td colspan="6" class="text-center text-danger py-4">
+                        <!-- Updated colspan to 7 for Platform column -->
+                        <td colspan="7" class="text-center text-danger py-4">
                             <i class="bi bi-exclamation-triangle me-2"></i>
                             Error loading users. Check console for details.
                         </td>
@@ -606,14 +617,16 @@
         // ============================================
         // RENDER TABLE
         // ============================================
-        function renderTable(tableBodyId, users, showStatus = false) {
+        function renderTable(tableBodyId, users, showStatus = false, showPlatform = false) {
             const tbody = document.getElementById(tableBodyId);
+            
+            // Calculate colspan: base 5 + 1 if status + 1 if platform
+            const colspan = 5 + (showStatus ? 1 : 0) + (showPlatform ? 1 : 0);
             
             if (users.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <!-- CHANGE 8: Updated colspan from 5/4 to 6/5 -->
-                        <td colspan="${showStatus ? 6 : 5}" class="text-center py-4 text-muted">
+                        <td colspan="${colspan}" class="text-center py-4 text-muted">
                             No users found
                         </td>
                     </tr>
@@ -629,12 +642,26 @@
                     year: 'numeric'
                 }) : 'Unknown';
                 
-                // CHANGE 9: Fixed badge logic - only 'active' shows as Paid
-                const statusBadge = user.subscriptionStatus === 'active' 
-                    ? '<span class="badge badge-paid">Paid</span>'
-                    : '<span class="badge badge-free">Free</span>';
+                // Status badge: Paid, Free, or £0 Promo
+                let statusBadge;
+                if (user.isZeroPaid) {
+                    statusBadge = '<span class="badge bg-warning text-dark">£0 Promo</span>';
+                } else if (user.subscriptionStatus === 'active') {
+                    statusBadge = '<span class="badge badge-paid">Paid</span>';
+                } else {
+                    statusBadge = '<span class="badge badge-free">Free</span>';
+                }
                 
-                // CHANGE 10: Added lastLogin formatting
+                // Platform badge: Apple, Stripe, or blank
+                let platformBadge = '';
+                if (user.subscriptionStatus === 'active' || user.isZeroPaid) {
+                    if (user.subscriptionPlatform === 'apple') {
+                        platformBadge = '<span class="badge bg-dark">\u{1F34E} Apple</span>';
+                    } else if (user.stripeSubscriptionId) {
+                        platformBadge = '<span class="badge bg-primary">\u{1F4B3} Stripe</span>';
+                    }
+                }
+                
                 const lastLogin = user.lastLogin 
                     ? new Date(user.lastLogin).toLocaleDateString('en-GB', {
                         day: 'numeric',
@@ -645,30 +672,19 @@
                     }) 
                     : 'Never';
                 
-                if (showStatus) {
-                    // CHANGE 11: Added lastLogin column to table row
-                    return `
-                        <tr>
-                            <td>${escapeHtml(fullName)}${user.promoCodeUsed ? '<br><small class="text-muted"><i class="bi bi-tag me-1"></i>' + escapeHtml(user.promoCodeUsed) + '</small>' : ''}</td>
-                            <td>${escapeHtml(user.email)}</td>
-                            <td>${escapeHtml(user.trust)}</td>
-                            <td>${statusBadge}</td>
-                            <td>${lastLogin}</td>
-                            <td>${joinDate}</td>
-                        </tr>
-                    `;
-                } else {
-                    // CHANGE 12: Added lastLogin column to table row (no status version)
-                    return `
-                        <tr>
-                            <td>${escapeHtml(fullName)}${user.promoCodeUsed ? '<br><small class="text-muted"><i class="bi bi-tag me-1"></i>' + escapeHtml(user.promoCodeUsed) + '</small>' : ''}</td>
-                            <td>${escapeHtml(user.email)}</td>
-                            <td>${escapeHtml(user.trust)}</td>
-                            <td>${lastLogin}</td>
-                            <td>${joinDate}</td>
-                        </tr>
-                    `;
-                }
+                // Build the name cell (same for all table variants)
+                const nameCell = `<td>${escapeHtml(fullName)}${user.promoCodeUsed ? '<br><small class="text-muted"><i class="bi bi-tag me-1"></i>' + escapeHtml(user.promoCodeUsed) + '</small>' : ''}</td>`;
+                
+                // Build row based on which columns are shown
+                let row = `<tr>${nameCell}`;
+                row += `<td>${escapeHtml(user.email)}</td>`;
+                row += `<td>${escapeHtml(user.trust)}</td>`;
+                if (showStatus) row += `<td>${statusBadge}</td>`;
+                if (showPlatform) row += `<td>${platformBadge}</td>`;
+                row += `<td>${lastLogin}</td>`;
+                row += `<td>${joinDate}</td>`;
+                row += `</tr>`;
+                return row;
             }).join('');
         }
 
@@ -687,9 +703,9 @@
                 );
             };
             
-            renderTable('allUsersBody', filterUsers(allUsers), true);
-            renderTable('freeUsersBody', filterUsers(freeUsersList), false);
-            renderTable('paidUsersBody', filterUsers(paidUsersList), false);
+            renderTable('allUsersBody', filterUsers(allUsers), true, true);
+            renderTable('freeUsersBody', filterUsers(freeUsersList), false, false);
+            renderTable('paidUsersBody', filterUsers(paidUsersList), false, true);
         });
 
         // ============================================
@@ -697,20 +713,28 @@
         // ============================================
         function exportToCSV(users, filename) {
             // CHANGE 13: Added 'Last Login' to CSV headers
-            const headers = ['First Name', 'Surname', 'Email', 'Trust', 'Trust Full Name', 'Subscription Status', 'Last Login', 'Joined Date'];
+            const headers = ['First Name', 'Surname', 'Email', 'Trust', 'Trust Full Name', 'Subscription Status', 'Platform', 'Last Login', 'Joined Date'];
             
             // Convert users to CSV rows
             const rows = users.map(user => {
                 const joinDate = user.createdAt ? new Date(user.createdAt).toISOString() : '';
                 // CHANGE 14: Added lastLogin to CSV export
                 const lastLogin = user.lastLogin ? new Date(user.lastLogin).toISOString() : '';
+                // Work out platform for CSV
+                let platform = '';
+                if (user.subscriptionPlatform === 'apple') {
+                    platform = 'Apple';
+                } else if (user.stripeSubscriptionId) {
+                    platform = 'Stripe';
+                }
                 return [
                     user.firstName,
                     user.surname,
                     user.email,
                     user.trust,
                     user.trustFullName,
-                    user.subscriptionStatus,
+                    user.isZeroPaid ? 'free (£0 promo)' : user.subscriptionStatus,
+                    platform,
                     lastLogin,
                     joinDate
                 ].map(field => `"${(field || '').replace(/"/g, '""')}"`).join(',');
