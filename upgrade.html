@@ -502,8 +502,12 @@
         planAnnual.addEventListener('click', function() { selectPlan('annual'); });
 
         // ==================== UPGRADE HANDLER ====================
-        // Waits for Firebase (loaded by menu-v2.js), then creates Stripe checkout
+        // Waits for Firebase (loaded by menu-v2.js), then creates checkout
         
+        // Detect native iOS platform
+        const isNativePlatform = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+        const isIOS = isNativePlatform && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'ios';
+
         async function handleUpgrade() {
             const btn = document.getElementById('upgradeBtn');
             const originalText = btn.innerHTML;
@@ -523,7 +527,56 @@
                     window.location.href = 'login.html?redirect=' + returnUrl;
                     return;
                 }
+
+                // ==================== iOS IN-APP PURCHASE ====================
+                if (isIOS) {
+                    const NativePurchases = window.Capacitor.Plugins.NativePurchases;
+                    const productId = selectedPlan === 'monthly' ? 'paramind_pro_monthly' : 'paramind_pro_annual';
+
+                    const transaction = await NativePurchases.purchaseProduct({ productId: productId });
+                    console.log('Apple purchase successful:', transaction);
+
+                    // Notify backend
+                    const token = await user.getIdToken();
+                    const baseUrl = window.paramind?.CONFIG?.api?.baseUrl || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
+
+                    try {
+                        await fetch(baseUrl + '/verifyApplePurchase', {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': 'Bearer ' + token,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                productId: productId,
+                                transactionId: transaction.transactionId || null,
+                                receipt: transaction.receipt || null,
+                                jwsRepresentation: transaction.jwsRepresentation || null
+                            })
+                        });
+                    } catch (verifyError) {
+                        console.warn('Backend verification failed, updating locally:', verifyError);
+                        await firebase.firestore().collection('users').doc(user.uid).update({
+                            subscriptionStatus: 'active',
+                            subscriptionPlatform: 'apple',
+                            appleProductId: productId,
+                            subscriptionUpdatedAt: new Date().toISOString()
+                        });
+                    }
+
+                    // Update local cache
+                    try {
+                        const cached = JSON.parse(localStorage.getItem('paramind_user') || '{}');
+                        cached.subscriptionStatus = 'active';
+                        localStorage.setItem('paramind_user', JSON.stringify(cached));
+                    } catch (e) {}
+
+                    alert('Welcome to Paramind Pro! 🎉');
+                    window.location.href = 'landing.html';
+                    return;
+                }
                 
+                // ==================== WEB — STRIPE CHECKOUT ====================
                 // Get auth token and call Stripe checkout endpoint
                 const token = await user.getIdToken();
                 const baseUrl = window.paramind?.CONFIG?.api?.baseUrl || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
@@ -550,7 +603,15 @@
                 
             } catch (error) {
                 console.error('Upgrade error:', error);
-                alert('Unable to start checkout. Please try again.');
+                // Don't show error if user cancelled Apple purchase
+                const errorMsg = (error.message || error.code || '').toLowerCase();
+                if (errorMsg.includes('cancel') || errorMsg.includes('user_canceled') || errorMsg.includes('paymentcancelled')) {
+                    // User cancelled — just reset button
+                } else if (isIOS) {
+                    alert('Purchase could not be completed. Please try again.');
+                } else {
+                    alert('Unable to start checkout. Please try again.');
+                }
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
