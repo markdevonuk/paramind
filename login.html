@@ -451,14 +451,37 @@
                     // Use Capgo Social Login plugin for native Apple Sign-In
                     const SocialLogin = window.Capacitor.Plugins.SocialLogin;
                     await SocialLogin.initialize({ apple: {} });
+
+                    // Generate a random nonce for Firebase verification
+                    function generateNonce(length) {
+                        const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                        let result = '';
+                        const values = new Uint8Array(length);
+                        crypto.getRandomValues(values);
+                        for (let i = 0; i < length; i++) {
+                            result += charset[values[i] % charset.length];
+                        }
+                        return result;
+                    }
+
+                    async function sha256(plain) {
+                        const encoder = new TextEncoder();
+                        const data = encoder.encode(plain);
+                        const hash = await crypto.subtle.digest('SHA-256', data);
+                        const bytes = new Uint8Array(hash);
+                        return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+                    }
+
+                    const rawNonce = generateNonce(32);
+                    const hashedNonce = await sha256(rawNonce);
+
                     const response = await SocialLogin.login({
                         provider: 'apple',
-                        options: { scopes: ['email', 'name'] }
+                        options: { scopes: ['email', 'name'], nonce: hashedNonce }
                     });
 
                     const result = response.result;
                     const idToken = result.idToken;
-                    const rawNonce = result.nonce || null;
 
                     // Create Firebase credential from Apple token
                     const appleProvider = new OAuthProvider('apple.com');
