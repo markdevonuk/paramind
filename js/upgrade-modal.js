@@ -354,18 +354,19 @@
                 if (!NativePurchases) return;
 
                 const result = await NativePurchases.getProducts({
-                    productIds: ['paramind_pro_monthly', 'paramind_pro_annual']
+                    productIdentifiers: ['paramind_pro_monthly', 'paramind_pro_annual'],
+                    productType: 'subs'
                 });
 
                 if (result && result.products) {
                     result.products.forEach(function(product) {
-                        if (product.productId === 'paramind_pro_monthly') {
+                        if (product.identifier === 'paramind_pro_monthly') {
                             const priceEl = document.querySelector('#pmPlanMonthly .pm-plan-price');
-                            if (priceEl) priceEl.innerHTML = product.localizedPrice + '<span>/month</span>';
+                            if (priceEl) priceEl.innerHTML = product.priceString + '<span>/month</span>';
                         }
-                        if (product.productId === 'paramind_pro_annual') {
+                        if (product.identifier === 'paramind_pro_annual') {
                             const priceEl = document.querySelector('#pmPlanAnnual .pm-plan-price');
-                            if (priceEl) priceEl.innerHTML = product.localizedPrice + '<span>/year</span>';
+                            if (priceEl) priceEl.innerHTML = product.priceString + '<span>/year</span>';
                         }
                     });
                 }
@@ -390,7 +391,7 @@
                 const productId = selectedPlan === 'monthly' ? 'paramind_pro_monthly' : 'paramind_pro_annual';
 
                 // Process the purchase via Apple
-                const transaction = await NativePurchases.purchaseProduct({ productId: productId });
+                const transaction = await NativePurchases.purchaseProduct({ productIdentifier: productId });
                 console.log('Apple purchase successful:', transaction);
 
                 // Get the auth token to call our backend
