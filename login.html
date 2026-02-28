@@ -452,9 +452,12 @@
                     const SocialLogin = window.Capacitor.Plugins.SocialLogin;
                     await SocialLogin.initialize({ apple: {} });
 
-                    // Generate a random nonce for Firebase verification
+                    // Firebase requires a nonce for Apple Sign-In verification
+                    // 1. Generate random raw nonce
+                    // 2. SHA-256 hash it and send to Apple
+                    // 3. Send raw nonce to Firebase so it can verify
                     function generateNonce(length) {
-                        const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                        const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
                         let result = '';
                         const values = new Uint8Array(length);
                         crypto.getRandomValues(values);
@@ -474,6 +477,7 @@
 
                     const rawNonce = generateNonce(32);
                     const hashedNonce = await sha256(rawNonce);
+                    console.log('Apple nonce generated. Raw length:', rawNonce.length, 'Hash:', hashedNonce);
 
                     const response = await SocialLogin.login({
                         provider: 'apple',
@@ -482,13 +486,15 @@
 
                     const result = response.result;
                     const idToken = result.idToken;
+                    console.log('Apple idToken received, length:', idToken ? idToken.length : 'null');
 
-                    // Create Firebase credential from Apple token
+                    // Create Firebase credential with the RAW nonce (Firebase hashes it to verify)
                     const appleProvider = new OAuthProvider('apple.com');
                     const credential = appleProvider.credential({
                         idToken: idToken,
                         rawNonce: rawNonce
                     });
+                    console.log('Firebase credential created, attempting signIn...');
                     userCredential = await signInWithCredential(auth, credential);
 
                     // Apple only provides name on FIRST sign-in, so capture it now
