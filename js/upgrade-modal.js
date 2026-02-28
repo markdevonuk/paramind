@@ -392,26 +392,49 @@
 
                 // Process the purchase via Apple
                 const transaction = await NativePurchases.purchaseProduct({ productIdentifier: productId });
-                console.log('Apple purchase successful:', transaction);
+                console.log('Apple purchase successful:', JSON.stringify(transaction));
 
-                // Get the auth token to call our backend
-                let token;
-                if (typeof getAuthToken === 'function') {
-                    token = await getAuthToken();
-                } else if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-                    token = await firebase.auth().currentUser.getIdToken();
-                } else if (typeof auth !== 'undefined' && auth.currentUser) {
-                    token = await auth.currentUser.getIdToken();
+                // Update Firestore directly first (most reliable)
+                let uid = null;
+                try {
+                    if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+                        uid = firebase.auth().currentUser.uid;
+                    } else if (typeof auth !== 'undefined' && auth.currentUser) {
+                        uid = auth.currentUser.uid;
+                    }
+                    if (uid) {
+                        console.log('Updating Firestore directly for user:', uid);
+                        await firebase.firestore().collection('users').doc(uid).update({
+                            subscriptionStatus: 'active',
+                            subscriptionPlatform: 'apple',
+                            appleProductId: productId,
+                            appleTransactionId: transaction.transactionId || '',
+                            subscriptionUpdatedAt: new Date().toISOString()
+                        });
+                        console.log('Firestore updated successfully');
+                    }
+                } catch (firestoreErr) {
+                    console.error('Firestore direct update failed:', firestoreErr);
                 }
 
-                if (token) {
-                    // Notify our backend about the purchase
-                    const baseUrl = window.paramind?.CONFIG?.api?.baseUrl
-                        || (typeof API_CONFIG !== 'undefined' ? API_CONFIG.baseUrl : null)
-                        || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
+                // Also try backend verification (non-blocking)
+                try {
+                    let token;
+                    if (typeof getAuthToken === 'function') {
+                        token = await getAuthToken();
+                    } else if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+                        token = await firebase.auth().currentUser.getIdToken();
+                    } else if (typeof auth !== 'undefined' && auth.currentUser) {
+                        token = await auth.currentUser.getIdToken();
+                    }
 
-                    try {
-                        await fetch(baseUrl + '/verifyApplePurchase', {
+                    if (token) {
+                        const baseUrl = window.paramind?.CONFIG?.api?.baseUrl
+                            || (typeof API_CONFIG !== 'undefined' ? API_CONFIG.baseUrl : null)
+                            || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
+
+                        console.log('Calling verifyApplePurchase...');
+                        fetch(baseUrl + '/verifyApplePurchase', {
                             method: 'POST',
                             headers: {
                                 'Authorization': 'Bearer ' + token,
@@ -423,22 +446,11 @@
                                 receipt: transaction.receipt || null,
                                 jwsRepresentation: transaction.jwsRepresentation || null
                             })
-                        });
-                    } catch (verifyError) {
-                        console.warn('Backend verification failed, updating locally:', verifyError);
-                        // Fallback: update Firestore directly if backend fails
-                        // This ensures the user gets access even if backend is temporarily down
-                        if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-                            const uid = firebase.auth().currentUser.uid;
-                            await firebase.firestore().collection('users').doc(uid).update({
-                                subscriptionStatus: 'active',
-                                subscriptionPlatform: 'apple',
-                                appleProductId: productId,
-                                appleTransactionId: transaction.transactionId || null,
-                                subscriptionUpdatedAt: new Date().toISOString()
-                            });
-                        }
+                        }).then(r => console.log('Backend verify status:', r.status))
+                          .catch(e => console.warn('Backend verify failed:', e));
                     }
+                } catch (tokenErr) {
+                    console.warn('Could not get auth token for backend:', tokenErr);
                 }
 
                 // Update local cache
