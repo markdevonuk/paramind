@@ -100,6 +100,12 @@
                             <span>Continue with Google</span>
                         </button>
                         
+                        <!-- Apple Sign-In -->
+                        <button type="button" id="appleSignInBtn" style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; width: 100%; padding: 0.75rem 1rem; border: 1px solid #000; border-radius: 8px; background: #000; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 500; color: #fff; transition: opacity 0.2s; margin-top: 0.75rem;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+                            <span>Continue with Apple</span>
+                        </button>
+                        
                         
                     </div>
                 </div>
@@ -113,7 +119,7 @@
     <!-- Firebase -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, signInWithCredential, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, signInWithCredential, GoogleAuthProvider, OAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { initializeFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
         import { firebaseConfig } from './js/firebase-config.js';
 
@@ -130,8 +136,9 @@
         let isGoogleSigningIn = false;
         let isBiometricSigningIn = false;
         let isFormSigningIn = false;
+        let isAppleSigningIn = false;
         onAuthStateChanged(auth, (user) => {
-            if (user && !isGoogleSigningIn && !isBiometricSigningIn && !isFormSigningIn) {
+            if (user && !isGoogleSigningIn && !isBiometricSigningIn && !isFormSigningIn && !isAppleSigningIn) {
                 window.location.href = 'landing.html';
             }
         });
@@ -421,6 +428,106 @@
                     return; // User closed popup — not an error
                 }
                 showError('Google sign-in failed. Please try again or use email/password.');
+            }
+        });
+
+        // ==================== APPLE SIGN-IN ====================
+        document.getElementById('appleSignInBtn').addEventListener('click', async function() {
+            const btn = this;
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            isAppleSigningIn = true;
+
+            try {
+                let userCredential;
+
+                // Check if running inside Capacitor native app
+                if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+                    // Use Capgo Social Login plugin for native Apple Sign-In
+                    const SocialLogin = window.Capacitor.Plugins.SocialLogin;
+                    await SocialLogin.initialize({ apple: {} });
+                    const response = await SocialLogin.login({
+                        provider: 'apple',
+                        options: { scopes: ['email', 'name'] }
+                    });
+
+                    const result = response.result;
+                    const idToken = result.idToken;
+                    const rawNonce = result.nonce || null;
+
+                    // Create Firebase credential from Apple token
+                    const appleProvider = new OAuthProvider('apple.com');
+                    const credential = appleProvider.credential({
+                        idToken: idToken,
+                        rawNonce: rawNonce
+                    });
+                    userCredential = await signInWithCredential(auth, credential);
+
+                    // Apple only provides name on FIRST sign-in, so capture it now
+                    if (result.givenName || result.familyName) {
+                        localStorage.setItem('paramind_apple_name', JSON.stringify({
+                            firstName: result.givenName || '',
+                            surname: result.familyName || ''
+                        }));
+                    }
+                } else {
+                    // Web fallback — use Firebase popup
+                    const appleProvider = new OAuthProvider('apple.com');
+                    appleProvider.addScope('email');
+                    appleProvider.addScope('name');
+                    userCredential = await signInWithPopup(auth, appleProvider);
+                }
+
+                const user = userCredential.user;
+                console.log('Apple sign-in success:', user.uid);
+
+                // Check if user doc exists in Firestore
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+
+                if (userDoc.exists()) {
+                    // Existing user — cache their data
+                    const userData = userDoc.data();
+                    localStorage.setItem('paramind_user', JSON.stringify({
+                        uid: user.uid,
+                        firstName: userData.firstName || user.displayName?.split(' ')[0] || null,
+                        surname: userData.surname || user.displayName?.split(' ').slice(1).join(' ') || null,
+                        email: userData.email || user.email,
+                        trust: userData.trust,
+                        trustFullName: userData.trustFullName,
+                        subscriptionStatus: userData.subscriptionStatus,
+                        dailyMessageCount: userData.dailyMessageCount || 0,
+                        lastMessageDate: userData.lastMessageDate
+                    }));
+                    console.log('Existing Apple user — cached Firestore data');
+                } else {
+                    // New Apple user — send to register to pick their trust
+                    // Try to get name from Apple (only available on first sign-in)
+                    const appleName = JSON.parse(localStorage.getItem('paramind_apple_name') || '{}');
+                    const nameParts = (user.displayName || '').split(' ');
+                    localStorage.setItem('paramind_google_pending', JSON.stringify({
+                        uid: user.uid,
+                        firstName: appleName.firstName || nameParts[0] || '',
+                        surname: appleName.surname || nameParts.slice(1).join(' ') || '',
+                        email: user.email || ''
+                    }));
+                    console.log('New Apple user — redirecting to register');
+                    window.location.href = 'register.html?google=1';
+                    return;
+                }
+
+                showSuccess('Signed in successfully! Redirecting...');
+                setTimeout(() => { window.location.href = 'landing.html'; }, 1000);
+
+            } catch (error) {
+                console.error('Apple sign-in error:', error);
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                isAppleSigningIn = false;
+
+                if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+                    return; // User closed popup — not an error
+                }
+                showError('Apple sign-in failed. Please try again or use email/password.');
             }
         });
     </script>
