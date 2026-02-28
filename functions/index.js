@@ -1236,47 +1236,29 @@ exports.appleAuthToken = onRequest(
         }
       }
 
+      let isNew = false;
       if (!firebaseUser) {
-        // Create new user
+        // Create new Firebase Auth user (no Firestore doc — register.html handles that)
         const createData = {
           displayName: fullName || (email ? email.split('@')[0] : 'Apple User'),
-          providerToLink: {
-            uid: appleUserId,
-            providerId: 'apple.com',
-          }
         };
         if (email) {
           createData.email = email;
           createData.emailVerified = true;
         }
         firebaseUser = await admin.auth().createUser(createData);
-
-        // Create Firestore user document
-        const nameParts = (fullName || '').split(' ');
-        await db.collection("users").doc(firebaseUser.uid).set({
-          email: email || '',
-          firstName: nameParts[0] || '',
-          surname: nameParts.slice(1).join(' ') || '',
-          trust: '',
-          role: '',
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
-          subscriptionStatus: 'free',
-          messageCount: 0,
-          lastMessageDate: null,
-          appleUserId: appleUserId,
-          signInProvider: 'apple'
-        });
+        isNew = true;
       }
 
       // Generate a Firebase custom token
       const customToken = await admin.auth().createCustomToken(firebaseUser.uid);
 
-      console.log(`Apple auth: issued custom token for user ${firebaseUser.uid} (${email || appleUserId})`);
+      console.log(`Apple auth: issued custom token for user ${firebaseUser.uid} (${email || appleUserId})${isNew ? ' [NEW]' : ''}`);
 
       return res.status(200).json({
         customToken: customToken,
         uid: firebaseUser.uid,
-        isNewUser: !firebaseUser.metadata || !firebaseUser.metadata.lastSignInTime
+        isNewUser: isNew
       });
 
     } catch (error) {

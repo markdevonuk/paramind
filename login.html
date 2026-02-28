@@ -508,6 +508,20 @@
 
                     console.log('Got custom token, signing into Firebase...');
                     userCredential = await signInWithCustomToken(auth, tokenData.customToken);
+
+                    // If new user, redirect straight to register (no Firestore doc exists yet)
+                    if (tokenData.isNewUser) {
+                        const appleName = JSON.parse(localStorage.getItem('paramind_apple_name') || '{}');
+                        localStorage.setItem('paramind_google_pending', JSON.stringify({
+                            uid: userCredential.user.uid,
+                            firstName: appleName.firstName || result.givenName || '',
+                            surname: appleName.surname || result.familyName || '',
+                            email: result.profile?.email || userCredential.user.email || ''
+                        }));
+                        console.log('New Apple user — redirecting to register');
+                        window.location.href = 'register.html?google=1';
+                        return;
+                    }
                 } else {
                     // Web fallback — use Firebase popup
                     const appleProvider = new OAuthProvider('apple.com');
