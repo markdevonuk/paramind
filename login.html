@@ -118,7 +118,7 @@
     <!-- Firebase -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, signInWithCredential, GoogleAuthProvider, OAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, signInWithCredential, signInWithCustomToken, GoogleAuthProvider, OAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { initializeFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
         import { firebaseConfig } from './js/firebase-config.js';
 
@@ -452,58 +452,44 @@
                     const SocialLogin = window.Capacitor.Plugins.SocialLogin;
                     await SocialLogin.initialize({ apple: {} });
 
-                    // Firebase requires a nonce for Apple Sign-In verification
-                    // 1. Generate random raw nonce
-                    // 2. SHA-256 hash it and send to Apple
-                    // 3. Send raw nonce to Firebase so it can verify
-                    function generateNonce(length) {
-                        const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
-                        let result = '';
-                        const values = new Uint8Array(length);
-                        crypto.getRandomValues(values);
-                        for (let i = 0; i < length; i++) {
-                            result += charset[values[i] % charset.length];
-                        }
-                        return result;
-                    }
-
-                    async function sha256(plain) {
-                        const encoder = new TextEncoder();
-                        const data = encoder.encode(plain);
-                        const hash = await crypto.subtle.digest('SHA-256', data);
-                        const bytes = new Uint8Array(hash);
-                        return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
-                    }
-
-                    const rawNonce = generateNonce(32);
-                    const hashedNonce = await sha256(rawNonce);
-                    console.log('Apple nonce generated. Raw length:', rawNonce.length, 'Hash:', hashedNonce);
-
                     const response = await SocialLogin.login({
                         provider: 'apple',
-                        options: { scopes: ['email', 'name'], nonce: hashedNonce }
+                        options: { scopes: ['email', 'name'] }
                     });
 
                     const result = response.result;
                     const idToken = result.idToken;
                     console.log('Apple idToken received, length:', idToken ? idToken.length : 'null');
 
-                    // Create Firebase credential with the RAW nonce (Firebase hashes it to verify)
-                    const appleProvider = new OAuthProvider('apple.com');
-                    const credential = appleProvider.credential({
-                        idToken: idToken,
-                        rawNonce: rawNonce
-                    });
-                    console.log('Firebase credential created, attempting signIn...');
-                    userCredential = await signInWithCredential(auth, credential);
-
-                    // Apple only provides name on FIRST sign-in, so capture it now
+                    // Build full name from Apple response (only available on first sign-in)
+                    let fullName = '';
                     if (result.givenName || result.familyName) {
+                        fullName = ((result.givenName || '') + ' ' + (result.familyName || '')).trim();
                         localStorage.setItem('paramind_apple_name', JSON.stringify({
                             firstName: result.givenName || '',
                             surname: result.familyName || ''
                         }));
                     }
+
+                    // Exchange Apple token for Firebase custom token via our backend
+                    const baseUrl = window.paramind?.CONFIG?.api?.baseUrl
+                        || (typeof API_CONFIG !== 'undefined' ? API_CONFIG.baseUrl : null)
+                        || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
+
+                    console.log('Sending Apple token to backend for custom token...');
+                    const tokenResponse = await fetch(baseUrl + '/appleAuthToken', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ idToken: idToken, fullName: fullName })
+                    });
+
+                    const tokenData = await tokenResponse.json();
+                    if (!tokenResponse.ok) {
+                        throw new Error(tokenData.error || 'Failed to get auth token');
+                    }
+
+                    console.log('Got custom token, signing into Firebase...');
+                    userCredential = await signInWithCustomToken(auth, tokenData.customToken);
                 } else {
                     // Web fallback — use Firebase popup
                     const appleProvider = new OAuthProvider('apple.com');

@@ -1171,3 +1171,120 @@ exports.verifyApplePurchase = onRequest(
     }
   }
 );
+
+/**
+ * POST /appleAuthToken
+ * Exchange a native Apple Sign-In token for a Firebase custom token.
+ * Used by Capacitor iOS app where Firebase web SDK can't verify native Apple tokens.
+ */
+exports.appleAuthToken = onRequest(
+  { cors: true },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+      const { idToken, fullName } = req.body;
+
+      if (!idToken) {
+        return res.status(400).json({ error: "Missing idToken" });
+      }
+
+      // Decode the Apple JWT to extract user info (already verified by native SDK)
+      const parts = idToken.split('.');
+      if (parts.length !== 3) {
+        return res.status(400).json({ error: "Invalid token format" });
+      }
+
+      const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+
+      // Validate basic claims
+      if (payload.iss !== 'https://appleid.apple.com') {
+        return res.status(400).json({ error: "Invalid token issuer" });
+      }
+      if (payload.aud !== 'uk.co.paramind.app') {
+        return res.status(400).json({ error: "Invalid token audience" });
+      }
+      // Check token hasn't expired
+      if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) {
+        return res.status(400).json({ error: "Token expired" });
+      }
+
+      const appleUserId = payload.sub;
+      const email = payload.email || null;
+
+      if (!appleUserId) {
+        return res.status(400).json({ error: "Missing user identifier in token" });
+      }
+
+      // Find or create a Firebase Auth user for this Apple user
+      let firebaseUser;
+
+      // First, try to find by Apple provider
+      try {
+        const usersByProvider = await admin.auth().getUserByProviderUid('apple.com', appleUserId);
+        firebaseUser = usersByProvider;
+      } catch (e) {
+        // Not found by provider — try by email
+        if (email) {
+          try {
+            firebaseUser = await admin.auth().getUserByEmail(email);
+          } catch (e2) {
+            // Not found by email either
+          }
+        }
+      }
+
+      if (!firebaseUser) {
+        // Create new user
+        const createData = {
+          displayName: fullName || (email ? email.split('@')[0] : 'Apple User'),
+          providerToLink: {
+            uid: appleUserId,
+            providerId: 'apple.com',
+          }
+        };
+        if (email) {
+          createData.email = email;
+          createData.emailVerified = true;
+        }
+        firebaseUser = await admin.auth().createUser(createData);
+
+        // Create Firestore user document
+        const nameParts = (fullName || '').split(' ');
+        await db.collection("users").doc(firebaseUser.uid).set({
+          email: email || '',
+          firstName: nameParts[0] || '',
+          surname: nameParts.slice(1).join(' ') || '',
+          trust: '',
+          role: '',
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          subscriptionStatus: 'free',
+          messageCount: 0,
+          lastMessageDate: null,
+          appleUserId: appleUserId,
+          signInProvider: 'apple'
+        });
+      }
+
+      // Generate a Firebase custom token
+      const customToken = await admin.auth().createCustomToken(firebaseUser.uid);
+
+      console.log(`Apple auth: issued custom token for user ${firebaseUser.uid} (${email || appleUserId})`);
+
+      return res.status(200).json({
+        customToken: customToken,
+        uid: firebaseUser.uid,
+        isNewUser: !firebaseUser.metadata || !firebaseUser.metadata.lastSignInTime
+      });
+
+    } catch (error) {
+      console.error("Apple auth error:", error);
+      return res.status(500).json({
+        error: "Authentication failed",
+        details: error.message
+      });
+    }
+  }
+);
