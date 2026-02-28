@@ -463,11 +463,13 @@
 
                     // Build full name from Apple response (only available on first sign-in)
                     let fullName = '';
-                    if (result.givenName || result.familyName) {
-                        fullName = ((result.givenName || '') + ' ' + (result.familyName || '')).trim();
+                    const givenName = result.givenName || (result.profile && result.profile.givenName) || '';
+                    const familyName = result.familyName || (result.profile && result.profile.familyName) || '';
+                    if (givenName || familyName) {
+                        fullName = (givenName + ' ' + familyName).trim();
                         localStorage.setItem('paramind_apple_name', JSON.stringify({
-                            firstName: result.givenName || '',
-                            surname: result.familyName || ''
+                            firstName: givenName,
+                            surname: familyName
                         }));
                     }
 
@@ -512,13 +514,14 @@
                     // If new user, redirect straight to register (no Firestore doc exists yet)
                     if (tokenData.isNewUser) {
                         const appleName = JSON.parse(localStorage.getItem('paramind_apple_name') || '{}');
+                        const profileEmail = (result.profile && result.profile.email) || userCredential.user.email || '';
                         localStorage.setItem('paramind_google_pending', JSON.stringify({
                             uid: userCredential.user.uid,
-                            firstName: appleName.firstName || result.givenName || '',
-                            surname: appleName.surname || result.familyName || '',
-                            email: result.profile?.email || userCredential.user.email || ''
+                            firstName: appleName.firstName || givenName || '',
+                            surname: appleName.surname || familyName || '',
+                            email: profileEmail
                         }));
-                        console.log('New Apple user — redirecting to register');
+                        console.log('New Apple user — redirecting to register, name:', appleName.firstName, appleName.surname);
                         window.location.href = 'register.html?google=1';
                         return;
                     }

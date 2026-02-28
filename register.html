@@ -132,7 +132,7 @@
                         </form>
                         
                         <!-- Divider -->
-                        <div style="display: flex; align-items: center; margin: 1.5rem 0; gap: 1rem;">
+                        <div id="orDivider" style="display: flex; align-items: center; margin: 1.5rem 0; gap: 1rem;">
                             <div style="flex: 1; height: 1px; background: #dee2e6;"></div>
                             <span style="color: #6c757d; font-size: 0.85rem; font-weight: 500;">or</span>
                             <div style="flex: 1; height: 1px; background: #dee2e6;"></div>
@@ -234,6 +234,16 @@ if (urlParams.get('google') === '1' && googlePendingData) {
     if (heading && heading.textContent.includes('Create')) {
         heading.textContent = 'Complete Your Account';
     }
+
+    // Hide Google, Apple buttons and OR divider (user is already signed in)
+    const googleBtn = document.getElementById('googleSignInBtn');
+    const appleBtn = document.getElementById('appleSignInBtn');
+    const orDivider = document.getElementById('orDivider');
+    const authFooter = document.querySelector('.auth-footer');
+    if (googleBtn) googleBtn.style.display = 'none';
+    if (appleBtn) appleBtn.style.display = 'none';
+    if (orDivider) orDivider.style.display = 'none';
+    if (authFooter) authFooter.style.display = 'none';
 }
 
 onAuthStateChanged(auth, (user) => {
@@ -583,11 +593,13 @@ isRegistering = true;
 
                     // Build full name from Apple response (only available on first sign-in)
                     let fullName = '';
-                    if (result.givenName || result.familyName) {
-                        fullName = ((result.givenName || '') + ' ' + (result.familyName || '')).trim();
+                    const givenName = result.givenName || (result.profile && result.profile.givenName) || '';
+                    const familyName = result.familyName || (result.profile && result.profile.familyName) || '';
+                    if (givenName || familyName) {
+                        fullName = (givenName + ' ' + familyName).trim();
                         localStorage.setItem('paramind_apple_name', JSON.stringify({
-                            firstName: result.givenName || '',
-                            surname: result.familyName || ''
+                            firstName: givenName,
+                            surname: familyName
                         }));
                     }
 
