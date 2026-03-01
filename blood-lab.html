@@ -789,35 +789,191 @@
         }
 
         /* ==================== GUIDED TOUR ==================== */
-        .tour-welcome {
+        .tour-overlay {
             display: none;
             position: fixed;
-            inset: 0;
-            z-index: 10000;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(4px);
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 9000;
+        }
+        .tour-overlay.active { display: block; }
+
+        .tour-spotlight {
+            position: absolute;
+            border-radius: 12px;
+            box-shadow: 0 0 0 4000px rgba(0,0,0,0.55);
+            transition: all 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+            pointer-events: none;
+        }
+
+        .tour-tooltip {
+            position: absolute;
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 16px 18px 14px;
+            width: min(320px, calc(100vw - 32px));
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+            z-index: 9001;
+            animation: tourFadeIn 0.3s ease;
+        }
+        .tour-tooltip-arrow {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: #FFFFFF;
+            transform: rotate(45deg);
+            box-shadow: -2px -2px 4px rgba(0,0,0,0.05);
+        }
+        .tour-tooltip-arrow.arrow-top { top: -7px; left: 28px; }
+        .tour-tooltip-arrow.arrow-bottom { bottom: -7px; left: 28px; }
+
+        .tour-tooltip-step {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+        .tour-step-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-teal), #237282);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1rem;
+            flex-shrink: 0;
         }
-        .tour-welcome.show { display: flex; }
-        .tour-welcome-card {
-            background: #fff;
-            border-radius: var(--radius-lg);
-            padding: 2rem 1.5rem;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: fadeSlideIn 0.3s ease;
+        .tour-step-label {
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--color-gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
-        .tour-welcome-icon { font-size: 3rem; margin-bottom: 0.75rem; }
-        .tour-welcome-card h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
-        .tour-welcome-card p { color: var(--color-gray-600); font-size: 0.9rem; margin-bottom: 1.25rem; line-height: 1.5; }
-        .tour-welcome-btns { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-        .tour-start-btn {
+        .tour-tooltip h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #212529;
+            margin: 0 0 4px;
+        }
+        .tour-tooltip p {
+            font-size: 0.82rem;
+            line-height: 1.5;
+            color: var(--color-gray-600);
+            margin: 0 0 12px;
+        }
+        .tour-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .tour-skip-btn {
+            background: none;
+            border: none;
+            color: var(--color-gray-500);
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 4px 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: color 0.2s;
+        }
+        .tour-skip-btn:hover { color: var(--color-gray-700); }
+        .tour-next-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--color-teal), #237282);
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.2s ease;
+        }
+        .tour-next-btn:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .tour-next-btn:active { transform: scale(0.97); }
+
+        .tour-dots { display: flex; gap: 5px; align-items: center; }
+        .tour-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-gray-300);
+            transition: all 0.2s ease;
+        }
+        .tour-dot.active {
             background: var(--color-teal);
-            color: #fff;
-            padding: 12px 28px;
+            width: 18px;
+            border-radius: 3px;
+        }
+        .tour-dot.done { background: var(--color-teal); }
+
+        @keyframes tourFadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Welcome splash */
+        .tour-welcome {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 9002;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .tour-welcome.active { display: flex; }
+        .tour-welcome-card {
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 28px 24px 22px;
+            max-width: 340px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: tourFadeIn 0.35s ease;
+        }
+        .tour-welcome-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(43,138,156,0.12), rgba(92,184,92,0.1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin: 0 auto 12px;
+        }
+        .tour-welcome-card h3 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #212529;
+            margin: 0 0 6px;
+        }
+        .tour-welcome-card p {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: var(--color-gray-600);
+            margin: 0 0 18px;
+        }
+        .tour-welcome-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .tour-start-btn {
+            width: 100%;
+            padding: 11px 20px;
+            background: linear-gradient(135deg, var(--color-teal), #237282);
+            color: white;
             border: none;
             border-radius: 9999px;
             font-size: 0.9rem;
@@ -826,10 +982,11 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
-        .tour-start-btn:hover { box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .tour-start-btn:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         .tour-dismiss-btn {
             background: none;
             border: none;
@@ -839,6 +996,7 @@
             cursor: pointer;
             padding: 8px;
             font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: color 0.2s;
         }
         .tour-dismiss-btn:hover { color: var(--color-gray-700); }
     </style>
@@ -923,17 +1081,40 @@
 </div>
 
 <!-- ==================== GUIDED TOUR ==================== -->
+
+<!-- Welcome splash -->
 <div class="tour-welcome" id="tourWelcome">
     <div class="tour-welcome-card">
         <div class="tour-welcome-icon">🧪</div>
         <h3>Welcome to Blood Lab</h3>
-        <p>Learn what hospital blood results actually mean. Explore each test, play with values using interactive sliders, then test your knowledge with realistic scenario-based questions.</p>
+        <p>Learn what hospital blood results actually mean. Explore each test, play with values using interactive sliders, then test yourself with scenario-based questions.</p>
         <div class="tour-welcome-btns">
             <button class="tour-start-btn" id="tourStartBtn">
-                Let's go <i class="bi bi-arrow-right"></i>
+                Show me around <i class="bi bi-arrow-right"></i>
             </button>
             <button class="tour-dismiss-btn" id="tourDismissBtn">
                 I'll explore on my own
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Step-by-step overlay -->
+<div class="tour-overlay" id="tourOverlay">
+    <div class="tour-spotlight" id="tourSpotlight"></div>
+    <div class="tour-tooltip" id="tourTooltip">
+        <div class="tour-tooltip-arrow arrow-top" id="tourArrow"></div>
+        <div class="tour-tooltip-step">
+            <div class="tour-step-num" id="tourStepNum">1</div>
+            <div class="tour-step-label" id="tourStepLabel">Step 1 of 5</div>
+        </div>
+        <h4 id="tourTitle"></h4>
+        <p id="tourDesc"></p>
+        <div class="tour-actions">
+            <button class="tour-skip-btn" id="tourSkipBtn">Skip tour</button>
+            <div class="tour-dots" id="tourDots"></div>
+            <button class="tour-next-btn" id="tourNextBtn">
+                Next <i class="bi bi-arrow-right"></i>
             </button>
         </div>
     </div>
@@ -979,7 +1160,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initSliderDefaults();
     buildCategoryNav();
     renderPanels();
-    initTour();
 });
 
 // Expose mode toggle globally
@@ -1425,24 +1605,208 @@ function shuffleArray(arr) {
 // ==================== GUIDED TOUR ====================
 function initTour() {
     try {
-        if (localStorage.getItem('bloodlab_tourDone') === '1') return;
+        if (localStorage.getItem('bloodlab_tourDone')) return;
     } catch(e) {}
-    setTimeout(() => {
-        document.getElementById('tourWelcome').classList.add('show');
-    }, 600);
 
-    document.getElementById('tourStartBtn').addEventListener('click', () => {
-        document.getElementById('tourWelcome').classList.remove('show');
-        markTourDone();
+    // Wait for panels to be rendered
+    if (!document.querySelector('.marker-row')) {
+        setTimeout(initTour, 500);
+        return;
+    }
+
+    tour.welcome.classList.add('active');
+
+    tour.startBtn.addEventListener('click', () => {
+        tour.welcome.classList.remove('active');
+        startTour();
     });
-    document.getElementById('tourDismissBtn').addEventListener('click', () => {
-        document.getElementById('tourWelcome').classList.remove('show');
+
+    tour.dismissBtn.addEventListener('click', () => {
+        tour.welcome.classList.remove('active');
         markTourDone();
     });
 }
+
+const TOUR_STEPS = [
+    {
+        target: '.category-nav',
+        title: 'Filter by Panel',
+        desc: 'Use these buttons to filter by blood panel — FBC, U&Es, LFTs, Cardiac Markers, Blood Gases and more. Or view them all at once.'
+    },
+    {
+        target: '.marker-row',
+        title: 'Marker Rows',
+        desc: 'Each row shows a blood marker with its current value and reference range. Tap any row to expand it and learn more.'
+    },
+    {
+        target: '.slider-area',
+        title: 'Interactive Value Sliders',
+        desc: 'Drag the slider to change the value and watch it turn green, amber, or red. The hint below updates to explain what that level means clinically.',
+        action: () => {
+            const firstRow = document.querySelector('.marker-row');
+            if (firstRow && !firstRow.classList.contains('expanded')) {
+                firstRow.classList.add('expanded');
+            }
+        },
+        actionDelay: 400
+    },
+    {
+        target: '.info-cards',
+        title: 'Clinical Explanations',
+        desc: 'Each marker has four cards: what it measures, what high and low values mean, and crucially — why it matters to you as a paramedic on the road.'
+    },
+    {
+        target: '.mode-toggle',
+        title: 'Test Yourself',
+        desc: 'Switch to Test Mode for 25 scenario-based questions. You\'ll get a real clinical dispatch with blood results and need to interpret them — just like the real thing.'
+    }
+];
+
+const tour = {
+    step: 0,
+    overlay: document.getElementById('tourOverlay'),
+    spotlight: document.getElementById('tourSpotlight'),
+    tooltip: document.getElementById('tourTooltip'),
+    arrow: document.getElementById('tourArrow'),
+    title: document.getElementById('tourTitle'),
+    desc: document.getElementById('tourDesc'),
+    stepNum: document.getElementById('tourStepNum'),
+    stepLabel: document.getElementById('tourStepLabel'),
+    dots: document.getElementById('tourDots'),
+    nextBtn: document.getElementById('tourNextBtn'),
+    skipBtn: document.getElementById('tourSkipBtn'),
+    welcome: document.getElementById('tourWelcome'),
+    startBtn: document.getElementById('tourStartBtn'),
+    dismissBtn: document.getElementById('tourDismissBtn')
+};
+
+function startTour() {
+    tour.step = 0;
+    tour.overlay.classList.add('active');
+
+    tour.dots.innerHTML = TOUR_STEPS.map((_, i) =>
+        `<div class="tour-dot ${i === 0 ? 'active' : ''}" data-dot="${i}"></div>`
+    ).join('');
+
+    tour.nextBtn.addEventListener('click', nextTourStep);
+    tour.skipBtn.addEventListener('click', endTour);
+
+    tour.overlay.addEventListener('click', (e) => {
+        if (e.target === tour.overlay || e.target === tour.spotlight) {
+            e.stopPropagation();
+        }
+    });
+
+    showTourStep(0);
+}
+
+function showTourStep(idx) {
+    const step = TOUR_STEPS[idx];
+
+    if (step.action) {
+        step.action();
+    }
+
+    tour.spotlight.style.transition = 'none';
+    tour.spotlight.style.top = '-9999px';
+    tour.tooltip.style.visibility = 'hidden';
+
+    const delay = step.actionDelay || 150;
+
+    setTimeout(() => {
+        const targetEl = document.querySelector(step.target);
+        if (!targetEl) { nextTourStep(); return; }
+
+        const preRect = targetEl.getBoundingClientRect();
+        const inView = preRect.top >= 0 && preRect.bottom <= window.innerHeight;
+
+        if (!inView) {
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        const posDelay = inView ? 60 : 550;
+
+        setTimeout(() => {
+            tour.stepNum.textContent = idx + 1;
+            tour.stepLabel.textContent = `Step ${idx + 1} of ${TOUR_STEPS.length}`;
+            tour.title.textContent = step.title;
+            tour.desc.textContent = step.desc;
+
+            if (idx === TOUR_STEPS.length - 1) {
+                tour.nextBtn.innerHTML = 'Get started <i class="bi bi-check-lg"></i>';
+            } else {
+                tour.nextBtn.innerHTML = 'Next <i class="bi bi-arrow-right"></i>';
+            }
+
+            tour.dots.querySelectorAll('.tour-dot').forEach((dot, i) => {
+                dot.classList.remove('active', 'done');
+                if (i < idx) dot.classList.add('done');
+                if (i === idx) dot.classList.add('active');
+            });
+
+            const rect = targetEl.getBoundingClientRect();
+            const pad = 6;
+
+            tour.spotlight.style.top = (rect.top - pad) + 'px';
+            tour.spotlight.style.left = (rect.left - pad) + 'px';
+            tour.spotlight.style.width = (rect.width + pad * 2) + 'px';
+            tour.spotlight.style.height = (rect.height + pad * 2) + 'px';
+            void tour.spotlight.offsetWidth;
+            tour.spotlight.style.transition = 'all 0.35s cubic-bezier(0.32, 0.72, 0, 1)';
+
+            tour.tooltip.style.visibility = 'visible';
+            tour.tooltip.style.animation = 'none';
+            void tour.tooltip.offsetWidth;
+            tour.tooltip.style.animation = 'tourFadeIn 0.3s ease';
+
+            const spotBottom = rect.bottom + pad;
+            const spaceBelow = window.innerHeight - spotBottom;
+            const tooltipHeight = 200;
+
+            if (spaceBelow > tooltipHeight + 20) {
+                tour.tooltip.style.top = (spotBottom + 12) + 'px';
+                tour.tooltip.style.bottom = 'auto';
+                tour.arrow.className = 'tour-tooltip-arrow arrow-top';
+            } else {
+                tour.tooltip.style.top = 'auto';
+                tour.tooltip.style.bottom = (window.innerHeight - rect.top + pad + 12) + 'px';
+                tour.arrow.className = 'tour-tooltip-arrow arrow-bottom';
+            }
+
+            let tooltipLeft = rect.left + rect.width / 2 - 160;
+            tooltipLeft = Math.max(16, Math.min(tooltipLeft, window.innerWidth - 336));
+            tour.tooltip.style.left = tooltipLeft + 'px';
+
+            const arrowLeft = Math.max(20, Math.min(rect.left + rect.width / 2 - tooltipLeft - 7, 280));
+            tour.arrow.style.left = arrowLeft + 'px';
+        }, posDelay);
+    }, delay);
+}
+
+function nextTourStep() {
+    tour.step++;
+    if (tour.step >= TOUR_STEPS.length) {
+        endTour();
+    } else {
+        showTourStep(tour.step);
+    }
+}
+
+function endTour() {
+    tour.overlay.classList.remove('active');
+    markTourDone();
+
+    // Collapse any expanded marker
+    document.querySelectorAll('.marker-row.expanded').forEach(r => r.classList.remove('expanded'));
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 function markTourDone() {
     try { localStorage.setItem('bloodlab_tourDone', '1'); } catch(e) {}
 }
+
+setTimeout(initTour, 800);
 </script>
 
 <!-- Standardised script loading (NO pro-guard for testing) -->
