@@ -1160,6 +1160,7 @@ let quizIndex = 0;
 let quizCorrectCount = 0;
 let quizAnswered = 0;
 let selectedOption = null;
+let shuffledCorrect = null;
 
 // ==================== INIT ====================
 document.addEventListener('DOMContentLoaded', () => {
@@ -1486,10 +1487,19 @@ function renderQuestion() {
     }
 
     const letters = ['A', 'B', 'C', 'D'];
+    // Shuffle options so the correct answer isn't always in the same position
+    const optionIndices = [0, 1, 2, 3];
+    for (let i = optionIndices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [optionIndices[i], optionIndices[j]] = [optionIndices[j], optionIndices[i]];
+    }
+    // Track where the correct answer ended up after shuffle
+    shuffledCorrect = optionIndices.indexOf(s.correct);
+
     let optionsHtml = '';
-    s.options.forEach((opt, i) => {
-        optionsHtml += `<button class="option-btn" data-idx="${i}" onclick="selectOption(${i})">
-            <span class="option-letter">${letters[i]}</span>${opt}
+    optionIndices.forEach((origIdx, displayIdx) => {
+        optionsHtml += `<button class="option-btn" data-idx="${displayIdx}" onclick="selectOption(${displayIdx})">
+            <span class="option-letter">${letters[displayIdx]}</span>${s.options[origIdx]}
         </button>`;
     });
 
@@ -1498,7 +1508,6 @@ function renderQuestion() {
             <div class="dispatch-header">
                 <div class="dispatch-label"><i class="bi bi-telephone-fill"></i> Clinical Scenario</div>
                 <div class="dispatch-text">${s.dispatch}</div>
-                <span class="dispatch-category">${s.category}</span>
             </div>
             <div class="scenario-bloods">
                 <div class="scenario-bloods-title">Blood Results</div>
@@ -1530,7 +1539,7 @@ window.selectOption = function(idx) {
 
 window.checkQuizAnswer = function() {
     const s = quizOrder[quizIndex];
-    const isCorrect = selectedOption === s.correct;
+    const isCorrect = selectedOption === shuffledCorrect;
     quizAnswered++;
     if (isCorrect) quizCorrectCount++;
 
@@ -1542,7 +1551,7 @@ window.checkQuizAnswer = function() {
         const idx = parseInt(b.dataset.idx);
         b.classList.add('disabled');
         b.classList.remove('selected');
-        if (idx === s.correct) b.classList.add('correct-answer');
+        if (idx === shuffledCorrect) b.classList.add('correct-answer');
         if (idx === selectedOption && !isCorrect) b.classList.add('wrong-answer');
     });
 
