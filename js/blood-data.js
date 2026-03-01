@@ -615,10 +615,10 @@ export const scenarios = [
         bloods: { wcc: 22.4, neutrophils: 19.8, crp: 287, lactate: 4.8, urea: 14.2, creatinine: 210, sodium: 131, potassium: 5.4, ph: 7.28, glucose: 8.2 },
         question: 'Which combination of results is most concerning and why?',
         options: [
-            'Raised WCC and CRP — confirms infection is present',
-            'Lactate of 4.8 with pH 7.28 — indicates severe sepsis with tissue hypoperfusion and metabolic acidosis',
-            'Raised urea and creatinine — shows chronic kidney disease',
-            'Sodium of 131 — causing her confusion'
+            'Raised WCC (22.4) and CRP (287) confirm bacterial infection is present and are the key markers driving the clinical picture — the infection itself is what needs treating urgently',
+            'Lactate of 4.8 with pH 7.28 — indicates severe sepsis with tissue hypoperfusion and metabolic acidosis, triggering the sepsis 6 bundle regardless of the infection markers',
+            'Raised urea (14.2) and creatinine (210) indicate chronic kidney disease that has been missed — this is the underlying cause of her confusion and haemodynamic instability',
+            'Sodium of 131 is the primary concern — hyponatraemia at this level causes the confusion and altered mental state, and correcting it would resolve her symptoms'
         ],
         correct: 1,
         explanation: 'The lactate of 4.8 combined with a pH of 7.28 indicates severe sepsis with significant tissue hypoperfusion and metabolic acidosis. Lactate >4 triggers the sepsis 6 bundle. The raised WCC/CRP confirm infection, but it\'s the lactate and acidosis that indicate severity. The raised urea/creatinine likely represent acute kidney injury secondary to sepsis, not chronic disease. The mildly low sodium alone wouldn\'t cause this degree of confusion.'
@@ -630,10 +630,10 @@ export const scenarios = [
         bloods: { troponin: 892, bnp: 180, wcc: 12.8, crp: 18, glucose: 9.2, potassium: 4.1, creatinine: 88 },
         question: 'What does this blood panel most likely confirm?',
         options: [
-            'Heart failure — the BNP is raised',
-            'Acute myocardial infarction — the troponin of 892 confirms significant myocardial injury',
-            'Infection — the WCC is raised',
-            'Diabetic emergency — the glucose is 9.2'
+            'Acute heart failure — the BNP of 180 is above the normal range, indicating the heart is under significant strain and struggling to maintain adequate cardiac output',
+            'Acute myocardial infarction — the troponin of 892 at 4 hours post-onset confirms significant myocardial injury, consistent with the clinical presentation of ACS',
+            'Developing sepsis — the WCC of 12.8 combined with CRP of 18 and hyperglycaemia suggests an underlying infectious process causing the chest pain and diaphoresis',
+            'New-onset diabetes presenting as a hyperglycaemic emergency — the glucose of 9.2 with stress markers suggests undiagnosed diabetes driving the acute presentation'
         ],
         correct: 1,
         explanation: 'A troponin of 892 ng/L (normal <14) taken 4 hours after symptom onset confirms significant myocardial injury consistent with acute MI. The mildly raised BNP reflects cardiac strain but isn\'t diagnostic of heart failure here. The slightly raised WCC is a stress response. The glucose of 9.2 is a stress hyperglycaemia, not a diabetic emergency.'
@@ -645,10 +645,10 @@ export const scenarios = [
         bloods: { glucose: 32.4, ph: 7.08, hco3: 8, be: -18, potassium: 5.8, sodium: 128, lactate: 3.2, urea: 12.1, creatinine: 148 },
         question: 'Which result best indicates the severity of this DKA?',
         options: [
-            'Glucose of 32.4 — extremely high blood sugar',
-            'Potassium of 5.8 — risk of cardiac arrest',
-            'pH of 7.08 with bicarbonate of 8 and BE of -18 — severe metabolic acidosis',
-            'Sodium of 128 — severe hyponatraemia'
+            'Glucose of 32.4 — this extremely high blood sugar is the defining feature of DKA severity, and the higher the glucose the more dangerous the episode is for the patient',
+            'Potassium of 5.8 — this is the most dangerous result because hyperkalaemia at this level puts her at immediate risk of cardiac arrhythmia and VF arrest',
+            'pH of 7.08 with bicarbonate of 8 and BE of -18 — this severe metabolic acidosis is what makes DKA life-threatening, not the glucose level itself',
+            'Sodium of 128 — this degree of hyponatraemia indicates severe fluid shifts and cerebral oedema risk, which is the main cause of DKA-related death in young patients'
         ],
         correct: 2,
         explanation: 'The pH of 7.08, bicarbonate of 8, and base excess of -18 indicate severe metabolic acidosis — this is what makes DKA life-threatening, not the glucose level alone. The Kussmaul breathing is the body\'s attempt to blow off CO₂ to compensate. The potassium of 5.8 is actually misleading — total body potassium is depleted in DKA despite the high reading (acidosis shifts K⁺ out of cells). As insulin corrects the acidosis, potassium will plummet. The glucose, while high, is not what kills in DKA — the acidosis is.'
@@ -660,10 +660,10 @@ export const scenarios = [
         bloods: { potassium: 7.2, creatinine: 380, urea: 18.4, ph: 7.18, lactate: 6.1, ast: 1200, alt: 180 },
         question: 'What is the most immediately life-threatening result?',
         options: [
-            'Creatinine of 380 — acute kidney failure',
-            'Potassium of 7.2 — imminent risk of fatal cardiac arrhythmia',
-            'Lactate of 6.1 — tissue hypoperfusion',
-            'AST of 1200 — liver damage'
+            'Creatinine of 380 — acute kidney failure at this level means toxins are accumulating rapidly and the kidneys cannot clear waste products, requiring emergency dialysis',
+            'Potassium of 7.2 — at this level there is imminent risk of fatal cardiac arrhythmia (VF), requiring emergency cardiac stabilisation with calcium gluconate',
+            'Lactate of 6.1 — this level of tissue hypoperfusion indicates critical end-organ damage and carries a high mortality risk without immediate aggressive fluid resuscitation',
+            'AST of 1200 — this suggests massive hepatic necrosis from the crush injury, indicating liver failure that could lead to coagulopathy and multi-organ dysfunction'
         ],
         correct: 1,
         explanation: 'Potassium of 7.2 is immediately life-threatening. In crush injuries, massive amounts of potassium are released from damaged muscle cells on reperfusion. At K⁺ >6.5, the risk of VF and cardiac arrest is high. The ECG will likely show peaked T-waves and widened QRS. The raised creatinine reflects rhabdomyolysis-related kidney injury. The very high AST is from muscle damage (not liver — note ALT is only mildly raised). Treatment priority is calcium gluconate to stabilise the myocardium, insulin/dextrose to drive potassium into cells, and aggressive fluid resuscitation.'
@@ -675,10 +675,10 @@ export const scenarios = [
         bloods: { hb: 98, lactate: 5.4, creatinine: 168, troponin: 45, inr: 1.1, potassium: 4.8 },
         question: 'How do these bloods fit with the clinical picture?',
         options: [
-            'The troponin of 45 confirms MI as the primary diagnosis',
-            'The low Hb suggests chronic anaemia unrelated to this presentation',
+            'The troponin of 45 confirms acute MI as the primary diagnosis — the chest pain and raised troponin together indicate coronary artery occlusion requiring urgent PCI',
+            'The low Hb of 98 indicates a chronic iron-deficiency anaemia unrelated to this presentation — the acute symptoms are caused by the hypertensive crisis alone',
             'The raised lactate and creatinine with low Hb suggest aortic dissection with end-organ malperfusion — the troponin rise is secondary to aortic root involvement',
-            'The normal INR rules out any bleeding'
+            'The normal INR of 1.1 confirms there is no internal bleeding, and the raised creatinine indicates pre-existing chronic kidney disease as an incidental finding'
         ],
         correct: 2,
         explanation: 'The BP differential between arms, tearing pain, and bloods together suggest aortic dissection. The Hb of 98 suggests blood loss (into the false lumen or mediastinum). Raised lactate indicates organs aren\'t being perfused properly. Raised creatinine suggests renal malperfusion. The mild troponin rise (45) can occur when the dissection involves the aortic root and compromises coronary blood flow — this is a secondary finding, not primary MI. The INR being normal tells us the patient isn\'t anticoagulated, but doesn\'t "rule out bleeding" — dissection causes mechanical bleeding, not coagulopathic bleeding.'
@@ -690,10 +690,10 @@ export const scenarios = [
         bloods: { inr: 5.8, pt: 52, platelets: 165, hb: 118, creatinine: 95 },
         question: 'What is the key concern from these results?',
         options: [
-            'The platelets are normal so bleeding risk is low',
-            'The INR of 5.8 puts her at very high risk of intracranial haemorrhage following head injury',
-            'The Hb of 118 rules out significant bleeding',
-            'The creatinine is normal so her kidneys are fine'
+            'The platelets of 165 are within normal range, confirming that the primary clotting system is functioning adequately and the bleeding risk from this head injury is therefore acceptably low',
+            'The INR of 5.8 puts her at very high risk of intracranial haemorrhage — her blood is far more anticoagulated than intended, and any head injury bleed will expand rapidly',
+            'The Hb of 118 confirms there has been no significant blood loss from the fall, so the head injury is likely minor and does not require urgent CT imaging',
+            'The creatinine of 95 is normal, confirming good renal clearance of warfarin — the high INR is likely a lab error and should be repeated before taking action'
         ],
         correct: 1,
         explanation: 'An INR of 5.8 (therapeutic range for AF is 2-3) means her blood is much thinner than intended and clotting is severely impaired. Combined with a head injury, this puts her at very high risk of intracranial haemorrhage. Even a seemingly minor head injury can cause a subdural or extradural bleed in an over-anticoagulated patient. The normal Hb doesn\'t rule out bleeding — intracranial bleeds don\'t show in Hb initially. She needs urgent CT head, INR reversal (vitamin K ± prothrombin complex concentrate), and neurosurgical input.'
@@ -705,10 +705,10 @@ export const scenarios = [
         bloods: { bnp: 2800, troponin: 38, hb: 108, sodium: 130, creatinine: 105, alt: 65, albumin: 28 },
         question: 'What diagnosis do these bloods support?',
         options: [
-            'Pulmonary embolism — post-partum with breathlessness',
-            'Anaemia — Hb of 108 explains all her symptoms',
-            'Peripartum cardiomyopathy with acute heart failure — massively raised BNP with mild troponin rise',
-            'Liver disease — low albumin and raised ALT'
+            'Pulmonary embolism — she is post-partum and breathless, and the raised troponin (38) with low SpO₂ supports a large PE causing right heart strain',
+            'Iron-deficiency anaemia from post-partum blood loss — the Hb of 108 explains her breathlessness, tachycardia, and reduced exercise tolerance entirely',
+            'Peripartum cardiomyopathy with acute heart failure — the massively raised BNP (2800) with troponin rise confirms significant cardiac dysfunction',
+            'Acute liver disease — the low albumin (28) with raised ALT (65) indicates hepatic dysfunction, and the oedema is from reduced oncotic pressure'
         ],
         correct: 2,
         explanation: 'BNP of 2800 is massively elevated, strongly confirming heart failure. In a young post-partum woman, peripartum cardiomyopathy is the key diagnosis. The mild troponin rise (38) reflects myocardial strain from the failing heart. The low albumin and mildly raised ALT are secondary to hepatic congestion from right heart failure. The Hb of 108 is mildly low (common post-partum) but doesn\'t explain the BNP or clinical picture. While PE should be excluded, the very high BNP points to heart failure as the primary problem.'
@@ -720,10 +720,10 @@ export const scenarios = [
         bloods: { alt: 4200, ast: 3800, inr: 6.2, bilirubin: 85, creatinine: 210, ph: 7.22, lactate: 8.5, glucose: 2.8 },
         question: 'Which results indicate the worst prognosis?',
         options: [
-            'ALT of 4200 — massive liver cell death',
-            'INR of 6.2 with pH <7.25 and hypoglycaemia — these are King\'s College criteria for liver transplant referral',
-            'Bilirubin of 85 — causing the jaundice',
-            'Creatinine of 210 — acute kidney injury'
+            'ALT of 4200 — this massive level of hepatocyte destruction is the primary prognostic indicator, and patients with ALT above 3000 have a very high mortality rate',
+            'INR of 6.2 combined with pH <7.25 and hypoglycaemia — these meet King\'s College criteria for emergency liver transplant referral and indicate catastrophic liver failure',
+            'Bilirubin of 85 causing jaundice — this confirms severe cholestatic liver injury, and bilirubin at this level indicates irreversible damage to the bile duct system',
+            'Creatinine of 210 with lactate of 8.5 — the combination of acute kidney injury and severe tissue hypoperfusion indicates established multi-organ failure with hepatorenal syndrome developing'
         ],
         correct: 1,
         explanation: 'The combination of INR >6.5 (his is 6.2 and rising), pH <7.3 (his is 7.22), and renal impairment (creatinine 210) meets King\'s College Hospital criteria for emergency liver transplant referral. The pH <7.25 alone, or the combination of INR >6.5 + creatinine >300 + grade III encephalopathy, are criteria. The hypoglycaemia (glucose 2.8) indicates the liver can no longer maintain glucose production — a very late and ominous sign. The massively raised ALT confirms hepatocyte death but alone doesn\'t predict prognosis. This patient needs critical care and likely liver transplant assessment.'
@@ -735,10 +735,10 @@ export const scenarios = [
         bloods: { troponin: 120, bnp: 650, pao2: 7.2, paco2: 3.8, ph: 7.48, lactate: 3.1, hb: 148 },
         question: 'How do these results support the suspected diagnosis of PE?',
         options: [
-            'The troponin confirms MI — not PE',
-            'The high Hb causes the breathlessness',
-            'Low PaO₂ with low PaCO₂ (type 1 respiratory failure), raised troponin and BNP from right heart strain, and raised lactate all support a significant PE',
-            'The alkalotic pH means the patient is hyperventilating from anxiety'
+            'The troponin of 120 confirms acute MI rather than PE — the pleuritic pain and calf swelling are coincidental, and the primary pathology is coronary artery disease',
+            'The Hb of 148 indicates polycythaemia, which caused the DVT and subsequent PE — the high red cell count increased blood viscosity and triggered clot formation',
+            'Low PaO₂ with low PaCO₂ shows type 1 respiratory failure, the raised troponin and BNP reflect right heart strain, and raised lactate confirms tissue hypoperfusion — all classic PE',
+            'The alkalotic pH of 7.48 indicates primary respiratory alkalosis from a panic attack — the breathlessness is anxiety-driven, and the troponin rise is from demand tachycardia caused by the prolonged episode'
         ],
         correct: 2,
         explanation: 'This is a classic massive PE blood picture. PaO₂ of 7.2 kPa with PaCO₂ of 3.8 kPa = type 1 respiratory failure (low oxygen despite hyperventilating). The low PaCO₂ causes the respiratory alkalosis (pH 7.48). The troponin of 120 isn\'t from MI — it\'s from right ventricular strain as the clot blocks the pulmonary circulation. The raised BNP (650) confirms the right heart is under significant pressure. Lactate of 3.1 shows early tissue hypoperfusion. Together these bloods indicate a haemodynamically significant PE that may need thrombolysis.'
@@ -750,10 +750,10 @@ export const scenarios = [
         bloods: { hb: 62, urea: 28.4, creatinine: 98, inr: 1.0, platelets: 210, lactate: 3.8, potassium: 3.2 },
         question: 'What is most significant about the urea:creatinine ratio?',
         options: [
-            'Both are raised indicating chronic kidney disease',
-            'The creatinine is normal so the kidneys are fine and the urea doesn\'t matter',
-            'The massively raised urea with normal creatinine is characteristic of upper GI bleeding — digested blood acts as a protein load raising urea disproportionately',
-            'The urea is raised from dehydration alone'
+            'Both the urea and creatinine are raised together, indicating chronic kidney disease stage 4 that has been undiagnosed — the patient needs nephrology referral',
+            'The creatinine of 98 is within normal range, which proves the kidneys are functioning perfectly — the raised urea is therefore clinically insignificant',
+            'The massively raised urea with normal creatinine is characteristic of upper GI bleeding — digested blood acts as a protein load that raises urea disproportionately',
+            'The raised urea is purely from dehydration secondary to the blood loss — it has no specific diagnostic value beyond confirming the patient needs IV fluids for volume replacement'
         ],
         correct: 2,
         explanation: 'A urea of 28.4 with a normal creatinine of 98 gives a very high urea:creatinine ratio. This is characteristic of upper GI bleeding — when blood enters the stomach and upper GI tract, it is digested like any protein, and the breakdown products are absorbed and converted to urea by the liver. This raises urea disproportionately to creatinine. The Hb of 62 is dangerously low and this patient needs urgent blood transfusion. The raised lactate confirms tissue hypoperfusion from blood loss. The low potassium may be from the GI losses. The normal INR and platelets are reassuring from a coagulation perspective.'
@@ -765,10 +765,10 @@ export const scenarios = [
         bloods: { ph: 7.24, pao2: 6.1, paco2: 10.8, hco3: 34, be: 8, wcc: 15.2, crp: 95 },
         question: 'How would you interpret this ABG?',
         options: [
-            'Pure respiratory alkalosis from hyperventilation',
-            'Acute on chronic type 2 respiratory failure — raised PaCO₂ with partial metabolic compensation (raised HCO₃⁻), now decompensated with acidotic pH',
-            'Metabolic acidosis with respiratory compensation',
-            'Normal ABG for a COPD patient'
+            'Respiratory alkalosis from hyperventilation — the patient is overbreathing due to anxiety about her COPD, causing excessive CO₂ washout and raised pH',
+            'Acute on chronic type 2 respiratory failure — chronically raised PaCO₂ with renal compensation (raised HCO₃⁻), now acutely decompensated with acidotic pH',
+            'Primary metabolic acidosis with respiratory compensation — the low pH is driven by a metabolic process such as lactic acidosis, and the lungs are trying to blow off CO₂',
+            'This is a normal ABG for a COPD patient — chronic CO₂ retainers always have these values, and the results don\'t indicate any acute deterioration requiring intervention'
         ],
         correct: 1,
         explanation: 'This shows acute on chronic type 2 respiratory failure. The PaCO₂ is very high (10.8 kPa) indicating severe CO₂ retention. The bicarbonate is raised (34) showing the kidneys have been compensating chronically — but the pH is acidotic (7.24), meaning the respiratory component has acutely worsened beyond what the kidneys can buffer. The PaO₂ of 6.1 confirms severe hypoxaemia. The infection (raised WCC and CRP) has tipped this COPD patient into acute decompensation. Note the low respiratory rate (12) — this patient is tiring and may need non-invasive ventilation or intubation.'
@@ -780,10 +780,10 @@ export const scenarios = [
         bloods: { tsh: 58.0, ft4: 4.2, ft3: 2.1, hb: 105, sodium: 128, glucose: 3.2, crp: 4 },
         question: 'What do these thyroid results indicate?',
         options: [
-            'Hyperthyroidism — the TSH is very high',
-            'Normal thyroid function — the CRP is normal',
-            'Severe hypothyroidism — TSH is massively raised because the pituitary is desperately trying to stimulate a failing thyroid, with very low T4 and T3',
-            'Secondary hypothyroidism from pituitary failure'
+            'Hyperthyroidism — the very high TSH of 58 means the thyroid is massively overactive and producing excessive hormones, causing the bradycardia and hypothermia',
+            'Normal thyroid function with subclinical changes — the normal CRP confirms no active disease process, and the TSH variation is within acceptable physiological limits',
+            'Severe hypothyroidism — the TSH is massively raised as the pituitary desperately tries to stimulate a failing thyroid, with critically low T4 and T3 confirming the diagnosis',
+            'Secondary hypothyroidism from pituitary failure — the high TSH shows the pituitary gland is malfunctioning and sending excessive stimulating signals, but the thyroid gland itself is perfectly healthy'
         ],
         correct: 2,
         explanation: 'TSH of 58 (normal 0.4-4.0) is massively elevated — the pituitary gland is screaming at the thyroid to produce more hormones. Free T4 of 4.2 (normal 9-22) and Free T3 of 2.1 (normal 3.1-6.8) are both critically low. This is primary hypothyroidism — the thyroid itself has failed. The clinical picture matches: bradycardia, hypothermia, weight gain, fatigue, constipation. The low sodium (128) is common in severe hypothyroidism (due to SIADH). The mild anaemia (Hb 105) is also associated. The low glucose (3.2) is concerning — hypothyroidism can cause hypoglycaemia. If this patient\'s GCS drops, think myxoedema coma.'
@@ -795,10 +795,10 @@ export const scenarios = [
         bloods: { hb: 78, lactate: 7.2, ph: 7.22, be: -12, platelets: 98, inr: 1.8, potassium: 3.8 },
         question: 'What do these bloods tell you about this trauma patient?',
         options: [
-            'The low Hb is from a pre-existing anaemia',
-            'The normal potassium means there\'s nothing to worry about',
-            'Acute blood loss (Hb 78) with developing coagulopathy (raised INR, low platelets) and severe shock (lactate 7.2, acidotic pH, very negative base excess) — consistent with haemorrhagic shock progressing toward the lethal triad',
-            'The low platelets suggest a chronic clotting disorder'
+            'The Hb of 78 reflects a pre-existing iron-deficiency anaemia — young males on motorbikes often have poor diets, and this chronic anaemia is unrelated to the trauma',
+            'The normal potassium of 3.8 is the most reassuring finding — it confirms the patient is haemodynamically stable and the other deranged results are likely lab artefacts',
+            'Acute blood loss (Hb 78) with developing coagulopathy (raised INR, low platelets) and severe shock (lactate 7.2, acidotic pH, very negative BE) — the lethal triad is developing',
+            'The raised INR of 1.8 and low platelets of 98 indicate a pre-existing inherited clotting disorder such as haemophilia or von Willebrand disease, which explains why the patient is bleeding more than expected'
         ],
         correct: 2,
         explanation: 'This is the trauma lethal triad in progress: hypothermia (not shown but implied), acidosis (pH 7.22, BE -12), and coagulopathy (INR 1.8, platelets 98). The Hb of 78 confirms significant blood loss. The left-sided abdominal pain with shoulder tip pain (Kehr\'s sign) suggests splenic injury with diaphragmatic irritation. Lactate of 7.2 indicates severe tissue hypoperfusion. This patient needs massive transfusion protocol, damage control surgery, and the clock is ticking. The bloods confirm what your clinical assessment suspected — this patient is bleeding internally and decompensating.'
@@ -810,10 +810,10 @@ export const scenarios = [
         bloods: { albumin: 18, bilirubin: 145, alt: 68, ast: 142, alp: 180, inr: 2.8, platelets: 62, sodium: 126, creatinine: 185, hb: 92 },
         question: 'What pattern does this blood panel show?',
         options: [
-            'Acute hepatitis — very high ALT',
+            'Acute viral hepatitis — the raised ALT (68) and AST (142) with jaundice indicate an acute hepatocellular injury pattern, most likely from hepatitis B or C viral infection acquired recently',
             'Decompensated chronic liver disease — low albumin, raised bilirubin, coagulopathy (raised INR, low platelets), hyponatraemia, and hepatorenal syndrome (raised creatinine)',
-            'Gallstone obstruction — raised ALP',
-            'The anaemia is the primary problem'
+            'Gallstone obstruction of the common bile duct — the raised ALP (180) with bilirubin (145) shows a classic obstructive cholestatic pattern requiring urgent ERCP',
+            'The anaemia (Hb 92) is the primary problem — chronic blood loss from oesophageal varices is causing the haemodynamic instability, and all other results are secondary'
         ],
         correct: 1,
         explanation: 'This is classic decompensated cirrhosis. Low albumin (18) indicates the liver can\'t synthesise protein — causing the ascites (abdominal distension). Raised bilirubin (145) causes jaundice. The AST:ALT ratio >2:1 is characteristic of alcoholic liver disease. Raised INR (2.8) and low platelets (62) indicate impaired clotting from liver failure plus portal hypertension (spleen destroys platelets). The raised creatinine (185) suggests hepatorenal syndrome. Hyponatraemia (126) is from fluid retention. The mild anaemia is multifactorial. This patient has a very poor prognosis.'
@@ -825,10 +825,10 @@ export const scenarios = [
         bloods: { hb: 58, wcc: 5.2, platelets: 380, creatinine: 72, sodium: 140, potassium: 4.0, crp: 8 },
         question: 'What is the most likely cause of her symptoms?',
         options: [
-            'Heart failure — she has exertional breathlessness',
-            'COPD — chronic breathlessness',
-            'Severe anaemia (Hb 58) — the isolated low Hb with normal WCC and raised platelets suggests iron deficiency anaemia, likely from chronic blood loss',
-            'Infection — raised CRP'
+            'Heart failure — exertional breathlessness with tachycardia in a 52-year-old is most likely cardiac in origin, and the normal SpO₂ supports a cardiac rather than respiratory cause',
+            'Early COPD — the progressive breathlessness over 3 months with normal oxygen saturations is typical of early obstructive airways disease before gas exchange is affected',
+            'Severe iron-deficiency anaemia — the Hb of 58 with normal WCC and reactive thrombocytosis (platelets 380) points to chronic blood loss, likely menstrual or GI in origin',
+            'Occult infection — the mildly raised CRP of 8 with tachycardia suggests a low-grade chronic infection such as TB or endocarditis causing the progressive symptoms'
         ],
         correct: 2,
         explanation: 'Hb of 58 is severely anaemic and fully explains her progressive breathlessness and tachycardia — the heart is working harder to compensate for reduced oxygen-carrying capacity. The normal WCC rules out haematological malignancy or infection. Raised platelets (380) are a reactive thrombocytosis commonly seen in iron deficiency. Normal renal function and electrolytes. The CRP of 8 is trivially raised. The most likely cause is iron deficiency from chronic blood loss (heavy menstruation is the most common cause in a 52-year-old woman). She needs iron studies, a GI investigation to exclude bowel pathology, and likely blood transfusion given the severity.'
@@ -840,10 +840,10 @@ export const scenarios = [
         bloods: { tsh: 0.01, ft4: 68, ft3: 22.4, glucose: 8.8, potassium: 3.4, alt: 52, wcc: 11.2 },
         question: 'What thyroid emergency should you be concerned about?',
         options: [
-            'Hypothyroidism — the TSH is low',
-            'Normal thyroid — the symptoms are from anxiety',
-            'Thyrotoxicosis approaching thyroid storm — suppressed TSH with massively elevated T4 and T3, tachycardia, pyrexia, and AF',
-            'The raised glucose indicates DKA'
+            'Primary hypothyroidism — the TSH of 0.01 is critically low, meaning the pituitary has shut down thyroid hormone production and the patient needs urgent replacement therapy',
+            'Anxiety disorder with somatisation — the normal temperature (37.8°C is borderline) and low-normal potassium suggest a psychogenic cause with secondary tachycardia',
+            'Thyrotoxicosis approaching thyroid storm — suppressed TSH with massively elevated T4 and T3, combined with pyrexia, AF, and tachycardia indicates a life-threatening emergency',
+            'Diabetic ketoacidosis — the raised glucose (8.8) with tachycardia and significant weight loss suggests new-onset Type 1 diabetes with ketone production driving the metabolic derangement'
         ],
         correct: 2,
         explanation: 'TSH of 0.01 (essentially undetectable) with Free T4 of 68 and Free T3 of 22.4 (both massively elevated) confirms severe thyrotoxicosis. The irregular heart rate of 148 is likely thyrotoxic atrial fibrillation. The pyrexia (37.8°C), agitation, and tachycardia raise concern for thyroid storm — a life-threatening emergency. The raised glucose is a stress response to excess thyroid hormones (not DKA). The low-normal potassium (3.4) occurs because thyroid hormones drive potassium into cells. Mild ALT rise reflects the metabolic overdrive affecting the liver. This patient needs urgent beta-blockade and anti-thyroid treatment.'
@@ -855,10 +855,10 @@ export const scenarios = [
         bloods: { wcc: 1.8, neutrophils: 0.4, platelets: 48, crp: 320, lactate: 6.8, inr: 2.4, ph: 7.18, glucose: 2.1, sodium: 128 },
         question: 'What is most alarming about the WCC result?',
         options: [
-            'It\'s raised, confirming infection',
-            'It\'s normal for a child',
-            'It\'s dangerously LOW (1.8) with almost no neutrophils (0.4) — the immune system is being overwhelmed by the infection, which carries a much worse prognosis than a high WCC',
-            'WCC doesn\'t matter in children'
+            'The WCC of 1.8 is raised for a child of this age — normal paediatric ranges are lower than adults, so this confirms a robust immune response fighting the infection',
+            'The WCC is within the normal range for a febrile child — fever naturally redistributes white cells to tissues, so the blood count appears lower but isn\'t clinically significant',
+            'The WCC of 1.8 is dangerously low with almost no neutrophils — the immune system is being overwhelmed and destroyed faster than it can respond, carrying a far worse prognosis',
+            'The WCC of 1.8 is low because the blood sample was taken too early — white cells take 12-24 hours to mobilise, so this result is unreliable and should be repeated later'
         ],
         correct: 2,
         explanation: 'A WCC of 1.8 with neutrophils of only 0.4 in the context of meningococcal sepsis is terrifying. Rather than the expected leucocytosis, the immune system is being overwhelmed — the infection is destroying white cells faster than they can be produced. This carries a significantly worse prognosis than a high WCC. The bloods show DIC developing (low platelets 48, raised INR 2.4), severe metabolic acidosis (pH 7.18), tissue hypoperfusion (lactate 6.8), and hypoglycaemia (glucose 2.1). The non-blanching rash + shock + DIC = fulminant meningococcal septicaemia. This child needs immediate IV antibiotics, fluid resuscitation, and transfer to PICU.'
@@ -870,10 +870,10 @@ export const scenarios = [
         bloods: { wcc: 18.6, crp: 410, alt: 85, ast: 120, alp: 210, bilirubin: 48, glucose: 16.8, lactate: 4.2, creatinine: 220, calcium_not_shown: true },
         question: 'Which results suggest severe acute pancreatitis rather than a simple acute abdomen?',
         options: [
-            'Just the raised WCC — this confirms appendicitis',
-            'The raised ALT and AST — this is liver failure',
-            'The combination of very high CRP (>150 predicts severity), hyperglycaemia (pancreas can\'t produce insulin), raised bilirubin and ALP (possible gallstone cause), and acute kidney injury — all markers of severe pancreatitis',
-            'The lactate alone — this just means sepsis'
+            'The raised WCC of 18.6 alone confirms appendicitis — this is the classic white cell response to appendicular inflammation and the other markers are secondary findings',
+            'The raised ALT (85) and AST (120) confirm alcoholic liver disease as the primary diagnosis — the abdominal pain is from hepatomegaly and liver capsule stretching',
+            'Very high CRP (>150 predicts severity), hyperglycaemia (failing pancreatic insulin), raised bilirubin and ALP (possible gallstone cause), plus AKI — all markers of severe pancreatitis',
+            'The raised lactate of 4.2 alone is diagnostic of acute mesenteric ischaemia — this is bowel infarction causing the rigid abdomen and peritonitis, and the liver markers are secondary to hepatic hypoperfusion from the shock'
         ],
         correct: 2,
         explanation: 'Severe acute pancreatitis produces a distinctive blood picture. CRP >150 at 48h is a predictor of severity (his is already 410). The raised glucose (16.8) occurs because the inflamed pancreas can\'t produce adequate insulin. The raised bilirubin (48) and ALP (210) suggest a gallstone may be blocking the common bile duct (gallstone pancreatitis). The raised creatinine (220) indicates acute kidney injury from third-space fluid losses and hypoperfusion. The mildly raised ALT/AST can occur with bile duct obstruction. This patient needs aggressive IV fluids, analgesia, and likely ERCP if gallstone pancreatitis is confirmed.'
@@ -885,10 +885,10 @@ export const scenarios = [
         bloods: { glucose: 6.2, inr: 1.0, platelets: 245, creatinine: 82, sodium: 141, potassium: 4.0, hb: 132 },
         question: 'Why are these "normal" bloods actually important in acute stroke?',
         options: [
-            'They\'re not important — the diagnosis is clinical and based on imaging',
-            'The raised BP is the only concern',
-            'Normal glucose (excludes hypoglycaemia mimicking stroke), normal INR and platelets (safe for thrombolysis), normal renal function (safe for CT contrast) — these bloods ENABLE treatment, not diagnose',
-            'The irregular heart rate confirms AF is causing the stroke'
+            'They confirm the stroke diagnosis definitively — normal bloods in the presence of acute neurological symptoms prove this is a vascular event rather than a metabolic, infective, or toxic cause of the deficit',
+            'They are not important at all — stroke is diagnosed by CT imaging and clinical assessment only, and blood results play no role in the acute management pathway',
+            'Normal glucose excludes hypoglycaemia mimicking stroke, normal INR and platelets make thrombolysis safe, and normal renal function allows CT contrast — these bloods enable treatment',
+            'The irregular heart rate at 88 is the only significant finding — it confirms AF as the stroke mechanism, and the blood results add nothing to the clinical decision-making'
         ],
         correct: 2,
         explanation: 'In acute stroke, blood tests don\'t diagnose — they enable treatment. Normal glucose (6.2) rules out hypoglycaemia, which can perfectly mimic stroke. Normal INR (1.0) and adequate platelets (245) mean thrombolysis can be given safely if the CT shows ischaemic stroke. Normal creatinine (82) means CT contrast is safe if CT angiography is needed. The irregular pulse suggests AF as the stroke mechanism (cardioembolism). These bloods are taken in parallel with the CT scan — any delay costs brain tissue. This is why your pre-alert with FAST-positive findings and time of onset is so critical.'
@@ -900,10 +900,10 @@ export const scenarios = [
         bloods: { sodium: 118, potassium: 5.8, urea: 22.4, creatinine: 285, glucose: 2.4, tsh: 72, ft4: 3.8, ph: 7.28, hb: 92 },
         question: 'How many concurrent problems can you identify in this panel?',
         options: [
-            'Just dehydration — the raised urea and creatinine',
-            'Just hypothyroidism — the raised TSH',
-            'Multiple concurrent emergencies: severe hyponatraemia (118), hyperkalaemia (5.8), acute kidney injury (creatinine 285), hypoglycaemia (2.4), severe hypothyroidism (TSH 72), and metabolic acidosis — this patient is critically unwell with overlapping pathologies',
-            'The blood results are unreliable in confused patients'
+            'Primarily dehydration — the raised urea and creatinine are the key findings, and all other abnormalities are secondary effects of volume depletion that will correct with IV fluids',
+            'Isolated hypothyroidism — the raised TSH and low FT4 explain everything including the bradycardia, hypothermia, and confusion, and treating the thyroid alone will resolve all results',
+            'Multiple concurrent emergencies: severe hyponatraemia (118), hyperkalaemia (5.8), AKI (creatinine 285), hypoglycaemia (2.4), severe hypothyroidism (TSH 72), and metabolic acidosis',
+            'Age-related decline — these blood results are within acceptable ranges for an 86-year-old nursing home resident, and the confusion is more likely caused by a UTI or dementia'
         ],
         correct: 2,
         explanation: 'This frail elderly patient has multiple life-threatening derangements happening simultaneously. Severe hyponatraemia (118) — enough alone to cause seizures and confusion. Hyperkalaemia (5.8) — cardiac arrest risk, potentially worsened by the AKI. Acute kidney injury (creatinine 285) — kidneys failing, not clearing potassium or acid. Hypoglycaemia (2.4) — brain fuel running out. Severe hypothyroidism (TSH 72, FT4 3.8) — with hypothermia and bradycardia, approaching myxoedema coma. Metabolic acidosis (pH 7.28). Each problem compounds the others. This is sadly common in frail elderly patients who stop eating and drinking — one problem triggers a cascade of metabolic failure.'
@@ -915,10 +915,10 @@ export const scenarios = [
         bloods: { hb: 138, wcc: 14.2, platelets: 220, inr: 1.0, sodium: 132, potassium: 3.8, creatinine: 62, glucose: 8.4, crp: 12 },
         question: 'What is the significance of these bloods in a suspected subarachnoid haemorrhage?',
         options: [
-            'The raised WCC proves meningitis, not SAH',
-            'The raised glucose proves diabetic ketoacidosis',
-            'The bloods are essentially normal enough to not delay CT — the mild WCC rise and hyperglycaemia are stress responses. Normal clotting and platelets are reassuring for any surgical intervention needed',
-            'The low sodium means SIADH has already developed'
+            'The raised WCC (14.2) and CRP (12) prove this is bacterial meningitis rather than SAH — the combination of infection markers confirms an infective cause for the headache and neck stiffness',
+            'The raised glucose (8.4) confirms diabetic ketoacidosis — the headache and vomiting are caused by metabolic derangement, not an intracranial bleed or infection',
+            'The bloods are essentially normal enough to not delay CT — the mild WCC and glucose rises are stress responses, and normal clotting enables safe surgical intervention if needed',
+            'The low sodium (132) confirms SIADH has already developed significantly — this indicates a large bleed with substantial hypothalamic damage and a poor prognosis'
         ],
         correct: 2,
         explanation: 'In suspected SAH, the bloods serve a similar role to stroke — they enable management rather than diagnose. The mildly raised WCC (14.2) is a stress response (SAH causes sympathetic surge), not infection. Glucose of 8.4 is also stress-related. Normal INR and platelets mean clotting is intact — important because if a cerebral aneurysm is found, the patient may need neurosurgical clipping or endovascular coiling urgently. Normal renal function allows safe CT contrast for CT angiography. The mildly low sodium (132) may reflect early SIADH, which commonly develops after SAH. The diagnosis comes from CT brain (and LP if CT is negative within 6 hours of onset).'
@@ -930,10 +930,10 @@ export const scenarios = [
         bloods: { glucose: 48.6, sodium: 158, potassium: 4.8, urea: 32, creatinine: 310, ph: 7.32, hco3: 20, be: -3, lactate: 2.8 },
         question: 'How does this differ from DKA?',
         options: [
-            'It doesn\'t — high glucose means DKA',
-            'The pH is near-normal (7.32) and bicarbonate is only mildly reduced (20) — this is HHS, not DKA. The hallmarks are extreme hyperglycaemia (>30), severe dehydration (Na 158, urea 32, creatinine 310), and high osmolality WITHOUT the severe acidosis seen in DKA',
-            'The normal respiratory rate proves there\'s no emergency',
-            'The raised creatinine means this is a kidney problem'
+            'It doesn\'t differ — any glucose above 30 is DKA by definition regardless of pH, and this patient needs the standard DKA protocol with insulin infusion as the priority',
+            'The pH is near-normal (7.32) and bicarbonate only mildly reduced — this is HHS with extreme hyperglycaemia and severe dehydration but WITHOUT the severe acidosis of DKA',
+            'The normal respiratory rate of 18 proves this isn\'t a metabolic emergency — true DKA or HHS would always present with Kussmaul breathing, so this is just poorly controlled diabetes',
+            'The raised creatinine of 310 confirms this is primarily a renal problem — the kidneys have failed and cannot excrete glucose, causing the hyperglycaemia as a secondary effect'
         ],
         correct: 1,
         explanation: 'HHS (Hyperosmolar Hyperglycaemic State) differs from DKA in key ways. The glucose is extremely high (48.6 — even higher than typical DKA). BUT the pH is 7.32 (near-normal) and bicarbonate is 20 (not severely depleted) — because HHS patients still produce enough insulin to prevent ketoacidosis, just not enough to control glucose. The sodium of 158 indicates profound dehydration. The massively raised urea (32) and creatinine (310) reflect severe dehydration and pre-renal AKI. These patients are often MORE dehydrated than DKA patients (6-9L fluid deficit). The mortality rate for HHS (15-20%) is actually higher than DKA because of the patient demographic and complication risk. Fluid replacement is the priority treatment.'
@@ -945,10 +945,10 @@ export const scenarios = [
         bloods: { potassium: 6.8, ph: 7.05, lactate: 12.4, be: -22, troponin: 2400, creatinine: 450, glucose: 14.2, hb: 140 },
         question: 'Which results reflect the cardiac arrest itself vs the underlying cause?',
         options: [
-            'Everything is caused by the cardiac arrest',
-            'The troponin is the only important result',
-            'Potassium (6.8) and creatinine (450) likely pre-existed and may have CAUSED the arrest (hyperkalaemic arrest). The pH (7.05), lactate (12.4), and base excess (-22) reflect the prolonged period of no cardiac output. The very high troponin reflects both possible MI and arrest-related myocardial damage',
-            'These bloods are unreliable after cardiac arrest'
+            'Everything is caused by the cardiac arrest — all these derangements are expected post-ROSC and will self-correct with supportive care over the next 24-48 hours',
+            'The troponin of 2400 is the only important result — it confirms massive MI as the sole cause, and all other derangements are downstream consequences of the infarction',
+            'K⁺ (6.8) and creatinine (450) likely pre-existed and CAUSED the arrest; the pH (7.05), lactate (12.4), and BE (-22) reflect the no-flow period during the arrest itself',
+            'All these bloods are unreliable immediately after cardiac arrest — the values are artefactual from CPR-induced haemolysis and tissue damage, and should be repeated in 6 hours'
         ],
         correct: 2,
         explanation: 'Post-ROSC bloods tell two stories. The potassium of 6.8 with creatinine of 450 suggests renal failure was present BEFORE the arrest — the hyperkalaemia likely caused the PEA arrest (this is one of the 4Hs). The severe acidosis (pH 7.05), extreme lactate (12.4), and base excess of -22 result from 8 minutes of no cardiac output — tissues were completely starved of oxygen. The troponin of 2400 is multifactorial — could be underlying MI that triggered the arrest AND/OR myocardial damage from the arrest itself and CPR. Distinguishing cause from consequence is critical for ongoing management — this patient may need urgent dialysis to clear the potassium.'
@@ -960,10 +960,10 @@ export const scenarios = [
         bloods: { hb: 130, wcc: 8.2, crp: 15, sodium: 139, potassium: 3.9, creatinine: 68, glucose: 5.8, ph: 7.36, paco2: 5.8, pao2: 9.5 },
         question: 'These bloods are mostly normal. Why might that actually be significant?',
         options: [
-            'Normal bloods mean there\'s nothing seriously wrong',
-            'The CRP of 15 explains everything — it\'s an infection',
-            'Near-normal bloods in a patient with progressive ascending weakness and respiratory compromise point AWAY from metabolic/infective causes and TOWARDS a neurological diagnosis like Guillain-Barré syndrome. The mildly reduced PaO₂ shows early respiratory muscle involvement — this patient needs FVC monitoring',
-            'The blood gas is completely normal'
+            'Normal bloods confirm there is nothing seriously wrong with this patient — the progressive ascending weakness is likely psychogenic or functional in nature, and the patient needs detailed psychiatric rather than medical assessment',
+            'The CRP of 15 is the key finding — it indicates a mild viral infection causing post-viral fatigue and temporary weakness that will resolve spontaneously within a few weeks',
+            'Near-normal bloods with progressive ascending weakness and respiratory compromise rule OUT metabolic causes and point TOWARDS Guillain-Barré syndrome — the falling PaO₂ shows diaphragm involvement',
+            'The blood gas is completely normal — the PaO₂ of 9.5 and PaCO₂ of 5.8 are both within reference range, confirming there is no respiratory compromise requiring intervention'
         ],
         correct: 2,
         explanation: 'Sometimes what the bloods DON\'T show is as important as what they do. Normal FBC, electrolytes, inflammatory markers, and renal function in a patient with progressive ascending weakness effectively rule out metabolic and most infective causes. This pattern — ascending weakness, areflexia, respiratory involvement, mostly normal bloods — is classic for Guillain-Barré syndrome. The PaO₂ of 9.5 (low-normal) and PaCO₂ of 5.8 (high-normal) show early respiratory compromise — the diaphragm is weakening. This is a medical emergency not because of the bloods, but because respiratory failure can progress rapidly. FVC monitoring is critical — FVC <20mL/kg or falling by >30% = intubation.'
@@ -975,10 +975,10 @@ export const scenarios = [
         bloods: { potassium: 2.2, sodium: 126, urea: 18.5, creatinine: 195, ph: 7.52, hco3: 34, be: 10, glucose: 4.8, wcc: 9.8, crp: 42 },
         question: 'What is the most dangerous result here?',
         options: [
-            'The low sodium — causing his dizziness',
-            'The raised creatinine — kidney failure',
-            'Potassium of 2.2 — critically low, risk of fatal cardiac arrhythmias including Torsades de Pointes and cardiac arrest. The metabolic alkalosis (pH 7.52, high HCO₃⁻) from the diarrhoea is driving potassium even lower',
-            'The CRP — suggesting infection is the cause'
+            'Sodium of 126 — this degree of hyponatraemia is causing cerebral oedema and is the primary reason for his dizziness, confusion, and muscle cramps requiring hypertonic saline',
+            'Creatinine of 195 — acute kidney failure is the most dangerous finding because it means toxins are accumulating and the kidneys cannot maintain electrolyte balance',
+            'Potassium of 2.2 — critically low with imminent risk of Torsades de Pointes and cardiac arrest, worsened by the metabolic alkalosis which drives potassium further into cells',
+            'CRP of 42 — this indicates an active bacterial gastroenteritis as the underlying cause, and the infection itself is the primary threat requiring urgent IV antibiotic therapy'
         ],
         correct: 2,
         explanation: 'Potassium of 2.2 is a medical emergency. At this level, the risk of Torsades de Pointes (a polymorphic VT), VF, and cardiac arrest is very high. The ECG will likely show flattened T-waves, prominent U-waves, and ST depression. The profuse diarrhoea has caused massive potassium losses. The metabolic alkalosis (pH 7.52, HCO₃⁻ 34) makes it worse — in alkalosis, hydrogen ions come out of cells and potassium moves IN, further lowering serum potassium. The raised urea (18.5) and creatinine (195) reflect severe dehydration and pre-renal AKI. This patient needs cardiac monitoring, cautious IV potassium replacement (too fast can also cause arrest), and aggressive fluid resuscitation.'
