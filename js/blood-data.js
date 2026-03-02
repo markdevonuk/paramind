@@ -445,7 +445,7 @@ export const bloodPanels = [
                 step: 0.5,
                 defaultVal: 12.0,
                 whatIsIt: 'Partial pressure of oxygen in arterial blood. It measures how much oxygen is dissolved in the blood and reflects how well the lungs are transferring oxygen into the bloodstream.',
-                high: 'High PaO₂ (>13.3 kPa) usually means the patient is on supplemental oxygen. Excessive oxygen can be harmful in COPD patients (suppresses hypoxic drive) and in neonates (retinopathy of prematurity).',
+                high: 'High PaO₂ (>13.3 kPa) usually means the patient is on supplemental oxygen. Excessive oxygen in COPD patients can worsen CO₂ retention through V/Q mismatch changes and the Haldane effect, and can cause retinopathy of prematurity in neonates.',
                 low: 'Low PaO₂ (<10 kPa) = hypoxaemia. Type 1 respiratory failure is defined as PaO₂ <8 kPa. Causes: pneumonia, PE, COPD exacerbation, asthma, pulmonary oedema, ARDS. The lower the PaO₂, the more critical the situation.',
                 roadRelevance: 'PaO₂ gives a more accurate picture of oxygenation than SpO₂. Your pulse oximeter shows 94% — that could mean PaO₂ of 8.5 kPa. On the steep part of the oxygen dissociation curve, small drops in PaO₂ cause big drops in SpO₂. This is why patients can look fine then suddenly decompensate.'
             },
@@ -462,7 +462,7 @@ export const bloodPanels = [
                 whatIsIt: 'Partial pressure of carbon dioxide in arterial blood. CO₂ is the waste product of metabolism and is removed by breathing. PaCO₂ reflects how well the lungs are ventilating.',
                 high: 'High PaCO₂ (>6.0 kPa) = hypercapnia = respiratory acidosis. The patient isn\'t breathing out enough CO₂. Causes: COPD, exhaustion, opiate overdose, neuromuscular disease, severe asthma. Type 2 respiratory failure = low O₂ + high CO₂. Patient becomes drowsy, confused, with bounding pulse and headache.',
                 low: 'Low PaCO₂ (<4.7 kPa) = respiratory alkalosis = hyperventilation. Causes: anxiety, pain, PE, early sepsis, compensation for metabolic acidosis (Kussmaul breathing in DKA). Usually corrects when the underlying cause is treated.',
-                roadRelevance: 'PaCO₂ explains why you give controlled oxygen in COPD — some patients rely on hypoxic drive, and too much O₂ removes the stimulus to breathe, causing CO₂ to rise further. It also explains why your tiring asthmatic is the one in most danger — they stop being able to breathe out enough CO₂.'
+                roadRelevance: 'PaCO₂ explains why you give controlled oxygen in COPD — but NOT because of "hypoxic drive" (that\'s outdated teaching). The real mechanism: in COPD lungs, CO₂ normally constricts pulmonary blood vessels, spreading blood across the lung for efficient gas exchange. Give too much O₂ and those vessels vasodilate, causing blood and CO₂ to pool in poorly functioning lung areas — less CO₂ is exhaled per breath. This is the V/Q mismatch effect. The Haldane effect also plays a role — oxygenated haemoglobin carries less CO₂, so excess O₂ causes CO₂ to be dumped into the blood. The result is rising PaCO₂. It also explains why your tiring asthmatic is in most danger — they stop being able to breathe out enough CO₂.'
             },
             {
                 id: 'hco3',
@@ -476,8 +476,8 @@ export const bloodPanels = [
                 defaultVal: 24,
                 whatIsIt: 'Bicarbonate is the body\'s main chemical buffer against acid. The kidneys control it. When the body produces too much acid, bicarbonate neutralises it. Think of it as the acid-mopping system.',
                 high: 'High bicarbonate (>26): Metabolic alkalosis (vomiting, diuretics) or compensation for chronic respiratory acidosis (COPD — the kidneys retain bicarbonate to buffer the chronically high CO₂).',
-                low: 'Low bicarbonate (<22): Metabolic acidosis — the bicarbonate has been used up buffering acid. Causes: DKA, renal failure, sepsis, lactic acidosis, diarrhoea (losing bicarbonate directly). Also seen in compensation for respiratory alkalosis.',
-                roadRelevance: 'In COPD patients, a high bicarbonate suggests chronic CO₂ retention — the kidneys have compensated over time. This helps you understand their baseline. In DKA patients, low bicarbonate tells you how much acid has built up. Both help you frame your handover with real understanding.'
+                low: 'Low bicarbonate (<22): Metabolic acidosis — the bicarbonate has been used up buffering acid. Causes: DKA, renal failure, sepsis, lactic acidosis, diarrhoea (losing bicarbonate directly), and post-seizure (muscles produce massive lactic acid during tonic-clonic activity). Also seen in compensation for respiratory alkalosis.',
+                roadRelevance: 'In COPD patients, a high bicarbonate suggests chronic CO₂ retention — the kidneys have compensated over time. This helps you understand their baseline. In DKA patients, low bicarbonate tells you how much acid has built up. Here\'s a clinical pearl: after a genuine seizure, bicarbonate drops alongside a raised lactate and metabolic acidosis — the muscles produce huge amounts of lactic acid during tonic-clonic activity. This is actually one of the best ways to distinguish a real seizure from a pseudoseizure (fit vs fake). If a patient has had a "witnessed seizure" but their bicarb and lactate are normal, that\'s a red flag. Both help you frame your handover with real understanding.'
             },
             {
                 id: 'be',
@@ -508,6 +508,21 @@ export const bloodPanels = [
                 high: 'Raised lactate on ABG has the same significance — tissue hypoperfusion, sepsis, shock. The advantage of ABG lactate is speed — it comes back in 2 minutes alongside the gas results, rather than waiting for formal blood results.',
                 low: 'Normal lactate on ABG is reassuring for tissue perfusion.',
                 roadRelevance: 'In the ED, the ABG lactate is often the FIRST result available. It can confirm or refute your pre-hospital suspicion of sepsis or shock within minutes of arrival. Your clinical assessment on scene directly feeds into how urgently the team processes the ABG.'
+            },
+            {
+                id: 'anion_gap',
+                name: 'Anion Gap (AG)',
+                unit: 'mmol/L',
+                normalLow: 8,
+                normalHigh: 12,
+                absMin: 2,
+                absMax: 40,
+                step: 1,
+                defaultVal: 10,
+                whatIsIt: 'The anion gap is a calculated value: AG = Na⁺ − (Cl⁻ + HCO₃⁻). It estimates the unmeasured anions in the blood. When the body produces abnormal acids (like lactate or ketoacids), these acids consume bicarbonate but add unmeasured anions — widening the gap. It helps determine the CAUSE of a metabolic acidosis.',
+                high: 'A raised anion gap (>12) means there are extra, unmeasured acids in the blood. The classic mnemonic is CAT MUDPILES: Carbon monoxide/Cyanide, Aminoglycosides, Theophylline, Metformin/Methanol, Uraemia, DKA, Propylene glycol/Paracetamol, Iron/Isoniazid, Lactic acidosis, Ethylene glycol, Salicylates (aspirin). In practice, the most common pre-hospital causes are DKA, lactic acidosis (sepsis/shock), renal failure (uraemia), and overdoses (aspirin, methanol, ethylene glycol).',
+                low: 'A normal anion gap metabolic acidosis means the acidosis is caused by direct bicarbonate loss (diarrhoea, renal tubular acidosis) or by excess chloride (normal saline overload). The body is losing base rather than gaining acid. This distinction matters because the treatment is different.',
+                roadRelevance: 'The anion gap is a detective tool. When the hospital gets an ABG showing metabolic acidosis, the anion gap tells them WHY. A raised gap with a raised lactate = sepsis or shock. A raised gap with ketones = DKA. A raised gap with normal lactate and no ketones = think overdose (aspirin, methanol, ethylene glycol) or uraemia. This is where it gets powerful for atypical presentations — euglycaemic DKA (DKA with near-normal glucose) will still have a raised anion gap and ketones. An aspirin overdose causing a mixed respiratory alkalosis and metabolic acidosis will show up via the raised AG. Understanding anion gap helps you appreciate the detective work happening in resus while you\'re handing over.'
             }
         ]
     },
