@@ -33,7 +33,11 @@ export const bloodPanels = [
                 whatIsIt: 'Haemoglobin is the protein inside red blood cells that carries oxygen from the lungs to every tissue in the body and brings carbon dioxide back. Think of it as the oxygen taxi service in your blood.',
                 high: 'Raised Hb (polycythaemia) can indicate dehydration (making blood more concentrated), chronic hypoxia (body making more red cells to compensate — e.g., COPD, living at altitude), or polycythaemia vera (a bone marrow disorder). Can increase clotting risk.',
                 low: 'Low Hb (anaemia) means reduced oxygen-carrying capacity. Causes include blood loss (trauma, GI bleeds), iron deficiency, chronic disease, or bone marrow problems. Patient may be pale, tired, tachycardic, and short of breath.',
-                roadRelevance: 'Understanding Hb helps you recognise why your trauma patient is tachycardic and pale even when external bleeding seems controlled — they may have significant internal blood loss. A chronically anaemic patient may decompensate faster with even small additional blood loss.'
+                roadRelevance: 'Understanding Hb helps you recognise why your trauma patient is tachycardic and pale even when external bleeding seems controlled — they may have significant internal blood loss. A chronically anaemic patient may decompensate faster with even small additional blood loss.',
+                simpleWhatIsIt: 'Haemoglobin is the stuff inside your red blood cells that carries oxygen around your body. Think of red blood cells as delivery vans — haemoglobin is the driver. No driver, no delivery.',
+                simpleHigh: 'Too much haemoglobin usually means the blood is too thick. This can happen when someone is dehydrated (less water in the blood makes it more concentrated) or when the body makes extra red cells because it\'s not getting enough oxygen (like in long-term lung disease).',
+                simpleLow: 'Not enough haemoglobin means the blood can\'t carry enough oxygen. The patient might look pale, feel tired, have a fast heart rate, and be short of breath. Common causes: bleeding (obvious or hidden), not enough iron in the diet, or long-term illness.',
+                simpleRoadRelevance: 'If your patient is pale, clammy, and has a racing heart after a trauma — even if you can\'t see much blood — they could be bleeding internally. A low haemoglobin would confirm that. Also, patients who are already anaemic can\'t cope with even small amounts of blood loss.'
             },
             {
                 id: 'wcc',
@@ -48,7 +52,11 @@ export const bloodPanels = [
                 whatIsIt: 'White blood cells are the soldiers of your immune system. The total WCC tells you how active the immune response is. Different types of white cells fight different threats.',
                 high: 'Raised WCC (leucocytosis) usually indicates infection or inflammation. Very high counts (>30) can suggest leukaemia. Also rises with stress, steroid use, and after trauma or surgery. Bacterial infections tend to push WCC higher than viral ones.',
                 low: 'Low WCC (leucopenia) means a weakened immune system. Can be caused by viral infections (HIV, hepatitis), chemotherapy, bone marrow failure, or autoimmune conditions. These patients are vulnerable to overwhelming sepsis.',
-                roadRelevance: 'When you suspect sepsis on the road, the hospital will look at WCC as part of the picture. A septic patient with a LOW WCC is actually more concerning than a high one — it suggests the immune system is being overwhelmed. This connects to your NEWS2 scoring.'
+                roadRelevance: 'When you suspect sepsis on the road, the hospital will look at WCC as part of the picture. A septic patient with a LOW WCC is actually more concerning than a high one — it suggests the immune system is being overwhelmed. This connects to your NEWS2 scoring.',
+                simpleWhatIsIt: 'White blood cells are your body\'s army — they fight infection and disease. The WCC tells you how many soldiers are in the blood. A normal count means the army is at base. High means they\'ve been called to action. Low means the army is depleted.',
+                simpleHigh: 'A high white cell count usually means the body is fighting something — most commonly an infection or inflammation. The higher it is, the bigger the fight. A very high count (above 30) might suggest something more serious like leukaemia.',
+                simpleLow: 'A low white cell count means the body\'s defences are down. The patient is much more vulnerable to infections and can become critically unwell very quickly. Causes include chemotherapy, some medications, and certain viral infections like HIV.',
+                simpleRoadRelevance: 'Here\'s a key takeaway: a septic patient with a LOW white cell count is actually scarier than one with a high count. It means the infection is winning — the body can\'t make white cells fast enough. That\'s a very sick patient.'
             },
             {
                 id: 'platelets',
@@ -63,7 +71,11 @@ export const bloodPanels = [
                 whatIsIt: 'Platelets are tiny cell fragments that clump together to form blood clots and stop bleeding. They are the first responders to any breach in a blood vessel wall.',
                 high: 'Raised platelets (thrombocytosis) can occur with infection, inflammation, iron deficiency, or after splenectomy. Very high levels increase thrombosis risk — meaning higher chance of stroke, PE, or DVT.',
                 low: 'Low platelets (thrombocytopenia) means impaired clotting. Causes include liver disease, DIC (disseminated intravascular coagulation), heparin treatment, alcohol excess, or autoimmune conditions. Risk of spontaneous bleeding when very low (<50).',
-                roadRelevance: 'If your patient bruises easily, has petechiae (tiny red dots on skin), or has unexplained nosebleeds, they may have low platelets. This matters for trauma — a patient on anticoagulants with low platelets will bleed more and clot less.'
+                roadRelevance: 'If your patient bruises easily, has petechiae (tiny red dots on skin), or has unexplained nosebleeds, they may have low platelets. This matters for trauma — a patient on anticoagulants with low platelets will bleed more and clot less.',
+                simpleWhatIsIt: 'Platelets are tiny sticky fragments in your blood that clump together to plug holes in blood vessels. Think of them as the body\'s plasters — when you cut yourself, platelets rush to the scene and stick together to stop the bleeding.',
+                simpleHigh: 'Too many platelets can make the blood more likely to clot when it shouldn\'t. This raises the risk of blood clots like DVT, PE, or stroke. It can happen with infections, inflammation, or after the spleen has been removed.',
+                simpleLow: 'Not enough platelets means the body struggles to stop bleeding. Patients might bruise easily, get tiny red dots on their skin (petechiae), or have nosebleeds. Very low platelets (<50) means even small injuries could bleed a lot.',
+                simpleRoadRelevance: 'If your trauma patient is on blood thinners AND has low platelets — that\'s a double problem. Their blood won\'t clot properly, so any bleed (internal or external) will be harder to control and more dangerous.'
             },
             {
                 id: 'neutrophils',
@@ -78,7 +90,11 @@ export const bloodPanels = [
                 whatIsIt: 'Neutrophils are the most abundant type of white blood cell and the first to arrive at sites of bacterial infection. They are your body\'s frontline infantry against bacteria.',
                 high: 'Raised neutrophils strongly suggest bacterial infection. Also rise with inflammation, stress, steroid use, and tissue damage. A high neutrophil count with a left shift (immature neutrophils) suggests the body is in overdrive fighting infection.',
                 low: 'Low neutrophils (neutropenia) are dangerous — the patient is at severe risk of infection. Often caused by chemotherapy, bone marrow disorders, or some medications. These patients need reverse barrier nursing in hospital.',
-                roadRelevance: 'Neutrophils help you understand the difference between bacterial and viral infections. This connects to why some of your septic patients deteriorate rapidly — if their neutrophils are depleted, they have lost their primary defence against bacteria.'
+                roadRelevance: 'Neutrophils help you understand the difference between bacterial and viral infections. This connects to why some of your septic patients deteriorate rapidly — if their neutrophils are depleted, they have lost their primary defence against bacteria.',
+                simpleWhatIsIt: 'Neutrophils are the most common type of white blood cell and they specialise in fighting bacteria. Think of them as the rapid response team — they\'re the first white cells to show up when bacteria invade.',
+                simpleHigh: 'A raised neutrophil count strongly suggests a bacterial infection is present. The body is mass-producing these cells to fight the bacteria. Neutrophils also rise with physical stress, steroid medications, and after injuries.',
+                simpleLow: 'Low neutrophils is dangerous — it means the patient has very little defence against bacterial infection. They can go from well to critically ill very quickly. This is often seen in patients having chemotherapy.',
+                simpleRoadRelevance: 'Neutrophils help doctors tell the difference between bacterial infections (neutrophils go up) and viral infections (they don\'t). This is why not every patient with a temperature needs antibiotics — if it\'s viral, antibiotics won\'t help.'
             },
             {
                 id: 'lymphocytes',
@@ -93,7 +109,11 @@ export const bloodPanels = [
                 whatIsIt: 'Lymphocytes are the specialised forces of the immune system — they include T-cells (which destroy infected cells), B-cells (which make antibodies), and natural killer cells. They handle the targeted, adaptive immune response.',
                 high: 'Raised lymphocytes (lymphocytosis) typically suggest viral infection (glandular fever, HIV, hepatitis). Chronic lymphocytic leukaemia (CLL) also causes persistently high lymphocytes. Can be raised in pertussis (whooping cough).',
                 low: 'Low lymphocytes (lymphopenia) can indicate HIV/AIDS, steroid use, or severe stress response. Post-COVID patients often show persistent lymphopenia.',
-                roadRelevance: 'A patient with raised lymphocytes and a normal neutrophil count points more towards a viral cause. This helps you understand why antibiotics won\'t help every febrile patient — viral infections fight via lymphocytes, not neutrophils.'
+                roadRelevance: 'A patient with raised lymphocytes and a normal neutrophil count points more towards a viral cause. This helps you understand why antibiotics won\'t help every febrile patient — viral infections fight via lymphocytes, not neutrophils.',
+                simpleWhatIsIt: 'Lymphocytes are the specialist soldiers of the immune system. Unlike neutrophils (which fight bacteria), lymphocytes mainly fight viruses. They also include the cells that make antibodies and remember past infections so you don\'t get them again.',
+                simpleHigh: 'High lymphocytes usually point towards a viral infection — things like glandular fever, flu, or hepatitis. The body is ramping up its virus-fighting team.',
+                simpleLow: 'Low lymphocytes means the virus-fighting part of the immune system is weakened. This is seen in HIV/AIDS, in patients taking steroids, and sometimes after severe illness. These patients are more vulnerable to viral infections.',
+                simpleRoadRelevance: 'If the hospital sees raised lymphocytes but normal neutrophils, they\'ll think virus rather than bacteria. This helps you understand why some febrile patients don\'t respond to antibiotics — their infection is viral, and antibiotics don\'t kill viruses.'
             }
         ]
     },
@@ -117,7 +137,11 @@ export const bloodPanels = [
                 whatIsIt: 'Sodium is the most important electrolyte outside cells. It controls fluid balance — where sodium goes, water follows. It is essential for nerve impulse transmission and muscle contraction.',
                 high: 'Hypernatraemia (>145) usually means dehydration — the patient has lost more water than salt. Common in elderly patients who don\'t drink enough, diabetes insipidus, or excessive sweating/diarrhoea. Causes confusion, lethargy, and seizures if severe.',
                 low: 'Hyponatraemia (<135) is the most common electrolyte abnormality. Causes include SIADH, heart failure, liver disease, diuretics (especially thiazides), and excessive water intake. Severe cases cause confusion, seizures, and cerebral oedema.',
-                roadRelevance: 'That confused elderly patient you attend — they might not be having a stroke. Severe hyponatraemia causes confusion, drowsiness, and seizures that can mimic stroke. This is why hospital bloods matter — the treatment is completely different.'
+                roadRelevance: 'That confused elderly patient you attend — they might not be having a stroke. Severe hyponatraemia causes confusion, drowsiness, and seizures that can mimic stroke. This is why hospital bloods matter — the treatment is completely different.',
+                simpleWhatIsIt: 'Sodium is a salt in your blood that controls how much water is in and around your cells. Think of it like a sponge — sodium attracts water. It keeps your blood pressure up, your nerves firing, and your muscles working.',
+                simpleHigh: 'Too much sodium (hypernatraemia) usually means the patient is dehydrated — they\'ve lost more water than salt. Common in elderly patients who aren\'t drinking enough, or patients with severe diarrhoea. Causes confusion, thirst, and can lead to seizures.',
+                simpleLow: 'Too little sodium (hyponatraemia) is very common and dangerous. It causes confusion, nausea, headaches, and at severe levels, seizures and brain swelling. Common causes: heart failure, liver disease, some medications, and drinking too much water without enough salt.',
+                simpleRoadRelevance: 'That confused elderly patient you pick up who "just isn\'t right"? Low sodium is one of the most common causes. Severely low sodium (below 120) can cause seizures. It\'s something the hospital checks immediately and your handover of fluid intake/output helps them a lot.'
             },
             {
                 id: 'potassium',
@@ -132,7 +156,11 @@ export const bloodPanels = [
                 whatIsIt: 'Potassium is the key electrolyte inside cells. It is critical for electrical activity in the heart and muscles. Even small changes can have life-threatening effects on cardiac rhythm.',
                 high: 'Hyperkalaemia (>5.5) is a medical emergency. Causes include renal failure (kidneys can\'t excrete it), ACE inhibitors, crush injuries (potassium floods out of damaged cells), Addison\'s disease, and acidosis. Causes tall peaked T-waves → widened QRS → VF/cardiac arrest.',
                 low: 'Hypokalaemia (<3.5) causes muscle weakness, cramps, and arrhythmias. Common causes: diuretics (furosemide), vomiting, diarrhoea, and refeeding syndrome. ECG shows flattened T-waves and prominent U-waves. Risk of Torsades de Pointes.',
-                roadRelevance: 'This is THE electrolyte for paramedics. Hyperkalaemia explains the peaked T-waves you see on your ECG. In cardiac arrest with a renal history, think hyperkalaemia. Crush injury patients release massive amounts of potassium when freed — that\'s why they can arrest on extrication.'
+                roadRelevance: 'This is THE electrolyte for paramedics. Hyperkalaemia explains the peaked T-waves you see on your ECG. In cardiac arrest with a renal history, think hyperkalaemia. Crush injury patients release massive amounts of potassium when freed — that\'s why they can arrest on extrication.',
+                simpleWhatIsIt: 'Potassium controls how your heart beats and how your muscles contract. Think of it as the electrical supply to the heart — too much or too little and the heart\'s rhythm goes haywire. It has to be kept in a very narrow range.',
+                simpleHigh: 'Too much potassium (hyperkalaemia) is a medical emergency because it can stop the heart. It causes tall peaked T-waves on the ECG and can lead to VF or asystole. Common causes: kidney failure (can\'t get rid of it), crush injuries (floods out of damaged muscle), and some medications.',
+                simpleLow: 'Too little potassium (hypokalaemia) is also dangerous for the heart. It causes flat T-waves, U-waves on the ECG, and can trigger dangerous rhythms like Torsades de Pointes. Common causes: vomiting, diarrhoea, and certain medications like diuretics.',
+                simpleRoadRelevance: 'Potassium is one of the 4 Hs and 4 Ts. If your patient has a cardiac arrest and you suspect high potassium (e.g., they have kidney failure or a crush injury), that changes your management. Equally, a patient with muscle weakness and palpitations after days of vomiting may have dangerously low potassium.'
             },
             {
                 id: 'urea',
@@ -147,7 +175,11 @@ export const bloodPanels = [
                 whatIsIt: 'Urea is a waste product made by the liver when it breaks down protein. The kidneys filter it out. It\'s a rough marker of kidney function and hydration status.',
                 high: 'Raised urea can mean kidney failure (the kidneys aren\'t clearing waste), dehydration (blood is more concentrated), upper GI bleeding (blood is digested as protein), or a high-protein diet. Very high urea causes nausea, confusion, and uraemic symptoms.',
                 low: 'Low urea is less clinically significant but can indicate liver disease (liver can\'t make urea), malnutrition, or overhydration.',
-                roadRelevance: 'A raised urea in your dehydrated elderly patient or your GI bleed patient helps the hospital understand the severity. In GI bleeds, a disproportionately raised urea compared to creatinine suggests upper rather than lower GI bleeding — the digested blood acts as a protein load.'
+                roadRelevance: 'A raised urea in your dehydrated elderly patient or your GI bleed patient helps the hospital understand the severity. In GI bleeds, a disproportionately raised urea compared to creatinine suggests upper rather than lower GI bleeding — the digested blood acts as a protein load.',
+                simpleWhatIsIt: 'Urea is a waste product made when your body breaks down protein. Your kidneys filter it out of the blood and get rid of it in urine. Think of it as rubbish — the kidneys are the bin men. If they stop working, the rubbish piles up.',
+                simpleHigh: 'High urea can mean the kidneys aren\'t working properly (not clearing the waste), or it can mean the patient is very dehydrated (less blood flowing through the kidneys). It also goes up when there\'s internal bleeding — digested blood is a protein load.',
+                simpleLow: 'Low urea is rarely a problem. It can happen in severe liver disease (liver makes urea, so a failing liver makes less) or in patients who eat very little protein.',
+                simpleRoadRelevance: 'A very high urea with a normal creatinine is a classic clue for upper GI bleeding — blood in the stomach gets digested like food, producing loads of urea. This is a really useful fact to know when handing over a patient with melena (black tarry poo).'
             },
             {
                 id: 'creatinine',
@@ -162,7 +194,11 @@ export const bloodPanels = [
                 whatIsIt: 'Creatinine is a waste product from normal muscle metabolism. The kidneys excrete it at a constant rate, making it a more reliable marker of kidney function than urea. It\'s used to calculate eGFR (estimated glomerular filtration rate).',
                 high: 'Raised creatinine indicates impaired kidney function (acute kidney injury or chronic kidney disease). Also raised in rhabdomyolysis (muscle breakdown), dehydration, and in patients with high muscle mass. A rapidly rising creatinine is an emergency.',
                 low: 'Low creatinine can indicate low muscle mass, malnutrition, or liver disease. Less clinically significant on its own.',
-                roadRelevance: 'Creatinine is the gold-standard kidney marker. When you transport a patient with renal failure to dialysis, their creatinine will be very high. In crush injuries and rhabdomyolysis, creatinine rises alongside potassium — both contributing to cardiac arrest risk.'
+                roadRelevance: 'Creatinine is the gold-standard kidney marker. When you transport a patient with renal failure to dialysis, their creatinine will be very high. In crush injuries and rhabdomyolysis, creatinine rises alongside potassium — both contributing to cardiac arrest risk.',
+                simpleWhatIsIt: 'Creatinine is a waste product from your muscles. Like urea, it\'s filtered out by the kidneys. But creatinine is a more reliable marker of kidney function because it\'s produced at a fairly constant rate. If creatinine goes up, it usually means the kidneys are struggling.',
+                simpleHigh: 'High creatinine means the kidneys aren\'t filtering properly — either from acute kidney injury (sudden, e.g., from dehydration, sepsis, or medications) or chronic kidney disease (gradual, long-term damage). The higher it is, the worse the kidneys are working.',
+                simpleLow: 'Low creatinine is not usually a concern. It can be seen in people with very low muscle mass, such as the frail elderly.',
+                simpleRoadRelevance: 'When you hand over a dehydrated or septic patient, a rising creatinine tells the hospital the kidneys are being damaged. This is why your early fluid therapy and sepsis recognition matters — catching kidney injury early gives it the best chance of recovery.'
             },
             {
                 id: 'egfr',
@@ -177,7 +213,11 @@ export const bloodPanels = [
                 whatIsIt: 'Estimated Glomerular Filtration Rate (eGFR) is a calculated measure of how well the kidneys are filtering blood. It\'s derived from creatinine, age, sex, and ethnicity. Think of it as the kidneys\' efficiency score.',
                 high: 'A high eGFR is normal/good — the kidneys are filtering efficiently.',
                 low: 'Low eGFR indicates kidney impairment. Stage 3 CKD is eGFR 30-59, Stage 4 is 15-29, Stage 5 is <15 (usually needing dialysis). Sudden drops indicate acute kidney injury.',
-                roadRelevance: 'You\'ll see eGFR on discharge summaries. A patient with eGFR <30 has significant kidney disease and will be on restricted diets, adjusted medications, and may be near dialysis. This affects which drugs are safe to give them.'
+                roadRelevance: 'You\'ll see eGFR on discharge summaries. A patient with eGFR <30 has significant kidney disease and will be on restricted diets, adjusted medications, and may be near dialysis. This affects which drugs are safe to give them.',
+                simpleWhatIsIt: 'eGFR is a calculated number that estimates how well the kidneys are filtering. Think of creatinine as the raw data, and eGFR as the easy-to-understand score. Higher is better. It\'s adjusted for age, sex, and ethnicity.',
+                simpleHigh: 'A high eGFR (above 90) means the kidneys are working well. Nothing to worry about.',
+                simpleLow: 'A low eGFR means the kidneys are struggling. Below 60 = chronic kidney disease. Below 30 = severe kidney disease. Below 15 = kidney failure, likely needing dialysis. The lower the number, the worse the kidneys.',
+                simpleRoadRelevance: 'A patient with a low eGFR already has damaged kidneys. This means they\'re more vulnerable to further kidney injury from things like dehydration, sepsis, or certain drugs. Your fluid management and medication choices matter more for these patients.'
             }
         ]
     },
@@ -201,7 +241,11 @@ export const bloodPanels = [
                 whatIsIt: 'ALT is an enzyme found mainly in liver cells. When liver cells are damaged or inflamed, ALT leaks into the blood. It\'s the most specific marker for liver cell damage.',
                 high: 'Raised ALT indicates liver cell damage (hepatocellular injury). Very high levels (>1000) suggest acute hepatitis (viral, drug-induced, or paracetamol overdose), ischaemic hepatitis (shock liver), or autoimmune hepatitis. Moderate rises occur with fatty liver disease, alcohol excess, and medications.',
                 low: 'Low ALT is normal and not clinically significant.',
-                roadRelevance: 'In paracetamol overdose, ALT is the critical marker of liver damage. A patient who took paracetamol 24+ hours ago with a massively raised ALT is in serious trouble. This is why staggered overdoses are so dangerous — by the time they present, liver damage may already be severe.'
+                roadRelevance: 'In paracetamol overdose, ALT is the critical marker of liver damage. A patient who took paracetamol 24+ hours ago with a massively raised ALT is in serious trouble. This is why staggered overdoses are so dangerous — by the time they present, liver damage may already be severe.',
+                simpleWhatIsIt: 'ALT is an enzyme that lives inside liver cells. When liver cells get damaged, ALT leaks out into the blood. Think of it as an alarm — the higher the ALT, the more liver cells are being destroyed. It\'s the most specific marker for liver cell damage.',
+                simpleHigh: 'High ALT means liver cells are being damaged. Mild rises (up to 3× normal): fatty liver, medications, alcohol. Moderate rises (3-10× normal): hepatitis, liver inflammation. Massive rises (over 1000): paracetamol overdose, acute viral hepatitis, or liver ischaemia (blood supply cut off).',
+                simpleLow: 'Low ALT is normal and not a concern.',
+                simpleRoadRelevance: 'If you\'re dealing with a suspected paracetamol overdose, the ALT tells the hospital how much liver damage has already happened. An ALT in the thousands at 18+ hours post-overdose means the liver is in serious trouble and the patient may need a transplant.'
             },
             {
                 id: 'ast',
@@ -216,7 +260,11 @@ export const bloodPanels = [
                 whatIsIt: 'AST is similar to ALT but is found in the liver, heart, muscle, and kidneys. It rises with liver damage but is less specific because it can also come from other tissues.',
                 high: 'Raised AST with raised ALT suggests liver damage. AST higher than ALT (AST:ALT ratio >2:1) is a classic pattern of alcoholic liver disease. Very high AST also occurs in myocardial infarction, rhabdomyolysis, and muscle damage.',
                 low: 'Low AST is normal and not clinically significant.',
-                roadRelevance: 'The AST:ALT ratio helps doctors determine the cause of liver disease. AST also rises with muscle damage, so in your rhabdomyolysis patients (crush injuries, prolonged immobility), expect raised AST alongside raised CK and creatinine.'
+                roadRelevance: 'The AST:ALT ratio helps doctors determine the cause of liver disease. AST also rises with muscle damage, so in your rhabdomyolysis patients (crush injuries, prolonged immobility), expect raised AST alongside raised CK and creatinine.',
+                simpleWhatIsIt: 'AST is similar to ALT — it\'s an enzyme that leaks out when cells are damaged. But here\'s the key difference: AST isn\'t just found in the liver. It\'s also in the heart, muscles, and red blood cells. So a raised AST doesn\'t automatically mean liver damage.',
+                simpleHigh: 'High AST can come from the liver (especially with alcohol damage), the heart (in a heart attack), or muscles (in crush injuries or rhabdomyolysis). A helpful clue: if ALT is also high, it\'s probably liver. If ALT is normal but AST is sky-high, think muscles.',
+                simpleLow: 'Low AST is normal and not a concern.',
+                simpleRoadRelevance: 'In alcoholic liver disease, AST is typically higher than ALT (the opposite of most other liver conditions). In your crush injury patient, a massively raised AST with a normal-ish ALT points to muscle damage, not liver damage. Knowing the difference helps you give a better handover.'
             },
             {
                 id: 'alp',
@@ -231,7 +279,11 @@ export const bloodPanels = [
                 whatIsIt: 'ALP is an enzyme found in the bile ducts of the liver and in bone. It rises when there is a blockage or inflammation in the bile ducts, or with bone disease.',
                 high: 'Raised ALP with normal ALT/AST suggests a bile duct problem (cholestatic pattern) — could be gallstones blocking the duct, pancreatic head tumour, or drug reaction. Raised ALP with bone pain might indicate Paget\'s disease or bone metastases. Normally high in pregnancy and growing children.',
                 low: 'Low ALP is rare and usually not clinically significant. Can occur in hypothyroidism and zinc deficiency.',
-                roadRelevance: 'Understanding ALP helps you connect abdominal pain presentations to outcomes. Your jaundiced patient with right upper quadrant pain — if their ALP is sky-high, it points towards an obstructive cause (gallstones) rather than liver cell disease.'
+                roadRelevance: 'Understanding ALP helps you connect abdominal pain presentations to outcomes. Your jaundiced patient with right upper quadrant pain — if their ALP is sky-high, it points towards an obstructive cause (gallstones) rather than liver cell disease.',
+                simpleWhatIsIt: 'ALP is an enzyme found mainly in the bile ducts of the liver and in bones. When the bile ducts are blocked or damaged, ALP goes up. Think of it as the "plumbing" marker — it tells you if the drainage system from the liver is blocked.',
+                simpleHigh: 'High ALP suggests either a bile duct blockage (gallstones, tumour) or a bone problem (fractures, Paget\'s disease, bone cancer). If other liver markers are also raised, it\'s probably bile duct related. If they\'re normal, think bones.',
+                simpleLow: 'Low ALP is rare and usually not clinically significant.',
+                simpleRoadRelevance: 'A patient with right upper quadrant pain, jaundice, and a high ALP likely has a bile duct obstruction (probably gallstones). This helps you understand why the hospital might be asking about the colour of their urine (dark) and stools (pale) — both clues to obstruction.'
             },
             {
                 id: 'bilirubin',
@@ -246,7 +298,11 @@ export const bloodPanels = [
                 whatIsIt: 'Bilirubin is the yellow pigment produced when red blood cells are broken down. The liver processes it and excretes it in bile. When bilirubin builds up, you get jaundice — the yellow discolouration of skin and sclera.',
                 high: 'Raised bilirubin causes jaundice. Pre-hepatic causes: haemolytic anaemia (too many red cells being destroyed). Hepatic causes: hepatitis, cirrhosis, paracetamol overdose. Post-hepatic (obstructive): gallstones, pancreatic cancer blocking the bile duct.',
                 low: 'Low bilirubin is not clinically significant.',
-                roadRelevance: 'You assess for jaundice on the road. Understanding bilirubin helps you differentiate — a jaundiced patient with dark urine and pale stools has an obstructive cause (post-hepatic). A jaundiced patient with a known liver condition has a hepatic cause. This helps you convey the right picture at handover.'
+                roadRelevance: 'You assess for jaundice on the road. Understanding bilirubin helps you differentiate — a jaundiced patient with dark urine and pale stools has an obstructive cause (post-hepatic). A jaundiced patient with a known liver condition has a hepatic cause. This helps you convey the right picture at handover.',
+                simpleWhatIsIt: 'Bilirubin is the yellow pigment produced when old red blood cells are broken down. The liver processes it and sends it out through the bile ducts into the gut. If the liver is damaged or the bile ducts are blocked, bilirubin builds up — and the patient turns yellow (jaundice).',
+                simpleHigh: 'High bilirubin causes jaundice — yellow skin and eyes. It can mean the liver is damaged (hepatitis, cirrhosis), the bile ducts are blocked (gallstones, cancer), or too many red blood cells are being destroyed (haemolysis). The higher it goes, the more yellow the patient looks.',
+                simpleLow: 'Low bilirubin is normal and not a concern.',
+                simpleRoadRelevance: 'If your patient looks yellow (check the whites of their eyes — that\'s the earliest place to spot it), bilirubin is the reason. Jaundice in a trauma patient or someone with abdominal pain helps narrow down the cause and makes for a much more informative handover.'
             },
             {
                 id: 'albumin',
@@ -261,7 +317,11 @@ export const bloodPanels = [
                 whatIsIt: 'Albumin is the most abundant protein in the blood, made by the liver. It keeps fluid inside blood vessels (oncotic pressure) and transports substances around the body. It\'s a marker of the liver\'s synthetic function and overall nutrition.',
                 high: 'High albumin is rare and usually just reflects dehydration concentrating the blood.',
                 low: 'Low albumin (hypoalbuminaemia) causes oedema — fluid leaks out of blood vessels into tissues because there isn\'t enough protein to hold it in. Causes: liver disease (can\'t make it), kidney disease (leaking it out), malnutrition, sepsis, and chronic illness.',
-                roadRelevance: 'That patient with swollen ankles and ascites (fluid-filled abdomen) may have low albumin from liver disease. Understanding this helps you recognise chronic liver disease presentations and explains why some patients have peripheral oedema despite normal cardiac function.'
+                roadRelevance: 'That patient with swollen ankles and ascites (fluid-filled abdomen) may have low albumin from liver disease. Understanding this helps you recognise chronic liver disease presentations and explains why some patients have peripheral oedema despite normal cardiac function.',
+                simpleWhatIsIt: 'Albumin is a protein made by the liver. It has two main jobs: carrying things around in the blood (like a delivery van) and keeping fluid inside your blood vessels (like a sponge). If albumin drops, fluid leaks out of the blood into the tissues.',
+                simpleHigh: 'High albumin is rare and usually just means the patient is dehydrated — the blood is concentrated.',
+                simpleLow: 'Low albumin means either the liver isn\'t making enough (liver failure) or the body is losing it (kidney disease, burns, malnutrition). When albumin is low, fluid leaks out of blood vessels causing swollen ankles, puffy eyes, and fluid in the lungs.',
+                simpleRoadRelevance: 'That patient with massively swollen legs and difficulty breathing? Low albumin might be why. Fluid has leaked out of their blood vessels into their tissues and lungs. Understanding this helps you recognise why some patients have oedema that doesn\'t respond to diuretics alone.'
             }
         ]
     },
@@ -285,7 +345,11 @@ export const bloodPanels = [
                 whatIsIt: 'International Normalised Ratio (INR) measures how long blood takes to clot compared to normal. It standardises the prothrombin time (PT) across different labs. An INR of 1.0 is normal clotting speed.',
                 high: 'High INR means blood is thinner (clots slower). Warfarin therapy targets INR 2-3 (or 3-4 for mechanical heart valves). INR >5 is a bleeding risk. INR >8 is a haemorrhage risk. Also raised in liver disease, vitamin K deficiency, and DIC.',
                 low: 'Low INR is normal clotting. A very low INR in a patient supposed to be on warfarin might indicate non-compliance or dietary changes (too much vitamin K).',
-                roadRelevance: 'INR is vital for your warfarin patients. A fall with head injury + INR of 6 = high risk of intracranial haemorrhage. Always ask warfarin patients about their last INR reading. This connects directly to your major trauma decision-making.'
+                roadRelevance: 'INR is vital for your warfarin patients. A fall with head injury + INR of 6 = high risk of intracranial haemorrhage. Always ask warfarin patients about their last INR reading. This connects directly to your major trauma decision-making.',
+                simpleWhatIsIt: 'INR measures how long it takes blood to clot compared to a normal person. An INR of 1.0 means normal clotting speed. An INR of 2.0 means it takes twice as long to clot. The higher the INR, the thinner the blood and the higher the bleeding risk.',
+                simpleHigh: 'A high INR means the blood is too thin — it takes too long to clot. This is dangerous because cuts and injuries bleed more, and internal bleeds are more likely. Caused by: warfarin (intentionally), liver failure (can\'t make clotting factors), or vitamin K deficiency.',
+                simpleLow: 'A low INR (near 1.0) means normal clotting. This is what you want in a healthy person. In patients on warfarin, a low INR means the medication isn\'t working well enough and they\'re at higher risk of blood clots.',
+                simpleRoadRelevance: 'A patient on warfarin who\'s had a head injury — check their INR. If it\'s high (say 5 or above), they\'re at very high risk of bleeding inside the skull. This should make you think urgent pre-alert. It\'s also why "what medications are they on?" is so important in your history.'
             },
             {
                 id: 'pt',
@@ -300,7 +364,11 @@ export const bloodPanels = [
                 whatIsIt: 'PT measures how long it takes for the extrinsic clotting pathway to form a clot. It tests Factors I, II, V, VII, and X. PT is what INR is calculated from.',
                 high: 'Prolonged PT means slower clotting via the extrinsic pathway. Causes: warfarin therapy, liver disease, vitamin K deficiency, DIC. Paired with a normal APTT, it suggests a Factor VII deficiency or warfarin effect.',
                 low: 'Short PT is generally not clinically significant.',
-                roadRelevance: 'PT and INR go hand-in-hand. Understanding the clotting cascade helps you appreciate why liver disease patients bleed — the liver makes most clotting factors, so when it fails, PT rises and the patient can\'t clot properly.'
+                roadRelevance: 'PT and INR go hand-in-hand. Understanding the clotting cascade helps you appreciate why liver disease patients bleed — the liver makes most clotting factors, so when it fails, PT rises and the patient can\'t clot properly.',
+                simpleWhatIsIt: 'Prothrombin Time is the actual time (in seconds) it takes blood to clot via one of the clotting pathways. INR is calculated from PT. Think of PT as the raw stopwatch time and INR as the standardised version that lets different labs be compared.',
+                simpleHigh: 'A long PT means slow clotting. Same causes as a high INR — warfarin, liver disease, vitamin K deficiency. The longer it takes, the more the patient bleeds.',
+                simpleLow: 'A short PT means blood is clotting faster than average. This isn\'t usually a concern on its own.',
+                simpleRoadRelevance: 'You\'ll mainly hear about INR rather than PT in pre-hospital care, but they measure the same thing. If someone tells you their PT is 45 seconds (normal is about 12), that patient\'s blood is very thin — treat them like a high-risk bleeder.'
             },
             {
                 id: 'aptt',
@@ -315,7 +383,11 @@ export const bloodPanels = [
                 whatIsIt: 'Activated Partial Thromboplastin Time measures the intrinsic clotting pathway. It tests Factors I, II, V, VIII, IX, X, XI, and XII. Used to monitor heparin therapy.',
                 high: 'Prolonged APTT: heparin therapy, haemophilia (Factor VIII or IX deficiency), von Willebrand disease, DIC, or lupus anticoagulant. If both PT and APTT are raised, suspect DIC, liver disease, or a common pathway problem.',
                 low: 'Short APTT can paradoxically indicate increased clotting risk and is sometimes seen in active thrombosis or DIC.',
-                roadRelevance: 'Patients on heparin infusions will have a monitored APTT. If you\'re transferring a patient on IV heparin, understanding APTT helps you communicate effectively with the receiving team. Both PT and APTT raised together in a bleeding patient = think DIC — a life-threatening emergency.'
+                roadRelevance: 'Patients on heparin infusions will have a monitored APTT. If you\'re transferring a patient on IV heparin, understanding APTT helps you communicate effectively with the receiving team. Both PT and APTT raised together in a bleeding patient = think DIC — a life-threatening emergency.',
+                simpleWhatIsIt: 'APTT measures a different clotting pathway to PT/INR. It\'s mainly used to monitor patients on heparin (a blood thinner given in hospital). Think of the clotting system as having two roads to the same destination — PT measures one road, APTT measures the other.',
+                simpleHigh: 'A long APTT means that clotting pathway is slow. Most commonly caused by heparin treatment. Also raised in haemophilia and other inherited clotting disorders. These patients bleed more than expected from injuries.',
+                simpleLow: 'A short APTT is not usually clinically significant on its own.',
+                simpleRoadRelevance: 'If a patient tells you they\'re on heparin (often from a hospital stay), their APTT will be deliberately raised. This means they\'re at increased bleeding risk. Combined with INR/PT, the APTT gives the full picture of how well someone\'s blood can clot.'
             }
         ]
     },
@@ -339,7 +411,11 @@ export const bloodPanels = [
                 whatIsIt: 'High-sensitivity Troponin T is a protein released into the blood when heart muscle cells are damaged. It is THE definitive marker for myocardial injury. Even tiny amounts indicate heart muscle damage.',
                 high: 'Raised troponin confirms myocardial injury. In the context of chest pain + ECG changes = myocardial infarction. But troponin also rises in PE, myocarditis, sepsis, renal failure, heart failure exacerbation, and after cardioversion. A rising pattern (serial troponins) is more diagnostic than a single value.',
                 low: 'Normal troponin helps rule out MI (in combination with timing and clinical picture). However, troponin may be normal in the first 3-6 hours after onset — hence serial testing.',
-                roadRelevance: 'This is the blood test that confirms or rules out MI. When you hand over a chest pain patient, the first thing ED will do is order a troponin. Understanding the timing matters — if your patient\'s pain started 1 hour ago, the first troponin may be normal even if they ARE having an MI. That\'s why your clinical assessment and ECG matter.'
+                roadRelevance: 'This is the blood test that confirms or rules out MI. When you hand over a chest pain patient, the first thing ED will do is order a troponin. Understanding the timing matters — if your patient\'s pain started 1 hour ago, the first troponin may be normal even if they ARE having an MI. That\'s why your clinical assessment and ECG matter.',
+                simpleWhatIsIt: 'Troponin is a protein found inside heart muscle cells. It should NOT be in the blood. When heart muscle cells are damaged (like in a heart attack), troponin leaks out into the bloodstream. It\'s the number one blood test for confirming heart muscle damage.',
+                simpleHigh: 'A high troponin means heart muscle cells have been damaged. The most common cause is a heart attack (MI). But troponin can also rise in PE, heart failure, myocarditis (heart inflammation), sepsis, and after CPR. The pattern of rise and fall helps doctors tell the difference.',
+                simpleLow: 'Normal troponin means no heart muscle damage has been detected. This is very reassuring in chest pain patients. However, troponin takes 3-6 hours to rise after a heart attack, so an early normal result doesn\'t always rule it out.',
+                simpleRoadRelevance: 'When you hand over a chest pain patient, the hospital will check troponin. Your job is to record the time of symptom onset — this is crucial because troponin takes hours to rise. A troponin taken too early might be falsely normal. Your timeline helps them decide when to retest.'
             },
             {
                 id: 'bnp',
@@ -354,7 +430,11 @@ export const bloodPanels = [
                 whatIsIt: 'B-type Natriuretic Peptide is released by the heart when it is stretched or under pressure. It\'s the key blood test for diagnosing and monitoring heart failure. Think of it as the heart\'s distress signal.',
                 high: 'Raised BNP strongly suggests heart failure. The higher the BNP, the worse the heart failure. BNP >400 pg/mL is very likely heart failure. Also raised in PE, renal failure, sepsis, and atrial fibrillation. BNP helps differentiate cardiac from non-cardiac causes of breathlessness.',
                 low: 'Normal BNP (<100 pg/mL) effectively rules out heart failure as the cause of breathlessness. This has a very high negative predictive value.',
-                roadRelevance: 'BNP helps answer the question you face regularly on the road: "Is this patient breathless because of their heart or their lungs?" You can\'t test BNP pre-hospital, but understanding it helps you communicate with the hospital team and understand the diagnostic pathway your patient will go through.'
+                roadRelevance: 'BNP helps answer the question you face regularly on the road: "Is this patient breathless because of their heart or their lungs?" You can\'t test BNP pre-hospital, but understanding it helps you communicate with the hospital team and understand the diagnostic pathway your patient will go through.',
+                simpleWhatIsIt: 'BNP is a hormone released by the heart when it\'s stretched or under strain — basically when the heart is struggling to pump. Think of it as the heart\'s "help me" signal. The more the heart is struggling, the more BNP it releases.',
+                simpleHigh: 'A high BNP strongly suggests heart failure — the heart isn\'t pumping well enough. The higher the number, the worse the heart failure. It can also be raised in PE, kidney disease, and sepsis, but massive levels (>1000) almost always mean heart failure.',
+                simpleLow: 'A normal BNP is very useful because it makes heart failure very unlikely. If a breathless patient has a normal BNP, doctors will look for other causes of their breathlessness (like PE, pneumonia, or COPD).',
+                simpleRoadRelevance: 'That breathless patient with swollen ankles — is it heart failure, a chest infection, or both? BNP helps the hospital answer that question. Your clinical observations (JVP, ankle oedema, crackles, medication list) combined with their BNP gives the full picture.'
             }
         ]
     },
@@ -378,7 +458,11 @@ export const bloodPanels = [
                 whatIsIt: 'Blood glucose is the concentration of sugar in the blood. It\'s the body\'s primary energy source, especially for the brain. Regulated by insulin (lowers it) and glucagon (raises it).',
                 high: 'Hyperglycaemia (>7 fasting, >11 random) indicates diabetes or stress response. Very high levels (>20) with ketones = DKA (type 1) or HHS (type 2) — both emergencies. DKA presents with Kussmaul breathing, fruity breath, abdominal pain. HHS presents with profound dehydration and confusion.',
                 low: 'Hypoglycaemia (<4 mmol/L) is an emergency. Causes: insulin/sulphonylurea overdose, missed meals, liver failure, sepsis, alcohol excess, Addison\'s disease. Causes sweating, tremor, confusion, seizures, and can lead to coma and death if untreated.',
-                roadRelevance: 'BM checks are bread and butter for paramedics. But understanding the blood glucose in the wider context of hospital bloods helps you appreciate why hypoglycaemia in a non-diabetic is a red flag (liver failure? sepsis? Addison\'s?) and why the hospital cares about trends, not just single readings.'
+                roadRelevance: 'BM checks are bread and butter for paramedics. But understanding the blood glucose in the wider context of hospital bloods helps you appreciate why hypoglycaemia in a non-diabetic is a red flag (liver failure? sepsis? Addison\'s?) and why the hospital cares about trends, not just single readings.',
+                simpleWhatIsIt: 'Blood glucose is the sugar in your blood that gives your cells energy. It\'s mainly controlled by insulin (lowers it) and glucagon (raises it). Your brain is especially dependent on glucose — without it, the brain shuts down within minutes.',
+                simpleHigh: 'High glucose (hyperglycaemia) can mean diabetes (Type 1 or Type 2), a stress response (the body releases glucose when unwell or injured), or a diabetic emergency like DKA or HHS. Very high levels cause thirst, frequent urination, and eventually confusion.',
+                simpleLow: 'Low glucose (hypoglycaemia) is an emergency because the brain is starving. Causes: too much insulin, missed meals in diabetics, alcohol, liver failure, sepsis. Symptoms: sweating, shaking, confusion, aggression, seizures, and eventually unconsciousness.',
+                simpleRoadRelevance: 'You already check BMs on nearly every patient — this is why. A BM of 2.0 can look exactly like a stroke, a head injury, or intoxication. Always check glucose in any patient with altered consciousness. It\'s the easiest life-threatening condition to fix on scene.'
             },
             {
                 id: 'hba1c',
@@ -393,7 +477,11 @@ export const bloodPanels = [
                 whatIsIt: 'HbA1c measures the average blood glucose over the last 2-3 months. It shows what percentage of haemoglobin has glucose attached to it. Think of it as the long-term blood sugar report card.',
                 high: 'HbA1c ≥48 mmol/mol (6.5%) = diabetes diagnosis. 42-47 = pre-diabetes. Higher levels indicate poorer glucose control over months. HbA1c >75 means very poorly controlled diabetes with increased complication risk.',
                 low: 'Very low HbA1c may indicate frequent hypoglycaemic episodes, anaemia, or blood loss (new red cells haven\'t had time to accumulate glucose).',
-                roadRelevance: 'When you see a diabetic patient\'s recent HbA1c on their records, it tells you how well controlled they\'ve been. A high HbA1c means they\'re at greater risk of the complications you see on the road — neuropathy, retinopathy, cardiovascular events, and DKA.'
+                roadRelevance: 'When you see a diabetic patient\'s recent HbA1c on their records, it tells you how well controlled they\'ve been. A high HbA1c means they\'re at greater risk of the complications you see on the road — neuropathy, retinopathy, cardiovascular events, and DKA.',
+                simpleWhatIsIt: 'HbA1c is a blood test that shows average blood sugar levels over the last 2-3 months. Think of it like a report card for diabetes control. While a single glucose reading is a snapshot, HbA1c is the long-term picture.',
+                simpleHigh: 'A high HbA1c means blood sugar has been poorly controlled over recent months. Above 48 mmol/mol = diabetes diagnosis. The higher the number, the worse the control and the higher the risk of complications like kidney damage, blindness, and nerve problems.',
+                simpleLow: 'A low HbA1c in a diabetic patient means their blood sugar control has been good. Very low levels in a diabetic on insulin might suggest they\'re having frequent hypos (their insulin dose might be too high).',
+                simpleRoadRelevance: 'HbA1c helps you understand the bigger picture for your diabetic patients. A patient with an HbA1c of 100 has had months of terrible sugar control — they\'re at much higher risk of complications. This context helps frame your handover and explains why some diabetic patients are in a worse state than others.'
             },
             {
                 id: 'lactate',
@@ -408,7 +496,11 @@ export const bloodPanels = [
                 whatIsIt: 'Lactate is produced when cells switch to anaerobic metabolism — i.e., when tissues aren\'t getting enough oxygen. It\'s a critical marker of tissue perfusion and is central to sepsis management.',
                 high: 'Raised lactate (>2 mmol/L) indicates tissue hypoperfusion — cells are starved of oxygen. Causes: sepsis, shock (any type), cardiac arrest, severe anaemia, mesenteric ischaemia, seizures, and exercise. Lactate >4 is associated with high mortality in sepsis and triggers the sepsis 6 bundle.',
                 low: 'Low lactate is normal and reassuring.',
-                roadRelevance: 'Lactate is the single most important marker for tissue perfusion. You can\'t measure it on the road (without iSTAT), but it\'s the first thing ED checks in your septic or shocked patients. A patient who LOOKS ok but has a lactate of 6 is in serious trouble — this is why sepsis screening catches people early.'
+                roadRelevance: 'Lactate is the single most important marker for tissue perfusion. You can\'t measure it on the road (without iSTAT), but it\'s the first thing ED checks in your septic or shocked patients. A patient who LOOKS ok but has a lactate of 6 is in serious trouble — this is why sepsis screening catches people early.',
+                simpleWhatIsIt: 'Lactate is produced when cells don\'t get enough oxygen and switch to emergency energy production. Think of it like a car running on fumes — it still works, but it produces dirty exhaust. Lactate is that dirty exhaust, and it tells you tissues aren\'t getting enough blood flow.',
+                simpleHigh: 'High lactate means tissues are being starved of oxygen. The most common cause is shock (not enough blood reaching the organs) — from sepsis, blood loss, or heart failure. Lactate above 4 is a red flag that triggers the sepsis 6 bundle. Very high lactate (above 8) carries a high mortality risk.',
+                simpleLow: 'Normal lactate is reassuring — it means tissues are getting enough oxygen and blood flow. It\'s one of the most useful "all clear" markers in assessing a sick patient.',
+                simpleRoadRelevance: 'You can\'t measure lactate on the road (yet), but it\'s the first thing the hospital will check in a septic or shocked patient. Your early recognition and pre-alert means they can get that lactate result faster. A high lactate validates your clinical suspicion — your gut feeling was right.'
             }
         ]
     },
@@ -432,7 +524,11 @@ export const bloodPanels = [
                 whatIsIt: 'Blood pH measures how acidic or alkaline the blood is. The body maintains it in a very tight range. Even small deviations cause significant physiological effects. Normal pH is 7.35-7.45.',
                 high: 'Alkalosis (pH >7.45): Respiratory alkalosis = hyperventilation (anxiety, PE, pain). Metabolic alkalosis = vomiting (losing acid), diuretics, or excessive bicarbonate. Alkalosis causes tingling, muscle spasms, and arrhythmias.',
                 low: 'Acidosis (pH <7.35): Respiratory acidosis = CO₂ retention (COPD, sedation, exhaustion). Metabolic acidosis = DKA, renal failure, sepsis/shock, aspirin overdose. Severe acidosis (<7.1) is life-threatening — the heart becomes resistant to drugs and prone to arrest.',
-                roadRelevance: 'Understanding pH helps you appreciate why DKA patients have Kussmaul breathing — they\'re trying to blow off CO₂ to compensate for metabolic acidosis. It also explains why prolonged cardiac arrest has a poor prognosis — the acidosis becomes so severe that adrenaline stops working.'
+                roadRelevance: 'Understanding pH helps you appreciate why DKA patients have Kussmaul breathing — they\'re trying to blow off CO₂ to compensate for metabolic acidosis. It also explains why prolonged cardiac arrest has a poor prognosis — the acidosis becomes so severe that adrenaline stops working.',
+                simpleWhatIsIt: 'pH measures how acidic or alkaline the blood is. Normal blood is very slightly alkaline (7.35-7.45). Even small changes outside this range are dangerous because the body\'s enzymes and chemical reactions only work properly at the right pH.',
+                simpleHigh: 'A pH above 7.45 (alkalosis) means the blood is too alkaline. This can be caused by hyperventilation (breathing off too much CO₂) or by vomiting (losing stomach acid). Symptoms include tingling, muscle spasms, and in severe cases, seizures.',
+                simpleLow: 'A pH below 7.35 (acidosis) means the blood is too acidic. This is seen in DKA, sepsis, kidney failure, and after cardiac arrest. It\'s dangerous because acidic blood stops medications (like adrenaline) working properly and makes the heart more likely to arrest.',
+                simpleRoadRelevance: 'The pH explains why DKA patients breathe so fast (Kussmaul breathing) — they\'re desperately trying to blow off CO₂ to make the blood less acidic. It also explains why prolonged cardiac arrest has such a poor outcome — the blood becomes so acidic that drugs stop working.'
             },
             {
                 id: 'pao2',
@@ -447,7 +543,11 @@ export const bloodPanels = [
                 whatIsIt: 'Partial pressure of oxygen in arterial blood. It measures how much oxygen is dissolved in the blood and reflects how well the lungs are transferring oxygen into the bloodstream.',
                 high: 'High PaO₂ (>13.3 kPa) usually means the patient is on supplemental oxygen. Excessive oxygen in COPD patients can worsen CO₂ retention through V/Q mismatch changes and the Haldane effect, and can cause retinopathy of prematurity in neonates.',
                 low: 'Low PaO₂ (<10 kPa) = hypoxaemia. Type 1 respiratory failure is defined as PaO₂ <8 kPa. Causes: pneumonia, PE, COPD exacerbation, asthma, pulmonary oedema, ARDS. The lower the PaO₂, the more critical the situation.',
-                roadRelevance: 'PaO₂ gives a more accurate picture of oxygenation than SpO₂. Your pulse oximeter shows 94% — that could mean PaO₂ of 8.5 kPa. On the steep part of the oxygen dissociation curve, small drops in PaO₂ cause big drops in SpO₂. This is why patients can look fine then suddenly decompensate.'
+                roadRelevance: 'PaO₂ gives a more accurate picture of oxygenation than SpO₂. Your pulse oximeter shows 94% — that could mean PaO₂ of 8.5 kPa. On the steep part of the oxygen dissociation curve, small drops in PaO₂ cause big drops in SpO₂. This is why patients can look fine then suddenly decompensate.',
+                simpleWhatIsIt: 'PaO₂ measures the actual pressure of oxygen dissolved in the blood. While SpO₂ (your sats probe) estimates the percentage of haemoglobin carrying oxygen, PaO₂ is the direct measurement from an arterial blood sample. It\'s more accurate, especially in critically ill patients.',
+                simpleHigh: 'High PaO₂ usually means the patient is on too much supplemental oxygen. In most patients this isn\'t a big issue, but in COPD patients, excessive oxygen can cause problems (see PaCO₂ for why).',
+                simpleLow: 'Low PaO₂ (below 10 kPa) means the blood isn\'t carrying enough oxygen — this is called hypoxaemia. Below 8 kPa is serious. The patient needs more oxygen or their breathing mechanics need supporting (e.g., CPAP, intubation).',
+                simpleRoadRelevance: 'Your SpO₂ probe gives you a good estimate, but PaO₂ from an ABG is the gold standard. One key thing: SpO₂ can look reassuringly normal (say 94%) while PaO₂ is already quite low (8.5 kPa) — and on the steep part of the oxygen curve, things can drop very fast from there.'
             },
             {
                 id: 'paco2',
@@ -462,7 +562,11 @@ export const bloodPanels = [
                 whatIsIt: 'Partial pressure of carbon dioxide in arterial blood. CO₂ is the waste product of metabolism and is removed by breathing. PaCO₂ reflects how well the lungs are ventilating.',
                 high: 'High PaCO₂ (>6.0 kPa) = hypercapnia = respiratory acidosis. The patient isn\'t breathing out enough CO₂. Causes: COPD, exhaustion, opiate overdose, neuromuscular disease, severe asthma. Type 2 respiratory failure = low O₂ + high CO₂. Patient becomes drowsy, confused, with bounding pulse and headache.',
                 low: 'Low PaCO₂ (<4.7 kPa) = respiratory alkalosis = hyperventilation. Causes: anxiety, pain, PE, early sepsis, compensation for metabolic acidosis (Kussmaul breathing in DKA). Usually corrects when the underlying cause is treated.',
-                roadRelevance: 'PaCO₂ explains why you give controlled oxygen in COPD — but NOT because of "hypoxic drive" (that\'s outdated teaching). The real mechanism: in COPD lungs, CO₂ normally constricts pulmonary blood vessels, spreading blood across the lung for efficient gas exchange. Give too much O₂ and those vessels vasodilate, causing blood and CO₂ to pool in poorly functioning lung areas — less CO₂ is exhaled per breath. This is the V/Q mismatch effect. The Haldane effect also plays a role — oxygenated haemoglobin carries less CO₂, so excess O₂ causes CO₂ to be dumped into the blood. The result is rising PaCO₂. It also explains why your tiring asthmatic is in most danger — they stop being able to breathe out enough CO₂.'
+                roadRelevance: 'PaCO₂ explains why you give controlled oxygen in COPD — but NOT because of "hypoxic drive" (that\'s outdated teaching). The real mechanism: in COPD lungs, CO₂ normally constricts pulmonary blood vessels, spreading blood across the lung for efficient gas exchange. Give too much O₂ and those vessels vasodilate, causing blood and CO₂ to pool in poorly functioning lung areas — less CO₂ is exhaled per breath. This is the V/Q mismatch effect. The Haldane effect also plays a role — oxygenated haemoglobin carries less CO₂, so excess O₂ causes CO₂ to be dumped into the blood. The result is rising PaCO₂. It also explains why your tiring asthmatic is in most danger — they stop being able to breathe out enough CO₂.',
+                simpleWhatIsIt: 'PaCO₂ measures carbon dioxide in the blood. CO₂ is the waste gas your body produces and gets rid of by breathing. If you breathe well, CO₂ stays normal. If breathing slows down or the lungs aren\'t working properly, CO₂ builds up.',
+                simpleHigh: 'High CO₂ means the patient isn\'t breathing out enough — it\'s building up. This happens in COPD, exhaustion, opiate overdose, and severe asthma (when the patient is tiring). The patient becomes drowsy, confused, and flushed. This is called type 2 respiratory failure.',
+                simpleLow: 'Low CO₂ means the patient is breathing too much — blowing off more CO₂ than they\'re producing. Causes include anxiety, pain, PE (the body tries to compensate), and early sepsis. DKA patients breathe fast to blow off CO₂ and reduce their blood acidity.',
+                simpleRoadRelevance: 'The old teaching that COPD patients "rely on low oxygen to breathe" (hypoxic drive) is outdated. The real reason too much oxygen is dangerous in COPD: oxygen causes blood vessels in the lungs to relax, pooling blood in damaged areas where CO₂ can\'t escape. Plus, oxygen-rich blood holds less CO₂ (Haldane effect). The result is CO₂ building up. Still give oxygen — just titrate carefully.'
             },
             {
                 id: 'hco3',
@@ -477,7 +581,11 @@ export const bloodPanels = [
                 whatIsIt: 'Bicarbonate is the body\'s main chemical buffer against acid. The kidneys control it. When the body produces too much acid, bicarbonate neutralises it. Think of it as the acid-mopping system.',
                 high: 'High bicarbonate (>26): Metabolic alkalosis (vomiting, diuretics) or compensation for chronic respiratory acidosis (COPD — the kidneys retain bicarbonate to buffer the chronically high CO₂).',
                 low: 'Low bicarbonate (<22): Metabolic acidosis — the bicarbonate has been used up buffering acid. Causes: DKA, renal failure, sepsis, lactic acidosis, diarrhoea (losing bicarbonate directly), and post-seizure (muscles produce massive lactic acid during tonic-clonic activity). Also seen in compensation for respiratory alkalosis.',
-                roadRelevance: 'In COPD patients, a high bicarbonate suggests chronic CO₂ retention — the kidneys have compensated over time. This helps you understand their baseline. In DKA patients, low bicarbonate tells you how much acid has built up. Here\'s a clinical pearl: after a genuine seizure, bicarbonate drops alongside a raised lactate and metabolic acidosis — the muscles produce huge amounts of lactic acid during tonic-clonic activity. This is actually one of the best ways to distinguish a real seizure from a pseudoseizure (fit vs fake). If a patient has had a "witnessed seizure" but their bicarb and lactate are normal, that\'s a red flag. Both help you frame your handover with real understanding.'
+                roadRelevance: 'In COPD patients, a high bicarbonate suggests chronic CO₂ retention — the kidneys have compensated over time. This helps you understand their baseline. In DKA patients, low bicarbonate tells you how much acid has built up. Here\'s a clinical pearl: after a genuine seizure, bicarbonate drops alongside a raised lactate and metabolic acidosis — the muscles produce huge amounts of lactic acid during tonic-clonic activity. This is actually one of the best ways to distinguish a real seizure from a pseudoseizure (fit vs fake). If a patient has had a "witnessed seizure" but their bicarb and lactate are normal, that\'s a red flag. Both help you frame your handover with real understanding.',
+                simpleWhatIsIt: 'Bicarbonate is the body\'s acid buffer — it mops up excess acid in the blood. Think of it like antacid tablets for your bloodstream. The kidneys control how much bicarbonate is in the blood, adding more when there\'s too much acid and removing it when there isn\'t enough.',
+                simpleHigh: 'High bicarbonate means either the body has too much base (from vomiting or taking too many antacids) or the kidneys have been compensating for a long-term breathing problem — in COPD patients, the kidneys keep extra bicarbonate to neutralise the chronically high CO₂.',
+                simpleLow: 'Low bicarbonate means the body has used it all up fighting acid. This is seen in DKA, sepsis, kidney failure, and after seizures. After a genuine tonic-clonic seizure, the muscles produce huge amounts of lactic acid which gobbles up the bicarbonate.',
+                simpleRoadRelevance: 'Here\'s a great clinical pearl: after a reported seizure, low bicarbonate + raised lactate = it was real. Normal bicarbonate + normal lactate = question it. Genuine seizures produce so much muscle-derived lactic acid that the bicarbonate drops noticeably. This is one of the best ways to tell a real fit from a fake one.'
             },
             {
                 id: 'be',
@@ -492,7 +600,11 @@ export const bloodPanels = [
                 whatIsIt: 'Base excess measures how much extra acid or base is in the blood beyond what\'s normal. It strips out the respiratory component to show the purely metabolic acid-base status. Negative = too much acid. Positive = too much base.',
                 high: 'Positive base excess (>+2): Metabolic alkalosis — excess base in the blood. Causes: vomiting, excessive bicarbonate administration, chronic respiratory acidosis compensation.',
                 low: 'Negative base excess (<-2): Metabolic acidosis — excess acid in the blood. The more negative, the worse the acidosis. BE of -10 indicates severe metabolic acidosis. Seen in shock, DKA, renal failure, and prolonged cardiac arrest.',
-                roadRelevance: 'Base excess is a quick way to see how acidotic a patient is metabolically. In trauma, a very negative base excess tells you the patient has been in shock for a while — it\'s a predictor of mortality. On HEMS/critical care, you\'ll see iSTAT readings including BE — a falling BE means the patient is deteriorating.'
+                roadRelevance: 'Base excess is a quick way to see how acidotic a patient is metabolically. In trauma, a very negative base excess tells you the patient has been in shock for a while — it\'s a predictor of mortality. On HEMS/critical care, you\'ll see iSTAT readings including BE — a falling BE means the patient is deteriorating.',
+                simpleWhatIsIt: 'Base excess is a simple number that tells you how acidic or alkaline the blood is from a metabolic (non-breathing) point of view. Zero is normal. A negative number means too much acid. A positive number means too much base. It strips out the breathing component to show just the metabolic side.',
+                simpleHigh: 'A positive base excess means metabolic alkalosis — too much base in the blood. Usually from vomiting (losing acid) or from the kidneys compensating for a chronic breathing problem.',
+                simpleLow: 'A negative base excess means metabolic acidosis — too much acid. The more negative the number, the worse the acidosis. A BE of -10 or worse is severe. Seen in shock, DKA, renal failure, and after cardiac arrest.',
+                simpleRoadRelevance: 'Base excess is a quick severity check. In trauma, a very negative base excess tells the hospital the patient has been in shock for a significant time — it\'s a predictor of how sick they are. If you hear HEMS or critical care mention a "base excess of minus 15" — that\'s a very sick patient.'
             },
             {
                 id: 'abg_lactate',
@@ -507,7 +619,11 @@ export const bloodPanels = [
                 whatIsIt: 'Lactate on an ABG is the same marker as in venous blood — it indicates tissue hypoperfusion. ABGs often include lactate automatically, giving an immediate reading alongside the gas analysis.',
                 high: 'Raised lactate on ABG has the same significance — tissue hypoperfusion, sepsis, shock. The advantage of ABG lactate is speed — it comes back in 2 minutes alongside the gas results, rather than waiting for formal blood results.',
                 low: 'Normal lactate on ABG is reassuring for tissue perfusion.',
-                roadRelevance: 'In the ED, the ABG lactate is often the FIRST result available. It can confirm or refute your pre-hospital suspicion of sepsis or shock within minutes of arrival. Your clinical assessment on scene directly feeds into how urgently the team processes the ABG.'
+                roadRelevance: 'In the ED, the ABG lactate is often the FIRST result available. It can confirm or refute your pre-hospital suspicion of sepsis or shock within minutes of arrival. Your clinical assessment on scene directly feeds into how urgently the team processes the ABG.',
+                simpleWhatIsIt: 'This is the same lactate marker that appears in the metabolic panel, but measured on the arterial blood gas machine. The advantage is speed — the ABG machine gives a lactate result in about 2 minutes, whereas the formal blood test can take much longer.',
+                simpleHigh: 'High lactate on the ABG has exactly the same meaning — tissues aren\'t getting enough oxygen. The ABG lactate is often the very first result available when a patient arrives in resus, so it gives the team immediate information about perfusion.',
+                simpleLow: 'Normal lactate on the ABG is reassuring — it suggests tissues are being perfused adequately.',
+                simpleRoadRelevance: 'The ABG lactate is often the first blood result the hospital sees. When you pre-alert a septic patient and they\'re met in resus, the ABG is done within minutes. Your clinical assessment on the road — "I think this patient is septic" — is then immediately validated (or not) by that lactate result.'
             },
             {
                 id: 'anion_gap',
@@ -522,7 +638,11 @@ export const bloodPanels = [
                 whatIsIt: 'The anion gap is a calculated value: AG = Na⁺ − (Cl⁻ + HCO₃⁻). It estimates the unmeasured anions in the blood. When the body produces abnormal acids (like lactate or ketoacids), these acids consume bicarbonate but add unmeasured anions — widening the gap. It helps determine the CAUSE of a metabolic acidosis.',
                 high: 'A raised anion gap (>12) means there are extra, unmeasured acids in the blood. The classic mnemonic is CAT MUDPILES: Carbon monoxide/Cyanide, Aminoglycosides, Theophylline, Metformin/Methanol, Uraemia, DKA, Propylene glycol/Paracetamol, Iron/Isoniazid, Lactic acidosis, Ethylene glycol, Salicylates (aspirin). In practice, the most common pre-hospital causes are DKA, lactic acidosis (sepsis/shock), renal failure (uraemia), and overdoses (aspirin, methanol, ethylene glycol).',
                 low: 'A normal anion gap metabolic acidosis means the acidosis is caused by direct bicarbonate loss (diarrhoea, renal tubular acidosis) or by excess chloride (normal saline overload). The body is losing base rather than gaining acid. This distinction matters because the treatment is different.',
-                roadRelevance: 'The anion gap is a detective tool. When the hospital gets an ABG showing metabolic acidosis, the anion gap tells them WHY. A raised gap with a raised lactate = sepsis or shock. A raised gap with ketones = DKA. A raised gap with normal lactate and no ketones = think overdose (aspirin, methanol, ethylene glycol) or uraemia. This is where it gets powerful for atypical presentations — euglycaemic DKA (DKA with near-normal glucose) will still have a raised anion gap and ketones. An aspirin overdose causing a mixed respiratory alkalosis and metabolic acidosis will show up via the raised AG. Understanding anion gap helps you appreciate the detective work happening in resus while you\'re handing over.'
+                roadRelevance: 'The anion gap is a detective tool. When the hospital gets an ABG showing metabolic acidosis, the anion gap tells them WHY. A raised gap with a raised lactate = sepsis or shock. A raised gap with ketones = DKA. A raised gap with normal lactate and no ketones = think overdose (aspirin, methanol, ethylene glycol) or uraemia. This is where it gets powerful for atypical presentations — euglycaemic DKA (DKA with near-normal glucose) will still have a raised anion gap and ketones. An aspirin overdose causing a mixed respiratory alkalosis and metabolic acidosis will show up via the raised AG. Understanding anion gap helps you appreciate the detective work happening in resus while you\'re handing over.',
+                simpleWhatIsIt: 'The anion gap is a calculated number that helps work out WHY a patient has a metabolic acidosis. It\'s like detective work — the blood is acidic, but what\'s causing it? The anion gap narrows down the suspect list.',
+                simpleHigh: 'A raised anion gap means extra acids are being produced in the body. The classic causes (CAT MUDPILES): Carbon monoxide, Aminoglycosides, Theophylline, Metformin, Uraemia (kidney failure), DKA, Paracetamol/Propylene glycol, Iron/Isoniazid, Lactic acidosis, Ethylene glycol, Salicylates (aspirin). In real life, the common ones are DKA, lactic acidosis, kidney failure, and overdoses.',
+                simpleLow: 'A normal anion gap with acidosis means the body is losing bicarbonate directly (usually from diarrhoea) rather than producing extra acid. The treatment is different — replace the lost bicarbonate rather than fixing an acid-producing problem.',
+                simpleRoadRelevance: 'You won\'t calculate anion gaps on the road, but understanding it helps you appreciate the detective work in resus. For example, if a patient has DKA but their blood sugar isn\'t that high (euglycaemic DKA), the anion gap still catches it. Same with aspirin overdoses — the anion gap reveals the hidden acid production.'
             }
         ]
     },
@@ -546,7 +666,11 @@ export const bloodPanels = [
                 whatIsIt: 'CRP is a protein made by the liver in response to inflammation. It rises quickly (within 6-8 hours) and falls quickly when inflammation resolves. It\'s a non-specific but sensitive marker of inflammation.',
                 high: 'Raised CRP indicates inflammation somewhere in the body. Mild (5-50): minor infection, chronic inflammation. Moderate (50-200): significant infection, autoimmune flare. Severe (>200): serious bacterial infection, sepsis, or major tissue damage. CRP above 100 is rarely caused by a viral infection.',
                 low: 'Normal CRP is reassuring but doesn\'t completely rule out infection in the very early stages.',
-                roadRelevance: 'CRP helps the hospital determine if infection or inflammation is present. When your patient with abdominal pain turns out to have a CRP of 350, it confirms significant pathology. Understanding CRP helps you appreciate why some of your "vague" patients end up seriously unwell — their bloods tell the story their symptoms underplayed.'
+                roadRelevance: 'CRP helps the hospital determine if infection or inflammation is present. When your patient with abdominal pain turns out to have a CRP of 350, it confirms significant pathology. Understanding CRP helps you appreciate why some of your "vague" patients end up seriously unwell — their bloods tell the story their symptoms underplayed.',
+                simpleWhatIsIt: 'CRP is a protein made by the liver when there\'s inflammation or infection anywhere in the body. It rises within hours and falls quickly when the problem resolves. Think of it as the body\'s general alarm — it goes off when something inflammatory is happening, but it doesn\'t tell you exactly where.',
+                simpleHigh: 'High CRP means inflammation or infection is present. Mildly raised (5-50): could be a minor infection or chronic condition. Moderately raised (50-200): significant infection or inflammation. Very high (above 200): serious bacterial infection, sepsis, or major tissue damage. Viral infections rarely push CRP above 100.',
+                simpleLow: 'Normal CRP is reassuring but doesn\'t completely rule out very early infection — it takes 6-8 hours to rise.',
+                simpleRoadRelevance: 'Your "vague" patient with abdominal pain who doesn\'t seem that unwell? If their CRP comes back at 350, there\'s something seriously wrong inside. CRP helps the hospital understand the severity even when symptoms seem mild. Your observations and handover guide how urgently they check it.'
             },
             {
                 id: 'esr',
@@ -561,7 +685,11 @@ export const bloodPanels = [
                 whatIsIt: 'ESR measures how quickly red blood cells settle to the bottom of a test tube. Inflammation makes proteins coat the red cells, making them clump and sink faster. ESR is slower to rise and fall than CRP — it reflects inflammation over weeks rather than hours.',
                 high: 'Raised ESR suggests chronic inflammation. Very high ESR (>100): temporal arteritis (giant cell arteritis), multiple myeloma, severe infection, autoimmune conditions. A raised ESR with headache in an elderly patient = temporal arteritis until proven otherwise.',
                 low: 'Low ESR is normal. Can be falsely low in polycythaemia and sickle cell disease.',
-                roadRelevance: 'If you attend an elderly patient with sudden-onset unilateral headache and jaw pain, temporal arteritis (GCA) should be on your differential. The hospital will check ESR urgently — if it\'s very high (>50), it supports the diagnosis and the patient needs immediate steroids to prevent blindness.'
+                roadRelevance: 'If you attend an elderly patient with sudden-onset unilateral headache and jaw pain, temporal arteritis (GCA) should be on your differential. The hospital will check ESR urgently — if it\'s very high (>50), it supports the diagnosis and the patient needs immediate steroids to prevent blindness.',
+                simpleWhatIsIt: 'ESR measures how quickly red blood cells settle to the bottom of a test tube. When there\'s inflammation, proteins coat the red cells making them clump and sink faster. Unlike CRP (which changes in hours), ESR changes over weeks — it\'s the long-term inflammation marker.',
+                simpleHigh: 'A raised ESR suggests ongoing inflammation that\'s been present for a while. Very high ESR (above 100) points towards temporal arteritis (inflammation of blood vessels in the head), multiple myeloma (a blood cancer), or severe chronic infection. In elderly patients with sudden headache and jaw pain, a very high ESR can confirm temporal arteritis.',
+                simpleLow: 'Low ESR is normal. Nothing to worry about.',
+                simpleRoadRelevance: 'If you attend an elderly patient with a sudden, severe headache on one side and jaw pain when chewing — think temporal arteritis. The hospital will check ESR urgently. If it\'s very high, the patient needs immediate steroids to prevent irreversible blindness. Your recognition and pre-alert can save their sight.'
             }
         ]
     },
@@ -585,7 +713,11 @@ export const bloodPanels = [
                 whatIsIt: 'TSH is released by the pituitary gland to tell the thyroid to produce more hormones. It works as an inverse indicator — high TSH means the thyroid ISN\'T producing enough (hypothyroid), low TSH means it\'s producing too much (hyperthyroid).',
                 high: 'High TSH = hypothyroidism (underactive thyroid). The pituitary is screaming at the thyroid to work harder. Symptoms: weight gain, fatigue, cold intolerance, bradycardia, constipation, dry skin, depression. Myxoedema coma is the extreme emergency presentation.',
                 low: 'Low TSH = hyperthyroidism (overactive thyroid). The pituitary has backed off because there\'s too much thyroid hormone. Symptoms: weight loss, tremor, anxiety, tachycardia, AF, heat intolerance, diarrhoea. Thyroid storm is the extreme emergency.',
-                roadRelevance: 'Thyroid emergencies are rare but dangerous. Myxoedema coma presents with hypothermia, bradycardia, and reduced GCS. Thyroid storm presents with extreme tachycardia, hyperthermia, and agitation. Both can be mistaken for other conditions on the road. Knowing thyroid function helps you make sense of these rare presentations.'
+                roadRelevance: 'Thyroid emergencies are rare but dangerous. Myxoedema coma presents with hypothermia, bradycardia, and reduced GCS. Thyroid storm presents with extreme tachycardia, hyperthermia, and agitation. Both can be mistaken for other conditions on the road. Knowing thyroid function helps you make sense of these rare presentations.',
+                simpleWhatIsIt: 'TSH is a hormone from the brain (pituitary gland) that tells the thyroid to make more thyroid hormones. Here\'s the confusing but important bit: TSH works BACKWARDS. High TSH = underactive thyroid (the brain is shouting "make more!"). Low TSH = overactive thyroid (the brain is saying "stop, there\'s too much!").',
+                simpleHigh: 'High TSH = hypothyroidism (underactive thyroid). The brain is desperately telling the thyroid to work harder but it can\'t. Symptoms: weight gain, tiredness, feeling cold, constipation, slow heart rate, depression. In extreme cases: myxoedema coma (hypothermia, bradycardia, unconsciousness).',
+                simpleLow: 'Low TSH = hyperthyroidism (overactive thyroid). The brain has turned the signal right down because there\'s already too much thyroid hormone. Symptoms: weight loss, tremor, anxiety, fast heart rate, feeling hot, diarrhoea. In extreme cases: thyroid storm (dangerously fast heart rate, very high temperature, confusion).',
+                simpleRoadRelevance: 'Thyroid emergencies are rare but dangerous. Myxoedema coma looks like hypothermia + bradycardia + low GCS. Thyroid storm looks like extreme tachycardia + high temperature + agitation. Both can be mistaken for other conditions. If your patient has a thyroid history and is very unwell, mention it in your handover.'
             },
             {
                 id: 'ft4',
@@ -600,7 +732,11 @@ export const bloodPanels = [
                 whatIsIt: 'Free T4 is the unbound, active form of thyroxine — the main hormone produced by the thyroid gland. It\'s converted to T3 (the more active form) in tissues. Free T4 is measured alongside TSH to confirm thyroid disorders.',
                 high: 'High Free T4 = hyperthyroidism (with low TSH) or overmedication with levothyroxine. Confirms excessive thyroid hormone in the blood.',
                 low: 'Low Free T4 = hypothyroidism (with high TSH). Confirms insufficient thyroid hormone production.',
-                roadRelevance: 'Understanding T4 alongside TSH helps you interpret the full thyroid picture. Many of your elderly patients are on levothyroxine for hypothyroidism — if they\'ve been taking too much (or their dose was recently changed), they can present with symptoms that mimic cardiac or neurological emergencies.'
+                roadRelevance: 'Understanding T4 alongside TSH helps you interpret the full thyroid picture. Many of your elderly patients are on levothyroxine for hypothyroidism — if they\'ve been taking too much (or their dose was recently changed), they can present with symptoms that mimic cardiac or neurological emergencies.',
+                simpleWhatIsIt: 'Free T4 is the main hormone your thyroid gland produces. It circulates in the blood and gets converted into the more active T3 in your tissues. Think of T4 as the stored fuel and T3 as the fuel that\'s actually being burned.',
+                simpleHigh: 'High Free T4 confirms hyperthyroidism — the thyroid is pumping out too much hormone. Combined with a very low TSH, this confirms the diagnosis. The higher the T4, the more severe the thyrotoxicosis.',
+                simpleLow: 'Low Free T4 confirms hypothyroidism — the thyroid isn\'t producing enough hormone. Combined with a very high TSH, this confirms the diagnosis.',
+                simpleRoadRelevance: 'T4 confirms what TSH suggests. If TSH is screaming high and T4 is rock bottom, that\'s definite hypothyroidism. If TSH is undetectable and T4 is sky high, that\'s definite hyperthyroidism. Having both results removes any doubt about the diagnosis.'
             },
             {
                 id: 'ft3',
@@ -615,7 +751,11 @@ export const bloodPanels = [
                 whatIsIt: 'Free T3 is the most biologically active thyroid hormone — it\'s 3-5 times more potent than T4. Most T3 is produced by converting T4 in the tissues. T3 is particularly important in diagnosing T3 thyrotoxicosis where T4 may be normal but T3 is raised.',
                 high: 'High Free T3: Hyperthyroidism, T3 thyrotoxicosis (where T4 is normal but T3 is elevated). In thyroid storm, T3 levels are significantly elevated and driving the extreme metabolic state.',
                 low: 'Low Free T3: Hypothyroidism, sick euthyroid syndrome (where the body reduces T3 conversion during severe illness — this is a protective mechanism and doesn\'t need thyroid treatment).',
-                roadRelevance: 'In thyroid storm, it\'s the excessive T3 driving the dangerous tachycardia, hyperthermia, and cardiovascular collapse. Understanding this helps you recognise why beta-blockers are a key part of the treatment — they counteract the effect of excess thyroid hormones on the heart.'
+                roadRelevance: 'In thyroid storm, it\'s the excessive T3 driving the dangerous tachycardia, hyperthermia, and cardiovascular collapse. Understanding this helps you recognise why beta-blockers are a key part of the treatment — they counteract the effect of excess thyroid hormones on the heart.',
+                simpleWhatIsIt: 'Free T3 is the most powerful thyroid hormone — it\'s 3-5 times stronger than T4. Most T3 is made by converting T4 in the body\'s tissues. It\'s the one actually doing the work: controlling heart rate, metabolism, temperature, and energy levels.',
+                simpleHigh: 'High Free T3 confirms the thyroid is overactive. In some cases (T3 thyrotoxicosis), T3 can be very high even when T4 is normal — so checking T3 catches cases that T4 alone would miss. In thyroid storm, massively elevated T3 drives the dangerous symptoms.',
+                simpleLow: 'Low Free T3 occurs in hypothyroidism. It also drops in severe illness (sick euthyroid syndrome) — this is the body deliberately reducing metabolism to conserve energy during critical illness. This doesn\'t need thyroid treatment.',
+                simpleRoadRelevance: 'In thyroid storm, it\'s the excess T3 that\'s driving the dangerously fast heart rate and sky-high temperature. This is why beta-blockers are part of the treatment — they counteract the effect of too much thyroid hormone on the heart.'
             }
         ]
     }

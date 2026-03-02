@@ -420,6 +420,46 @@
         .card-road { background: #F0FDF4; border-left: 3px solid #22C55E; }
         .card-road h4 { color: #15803D; }
 
+        /* Simplify button */
+        .simplify-toggle-wrap {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .simplify-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .simplify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+        }
+        .simplify-btn:active { transform: scale(0.97); }
+        .simplify-btn i { font-size: 1rem; }
+
+        /* Simple mode card styling */
+        .info-card-mini .simple-text { display: none; }
+        .info-card-mini.simplified .full-text { display: none; }
+        .info-card-mini.simplified .simple-text { display: block; }
+        .info-card-mini.simplified { position: relative; }
+        .info-card-mini.simplified::after {
+            content: '🤖';
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            font-size: 0.8rem;
+        }
+
         /* ==================== ABG SECTION ==================== */
         .abg-section-divider {
             display: flex;
@@ -1285,11 +1325,16 @@ function renderPanels() {
                             </div>
                             <div class="slider-clinical-hint ${hintClass(flag)}" id="hint-${m.id}">${getHint(m, val, flag)}</div>
                         </div>
-                        <div class="info-cards">
-                            <div class="info-card-mini card-what"><h4><i class="bi bi-info-circle"></i> What is it?</h4>${m.whatIsIt}</div>
-                            <div class="info-card-mini card-high"><h4><i class="bi bi-arrow-up-circle"></i> High values</h4>${m.high}</div>
-                            <div class="info-card-mini card-low"><h4><i class="bi bi-arrow-down-circle"></i> Low values</h4>${m.low}</div>
-                            <div class="info-card-mini card-road"><h4><i class="bi bi-truck"></i> Why it matters on the road</h4>${m.roadRelevance}</div>
+                        <div class="info-cards" id="cards-${m.id}">
+                            <div class="info-card-mini card-what"><h4><i class="bi bi-info-circle"></i> What is it?</h4><div class="full-text">${m.whatIsIt}</div><div class="simple-text">${m.simpleWhatIsIt || m.whatIsIt}</div></div>
+                            <div class="info-card-mini card-high"><h4><i class="bi bi-arrow-up-circle"></i> High values</h4><div class="full-text">${m.high}</div><div class="simple-text">${m.simpleHigh || m.high}</div></div>
+                            <div class="info-card-mini card-low"><h4><i class="bi bi-arrow-down-circle"></i> Low values</h4><div class="full-text">${m.low}</div><div class="simple-text">${m.simpleLow || m.low}</div></div>
+                            <div class="info-card-mini card-road"><h4><i class="bi bi-truck"></i> Why it matters on the road</h4><div class="full-text">${m.roadRelevance}</div><div class="simple-text">${m.simpleRoadRelevance || m.roadRelevance}</div></div>
+                        </div>
+                        <div class="simplify-toggle-wrap">
+                            <button class="simplify-btn" onclick="event.stopPropagation(); toggleSimplify('${m.id}')" id="simplify-btn-${m.id}">
+                                <i class="bi bi-stars"></i> Hollie, make it simpler!
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1306,6 +1351,20 @@ function renderPanels() {
 window.toggleMarker = function(id) {
     const row = document.getElementById('row-' + id);
     row.classList.toggle('expanded');
+};
+
+window.toggleSimplify = function(id) {
+    const cards = document.querySelectorAll('#cards-' + id + ' .info-card-mini');
+    const btn = document.getElementById('simplify-btn-' + id);
+    const isSimple = cards[0]?.classList.contains('simplified');
+
+    cards.forEach(c => c.classList.toggle('simplified'));
+
+    if (isSimple) {
+        btn.innerHTML = '<i class="bi bi-stars"></i> Hollie, make it simpler!';
+    } else {
+        btn.innerHTML = '<i class="bi bi-book"></i> Show full detail';
+    }
 };
 
 window.updateSlider = function(id, rawVal) {
