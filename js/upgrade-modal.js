@@ -45,6 +45,12 @@
                     <i class="bi bi-lock-fill me-1"></i> Continue to Checkout
                 </button>
                 <p class="pm-upgrade-footer">Cancel anytime. Secure payment via Stripe.</p>
+                <p class="pm-upgrade-footer" style="font-size: 0.7rem; margin-top: 0.25rem; line-height: 1.5;">
+                    Subscriptions auto-renew monthly (£4.99/mo) or annually (£49.99/yr) until cancelled.<br>
+                    <a href="terms.html" style="color: #2B8A9C;">Terms</a> · 
+                    <a href="privacy.html" style="color: #2B8A9C;">Privacy</a> · 
+                    <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" style="color: #2B8A9C;">Apple EULA</a>
+                </p>
             </div>
         </div>
     `;
@@ -272,7 +278,7 @@
     if (isIOS) {
         const footer = document.querySelector('.pm-upgrade-footer');
         if (footer) {
-            footer.innerHTML = 'Cancel anytime. Secure payment via Apple.<br><a href="#" id="pmRestorePurchases" style="color: #2B8A9C; text-decoration: underline; font-size: 0.75rem;">Restore previous purchase</a>';
+            footer.innerHTML = 'Cancel anytime. Secure payment via Apple.<br><a href="#" id="pmRestorePurchases" style="color: #2B8A9C; text-decoration: underline; font-size: 0.75rem;">Restore previous purchase</a><br><span style="font-size: 0.7rem; line-height: 1.5;">Subscriptions auto-renew monthly (£4.99/mo) or annually (£49.99/yr) until cancelled.<br><a href="terms.html" style="color: #2B8A9C;">Terms</a> · <a href="privacy.html" style="color: #2B8A9C;">Privacy</a> · <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" style="color: #2B8A9C;">Apple EULA</a></span>';
         }
         // Restore purchases handler
         setTimeout(function() {
