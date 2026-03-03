@@ -39,8 +39,9 @@
             { id: 'ecg', href: 'ecg.html', icon: 'bi-activity', label: 'ECG Tool', isPro: true },
             { id: 'cpd', href: 'cpd.html', icon: 'bi-award', label: 'CPD Portfolio', isPro: true }
         ],
-        // Bottom items (Contact, Sign Out)
+        // Bottom items (Account, Contact, Sign Out)
         bottomNav: [
+            { id: 'account', href: 'account.html', icon: 'bi-person-gear', label: 'Account' },
             { id: 'contact', href: 'contact.html', icon: 'bi-envelope', label: 'Contact Us' }
         ]
     };
@@ -61,6 +62,7 @@
         if (path.includes('ecg')) return 'ecg';
         if (path.includes('cpd')) return 'cpd';
         if (path.includes('contact')) return 'contact';
+        if (path.includes('account')) return 'account';
         
         // Default to home for root or unknown pages
         return 'home';

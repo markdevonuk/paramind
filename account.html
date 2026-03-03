@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Account | ParaMind</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Menu CSS -->
+    <link rel="stylesheet" href="css/menu-v2.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        body {
+            background: var(--color-gray-50);
+            color: var(--color-gray-700);
+        }
+        
+        .page-content {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+        
+        .page-content h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-content .subtitle {
+            color: var(--color-gray-500);
+            margin-bottom: 2rem;
+        }
+        
+        .account-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        
+        .account-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--color-gray-800);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .account-card h3 i {
+            color: var(--color-primary);
+        }
+        
+        .account-info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+        
+        .account-info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .account-info-label {
+            font-size: 0.9rem;
+            color: var(--color-gray-500);
+            font-weight: 500;
+        }
+        
+        .account-info-value {
+            font-size: 0.9rem;
+            color: var(--color-gray-800);
+            font-weight: 600;
+            text-align: right;
+            word-break: break-all;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .status-free {
+            background: #f5f5f5;
+            color: #757575;
+        }
+        
+        .legal-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.85rem 0;
+            border-bottom: 1px solid var(--color-gray-100);
+            color: var(--color-gray-700);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+        
+        .legal-link:last-child {
+            border-bottom: none;
+        }
+        
+        .legal-link:hover {
+            color: var(--color-primary);
+        }
+        
+        .legal-link i.bi-chevron-right {
+            color: var(--color-gray-400);
+            font-size: 0.8rem;
+        }
+        
+        .delete-section {
+            border: 1px solid #ffcdd2;
+            background: #fff5f5;
+        }
+        
+        .delete-section h3 i {
+            color: #d32f2f;
+        }
+        
+        .delete-section p {
+            font-size: 0.9rem;
+            color: var(--color-gray-600);
+            margin-bottom: 1rem;
+        }
+        
+        .btn-delete {
+            background: #d32f2f;
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1.5rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+        
+        .btn-delete:hover {
+            background: #b71c1c;
+        }
+        
+        .btn-delete:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        /* Confirmation modal */
+        .delete-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 20000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .delete-modal {
+            background: #fff;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .delete-modal h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #d32f2f;
+            margin-bottom: 1rem;
+        }
+        
+        .delete-modal p {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+        
+        .delete-modal .btn-row {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .delete-modal .btn-cancel {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fff;
+            color: #333;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .delete-modal .btn-confirm-delete {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            background: #d32f2f;
+            color: #fff;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .stripe-warning {
+            display: none;
+            background: #fff3e0;
+            border: 1px solid #ffe0b2;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #e65100;
+            line-height: 1.5;
+        }
+
+        .stripe-warning a {
+            color: #e65100;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+<nav class="member-navbar">
+    <div class="container">
+        <span class="brand-text">
+            <a class="navbar-brand" href="landing.html">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </a>
+        </span>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</nav>
+
+    <!-- Confirmation Modal -->
+    <div class="delete-modal-overlay" id="deleteModalOverlay">
+        <div class="delete-modal">
+            <h3><i class="bi bi-exclamation-triangle"></i> Delete Account?</h3>
+            <p>This will <strong>permanently delete</strong> your account, all your data, CPD records, and progress. This action cannot be undone.</p>
+            <div id="stripeWarningModal" class="stripe-warning">
+                <i class="bi bi-exclamation-circle"></i> <strong>Important:</strong> You have an active subscription via Stripe. Please <a href="https://billing.stripe.com/p/login/dRmfZgdHvdva3VWgA3dIA00" target="_blank">cancel your subscription here</a> before deleting your account, otherwise you will continue to be charged.
+            </div>
+            <div id="appleWarningModal" class="stripe-warning" style="background:#f3e8fd; border-color:#d1c4e9; color:#6a1b9a;">
+                <i class="bi bi-exclamation-circle"></i> <strong>Important:</strong> You have an active Apple subscription. Please cancel it via <strong>Settings → Apple ID → Subscriptions</strong> on your iPhone, otherwise it will auto-renew.
+            </div>
+            <div class="btn-row">
+                <button class="btn-cancel" id="deleteCancel">Keep Account</button>
+                <button class="btn-confirm-delete" id="deleteConfirm">Delete Forever</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <main class="page-content">
+        <h1>Account</h1>
+        <p class="subtitle">Manage your account settings and preferences.</p>
+
+        <!-- Account Info -->
+        <div class="account-card">
+            <h3><i class="bi bi-person-circle"></i> Your Details</h3>
+            <div class="account-info-row">
+                <span class="account-info-label">Name</span>
+                <span class="account-info-value" id="accountName">Loading...</span>
+            </div>
+            <div class="account-info-row">
+                <span class="account-info-label">Email</span>
+                <span class="account-info-value" id="accountEmail">Loading...</span>
+            </div>
+            <div class="account-info-row">
+                <span class="account-info-label">Trust</span>
+                <span class="account-info-value" id="accountTrust">Loading...</span>
+            </div>
+            <div class="account-info-row">
+                <span class="account-info-label">Subscription</span>
+                <span class="account-info-value" id="accountSubscription">Loading...</span>
+            </div>
+        </div>
+
+        <!-- Legal -->
+        <div class="account-card">
+            <h3><i class="bi bi-file-earmark-text"></i> Legal</h3>
+            <a class="legal-link" href="terms.html">
+                <span>Terms of Service</span>
+                <i class="bi bi-chevron-right"></i>
+            </a>
+            <a class="legal-link" href="privacy.html">
+                <span>Privacy Policy</span>
+                <i class="bi bi-chevron-right"></i>
+            </a>
+            <a class="legal-link" href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank">
+                <span>Apple Licensed Application EULA</span>
+                <i class="bi bi-chevron-right"></i>
+            </a>
+            <a class="legal-link" href="purpose.html">
+                <span>Intended Purpose</span>
+                <i class="bi bi-chevron-right"></i>
+            </a>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="account-card delete-section">
+            <h3><i class="bi bi-trash3"></i> Delete Account</h3>
+            <p>Permanently delete your Paramind account and all associated data including CPD records, progress, and subscription information. This action cannot be undone.</p>
+            <button class="btn-delete" id="deleteAccountBtn">Delete My Account</button>
+        </div>
+    </main>
+
+    <footer class="page-footer">
+        <div class="footer-brand">
+            <span class="brand-para">para</span><span class="brand-mind">mind</span>
+        </div>
+        <div class="footer-links">
+            <a href="terms.html">Terms of Service</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="purpose.html">Intended Purpose</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <p class="footer-copyright">&copy; 2026 Paramind. All rights reserved.</p>
+    </footer>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
+            authDomain: "paramind-64b8e.firebaseapp.com",
+            projectId: "paramind-64b8e",
+            storageBucket: "paramind-64b8e.firebasestorage.app",
+            messagingSenderId: "452173393964",
+            appId: "1:452173393964:web:8599c0fe1983a6f441e189",
+            measurementId: "G-GW385S6L0L"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUserData = null;
+        let currentUser = null;
+
+        // Load user data
+        auth.onAuthStateChanged(async function(user) {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            currentUser = user;
+
+            try {
+                const doc = await db.collection('users').doc(user.uid).get();
+                if (doc.exists) {
+                    currentUserData = doc.data();
+                    
+                    // Populate account info
+                    const name = ((currentUserData.firstName || '') + ' ' + (currentUserData.surname || '')).trim();
+                    document.getElementById('accountName').textContent = name || 'Not set';
+                    document.getElementById('accountEmail').textContent = user.email || 'Not set';
+                    document.getElementById('accountTrust').textContent = currentUserData.trust || currentUserData.trustFullName || 'Not set';
+                    
+                    const isActive = currentUserData.subscriptionStatus === 'active';
+                    const subEl = document.getElementById('accountSubscription');
+                    if (isActive) {
+                        const platform = currentUserData.subscriptionPlatform || 'stripe';
+                        const label = platform === 'apple' ? 'Pro (Apple)' : 'Pro (Stripe)';
+                        subEl.innerHTML = '<span class="status-badge status-active">' + label + '</span>';
+                    } else {
+                        subEl.innerHTML = '<span class="status-badge status-free">Free</span>';
+                    }
+                }
+            } catch (err) {
+                console.error('Error loading user data:', err);
+            }
+        });
+
+        // Delete account flow
+        document.getElementById('deleteAccountBtn').addEventListener('click', function() {
+            const overlay = document.getElementById('deleteModalOverlay');
+            
+            // Show appropriate warning based on subscription
+            if (currentUserData && currentUserData.subscriptionStatus === 'active') {
+                const platform = currentUserData.subscriptionPlatform || 'stripe';
+                const isIOS = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+                
+                if (platform === 'apple' || isIOS) {
+                    document.getElementById('appleWarningModal').style.display = 'block';
+                    document.getElementById('stripeWarningModal').style.display = 'none';
+                } else {
+                    document.getElementById('stripeWarningModal').style.display = 'block';
+                    document.getElementById('appleWarningModal').style.display = 'none';
+                }
+            } else {
+                document.getElementById('stripeWarningModal').style.display = 'none';
+                document.getElementById('appleWarningModal').style.display = 'none';
+            }
+            
+            overlay.style.display = 'flex';
+        });
+
+        document.getElementById('deleteCancel').addEventListener('click', function() {
+            document.getElementById('deleteModalOverlay').style.display = 'none';
+        });
+
+        document.getElementById('deleteModalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
+
+        document.getElementById('deleteConfirm').addEventListener('click', async function() {
+            const btn = this;
+            btn.disabled = true;
+            btn.textContent = 'Deleting...';
+
+            try {
+                if (!currentUser) throw new Error('No user signed in');
+
+                // 1. Delete Firestore user document
+                await db.collection('users').doc(currentUser.uid).delete();
+                console.log('Firestore document deleted');
+
+                // 2. Delete Firebase Auth account
+                await currentUser.delete();
+                console.log('Firebase Auth account deleted');
+
+                // 3. Clear local storage
+                localStorage.removeItem('paramind_user');
+                localStorage.removeItem('paramind_google_pending');
+                localStorage.removeItem('paramind_apple_name');
+
+                // 4. Redirect to login
+                alert('Your account has been permanently deleted.');
+                window.location.href = 'login.html';
+
+            } catch (error) {
+                console.error('Delete account error:', error);
+                
+                if (error.code === 'auth/requires-recent-login') {
+                    alert('For security, you need to sign in again before deleting your account. You will be redirected to the login page.');
+                    await auth.signOut();
+                    localStorage.removeItem('paramind_user');
+                    window.location.href = 'login.html';
+                } else {
+                    alert('There was an error deleting your account. Please try again or contact hello@paramind.co.uk for help.');
+                    btn.disabled = false;
+                    btn.textContent = 'Delete Forever';
+                }
+            }
+        });
+    </script>
+
+    <!-- App JS -->
+    <script src="js/app.js"></script>
+    
+    <!-- Menu JS -->
+    <script src="js/menu-v2.js"></script>
+</body>
+</html>
