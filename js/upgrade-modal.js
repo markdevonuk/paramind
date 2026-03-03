@@ -48,8 +48,7 @@
                 <p class="pm-upgrade-footer" style="font-size: 0.7rem; margin-top: 0.25rem; line-height: 1.5;">
                     Subscriptions auto-renew monthly (£4.99/mo) or annually (£49.99/yr) until cancelled.<br>
                     <a href="terms.html" style="color: #2B8A9C;">Terms</a> · 
-                    <a href="privacy.html" style="color: #2B8A9C;">Privacy</a> · 
-                    <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" style="color: #2B8A9C;">Apple EULA</a>
+                    <a href="privacy.html" style="color: #2B8A9C;">Privacy</a>
                 </p>
             </div>
         </div>

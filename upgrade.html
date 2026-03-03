@@ -388,9 +388,15 @@
             <p class="price-note" style="font-size: 0.75rem; margin-top: 0.5rem; line-height: 1.6;">
                 Subscriptions auto-renew monthly (£4.99/month) or annually (£49.99/year) until cancelled.<br>
                 <a href="terms.html" style="color: var(--color-primary);">Terms of Use</a> · 
-                <a href="privacy.html" style="color: var(--color-primary);">Privacy Policy</a> · 
-                <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" style="color: var(--color-primary);">Apple EULA</a>
+                <a href="privacy.html" style="color: var(--color-primary);">Privacy Policy</a><span id="appleEulaLink" style="display:none;"> · 
+                <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" style="color: var(--color-primary);">Apple EULA</a></span>
             </p>
+            <script>
+                if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+                    var el = document.getElementById('appleEulaLink');
+                    if (el) el.style.display = 'inline';
+                }
+            </script>
             
             <button class="upgrade-cta-btn" id="upgradeBtn" onclick="handleUpgrade()">
                 <i class="bi bi-star-fill"></i>
