@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ideas | Paramind</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        /* ─── Page-specific styles only ─── */
+
+        .ideas-hero {
+            text-align: center;
+            padding: 60px 20px 40px;
+        }
+
+        .ideas-hero .hero-badge {
+            display: inline-block;
+            background: var(--primary-color, #2563eb);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 6px 16px;
+            border-radius: 999px;
+            margin-bottom: 20px;
+        }
+
+        .ideas-hero h1 {
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 800;
+            margin-bottom: 16px;
+            line-height: 1.15;
+        }
+
+        .ideas-hero p.subtitle {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            max-width: 580px;
+            margin: 0 auto 12px;
+            line-height: 1.6;
+        }
+
+        .ideas-hero .disclaimer-tiny {
+            font-size: 0.78rem;
+            opacity: 0.5;
+            margin-top: 8px;
+        }
+
+        /* ─── Triage Priority Selector ─── */
+
+        .priority-section {
+            margin-bottom: 28px;
+        }
+
+        .priority-section label.field-label {
+            display: block;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            letter-spacing: 0.03em;
+        }
+
+        .priority-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .priority-card input[type="radio"] {
+            display: none;
+        }
+
+        .priority-card label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 14px 10px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            font-size: 0.82rem;
+            font-weight: 600;
+            background: var(--card-bg, rgba(255,255,255,0.05));
+        }
+
+        .priority-card label .priority-emoji {
+            font-size: 1.6rem;
+            line-height: 1;
+        }
+
+        .priority-card label .priority-name {
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .priority-card label .priority-desc {
+            font-size: 0.72rem;
+            opacity: 0.65;
+            font-weight: 400;
+        }
+
+        .priority-card.green label { border-color: rgba(34,197,94,0.2); color: #22c55e; }
+        .priority-card.amber label { border-color: rgba(251,191,36,0.2); color: #f59e0b; }
+        .priority-card.red label   { border-color: rgba(239,68,68,0.2);  color: #ef4444; }
+
+        .priority-card input:checked + label {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+        }
+        .priority-card.green input:checked + label { background: rgba(34,197,94,0.15);  border-color: #22c55e; }
+        .priority-card.amber input:checked + label { background: rgba(251,191,36,0.15); border-color: #f59e0b; }
+        .priority-card.red   input:checked + label { background: rgba(239,68,68,0.15);  border-color: #ef4444; }
+
+        /* ─── Form card ─── */
+
+        .ideas-form-wrapper {
+            max-width: 640px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
+        }
+
+        .ideas-form-card {
+            background: var(--card-bg, rgba(255,255,255,0.06));
+            border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+            border-radius: 20px;
+            padding: 36px 32px;
+        }
+
+        .ideas-form-card .form-group {
+            margin-bottom: 22px;
+        }
+
+        .ideas-form-card label.field-label {
+            display: block;
+            font-weight: 700;
+            font-size: 0.88rem;
+            margin-bottom: 8px;
+            letter-spacing: 0.03em;
+        }
+
+        .ideas-form-card input[type="text"],
+        .ideas-form-card input[type="email"],
+        .ideas-form-card textarea,
+        .ideas-form-card select {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color, rgba(255,255,255,0.15));
+            background: var(--input-bg, rgba(255,255,255,0.05));
+            color: inherit;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        .ideas-form-card input[type="text"]:focus,
+        .ideas-form-card input[type="email"]:focus,
+        .ideas-form-card textarea:focus,
+        .ideas-form-card select:focus {
+            outline: none;
+            border-color: var(--primary-color, #2563eb);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.2);
+        }
+
+        .ideas-form-card textarea {
+            min-height: 130px;
+            resize: vertical;
+        }
+
+        .field-hint {
+            font-size: 0.75rem;
+            opacity: 0.55;
+            margin-top: 6px;
+            display: block;
+        }
+
+        /* ─── Submit button ─── */
+
+        .btn-transmit {
+            width: 100%;
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: none;
+            background: var(--primary-color, #2563eb);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            letter-spacing: 0.02em;
+        }
+
+        .btn-transmit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(37,99,235,0.35);
+        }
+
+        .btn-transmit:active {
+            transform: translateY(0);
+        }
+
+        /* ─── Fun fact strip ─── */
+
+        .ideas-faq {
+            max-width: 640px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
+        }
+
+        .ideas-faq h2 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .faq-item {
+            background: var(--card-bg, rgba(255,255,255,0.04));
+            border: 1px solid var(--border-color, rgba(255,255,255,0.08));
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 12px;
+        }
+
+        .faq-item .faq-q {
+            font-weight: 700;
+            font-size: 0.92rem;
+            margin-bottom: 6px;
+        }
+
+        .faq-item .faq-a {
+            font-size: 0.87rem;
+            opacity: 0.72;
+            line-height: 1.6;
+        }
+
+        /* ─── Success state ─── */
+
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .success-message .success-icon {
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+        }
+
+        .success-message h2 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .success-message p {
+            opacity: 0.75;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        /* ─── Responsive ─── */
+
+        @media (max-width: 480px) {
+            .ideas-form-card {
+                padding: 24px 18px;
+            }
+            .priority-card label {
+                padding: 10px 6px;
+            }
+            .priority-card label .priority-desc {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ═══ NAV (matching existing Paramind pages) ═══ -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">paramind</a>
+            <div class="nav-links">
+                <a href="login.html" class="nav-link">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══ HERO ═══ -->
+    <section class="ideas-hero">
+        <div class="hero-badge">🚑 Feature Requests</div>
+        <h1>Got an idea? Don't keep it to yourself.<br>Unlike a cardiac arrest, this one <em>can</em> wait.</h1>
+        <p class="subtitle">
+            We built Paramind to be shaped by the people who use it — real paramedics, NQPs, and students.
+            If something would make your learning better, tell us. We actually read these.
+        </p>
+        <p class="disclaimer-tiny">(No, really. Mark reads every single one. He has no life.)</p>
+    </section>
+
+    <!-- ═══ FORM ═══ -->
+    <div class="ideas-form-wrapper">
+        <div class="ideas-form-card" id="formCard">
+
+            <form
+                action="https://formsubmit.co/hello@paramind.co.uk"
+                method="POST"
+                id="ideasForm"
+                onsubmit="handleSubmit(event)"
+            >
+                <!-- FormSubmit hidden config -->
+                <input type="hidden" name="_subject" value="💡 New Paramind Feature Idea">
+                <input type="hidden" name="_captcha" value="false">
+                <input type="hidden" name="_template" value="table">
+                <input type="hidden" name="_next" value="">
+
+                <!-- Name -->
+                <div class="form-group">
+                    <label class="field-label" for="name">Your name</label>
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        placeholder="e.g. Dave (or 'Anonymous legend')"
+                        required
+                    >
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label class="field-label" for="email">Your email</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="e.g. dave@nwas.nhs.uk"
+                        required
+                    >
+                    <span class="field-hint">Only used if we want to tell you it got built. We won't spam you. Pinky promise.</span>
+                </div>
+
+                <!-- Role -->
+                <div class="form-group">
+                    <label class="field-label" for="role">What best describes you?</label>
+                    <select id="role" name="role" required>
+                        <option value="" disabled selected>Select your role...</option>
+                        <option value="Student Paramedic">Student Paramedic (the brave ones)</option>
+                        <option value="NQP">Newly Qualified Paramedic (survived university, now what?)</option>
+                        <option value="Experienced Paramedic">Experienced Paramedic (seen it all, twice)</option>
+                        <option value="Paramedic Lecturer">Paramedic Lecturer / Educator</option>
+                        <option value="Other">Other (welcome, whoever you are)</option>
+                    </select>
+                </div>
+
+                <!-- Idea title -->
+                <div class="form-group">
+                    <label class="field-label" for="ideaTitle">Your idea — give it a snappy title</label>
+                    <input
+                        type="text"
+                        id="ideaTitle"
+                        name="idea_title"
+                        placeholder="e.g. 'Drug dose calculator', 'More ECG rhythms', 'Coffee machine'"
+                        required
+                    >
+                </div>
+
+                <!-- Idea detail -->
+                <div class="form-group">
+                    <label class="field-label" for="ideaDetail">Tell us more about it</label>
+                    <textarea
+                        id="ideaDetail"
+                        name="idea_detail"
+                        placeholder="What would it do? How would it help you? The more detail the better — treat it like a handover, not a rapid assessment..."
+                        required
+                    ></textarea>
+                </div>
+
+                <!-- Priority triage -->
+                <div class="form-group priority-section">
+                    <label class="field-label">How urgent is this? (Triage your own idea 🏥)</label>
+                    <div class="priority-cards">
+                        <div class="priority-card green">
+                            <input type="radio" id="p1" name="priority" value="Green – Nice to have" required>
+                            <label for="p1">
+                                <span class="priority-emoji">🟢</span>
+                                <span class="priority-name">Green</span>
+                                <span class="priority-desc">Nice to have</span>
+                            </label>
+                        </div>
+                        <div class="priority-card amber">
+                            <input type="radio" id="p2" name="priority" value="Amber – Would really help">
+                            <label for="p2">
+                                <span class="priority-emoji">🟡</span>
+                                <span class="priority-name">Amber</span>
+                                <span class="priority-desc">Would really help</span>
+                            </label>
+                        </div>
+                        <div class="priority-card red">
+                            <input type="radio" id="p3" name="priority" value="Red – I need this immediately">
+                            <label for="p3">
+                                <span class="priority-emoji">🔴</span>
+                                <span class="priority-name">Red</span>
+                                <span class="priority-desc">I need this now</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn-transmit">
+                    <span>📡</span>
+                    <span>Transmit to Control</span>
+                </button>
+
+            </form>
+
+            <!-- Success state (shown after submit) -->
+            <div class="success-message" id="successMessage">
+                <div class="success-icon">🚑</div>
+                <h2>Idea received — we're on scene.</h2>
+                <p>
+                    Thanks for taking the time to share your idea. We read every single submission
+                    and it genuinely shapes what gets built next. You might just be looking at a future
+                    Paramind feature right now.
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ═══ FUN FAQ ═══ -->
+    <div class="ideas-faq">
+        <h2>Questions you definitely have 🤔</h2>
+
+        <div class="faq-item">
+            <p class="faq-q">Will my idea actually get built?</p>
+            <p class="faq-a">Maybe! No promises — but ideas that come up repeatedly or have a clear learning benefit tend to jump the queue. Think of it as a triage queue. The good ones get the resus bay.</p>
+        </div>
+
+        <div class="faq-item">
+            <p class="faq-q">Can I suggest something completely wild?</p>
+            <p class="faq-a">Absolutely. The Bone Lab came from someone suggesting "what if there were a skeleton you could click on" — which sounded ridiculous and turned out to be brilliant. Shoot your shot.</p>
+        </div>
+
+        <div class="faq-item">
+            <p class="faq-q">What if my idea already exists in Paramind?</p>
+            <p class="faq-a">Embarrassing for you, but we won't judge. We'll just reply with a very polite "have you tried the app?" and point you in the right direction.</p>
+        </div>
+
+        <div class="faq-item">
+            <p class="faq-q">How long until I hear back?</p>
+            <p class="faq-a">We aim to acknowledge great ideas personally. If you don't hear back, it doesn't mean we ignored it — it means we've added it to the list and Mark has forgotten to reply. Classic.</p>
+        </div>
+    </div>
+
+    <!-- ═══ FOOTER ═══ -->
+    <footer class="footer">
+        <div class="footer-container">
+            <p class="footer-logo">paramind</p>
+            <div class="footer-links">
+                <a href="terms.html">Terms of Service</a> |
+                <a href="privacy.html">Privacy Policy</a> |
+                <a href="purpose.html">Intended Purpose</a> |
+                <a href="contact.html">Contact</a>
+            </div>
+            <p class="footer-copy">© 2026 Paramind. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function handleSubmit(e) {
+            // Let FormSubmit handle the actual POST — we just show a nice success state
+            // by temporarily hiding the form and showing the success message after a brief delay.
+            // FormSubmit will redirect back to this page (same URL) after sending.
+
+            // We detect a successful return by checking for ?submitted=true in the URL.
+            // So we set _next to this page with that param.
+            document.querySelector('input[name="_next"]').value =
+                window.location.href.split('?')[0] + '?submitted=true';
+        }
+
+        // On page load, check if we've just been redirected back after submission
+        (function() {
+            if (window.location.search.includes('submitted=true')) {
+                document.getElementById('ideasForm').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'block';
+                // Clean up the URL
+                history.replaceState(null, '', window.location.pathname);
+            }
+        })();
+    </script>
+
+</body>
+</html>
