@@ -1293,54 +1293,182 @@ function httpsGetText(url) {
   });
 }
 
-/**
- * Build the PubMed/Europe PMC search query with contextual and filter terms.
- */
-function buildQuery(query, filters, engine) {
-  // Add paramedic/pre-hospital context so results stay clinically relevant
-  let q = `(${query}) AND (paramedic OR "pre-hospital" OR prehospital OR "emergency medical services" OR EMS OR ambulance OR "critical care paramedic")`;
+// ============================================
+// STEP 1 — AI QUERY EXPANSION
+// ============================================
 
-  if (filters.englishOnly) {
-    q += engine === "pubmed" ? " AND English[la]" : " AND LANG:eng";
+/**
+ * Send the user's raw query to OpenAI to expand it into medical synonyms,
+ * abbreviations, UK/US drug name variants, and related clinical terms.
+ * This runs BEFORE the database searches and dramatically improves recall.
+ */
+async function expandQuery(openai, query) {
+  const prompt = `You are a medical search specialist with expertise in UK paramedic and pre-hospital emergency medicine.
+
+A paramedic has typed this search query: "${query}"
+
+Your job is to expand it into a comprehensive list of search terms that will find relevant research papers in PubMed and Europe PMC databases.
+
+Consider ALL of the following:
+- UK vs US drug names (e.g. adrenaline = epinephrine, paracetamol = acetaminophen, lignocaine = lidocaine, morphine = morphine sulfate)
+- Medical synonyms (e.g. heart attack = myocardial infarction = MI = STEMI = ACS = acute coronary syndrome)
+- Pre-hospital abbreviations (OHCA, ROSC, RSI, TBI, GCS, MAP, CPR, AED, VF, VT, PEA, ASYSTOLE)
+- Spelling variants (pre-hospital = prehospital, out-of-hospital = out of hospital)
+- Related clinical concepts that would appear in relevant research papers
+- Both lay and clinical terminology
+
+Return ONLY a valid JSON object in this exact format with no markdown fences:
+{
+  "coreTerms": ["most important term 1", "most important term 2"],
+  "expandedTerms": ["synonym1", "abbreviation1", "variant1", "related term1"]
+}
+
+Rules:
+- coreTerms: 2-4 terms that best represent the core clinical concept
+- expandedTerms: up to 10 additional synonyms, abbreviations, and variants
+- All terms should be lowercase
+- Do not include terms so broad they would return irrelevant results (e.g. do not add "patient" or "treatment")`;
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 400,
+      temperature: 0.1,
+      response_format: { type: "json_object" },
+    });
+
+    const data = JSON.parse(response.choices[0].message.content);
+    const coreTerms = (data.coreTerms || []).slice(0, 4);
+    const expandedTerms = (data.expandedTerms || []).slice(0, 10);
+
+    console.log(`Query expanded: "${query}" → core: [${coreTerms.join(", ")}] + expanded: [${expandedTerms.join(", ")}]`);
+
+    return {
+      coreTerms,
+      expandedTerms,
+      allTerms: [...coreTerms, ...expandedTerms],
+    };
+  } catch (err) {
+    console.error("Query expansion error:", err.message);
+    // Fall back to using the raw query if expansion fails
+    return {
+      coreTerms: [query],
+      expandedTerms: [],
+      allTerms: [query],
+    };
   }
+}
+
+// ============================================
+// STEP 2 — DATABASE SEARCHES
+// ============================================
+
+/**
+ * Build a PubMed (NCBI E-utilities) search query from expanded terms.
+ * Uses [tiab] field tags (title + abstract) and MeSH headings for context.
+ */
+function buildPubMedQuery(queryExpansion, filters) {
+  // Build OR group from all expanded terms using [tiab] (title/abstract field)
+  const termGroup = queryExpansion.allTerms
+    .map((t) => `"${t}"[tiab]`)
+    .join(" OR ");
+
+  // Pre-hospital context using both MeSH headings and free text
+  // Deliberately broad so we don't exclude relevant papers
+  const contextGroup = [
+    '"emergency medical services"[mh]',
+    '"emergency medical technicians"[mh]',
+    '"out-of-hospital cardiac arrest"[mh]',
+    "paramedic[tiab]",
+    "prehospital[tiab]",
+    '"pre-hospital"[tiab]',
+    "ambulance[tiab]",
+    "EMS[tiab]",
+    "OHCA[tiab]",
+    '"out-of-hospital"[tiab]',
+    '"emergency medicine"[tiab]',
+  ].join(" OR ");
+
+  let q = `(${termGroup}) AND (${contextGroup})`;
+
+  if (filters.englishOnly) q += " AND English[la]";
 
   if (filters.peerReviewed) {
-    q += engine === "pubmed"
-      ? " AND hasabstract[text] AND \"journal article\"[pt]"
-      : " AND HAS_ABSTRACT:Y AND (SRC:MED OR SRC:PMC)";
+    q += ' AND hasabstract[text] AND "journal article"[pt]';
   }
 
   if (filters.yearRange && filters.yearRange !== "all") {
     const startYear = new Date().getFullYear() - parseInt(filters.yearRange, 10);
-    q += engine === "pubmed"
-      ? ` AND ${startYear}:3000[pdat]`
-      : ` AND FIRST_PDATE:[${startYear}-01-01 TO *]`;
+    q += ` AND ${startYear}:3000[pdat]`;
   }
 
   return q;
 }
 
 /**
- * Search PubMed using NCBI E-utilities (free, no key required).
+ * Build a Europe PMC query from expanded terms.
+ * Europe PMC uses Lucene-style syntax — simpler than PubMed's field tags.
+ * Kept deliberately less restrictive than PubMed to maximise results.
+ */
+function buildEuropePMCQuery(queryExpansion, filters) {
+  // For Europe PMC we search TITLE and ABSTRACT fields explicitly
+  const termGroup = queryExpansion.allTerms
+    .map((t) => `(TITLE:"${t}" OR ABSTRACT:"${t}")`)
+    .join(" OR ");
+
+  // Looser context constraint — Europe PMC relevance scoring handles the rest
+  const contextGroup = [
+    'paramedic',
+    'prehospital',
+    '"pre-hospital"',
+    '"emergency medical services"',
+    'ambulance',
+    'OHCA',
+    '"out-of-hospital cardiac arrest"',
+    '"emergency medicine"',
+  ].join(" OR ");
+
+  let q = `(${termGroup}) AND (${contextGroup})`;
+
+  if (filters.englishOnly) q += " AND LANG:eng";
+
+  if (filters.peerReviewed) {
+    // HAS_ABSTRACT filters to articles with abstracts; SRC:MED = MEDLINE indexed
+    q += " AND HAS_ABSTRACT:Y AND (SRC:MED OR SRC:PMC OR SRC:PPR)";
+  }
+
+  if (filters.yearRange && filters.yearRange !== "all") {
+    const startYear = new Date().getFullYear() - parseInt(filters.yearRange, 10);
+    q += ` AND FIRST_PDATE:[${startYear}-01-01 TO *]`;
+  }
+
+  return q;
+}
+
+/**
+ * Search PubMed using NCBI E-utilities (free, no API key required).
  * Returns up to 12 papers with titles, abstracts, journals, years, authors.
  */
-async function searchPubMed(query, filters) {
+async function searchPubMed(queryExpansion, filters) {
   try {
-    const q = buildQuery(query, filters, "pubmed");
+    const q = buildPubMedQuery(queryExpansion, filters);
 
     // Step 1: Get list of PMIDs
     const searchUrl =
       `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi` +
-      `?db=pubmed&term=${encodeURIComponent(q)}&retmax=12&retmode=json` +
+      `?db=pubmed&term=${encodeURIComponent(q)}&retmax=12&retmode=json&sort=relevance` +
       `&tool=paramind&email=info@paramind.co.uk`;
 
     const searchRes = await httpsGetText(searchUrl);
     const searchData = JSON.parse(searchRes.data);
     const ids = searchData.esearchresult?.idlist || [];
 
+    console.log(`PubMed returned ${ids.length} IDs`);
+
     if (ids.length === 0) return [];
 
-    // Step 2: Fetch XML (includes titles AND abstracts)
+    // Step 2: Fetch full XML (titles + abstracts)
     const fetchUrl =
       `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi` +
       `?db=pubmed&id=${ids.join(",")}&rettype=xml&retmode=xml` +
@@ -1356,7 +1484,6 @@ async function searchPubMed(query, filters) {
 
 /**
  * Parse PubMed XML response into normalised paper objects.
- * Uses simple regex rather than a full XML parser (no extra npm dependencies needed).
  */
 function parsePubMedXML(xml) {
   const papers = [];
@@ -1370,7 +1497,6 @@ function parsePubMedXML(xml) {
       const title = cleanText(getFirst(block, "ArticleTitle") || "Untitled");
       const abstract = cleanText(getAll(block, "AbstractText").join(" "));
 
-      // Journal: prefer ISO abbreviation, fall back to full title
       const journal = cleanText(
         getFirst(block, "ISOAbbreviation") ||
         getFirst(block, "MedlineTA") ||
@@ -1378,16 +1504,16 @@ function parsePubMedXML(xml) {
         "Unknown Journal"
       );
 
-      // Year: try PubDate/Year first, then MedlineDate first 4 chars
       const year =
         getFirst(block, "Year") ||
         (getFirst(block, "MedlineDate") || "").substring(0, 4) ||
         "Unknown";
 
-      // Authors: first 3 LastName + Initials
       const lastNames = getAll(block, "LastName").slice(0, 3);
       const initials = getAll(block, "Initials").slice(0, 3);
-      const authors = lastNames.map((n, i) => `${n} ${initials[i] || ""}`.trim()).join(", ");
+      const authors = lastNames
+        .map((n, i) => `${n} ${initials[i] || ""}`.trim())
+        .join(", ");
 
       papers.push({
         id: `pubmed_${pmid}`,
@@ -1407,49 +1533,32 @@ function parsePubMedXML(xml) {
   return papers;
 }
 
-function getFirst(text, tag) {
-  const m = text.match(new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`, "i"));
-  return m ? m[1].trim() : null;
-}
-
-function getAll(text, tag) {
-  const regex = new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`, "gi");
-  const results = [];
-  let m;
-  while ((m = regex.exec(text)) !== null) {
-    results.push(m[1].trim());
-  }
-  return results;
-}
-
-function cleanText(str) {
-  if (!str) return "";
-  // Strip any remaining XML tags and decode basic entities
-  return str
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 /**
- * Search Europe PMC (free REST API, returns JSON with full abstracts).
+ * Search Europe PMC (free REST API, returns JSON with abstracts).
  * Returns up to 12 papers.
  */
-async function searchEuropePMC(query, filters) {
+async function searchEuropePMC(queryExpansion, filters) {
   try {
-    const q = buildQuery(query, filters, "epmc");
+    const q = buildEuropePMCQuery(queryExpansion, filters);
+
     const searchUrl =
       `https://www.ebi.ac.uk/europepmc/webservices/rest/search` +
       `?query=${encodeURIComponent(q)}&format=json&resultType=core&pageSize=12&sort=RELEVANCE`;
 
+    console.log(`Europe PMC query: ${q.substring(0, 150)}...`);
+
     const res = await httpsGetText(searchUrl);
+
+    // Europe PMC sometimes returns non-200 with an error body — handle gracefully
+    if (res.status !== 200) {
+      console.error(`Europe PMC returned status ${res.status}`);
+      return [];
+    }
+
     const data = JSON.parse(res.data);
     const results = data.resultList?.result || [];
+
+    console.log(`Europe PMC returned ${results.length} results`);
 
     return results.map((paper) => ({
       id: `epmc_${paper.id || paper.pmid || Math.random()}`,
@@ -1471,6 +1580,43 @@ async function searchEuropePMC(query, filters) {
   }
 }
 
+// ============================================
+// SHARED HELPERS
+// ============================================
+
+function getFirst(text, tag) {
+  const m = text.match(
+    new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`, "i")
+  );
+  return m ? m[1].trim() : null;
+}
+
+function getAll(text, tag) {
+  const regex = new RegExp(
+    `<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`,
+    "gi"
+  );
+  const results = [];
+  let m;
+  while ((m = regex.exec(text)) !== null) {
+    results.push(m[1].trim());
+  }
+  return results;
+}
+
+function cleanText(str) {
+  if (!str) return "";
+  return str
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 /**
  * Deduplicate papers from both sources by title similarity.
  * Keeps the version with the longer abstract.
@@ -1479,14 +1625,15 @@ function deduplicatePapers(papers) {
   const seen = new Map();
 
   papers.forEach((paper) => {
-    // Normalise title for comparison: lowercase, strip punctuation
-    const normTitle = paper.title.toLowerCase().replace(/[^a-z0-9 ]/g, "").trim();
-    const key = normTitle.substring(0, 60); // first 60 chars as key
+    const normTitle = paper.title
+      .toLowerCase()
+      .replace(/[^a-z0-9 ]/g, "")
+      .trim();
+    const key = normTitle.substring(0, 60);
 
     if (!seen.has(key)) {
       seen.set(key, paper);
     } else {
-      // Keep whichever has the longer abstract
       const existing = seen.get(key);
       if ((paper.abstract || "").length > (existing.abstract || "").length) {
         seen.set(key, paper);
@@ -1497,12 +1644,15 @@ function deduplicatePapers(papers) {
   return Array.from(seen.values());
 }
 
+// ============================================
+// STEP 3 — AI ANALYSIS
+// ============================================
+
 /**
- * Send the papers to OpenAI for analysis.
- * Returns structured JSON: { summary, supporting, refuting, neutral }
+ * Send the retrieved papers to OpenAI to categorise them as
+ * supporting / refuting / neutral / irrelevant.
  */
 async function analyseWithAI(openai, query, papers, emphasis) {
-  // Build a compact representation of each paper for the AI prompt
   const papersList = papers
     .map((p, i) => {
       const abstract = p.abstract
@@ -1512,7 +1662,6 @@ async function analyseWithAI(openai, query, papers, emphasis) {
     })
     .join("\n\n---\n\n");
 
-  // Emphasis instruction for the AI
   const emphasisInstruction =
     emphasis === "support"
       ? "The user wants to find evidence that SUPPORTS this topic. Be thorough in identifying supporting papers."
@@ -1559,7 +1708,6 @@ Every paper in the list must appear in the papers array. Papers classified as "i
     response_format: { type: "json_object" },
   });
 
-  // Parse the AI response
   let aiData;
   try {
     aiData = JSON.parse(response.choices[0].message.content);
@@ -1567,11 +1715,9 @@ Every paper in the list must appear in the papers array. Papers classified as "i
     throw new Error("AI returned invalid JSON. Please try again.");
   }
 
-  // Build lookup map: paper ID → paper object
   const paperMap = {};
   papers.forEach((p) => (paperMap[p.id] = p));
 
-  // Merge AI analysis with paper data — irrelevant papers are silently dropped
   const supporting = [];
   const refuting = [];
   const neutral = [];
@@ -1580,7 +1726,6 @@ Every paper in the list must appear in the papers array. Papers classified as "i
     const paper = paperMap[aiPaper.id];
     if (!paper) return;
 
-    // Drop irrelevant papers entirely
     if (aiPaper.stance === "irrelevant") return;
 
     const enriched = {
@@ -1603,17 +1748,23 @@ Every paper in the list must appear in the papers array. Papers classified as "i
   };
 }
 
+// ============================================
+// MAIN ENDPOINT
+// ============================================
+
 /**
  * POST /researchPapers
- * Searches PubMed and Europe PMC for evidence on a paramedic topic,
- * then uses AI to categorise papers as supporting or refuting.
+ * 1. AI expands the user's query into medical synonyms and variants
+ * 2. Searches PubMed and Europe PMC in parallel using expanded terms
+ * 3. Deduplicates results
+ * 4. AI analyses and categorises papers as supporting / refuting / neutral
  * Pro users only.
  */
 exports.researchPapers = onRequest(
   {
     cors: true,
     secrets: ["OPENAI_API_KEY"],
-    timeoutSeconds: 120, // Longer timeout — multiple external API calls + AI analysis
+    timeoutSeconds: 120,
   },
   async (req, res) => {
     if (req.method !== "POST") {
@@ -1625,15 +1776,14 @@ exports.researchPapers = onRequest(
         apiKey: process.env.OPENAI_API_KEY,
       });
 
-      // Verify authentication
       const uid = await verifyAuth(req);
       const user = await getUser(uid);
 
-      // Pro users only
       if (user.subscriptionStatus !== "active") {
         return res.status(403).json({
           error: "Pro subscription required",
-          message: "Research Papers Finder is a Pro feature. Upgrade to access real-time evidence search.",
+          message:
+            "Research Papers Finder is a Pro feature. Upgrade to access real-time evidence search.",
           upgrade: true,
         });
       }
@@ -1646,7 +1796,6 @@ exports.researchPapers = onRequest(
         emphasis = "balanced",
       } = req.body;
 
-      // Validate query
       if (!query || typeof query !== "string" || query.trim().length < 3) {
         return res.status(400).json({ error: "Search query must be at least 3 characters." });
       }
@@ -1656,40 +1805,47 @@ exports.researchPapers = onRequest(
       }
 
       const filters = { peerReviewed, englishOnly, yearRange };
+      const cleanQuery = query.trim();
 
-      console.log(`Research search by ${uid}: "${query.trim()}" (yearRange=${yearRange}, peerReviewed=${peerReviewed})`);
+      console.log(`Research search by ${uid}: "${cleanQuery}" (yearRange=${yearRange}, peerReviewed=${peerReviewed})`);
 
-      // Search both databases in parallel
+      // ── STEP 1: Expand the query with AI ──────────────────────────────
+      const queryExpansion = await expandQuery(openai, cleanQuery);
+
+      // ── STEP 2: Search both databases in parallel ─────────────────────
       const [pubmedResults, epmcResults] = await Promise.allSettled([
-        searchPubMed(query.trim(), filters),
-        searchEuropePMC(query.trim(), filters),
+        searchPubMed(queryExpansion, filters),
+        searchEuropePMC(queryExpansion, filters),
       ]);
 
       let allPapers = [];
       if (pubmedResults.status === "fulfilled") allPapers = [...allPapers, ...pubmedResults.value];
-      if (epmcResults.status === "fulfilled") allPapers = [...allPapers, ...epmcResults.value];
+      if (epmcResults.status === "fulfilled")   allPapers = [...allPapers, ...epmcResults.value];
 
-      // Deduplicate and limit to 20 papers
       allPapers = deduplicatePapers(allPapers).slice(0, 20);
 
       console.log(`Found ${allPapers.length} unique papers after deduplication.`);
 
-      // If no papers found, return early with a helpful message
       if (allPapers.length === 0) {
         return res.status(200).json({
           summary:
-            "No research papers were found for this search. Try broader search terms, removing filters, or using different keywords. For example, try 'cardiac arrest airway management' instead of a very specific phrasing.",
+            "No research papers were found for this search. Try broader search terms, removing filters, or using different keywords.",
           supporting: [],
           refuting: [],
           neutral: [],
           totalFound: 0,
+          expandedTerms: queryExpansion.allTerms,
         });
       }
 
-      // Run AI analysis
-      const analysis = await analyseWithAI(openai, query.trim(), allPapers, emphasis);
+      // ── STEP 3: AI analysis and categorisation ────────────────────────
+      const analysis = await analyseWithAI(openai, cleanQuery, allPapers, emphasis);
 
-      return res.status(200).json(analysis);
+      // Return the expanded terms so the frontend can show them to the user
+      return res.status(200).json({
+        ...analysis,
+        expandedTerms: queryExpansion.allTerms,
+      });
 
     } catch (error) {
       console.error("Research papers error:", error);

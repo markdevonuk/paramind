@@ -446,6 +446,39 @@
 
     .results-meta strong { color: var(--color-teal); }
 
+    /* Expanded search terms chips */
+    .expanded-terms-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 14px;
+      padding: 10px 12px;
+      background: rgba(43,138,156,0.05);
+      border: 1px solid rgba(43,138,156,0.12);
+      border-radius: 10px;
+    }
+
+    .expanded-terms-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-gray-500);
+      white-space: nowrap;
+    }
+
+    .expanded-term-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px;
+      background: rgba(43,138,156,0.1);
+      color: var(--color-teal);
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
     .new-search-btn {
       background: none;
       border: 1px solid var(--color-gray-300);
@@ -1034,6 +1067,12 @@
       </button>
     </div>
 
+    <!-- Expanded search terms -->
+    <div class="expanded-terms-row" id="expandedTermsRow" style="display:none;">
+      <span class="expanded-terms-label"><i class="bi bi-search"></i> Also searched:</span>
+      <div id="expandedTermsChips"></div>
+    </div>
+
     <!-- AI Summary -->
     <div class="summary-card">
       <div class="summary-card-header">
@@ -1443,6 +1482,19 @@
       document.getElementById('refuteCount').textContent = refuting.length;
       document.getElementById('neutralCount').textContent = neutral.length;
       document.getElementById('resultsMeta').innerHTML = `<strong>${total}</strong> papers found for: <strong>"${escapeHtml(query)}"</strong>`;
+
+      // Render expanded search terms chips
+      const expandedTerms = data.expandedTerms || [];
+      const expandedRow = document.getElementById('expandedTermsRow');
+      const expandedChips = document.getElementById('expandedTermsChips');
+      if (expandedTerms.length > 0) {
+        expandedChips.innerHTML = expandedTerms
+          .map(t => `<span class="expanded-term-chip">${escapeHtml(t)}</span>`)
+          .join('');
+        expandedRow.style.display = 'flex';
+      } else {
+        expandedRow.style.display = 'none';
+      }
 
       // Render summary
       document.getElementById('aiSummary').textContent = data.summary || 'Analysis complete.';
