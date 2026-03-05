@@ -1533,21 +1533,23 @@ ${papersList}
 
 REQUIRED JSON FORMAT:
 {
-  "summary": "2-4 sentence plain English overview of what the evidence landscape shows for this topic. Mention the overall weight of evidence and any notable gaps or conflicts.",
+  "summary": "2-4 sentence plain English overview of what the evidence landscape shows for this topic. Mention the overall weight of evidence and any notable gaps or conflicts. Only reference papers that are genuinely relevant.",
   "papers": [
     {
       "id": "the paper's ID exactly as given above",
-      "stance": "supporting OR refuting OR neutral",
-      "note": "1-2 sentences explaining WHY this paper supports, refutes, or is neutral regarding the topic. Reference the specific finding."
+      "stance": "supporting OR refuting OR neutral OR irrelevant",
+      "note": "1-2 sentences explaining WHY this paper supports, refutes, or is neutral regarding the topic. Leave empty string if irrelevant."
     }
   ]
 }
 
-Rules:
-- Every paper must appear in the papers array with its exact id.
-- stance must be exactly one of: supporting, refuting, neutral
-- If the abstract is missing or too short to determine stance, classify as neutral.
-- Focus on pre-hospital / paramedic relevance in your analysis.`;
+STANCE DEFINITIONS — apply these strictly:
+- "supporting": The paper's findings clearly support or validate the search topic in a pre-hospital or clinically relevant context.
+- "refuting": The paper's findings challenge, contradict, or raise concerns about the search topic.
+- "neutral": The paper is genuinely relevant to the topic but its findings are inconclusive, mixed, or it is a background/review paper that does not take a clear position.
+- "irrelevant": The paper does not meaningfully address the search topic. Use this for papers where the title/abstract match was superficial or coincidental. Do NOT use "neutral" as a catch-all — if a paper is not relevant, it must be "irrelevant".
+
+Every paper in the list must appear in the papers array. Papers classified as "irrelevant" will be silently excluded from the results shown to the user.`;
 
   const response = await openai.chat.completions.create({
     model: "gpt-4o-mini",
@@ -1569,7 +1571,7 @@ Rules:
   const paperMap = {};
   papers.forEach((p) => (paperMap[p.id] = p));
 
-  // Merge AI analysis with paper data
+  // Merge AI analysis with paper data — irrelevant papers are silently dropped
   const supporting = [];
   const refuting = [];
   const neutral = [];
@@ -1577,6 +1579,9 @@ Rules:
   (aiData.papers || []).forEach((aiPaper) => {
     const paper = paperMap[aiPaper.id];
     if (!paper) return;
+
+    // Drop irrelevant papers entirely
+    if (aiPaper.stance === "irrelevant") return;
 
     const enriched = {
       ...paper,
