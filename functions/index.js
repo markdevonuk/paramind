@@ -1361,12 +1361,102 @@ Rules:
 }
 
 // ============================================
+// RESEARCH PAPERS FINDER
+// ============================================
+
+/**
+ * HTTPS helper — wraps Node's built-in https module in a Promise.
+ * Used to call PubMed and Europe PMC APIs.
+ */
+const https = require("https");
+
+function httpsGetText(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, (res) => {
+      let data = "";
+      res.on("data", (chunk) => (data += chunk));
+      res.on("end", () => resolve({ status: res.statusCode, data }));
+    }).on("error", reject);
+  });
+}
+
+// ============================================
+// STEP 1 — AI QUERY EXPANSION
+// ============================================
+
+/**
+ * Send the user's raw query to OpenAI to expand it into medical synonyms,
+ * abbreviations, UK/US drug name variants, and related clinical terms.
+ * This runs BEFORE the database searches and dramatically improves recall.
+ */
+async function expandQuery(openai, query) {
+  const prompt = `You are a medical search specialist with expertise in UK paramedic and pre-hospital emergency medicine.
+
+A paramedic has typed this search query: "${query}"
+
+Your job is to expand it into a comprehensive list of search terms that will find relevant research papers in PubMed and Europe PMC databases.
+
+Consider ALL of the following:
+- UK vs US drug names (e.g. adrenaline = epinephrine, paracetamol = acetaminophen, lignocaine = lidocaine, morphine = morphine sulfate)
+- Medical synonyms (e.g. heart attack = myocardial infarction = MI = STEMI = ACS = acute coronary syndrome)
+- Pre-hospital abbreviations (OHCA, ROSC, RSI, TBI, GCS, MAP, CPR, AED, VF, VT, PEA, ASYSTOLE)
+- Spelling variants (pre-hospital = prehospital, out-of-hospital = out of hospital)
+- Related clinical concepts that would appear in relevant research papers
+- Both lay and clinical terminology
+
+Return ONLY a valid JSON object in this exact format with no markdown fences:
+{
+  "coreTerms": ["most important term 1", "most important term 2"],
+  "expandedTerms": ["synonym1", "abbreviation1", "variant1", "related term1"]
+}
+
+Rules:
+- coreTerms: 2-4 terms that best represent the core clinical concept
+- expandedTerms: up to 10 additional synonyms, abbreviations, and variants
+- All terms should be lowercase
+- Do not include terms so broad they would return irrelevant results (e.g. do not add "patient" or "treatment")`;
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 400,
+      temperature: 0.1,
+      response_format: { type: "json_object" },
+    });
+
+    const data = JSON.parse(response.choices[0].message.content);
+    const coreTerms = (data.coreTerms || []).slice(0, 4);
+    const expandedTerms = (data.expandedTerms || []).slice(0, 10);
+
+    console.log(`Query expanded: "${query}" → core: [${coreTerms.join(", ")}] + expanded: [${expandedTerms.join(", ")}]`);
+
+    return {
+      coreTerms,
+      expandedTerms,
+      allTerms: [...coreTerms, ...expandedTerms],
+    };
+  } catch (err) {
+    console.error("Query expansion error:", err.message);
+    // Fall back to using the raw query if expansion fails
+    return {
+      coreTerms: [query],
+      expandedTerms: [],
+      allTerms: [query],
+    };
+  }
+}
+
+// ============================================
 // STEP 2 — DATABASE SEARCHES
 // ============================================
 
 /**
  * Build a PubMed (NCBI E-utilities) search query from expanded terms.
- * Uses [tiab] field tags (title + abstract) and MeSH headings for context.
+ * NO mandatory context filter — we do not require papers to mention "paramedic"
+ * or "prehospital". Many highly relevant trials (e.g. PARAMEDIC2, ARREST)
+ * are published in hospital/ICU journals and never use those words.
+ * The AI classifier handles relevance filtering after retrieval.
  */
 function buildPubMedQuery(queryExpansion, filters) {
   // Build OR group from all expanded terms using [tiab] (title/abstract field)
@@ -1374,23 +1464,7 @@ function buildPubMedQuery(queryExpansion, filters) {
     .map((t) => `"${t}"[tiab]`)
     .join(" OR ");
 
-  // Pre-hospital context using both MeSH headings and free text
-  // Deliberately broad so we don't exclude relevant papers
-  const contextGroup = [
-    '"emergency medical services"[mh]',
-    '"emergency medical technicians"[mh]',
-    '"out-of-hospital cardiac arrest"[mh]',
-    "paramedic[tiab]",
-    "prehospital[tiab]",
-    '"pre-hospital"[tiab]',
-    "ambulance[tiab]",
-    "EMS[tiab]",
-    "OHCA[tiab]",
-    '"out-of-hospital"[tiab]',
-    '"emergency medicine"[tiab]',
-  ].join(" OR ");
-
-  let q = `(${termGroup}) AND (${contextGroup})`;
+  let q = `(${termGroup})`;
 
   if (filters.englishOnly) q += " AND English[la]";
 
@@ -1408,8 +1482,8 @@ function buildPubMedQuery(queryExpansion, filters) {
 
 /**
  * Build a Europe PMC query from expanded terms.
- * Europe PMC uses Lucene-style syntax — simpler than PubMed's field tags.
- * Kept deliberately less restrictive than PubMed to maximise results.
+ * NO mandatory context filter — same reasoning as PubMed.
+ * Europe PMC uses Lucene-style syntax.
  */
 function buildEuropePMCQuery(queryExpansion, filters) {
   // For Europe PMC we search TITLE and ABSTRACT fields explicitly
@@ -1417,19 +1491,7 @@ function buildEuropePMCQuery(queryExpansion, filters) {
     .map((t) => `(TITLE:"${t}" OR ABSTRACT:"${t}")`)
     .join(" OR ");
 
-  // Looser context constraint — Europe PMC relevance scoring handles the rest
-  const contextGroup = [
-    'paramedic',
-    'prehospital',
-    '"pre-hospital"',
-    '"emergency medical services"',
-    'ambulance',
-    'OHCA',
-    '"out-of-hospital cardiac arrest"',
-    '"emergency medicine"',
-  ].join(" OR ");
-
-  let q = `(${termGroup}) AND (${contextGroup})`;
+  let q = `(${termGroup})`;
 
   if (filters.englishOnly) q += " AND LANG:eng";
 
