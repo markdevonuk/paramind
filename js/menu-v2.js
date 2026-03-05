@@ -42,6 +42,7 @@
         ],
         // Bottom items (Contact, Sign Out)
         bottomNav: [
+            { id: 'account', href: 'account.html', icon: 'bi-person-gear', label: 'Account' },
             { id: 'contact', href: 'contact.html', icon: 'bi-envelope', label: 'Contact Us' }
         ]
     };
@@ -63,6 +64,7 @@
         if (path.includes('blood-lab')) return 'bloodlab';
         if (path.includes('cpd')) return 'cpd';
         if (path.includes('contact')) return 'contact';
+        if (path.includes('account')) return 'account';
         
         // Default to home for root or unknown pages
         return 'home';
