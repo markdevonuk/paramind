@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Research Papers Finder | ParaMind</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+  <!-- Menu CSS -->
+  <link rel="stylesheet" href="css/menu-v2.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/styles.css">
+
+  <style>
+    /* ==================== CSS VARIABLES ==================== */
+    :root {
+      --color-teal: #2B8A9C;
+      --color-teal-dark: #237282;
+      --color-teal-light: #3DA4B8;
+      --color-green: #5CB85C;
+      --color-green-dark: #4A9A4A;
+      --color-gray-50: #F8F9FA;
+      --color-gray-100: #F1F3F5;
+      --color-gray-200: #E9ECEF;
+      --color-gray-300: #DEE2E6;
+      --color-gray-400: #CED4DA;
+      --color-gray-500: #ADB5BD;
+      --color-gray-600: #6C757D;
+      --color-gray-700: #495057;
+      --color-gray-800: #343A40;
+      --color-gray-900: #212529;
+      --color-white: #FFFFFF;
+      --color-danger: #DC3545;
+      --color-support: #5CB85C;
+      --color-refute: #DC3545;
+      --font-primary: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --radius-sm: 0.375rem;
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --radius-xl: 1rem;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+      --header-height: 56px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-primary);
+      background: var(--color-gray-50);
+      color: var(--color-gray-800);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ==================== HEADER SECTION ==================== */
+    .header-section {
+      text-align: center;
+      padding: 24px 16px 8px;
+      max-width: 660px;
+      margin: 0 auto;
+    }
+
+    .header-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 3px solid var(--color-teal);
+      overflow: hidden;
+      margin: 0 auto 10px;
+      box-shadow: 0 4px 16px rgba(43,138,156,0.2);
+    }
+
+    .header-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(43,138,156,0.1);
+      color: var(--color-teal);
+      padding: 0.25rem 0.7rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .header-section h1 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--color-gray-800);
+      margin: 0 0 4px;
+    }
+
+    .header-tagline {
+      font-size: 0.88rem;
+      color: var(--color-gray-600);
+      margin: 0 0 12px;
+      line-height: 1.45;
+    }
+
+    .header-pills {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .header-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: var(--color-white);
+      color: var(--color-gray-700);
+      border: 1px solid var(--color-gray-200);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ==================== SEARCH FORM ==================== */
+    .search-section {
+      padding: 16px 16px 0;
+      max-width: 660px;
+      margin: 0 auto;
+    }
+
+    .search-card {
+      background: var(--color-white);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid var(--color-gray-200);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .search-input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .search-input {
+      flex: 1;
+      border: 1px solid var(--color-gray-300);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      font-family: var(--font-primary);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      color: var(--color-gray-800);
+    }
+
+    .search-input:focus {
+      border-color: var(--color-teal);
+      box-shadow: 0 0 0 3px rgba(43,138,156,0.15);
+    }
+
+    .search-input::placeholder { color: var(--color-gray-400); }
+
+    .search-btn {
+      padding: 12px 20px;
+      background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .search-btn:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+    .search-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* Filters row */
+    .filters-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .filter-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-gray-500);
+      margin-right: 2px;
+    }
+
+    .filter-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--color-gray-300);
+      background: var(--color-white);
+      color: var(--color-gray-600);
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .filter-toggle.active {
+      background: rgba(43,138,156,0.1);
+      border-color: rgba(43,138,156,0.3);
+      color: var(--color-teal);
+    }
+
+    .filter-toggle i { font-size: 0.8rem; }
+
+    .filter-select {
+      border: 1px solid var(--color-gray-300);
+      border-radius: 9999px;
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--color-gray-600);
+      background: var(--color-white);
+      font-family: var(--font-primary);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .filter-select:focus { border-color: var(--color-teal); }
+
+    /* Emphasis mode row */
+    .emphasis-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--color-gray-100);
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .emphasis-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-gray-500);
+    }
+
+    .emphasis-btn {
+      padding: 5px 14px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--color-gray-300);
+      background: var(--color-white);
+      color: var(--color-gray-600);
+      font-family: var(--font-primary);
+      transition: all 0.2s ease;
+    }
+
+    .emphasis-btn.active-balanced {
+      background: rgba(43,138,156,0.1);
+      border-color: rgba(43,138,156,0.3);
+      color: var(--color-teal);
+    }
+
+    .emphasis-btn.active-support {
+      background: rgba(92,184,92,0.12);
+      border-color: rgba(92,184,92,0.35);
+      color: var(--color-green-dark);
+    }
+
+    .emphasis-btn.active-refute {
+      background: rgba(220,53,69,0.1);
+      border-color: rgba(220,53,69,0.3);
+      color: var(--color-danger);
+    }
+
+    /* ==================== LOADING STATE ==================== */
+    .loading-section {
+      display: none;
+      padding: 32px 16px;
+      max-width: 660px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .loading-section.active { display: block; }
+
+    .loading-spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid var(--color-gray-200);
+      border-top-color: var(--color-teal);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      font-size: 0.9rem;
+      color: var(--color-gray-600);
+      font-weight: 500;
+    }
+
+    .loading-subtext {
+      font-size: 0.78rem;
+      color: var(--color-gray-400);
+      margin-top: 6px;
+    }
+
+    /* ==================== RESULTS SECTION ==================== */
+    .results-section {
+      display: none;
+      padding: 16px 16px 32px;
+      max-width: 660px;
+      margin: 0 auto;
+    }
+
+    .results-section.active { display: block; }
+
+    /* Results header bar */
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .results-meta {
+      font-size: 0.78rem;
+      color: var(--color-gray-500);
+      font-weight: 500;
+    }
+
+    .results-meta strong { color: var(--color-teal); }
+
+    .new-search-btn {
+      background: none;
+      border: 1px solid var(--color-gray-300);
+      border-radius: 8px;
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--color-gray-600);
+      cursor: pointer;
+      font-family: var(--font-primary);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+
+    .new-search-btn:hover {
+      background: var(--color-gray-100);
+      border-color: var(--color-gray-400);
+    }
+
+    /* AI Summary card */
+    .summary-card {
+      background: var(--color-white);
+      border-radius: 14px;
+      border: 1px solid var(--color-gray-200);
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .summary-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .summary-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(43,138,156,0.12), rgba(92,184,92,0.1));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-teal);
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .summary-card-header h3 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--color-gray-800);
+      margin: 0;
+    }
+
+    .summary-text {
+      font-size: 0.85rem;
+      color: var(--color-gray-700);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* Evidence re-emphasis controls */
+    .emphasis-controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .emphasis-control-btn {
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--color-gray-300);
+      background: var(--color-white);
+      color: var(--color-gray-600);
+      font-family: var(--font-primary);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .emphasis-control-btn.active-balanced {
+      background: rgba(43,138,156,0.1);
+      border-color: rgba(43,138,156,0.3);
+      color: var(--color-teal);
+    }
+
+    .emphasis-control-btn.active-support {
+      background: rgba(92,184,92,0.12);
+      border-color: rgba(92,184,92,0.35);
+      color: var(--color-green-dark);
+    }
+
+    .emphasis-control-btn.active-refute {
+      background: rgba(220,53,69,0.1);
+      border-color: rgba(220,53,69,0.3);
+      color: var(--color-danger);
+    }
+
+    /* Evidence sections */
+    .evidence-section {
+      margin-bottom: 16px;
+    }
+
+    .evidence-section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .evidence-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .evidence-icon.support { background: rgba(92,184,92,0.15); color: var(--color-green-dark); }
+    .evidence-icon.refute { background: rgba(220,53,69,0.12); color: var(--color-danger); }
+    .evidence-icon.neutral { background: rgba(108,117,125,0.12); color: var(--color-gray-600); }
+
+    .evidence-section-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .evidence-section-title.support { color: var(--color-green-dark); }
+    .evidence-section-title.refute { color: var(--color-danger); }
+    .evidence-section-title.neutral { color: var(--color-gray-600); }
+
+    .evidence-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 22px;
+      height: 22px;
+      border-radius: 11px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0 6px;
+    }
+
+    .evidence-count.support { background: rgba(92,184,92,0.15); color: var(--color-green-dark); }
+    .evidence-count.refute { background: rgba(220,53,69,0.12); color: var(--color-danger); }
+    .evidence-count.neutral { background: rgba(108,117,125,0.1); color: var(--color-gray-600); }
+
+    /* Paper cards */
+    .paper-card {
+      background: var(--color-white);
+      border-radius: 14px;
+      border: 1px solid var(--color-gray-200);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .paper-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+    }
+
+    .paper-card.support::before { background: var(--color-support); }
+    .paper-card.refute::before { background: var(--color-refute); }
+    .paper-card.neutral::before { background: var(--color-gray-400); }
+
+    .paper-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .paper-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--color-gray-800);
+      line-height: 1.4;
+      margin-bottom: 5px;
+    }
+
+    .paper-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .paper-meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.72rem;
+      color: var(--color-gray-500);
+      font-weight: 500;
+    }
+
+    .paper-meta-item i { font-size: 0.7rem; }
+
+    .paper-source-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .paper-source-badge.pubmed { background: rgba(43,138,156,0.1); color: var(--color-teal); }
+    .paper-source-badge.epmc { background: rgba(92,184,92,0.12); color: var(--color-green-dark); }
+
+    .paper-note {
+      font-size: 0.82rem;
+      color: var(--color-gray-600);
+      line-height: 1.5;
+      margin-bottom: 10px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: var(--color-gray-50);
+    }
+
+    .paper-note.support { background: rgba(92,184,92,0.06); }
+    .paper-note.refute { background: rgba(220,53,69,0.05); }
+
+    .paper-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .paper-stance-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .paper-stance-badge.support {
+      background: rgba(92,184,92,0.12);
+      color: var(--color-green-dark);
+    }
+
+    .paper-stance-badge.refute {
+      background: rgba(220,53,69,0.1);
+      color: var(--color-danger);
+    }
+
+    .paper-stance-badge.neutral {
+      background: rgba(108,117,125,0.1);
+      color: var(--color-gray-600);
+    }
+
+    .paper-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 12px;
+      background: var(--color-gray-100);
+      color: var(--color-gray-700);
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .paper-link:hover {
+      background: var(--color-teal);
+      color: white;
+    }
+
+    /* Emphasis mode: emphasised section */
+    .evidence-section.emphasised .paper-card {
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+
+    /* Neutral section collapsed by default */
+    .neutral-toggle {
+      background: none;
+      border: none;
+      color: var(--color-gray-500);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font-primary);
+      padding: 4px 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-left: auto;
+    }
+
+    .neutral-papers { display: none; }
+    .neutral-papers.show { display: block; }
+
+    /* Empty state */
+    .empty-section {
+      text-align: center;
+      padding: 20px;
+      background: var(--color-gray-50);
+      border-radius: 12px;
+      font-size: 0.82rem;
+      color: var(--color-gray-500);
+      margin-bottom: 10px;
+    }
+
+    /* Error state */
+    .error-card {
+      background: rgba(220,53,69,0.06);
+      border: 1px solid rgba(220,53,69,0.2);
+      border-radius: 14px;
+      padding: 18px;
+      text-align: center;
+    }
+
+    .error-card i { color: var(--color-danger); font-size: 1.5rem; margin-bottom: 8px; display: block; }
+    .error-card p { font-size: 0.85rem; color: var(--color-gray-700); margin: 0; }
+
+    /* No results state */
+    .no-results-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: 14px;
+      padding: 28px 20px;
+      text-align: center;
+    }
+
+    .no-results-card i { font-size: 2rem; color: var(--color-gray-400); margin-bottom: 10px; display: block; }
+    .no-results-card h3 { font-size: 1rem; font-weight: 700; color: var(--color-gray-700); margin-bottom: 6px; }
+    .no-results-card p { font-size: 0.82rem; color: var(--color-gray-500); margin: 0; }
+
+    /* Disclaimer */
+    .disclaimer-bar {
+      max-width: 660px;
+      margin: 0 auto 16px;
+      padding: 0 16px;
+    }
+
+    .disclaimer-text {
+      font-size: 0.72rem;
+      color: var(--color-gray-500);
+      text-align: center;
+      line-height: 1.5;
+      padding: 8px 12px;
+      background: rgba(255,193,7,0.07);
+      border: 1px solid rgba(255,193,7,0.2);
+      border-radius: 8px;
+    }
+
+    /* ==================== UPGRADE WALL ==================== */
+    #upgradeWall {
+      display: none;
+      padding: 24px 16px;
+      max-width: 660px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    #upgradeWall.active { display: block; }
+
+    .upgrade-wall-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: 16px;
+      padding: 28px 20px;
+    }
+
+    .upgrade-wall-card i { font-size: 2rem; color: #d97706; margin-bottom: 12px; display: block; }
+    .upgrade-wall-card h2 { font-size: 1.15rem; font-weight: 800; margin-bottom: 8px; }
+    .upgrade-wall-card p { font-size: 0.85rem; color: var(--color-gray-600); margin-bottom: 18px; }
+
+    .upgrade-wall-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      color: #1a1a2e;
+      font-weight: 700;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 9999px;
+      cursor: pointer;
+      font-family: var(--font-primary);
+      text-decoration: none;
+    }
+
+    /* ==================== FOOTER ==================== */
+    .member-footer {
+      background: var(--color-white);
+      border-top: 1px solid var(--color-gray-200);
+      padding: 20px 0;
+      margin-top: 20px;
+    }
+
+    .footer-brand { text-align: center; margin-bottom: 8px; }
+    .brand-para { color: var(--color-teal); }
+    .brand-mind { color: var(--color-green); }
+    .brand-text { font-family: var(--font-primary); font-weight: 700; font-size: 1.25rem; }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px 20px;
+      margin-bottom: 8px;
+    }
+
+    .footer-links a {
+      font-size: 0.78rem;
+      color: var(--color-gray-500);
+      text-decoration: none;
+    }
+
+    .footer-links a:hover { color: var(--color-teal); }
+    .footer-copyright { text-align: center; font-size: 0.75rem; color: var(--color-gray-400); margin: 0; }
+
+    @media (max-width: 480px) {
+      .search-input-row { flex-direction: column; }
+      .search-btn { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ==================== NAVIGATION ==================== -->
+  <nav class="member-navbar">
+    <div class="container">
+      <span class="brand-text">
+        <a class="navbar-brand" href="landing.html">
+          <span class="brand-para">para</span><span class="brand-mind">mind</span>
+        </a>
+      </span>
+      <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ==================== HEADER ==================== -->
+  <div class="header-section">
+    <div class="header-avatar">
+      <img src="images/hollie.png" alt="Hollie - Research Assistant">
+    </div>
+    <div class="header-badge">
+      <i class="bi bi-journal-text"></i> Evidence Search
+    </div>
+    <h1>Research Papers Finder</h1>
+    <p class="header-tagline">Search PubMed and Europe PMC for evidence on any paramedic topic. AI-analysed and categorised for you.</p>
+    <div class="header-pills">
+      <span class="header-pill">📚 PubMed</span>
+      <span class="header-pill">🔬 Europe PMC</span>
+      <span class="header-pill">🤖 AI Analysis</span>
+      <span class="header-pill">✅ Supporting &amp; Refuting</span>
+    </div>
+  </div>
+
+  <!-- ==================== UPGRADE WALL (shown if not Pro) ==================== -->
+  <div id="upgradeWall">
+    <div class="upgrade-wall-card">
+      <i class="bi bi-star-fill"></i>
+      <h2>Pro Feature</h2>
+      <p>Research Papers Finder is available to Paramind Pro subscribers. Upgrade to search real-time evidence from PubMed and Europe PMC.</p>
+      <a href="upgrade.html" class="upgrade-wall-btn">
+        <i class="bi bi-star-fill"></i> Upgrade to Pro
+      </a>
+    </div>
+  </div>
+
+  <!-- ==================== SEARCH FORM ==================== -->
+  <div class="search-section" id="searchSection" style="display:none;">
+    <div class="search-card">
+
+      <div class="search-input-row">
+        <input
+          type="text"
+          class="search-input"
+          id="searchInput"
+          placeholder="e.g. supraglottic airways in cardiac arrest"
+          maxlength="200"
+          autocomplete="off"
+        >
+        <button class="search-btn" id="searchBtn" onclick="handleSearch()">
+          <i class="bi bi-search"></i> Search
+        </button>
+      </div>
+
+      <div class="filters-row">
+        <span class="filter-label">Filters:</span>
+
+        <div class="filter-toggle active" id="filterPeerReviewed" onclick="toggleFilter('peerReviewed')">
+          <i class="bi bi-check-circle-fill"></i> Peer reviewed
+        </div>
+
+        <div class="filter-toggle active" id="filterEnglish" onclick="toggleFilter('english')">
+          <i class="bi bi-check-circle-fill"></i> English only
+        </div>
+
+        <select class="filter-select" id="filterYears">
+          <option value="all">All years</option>
+          <option value="1">Last 1 year</option>
+          <option value="5" selected>Last 5 years</option>
+          <option value="10">Last 10 years</option>
+        </select>
+      </div>
+
+      <div class="emphasis-row">
+        <span class="emphasis-label">Show:</span>
+        <button class="emphasis-btn active-balanced" id="emphasisBalanced" onclick="setEmphasis('balanced')">
+          ⚖️ Balanced
+        </button>
+        <button class="emphasis-btn" id="emphasisSupport" onclick="setEmphasis('support')">
+          ✅ Emphasise supporting
+        </button>
+        <button class="emphasis-btn" id="emphasisRefute" onclick="setEmphasis('refute')">
+          ❌ Emphasise refuting
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== DISCLAIMER ==================== -->
+  <div class="disclaimer-bar" id="disclaimerBar" style="display:none;">
+    <p class="disclaimer-text">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      Research results are for <strong>educational and CPD purposes only</strong>. Always refer to your trust protocols and JRCalc for clinical decisions.
+    </p>
+  </div>
+
+  <!-- ==================== LOADING ==================== -->
+  <div class="loading-section" id="loadingSection">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Searching PubMed and Europe PMC…</p>
+    <p class="loading-subtext">Fetching papers and running AI analysis. This may take 15–30 seconds.</p>
+  </div>
+
+  <!-- ==================== RESULTS ==================== -->
+  <div class="results-section" id="resultsSection">
+
+    <div class="results-header">
+      <p class="results-meta" id="resultsMeta"></p>
+      <button class="new-search-btn" onclick="resetToSearch()">
+        <i class="bi bi-arrow-left"></i> New search
+      </button>
+    </div>
+
+    <!-- AI Summary -->
+    <div class="summary-card">
+      <div class="summary-card-header">
+        <div class="summary-icon"><i class="bi bi-robot"></i></div>
+        <h3>AI Evidence Summary</h3>
+      </div>
+      <p class="summary-text" id="aiSummary"></p>
+    </div>
+
+    <!-- Emphasis controls (repeated for results) -->
+    <div class="emphasis-controls">
+      <button class="emphasis-control-btn active-balanced" id="resultEmphasisBalanced" onclick="applyEmphasis('balanced')">
+        ⚖️ Balanced
+      </button>
+      <button class="emphasis-control-btn" id="resultEmphasisSupport" onclick="applyEmphasis('support')">
+        ✅ Supporting first
+      </button>
+      <button class="emphasis-control-btn" id="resultEmphasisRefute" onclick="applyEmphasis('refute')">
+        ❌ Refuting first
+      </button>
+    </div>
+
+    <!-- Supporting evidence -->
+    <div class="evidence-section" id="supportingSection">
+      <div class="evidence-section-header">
+        <div class="evidence-icon support"><i class="bi bi-check-lg"></i></div>
+        <span class="evidence-section-title support">Supporting Evidence</span>
+        <span class="evidence-count support" id="supportCount">0</span>
+      </div>
+      <div id="supportingPapers"></div>
+    </div>
+
+    <!-- Refuting evidence -->
+    <div class="evidence-section" id="refutingSection">
+      <div class="evidence-section-header">
+        <div class="evidence-icon refute"><i class="bi bi-x-lg"></i></div>
+        <span class="evidence-section-title refute">Refuting / Challenging Evidence</span>
+        <span class="evidence-count refute" id="refuteCount">0</span>
+      </div>
+      <div id="refutingPapers"></div>
+    </div>
+
+    <!-- Neutral / inconclusive -->
+    <div class="evidence-section" id="neutralSection">
+      <div class="evidence-section-header">
+        <div class="evidence-icon neutral"><i class="bi bi-dash-lg"></i></div>
+        <span class="evidence-section-title neutral">Neutral / Inconclusive</span>
+        <span class="evidence-count neutral" id="neutralCount">0</span>
+        <button class="neutral-toggle" id="neutralToggleBtn" onclick="toggleNeutral()">
+          Show <i class="bi bi-chevron-down" id="neutralChevron"></i>
+        </button>
+      </div>
+      <div id="neutralPapers" class="neutral-papers"></div>
+    </div>
+
+  </div>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="member-footer">
+    <div class="container">
+      <div class="footer-brand">
+        <span class="brand-text">
+          <span class="brand-para">para</span><span class="brand-mind">mind</span>
+        </span>
+      </div>
+      <div class="footer-links">
+        <a href="terms.html">Terms of Service</a>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="purpose.html">Intended Purpose</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <p class="footer-copyright">&copy; 2026 Paramind. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- ==================== FIREBASE SDKs ==================== -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    // ==================== FIREBASE CONFIG ====================
+    const firebaseConfig = {
+      apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
+      authDomain: "paramind-64b8e.firebaseapp.com",
+      projectId: "paramind-64b8e",
+      storageBucket: "paramind-64b8e.firebasestorage.app",
+      messagingSenderId: "452173393964",
+      appId: "1:452173393964:web:8599c0fe1983a6f441e189"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+
+    // ==================== CONSTANTS ====================
+    // NOTE: Verify this matches the base URL used in your other pages
+    const FUNCTIONS_BASE = 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
+
+    // ==================== STATE ====================
+    let currentUser = null;
+    let currentResults = null;
+    let currentEmphasis = 'balanced';
+    let filterState = {
+      peerReviewed: true,
+      english: true
+    };
+    let neutralVisible = false;
+
+    // ==================== AUTH CHECK ====================
+    firebase.auth().onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      try {
+        const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
+
+        if (!userDoc.exists) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        const userData = userDoc.data();
+        const isPro = userData.subscriptionStatus === 'active' || userData.isPro === true;
+
+        if (!isPro) {
+          document.getElementById('upgradeWall').classList.add('active');
+          return;
+        }
+
+        // User is Pro — show the search form
+        currentUser = user;
+        document.getElementById('searchSection').style.display = 'block';
+        document.getElementById('disclaimerBar').style.display = 'block';
+
+        // Allow Enter key to trigger search
+        document.getElementById('searchInput').addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') handleSearch();
+        });
+
+      } catch (err) {
+        console.error('Auth check error:', err);
+        window.location.href = 'login.html';
+      }
+    });
+
+    // ==================== FILTER TOGGLES ====================
+    function toggleFilter(name) {
+      filterState[name] = !filterState[name];
+      const el = document.getElementById(name === 'peerReviewed' ? 'filterPeerReviewed' : 'filterEnglish');
+      if (filterState[name]) {
+        el.classList.add('active');
+        el.innerHTML = `<i class="bi bi-check-circle-fill"></i> ${name === 'peerReviewed' ? 'Peer reviewed' : 'English only'}`;
+      } else {
+        el.classList.remove('active');
+        el.innerHTML = `<i class="bi bi-circle"></i> ${name === 'peerReviewed' ? 'Peer reviewed' : 'English only'}`;
+      }
+    }
+
+    // ==================== EMPHASIS TOGGLE (search form) ====================
+    function setEmphasis(mode) {
+      currentEmphasis = mode;
+      document.getElementById('emphasisBalanced').className = 'emphasis-btn' + (mode === 'balanced' ? ' active-balanced' : '');
+      document.getElementById('emphasisSupport').className = 'emphasis-btn' + (mode === 'support' ? ' active-support' : '');
+      document.getElementById('emphasisRefute').className = 'emphasis-btn' + (mode === 'refute' ? ' active-refute' : '');
+    }
+
+    // ==================== EMPHASIS (results) ====================
+    function applyEmphasis(mode) {
+      currentEmphasis = mode;
+
+      // Update button states
+      document.getElementById('resultEmphasisBalanced').className = 'emphasis-control-btn' + (mode === 'balanced' ? ' active-balanced' : '');
+      document.getElementById('resultEmphasisSupport').className = 'emphasis-control-btn' + (mode === 'support' ? ' active-support' : '');
+      document.getElementById('resultEmphasisRefute').className = 'emphasis-control-btn' + (mode === 'refute' ? ' active-refute' : '');
+
+      const supportSection = document.getElementById('supportingSection');
+      const refuteSection = document.getElementById('refutingSection');
+      const resultsSection = document.getElementById('resultsSection');
+
+      // Remove emphasis classes
+      supportSection.classList.remove('emphasised');
+      refuteSection.classList.remove('emphasised');
+
+      if (mode === 'support') {
+        // Move supporting section before refuting, add emphasis
+        resultsSection.insertBefore(supportSection, refuteSection);
+        supportSection.classList.add('emphasised');
+      } else if (mode === 'refute') {
+        // Move refuting section before supporting, add emphasis
+        resultsSection.insertBefore(refuteSection, supportSection);
+        refuteSection.classList.add('emphasised');
+      } else {
+        // Balanced: supporting first (default order)
+        resultsSection.insertBefore(supportSection, refuteSection);
+      }
+    }
+
+    // ==================== NEUTRAL TOGGLE ====================
+    function toggleNeutral() {
+      neutralVisible = !neutralVisible;
+      const papers = document.getElementById('neutralPapers');
+      const btn = document.getElementById('neutralToggleBtn');
+      const chevron = document.getElementById('neutralChevron');
+
+      if (neutralVisible) {
+        papers.classList.add('show');
+        btn.innerHTML = 'Hide <i class="bi bi-chevron-up" id="neutralChevron"></i>';
+      } else {
+        papers.classList.remove('show');
+        btn.innerHTML = 'Show <i class="bi bi-chevron-down" id="neutralChevron"></i>';
+      }
+    }
+
+    // ==================== HANDLE SEARCH ====================
+    async function handleSearch() {
+      const query = document.getElementById('searchInput').value.trim();
+      if (!query || query.length < 3) {
+        document.getElementById('searchInput').focus();
+        return;
+      }
+
+      if (!currentUser) return;
+
+      // Show loading, hide other sections
+      document.getElementById('searchSection').style.display = 'none';
+      document.getElementById('disclaimerBar').style.display = 'none';
+      document.getElementById('resultsSection').classList.remove('active');
+      document.getElementById('loadingSection').classList.add('active');
+
+      try {
+        const token = await currentUser.getIdToken();
+
+        const response = await fetch(`${FUNCTIONS_BASE}/researchPapers`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            query: query,
+            peerReviewed: filterState.peerReviewed,
+            englishOnly: filterState.english,
+            yearRange: document.getElementById('filterYears').value,
+            emphasis: currentEmphasis
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Search failed');
+        }
+
+        currentResults = data;
+        displayResults(data, query);
+
+      } catch (err) {
+        console.error('Search error:', err);
+        document.getElementById('loadingSection').classList.remove('active');
+        document.getElementById('resultsSection').classList.add('active');
+        document.getElementById('aiSummary').textContent = '';
+        document.getElementById('supportingPapers').innerHTML = `
+          <div class="error-card">
+            <i class="bi bi-exclamation-circle"></i>
+            <p><strong>Search failed.</strong> ${err.message || 'Please try again in a moment.'}</p>
+          </div>`;
+        document.getElementById('refutingPapers').innerHTML = '';
+        document.getElementById('neutralPapers').innerHTML = '';
+        document.getElementById('supportCount').textContent = '0';
+        document.getElementById('refuteCount').textContent = '0';
+        document.getElementById('neutralCount').textContent = '0';
+      }
+    }
+
+    // ==================== DISPLAY RESULTS ====================
+    function displayResults(data, query) {
+      document.getElementById('loadingSection').classList.remove('active');
+
+      // If no results at all
+      if (!data.supporting && !data.refuting) {
+        document.getElementById('resultsSection').classList.add('active');
+        document.getElementById('disclaimerBar').style.display = 'block';
+        document.getElementById('aiSummary').textContent = data.summary || 'No papers were found for this query.';
+        document.getElementById('supportingPapers').innerHTML = '<div class="empty-section">No supporting papers found.</div>';
+        document.getElementById('refutingPapers').innerHTML = '<div class="empty-section">No refuting papers found.</div>';
+        document.getElementById('supportCount').textContent = '0';
+        document.getElementById('refuteCount').textContent = '0';
+        document.getElementById('neutralCount').textContent = '0';
+        document.getElementById('resultsMeta').innerHTML = `Results for: <strong>"${escapeHtml(query)}"</strong>`;
+        document.getElementById('resultsSection').classList.add('active');
+        return;
+      }
+
+      const supporting = data.supporting || [];
+      const refuting = data.refuting || [];
+      const neutral = data.neutral || [];
+      const total = supporting.length + refuting.length + neutral.length;
+
+      // Update counts
+      document.getElementById('supportCount').textContent = supporting.length;
+      document.getElementById('refuteCount').textContent = refuting.length;
+      document.getElementById('neutralCount').textContent = neutral.length;
+      document.getElementById('resultsMeta').innerHTML = `<strong>${total}</strong> papers found for: <strong>"${escapeHtml(query)}"</strong>`;
+
+      // Render summary
+      document.getElementById('aiSummary').textContent = data.summary || 'Analysis complete.';
+
+      // Render paper sections
+      document.getElementById('supportingPapers').innerHTML = supporting.length > 0
+        ? supporting.map(p => renderPaperCard(p, 'support')).join('')
+        : '<div class="empty-section">No papers specifically supporting this topic were identified in the results.</div>';
+
+      document.getElementById('refutingPapers').innerHTML = refuting.length > 0
+        ? refuting.map(p => renderPaperCard(p, 'refute')).join('')
+        : '<div class="empty-section">No papers specifically challenging this topic were identified in the results.</div>';
+
+      document.getElementById('neutralPapers').innerHTML = neutral.length > 0
+        ? neutral.map(p => renderPaperCard(p, 'neutral')).join('')
+        : '<div class="empty-section">No neutral papers found.</div>';
+
+      // Show/hide neutral section toggle
+      const neutralSection = document.getElementById('neutralSection');
+      neutralSection.style.display = neutral.length > 0 ? 'block' : 'none';
+
+      // Apply emphasis mode
+      applyEmphasis(currentEmphasis);
+
+      // Show results
+      document.getElementById('resultsSection').classList.add('active');
+      document.getElementById('disclaimerBar').style.display = 'block';
+    }
+
+    // ==================== RENDER PAPER CARD ====================
+    function renderPaperCard(paper, stance) {
+      const sourceBadgeClass = paper.source === 'PubMed' ? 'pubmed' : 'epmc';
+      const stanceLabel = stance === 'support' ? 'Supporting' : stance === 'refute' ? 'Refuting' : 'Neutral';
+      const stanceIcon = stance === 'support' ? 'bi-check-circle-fill' : stance === 'refute' ? 'bi-x-circle-fill' : 'bi-dash-circle-fill';
+
+      return `
+        <div class="paper-card ${stance}">
+          <div class="paper-title">${escapeHtml(paper.title)}</div>
+          <div class="paper-meta">
+            <span class="paper-meta-item"><i class="bi bi-journal"></i> ${escapeHtml(paper.journal)}</span>
+            <span class="paper-meta-item"><i class="bi bi-calendar3"></i> ${escapeHtml(String(paper.year))}</span>
+            ${paper.authors ? `<span class="paper-meta-item"><i class="bi bi-people"></i> ${escapeHtml(paper.authors)}</span>` : ''}
+            <span class="paper-source-badge ${sourceBadgeClass}">${escapeHtml(paper.source)}</span>
+          </div>
+          ${paper.note ? `<div class="paper-note ${stance}">${escapeHtml(paper.note)}</div>` : ''}
+          <div class="paper-footer">
+            <span class="paper-stance-badge ${stance}">
+              <i class="bi ${stanceIcon}"></i> ${stanceLabel}
+            </span>
+            <a href="${escapeHtml(paper.url)}" target="_blank" rel="noopener noreferrer" class="paper-link">
+              <i class="bi bi-box-arrow-up-right"></i> View paper
+            </a>
+          </div>
+        </div>`;
+    }
+
+    // ==================== RESET TO SEARCH ====================
+    function resetToSearch() {
+      document.getElementById('resultsSection').classList.remove('active');
+      document.getElementById('searchSection').style.display = 'block';
+      document.getElementById('disclaimerBar').style.display = 'block';
+      currentResults = null;
+      neutralVisible = false;
+      document.getElementById('neutralPapers').classList.remove('show');
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ==================== HELPERS ====================
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+
+  <!-- Menu script — must be last -->
+  <script src="js/menu-v2.js"></script>
+
+</body>
+</html>

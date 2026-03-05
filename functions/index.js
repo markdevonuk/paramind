@@ -1270,3 +1270,433 @@ exports.appleAuthToken = onRequest(
     }
   }
 );
+
+
+
+// ============================================
+// RESEARCH PAPERS FINDER
+// ============================================
+
+/**
+ * HTTPS helper — wraps Node's built-in https module in a Promise.
+ * Used to call PubMed and Europe PMC APIs.
+ */
+const https = require("https");
+
+function httpsGetText(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, (res) => {
+      let data = "";
+      res.on("data", (chunk) => (data += chunk));
+      res.on("end", () => resolve({ status: res.statusCode, data }));
+    }).on("error", reject);
+  });
+}
+
+/**
+ * Build the PubMed/Europe PMC search query with contextual and filter terms.
+ */
+function buildQuery(query, filters, engine) {
+  // Add paramedic/pre-hospital context so results stay clinically relevant
+  let q = `(${query}) AND (paramedic OR "pre-hospital" OR prehospital OR "emergency medical services" OR EMS OR ambulance OR "critical care paramedic")`;
+
+  if (filters.englishOnly) {
+    q += engine === "pubmed" ? " AND English[la]" : " AND LANG:eng";
+  }
+
+  if (filters.peerReviewed) {
+    q += engine === "pubmed"
+      ? " AND hasabstract[text] AND \"journal article\"[pt]"
+      : " AND HAS_ABSTRACT:Y AND (SRC:MED OR SRC:PMC)";
+  }
+
+  if (filters.yearRange && filters.yearRange !== "all") {
+    const startYear = new Date().getFullYear() - parseInt(filters.yearRange, 10);
+    q += engine === "pubmed"
+      ? ` AND ${startYear}:3000[pdat]`
+      : ` AND FIRST_PDATE:[${startYear}-01-01 TO *]`;
+  }
+
+  return q;
+}
+
+/**
+ * Search PubMed using NCBI E-utilities (free, no key required).
+ * Returns up to 12 papers with titles, abstracts, journals, years, authors.
+ */
+async function searchPubMed(query, filters) {
+  try {
+    const q = buildQuery(query, filters, "pubmed");
+
+    // Step 1: Get list of PMIDs
+    const searchUrl =
+      `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi` +
+      `?db=pubmed&term=${encodeURIComponent(q)}&retmax=12&retmode=json` +
+      `&tool=paramind&email=info@paramind.co.uk`;
+
+    const searchRes = await httpsGetText(searchUrl);
+    const searchData = JSON.parse(searchRes.data);
+    const ids = searchData.esearchresult?.idlist || [];
+
+    if (ids.length === 0) return [];
+
+    // Step 2: Fetch XML (includes titles AND abstracts)
+    const fetchUrl =
+      `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi` +
+      `?db=pubmed&id=${ids.join(",")}&rettype=xml&retmode=xml` +
+      `&tool=paramind&email=info@paramind.co.uk`;
+
+    const fetchRes = await httpsGetText(fetchUrl);
+    return parsePubMedXML(fetchRes.data);
+  } catch (err) {
+    console.error("PubMed search error:", err.message);
+    return [];
+  }
+}
+
+/**
+ * Parse PubMed XML response into normalised paper objects.
+ * Uses simple regex rather than a full XML parser (no extra npm dependencies needed).
+ */
+function parsePubMedXML(xml) {
+  const papers = [];
+  const articleBlocks = xml.split("<PubmedArticle>").slice(1);
+
+  articleBlocks.forEach((block) => {
+    try {
+      const pmid = getFirst(block, "PMID");
+      if (!pmid) return;
+
+      const title = cleanText(getFirst(block, "ArticleTitle") || "Untitled");
+      const abstract = cleanText(getAll(block, "AbstractText").join(" "));
+
+      // Journal: prefer ISO abbreviation, fall back to full title
+      const journal = cleanText(
+        getFirst(block, "ISOAbbreviation") ||
+        getFirst(block, "MedlineTA") ||
+        getFirst(block, "Title") ||
+        "Unknown Journal"
+      );
+
+      // Year: try PubDate/Year first, then MedlineDate first 4 chars
+      const year =
+        getFirst(block, "Year") ||
+        (getFirst(block, "MedlineDate") || "").substring(0, 4) ||
+        "Unknown";
+
+      // Authors: first 3 LastName + Initials
+      const lastNames = getAll(block, "LastName").slice(0, 3);
+      const initials = getAll(block, "Initials").slice(0, 3);
+      const authors = lastNames.map((n, i) => `${n} ${initials[i] || ""}`.trim()).join(", ");
+
+      papers.push({
+        id: `pubmed_${pmid}`,
+        source: "PubMed",
+        title,
+        abstract,
+        authors: authors || "Unknown",
+        journal,
+        year,
+        url: `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`,
+      });
+    } catch (e) {
+      // Skip malformed articles silently
+    }
+  });
+
+  return papers;
+}
+
+function getFirst(text, tag) {
+  const m = text.match(new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`, "i"));
+  return m ? m[1].trim() : null;
+}
+
+function getAll(text, tag) {
+  const regex = new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`, "gi");
+  const results = [];
+  let m;
+  while ((m = regex.exec(text)) !== null) {
+    results.push(m[1].trim());
+  }
+  return results;
+}
+
+function cleanText(str) {
+  if (!str) return "";
+  // Strip any remaining XML tags and decode basic entities
+  return str
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Search Europe PMC (free REST API, returns JSON with full abstracts).
+ * Returns up to 12 papers.
+ */
+async function searchEuropePMC(query, filters) {
+  try {
+    const q = buildQuery(query, filters, "epmc");
+    const searchUrl =
+      `https://www.ebi.ac.uk/europepmc/webservices/rest/search` +
+      `?query=${encodeURIComponent(q)}&format=json&resultType=core&pageSize=12&sort=RELEVANCE`;
+
+    const res = await httpsGetText(searchUrl);
+    const data = JSON.parse(res.data);
+    const results = data.resultList?.result || [];
+
+    return results.map((paper) => ({
+      id: `epmc_${paper.id || paper.pmid || Math.random()}`,
+      source: "Europe PMC",
+      title: cleanText(paper.title || "Untitled"),
+      abstract: cleanText(paper.abstractText || ""),
+      authors: cleanText(paper.authorString || "Unknown"),
+      journal: cleanText(paper.journalTitle || "Unknown Journal"),
+      year: String(paper.pubYear || "Unknown"),
+      url: paper.doi
+        ? `https://doi.org/${paper.doi}`
+        : paper.pmid
+        ? `https://pubmed.ncbi.nlm.nih.gov/${paper.pmid}/`
+        : "#",
+    }));
+  } catch (err) {
+    console.error("Europe PMC search error:", err.message);
+    return [];
+  }
+}
+
+/**
+ * Deduplicate papers from both sources by title similarity.
+ * Keeps the version with the longer abstract.
+ */
+function deduplicatePapers(papers) {
+  const seen = new Map();
+
+  papers.forEach((paper) => {
+    // Normalise title for comparison: lowercase, strip punctuation
+    const normTitle = paper.title.toLowerCase().replace(/[^a-z0-9 ]/g, "").trim();
+    const key = normTitle.substring(0, 60); // first 60 chars as key
+
+    if (!seen.has(key)) {
+      seen.set(key, paper);
+    } else {
+      // Keep whichever has the longer abstract
+      const existing = seen.get(key);
+      if ((paper.abstract || "").length > (existing.abstract || "").length) {
+        seen.set(key, paper);
+      }
+    }
+  });
+
+  return Array.from(seen.values());
+}
+
+/**
+ * Send the papers to OpenAI for analysis.
+ * Returns structured JSON: { summary, supporting, refuting, neutral }
+ */
+async function analyseWithAI(openai, query, papers, emphasis) {
+  // Build a compact representation of each paper for the AI prompt
+  const papersList = papers
+    .map((p, i) => {
+      const abstract = p.abstract
+        ? `Abstract: ${p.abstract.substring(0, 400)}${p.abstract.length > 400 ? "…" : ""}`
+        : "Abstract: Not available";
+      return `[${i + 1}] ID: ${p.id}\nTitle: ${p.title}\nJournal: ${p.journal} (${p.year})\n${abstract}`;
+    })
+    .join("\n\n---\n\n");
+
+  // Emphasis instruction for the AI
+  const emphasisInstruction =
+    emphasis === "support"
+      ? "The user wants to find evidence that SUPPORTS this topic. Be thorough in identifying supporting papers."
+      : emphasis === "refute"
+      ? "The user wants to find evidence that CHALLENGES or REFUTES this topic. Be thorough in identifying challenging papers."
+      : "Provide a balanced analysis of both supporting and refuting evidence.";
+
+  const prompt = `You are a research analyst specialising in UK paramedic and pre-hospital emergency medicine.
+
+A paramedic has searched for evidence on the following topic: "${query}"
+
+${emphasisInstruction}
+
+Below are ${papers.length} research papers retrieved from PubMed and Europe PMC. Analyse them and respond ONLY with a valid JSON object in the exact format specified. Do not include markdown code fences or any text outside the JSON.
+
+PAPERS:
+${papersList}
+
+REQUIRED JSON FORMAT:
+{
+  "summary": "2-4 sentence plain English overview of what the evidence landscape shows for this topic. Mention the overall weight of evidence and any notable gaps or conflicts.",
+  "papers": [
+    {
+      "id": "the paper's ID exactly as given above",
+      "stance": "supporting OR refuting OR neutral",
+      "note": "1-2 sentences explaining WHY this paper supports, refutes, or is neutral regarding the topic. Reference the specific finding."
+    }
+  ]
+}
+
+Rules:
+- Every paper must appear in the papers array with its exact id.
+- stance must be exactly one of: supporting, refuting, neutral
+- If the abstract is missing or too short to determine stance, classify as neutral.
+- Focus on pre-hospital / paramedic relevance in your analysis.`;
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [{ role: "user", content: prompt }],
+    max_tokens: 2000,
+    temperature: 0.3,
+    response_format: { type: "json_object" },
+  });
+
+  // Parse the AI response
+  let aiData;
+  try {
+    aiData = JSON.parse(response.choices[0].message.content);
+  } catch (e) {
+    throw new Error("AI returned invalid JSON. Please try again.");
+  }
+
+  // Build lookup map: paper ID → paper object
+  const paperMap = {};
+  papers.forEach((p) => (paperMap[p.id] = p));
+
+  // Merge AI analysis with paper data
+  const supporting = [];
+  const refuting = [];
+  const neutral = [];
+
+  (aiData.papers || []).forEach((aiPaper) => {
+    const paper = paperMap[aiPaper.id];
+    if (!paper) return;
+
+    const enriched = {
+      ...paper,
+      note: aiPaper.note || "",
+      stance: aiPaper.stance || "neutral",
+    };
+
+    if (aiPaper.stance === "supporting") supporting.push(enriched);
+    else if (aiPaper.stance === "refuting") refuting.push(enriched);
+    else neutral.push(enriched);
+  });
+
+  return {
+    summary: aiData.summary || "Analysis complete.",
+    supporting,
+    refuting,
+    neutral,
+    totalFound: papers.length,
+  };
+}
+
+/**
+ * POST /researchPapers
+ * Searches PubMed and Europe PMC for evidence on a paramedic topic,
+ * then uses AI to categorise papers as supporting or refuting.
+ * Pro users only.
+ */
+exports.researchPapers = onRequest(
+  {
+    cors: true,
+    secrets: ["OPENAI_API_KEY"],
+    timeoutSeconds: 120, // Longer timeout — multiple external API calls + AI analysis
+  },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
+
+      // Verify authentication
+      const uid = await verifyAuth(req);
+      const user = await getUser(uid);
+
+      // Pro users only
+      if (user.subscriptionStatus !== "active") {
+        return res.status(403).json({
+          error: "Pro subscription required",
+          message: "Research Papers Finder is a Pro feature. Upgrade to access real-time evidence search.",
+          upgrade: true,
+        });
+      }
+
+      const {
+        query,
+        peerReviewed = true,
+        englishOnly = true,
+        yearRange = "all",
+        emphasis = "balanced",
+      } = req.body;
+
+      // Validate query
+      if (!query || typeof query !== "string" || query.trim().length < 3) {
+        return res.status(400).json({ error: "Search query must be at least 3 characters." });
+      }
+
+      if (query.trim().length > 200) {
+        return res.status(400).json({ error: "Search query must be under 200 characters." });
+      }
+
+      const filters = { peerReviewed, englishOnly, yearRange };
+
+      console.log(`Research search by ${uid}: "${query.trim()}" (yearRange=${yearRange}, peerReviewed=${peerReviewed})`);
+
+      // Search both databases in parallel
+      const [pubmedResults, epmcResults] = await Promise.allSettled([
+        searchPubMed(query.trim(), filters),
+        searchEuropePMC(query.trim(), filters),
+      ]);
+
+      let allPapers = [];
+      if (pubmedResults.status === "fulfilled") allPapers = [...allPapers, ...pubmedResults.value];
+      if (epmcResults.status === "fulfilled") allPapers = [...allPapers, ...epmcResults.value];
+
+      // Deduplicate and limit to 20 papers
+      allPapers = deduplicatePapers(allPapers).slice(0, 20);
+
+      console.log(`Found ${allPapers.length} unique papers after deduplication.`);
+
+      // If no papers found, return early with a helpful message
+      if (allPapers.length === 0) {
+        return res.status(200).json({
+          summary:
+            "No research papers were found for this search. Try broader search terms, removing filters, or using different keywords. For example, try 'cardiac arrest airway management' instead of a very specific phrasing.",
+          supporting: [],
+          refuting: [],
+          neutral: [],
+          totalFound: 0,
+        });
+      }
+
+      // Run AI analysis
+      const analysis = await analyseWithAI(openai, query.trim(), allPapers, emphasis);
+
+      return res.status(200).json(analysis);
+
+    } catch (error) {
+      console.error("Research papers error:", error);
+
+      if (error.message.includes("Unauthorized")) {
+        return res.status(401).json({ error: error.message });
+      }
+
+      return res.status(500).json({
+        error: "Failed to fetch research papers. Please try again.",
+        details: error.message,
+      });
+    }
+  }
+);
