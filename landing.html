@@ -309,6 +309,7 @@
         .card-ecg .card-glow           { background: rgba(245,158,11,0.12); }
         .card-cpd .card-glow           { background: rgba(139,92,246,0.1); }
         .card-bonelab .card-glow       { background: rgba(20,184,166,0.1); }
+        .card-bloodlab .card-glow      { background: rgba(220,53,69,0.1); }
         
         /* Top gradient accent line */
         .tool-card .card-line {
@@ -335,6 +336,7 @@
         .card-ecg           { --card-gradient: linear-gradient(135deg, #f59e0b, #fbbf24); }
         .card-cpd           { --card-gradient: linear-gradient(135deg, #8b5cf6, #a78bfa); }
         .card-bonelab       { --card-gradient: linear-gradient(135deg, #14b8a6, #2dd4bf); }
+        .card-bloodlab      { --card-gradient: linear-gradient(135deg, #DC3545, #ef4444); }
         
         .tool-card-header {
             display: flex; align-items: flex-start; gap: 1rem;
@@ -357,6 +359,7 @@
         .card-ecg .tool-card-icon           { background: rgba(245,158,11,0.15); color: #d97706; }
         .card-cpd .tool-card-icon           { background: rgba(139,92,246,0.12); color: #8b5cf6; }
         .card-bonelab .tool-card-icon       { background: rgba(20,184,166,0.12); color: #14b8a6; }
+        .card-bloodlab .tool-card-icon      { background: rgba(220,53,69,0.12); color: #DC3545; }
         
         .tool-card-title { font-weight: 700; font-size: 1.05rem; color: var(--color-gray-800); margin-bottom: 0.1rem; display: flex; align-items: center; gap: 0.5rem; }
         .tool-card-subtitle { font-size: 0.72rem; color: var(--color-gray-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -801,33 +804,18 @@
                     <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
                 </a>
                 
-                <!-- Drugs -->
-                <a href="drugs.html" class="tool-card card-drugs reveal-element" id="drugsCard">
+                <!-- ECG Tool -->
+                <a href="ecg.html" class="tool-card card-ecg reveal-element" id="ecgCard">
                     <div class="card-glow"></div>
                     <div class="card-line"></div>
                     <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-capsule"></i></div>
+                        <div class="tool-card-icon"><i class="bi bi-activity"></i></div>
                         <div class="tool-card-info">
-                            <div class="tool-card-title">Drugs <span class="card-pro-badge" id="drugsProBadge">Pro</span></div>
-                            <div class="tool-card-subtitle">Pharmacology Guide</div>
+                            <div class="tool-card-title">ECG Tool <span class="card-pro-badge" id="ecgProBadge">Pro</span></div>
+                            <div class="tool-card-subtitle">Rhythm Mastery</div>
                         </div>
                     </div>
-                    <p class="tool-card-desc">Deep dive into paramedic drugs, mechanisms, doses, and clinical considerations.</p>
-                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
-                </a>
-                
-                <!-- Bone Lab -->
-                <a href="bone-lab.html" class="tool-card card-bonelab reveal-element" id="bonelabCard">
-                    <div class="card-glow"></div>
-                    <div class="card-line"></div>
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-body-text"></i></div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">Bone Lab <span class="card-pro-badge" id="bonelabProBadge">Pro</span></div>
-                            <div class="tool-card-subtitle">Skeletal Anatomy</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Interactive skeleton with 63 landmarks, quiz mode, and 15 clinical fracture scenarios.</p>
+                    <p class="tool-card-desc">Interactive ECG training with 14 key cardiac rhythms. Learn, then test yourself!</p>
                     <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
                 </a>
                 
@@ -846,33 +834,48 @@
                     <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
                 </a>
                 
-                <!-- ECG Tool -->
-                <a href="ecg.html" class="tool-card card-ecg reveal-element" id="ecgCard">
+                <!-- Understanding Bones -->
+                <a href="bone-lab.html" class="tool-card card-bonelab reveal-element" id="bonelabCard">
                     <div class="card-glow"></div>
                     <div class="card-line"></div>
                     <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-activity"></i></div>
+                        <div class="tool-card-icon"><i class="bi bi-body-text"></i></div>
                         <div class="tool-card-info">
-                            <div class="tool-card-title">ECG Tool <span class="card-pro-badge" id="ecgProBadge">Pro</span></div>
-                            <div class="tool-card-subtitle">Rhythm Mastery</div>
+                            <div class="tool-card-title">Understanding Bones <span class="card-pro-badge" id="bonelabProBadge">Pro</span></div>
+                            <div class="tool-card-subtitle">Skeletal Anatomy</div>
                         </div>
                     </div>
-                    <p class="tool-card-desc">Interactive ECG training with 14 key cardiac rhythms. Learn, then test yourself!</p>
+                    <p class="tool-card-desc">Interactive skeleton with 63 landmarks, quiz mode, and 15 clinical fracture scenarios.</p>
                     <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
                 </a>
                 
-                <!-- CPD Portfolio -->
-                <a href="cpd.html" class="tool-card card-cpd reveal-element" id="cpdCard">
+                <!-- Understanding Bloods -->
+                <a href="blood-lab.html" class="tool-card card-bloodlab reveal-element" id="bloodlabCard">
                     <div class="card-glow"></div>
                     <div class="card-line"></div>
                     <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-award"></i></div>
+                        <div class="tool-card-icon"><i class="bi bi-droplet-half"></i></div>
                         <div class="tool-card-info">
-                            <div class="tool-card-title">CPD Portfolio <span class="card-pro-badge" id="cpdProBadge">Pro</span></div>
-                            <div class="tool-card-subtitle">Track & Certify</div>
+                            <div class="tool-card-title">Understanding Bloods <span class="card-pro-badge" id="bloodlabProBadge">Pro</span></div>
+                            <div class="tool-card-subtitle">Blood Test Interpreter</div>
                         </div>
                     </div>
-                    <p class="tool-card-desc">Track your learning and download CPD certificates for completed scenarios.</p>
+                    <p class="tool-card-desc">Explore 35 blood markers with interactive sliders, clinical explanations, and scenario-based questions.</p>
+                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
+                </a>
+                
+                <!-- Understanding Drugs -->
+                <a href="drugs.html" class="tool-card card-drugs reveal-element" id="drugsCard">
+                    <div class="card-glow"></div>
+                    <div class="card-line"></div>
+                    <div class="tool-card-header">
+                        <div class="tool-card-icon"><i class="bi bi-capsule"></i></div>
+                        <div class="tool-card-info">
+                            <div class="tool-card-title">Understanding Drugs <span class="card-pro-badge" id="drugsProBadge">Pro</span></div>
+                            <div class="tool-card-subtitle">Pharmacology Guide</div>
+                        </div>
+                    </div>
+                    <p class="tool-card-desc">Deep dive into paramedic drugs, mechanisms, doses, and clinical considerations.</p>
                     <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
                 </a>
                 
@@ -888,6 +891,21 @@
                         </div>
                     </div>
                     <p class="tool-card-desc">Practise NHS, university &amp; promotion interviews with AI feedback and model answers.</p>
+                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
+                </a>
+                
+                <!-- CPD Portfolio -->
+                <a href="cpd.html" class="tool-card card-cpd reveal-element" id="cpdCard">
+                    <div class="card-glow"></div>
+                    <div class="card-line"></div>
+                    <div class="tool-card-header">
+                        <div class="tool-card-icon"><i class="bi bi-award"></i></div>
+                        <div class="tool-card-info">
+                            <div class="tool-card-title">CPD Portfolio <span class="card-pro-badge" id="cpdProBadge">Pro</span></div>
+                            <div class="tool-card-subtitle">Track & Certify</div>
+                        </div>
+                    </div>
+                    <p class="tool-card-desc">Track your learning and download CPD certificates for completed scenarios.</p>
                     <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
                 </a>
             </div>
@@ -1059,6 +1077,7 @@
         const ecgProBadge = document.getElementById('ecgProBadge');
         const cpdProBadge = document.getElementById('cpdProBadge');
         const bonelabProBadge = document.getElementById('bonelabProBadge');
+        const bloodlabProBadge = document.getElementById('bloodlabProBadge');
         const interviewProBadge = document.getElementById('interviewProBadge');
 
         // ==================== AUTH STATE ====================
@@ -1135,6 +1154,7 @@
                 if (ecgProBadge) ecgProBadge.style.display = 'none';
                 if (cpdProBadge) cpdProBadge.style.display = 'none';
                 if (bonelabProBadge) bonelabProBadge.style.display = 'none';
+                if (bloodlabProBadge) bloodlabProBadge.style.display = 'none';
                 if (interviewProBadge) interviewProBadge.style.display = 'none';
                 
                 document.querySelectorAll('.tool-card').forEach(card => {
@@ -1151,6 +1171,7 @@
                 document.getElementById('ecgCard')?.classList.add('locked');
                 document.getElementById('cpdCard')?.classList.add('locked');
                 document.getElementById('bonelabCard')?.classList.add('locked');
+                document.getElementById('bloodlabCard')?.classList.add('locked');
                  document.getElementById('interviewCard')?.classList.add('locked');
                 
                 updateMessageCount();
@@ -1276,7 +1297,7 @@ function updateMessageCount() {
     const closeBtn = document.getElementById('proVideoClose');
     
     // Cards that are PRO-only
-    const proCardIds = ['connectionsCard', 'drugsCard', 'atmistCard', 'ecgCard', 'cpdCard', 'bonelabCard', 'interviewCard'];
+    const proCardIds = ['connectionsCard', 'drugsCard', 'atmistCard', 'ecgCard', 'cpdCard', 'bonelabCard', 'bloodlabCard', 'interviewCard'];
     
     function openVideoModal(e) {
         e.preventDefault();

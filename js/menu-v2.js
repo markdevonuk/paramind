@@ -31,13 +31,13 @@
         ],
        // Pro features
         proNav: [
-            { id: 'interview', href: 'interview.html', icon: 'bi-mic', label: 'Interview Prep', isPro: true },
             { id: 'connections', href: 'connections.html', icon: 'bi-heart-pulse', label: 'A&P Connections', isPro: true },
-            { id: 'drugs', href: 'drugs.html', icon: 'bi-capsule', label: 'Drugs', isPro: true },
-            { id: 'bonelab', href: 'bone-lab.html', icon: 'bi-body-text', label: 'Bone Lab', isPro: true },
-            { id: 'atmist', href: 'atmist.html', icon: 'bi-telephone-outbound', label: 'ATMIST', isPro: true },
             { id: 'ecg', href: 'ecg.html', icon: 'bi-activity', label: 'ECG Tool', isPro: true },
-            { id: 'bloodlab', href: 'blood-lab.html', icon: 'bi-droplet-half', label: 'Blood Lab', isPro: true },
+            { id: 'atmist', href: 'atmist.html', icon: 'bi-telephone-outbound', label: 'ATMIST', isPro: true },
+            { id: 'bonelab', href: 'bone-lab.html', icon: 'bi-body-text', label: 'Understanding Bones', isPro: true },
+            { id: 'bloodlab', href: 'blood-lab.html', icon: 'bi-droplet-half', label: 'Understanding Bloods', isPro: true },
+            { id: 'drugs', href: 'drugs.html', icon: 'bi-capsule', label: 'Understanding Drugs', isPro: true },
+            { id: 'interview', href: 'interview.html', icon: 'bi-mic', label: 'Interview Prep', isPro: true },
             { id: 'cpd', href: 'cpd.html', icon: 'bi-award', label: 'CPD Portfolio', isPro: true }
         ],
         // Bottom items (Contact, Sign Out)
