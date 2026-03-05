@@ -1482,14 +1482,20 @@ function buildPubMedQuery(queryExpansion, filters) {
 
 /**
  * Build a Europe PMC query from expanded terms.
- * NO mandatory context filter — same reasoning as PubMed.
- * Europe PMC uses Lucene-style syntax.
+ * Uses simple term OR syntax — Europe PMC default search already covers
+ * title and abstract, so explicit TITLE/ABSTRACT field tags are unnecessary
+ * and make the query so long it triggers a 400 error.
+ * We limit to 6 terms max to keep the URL short.
  */
 function buildEuropePMCQuery(queryExpansion, filters) {
-  // For Europe PMC we search TITLE and ABSTRACT fields explicitly
-  const termGroup = queryExpansion.allTerms
-    .map((t) => `(TITLE:"${t}" OR ABSTRACT:"${t}")`)
-    .join(" OR ");
+  // Use core terms first, then fill up to 6 total from expanded terms
+  const terms = [
+    ...queryExpansion.coreTerms,
+    ...queryExpansion.expandedTerms,
+  ].slice(0, 6);
+
+  // Simple quoted phrase OR — Europe PMC default field searches title + abstract
+  const termGroup = terms.map((t) => `"${t}"`).join(" OR ");
 
   let q = `(${termGroup})`;
 
