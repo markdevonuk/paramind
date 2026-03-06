@@ -215,8 +215,46 @@
 
             <!-- Step 1: API Key -->
             <div class="gen-card">
+            <!-- Step 1: Intro MP3 -->
+            <div class="gen-card">
                 <div class="d-flex align-items-center gap-2 mb-3">
                     <div class="step-pill">1</div>
+                    <div>
+                        <div class="fw-semibold text-dark">Intro Music</div>
+                        <div class="text-muted" style="font-size:0.8rem">Upload once — saved in your browser and prepended to every episode automatically</div>
+                    </div>
+                </div>
+
+                <!-- Saved state -->
+                <div id="introSavedState" style="display:none;">
+                    <div class="d-flex align-items-center justify-content-between p-3 rounded" style="background:#f0fdf4;border:1px solid #bbf7d0;">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            <div>
+                                <div class="fw-semibold small text-success">Intro saved</div>
+                                <div class="text-muted" style="font-size:0.75rem" id="introFileName"></div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <audio id="introPreview" controls style="height:32px;width:180px;"></audio>
+                            <button class="btn btn-outline-danger btn-sm" onclick="clearIntro()">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload state -->
+                <div id="introUploadState">
+                    <input type="file" id="introFileInput" accept="audio/mp3,audio/mpeg,audio/*" class="form-control" onchange="saveIntro(this)">
+                    <div class="text-muted mt-2" style="font-size:0.78rem">Accepts MP3. Stored locally in your browser — not uploaded anywhere.</div>
+                </div>
+            </div>
+
+            <!-- Step 2: API Key -->
+            <div class="gen-card">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div class="step-pill">2</div>
                     <div>
                         <div class="fw-semibold text-dark">ElevenLabs API Key</div>
                         <div class="text-muted" style="font-size:0.8rem">Saved in your browser only — never sent anywhere except ElevenLabs</div>
@@ -229,10 +267,10 @@
                 </a>
             </div>
 
-            <!-- Step 2: Voice IDs -->
+            <!-- Step 3: Voice IDs -->
             <div class="gen-card">
                 <div class="d-flex align-items-center gap-2 mb-3">
-                    <div class="step-pill">2</div>
+                    <div class="step-pill">3</div>
                     <div>
                         <div class="fw-semibold text-dark">Voice IDs</div>
                         <div class="text-muted" style="font-size:0.8rem">ElevenLabs → Voices → click a voice → copy the Voice ID from the panel</div>
@@ -250,10 +288,10 @@
                 </div>
             </div>
 
-            <!-- Step 3: Script -->
+            <!-- Step 4: Script -->
             <div class="gen-card">
                 <div class="d-flex align-items-center gap-2 mb-3">
-                    <div class="step-pill">3</div>
+                    <div class="step-pill">4</div>
                     <div>
                         <div class="fw-semibold text-dark">Script</div>
                         <div class="text-muted" style="font-size:0.8rem">One line per speaker. Long scripts are split and rejoined automatically.</div>
@@ -354,13 +392,52 @@
             }
         });
 
+        // ── Intro MP3 ─────────────────────────────────────────────
+        window.saveIntro = function(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                localStorage.setItem('pm_intro_b64', e.target.result);
+                localStorage.setItem('pm_intro_name', file.name);
+                showIntroSaved(file.name, e.target.result);
+            };
+            reader.readAsDataURL(file);
+        };
+
+        function showIntroSaved(name, dataUrl) {
+            document.getElementById('introUploadState').style.display = 'none';
+            document.getElementById('introSavedState').style.display = 'block';
+            document.getElementById('introFileName').textContent = name;
+            document.getElementById('introPreview').src = dataUrl;
+        }
+
+        window.clearIntro = function() {
+            localStorage.removeItem('pm_intro_b64');
+            localStorage.removeItem('pm_intro_name');
+            document.getElementById('introSavedState').style.display = 'none';
+            document.getElementById('introUploadState').style.display = 'block';
+            document.getElementById('introFileInput').value = '';
+        };
+
+        function base64ToArrayBuffer(dataUrl) {
+            const base64 = dataUrl.split(',')[1];
+            const binary = atob(base64);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            return bytes.buffer;
+        }
+
         function loadSaved() {
             const k = localStorage.getItem('pm_el_api_key');
             const m = localStorage.getItem('pm_matt_voice');
             const e = localStorage.getItem('pm_ellie_voice');
+            const introB64 = localStorage.getItem('pm_intro_b64');
+            const introName = localStorage.getItem('pm_intro_name');
             if (k) document.getElementById('apiKey').value = k;
             if (m) document.getElementById('mattVoiceId').value = m;
             if (e) document.getElementById('ellieVoiceId').value = e;
+            if (introB64 && introName) showIntroSaved(introName, introB64);
             updateLineCount();
         }
 
@@ -519,6 +596,13 @@
                 }
 
                 setProgress(95, chunks.length > 1 ? 'Joining chunks into one MP3…' : 'Finalising audio…');
+
+                // Prepend intro if saved
+                const introB64 = localStorage.getItem('pm_intro_b64');
+                if (introB64) {
+                    buffers.unshift(base64ToArrayBuffer(introB64));
+                }
+
                 const blob = stitchAudio(buffers);
                 const url = URL.createObjectURL(blob);
 
