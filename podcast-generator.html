@@ -316,6 +316,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js"></script>
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
@@ -459,8 +460,7 @@
                     inputs: lines.map(line => ({
                         text: line.text,
                         voice_id: line.speaker === 'matt' ? mattId : ellieId
-                    })),
-                    settings: { speed: 1.2 }
+                    }))
                 })
             });
 
@@ -472,8 +472,9 @@
             return await response.arrayBuffer();
         }
 
-        function stitchAudio(buffers) {
-            if (buffers.length === 1) return new Blob([buffers[0]], { type: 'audio/mpeg' });
+        // Concatenate raw ArrayBuffers into one
+        function stitchBuffers(buffers) {
+            if (buffers.length === 1) return buffers[0];
             const total = buffers.reduce((s, b) => s + b.byteLength, 0);
             const combined = new Uint8Array(total);
             let offset = 0;
@@ -481,7 +482,59 @@
                 combined.set(new Uint8Array(buf), offset);
                 offset += buf.byteLength;
             }
-            return new Blob([combined], { type: 'audio/mpeg' });
+            return combined.buffer;
+        }
+
+        // Speed up using Web Audio OfflineAudioContext, then encode to MP3 via lamejs
+        async function speedAndEncode(arrayBuffer, speed = 1.2) {
+            // Decode the MP3 from ElevenLabs into raw PCM
+            const audioCtx = new AudioContext();
+            const decoded = await audioCtx.decodeAudioData(arrayBuffer.slice(0));
+            await audioCtx.close();
+
+            // Render at the new speed into an OfflineAudioContext
+            const numChannels = Math.min(decoded.numberOfChannels, 2);
+            const sampleRate = decoded.sampleRate;
+            const newLength = Math.ceil(decoded.length / speed);
+            const offline = new OfflineAudioContext(numChannels, newLength, sampleRate);
+            const source = offline.createBufferSource();
+            source.buffer = decoded;
+            source.playbackRate.value = speed;
+            source.connect(offline.destination);
+            source.start(0);
+            const rendered = await offline.startRendering();
+
+            // Extract PCM channel data as Int16
+            function toInt16(floatData) {
+                const int16 = new Int16Array(floatData.length);
+                for (let i = 0; i < floatData.length; i++) {
+                    const s = Math.max(-1, Math.min(1, floatData[i]));
+                    int16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                }
+                return int16;
+            }
+
+            const left = toInt16(rendered.getChannelData(0));
+            const right = numChannels > 1 ? toInt16(rendered.getChannelData(1)) : left;
+
+            // Encode to MP3 using lamejs at 128kbps
+            const mp3encoder = new lamejs.Mp3Encoder(numChannels, sampleRate, 128);
+            const mp3Data = [];
+            const blockSize = 1152; // lamejs requires multiples of 1152
+
+            for (let i = 0; i < left.length; i += blockSize) {
+                const leftChunk = left.subarray(i, i + blockSize);
+                const rightChunk = right.subarray(i, i + blockSize);
+                const encoded = numChannels > 1
+                    ? mp3encoder.encodeBuffer(leftChunk, rightChunk)
+                    : mp3encoder.encodeBuffer(leftChunk);
+                if (encoded.length > 0) mp3Data.push(new Uint8Array(encoded));
+            }
+
+            const final = mp3encoder.flush();
+            if (final.length > 0) mp3Data.push(new Uint8Array(final));
+
+            return new Blob(mp3Data, { type: 'audio/mpeg' });
         }
 
         window.generatePodcast = async function () {
@@ -518,8 +571,11 @@
                     buffers.push(await generateChunk(chunks[i], apiKey));
                 }
 
-                setProgress(95, chunks.length > 1 ? 'Joining chunks into one MP3…' : 'Finalising audio…');
-                const blob = stitchAudio(buffers);
+                setProgress(88, chunks.length > 1 ? 'Joining chunks…' : 'Processing audio…');
+                const combined = stitchBuffers(buffers);
+
+                setProgress(93, 'Speeding up to 1.2× and encoding MP3…');
+                const blob = await speedAndEncode(combined, 1.2);
                 const url = URL.createObjectURL(blob);
 
                 setProgress(100, 'Done!');
