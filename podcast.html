@@ -2,167 +2,170 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>The Paramind Podcast</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>The Paramind Podcast | Paramind</title>
 
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Menu CSS -->
     <link rel="stylesheet" href="css/menu-v2.css">
-    <link rel="stylesheet" href="css/mobile-compact.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
 
     <style>
-        body {
-            background-color: #f8f9fa;
-            color: #212529;
+        .podcast-page {
+            min-height: 100vh;
+            background: var(--color-gray-50);
         }
 
-        /* ── Header ─────────────────────────────── */
+        .podcast-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1rem;
+            padding-bottom: 3rem;
+        }
+
+        /* Page header — same pattern as drug-header */
         .podcast-header {
-            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
-            color: white;
-            padding: 2.5rem 0 2rem;
-        }
-
-        .podcast-header .back-link {
-            color: rgba(255,255,255,0.75);
-            text-decoration: none;
-            font-size: 0.875rem;
-            transition: color 0.2s;
-        }
-
-        .podcast-header .back-link:hover {
-            color: white;
-        }
-
-        .podcast-badge {
-            display: inline-block;
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
-            font-size: 0.75rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            margin-bottom: 0.75rem;
+            text-align: center;
+            padding: 1.5rem 0;
         }
 
         .podcast-header h1 {
-            font-size: clamp(1.6rem, 4vw, 2.2rem);
+            font-size: 1.75rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             font-weight: 700;
-            margin-bottom: 0.4rem;
-        }
-
-        .podcast-header .subtitle {
-            color: rgba(255,255,255,0.8);
-            font-size: 1rem;
-            margin-bottom: 0;
-        }
-
-        .spotify-follow-btn {
-            background: #1DB954;
-            color: white;
-            border: none;
-            border-radius: 24px;
-            padding: 0.55rem 1.4rem;
-            font-size: 0.875rem;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-flex;
+            margin-bottom: 0.5rem;
+            display: flex;
             align-items: center;
-            gap: 0.4rem;
-            transition: background 0.2s, transform 0.1s;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
-        .spotify-follow-btn:hover {
-            background: #1ed760;
-            color: white;
-            transform: translateY(-1px);
+        .podcast-header p {
+            color: var(--color-gray-600);
+            margin: 0;
         }
 
-        /* ── Cards ──────────────────────────────── */
+        /* Info banner — identical to drugs.html */
+        .info-banner {
+            background: linear-gradient(135deg, rgba(43,138,156,0.1) 0%, rgba(92,184,92,0.1) 100%);
+            border: 1px solid rgba(43,138,156,0.2);
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+
+        .info-banner i {
+            color: var(--color-teal);
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .info-banner p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--color-gray-600);
+        }
+
+        /* Cards */
         .pc-card {
-            background: white;
-            border-radius: 14px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-            padding: 1.75rem;
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
             margin-bottom: 1.25rem;
         }
 
         .section-label {
+            font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: #6c757d;
+            letter-spacing: 0.7px;
+            color: var(--color-gray-500);
             margin-bottom: 1rem;
         }
 
-        /* ── Latest episode ─────────────────────── */
+        /* Latest episode */
         .latest-badge {
             display: inline-block;
-            background: #e8eaf6;
-            color: #1a237e;
-            font-size: 0.72rem;
+            background: rgba(43,138,156,0.1);
+            color: var(--color-teal);
+            font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 0.2rem 0.65rem;
-            border-radius: 20px;
+            letter-spacing: 0.4px;
+            padding: 0.25rem 0.7rem;
+            border-radius: var(--radius-full);
             margin-bottom: 0.6rem;
         }
 
         .latest-title {
-            font-size: 1.25rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.2rem;
             font-weight: 700;
-            color: #1a237e;
+            color: var(--color-gray-900);
             margin-bottom: 0.3rem;
         }
 
         .latest-meta {
             font-size: 0.82rem;
-            color: #6c757d;
-            margin-bottom: 1.25rem;
+            color: var(--color-gray-500);
+            margin-bottom: 1rem;
         }
 
         .latest-description {
-            font-size: 0.92rem;
-            color: #495057;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--color-gray-600);
+            line-height: 1.65;
+            margin-bottom: 1.25rem;
         }
 
-        /* Spotify embed container */
+        /* Spotify embed */
         .spotify-embed {
-            border-radius: 12px;
+            border-radius: var(--radius-lg);
             overflow: hidden;
         }
 
-        /* Placeholder shown before Spotify embed is added */
         .embed-placeholder {
-            background: #f1f3f5;
-            border: 2px dashed #dee2e6;
-            border-radius: 12px;
+            background: var(--color-gray-50);
+            border: 2px dashed var(--color-gray-200);
+            border-radius: var(--radius-lg);
             padding: 2.5rem;
             text-align: center;
-            color: #adb5bd;
+            color: var(--color-gray-400);
         }
 
         .embed-placeholder i {
             font-size: 2rem;
             margin-bottom: 0.5rem;
             display: block;
+            color: #1DB954;
         }
 
-        /* ── Episode list ───────────────────────── */
+        /* Episode list */
         .episode-item {
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             gap: 1rem;
-            padding: 1rem 0;
-            border-bottom: 1px solid #f1f3f5;
+            padding: 0.875rem 0;
+            border-bottom: 1px solid var(--color-gray-100);
         }
 
         .episode-item:last-child {
@@ -173,47 +176,48 @@
         .ep-number {
             width: 36px;
             height: 36px;
-            background: #e8eaf6;
-            color: #1a237e;
-            border-radius: 8px;
+            background: rgba(43,138,156,0.1);
+            color: var(--color-teal);
+            border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.82rem;
             font-weight: 700;
             flex-shrink: 0;
-            margin-top: 2px;
         }
 
-        .ep-info {
-            flex: 1;
-        }
+        .ep-info { flex: 1; }
 
         .ep-title {
-            font-size: 0.95rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.92rem;
             font-weight: 600;
-            color: #212529;
-            margin-bottom: 0.2rem;
+            color: var(--color-gray-800);
+            margin-bottom: 0.15rem;
         }
 
         .ep-meta {
             font-size: 0.78rem;
-            color: #6c757d;
+            color: var(--color-gray-500);
         }
 
         .ep-listen-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
             background: none;
-            border: 1px solid #1DB954;
+            border: 1.5px solid #1DB954;
             color: #1DB954;
-            border-radius: 20px;
+            border-radius: var(--radius-full);
             padding: 0.3rem 0.85rem;
             font-size: 0.78rem;
             font-weight: 600;
             text-decoration: none;
             white-space: nowrap;
-            transition: all 0.2s;
+            transition: all var(--transition-fast);
             flex-shrink: 0;
-            align-self: center;
         }
 
         .ep-listen-btn:hover {
@@ -221,153 +225,120 @@
             color: white;
         }
 
-        /* ── Subscribe banner ───────────────────── */
+        /* Subscribe card — uses teal gradient like modal headers */
         .subscribe-card {
-            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+            background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-teal-dark) 100%);
             color: white;
-            border-radius: 14px;
-            padding: 1.75rem;
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
             margin-bottom: 1.25rem;
+            box-shadow: var(--shadow-sm);
         }
 
         .subscribe-card h5 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
             font-weight: 700;
             margin-bottom: 0.4rem;
         }
 
         .subscribe-card p {
-            color: rgba(255,255,255,0.8);
-            font-size: 0.9rem;
-            margin-bottom: 1.25rem;
+            color: rgba(255,255,255,0.85);
+            font-size: 0.88rem;
+            margin-bottom: 1.1rem;
         }
 
         .platform-btn {
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
-            border-radius: 22px;
+            border-radius: var(--radius-full);
             padding: 0.5rem 1.1rem;
             font-size: 0.82rem;
             font-weight: 600;
             text-decoration: none;
-            margin: 0.25rem 0.25rem 0.25rem 0;
-            transition: all 0.2s;
+            margin: 0.2rem 0.2rem 0.2rem 0;
+            transition: all var(--transition-fast);
         }
 
-        .platform-btn.spotify {
-            background: #1DB954;
-            color: white;
-        }
-
+        .platform-btn.spotify { background: #1DB954; color: white; }
         .platform-btn.spotify:hover { background: #1ed760; color: white; }
 
         .platform-btn.apple {
             background: rgba(255,255,255,0.15);
             color: white;
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 1px solid rgba(255,255,255,0.35);
         }
+        .platform-btn.apple:hover { background: rgba(255,255,255,0.25); color: white; }
 
-        .platform-btn.apple:hover {
-            background: rgba(255,255,255,0.25);
-            color: white;
-        }
-
-        /* ── About section ──────────────────────── */
-        .about-card {
-            background: white;
-            border-radius: 14px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-            padding: 1.75rem;
-            margin-bottom: 1.25rem;
-        }
-
+        /* Host pills */
         .host-pill {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 24px;
-            padding: 0.4rem 0.9rem;
+            gap: 0.4rem;
+            background: var(--color-gray-50);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-full);
+            padding: 0.35rem 0.85rem;
             font-size: 0.82rem;
             font-weight: 600;
-            margin: 0.25rem 0.25rem 0.25rem 0;
+            color: var(--color-gray-700);
+            margin: 0.2rem 0.2rem 0.2rem 0;
         }
 
-        .host-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-
-        .host-dot.matt { background: #6aa0dc; }
+        .host-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .host-dot.matt  { background: #6aa0dc; }
         .host-dot.ellie { background: #dc64a0; }
 
-        /* ── Loading / auth screens ─────────────── */
-        .loading-screen {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 80vh;
+        /* Footer — same as drugs.html */
+        .podcast-footer {
+            text-align: center;
+            padding: 1.5rem 0;
+            color: var(--color-gray-500);
+            font-size: 0.85rem;
         }
 
-        /* ── Responsive ─────────────────────────── */
-        @media (max-width: 767px) {
-            .podcast-header {
-                padding: 1.5rem 0 1.25rem;
-            }
-            .pc-card, .about-card, .subscribe-card {
-                padding: 1.25rem;
-            }
+        @media (max-width: 768px) {
+            .podcast-header h1 { font-size: 1.4rem; }
+            .pc-card, .subscribe-card { padding: 1.1rem; }
         }
     </style>
 </head>
-<body>
 
-<!-- Loading screen -->
-<div id="loadingScreen" class="loading-screen">
-    <div class="text-center">
-        <div class="spinner-border text-primary mb-3" role="status">
-            <span class="visually-hidden">Loading…</span>
-        </div>
-        <p class="text-muted">Loading podcast…</p>
-    </div>
-</div>
+<body class="podcast-page">
 
-<!-- Main content (hidden until auth verified) -->
-<div id="mainContent" style="display:none;">
-
-    <!-- Header -->
-    <header class="podcast-header">
-        <div class="container">
-            <a href="chat.html" class="back-link mb-3 d-inline-flex align-items-center gap-1">
-                <i class="bi bi-arrow-left"></i> Back to Paramind
+<!-- ==================== NAVIGATION ==================== -->
+<nav class="member-navbar">
+    <div class="container">
+        <span class="brand-text">
+            <a class="navbar-brand" href="landing.html">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
             </a>
-            <div class="row align-items-center mt-2">
-                <div class="col-md-8">
-                    <div class="podcast-badge">
-                        <i class="bi bi-mic-fill me-1"></i> Monthly Podcast
-                    </div>
-                    <h1>The Paramind Podcast</h1>
-                    <p class="subtitle">Clinical knowledge for UK paramedics — explained by paramedics, in plain English. New episodes monthly.</p>
-                </div>
-                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                    <!--
-                        STEP 1: Once your show is live on Spotify, replace the # in href below
-                        with your show's Spotify URL e.g. https://open.spotify.com/show/YOURSHOWID
-                    -->
-                    <a href="https://open.spotify.com/show/2fmpUy9zXo0cUe1yW8q9hH?si=rYc2NSKiTs-XLXRH_4-PKg" class="spotify-follow-btn" target="_blank">
-                        <i class="bi bi-spotify"></i> Follow on Spotify
-                    </a>
-                </div>
-            </div>
+        </span>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</nav>
+
+    <div class="podcast-container">
+
+        <!-- Page Header -->
+        <div class="podcast-header">
+            <h1>🎙️ The Paramind Podcast</h1>
+            <p>Clinical knowledge for UK paramedics — explained by paramedics, in plain English</p>
         </div>
-    </header>
 
-    <main class="container py-4">
-        <div class="row">
+        <!-- Info Banner -->
+        <div class="info-banner">
+            <i class="bi bi-info-circle-fill"></i>
+            <p>New episodes every month covering the clinical topics that matter most in pre-hospital care. <strong>Free for all Paramind members.</strong> Follow on Spotify or Apple Podcasts to be notified when new episodes drop.</p>
+        </div>
 
-            <!-- Left column: episodes -->
+        <div class="row g-3">
+
+            <!-- Left column: player + episode list -->
             <div class="col-lg-8">
 
                 <!-- Latest episode -->
@@ -381,23 +352,27 @@
                         <i class="bi bi-people me-1"></i>Matt &amp; Ellie
                     </div>
                     <div class="latest-description">
-                        Everyone's had the sepsis talk. But do you really know <em>why</em> it kills, and why it's so good at hiding? Matt and Ellie break down the pathophysiology, the red flags that matter pre-hospital, and what you can actually do in the field to make a difference.
+                        Everyone's had the sepsis talk. But do you really know <em>why</em> it kills — and why it's so good at hiding? Matt and Ellie break down the pathophysiology, the red flags that matter pre-hospital, and what you can actually do in the field to make a real difference.
                     </div>
 
-                    <!-- 
-                        STEP 2: Replace the embed-placeholder div below with your Spotify embed code.
-                        To get it: open.spotify.com → find your episode → 3 dots → Share → Embed episode → Copy.
-                        It will look like this:
-                        <iframe style="border-radius:12px" src="https://open.spotify.com/embed/episode/EPISODE_ID"
-                            width="100%" height="152" frameBorder="0"
-                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                            loading="lazy"></iframe>
-                    -->
                     <div class="spotify-embed">
+                        <!--
+                            TO UPDATE: Replace everything inside this div with your Spotify embed code.
+                            How to get it:
+                            1. Go to open.spotify.com and find your episode
+                            2. Click the 3 dots → Share → Embed episode → Copy
+                            3. Paste the <iframe> code here in place of the embed-placeholder div below.
+                            It will look like:
+                            <iframe style="border-radius:12px"
+                                src="https://open.spotify.com/embed/episode/YOUR_EPISODE_ID"
+                                width="100%" height="152" frameBorder="0"
+                                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                                loading="lazy"></iframe>
+                        -->
                         <div class="embed-placeholder">
                             <i class="bi bi-spotify"></i>
-                            <div class="fw-semibold" style="color:#495057;">Spotify player goes here</div>
-                            <div class="small mt-1"><iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/episode/716s6IxVE9af4xPpayB97H?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>
+                            <div class="fw-semibold" style="color:var(--color-gray-700);">Latest episode</div>
+                             <div class="small mt-1"><iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/episode/716s6IxVE9af4xPpayB97H?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>
                         </div>
                     </div>
                 </div>
@@ -413,13 +388,8 @@
                             <div class="ep-title">Sepsis — Why Your Own Body Becomes the Enemy</div>
                             <div class="ep-meta"><i class="bi bi-calendar3 me-1"></i>April 2026 &nbsp;·&nbsp; ~15 mins</div>
                         </div>
-                        <!--
-                            STEP 3: Replace # with the direct Spotify episode link
-                            e.g. https://open.spotify.com/episode/EPISODE_ID
-                        -->
-                        <a href="#" class="ep-listen-btn" target="_blank">
-                            <i class="bi bi-spotify me-1"></i>Listen
-                        </a>
+                        <!-- TO UPDATE: Replace # with https://open.spotify.com/episode/YOUR_EPISODE_ID -->
+                        <a href="https://open.spotify.com/episode/716s6IxVE9af4xPpayB97H?si=L6UFP_Y8R2aAsFT7QzK_8Q" class="ep-listen-btn" target="_blank"><i class="bi bi-spotify"></i> Listen</a>
                     </div>
 
                     <!-- Episode 1 -->
@@ -429,77 +399,57 @@
                             <div class="ep-title">Chest Pain — Working Through the Differentials</div>
                             <div class="ep-meta"><i class="bi bi-calendar3 me-1"></i>March 2026 &nbsp;·&nbsp; ~14 mins</div>
                         </div>
-                        <!--
-                            STEP 4: Replace # with the direct Spotify episode link for Episode 1
-                        -->
-                        <a href="#" class="ep-listen-btn" target="_blank">
-                            <i class="bi bi-spotify me-1"></i>Listen
-                        </a>
-                    </div>
-                    
-                       <!-- Intro -->
-                    <div class="episode-item">
-                        <div class="ep-number">1</div>
-                        <div class="ep-info">
-                            <div class="ep-title">An intro to Paramind and our new podcast</div>
-                            <div class="ep-meta"><i class="bi bi-calendar3 me-1"></i>March 2026 &nbsp;·&nbsp; ~4 mins</div>
-                        </div>
-                        <!--
-                            STEP 4: Replace # with the direct Spotify episode link for Episode 1
-                        -->
-                        <a href="https://open.spotify.com/episode/716s6IxVE9af4xPpayB97H?si=L6UFP_Y8R2aAsFT7QzK_8Q" class="ep-listen-btn" target="_blank">
-                            <i class="bi bi-spotify me-1"></i>Listen
-                        </a>
+                        <!-- TO UPDATE: Replace # with https://open.spotify.com/episode/YOUR_EPISODE_ID -->
+                        <a href="https://open.spotify.com/episode/716s6IxVE9af4xPpayB97H?si=L6UFP_Y8R2aAsFT7QzK_8Q" class="ep-listen-btn" target="_blank"><i class="bi bi-spotify"></i> Listen</a>
                     </div>
 
-                   
+                   <!-- Episode 1 -->
+                    <div class="episode-item">
+                        <div class="ep-number">Intro</div>
+                        <div class="ep-info">
+                            <div class="ep-title">Chest Pain — Working Through the Differentials</div>
+                            <div class="ep-meta"><i class="bi bi-calendar3 me-1"></i>March 2026 &nbsp;·&nbsp; ~14 mins</div>
+                        </div>
+                        <!-- TO UPDATE: Replace # with https://open.spotify.com/episode/YOUR_EPISODE_ID -->
+                        <a href="https://open.spotify.com/episode/716s6IxVE9af4xPpayB97H?si=L6UFP_Y8R2aAsFT7QzK_8Q" class="ep-listen-btn" target="_blank"><i class="bi bi-spotify"></i> Listen</a>
+                    </div>
+
 
                 </div>
 
             </div>
 
-            <!-- Right column: about + subscribe -->
+            <!-- Right column: subscribe + about -->
             <div class="col-lg-4">
 
                 <!-- Subscribe -->
                 <div class="subscribe-card">
                     <h5><i class="bi bi-bell me-2"></i>Never Miss an Episode</h5>
-                    <p>New episodes drop monthly. Follow on your favourite platform to get notified automatically.</p>
-                    <!--
-                        STEP 5: Update both href links below with your real Spotify and Apple Podcasts URLs
-                        once your show is published.
-                    -->
-                    <a href="https://open.spotify.com/show/2fmpUy9zXo0cUe1yW8q9hH?si=rYc2NSKiTs-XLXRH_4-PKg" class="platform-btn spotify" target="_blank">
-                        <i class="bi bi-spotify"></i> Spotify
-                    </a>
-                  
+                    <p>New episodes monthly. Follow on your favourite platform to get notified automatically.</p>
+                    <!-- TO UPDATE: Replace # with your real Spotify and Apple Podcasts show URLs -->
+                    <a href="https://open.spotify.com/show/2fmpUy9zXo0cUe1yW8q9hH?si=rYc2NSKiTs-XLXRH_4-PKg" class="platform-btn spotify" target="_blank"><i class="bi bi-spotify"></i> Spotify</a>
+                   
                 </div>
 
                 <!-- About -->
-                <div class="about-card">
+                <div class="pc-card">
                     <div class="section-label"><i class="bi bi-info-circle me-1"></i>About the Show</div>
-                    <p style="font-size:0.9rem; color:#495057; line-height:1.65;">
-                        The Paramind Podcast covers the clinical topics that matter most in pre-hospital care — explained with real analogies, genuine banter, and zero death-by-PowerPoint energy.
+                    <p style="font-size:0.88rem; color:var(--color-gray-600); line-height:1.65; margin-bottom:0.75rem;">
+                        The clinical topics that matter most in pre-hospital care — covered with real analogies, genuine banter, and zero death-by-PowerPoint energy.
                     </p>
-                    <p style="font-size:0.9rem; color:#495057; line-height:1.65; margin-bottom:1rem;">
-                        Free to listen for everyone. New episode every month.
+                    <p style="font-size:0.88rem; color:var(--color-gray-600); line-height:1.65; margin-bottom:1.1rem;">
+                        Free for all Paramind members. One new episode every month.
                     </p>
-                    <div class="section-label mt-3">Your Hosts</div>
-                    <div>
-                        <div class="host-pill">
-                            <span class="host-dot matt"></span> Matt
-                        </div>
-                        <div class="host-pill">
-                            <span class="host-dot ellie"></span> Ellie
-                        </div>
-                    </div>
+                    <div class="section-label">Your Hosts</div>
+                    <span class="host-pill"><span class="host-dot matt"></span>Matt</span>
+                    <span class="host-pill"><span class="host-dot ellie"></span>Ellie</span>
                 </div>
 
                 <!-- Go deeper -->
-                <div class="about-card">
+                <div class="pc-card">
                     <div class="section-label"><i class="bi bi-rocket me-1"></i>Want to Go Deeper?</div>
-                    <p style="font-size:0.9rem; color:#495057; line-height:1.65; margin-bottom:1.25rem;">
-                        Every topic we cover in the podcast lives inside Paramind — with AI scenarios, ECG practice, and Hollie ready to answer your questions any time.
+                    <p style="font-size:0.88rem; color:var(--color-gray-600); line-height:1.65; margin-bottom:1.1rem;">
+                        Every topic we cover lives inside Paramind — with AI scenarios, ECG practice, and Hollie ready to answer your questions any time.
                     </p>
                     <a href="chat.html" class="btn btn-primary btn-sm w-100">
                         <i class="bi bi-chat-dots me-1"></i> Chat with Hollie
@@ -508,31 +458,21 @@
 
             </div>
         </div>
-    </main>
 
-</div><!-- /mainContent -->
+        <div class="podcast-footer">
+            <p><i class="bi bi-shield-check"></i> Part of the Paramind Learning Platform</p>
+        </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    </div><!-- /podcast-container -->
 
-<script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-    import { firebaseConfig } from './js/firebase-config.js';
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    // Free to ALL logged-in users — no Pro check
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            document.getElementById('loadingScreen').style.display = 'none';
-            document.getElementById('mainContent').style.display = 'block';
-        } else {
-            // Not logged in — redirect to login
-            window.location.href = 'login.html?redirect=podcast.html';
-        }
-    });
-</script>
+    <!--
+        Standardised script loading — identical pattern to all other Paramind pages.
+        app.js handles Firebase auth and redirects unauthenticated users to login.
+        menu-v2.js powers the hamburger nav.
+        pro-guard.js is deliberately NOT included — this page is free to all members.
+    -->
+    <script src="js/app.js"></script>
+    <script src="js/menu-v2.js"></script>
 
 </body>
 </html>
