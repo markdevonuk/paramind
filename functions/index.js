@@ -1939,7 +1939,6 @@ exports.researchPapers = onRequest(
 exports.realtimeToken = onRequest(
   {
     cors: true,
-    region: "europe-west2",
     secrets: ["OPENAI_API_KEY"],
   },
   async (req, res) => {
