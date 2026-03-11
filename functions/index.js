@@ -2064,7 +2064,6 @@ exports.realtimeToken = onRequest(
               type: "realtime",
               model: "gpt-realtime",
               instructions: systemPrompt || "",
-              modalities: ["audio", "text"],
               audio: {
                 output: {
                   voice: voice || "ballad",
