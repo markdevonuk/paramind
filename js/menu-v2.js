@@ -137,6 +137,16 @@
                         <span>Sign Out</span>
                     </button>
                 </div>
+
+                <!-- Legal Links Strip -->
+                <div class="menu-legal">
+                    <div class="menu-legal-links">
+                        <a href="sources.html">Sources &amp; Citations</a>
+                        <a href="purpose.html">Intended Purpose</a>
+                        <a href="terms.html">Terms</a>
+                        <a href="privacy.html">Privacy</a>
+                    </div>
+                </div>
             </nav>
         `;
     }
