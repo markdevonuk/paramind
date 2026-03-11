@@ -1368,8 +1368,6 @@ Rules:
  * HTTPS helper — wraps Node's built-in https module in a Promise.
  * Used to call PubMed and Europe PMC APIs.
  */
-const https = require("https");
-
 function httpsGetText(url) {
   return new Promise((resolve, reject) => {
     https.get(url, (res) => {
