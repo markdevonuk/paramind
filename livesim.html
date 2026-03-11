@@ -1371,9 +1371,10 @@ When you receive a prompt tagged [CLINICAL ASSESSMENT], respond with the structu
 
         dc.onopen = () => {
             // Enable input transcription so we can show what the user said
+            // GA interface requires type: "realtime" in session.update
             dc.send(JSON.stringify({
                 type: 'session.update',
-                session: { input_audio_transcription: { model: 'whisper-1' } }
+                session: { type: 'realtime', input_audio_transcription: { model: 'whisper-1' } }
             }));
             // Trigger the model to speak its opening line immediately
             dc.send(JSON.stringify({ type: 'response.create', response: {} }));
