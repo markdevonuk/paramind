@@ -1929,3 +1929,102 @@ exports.researchPapers = onRequest(
     }
   }
 );
+// ============================================================
+// REALTIME TOKEN — issues an ephemeral OpenAI Realtime key
+// Called by livesim.html before opening a WebRTC session.
+// The ephemeral key is short-lived (~1 min) and scoped to
+// a single Realtime API session, so it is safe to send to
+// the browser.
+// ============================================================
+exports.realtimeToken = onRequest(
+  {
+    cors: true,
+    region: "europe-west2",
+    secrets: ["OPENAI_API_KEY"],
+  },
+  async (req, res) => {
+    // --- Auth check (Pro users only) ---
+    const authHeader = req.headers.authorization || "";
+    if (!authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    let uid;
+    try {
+      const decoded = await admin.auth().verifyIdToken(authHeader.slice(7));
+      uid = decoded.uid;
+    } catch {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const userDoc = await admin.firestore().collection("users").doc(uid).get();
+      const userData = userDoc.data() || {};
+      const isPro =
+        userData.subscriptionStatus === "active" || userData.isPro === true;
+      if (!isPro) {
+        return res
+          .status(403)
+          .json({ message: "Live Sim requires a Pro subscription." });
+      }
+    } catch (err) {
+      console.error("Firestore check error:", err);
+      return res.status(500).json({ message: "Server error" });
+    }
+
+    // --- Pull params from request body ---
+    const { systemPrompt, voice } = req.body || {};
+
+    // --- Request ephemeral token from OpenAI ---
+    try {
+      const openaiKey = process.env.OPENAI_API_KEY;
+
+      const tokenRes = await fetch(
+        "https://api.openai.com/v1/realtime/client_secrets",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${openaiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "gpt-4o-realtime-preview",
+            voice: voice || "ballad",
+            instructions: systemPrompt || "",
+            modalities: ["audio", "text"],
+            turn_detection: {
+              type: "server_vad",
+              silence_duration_ms: 700,
+              threshold: 0.5,
+              prefix_padding_ms: 300,
+            },
+          }),
+        }
+      );
+
+      if (!tokenRes.ok) {
+        const errText = await tokenRes.text();
+        console.error("OpenAI token error:", errText);
+        return res
+          .status(502)
+          .json({ message: "Failed to get Realtime token from OpenAI" });
+      }
+
+      const tokenData = await tokenRes.json();
+      // The ephemeral key is in client_secret.value
+      const ephemeralKey =
+        tokenData.client_secret?.value || tokenData.token;
+
+      if (!ephemeralKey) {
+        console.error("No token in OpenAI response:", JSON.stringify(tokenData));
+        return res
+          .status(502)
+          .json({ message: "Invalid token response from OpenAI" });
+      }
+
+      return res.status(200).json({ token: ephemeralKey });
+    } catch (err) {
+      console.error("realtimeToken error:", err);
+      return res.status(500).json({ message: "Server error" });
+    }
+  }
+);

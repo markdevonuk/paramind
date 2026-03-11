@@ -726,6 +726,10 @@
             50% { box-shadow: 0 0 0 20px rgba(220, 53, 69, 0); }
         }
         .sim-mic-btn.disabled { opacity: 0.4; pointer-events: none; }
+        .sim-mic-btn.muted {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            animation: none;
+        }
         
         .sim-mic-label {
             font-size: 0.7rem; color: var(--color-gray-500);
@@ -931,10 +935,13 @@
 
     <script>
     // ============================================================
-    // LIVE SIM — VOICE SCENARIO ENGINE
+    // LIVE SIM — REALTIME VOICE SCENARIO ENGINE
+    // OpenAI Realtime API (gpt-realtime, March 2026 GA)
+    // Replaces the old record→transcribe→chat→TTS loop with a
+    // live bidirectional WebRTC connection to OpenAI.
     // ============================================================
-    
-    // ==================== FIREBASE CONFIG (SHARED) ====================
+
+    // ==================== FIREBASE CONFIG ====================
     const firebaseConfig = {
         apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
         authDomain: "paramind-64b8e.firebaseapp.com",
@@ -947,17 +954,15 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // ==================== API CONFIG (SHARED) ====================
+    // ==================== API CONFIG ====================
     const API = {
         get base() { return window.paramind?.CONFIG?.api?.baseUrl || 'https://europe-west2-paramind-64b8e.cloudfunctions.net'; },
         get chat() { return this.base + (window.paramind?.CONFIG?.api?.chat || '/chat'); },
-        get user() { return this.base + (window.paramind?.CONFIG?.api?.user || '/user'); },
-        get transcribe() { return this.base + (window.paramind?.CONFIG?.api?.transcribe || '/transcribe'); },
-        get speak() { return this.base + (window.paramind?.CONFIG?.api?.speak || '/speak'); },
+        get realtimeToken() { return this.base + '/realtimeToken'; },
         get createCheckout() { return this.base + (window.paramind?.CONFIG?.api?.createCheckout || '/createCheckoutSession'); }
     };
 
-    // ==================== UPGRADE HANDLER (SHARED) ====================
+    // ==================== UPGRADE HANDLER ====================
     async function handleUpgrade() {
         try {
             const user = auth.currentUser;
@@ -973,188 +978,42 @@
     }
 
     // ==================== ASSESSMENT PROMPTS ====================
+    // These are sent via API.chat (text-only, silent — clinical data cards)
     const ASSESS_PROMPTS = {
         obs: { name: "Observations", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is taking observations. Provide realistic vital signs:\n\nOBSERVATIONS:\n• HR: [rate] bpm, [regular/irregular]\n• BP: [systolic/diastolic] mmHg\n• RR: [rate] breaths/min\n• SpO2: [percentage]% on [air/O2]\n• Temp: [temperature]°C\n• GCS: [score] (E[x] V[x] M[x])\n• BM: [blood glucose] mmol/L\n• Pain: [score]/10\n• AVPU: [status]\n• Pupils: [findings]\n\nJust provide the clinical findings." },
-        ecg: { name: "ECG", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a 12-lead ECG. Provide the ECG interpretation:\n\nECG FINDINGS:\n• Rate: [bpm]\n• Rhythm: [description]\n• Axis: [normal/left/right]\n• P waves\n• PR interval\n• QRS complex\n• ST segment\n• T waves\n• Clinical interpretation\n\nJust provide the clinical findings." },
+        ecg: { name: "ECG", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a 12-lead ECG. Provide the ECG interpretation:\n\nECG FINDINGS:\n• Rate: [bpm]\n• Rhythm: [description]\n• Axis: [normal/left/right]\n• P waves: [findings]\n• PR interval: [findings]\n• QRS complex: [findings]\n• ST segment: [findings]\n• T waves: [findings]\n• Clinical interpretation: [summary]\n\nJust provide the clinical findings." },
         history: { name: "SAMPLE History", prompt: "[CLINICAL ASSESSMENT]\n\nThe paramedic is taking a SAMPLE history. Respond in character as the patient providing their history." },
         pain: { name: "Pain (SOCRATES)", prompt: "[CLINICAL ASSESSMENT]\n\nThe paramedic is assessing pain using SOCRATES. Respond as the patient describing their pain." },
-        meds: { name: "Medications", prompt: "[CLINICAL ASSESSMENT]\n\nThe paramedic is asking about medications. Provide the patient's medication list with doses if known." },
-        scene: { name: "Scene Assessment", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is assessing the scene. Provide third-person observations:\n\nSCENE FINDINGS:\n• Location/environment\n• Safety hazards\n• Clues: medication boxes, medical equipment, alcohol etc\n• Other people present\n• Access/egress considerations" },
-        chest: { name: "Chest Exam", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is examining the chest. Provide findings:\n\nCHEST EXAMINATION:\n• Inspection\n• Palpation\n• Auscultation\n• Percussion" },
-        abdo: { name: "Abdominal Exam", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is examining the abdomen. Provide findings:\n\nABDOMINAL EXAMINATION:\n• Inspection\n• Palpation\n• Auscultation" },
-        neuro: { name: "Neuro Exam", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a neurological assessment:\n\nNEURO ASSESSMENT:\n• GCS breakdown\n• Pupils\n• Limb movements\n• Facial symmetry\n• Speech\n• FAST assessment" },
-        skin: { name: "Skin Assessment", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is assessing the skin:\n\nSKIN ASSESSMENT:\n• Colour\n• Temperature\n• Moisture\n• Capillary refill\n• Rashes/wounds\n• Oedema" }
+        meds: { name: "Medications", prompt: "[CLINICAL ASSESSMENT]\n\nThe paramedic is asking about medications. Respond as the patient listing their medications and any allergies." },
+        scene: { name: "Scene Assessment", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is assessing the scene. Describe what the paramedic would observe:\n\nSCENE FINDINGS:\n• Location/environment: [description]\n• Safety: [hazards noted]\n• Clues: [medication boxes, medical equipment, etc.]\n• Patient position: [how/where found]\n• Others present: [who else is there]\n\nDo NOT respond as the patient." },
+        chest: { name: "Chest Examination", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a chest examination:\n\nCHEST EXAMINATION:\n• Inspection: [movement, symmetry, scars]\n• Palpation: [tenderness, crepitus, trachea]\n• Percussion: [resonant/dull/hyper-resonant]\n• Auscultation: [breath sounds, added sounds]\n• Work of breathing: [accessory muscles, positioning]\n\nJust provide the clinical findings." },
+        abdo: { name: "Abdominal Examination", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nAbdominal examination findings:\n\nABDOMINAL EXAMINATION:\n• Inspection: [distension, scars, bruising]\n• Auscultation: [bowel sounds]\n• Palpation: [soft/rigid/guarding, tenderness location]\n• Special signs: [if relevant]\n\nJust provide the clinical findings." },
+        neuro: { name: "Neurological Exam", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nNeurological examination findings:\n\nNEUROLOGICAL EXAMINATION:\n• GCS: [E/V/M = total]\n• Pupils: [PEARL or abnormalities]\n• Limb movement: [all four limbs]\n• Facial symmetry: [normal/droop]\n• Speech: [normal/slurred/dysphasia]\n• Sensation: [normal/altered]\n\nJust provide the clinical findings." },
+        skin: { name: "Skin Assessment", prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nSkin assessment findings:\n\nSKIN ASSESSMENT:\n• Colour: [pink/pale/cyanosed/flushed/mottled]\n• Temperature: [warm/cool/cold]\n• Moisture: [dry/clammy/diaphoretic]\n• CRT: [<2s / >2s]\n• Oedema: [if present]\n\nJust provide the clinical findings." }
     };
-
-    // ==================== VOICE MAPPING ====================
-    function getVoiceConfig(scenario) {
-        const d = scenario.dispatch;
-        const age = d.age || 40;
-        const gender = d.gender || 'M';
-        const category = scenario.category;
-        const p = scenario.patient;
-        const condition = (p.condition || '').toLowerCase();
-        const chiefComplaint = (d.chiefComplaint || '').toLowerCase();
-        const pain = p.vitals?.pain || 0;
-        const gcs = parseInt(p.vitals?.gcs) || 15;
-        const rr = parseInt(p.vitals?.rr) || 16;
-
-        // ==================== PATIENT VOICE ====================
-        // Ballad = most British-sounding voice (confirmed by OpenAI community)
-        // Ash = deeper male voice; Fable = good for children
-        let patientVoice, patientDesc;
-        if (age < 5)       { patientVoice = 'fable';   patientDesc = `a very young child, about ${age} years old`; }
-        else if (age < 13) { patientVoice = 'fable';   patientDesc = `a ${age}-year-old ${gender === 'F' ? 'girl' : 'boy'}`; }
-        else if (age < 18) { patientVoice = 'fable';   patientDesc = `a ${age}-year-old teenager`; }
-        else if (gender === 'F') { patientVoice = 'ballad';  patientDesc = `a ${age}-year-old woman`; }
-        else                     { patientVoice = 'ash';     patientDesc = `a ${age}-year-old man`; }
-
-        // Override for mental health — ballad has a softer, more empathetic quality
-        if (category === 'mental-health') patientVoice = 'ballad';
-
-        // ==================== EMOTIONAL DELIVERY ====================
-        // Build rich, specific emotion instructions based on clinical picture
-        let emotionParts = [];
-
-        // Pain-based delivery
-        if (pain >= 9) {
-            emotionParts.push('You are in agonising pain. Cry out, gasp, and struggle to get words out. Speak in short bursts between groans. Sometimes just moan instead of speaking.');
-        } else if (pain >= 7) {
-            emotionParts.push('You are in severe pain. Speak through gritted teeth with strained effort. Pause frequently to wince or catch your breath. Sound genuinely frightened.');
-        } else if (pain >= 5) {
-            emotionParts.push('You are in moderate pain. Sound uncomfortable and distracted by the pain. Occasionally grimace mid-sentence.');
-        } else if (pain >= 3) {
-            emotionParts.push('You have mild pain. Sound a bit uncomfortable but able to talk normally.');
-        }
-
-        // Consciousness / GCS-based delivery
-        if (gcs <= 10) {
-            emotionParts.push('You are barely conscious. Mumble single words or fragments. Long pauses. Drift in and out. Sometimes just groan.');
-        } else if (gcs <= 12) {
-            emotionParts.push('You are very drowsy and confused. Slur your words. Give wrong answers sometimes. Trail off mid-sentence and need prompting to continue.');
-        } else if (gcs <= 14) {
-            emotionParts.push('You are confused and slightly drowsy. Speak slowly, sometimes lose your train of thought. Occasionally give answers that do not quite match the question.');
-        }
-
-        // Breathing difficulty
-        if (chiefComplaint.includes('breath') || chiefComplaint.includes('asthma') || chiefComplaint.includes('copd') || rr >= 24) {
-            emotionParts.push('You are struggling to breathe. Speak in short phrases, pausing to gasp for air between every few words. Sound breathless and frightened.');
-        }
-
-        // Condition-specific delivery
-        if (condition.includes('anxiety') || condition.includes('panic') || chiefComplaint.includes('panic')) {
-            emotionParts.push('You are having a panic attack. Speak very rapidly, sometimes hyperventilating. Your voice trembles. You sound terrified and unable to calm down.');
-        }
-        if (condition.includes('stroke') || chiefComplaint.includes('stroke') || chiefComplaint.includes('facial droop')) {
-            emotionParts.push('You may have slurred speech. Speak as if one side of your mouth is not working properly. Sound confused and scared.');
-        }
-        if (condition.includes('seizure') || chiefComplaint.includes('seizure') || chiefComplaint.includes('fit')) {
-            emotionParts.push('You are post-ictal — very drowsy, confused, and disoriented. Speak very slowly with long pauses. You do not know where you are.');
-        }
-        if (condition.includes('anaphyla') || chiefComplaint.includes('allergic')) {
-            emotionParts.push('Your throat feels tight. Speak with a hoarse, strained voice. Sound panicked because you cannot breathe properly.');
-        }
-        if (condition.includes('overdose') || condition.includes('intox') || chiefComplaint.includes('overdose')) {
-            emotionParts.push('You are drowsy or intoxicated. Slur your words. Speak very slowly with poor coordination. You may be emotionally flat or tearful.');
-        }
-        if (condition.includes('diabetic') || chiefComplaint.includes('hypo')) {
-            emotionParts.push('You are confused and agitated from low blood sugar. Speak irritably, sometimes not making sense. Sound sweaty and shaky.');
-        }
-        if (category === 'trauma') {
-            if (!emotionParts.some(e => e.includes('pain'))) {
-                emotionParts.push('You are shaken and frightened from the injury. Sound shocked and anxious.');
-            }
-        }
-        if (chiefComplaint.includes('cardiac arrest') || chiefComplaint.includes('unresponsive')) {
-            // Patient is unresponsive — no speech needed, but just in case
-            emotionParts.push('You are unresponsive. Do not speak. Only occasional groans if anything.');
-        }
-
-        // Default if nothing specific matched
-        if (emotionParts.length === 0) {
-            emotionParts.push('You are concerned about your condition. Sound worried but able to communicate clearly. Be cooperative but naturally anxious.');
-        }
-
-        // ==================== BUILD PATIENT INSTRUCTIONS ====================
-        const patientInstructions = [
-            `You are ${patientDesc}.`,
-            emotionParts.join(' '),
-            'Keep your responses SHORT — 1 to 3 sentences maximum.',
-            'Use natural filler words like "umm", "well", "I dunno", "sort of" where appropriate.',
-            'Sound like a real person, not an AI.'
-        ].join(' ');
-
-        // ==================== RELATIVE VOICE ====================
-        // Contrasting voice: patient=ballad(F)/ash(M), so relative gets the opposite
-        let relativeVoice, relativeInstructions;
-
-        if (category === 'paediatric') {
-            // Parent of a child — the most anxious relative type
-            relativeVoice = gender === 'M' ? 'ballad' : 'ash';
-            const parentGender = gender === 'M' ? 'mother' : 'father';
-            const parentLabel = gender === 'M' ? 'Mother' : 'Father';
-            relativeInstructions = [
-                `You are the child's ${parentGender}.`,
-                'You are extremely worried and anxious. Speak rapidly, sometimes talking over yourself.',
-                'Your voice trembles with concern. You want answers and reassurance.',
-                'Occasionally stroke or comfort your child between speaking.',
-                'Keep to 1-2 sentences. Sound like a genuinely frightened parent.'
-            ].join(' ');
-            var relativeLabel = parentLabel;
-            var starterIsRelative = age < 8; // Very young children — parent speaks first
-        } else if (age >= 65) {
-            // Elderly patient — relative is likely adult child or spouse
-            relativeVoice = gender === 'M' ? 'ballad' : 'ash';
-            const relOptions = gender === 'M' ? ['Wife', 'Daughter'] : ['Husband', 'Son'];
-            var relativeLabel = relOptions[Math.floor(Math.random() * relOptions.length)];
-            relativeInstructions = [
-                `You are the patient's ${relativeLabel.toLowerCase()}.`,
-                'You are very worried. Speak quickly and anxiously, sometimes interrupting.',
-                'You want to give the paramedic information to help. You hover protectively.',
-                'Sound genuinely concerned — your voice wavers slightly.',
-                'Keep to 1-2 sentences.'
-            ].join(' ');
-            var starterIsRelative = false;
-        } else {
-            // Default — partner or friend
-            relativeVoice = gender === 'M' ? 'ballad' : 'ash';
-            var relativeLabel = 'Partner';
-            relativeInstructions = [
-                'You are the patient\'s partner.',
-                'You are worried and tense. Speak with urgency.',
-                'You want to help but feel helpless. Occasionally ask the paramedic if they will be OK.',
-                'Keep to 1-2 sentences. Sound like a real concerned person.'
-            ].join(' ');
-            var starterIsRelative = false;
-        }
-
-        // ==================== PATIENT LABEL ====================
-        const patientLabel = category === 'paediatric' && age < 8 ? 'Child' : 'Patient';
-
-        // ==================== BYSTANDER VOICE ====================
-        const bystanderInstructions = [
-            'You are a bystander at the scene.',
-            'You are calm but concerned. Speak clearly and factually, as if reporting what you saw to emergency services.',
-            'You are helpful and cooperative. Keep to 1-2 short sentences.',
-            'Sound like an ordinary member of the public.'
-        ].join(' ');
-
-        return {
-            patient:   { voice: patientVoice,  instructions: patientInstructions, label: patientLabel },
-            relative:  { voice: relativeVoice,  instructions: relativeInstructions, label: relativeLabel || 'Relative' },
-            bystander: { voice: 'coral',        instructions: bystanderInstructions, label: 'Bystander' },
-            starterIsRelative: starterIsRelative || false
-        };
-    }
 
     // ==================== STATE ====================
     const state = {
-        isPro: false, currentScenario: null, difficultyLevel: 1,
-        conversationHistory: [], voiceConfig: null,
+        isPro: false,
+        currentScenario: null,
+        difficultyLevel: 1,
+        voiceConfig: null,
         assessmentsPerformed: [],
-        isRecording: false, isProcessing: false, isPlayingAudio: false,
-        mediaRecorder: null, audioChunks: [], currentAudio: null,
-        // Deterioration tracking (mirrors scenarios.html)
+        // Realtime connection
+        peerConnection: null,
+        dataChannel: null,
+        micStream: null,
+        micTrack: null,
+        isMuted: false,
+        isConnected: false,
+        isAssessing: false,
+        // Transcript streaming
+        currentAiMsgDiv: null,
+        currentAiText: '',
+        // For assessment API calls
+        scenarioSystemPrompt: null,
+        voicePrefix: null,
+        // Deterioration tracking
         deterioration: {
             exchangesSinceKeyAssessment: 0,
             currentPhase: null,
@@ -1162,22 +1021,6 @@
             criticalShown: false
         }
     };
-
-    // ==================== AUDIO CONTEXT (MOBILE FIX) ====================
-    // Mobile browsers block audio.play() unless it's within a user gesture.
-    // The starter message works (triggered by tap) but subsequent audio fails
-    // because too many async hops break the gesture chain.
-    // Fix: Use Web Audio API with an AudioContext that gets "unlocked" on taps.
-    let audioCtx = null;
-    function ensureAudioContext() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-        return audioCtx;
-    }
 
     // ==================== DOM ELEMENTS ====================
     const el = {
@@ -1213,7 +1056,7 @@
         submitImpressionBtn: document.getElementById('submitImpressionBtn')
     };
 
-    // ==================== AUTH STATE (SHARED) ====================
+    // ==================== AUTH STATE ====================
     auth.onAuthStateChanged(async (user) => {
         if (!user) { window.location.href = 'login.html'; return; }
         try {
@@ -1235,7 +1078,6 @@
     function buildCategoryGrid() {
         const categories = window.scenarioData.SCENARIO_CATEGORIES;
         const counts = window.scenarioData.getScenarioCountByCategory();
-        
         el.categoryGrid.innerHTML = Object.values(categories).map(cat => `
             <div class="sim-category-card" data-cat="${cat.id}">
                 <div class="cat-icon" style="background: ${cat.color};">
@@ -1245,22 +1087,19 @@
                 <div class="cat-count">${counts[cat.id] || 0} scenarios</div>
             </div>
         `).join('');
-        
         el.categoryGrid.querySelectorAll('.sim-category-card').forEach(card => {
             card.addEventListener('click', () => showDispatchCards(card.dataset.cat));
         });
     }
-    
+
     function showDispatchCards(categoryId) {
         const scenarios = window.scenarioData.getScenariosByCategory(categoryId);
-        
         el.dispatchCards.innerHTML = scenarios.map((s, i) => {
             const d = s.dispatch;
             const genderStr = d.gender === 'M' ? 'Male' : d.gender === 'F' ? 'Female' : '';
             const ageStr = d.age ? `${d.age} years, ${genderStr}` : 'Multiple patients';
             const catClass = d.category === 1 ? 'cat-1' : d.category === 2 ? 'cat-2' : 'cat-3';
             const incNum = `INC-${Date.now().toString().slice(-6)}-${(i + 1).toString().padStart(3, '0')}`;
-            
             return `
                 <div class="sim-dispatch-card" data-id="${s.id}">
                     <div class="sim-dispatch-header">
@@ -1272,29 +1111,26 @@
                             <span class="sim-dispatch-label">CALL:</span>
                             <span class="sim-dispatch-value highlight">${d.chiefComplaint}</span>
                         </div>
-                        
                         <div class="sim-dispatch-row">
                             <span class="sim-dispatch-label">PATIENT:</span>
                             <span class="sim-dispatch-value">${ageStr}</span>
                         </div>
                     </div>
                     <div class="sim-dispatch-footer">
-                        <span class="sim-dispatch-patient"><i class="bi bi-mic-fill me-1"></i>Voice Sim</span>
+                        <span class="sim-dispatch-patient"><i class="bi bi-mic-fill me-1"></i>Live Sim</span>
                         <button class="sim-start-btn">Start Sim →</button>
                     </div>
                 </div>
             `;
         }).join('');
-        
         el.dispatchCards.querySelectorAll('.sim-dispatch-card').forEach(card => {
             card.addEventListener('click', () => openDifficultyModal(card.dataset.id));
         });
-        
         el.categoryGrid.parentElement.querySelector('.sim-hero').style.display = 'none';
         el.categoryGrid.style.display = 'none';
         el.dispatchList.style.display = '';
     }
-    
+
     el.backToCategories.addEventListener('click', () => {
         el.dispatchList.style.display = 'none';
         el.categoryGrid.style.display = '';
@@ -1313,7 +1149,7 @@
         document.getElementById('diffOpt1').classList.add('selected');
         new bootstrap.Modal(el.difficultyModal).show();
     }
-    
+
     document.querySelectorAll('.difficulty-option').forEach(opt => {
         opt.addEventListener('click', () => {
             document.querySelectorAll('.difficulty-option').forEach(o => o.classList.remove('selected'));
@@ -1321,151 +1157,539 @@
             state.difficultyLevel = parseInt(opt.dataset.level);
         });
     });
-    
+
     el.beginSimBtn.addEventListener('click', () => {
-        ensureAudioContext();
         bootstrap.Modal.getInstance(el.difficultyModal).hide();
         startVoiceSim();
     });
+
+    // ==================== VOICE CONFIG ====================
+    // (unchanged — determines patient/relative voice selection)
+    function getVoiceConfig(scenario) {
+        const d = scenario.dispatch;
+        const age = parseInt(d.age) || 40;
+        const gender = d.gender || 'M';
+        const category = scenario.category || '';
+        const condition = (scenario.patient?.condition || '').toLowerCase();
+        const chiefComplaint = (d.chiefComplaint || '').toLowerCase();
+
+        let patientVoice, patientDesc;
+        // Ballad = most British-sounding female voice; Ash = deeper British male; Fable = child-like
+        if (age < 5)           { patientVoice = 'fable';  patientDesc = `a very young child, about ${age} years old`; }
+        else if (age < 13)     { patientVoice = 'fable';  patientDesc = `a ${age}-year-old ${gender === 'F' ? 'girl' : 'boy'}`; }
+        else if (age < 18)     { patientVoice = 'fable';  patientDesc = `a ${age}-year-old teenager`; }
+        else if (gender === 'F') { patientVoice = 'ballad'; patientDesc = `a ${age}-year-old woman`; }
+        else                   { patientVoice = 'ash';    patientDesc = `a ${age}-year-old man`; }
+
+        if (category === 'mental-health') patientVoice = 'ballad';
+
+        const emotionParts = [];
+        if (/sever|agon|excruciating/.test(condition) || /severe pain/.test(chiefComplaint)) {
+            emotionParts.push('You are in agonising pain. Cry out, gasp, and struggle to get words out. Speak in short bursts between groans.');
+        } else if (/pain|chest/.test(condition) || /chest pain|abdominal pain/.test(chiefComplaint)) {
+            emotionParts.push('You are in severe pain. Speak through gritted teeth with strained effort. Pause frequently to wince or catch your breath.');
+        }
+        if (condition.includes('breathless') || condition.includes('dyspnoea') || chiefComplaint.includes('breath')) {
+            emotionParts.push('You are struggling to breathe. Speak in short phrases, pausing to gasp for air between every few words.');
+        }
+        if (condition.includes('confusion') || condition.includes('delirium')) {
+            emotionParts.push('You are confused and slightly drowsy. Speak slowly, sometimes losing your train of thought.');
+        }
+        if (condition.includes('panic') || chiefComplaint.includes('panic')) {
+            emotionParts.push('You are having a panic attack. Speak very rapidly, sometimes hyperventilating. Your voice trembles.');
+        }
+        if (condition.includes('stroke') || chiefComplaint.includes('facial drop') || chiefComplaint.includes('weakness')) {
+            emotionParts.push('You may have slurred speech. Speak as if one side of your mouth is not working properly.');
+        }
+        if (condition.includes('seizure') || chiefComplaint.includes('fit')) {
+            emotionParts.push('You are post-ictal — very drowsy, confused, and disoriented. Speak very slowly with long pauses.');
+        }
+        if (condition.includes('anaphyla') || chiefComplaint.includes('allergic')) {
+            emotionParts.push('Your throat feels tight. Speak with a hoarse, strained voice. Sound panicked.');
+        }
+        if (condition.includes('overdose') || condition.includes('intox') || chiefComplaint.includes('overdose')) {
+            emotionParts.push('You are drowsy or intoxicated. Slur your words. Speak very slowly.');
+        }
+        if (condition.includes('diabetic') || chiefComplaint.includes('hypo')) {
+            emotionParts.push('You are confused and agitated from low blood sugar. Speak irritably, sometimes not making sense.');
+        }
+        if (category === 'trauma' && !emotionParts.some(e => e.includes('pain'))) {
+            emotionParts.push('You are shaken and frightened from the injury. Sound shocked and anxious.');
+        }
+        if (emotionParts.length === 0) {
+            emotionParts.push('You are concerned about your condition. Sound worried but able to communicate clearly.');
+        }
+
+        const patientInstructions = [
+            `You are ${patientDesc}.`,
+            emotionParts.join(' '),
+            'Keep your responses SHORT — 1 to 3 sentences maximum.',
+            'Use natural filler words like "umm", "well", "I dunno" where appropriate.',
+            'Sound like a real person, not an AI.'
+        ].join(' ');
+
+        let relativeVoice = gender === 'M' ? 'ballad' : 'ash';
+        let relativeLabel = 'Relative';
+        let relativeInstructions = 'You are a worried relative. Speak with urgency. Keep to 1-2 sentences.';
+        let starterIsRelative = false;
+
+        if (category === 'paediatric') {
+            relativeVoice = gender === 'M' ? 'ballad' : 'ash';
+            const parentGender = gender === 'M' ? 'mother' : 'father';
+            relativeLabel = gender === 'M' ? 'Mother' : 'Father';
+            relativeInstructions = `You are the child's ${parentGender}. Extremely worried. Speak rapidly, voice trembling. Keep to 1-2 sentences.`;
+            starterIsRelative = age < 8;
+        } else if (age >= 65) {
+            const relOptions = gender === 'M' ? ['Wife', 'Daughter'] : ['Husband', 'Son'];
+            relativeLabel = relOptions[Math.floor(Math.random() * relOptions.length)];
+            relativeInstructions = `You are the patient's ${relativeLabel.toLowerCase()}. Very worried, speak quickly and anxiously. Keep to 1-2 sentences.`;
+        } else {
+            relativeLabel = 'Partner';
+            relativeInstructions = "You are the patient's partner. Worried and tense. Keep to 1-2 sentences.";
+        }
+
+        const patientLabel = category === 'paediatric' && age < 8 ? 'Child' : 'Patient';
+
+        return {
+            patient:   { voice: patientVoice,  instructions: patientInstructions, label: patientLabel },
+            relative:  { voice: relativeVoice,  instructions: relativeInstructions, label: relativeLabel },
+            bystander: { voice: 'coral',        instructions: 'You are a calm bystander. Speak clearly. Keep to 1-2 sentences.', label: 'Bystander' },
+            starterIsRelative: starterIsRelative
+        };
+    }
 
     // ==================== START VOICE SIM ====================
     async function startVoiceSim() {
         const scenario = window.scenarioData.getScenarioById(state.currentScenario);
         if (!scenario) return;
-        
-        state.conversationHistory = [];
+
+        // Reset state
         state.assessmentsPerformed = [];
-        state.deterioration = {
-            exchangesSinceKeyAssessment: 0,
-            currentPhase: null,
-            warningShown: false,
-            criticalShown: false
-        };
+        state.isMuted = false;
+        state.isConnected = false;
+        state.isAssessing = false;
+        state.currentAiMsgDiv = null;
+        state.currentAiText = '';
+        state.deterioration = { exchangesSinceKeyAssessment: 0, currentPhase: null, warningShown: false, criticalShown: false };
         state.voiceConfig = getVoiceConfig(scenario);
-        
+
+        // Update incident banner
         const d = scenario.dispatch;
-        const gcs = parseInt(scenario.patient?.vitals?.gcs) || 15;
         el.incidentDetail.textContent = `${d.age ? d.age + 'y ' + (d.gender === 'M' ? 'Male' : 'Female') : ''} — ${d.chiefComplaint}`;
         el.incidentCat.textContent = `CAT ${d.category}`;
         el.incidentCat.className = `dispatch-cat ${d.category === 1 ? 'cat-1' : d.category === 2 ? 'cat-2' : 'cat-3'}`;
-        
+
+        // Clear transcript
         el.transcript.querySelectorAll('.sim-msg, .sim-clinical-card, .sim-scene-card, .sim-debrief-card, .deterioration-alert').forEach(m => m.remove());
-        
+
+        // Show voice sim view
         el.scenarioSelectView.style.display = 'none';
         el.simFooter.style.display = 'none';
         el.voiceSimView.classList.add('active');
-        
-        const voicePrefix = `
-VOICE MODE ACTIVE — IMPORTANT INSTRUCTIONS:
-You are in VOICE MODE. Your dialogue will be converted to spoken audio.
+
+        // Connecting UI state
+        el.micBtn.classList.add('disabled');
+        el.micBtn.classList.remove('muted');
+        el.micIcon.className = 'bi bi-mic-fill';
+        el.micLabel.textContent = 'Connecting...';
+        el.thinkingIndicator.classList.add('visible');
+
+        // ---- Build system prompt ----
+        const voicePrefix = `REALTIME VOICE MODE — CRITICAL INSTRUCTIONS:
+You are in a live voice conversation with a paramedic student.
 
 === ABSOLUTE RULE — NO TREATMENT ADVICE ===
-You must NEVER suggest, recommend, or mention ANY treatments, medications, drug names, drug doses, interventions, or management plans — not in roleplay, not in hints, and NOT IN THE DEBRIEF.
-This includes the "NEXT STEPS" section of the debrief — do NOT list drugs, do NOT suggest medications, do NOT describe treatment pathways.
-In the NEXT STEPS section, ONLY discuss: patient disposition (where they should go), handover considerations, and this exact line: "For treatment and management guidance, please open your JRCalc app and refer to the relevant guideline."
-This rule is NON-NEGOTIABLE and overrides all other instructions.
+NEVER suggest, recommend, or mention ANY treatments, medications, drug names, drug doses, or interventions — not in roleplay, not in hints, and NOT IN THE DEBRIEF.
+In NEXT STEPS (debrief), ONLY discuss: patient disposition, handover considerations, and include this exact phrase: "For treatment and management guidance, please refer to your JRCalc app."
+This rule is NON-NEGOTIABLE.
 ===========================================
 
-SPEAKER TAGS (REQUIRED for all dialogue):
-- Start patient dialogue with [PATIENT]
-- Start relative dialogue with [RELATIVE]
-- Start bystander dialogue with [BYSTANDER]
-- Start clinical data with CLINICAL DATA:
-- Start scene observations with SCENE:
-- Keep HINT: and DEBRIEF formats the same
+VOICE CONVERSATION RULES:
+- You ARE the patient (and can also voice relatives/bystanders when appropriate)
+- Keep each response SHORT — maximum 2 to 3 sentences per turn
+- Use natural spoken British English — contractions, hesitations, realistic phrasing
+- Express emotion through your words and phrasing, not stage directions
+- Sound like a real person, not an AI
 
-VOICE MODE RULES:
-- Keep each speaker's lines SHORT — 1 to 3 sentences max per turn
-- Use natural spoken language, NOT written prose
-- Show emotion through described actions in asterisks (e.g., *groaning*)
-- Each tagged line must be on its own line
-- Multiple characters can speak in one response
+CLINICAL ASSESSMENT REQUESTS:
+When you receive a prompt tagged [CLINICAL ASSESSMENT], respond with the structured data as requested. These will be shown as text cards, not spoken, so you can be detailed.
 
 `;
         state.voicePrefix = voicePrefix;
-        const systemPrompt = voicePrefix + window.scenarioData.getScenarioSystemPrompt(state.currentScenario, state.difficultyLevel);
-        state.conversationHistory.push({ role: 'system', content: systemPrompt });
-        
+        state.scenarioSystemPrompt = window.scenarioData.getScenarioSystemPrompt(state.currentScenario, state.difficultyLevel);
+
+        // Add starter message instruction so the model speaks first
         const starterMessage = scenario.starterMessage;
-        
-        // Detect who speaks the starter message by parsing the text
-        const starterLower = starterMessage.toLowerCase();
-        let starterSpeaker = 'patient'; // default
-        let starterLabel = null;
-        
-        // Check for explicit bystander/relative cues in the text
-        if (starterLower.includes('*bystander') || starterLower.includes('bystander on scene')) {
-            starterSpeaker = 'bystander';
-        } else if (starterLower.includes('*mother') || starterLower.includes('*mum')) {
-            starterSpeaker = 'relative';
-            starterLabel = 'Mother';
-        } else if (starterLower.includes('*father') || starterLower.includes('*dad')) {
-            starterSpeaker = 'relative';
-            starterLabel = 'Father';
-        } else if (starterLower.includes('*wife')) {
-            starterSpeaker = 'relative';
-            starterLabel = 'Wife';
-        } else if (starterLower.includes('*husband')) {
-            starterSpeaker = 'relative';
-            starterLabel = 'Husband';
-        } else if (starterLower.includes('*partner')) {
-            starterSpeaker = 'relative';
-            starterLabel = 'Partner';
-        } else if (starterLower.includes('*friend') || starterLower.includes('*colleague') || starterLower.includes('*neighbour')) {
-            starterSpeaker = 'bystander';
-        } else if (state.voiceConfig.starterIsRelative) {
-            // Paediatric fallback
-            starterSpeaker = 'relative';
-        } else if (gcs <= 12) {
-            // Patient with very low GCS can't speak — bystander or relative speaks
-            starterSpeaker = 'bystander';
+        const cleanedStarter = starterMessage.replace(/^\*[^*]+\*\s*/i, '').trim();
+        const finalSystemPrompt = voicePrefix + state.scenarioSystemPrompt +
+            `\n\nBEGIN THE CONVERSATION: As soon as the session starts, speak your opening line in character:\n"${cleanedStarter}"\n\nAfter this, respond naturally to whatever the paramedic says or asks.`;
+
+        try {
+            await initRealtimeSession(finalSystemPrompt, state.voiceConfig.patient.voice);
+        } catch (err) {
+            console.error('Realtime session failed:', err);
+            el.thinkingIndicator.classList.remove('visible');
+            el.micLabel.textContent = 'Connection failed — please try again';
+            setTimeout(endSession, 3000);
         }
-        
-        // Clean the starter message — remove the *stage direction* prefix for cleaner audio
-        let cleanedStarter = starterMessage.replace(/^\*[^*]+\*\s*/i, '');
-        
-        if (starterSpeaker === 'bystander') {
-            const tag = '[BYSTANDER]';
-            state.conversationHistory.push({ role: 'assistant', content: `${tag} ${cleanedStarter}` });
-            addTranscriptMessage('relative', cleanedStarter, state.voiceConfig.bystander.label);
-            await speakSegments([{
-                text: cleanedStarter,
-                character: 'BYSTANDER',
-                voice: state.voiceConfig.bystander.voice,
-                instructions: state.voiceConfig.bystander.instructions
-            }]);
-        } else if (starterSpeaker === 'relative') {
-            const label = starterLabel || state.voiceConfig.relative.label;
-            state.conversationHistory.push({ role: 'assistant', content: `[RELATIVE] ${cleanedStarter}` });
-            addTranscriptMessage('relative', cleanedStarter, label);
-            await speakSegments([{
-                text: cleanedStarter,
-                character: 'RELATIVE',
-                voice: state.voiceConfig.relative.voice,
-                instructions: state.voiceConfig.relative.instructions
-            }]);
+    }
+
+    // ==================== INIT REALTIME SESSION (WebRTC) ====================
+    async function initRealtimeSession(systemPrompt, voice) {
+        // 1. Request ephemeral token from our Firebase function
+        const firebaseToken = await auth.currentUser.getIdToken();
+        const tokenRes = await fetch(API.realtimeToken, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${firebaseToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ systemPrompt, voice })
+        });
+        if (!tokenRes.ok) {
+            const errData = await tokenRes.json().catch(() => ({}));
+            throw new Error(errData.message || `Token request failed (${tokenRes.status})`);
+        }
+        const { token: ephemeralKey } = await tokenRes.json();
+
+        // 2. Create WebRTC peer connection
+        const pc = new RTCPeerConnection();
+        state.peerConnection = pc;
+
+        // 3. Route AI audio output directly to the speaker
+        const audioEl = new Audio();
+        audioEl.autoplay = true;
+        pc.ontrack = (e) => { audioEl.srcObject = e.streams[0]; };
+
+        // 4. Add user's microphone to the connection
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        state.micStream = stream;
+        state.micTrack = stream.getTracks()[0];
+        pc.addTrack(state.micTrack, stream);
+
+        // 5. Create data channel for Realtime API events
+        const dc = pc.createDataChannel('oai-events');
+        state.dataChannel = dc;
+
+        dc.onopen = () => {
+            // Enable input transcription so we can show what the user said
+            dc.send(JSON.stringify({
+                type: 'session.update',
+                session: { input_audio_transcription: { model: 'whisper-1' } }
+            }));
+            // Trigger the model to speak its opening line immediately
+            dc.send(JSON.stringify({ type: 'response.create', response: {} }));
+        };
+
+        dc.onmessage = (e) => {
+            try { handleRealtimeEvent(JSON.parse(e.data)); } catch (err) { /* skip malformed events */ }
+        };
+
+        pc.onconnectionstatechange = () => {
+            if (pc.connectionState === 'failed') {
+                console.error('WebRTC connection failed');
+                handleConnectionLost();
+            }
+        };
+
+        // 6. SDP exchange — browser connects directly to OpenAI
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+
+        const sdpRes = await fetch('https://api.openai.com/v1/realtime/calls', {
+            method: 'POST',
+            body: offer.sdp,
+            headers: {
+                'Authorization': `Bearer ${ephemeralKey}`,
+                'Content-Type': 'application/sdp'
+            }
+        });
+        if (!sdpRes.ok) throw new Error(`SDP exchange failed: ${sdpRes.status}`);
+
+        const sdp = await sdpRes.text();
+        await pc.setRemoteDescription({ type: 'answer', sdp });
+        // Data channel onopen fires once the connection is fully established
+    }
+
+    // ==================== REALTIME EVENT HANDLER ====================
+    function handleRealtimeEvent(event) {
+        switch (event.type) {
+
+            case 'session.created':
+            case 'session.updated':
+                state.isConnected = true;
+                break;
+
+            // User started speaking — visual pulse on mic button
+            case 'input_audio_buffer.speech_started':
+                if (!state.isMuted) {
+                    el.micBtn.style.boxShadow = '0 0 0 14px rgba(43, 138, 156, 0.15)';
+                    el.micLabel.textContent = 'Speaking...';
+                }
+                break;
+
+            // User stopped speaking — model will now respond
+            case 'input_audio_buffer.speech_stopped':
+                el.micBtn.style.boxShadow = '';
+                el.micLabel.textContent = 'Patient responding...';
+                el.thinkingIndicator.classList.add('visible');
+                break;
+
+            // Show what the user said in the transcript
+            case 'conversation.item.input_audio_transcription.completed':
+                if (event.transcript && event.transcript.trim()) {
+                    addTranscriptMessage('user', event.transcript.trim());
+                    trackVoiceAssessments(event.transcript);
+                    incrementDeteriorationCounter();
+                }
+                break;
+
+            // AI response text streaming in (audio plays automatically via WebRTC track)
+            case 'response.audio_transcript.delta':
+                el.thinkingIndicator.classList.remove('visible');
+                el.audioWaveIndicator.classList.add('visible', 'playing');
+                el.waveLabel.textContent = 'Speaking...';
+
+                if (!state.currentAiMsgDiv) {
+                    state.currentAiText = '';
+                    state.currentAiMsgDiv = document.createElement('div');
+                    state.currentAiMsgDiv.className = 'sim-msg patient';
+                    const patientLabel = state.voiceConfig?.patient?.label || 'Patient';
+                    state.currentAiMsgDiv.innerHTML = `
+                        <div class="msg-speaker"><i class="bi bi-person-fill"></i> ${patientLabel}</div>
+                        <div class="msg-text"></div>
+                    `;
+                    el.transcript.insertBefore(state.currentAiMsgDiv, el.thinkingIndicator);
+                }
+                state.currentAiText += (event.delta || '');
+                const msgTextDiv = state.currentAiMsgDiv.querySelector('.msg-text');
+                if (msgTextDiv) msgTextDiv.textContent = state.currentAiText;
+                el.transcript.scrollTop = el.transcript.scrollHeight;
+                break;
+
+            // AI finished this response
+            case 'response.audio_transcript.done': {
+                el.audioWaveIndicator.classList.remove('visible', 'playing');
+                const fullText = event.transcript || state.currentAiText;
+                if (state.currentAiMsgDiv) {
+                    // Check if this is a debrief response
+                    if (fullText.includes('## 1.') && fullText.includes('DIAGNOSIS')) {
+                        state.currentAiMsgDiv.remove();
+                        addTranscriptMessage('debrief', fullText);
+                        el.micBtn.classList.add('disabled');
+                        el.micLabel.textContent = 'Scenario complete';
+                    }
+                    state.currentAiMsgDiv = null;
+                    state.currentAiText = '';
+                }
+                break;
+            }
+
+            // Full turn is complete — re-enable listening
+            case 'response.done':
+                el.thinkingIndicator.classList.remove('visible');
+                checkDeterioration();
+                if (state.isConnected && !el.micBtn.classList.contains('disabled')) {
+                    el.micBtn.classList.remove('disabled');
+                    el.micLabel.textContent = state.isMuted ? 'Tap to unmute' : 'Listening...';
+                }
+                break;
+
+            case 'error':
+                console.error('Realtime API error:', event.error);
+                el.thinkingIndicator.classList.remove('visible');
+                break;
+        }
+    }
+
+    // ==================== SEND TEXT INTO SESSION ====================
+    // Used for hints and working impression — model speaks the response
+    function sendTextToSession(text, displayText) {
+        if (!state.dataChannel || state.dataChannel.readyState !== 'open') return;
+        if (displayText) addTranscriptMessage('user', displayText);
+
+        // Inject as a user text message
+        state.dataChannel.send(JSON.stringify({
+            type: 'conversation.item.create',
+            item: {
+                type: 'message',
+                role: 'user',
+                content: [{ type: 'input_text', text }]
+            }
+        }));
+        // Trigger AI response
+        state.dataChannel.send(JSON.stringify({ type: 'response.create', response: {} }));
+    }
+
+    // ==================== MIC BUTTON — MUTE / UNMUTE TOGGLE ====================
+    // With the Realtime API, the mic is always-on (VAD handles turn-taking).
+    // This button now mutes/unmutes the user's microphone track.
+    el.micBtn.addEventListener('click', () => {
+        if (!state.isConnected || !state.micTrack) return;
+        if (el.micBtn.classList.contains('disabled') && !state.isConnected) return;
+
+        state.isMuted = !state.isMuted;
+        state.micTrack.enabled = !state.isMuted;
+
+        if (state.isMuted) {
+            el.micBtn.classList.add('muted');
+            el.micIcon.className = 'bi bi-mic-mute-fill';
+            el.micLabel.textContent = 'Tap to unmute';
         } else {
-            state.conversationHistory.push({ role: 'assistant', content: `[PATIENT] ${cleanedStarter}` });
-            addTranscriptMessage('patient', cleanedStarter);
-            await speakSegments([{
-                text: cleanedStarter,
-                character: 'PATIENT',
-                voice: state.voiceConfig.patient.voice,
-                instructions: state.voiceConfig.patient.instructions
-            }]);
+            el.micBtn.classList.remove('muted');
+            el.micIcon.className = 'bi bi-mic-fill';
+            el.micLabel.textContent = 'Listening...';
         }
-        enableMic();
+    });
+
+    // ==================== ASSESSMENT BUTTONS ====================
+    // These still use the existing API.chat endpoint for structured text data.
+    // The results show as clinical cards in the transcript — no audio generated.
+    document.getElementById('assessmentRow').addEventListener('click', async (e) => {
+        const btn = e.target.closest('.sim-assess-btn');
+        if (!btn || state.isAssessing || !state.isConnected) return;
+
+        const assessKey = btn.dataset.assess;
+        const assess = ASSESS_PROMPTS[assessKey];
+        if (!assess) return;
+
+        if (!state.assessmentsPerformed.includes(assess.name)) {
+            state.assessmentsPerformed.push(assess.name);
+        }
+        if (!window.scenarioData.isKeyAssessment(assessKey)) {
+            incrementDeteriorationCounter();
+        }
+
+        // Show loading card
+        const card = document.createElement('div');
+        card.className = 'sim-clinical-card';
+        card.innerHTML = `<div class="card-label"><i class="bi bi-clipboard2-pulse"></i> Performing: ${assess.name}...</div>`;
+        el.transcript.insertBefore(card, el.thinkingIndicator);
+        el.transcript.scrollTop = el.transcript.scrollHeight;
+
+        state.isAssessing = true;
+
+        try {
+            const token = await auth.currentUser.getIdToken();
+            const res = await fetch(API.chat, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: assess.prompt,
+                    conversationHistory: [],
+                    scenarioPrompt: state.voicePrefix + state.scenarioSystemPrompt
+                })
+            });
+            const text = await readStreamedResponse(res);
+            card.innerHTML = `<div class="card-label"><i class="bi bi-heart-pulse"></i> ${assess.name.toUpperCase()}</div><div class="msg-text">${formatClinicalData(text)}</div>`;
+        } catch (err) {
+            console.error('Assessment error:', err);
+            card.innerHTML = `<div class="card-label"><i class="bi bi-exclamation-triangle"></i> Assessment failed — please try again</div>`;
+        }
+
+        state.isAssessing = false;
+        checkDeterioration();
+        el.transcript.scrollTop = el.transcript.scrollHeight;
+    });
+
+    // ==================== HINTS ====================
+    el.hintBtn.addEventListener('click', () => {
+        if (!state.isConnected || state.isAssessing) return;
+        sendTextToSession(
+            '[HINT MODE] Give the paramedic a gentle hint about what they should consider next in this scenario, without revealing the diagnosis. Keep it to one or two sentences.',
+            null
+        );
+        // Show a small indicator
+        const hintNote = document.createElement('div');
+        hintNote.className = 'sim-clinical-card';
+        hintNote.innerHTML = `<div class="card-label"><i class="bi bi-lightbulb"></i> HINT REQUESTED</div>`;
+        el.transcript.insertBefore(hintNote, el.thinkingIndicator);
+        el.transcript.scrollTop = el.transcript.scrollHeight;
+    });
+
+    // ==================== WORKING IMPRESSION ====================
+    el.impressionBtn.addEventListener('click', () => {
+        new bootstrap.Modal(el.impressionModal).show();
+    });
+
+    el.submitImpressionBtn.addEventListener('click', () => {
+        const impression = el.impressionInput.value.trim();
+        const reasoning = el.impressionReasoning.value.trim();
+        if (!impression) { el.impressionInput.style.borderColor = 'var(--color-danger)'; return; }
+        bootstrap.Modal.getInstance(el.impressionModal).hide();
+        el.impressionInput.value = '';
+        el.impressionReasoning.value = '';
+
+        const assessList = state.assessmentsPerformed.length > 0
+            ? `\n\nASSESSMENTS THE PARAMEDIC PERFORMED (do NOT say they missed these):\n- ${state.assessmentsPerformed.join('\n- ')}`
+            : '';
+
+        const aiMsg = `[DEBRIEF MODE] My working impression is: ${impression}${reasoning ? '\nMy reasoning: ' + reasoning : ''}${assessList}\n\nREMINDER: In NEXT STEPS, do NOT suggest any treatments, drugs, or medications. Only discuss disposition and say "For treatment and management guidance, please refer to your JRCalc app."`;
+
+        const displayMsg = `Working Impression: ${impression}${reasoning ? '\nReasoning: ' + reasoning : ''}`;
+
+        sendTextToSession(aiMsg, displayMsg);
+        el.micBtn.classList.add('disabled');
+        el.micLabel.textContent = 'Awaiting debrief...';
+    });
+
+    // ==================== END SCENARIO ====================
+    function endSession() {
+        // Close WebRTC connection and free mic
+        if (state.dataChannel) { try { state.dataChannel.close(); } catch (e) {} state.dataChannel = null; }
+        if (state.micStream) { state.micStream.getTracks().forEach(t => t.stop()); state.micStream = null; }
+        if (state.peerConnection) { state.peerConnection.close(); state.peerConnection = null; }
+        state.micTrack = null;
+        state.isConnected = false;
+        state.isMuted = false;
+        state.currentAiMsgDiv = null;
+        state.currentAiText = '';
+        state.currentScenario = null;
+        state.assessmentsPerformed = [];
+        state.isAssessing = false;
+        state.deterioration = { exchangesSinceKeyAssessment: 0, currentPhase: null, warningShown: false, criticalShown: false };
+
+        // Reset UI
+        el.micBtn.classList.add('disabled');
+        el.micBtn.classList.remove('muted');
+        el.micBtn.style.boxShadow = '';
+        el.micIcon.className = 'bi bi-mic-fill';
+        el.micLabel.textContent = 'Tap to speak';
+        el.audioWaveIndicator.classList.remove('visible', 'playing');
+        el.thinkingIndicator.classList.remove('visible');
+
+        el.voiceSimView.classList.remove('active');
+        el.scenarioSelectView.style.display = '';
+        el.simFooter.style.display = '';
+    }
+
+    el.endScenarioBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to end this scenario?')) {
+            endSession();
+        }
+    });
+
+    function handleConnectionLost() {
+        state.isConnected = false;
+        el.thinkingIndicator.classList.remove('visible');
+        el.micLabel.textContent = 'Connection lost — please end and restart';
+    }
+
+    // ==================== VOICE ASSESSMENT TRACKING ====================
+    // Detects clinical keywords in the user's speech for the debrief assessment list
+    function trackVoiceAssessments(transcript) {
+        const lower = transcript.toLowerCase();
+        const add = (name) => { if (!state.assessmentsPerformed.includes(name)) state.assessmentsPerformed.push(name); };
+        if (/pain|where does it hurt|how bad|score.*out of|socrates/i.test(lower)) add('Pain assessment (voice)');
+        if (/observation|vital|blood pressure|pulse|sats|oxygen|temperature|resp.*rate/i.test(lower)) add('Observations (voice)');
+        if (/medication|medicine|tablets|pills|what.*taking|allergic|allergy/i.test(lower)) add('Medications/allergies (voice)');
+        if (/history|medical history|past medical|previous|before|happen before/i.test(lower)) add('History (voice)');
     }
 
     // ==================== TRANSCRIPT MESSAGES ====================
     function addTranscriptMessage(type, text, speakerLabel) {
         const div = document.createElement('div');
-        // Get dynamic labels from voice config
         const vc = state.voiceConfig || {};
         const patientLabel = vc.patient?.label || 'Patient';
         const relativeLabel = vc.relative?.label || 'Relative';
-        const bystanderLabel = vc.bystander?.label || 'Bystander';
-        
+
         if (type === 'patient') {
             div.className = 'sim-msg patient';
             div.innerHTML = `<div class="msg-speaker"><i class="bi bi-person-fill"></i> ${patientLabel}</div><div class="msg-text">${escapeHtml(text)}</div>`;
@@ -1490,16 +1714,21 @@ VOICE MODE RULES:
         el.transcript.scrollTop = el.transcript.scrollHeight;
         return div;
     }
-    function formatClinicalData(text) { return escapeHtml(text).replace(/•/g, '<br>•').replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); }
-    function escapeHtml(text) { const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
+
+    function formatClinicalData(text) {
+        return escapeHtml(text).replace(/•/g, '<br>•').replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    }
+
+    function escapeHtml(text) {
+        const d = document.createElement('div');
+        d.textContent = text;
+        return d.innerHTML;
+    }
 
     // ==================== DETERIORATION SYSTEM ====================
-    // (Mirrors scenarios.html — adapted for livesim transcript)
-
     function addDeteriorationAlert(phase) {
         const config = window.scenarioData.DETERIORATION_CONFIG.alerts[phase];
         if (!config) return;
-        
         const alertDiv = document.createElement('div');
         alertDiv.className = `deterioration-alert deterioration-${phase}`;
         alertDiv.innerHTML = `
@@ -1509,19 +1738,16 @@ VOICE MODE RULES:
                 <div class="deterioration-message">${config.message}</div>
             </div>
         `;
-        
         el.transcript.insertBefore(alertDiv, el.thinkingIndicator);
         el.transcript.scrollTop = el.transcript.scrollHeight;
     }
 
     function checkDeterioration() {
         if (!state.currentScenario) return;
-        
         const phase = window.scenarioData.getDeteriorationPhase(
             state.deterioration.exchangesSinceKeyAssessment,
             state.difficultyLevel
         );
-        
         if (phase === 'critical' && !state.deterioration.criticalShown) {
             state.deterioration.currentPhase = 'critical';
             state.deterioration.criticalShown = true;
@@ -1533,264 +1759,30 @@ VOICE MODE RULES:
         }
     }
 
-    function resetDeteriorationCounter() {
-        state.deterioration.exchangesSinceKeyAssessment = 0;
-    }
+    function resetDeteriorationCounter() { state.deterioration.exchangesSinceKeyAssessment = 0; }
+    function incrementDeteriorationCounter() { state.deterioration.exchangesSinceKeyAssessment++; }
 
-    function incrementDeteriorationCounter() {
-        state.deterioration.exchangesSinceKeyAssessment++;
-    }
-
-    // ==================== VOICE RECORDING ====================
-    function enableMic() { el.micBtn.classList.remove('disabled'); el.micLabel.textContent = 'Tap to speak'; }
-    function disableMic() { el.micBtn.classList.add('disabled'); el.micLabel.textContent = 'Please wait...'; }
-    
-    el.micBtn.addEventListener('click', async () => {
-        ensureAudioContext();
-        if (state.isProcessing || state.isPlayingAudio) return;
-        if (!state.isRecording) await startRecording(); else await stopRecording();
-    });
-    
-    async function startRecording() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            state.audioChunks = [];
-            state.mediaRecorder = new MediaRecorder(stream);
-            state.mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) state.audioChunks.push(e.data); };
-            state.mediaRecorder.start();
-            state.isRecording = true;
-            el.micBtn.classList.add('recording');
-            el.micIcon.className = 'bi bi-stop-fill';
-            el.micLabel.textContent = 'Tap to stop';
-        } catch (err) {
-            console.error('Mic error:', err);
-            alert('Could not access your microphone. Please allow microphone access in your browser settings.');
-        }
-    }
-    
-    async function stopRecording() {
-        if (!state.mediaRecorder) return;
-        state.isRecording = false;
-        el.micBtn.classList.remove('recording');
-        el.micIcon.className = 'bi bi-mic-fill';
-        return new Promise((resolve) => {
-            state.mediaRecorder.onstop = async () => {
-                state.mediaRecorder.stream.getTracks().forEach(t => t.stop());
-                const blob = new Blob(state.audioChunks, { type: state.mediaRecorder.mimeType });
-                if (blob.size < 1000) { el.micLabel.textContent = 'Too short — try again'; setTimeout(enableMic, 1500); resolve(); return; }
-                disableMic(); el.micLabel.textContent = 'Transcribing...';
-                try {
-                    const base64 = await blobToBase64(blob);
-                    const token = await auth.currentUser.getIdToken();
-                    const res = await fetch(API.transcribe, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ audio: base64, mimeType: state.mediaRecorder.mimeType }) });
-                    const data = await res.json();
-                    if (data.text && data.text.trim()) { await processUserMessage(data.text.trim()); }
-                    else { el.micLabel.textContent = "Couldn't hear that — try again"; setTimeout(enableMic, 1500); }
-                } catch (err) { console.error('Transcribe error:', err); el.micLabel.textContent = 'Error — try again'; setTimeout(enableMic, 2000); }
-                resolve();
-            };
-            state.mediaRecorder.stop();
-        });
-    }
-    function blobToBase64(blob) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result.split(',')[1]); reader.onerror = reject; reader.readAsDataURL(blob); }); }
-
-    // ==================== PROCESS USER MESSAGE ====================
-    async function processUserMessage(text, displayText) {
-        state.isProcessing = true; disableMic();
-        if (displayText !== false) addTranscriptMessage('user', displayText || text);
-        state.conversationHistory.push({ role: 'user', content: text });
-        
-        // Track assessments from voice queries (keyword detection)
-        const lower = text.toLowerCase();
-        let voiceAssessmentDetected = false;
-        if (/pain|where does it hurt|how bad|score.*out of|socrates/i.test(lower) && !state.assessmentsPerformed.includes('Pain assessment (voice)')) {
-            state.assessmentsPerformed.push('Pain assessment (voice)');
-            voiceAssessmentDetected = true;
-        }
-        if (/observation|vital|blood pressure|pulse|sats|oxygen|temperature|resp.*rate/i.test(lower) && !state.assessmentsPerformed.includes('Observations (voice)')) {
-            state.assessmentsPerformed.push('Observations (voice)');
-            voiceAssessmentDetected = true;
-        }
-        if (/medication|medicine|tablets|pills|what.*taking|allergic|allergy/i.test(lower) && !state.assessmentsPerformed.includes('Medications/allergies (voice)')) {
-            state.assessmentsPerformed.push('Medications/allergies (voice)');
-            voiceAssessmentDetected = true;
-        }
-        if (/history|medical history|past medical|previous|before|happen before/i.test(lower) && !state.assessmentsPerformed.includes('History (voice)')) {
-            state.assessmentsPerformed.push('History (voice)');
-            voiceAssessmentDetected = true;
-        }
-        
-        // Deterioration tracking — assessments are neutral, regular messages increment
-        if (!voiceAssessmentDetected && !text.startsWith('[CLINICAL ASSESSMENT')) {
-            incrementDeteriorationCounter();
-        }
-        
-        // Use more history for debrief so AI can see the full scenario
-        const historyLimit = text.includes('DEBRIEF') ? -30 : -12;
-        
-        // Update system prompt with deterioration phase if it has changed
-        if (state.deterioration.currentPhase) {
-            const sysIdx = state.conversationHistory.findIndex(m => m.role === 'system');
-            if (sysIdx !== -1 && state.voicePrefix) {
-                const updatedScenarioPrompt = window.scenarioData.getScenarioSystemPrompt(
-                    state.currentScenario, state.difficultyLevel, state.deterioration.currentPhase
-                );
-                if (updatedScenarioPrompt) {
-                    state.conversationHistory[sysIdx].content = state.voicePrefix + updatedScenarioPrompt;
+    // ==================== READ STREAMED RESPONSE ====================
+    // Used by assessment buttons which still call API.chat
+    async function readStreamedResponse(response) {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullText = '';
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const chunk = decoder.decode(value, { stream: true });
+            for (const line of chunk.split('\n')) {
+                if (line.startsWith('data: ')) {
+                    try {
+                        const data = JSON.parse(line.slice(6));
+                        if (data.type === 'chunk' && data.content) fullText += data.content;
+                    } catch (e) {}
                 }
             }
         }
-        
-        el.thinkingIndicator.classList.add('visible');
-        el.micLabel.textContent = 'Patient is responding...';
-        try {
-            const token = await auth.currentUser.getIdToken();
-            const response = await fetch(API.chat, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text, conversationHistory: state.conversationHistory.slice(historyLimit).filter(m => m.role !== 'system'), scenarioPrompt: state.conversationHistory.find(m => m.role === 'system')?.content }) });
-            const fullText = await readStreamedResponse(response);
-            el.thinkingIndicator.classList.remove('visible');
-            state.conversationHistory.push({ role: 'assistant', content: fullText });
-            await parseAndDisplayResponse(fullText);
-            checkDeterioration();
-        } catch (err) { console.error('Chat error:', err); el.thinkingIndicator.classList.remove('visible'); el.micLabel.textContent = 'Error — try again'; setTimeout(enableMic, 2000); }
-        state.isProcessing = false;
-    }
-    async function readStreamedResponse(response) {
-        const reader = response.body.getReader(); const decoder = new TextDecoder(); let fullText = '';
-        while (true) { const { done, value } = await reader.read(); if (done) break; const chunk = decoder.decode(value, { stream: true }); for (const line of chunk.split('\n')) { if (line.startsWith('data: ')) { try { const data = JSON.parse(line.slice(6)); if (data.type === 'chunk' && data.content) fullText += data.content; } catch (e) {} } } }
         return fullText;
     }
-
-    // ==================== PARSE & DISPLAY RESPONSE ====================
-    async function parseAndDisplayResponse(text) {
-        if (text.includes('## 1.') && text.includes('DIAGNOSIS')) { addTranscriptMessage('debrief', text); disableMic(); el.micLabel.textContent = 'Scenario complete'; return; }
-        if (text.trim().startsWith('HINT:')) { showHint(text.replace('HINT:', '').trim()); enableMic(); return; }
-        const segments = parseResponseSegments(text);
-        const voiceSegments = [];
-        for (const seg of segments) {
-            if (seg.type === 'patient') { addTranscriptMessage('patient', seg.text); voiceSegments.push({ text: seg.text, character: 'PATIENT', voice: state.voiceConfig.patient.voice, instructions: state.voiceConfig.patient.instructions }); }
-            else if (seg.type === 'relative') { addTranscriptMessage('relative', seg.text); const vc = state.voiceConfig.relative; voiceSegments.push({ text: seg.text, character: 'RELATIVE', voice: vc.voice, instructions: vc.instructions }); }
-            else if (seg.type === 'bystander') { addTranscriptMessage('relative', seg.text, state.voiceConfig.bystander.label); const vc = state.voiceConfig.bystander; voiceSegments.push({ text: seg.text, character: 'BYSTANDER', voice: vc.voice, instructions: vc.instructions }); }
-            else if (seg.type === 'clinical') { addTranscriptMessage('clinical', seg.text); }
-            else if (seg.type === 'scene') { addTranscriptMessage('scene', seg.text); }
-        }
-        if (voiceSegments.length > 0) await speakSegments(voiceSegments);
-        enableMic();
-    }
-    function parseResponseSegments(text) {
-        const segments = []; const lines = text.split('\n'); let currentType = null, currentText = '';
-        for (const line of lines) { const trimmed = line.trim(); if (!trimmed) continue; let newType = null, newText = trimmed;
-            if (/^\[?PATIENT\]?:?\s*/i.test(trimmed)) { newType = 'patient'; newText = trimmed.replace(/^\[?PATIENT\]?:?\s*/i, ''); }
-            else if (/^\[?RELATIVE\]?:?\s*/i.test(trimmed)) { newType = 'relative'; newText = trimmed.replace(/^\[?RELATIVE\]?:?\s*/i, ''); }
-            else if (/^\[?BYSTANDER\]?:?\s*/i.test(trimmed)) { newType = 'bystander'; newText = trimmed.replace(/^\[?BYSTANDER\]?:?\s*/i, ''); }
-            else if (/^(Mother|Father|Mum|Dad|Wife|Husband|Daughter|Son|Partner|Carer):?\s*/i.test(trimmed)) { newType = 'relative'; newText = trimmed.replace(/^(Mother|Father|Mum|Dad|Wife|Husband|Daughter|Son|Partner|Carer):?\s*/i, ''); }
-            else if (/^(Bystander|Friend|Colleague|Neighbour|Witness|Passer-?by):?\s*/i.test(trimmed)) { newType = 'bystander'; newText = trimmed.replace(/^(Bystander|Friend|Colleague|Neighbour|Witness|Passer-?by):?\s*/i, ''); }
-            else if (/^(Child|Patient name):?\s*/i.test(trimmed)) { newType = 'patient'; newText = trimmed.replace(/^(Child|Patient name):?\s*/i, ''); }
-            else if (/^CLINICAL DATA:?\s*/i.test(trimmed)) { newType = 'clinical'; newText = trimmed.replace(/^CLINICAL DATA:?\s*/i, ''); }
-            else if (/^SCENE:?\s*/i.test(trimmed)) { newType = 'scene'; newText = trimmed.replace(/^SCENE:?\s*/i, ''); }
-            else if (currentType) { currentText += '\n' + trimmed; continue; }
-            else { newType = 'patient'; newText = trimmed; }
-            if (currentType && currentText) segments.push({ type: currentType, text: currentText.trim() });
-            currentType = newType; currentText = newText;
-        }
-        if (currentType && currentText) segments.push({ type: currentType, text: currentText.trim() });
-        return segments;
-    }
-
-    // ==================== TEXT-TO-SPEECH ====================
-    async function speakSegments(segments) {
-        if (!segments.length) return; state.isPlayingAudio = true;
-        // Show waveform — "Generating voice..."
-        el.audioWaveIndicator.classList.add('visible');
-        el.audioWaveIndicator.classList.remove('playing');
-        el.waveLabel.textContent = 'Generating voice...';
-        el.micLabel.textContent = 'Generating voice...';
-        el.transcript.scrollTop = el.transcript.scrollHeight;
-        try {
-            const token = await auth.currentUser.getIdToken();
-            const res = await fetch(API.speak, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ segments }) });
-            if (!res.ok) { state.isPlayingAudio = false; el.audioWaveIndicator.classList.remove('visible'); return; }
-            const data = await res.json();
-            // Switch to "playing" state
-            el.audioWaveIndicator.classList.add('playing');
-            el.waveLabel.textContent = 'Speaking...';
-            el.micLabel.textContent = 'Patient is speaking...';
-            for (const seg of data.audioSegments) { await playAudio(seg.audio); if (data.audioSegments.length > 1) await new Promise(r => setTimeout(r, 250)); }
-        } catch (err) { console.error('TTS error:', err); }
-        // Hide waveform
-        el.audioWaveIndicator.classList.remove('visible', 'playing');
-        state.isPlayingAudio = false;
-    }
-    function playAudio(base64Mp3) {
-        return new Promise(async (resolve) => {
-            try {
-                const ctx = ensureAudioContext();
-                // Decode base64 to ArrayBuffer
-                const binaryString = atob(base64Mp3);
-                const bytes = new Uint8Array(binaryString.length);
-                for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
-                const audioBuffer = await ctx.decodeAudioData(bytes.buffer.slice(0));
-                const source = ctx.createBufferSource();
-                source.buffer = audioBuffer;
-                source.connect(ctx.destination);
-                // Wrap so endScenario's state.currentAudio.pause() still works
-                state.currentAudio = { pause: () => { try { source.stop(); } catch(e) {} } };
-                source.onended = () => { state.currentAudio = null; resolve(); };
-                source.start(0);
-            } catch (err) {
-                console.error('Audio playback error:', err);
-                state.currentAudio = null;
-                resolve();
-            }
-        });
-    }
-
-    // ==================== ASSESSMENT BUTTONS ====================
-    document.getElementById('assessmentRow').addEventListener('click', async (e) => {
-        ensureAudioContext();
-        const btn = e.target.closest('.sim-assess-btn');
-        if (!btn || state.isProcessing || state.isPlayingAudio) return;
-        const assessKey = btn.dataset.assess;
-        const assess = ASSESS_PROMPTS[assessKey];
-        if (!assess) return;
-        // Track that this assessment was performed
-        if (!state.assessmentsPerformed.includes(assess.name)) {
-            state.assessmentsPerformed.push(assess.name);
-        }
-        // Key assessments are neutral (don't affect counter), non-key assessments still count as exchanges
-        if (!window.scenarioData.isKeyAssessment(assessKey)) {
-            incrementDeteriorationCounter();
-        }
-        await processUserMessage(assess.prompt, `Performing: ${assess.name}`);
-    });
-
-    // ==================== HINTS ====================
-    el.hintBtn.addEventListener('click', async () => { ensureAudioContext(); if (state.isProcessing) return; await processUserMessage('HINT', 'Requesting hint...'); });
-    function showHint(text) { el.hintPopup.textContent = '💡 ' + text; el.hintPopup.classList.add('visible'); setTimeout(() => el.hintPopup.classList.remove('visible'), 8000); }
-
-    // ==================== WORKING IMPRESSION ====================
-    el.impressionBtn.addEventListener('click', () => { new bootstrap.Modal(el.impressionModal).show(); });
-    el.submitImpressionBtn.addEventListener('click', async () => {
-        const impression = el.impressionInput.value.trim();
-        const reasoning = el.impressionReasoning.value.trim();
-        if (!impression) { el.impressionInput.style.borderColor = 'var(--color-danger)'; return; }
-        bootstrap.Modal.getInstance(el.impressionModal).hide();
-        el.impressionInput.value = ''; el.impressionReasoning.value = '';
-        const assessList = state.assessmentsPerformed.length > 0 
-            ? `\n\nASSESSMENTS THE PARAMEDIC PERFORMED DURING THIS SCENARIO (do NOT say they missed these):\n- ${state.assessmentsPerformed.join('\n- ')}`
-            : '';
-        const displayMsg = `DEBRIEF\n\nMy working impression: ${impression}${reasoning ? '\nMy reasoning: ' + reasoning : ''}`;
-        const aiMsg = displayMsg + assessList + `\n\nREMINDER: In the NEXT STEPS section, do NOT suggest any treatments, drugs, or medications. Only discuss disposition and say "For treatment and management guidance, please open your JRCalc app and refer to the relevant guideline."`;
-        await processUserMessage(aiMsg, displayMsg);
-    });
-
-    // ==================== END SCENARIO ====================
-    el.endScenarioBtn.addEventListener('click', () => {
-        if (state.currentAudio) { state.currentAudio.pause(); state.currentAudio = null; }
-        if (state.isRecording && state.mediaRecorder) { state.mediaRecorder.stop(); state.mediaRecorder.stream.getTracks().forEach(t => t.stop()); state.isRecording = false; }
-        state.isProcessing = false; state.isPlayingAudio = false; state.currentScenario = null; state.conversationHistory = []; state.assessmentsPerformed = [];
-        state.deterioration = { exchangesSinceKeyAssessment: 0, currentPhase: null, warningShown: false, criticalShown: false };
-        el.voiceSimView.classList.remove('active'); el.scenarioSelectView.style.display = ''; el.simFooter.style.display = '';
-    });
     </script>
+
 </body>
-</html>
