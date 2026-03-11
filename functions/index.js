@@ -2052,7 +2052,7 @@ exports.realtimeToken = onRequest(
       const openaiKey = process.env.OPENAI_API_KEY;
 
       const tokenRes = await fetch(
-        "https://api.openai.com/v1/realtime/client_secrets",
+        "https://api.openai.com/v1/realtime/sessions",
         {
           method: "POST",
           headers: {
@@ -2060,7 +2060,7 @@ exports.realtimeToken = onRequest(
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "gpt-4o-realtime-preview",
+            model: "gpt-4o-realtime-preview-2024-12-17",
             voice: voice || "ballad",
             instructions: systemPrompt || "",
             modalities: ["audio", "text"],
@@ -2076,13 +2076,14 @@ exports.realtimeToken = onRequest(
 
       if (!tokenRes.ok) {
         const errText = await tokenRes.text();
-        console.error("OpenAI token error:", errText);
+        console.error("OpenAI token error:", tokenRes.status, errText);
         return res
           .status(502)
-          .json({ message: "Failed to get Realtime token from OpenAI" });
+          .json({ message: "Failed to get Realtime token from OpenAI", detail: errText });
       }
 
       const tokenData = await tokenRes.json();
+      console.log("OpenAI token response keys:", Object.keys(tokenData));
       // The ephemeral key is in client_secret.value
       const ephemeralKey =
         tokenData.client_secret?.value || tokenData.token;
