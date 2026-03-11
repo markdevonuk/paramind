@@ -2008,6 +2008,14 @@ exports.realtimeToken = onRequest(
     secrets: ["OPENAI_API_KEY"],
   },
   async (req, res) => {
+    // Explicit CORS headers (belt-and-suspenders alongside cors:true)
+    res.set("Access-Control-Allow-Origin", "*");
+    res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.set("Access-Control-Allow-Headers", "Authorization, Content-Type");
+    if (req.method === "OPTIONS") {
+      return res.status(204).send("");
+    }
+
     // --- Auth check (Pro users only) ---
     const authHeader = req.headers.authorization || "";
     if (!authHeader.startsWith("Bearer ")) {
