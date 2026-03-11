@@ -2052,7 +2052,7 @@ exports.realtimeToken = onRequest(
       const openaiKey = process.env.OPENAI_API_KEY;
 
       const tokenRes = await fetch(
-        "https://api.openai.com/v1/realtime/sessions",
+        "https://api.openai.com/v1/realtime/client_secrets",
         {
           method: "POST",
           headers: {
@@ -2060,15 +2060,22 @@ exports.realtimeToken = onRequest(
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "gpt-4o-realtime-preview-2024-12-17",
-            voice: voice || "ballad",
-            instructions: systemPrompt || "",
-            modalities: ["audio", "text"],
-            turn_detection: {
-              type: "server_vad",
-              silence_duration_ms: 700,
-              threshold: 0.5,
-              prefix_padding_ms: 300,
+            session: {
+              type: "realtime",
+              model: "gpt-realtime",
+              instructions: systemPrompt || "",
+              modalities: ["audio", "text"],
+              audio: {
+                output: {
+                  voice: voice || "ballad",
+                },
+              },
+              turn_detection: {
+                type: "server_vad",
+                silence_duration_ms: 700,
+                threshold: 0.5,
+                prefix_padding_ms: 300,
+              },
             },
           }),
         }
@@ -2083,10 +2090,8 @@ exports.realtimeToken = onRequest(
       }
 
       const tokenData = await tokenRes.json();
-      console.log("OpenAI token response keys:", Object.keys(tokenData));
-      // The ephemeral key is in client_secret.value
-      const ephemeralKey =
-        tokenData.client_secret?.value || tokenData.token;
+      // GA endpoint returns the ephemeral key at tokenData.value
+      const ephemeralKey = tokenData.value;
 
       if (!ephemeralKey) {
         console.error("No token in OpenAI response:", JSON.stringify(tokenData));
