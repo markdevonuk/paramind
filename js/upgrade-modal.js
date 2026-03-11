@@ -267,6 +267,7 @@
     // ==================== DETECT NATIVE PLATFORM ====================
     const isNativePlatform = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
     const isIOS = isNativePlatform && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'ios';
+    const isAndroid = isNativePlatform && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'android';
 
     // Update footer text for iOS
     if (isIOS) {
@@ -347,6 +348,80 @@
         }, 100);
     }
 
+    // Update footer text for Android
+    if (isAndroid) {
+        const footer = document.querySelector('.pm-upgrade-footer');
+        if (footer) {
+            footer.innerHTML = 'Cancel anytime. Secure payment via Google Play.<br><button id="pmRestorePurchasesAndroid" style="margin-top:0.5rem; padding:0.5rem 1.25rem; background:transparent; color:#2B8A9C; border:1px solid #2B8A9C; border-radius:6px; font-family:inherit; font-size:0.85rem; font-weight:600; cursor:pointer;">Restore Purchases</button><br><span style="font-size: 0.7rem; line-height: 1.5;">Subscriptions auto-renew monthly (£4.99/mo) or annually (£49.99/yr) until cancelled.<br><a href="terms.html" style="color: #2B8A9C;">Terms</a> · <a href="privacy.html" style="color: #2B8A9C;">Privacy</a></span>';
+        }
+        // Restore purchases handler for Android
+        setTimeout(function() {
+            const restoreLinkAndroid = document.getElementById('pmRestorePurchasesAndroid');
+            if (restoreLinkAndroid) {
+                restoreLinkAndroid.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    try {
+                        restoreLinkAndroid.disabled = true;
+                        restoreLinkAndroid.textContent = 'Restoring...';
+                        const NativePurchases = window.Capacitor.Plugins.NativePurchases;
+
+                        const purchases = await NativePurchases.getPurchases({ productType: 'subs' });
+                        if (purchases && purchases.transactions && purchases.transactions.length > 0) {
+                            let token;
+                            if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+                                token = await firebase.auth().currentUser.getIdToken();
+                            }
+                            if (token) {
+                                const baseUrl = window.paramind?.CONFIG?.api?.baseUrl
+                                    || (typeof API_CONFIG !== 'undefined' ? API_CONFIG.baseUrl : null)
+                                    || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
+                                try {
+                                    const tx = purchases.transactions[0];
+                                    await fetch(baseUrl + '/verifyGooglePurchase', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Authorization': 'Bearer ' + token,
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({
+                                            productId: tx.productIdentifier || tx.productId || null,
+                                            purchaseToken: tx.purchaseToken || null,
+                                            transactionId: tx.transactionId || null,
+                                            restored: true
+                                        })
+                                    });
+                                } catch (verifyErr) {
+                                    const uid = firebase.auth().currentUser.uid;
+                                    await firebase.firestore().collection('users').doc(uid).update({
+                                        subscriptionStatus: 'active',
+                                        subscriptionPlatform: 'google',
+                                        subscriptionUpdatedAt: new Date().toISOString()
+                                    });
+                                }
+                            }
+                            try {
+                                const cached = JSON.parse(localStorage.getItem('paramind_user') || '{}');
+                                cached.subscriptionStatus = 'active';
+                                localStorage.setItem('paramind_user', JSON.stringify(cached));
+                            } catch (e) {}
+
+                            overlay.classList.remove('pm-visible');
+                            alert('Your Pro subscription has been restored! 🎉');
+                            window.location.reload();
+                        } else {
+                            restoreLinkAndroid.disabled = false; restoreLinkAndroid.textContent = 'Restore Purchases';
+                            alert('No previous subscription found for this Google account.');
+                        }
+                    } catch (err) {
+                        console.error('Restore failed:', err);
+                        restoreLinkAndroid.disabled = false; restoreLinkAndroid.textContent = 'Restore Purchases';
+                        alert('Could not restore purchases. Please try again.');
+                    }
+                });
+            }
+        }, 100);
+    }
+
     // Try to load real App Store prices when on iOS
     if (isIOS) {
         (async function loadAppStorePrices() {
@@ -373,6 +448,36 @@
                 }
             } catch (e) {
                 console.log('Could not load App Store prices:', e);
+            }
+        })();
+    }
+
+    // Try to load real Google Play prices when on Android
+    if (isAndroid) {
+        (async function loadGooglePlayPrices() {
+            try {
+                const NativePurchases = window.Capacitor.Plugins.NativePurchases;
+                if (!NativePurchases) return;
+
+                const result = await NativePurchases.getProducts({
+                    productIdentifiers: ['paramind_pro_monthly', 'paramind_pro_annual'],
+                    productType: 'subs'
+                });
+
+                if (result && result.products) {
+                    result.products.forEach(function(product) {
+                        if (product.identifier === 'paramind_pro_monthly') {
+                            const priceEl = document.querySelector('#pmPlanMonthly .pm-plan-price');
+                            if (priceEl) priceEl.innerHTML = product.priceString + '<span>/month</span>';
+                        }
+                        if (product.identifier === 'paramind_pro_annual') {
+                            const priceEl = document.querySelector('#pmPlanAnnual .pm-plan-price');
+                            if (priceEl) priceEl.innerHTML = product.priceString + '<span>/year</span>';
+                        }
+                    });
+                }
+            } catch (e) {
+                console.log('Could not load Google Play prices:', e);
             }
         })();
     }
@@ -468,6 +573,82 @@
                 return;
             }
 
+            // ==================== ANDROID IN-APP PURCHASE ====================
+            if (isAndroid) {
+                const NativePurchases = window.Capacitor.Plugins.NativePurchases;
+                const productId = selectedPlan === 'monthly' ? 'paramind_pro_monthly' : 'paramind_pro_annual';
+
+                const transaction = await NativePurchases.purchaseProduct({ productIdentifier: productId });
+                console.log('Google Play purchase successful:', JSON.stringify(transaction));
+
+                let uid = null;
+                try {
+                    if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+                        uid = firebase.auth().currentUser.uid;
+                    } else if (typeof auth !== 'undefined' && auth.currentUser) {
+                        uid = auth.currentUser.uid;
+                    }
+                    if (uid) {
+                        console.log('Updating Firestore directly for user:', uid);
+                        await firebase.firestore().collection('users').doc(uid).update({
+                            subscriptionStatus: 'active',
+                            subscriptionPlatform: 'google',
+                            googleProductId: productId,
+                            googleTransactionId: transaction.transactionId || '',
+                            googlePurchaseToken: transaction.purchaseToken || '',
+                            subscriptionUpdatedAt: new Date().toISOString()
+                        });
+                        console.log('Firestore updated successfully');
+                    }
+                } catch (firestoreErr) {
+                    console.error('Firestore direct update failed:', firestoreErr);
+                }
+
+                try {
+                    let token;
+                    if (typeof getAuthToken === 'function') {
+                        token = await getAuthToken();
+                    } else if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+                        token = await firebase.auth().currentUser.getIdToken();
+                    } else if (typeof auth !== 'undefined' && auth.currentUser) {
+                        token = await auth.currentUser.getIdToken();
+                    }
+
+                    if (token) {
+                        const baseUrl = window.paramind?.CONFIG?.api?.baseUrl
+                            || (typeof API_CONFIG !== 'undefined' ? API_CONFIG.baseUrl : null)
+                            || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
+                        console.log('Calling verifyGooglePurchase...');
+                        fetch(baseUrl + '/verifyGooglePurchase', {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': 'Bearer ' + token,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                productId: productId,
+                                purchaseToken: transaction.purchaseToken || null,
+                                transactionId: transaction.transactionId || null
+                            })
+                        }).then(r => console.log('Backend verify status:', r.status))
+                          .catch(e => console.warn('Backend verify failed:', e));
+                    }
+                } catch (tokenErr) {
+                    console.warn('Could not get auth token for backend:', tokenErr);
+                }
+
+                try {
+                    const cached = JSON.parse(localStorage.getItem('paramind_user') || '{}');
+                    cached.subscriptionStatus = 'active';
+                    localStorage.setItem('paramind_user', JSON.stringify(cached));
+                } catch (e) {}
+
+                overlay.classList.remove('pm-visible');
+                alert('Welcome to Paramind Pro! 🎉');
+                window.location.reload();
+                return;
+            }
+
             // ==================== WEB — STRIPE CHECKOUT ====================
             // Get the auth token — try multiple methods used across the app
             let token;
@@ -513,6 +694,8 @@
             if (errorMsg.includes('cancel') || errorMsg.includes('user_canceled') || errorMsg.includes('paymentcancelled')) {
                 // User cancelled — just reset button
             } else if (isIOS) {
+                alert('Purchase could not be completed. Please try again.');
+            } else if (isAndroid) {
                 alert('Purchase could not be completed. Please try again.');
             } else {
                 alert('Unable to start checkout. Please try again.');

@@ -1173,6 +1173,74 @@ exports.verifyApplePurchase = onRequest(
 );
 
 /**
+ * POST /verifyGooglePurchase
+ * Verify a Google Play purchase and activate subscription.
+ * Called by the Android app after a successful purchase.
+ */
+exports.verifyGooglePurchase = onRequest(
+  {
+    cors: true
+  },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+      const uid = await verifyAuth(req);
+      const { productId, purchaseToken, transactionId, restored } = req.body;
+
+      if (!productId) {
+        return res.status(400).json({ error: "Missing productId" });
+      }
+
+      console.log(`Google Play purchase verification for user ${uid}: ${productId}`);
+
+      let plan = 'monthly';
+      if (productId.includes('annual') || productId.includes('yearly')) {
+        plan = 'annual';
+      }
+
+      const updateData = {
+        subscriptionStatus: "active",
+        subscriptionPlatform: "google",
+        googleProductId: productId,
+        googleTransactionId: transactionId || null,
+        googlePurchaseToken: purchaseToken || null,
+        googlePlan: plan,
+        subscriptionUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
+      };
+
+      if (restored) {
+        updateData.googleRestoredAt = admin.firestore.FieldValue.serverTimestamp();
+      }
+
+      await db.collection("users").doc(uid).update(updateData);
+
+      console.log(`Google Play purchase verified for user ${uid}: ${productId} (${plan})${restored ? ' [restored]' : ''}`);
+
+      return res.status(200).json({
+        success: true,
+        message: "Subscription activated",
+        plan: plan
+      });
+
+    } catch (error) {
+      console.error("Google Play purchase verification error:", error);
+
+      if (error.message.includes("Unauthorized") || error.message.includes("No authorization")) {
+        return res.status(401).json({ error: error.message });
+      }
+
+      return res.status(500).json({
+        error: "Failed to verify purchase",
+        details: error.message
+      });
+    }
+  }
+);
+
+/**
  * POST /appleAuthToken
  * Exchange a native Apple Sign-In token for a Firebase custom token.
  * Used by Capacitor iOS app where Firebase web SDK can't verify native Apple tokens.

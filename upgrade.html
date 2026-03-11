@@ -529,6 +529,7 @@
         // Detect native iOS platform
         const isNativePlatform = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
         const isIOS = isNativePlatform && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'ios';
+        const isAndroid = isNativePlatform && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'android';
 
         async function restorePurchases() {
             const btn = document.getElementById('restoreBtn');
@@ -657,6 +658,61 @@
                     window.location.href = 'landing.html';
                     return;
                 }
+
+                // ==================== ANDROID IN-APP PURCHASE ====================
+                if (isAndroid) {
+                    const NativePurchases = window.Capacitor.Plugins.NativePurchases;
+                    const productId = selectedPlan === 'monthly' ? 'paramind_pro_monthly' : 'paramind_pro_annual';
+
+                    const transaction = await NativePurchases.purchaseProduct({ productIdentifier: productId });
+                    console.log('Google Play purchase successful:', JSON.stringify(transaction));
+
+                    try {
+                        console.log('Updating Firestore directly for user:', user.uid);
+                        await firebase.firestore().collection('users').doc(user.uid).update({
+                            subscriptionStatus: 'active',
+                            subscriptionPlatform: 'google',
+                            googleProductId: productId,
+                            googleTransactionId: transaction.transactionId || '',
+                            googlePurchaseToken: transaction.purchaseToken || '',
+                            subscriptionUpdatedAt: new Date().toISOString()
+                        });
+                        console.log('Firestore updated successfully');
+                    } catch (firestoreErr) {
+                        console.error('Firestore direct update failed:', firestoreErr);
+                    }
+
+                    try {
+                        const token = await user.getIdToken();
+                        const baseUrl = window.paramind?.CONFIG?.api?.baseUrl || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
+                        console.log('Calling verifyGooglePurchase...');
+                        fetch(baseUrl + '/verifyGooglePurchase', {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': 'Bearer ' + token,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                productId: productId,
+                                purchaseToken: transaction.purchaseToken || null,
+                                transactionId: transaction.transactionId || null
+                            })
+                        }).then(r => console.log('Backend verify status:', r.status))
+                          .catch(e => console.warn('Backend verify failed:', e));
+                    } catch (tokenErr) {
+                        console.warn('Could not get auth token for backend:', tokenErr);
+                    }
+
+                    try {
+                        const cached = JSON.parse(localStorage.getItem('paramind_user') || '{}');
+                        cached.subscriptionStatus = 'active';
+                        localStorage.setItem('paramind_user', JSON.stringify(cached));
+                    } catch (e) {}
+
+                    alert('Welcome to Paramind Pro! 🎉');
+                    window.location.href = 'landing.html';
+                    return;
+                }
                 
                 // ==================== WEB — STRIPE CHECKOUT ====================
                 // Get auth token and call Stripe checkout endpoint
@@ -690,6 +746,8 @@
                 if (errorMsg.includes('cancel') || errorMsg.includes('user_canceled') || errorMsg.includes('paymentcancelled')) {
                     // User cancelled — just reset button
                 } else if (isIOS) {
+                    alert('Purchase could not be completed. Please try again.');
+                } else if (isAndroid) {
                     alert('Purchase could not be completed. Please try again.');
                 } else {
                     alert('Unable to start checkout. Please try again.');
