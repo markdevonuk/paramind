@@ -1331,7 +1331,10 @@ When you receive a prompt tagged [CLINICAL ASSESSMENT], respond with the structu
             `\n\nBEGIN THE CONVERSATION: As soon as the session starts, speak your opening line in character:\n"${cleanedStarter}"\n\nAfter this, respond naturally to whatever the paramedic says or asks.`;
 
         try {
-            await initRealtimeSession(finalSystemPrompt, state.voiceConfig.patient.voice);
+            const selectedVoice = state.voiceConfig.patient.voice;
+            const scenarioGender = scenario.dispatch.gender;
+            console.log(`Voice debug — gender: "${scenarioGender}", voice: "${selectedVoice}"`);
+            await initRealtimeSession(finalSystemPrompt, selectedVoice);
         } catch (err) {
             console.error('Realtime session failed:', err);
             el.thinkingIndicator.classList.remove('visible');
