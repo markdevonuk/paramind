@@ -1175,14 +1175,14 @@
         const chiefComplaint = (d.chiefComplaint || '').toLowerCase();
 
         let patientVoice, patientDesc;
-        // Cedar = natural female; Echo = warm male; Shimmer = expressive (children)
+        // Shimmer = softest/most female-sounding Realtime voice; Echo = male; Ash = deeper male; Shimmer also used for children
         if (age < 5)           { patientVoice = 'shimmer';  patientDesc = `a very young child, about ${age} years old`; }
         else if (age < 13)     { patientVoice = 'shimmer';  patientDesc = `a ${age}-year-old ${gender === 'F' ? 'girl' : 'boy'}`; }
         else if (age < 18)     { patientVoice = 'shimmer';  patientDesc = `a ${age}-year-old teenager`; }
-        else if (gender === 'F') { patientVoice = 'cedar'; patientDesc = `a ${age}-year-old woman`; }
+        else if (gender === 'F') { patientVoice = 'shimmer'; patientDesc = `a ${age}-year-old woman`; }
         else                   { patientVoice = 'echo';    patientDesc = `a ${age}-year-old man`; }
 
-        if (category === 'mental-health') patientVoice = 'cedar';
+        if (category === 'mental-health') patientVoice = 'shimmer';
 
         const emotionParts = [];
         if (/sever|agon|excruciating/.test(condition) || /severe pain/.test(chiefComplaint)) {
@@ -1232,13 +1232,13 @@
             'Sound like a real person, not an AI.'
         ].join(' ');
 
-        let relativeVoice = gender === 'M' ? 'cedar' : 'echo';
+        let relativeVoice = gender === 'M' ? 'ash' : 'shimmer';
         let relativeLabel = 'Relative';
         let relativeInstructions = `${accentRule} You are a worried relative. Speak with urgency. Keep to 1-2 sentences.`;
         let starterIsRelative = false;
 
         if (category === 'paediatric') {
-            relativeVoice = gender === 'M' ? 'cedar' : 'echo';
+            relativeVoice = gender === 'M' ? 'ash' : 'shimmer';
             const parentGender = gender === 'M' ? 'mother' : 'father';
             relativeLabel = gender === 'M' ? 'Mother' : 'Father';
             relativeInstructions = `${accentRule} You are the child's ${parentGender}. Extremely worried. Speak rapidly, voice trembling. Keep to 1-2 sentences.`;
