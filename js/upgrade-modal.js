@@ -289,7 +289,7 @@
 
                         // Check if any active subscriptions were found
                         const purchases = await NativePurchases.getPurchases({ productType: 'subs' });
-                        if (purchases && purchases.transactions && purchases.transactions.length > 0) {
+                        if (purchases && purchases.purchases && purchases.purchases.length > 0) {
                             // Found active subscription — update Firestore
                             let token;
                             if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
@@ -300,7 +300,7 @@
                                     || (typeof API_CONFIG !== 'undefined' ? API_CONFIG.baseUrl : null)
                                     || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
                                 try {
-                                    const tx = purchases.transactions[0];
+                                    const tx = purchases.purchases[0];
                                     await fetch(baseUrl + '/verifyApplePurchase', {
                                         method: 'POST',
                                         headers: {
@@ -366,7 +366,7 @@
                         const NativePurchases = window.Capacitor.Plugins.NativePurchases;
 
                         const purchases = await NativePurchases.getPurchases({ productType: 'subs' });
-                        if (purchases && purchases.transactions && purchases.transactions.length > 0) {
+                        if (purchases && purchases.purchases && purchases.purchases.length > 0) {
                             let token;
                             if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
                                 token = await firebase.auth().currentUser.getIdToken();
@@ -376,7 +376,7 @@
                                     || (typeof API_CONFIG !== 'undefined' ? API_CONFIG.baseUrl : null)
                                     || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
                                 try {
-                                    const tx = purchases.transactions[0];
+                                    const tx = purchases.purchases[0];
                                     await fetch(baseUrl + '/verifyGooglePurchase', {
                                         method: 'POST',
                                         headers: {
