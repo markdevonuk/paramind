@@ -1478,7 +1478,16 @@ When you receive a prompt tagged [CLINICAL ASSESSMENT], respond with the structu
                 const hasNonLatin = /[^\u0000-\u024F\s]/.test(raw);
                 const tooShort = raw.length < 2;
                 if (raw && !hasNonLatin && !tooShort) {
-                    addTranscriptMessage('user', raw);
+                    // If the patient bubble is already in the DOM (transcript arrived late),
+                    // insert the user message before it so order is always: user → patient
+                    if (state.currentAiMsgDiv) {
+                        const userDiv = document.createElement('div');
+                        userDiv.className = 'sim-msg user';
+                        userDiv.innerHTML = `<div class="msg-speaker"><i class="bi bi-mic-fill"></i> You</div><div class="msg-text">${escapeHtml(raw)}</div>`;
+                        el.transcript.insertBefore(userDiv, state.currentAiMsgDiv);
+                    } else {
+                        addTranscriptMessage('user', raw);
+                    }
                     trackVoiceAssessments(raw);
                     incrementDeteriorationCounter();
                 }
