@@ -1221,33 +1221,35 @@
             emotionParts.push('You are concerned about your condition. Sound worried but able to communicate clearly.');
         }
 
+        const accentRule = 'IMPORTANT: You MUST speak with a British English accent at all times. Never use an American accent.';
+
         const patientInstructions = [
+            accentRule,
             `You are ${patientDesc}.`,
             emotionParts.join(' '),
             'Keep your responses SHORT — 1 to 3 sentences maximum.',
             'Use natural filler words like "umm", "well", "I dunno" where appropriate.',
-            'Sound like a real person, not an AI.',
-            'Speak in a natural British English accent.'
+            'Sound like a real person, not an AI.'
         ].join(' ');
 
         let relativeVoice = gender === 'M' ? 'cedar' : 'echo';
         let relativeLabel = 'Relative';
-        let relativeInstructions = 'You are a worried relative. Speak with urgency. Keep to 1-2 sentences. Speak in a natural British English accent.';
+        let relativeInstructions = `${accentRule} You are a worried relative. Speak with urgency. Keep to 1-2 sentences.`;
         let starterIsRelative = false;
 
         if (category === 'paediatric') {
             relativeVoice = gender === 'M' ? 'cedar' : 'echo';
             const parentGender = gender === 'M' ? 'mother' : 'father';
             relativeLabel = gender === 'M' ? 'Mother' : 'Father';
-            relativeInstructions = `You are the child's ${parentGender}. Extremely worried. Speak rapidly, voice trembling. Keep to 1-2 sentences. Speak in a natural British English accent.`;
+            relativeInstructions = `${accentRule} You are the child's ${parentGender}. Extremely worried. Speak rapidly, voice trembling. Keep to 1-2 sentences.`;
             starterIsRelative = age < 8;
         } else if (age >= 65) {
             const relOptions = gender === 'M' ? ['Wife', 'Daughter'] : ['Husband', 'Son'];
             relativeLabel = relOptions[Math.floor(Math.random() * relOptions.length)];
-            relativeInstructions = `You are the patient's ${relativeLabel.toLowerCase()}. Very worried, speak quickly and anxiously. Keep to 1-2 sentences. Speak in a natural British English accent.`;
+            relativeInstructions = `${accentRule} You are the patient's ${relativeLabel.toLowerCase()}. Very worried, speak quickly and anxiously. Keep to 1-2 sentences.`;
         } else {
             relativeLabel = 'Partner';
-            relativeInstructions = "You are the patient's partner. Worried and tense. Keep to 1-2 sentences. Speak in a natural British English accent.";
+            relativeInstructions = `${accentRule} You are the patient's partner. Worried and tense. Keep to 1-2 sentences.`;
         }
 
         const patientLabel = category === 'paediatric' && age < 8 ? 'Child' : 'Patient';
@@ -1255,7 +1257,7 @@
         return {
             patient:   { voice: patientVoice,  instructions: patientInstructions, label: patientLabel },
             relative:  { voice: relativeVoice,  instructions: relativeInstructions, label: relativeLabel },
-            bystander: { voice: 'alloy',        instructions: 'You are a calm bystander. Speak clearly. Keep to 1-2 sentences. Speak in a natural British English accent.', label: 'Bystander' },
+            bystander: { voice: 'alloy',        instructions: `${accentRule} You are a calm bystander. Speak clearly. Keep to 1-2 sentences.`, label: 'Bystander' },
             starterIsRelative: starterIsRelative
         };
     }
@@ -1445,7 +1447,7 @@ When you receive a prompt tagged [CLINICAL ASSESSMENT], respond with the structu
                 break;
 
             // AI response text streaming in (audio plays automatically via WebRTC track)
-            case 'response.audio_transcript.delta':
+            case 'response.output_audio_transcript.delta':
                 el.thinkingIndicator.classList.remove('visible');
                 el.audioWaveIndicator.classList.add('visible', 'playing');
                 el.waveLabel.textContent = 'Speaking...';
@@ -1468,7 +1470,7 @@ When you receive a prompt tagged [CLINICAL ASSESSMENT], respond with the structu
                 break;
 
             // AI finished this response
-            case 'response.audio_transcript.done': {
+            case 'response.output_audio_transcript.done': {
                 el.audioWaveIndicator.classList.remove('visible', 'playing');
                 const fullText = event.transcript || state.currentAiText;
                 if (state.currentAiMsgDiv) {
