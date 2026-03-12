@@ -290,18 +290,32 @@
                         // Check if any active subscriptions were found
                         const purchases = await NativePurchases.getPurchases({ productType: 'subs' });
                         if (purchases && purchases.purchases && purchases.purchases.length > 0) {
-                            // Found active subscription — update Firestore
-                            let token;
+                            const tx = purchases.purchases[0];
+
+                            // Step 1: Always write directly to Firestore first — guaranteed path
                             if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-                                token = await firebase.auth().currentUser.getIdToken();
+                                const uid = firebase.auth().currentUser.uid;
+                                await firebase.firestore().collection('users').doc(uid).update({
+                                    subscriptionStatus: 'active',
+                                    subscriptionPlatform: 'apple',
+                                    appleProductId: tx.productIdentifier || null,
+                                    appleTransactionId: tx.transactionId || null,
+                                    appleRestoredAt: new Date().toISOString(),
+                                    subscriptionUpdatedAt: new Date().toISOString()
+                                });
                             }
-                            if (token) {
-                                const baseUrl = window.paramind?.CONFIG?.api?.baseUrl
-                                    || (typeof API_CONFIG !== 'undefined' ? API_CONFIG.baseUrl : null)
-                                    || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
-                                try {
-                                    const tx = purchases.purchases[0];
-                                    await fetch(baseUrl + '/verifyApplePurchase', {
+
+                            // Step 2: Also call backend to verify (non-blocking, best effort)
+                            try {
+                                let token;
+                                if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+                                    token = await firebase.auth().currentUser.getIdToken();
+                                }
+                                if (token) {
+                                    const baseUrl = window.paramind?.CONFIG?.api?.baseUrl
+                                        || (typeof API_CONFIG !== 'undefined' ? API_CONFIG.baseUrl : null)
+                                        || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
+                                    fetch(baseUrl + '/verifyApplePurchase', {
                                         method: 'POST',
                                         headers: {
                                             'Authorization': 'Bearer ' + token,
@@ -313,18 +327,13 @@
                                             receipt: tx.receipt || null,
                                             restored: true
                                         })
-                                    });
-                                } catch (verifyErr) {
-                                    // Fallback: update locally
-                                    const uid = firebase.auth().currentUser.uid;
-                                    await firebase.firestore().collection('users').doc(uid).update({
-                                        subscriptionStatus: 'active',
-                                        subscriptionPlatform: 'apple',
-                                        subscriptionUpdatedAt: new Date().toISOString()
-                                    });
+                                    }).catch(function(e) { console.warn('Backend verify failed (non-critical):', e); });
                                 }
+                            } catch (verifyErr) {
+                                console.warn('Backend verify error (non-critical):', verifyErr);
                             }
-                            // Update local cache
+
+                            // Step 3: Update local cache
                             try {
                                 const cached = JSON.parse(localStorage.getItem('paramind_user') || '{}');
                                 cached.subscriptionStatus = 'active';
