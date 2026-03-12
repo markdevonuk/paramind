@@ -285,12 +285,16 @@
                         restoreLink.disabled = true;
                         restoreLink.textContent = 'Restoring...';
                         const NativePurchases = window.Capacitor.Plugins.NativePurchases;
-                        const result = await NativePurchases.restorePurchases();
+                        await NativePurchases.restorePurchases();
 
-                        // Use result directly — same approach as upgrade.html which works
-                        const transactions = (result && result.transactions) ? result.transactions : [];
-                        const activeSub = transactions.find(function(tx) {
-                            return tx.isActive || tx.subscriptionState === 'subscribed';
+                        // getPurchases() checks Apple's current entitlements — more reliable than result.transactions
+                        const purchases = await NativePurchases.getPurchases({});
+                        const allTx = (purchases && purchases.purchases) ? purchases.purchases : [];
+                        // Accept any transaction matching our product IDs — don't require isActive/subscriptionState
+                        // as these may not be set on freshly redeemed offer codes
+                        const activeSub = allTx.find(function(tx) {
+                            var id = tx.productIdentifier || '';
+                            return id === 'paramind_pro_monthly' || id === 'paramind_pro_annual';
                         });
 
                         if (activeSub) {
