@@ -1175,14 +1175,14 @@
         const chiefComplaint = (d.chiefComplaint || '').toLowerCase();
 
         let patientVoice, patientDesc;
-        // Ballad = most British-sounding female voice; Ash = deeper British male; Fable = child-like
-        if (age < 5)           { patientVoice = 'fable';  patientDesc = `a very young child, about ${age} years old`; }
-        else if (age < 13)     { patientVoice = 'fable';  patientDesc = `a ${age}-year-old ${gender === 'F' ? 'girl' : 'boy'}`; }
-        else if (age < 18)     { patientVoice = 'fable';  patientDesc = `a ${age}-year-old teenager`; }
-        else if (gender === 'F') { patientVoice = 'ballad'; patientDesc = `a ${age}-year-old woman`; }
-        else                   { patientVoice = 'ash';    patientDesc = `a ${age}-year-old man`; }
+        // Cedar = natural female; Echo = warm male; Shimmer = expressive (children)
+        if (age < 5)           { patientVoice = 'shimmer';  patientDesc = `a very young child, about ${age} years old`; }
+        else if (age < 13)     { patientVoice = 'shimmer';  patientDesc = `a ${age}-year-old ${gender === 'F' ? 'girl' : 'boy'}`; }
+        else if (age < 18)     { patientVoice = 'shimmer';  patientDesc = `a ${age}-year-old teenager`; }
+        else if (gender === 'F') { patientVoice = 'cedar'; patientDesc = `a ${age}-year-old woman`; }
+        else                   { patientVoice = 'echo';    patientDesc = `a ${age}-year-old man`; }
 
-        if (category === 'mental-health') patientVoice = 'ballad';
+        if (category === 'mental-health') patientVoice = 'cedar';
 
         const emotionParts = [];
         if (/sever|agon|excruciating/.test(condition) || /severe pain/.test(chiefComplaint)) {
@@ -1226,27 +1226,28 @@
             emotionParts.join(' '),
             'Keep your responses SHORT — 1 to 3 sentences maximum.',
             'Use natural filler words like "umm", "well", "I dunno" where appropriate.',
-            'Sound like a real person, not an AI.'
+            'Sound like a real person, not an AI.',
+            'Speak in a natural British English accent.'
         ].join(' ');
 
-        let relativeVoice = gender === 'M' ? 'ballad' : 'ash';
+        let relativeVoice = gender === 'M' ? 'cedar' : 'echo';
         let relativeLabel = 'Relative';
-        let relativeInstructions = 'You are a worried relative. Speak with urgency. Keep to 1-2 sentences.';
+        let relativeInstructions = 'You are a worried relative. Speak with urgency. Keep to 1-2 sentences. Speak in a natural British English accent.';
         let starterIsRelative = false;
 
         if (category === 'paediatric') {
-            relativeVoice = gender === 'M' ? 'ballad' : 'ash';
+            relativeVoice = gender === 'M' ? 'cedar' : 'echo';
             const parentGender = gender === 'M' ? 'mother' : 'father';
             relativeLabel = gender === 'M' ? 'Mother' : 'Father';
-            relativeInstructions = `You are the child's ${parentGender}. Extremely worried. Speak rapidly, voice trembling. Keep to 1-2 sentences.`;
+            relativeInstructions = `You are the child's ${parentGender}. Extremely worried. Speak rapidly, voice trembling. Keep to 1-2 sentences. Speak in a natural British English accent.`;
             starterIsRelative = age < 8;
         } else if (age >= 65) {
             const relOptions = gender === 'M' ? ['Wife', 'Daughter'] : ['Husband', 'Son'];
             relativeLabel = relOptions[Math.floor(Math.random() * relOptions.length)];
-            relativeInstructions = `You are the patient's ${relativeLabel.toLowerCase()}. Very worried, speak quickly and anxiously. Keep to 1-2 sentences.`;
+            relativeInstructions = `You are the patient's ${relativeLabel.toLowerCase()}. Very worried, speak quickly and anxiously. Keep to 1-2 sentences. Speak in a natural British English accent.`;
         } else {
             relativeLabel = 'Partner';
-            relativeInstructions = "You are the patient's partner. Worried and tense. Keep to 1-2 sentences.";
+            relativeInstructions = "You are the patient's partner. Worried and tense. Keep to 1-2 sentences. Speak in a natural British English accent.";
         }
 
         const patientLabel = category === 'paediatric' && age < 8 ? 'Child' : 'Patient';
@@ -1254,7 +1255,7 @@
         return {
             patient:   { voice: patientVoice,  instructions: patientInstructions, label: patientLabel },
             relative:  { voice: relativeVoice,  instructions: relativeInstructions, label: relativeLabel },
-            bystander: { voice: 'coral',        instructions: 'You are a calm bystander. Speak clearly. Keep to 1-2 sentences.', label: 'Bystander' },
+            bystander: { voice: 'alloy',        instructions: 'You are a calm bystander. Speak clearly. Keep to 1-2 sentences. Speak in a natural British English accent.', label: 'Bystander' },
             starterIsRelative: starterIsRelative
         };
     }
@@ -1371,10 +1372,10 @@ When you receive a prompt tagged [CLINICAL ASSESSMENT], respond with the structu
 
         dc.onopen = () => {
             // Enable input transcription so we can show what the user said
-            // GA interface requires type: "realtime" in session.update
+            // GA interface: transcription is nested under audio.input
             dc.send(JSON.stringify({
                 type: 'session.update',
-                session: { type: 'realtime', input_audio_transcription: { model: 'whisper-1' } }
+                session: { type: 'realtime', audio: { input: { transcription: { model: 'gpt-4o-transcribe' } } } }
             }));
             // Trigger the model to speak its opening line immediately
             dc.send(JSON.stringify({ type: 'response.create', response: {} }));
