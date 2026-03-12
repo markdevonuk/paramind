@@ -447,6 +447,33 @@
             background: var(--color-gray-200);
             color: var(--color-gray-700);
         }
+
+        /* Patient speaker — teal-tinted avatar */
+        .message.patient .message-avatar {
+            background: rgba(43, 138, 156, 0.15);
+            color: var(--color-teal);
+        }
+
+        /* Third-party speaker (Midwife, Mother, Bystander etc) — amber-tinted avatar */
+        .message.relative .message-avatar {
+            background: rgba(255, 193, 7, 0.2);
+            color: #996600;
+        }
+
+        /* Speaker name label above message content */
+        .msg-speaker-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+        }
+        .message.patient .msg-speaker-label {
+            color: var(--color-teal);
+        }
+        .message.relative .msg-speaker-label {
+            color: #996600;
+        }
         
         .message-content {
             background: var(--color-white);
@@ -1915,35 +1942,70 @@ chatState.deterioration = {
             return processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
         }
 
+        // Extract named speaker from leading *Speaker name* prefix.
+        // Capital-letter prefixes = named speakers (Midwife, Mother, Bystander etc).
+        // Lowercase prefixes = emotions/actions (*breathless*, *writhing*) — stripped silently.
+        function parseSpeaker(content) {
+            const m = content.match(/^\*([^*]+)\*\s*/);
+            if (!m) return { speakerLabel: 'Patient', cleanedText: content, isNamedSpeaker: false };
+            const raw = m[1];
+            const isNamed = /^[A-Z]/.test(raw);
+            const cleanedText = content.slice(m[0].length).trim();
+            if (!isNamed) return { speakerLabel: 'Patient', cleanedText, isNamedSpeaker: false };
+            const label = raw
+                .replace(/,.*$/, '')               // "Mother speaking, child crying" → "Mother speaking"
+                .replace(/\s+speaking\s*$/i, '')   // "Midwife speaking" → "Midwife"
+                .replace(/\s+on\s+\S+.*$/i, '')    // "Bystander on scene" → "Bystander"
+                .trim();
+            return { speakerLabel: label, cleanedText, isNamedSpeaker: true };
+        }
+
         function addMessage(role, content) {
             const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${role}`;
-            
-            const avatarIcon = role === 'user' ? 'bi-person' : 'bi-robot';
-            
+
+            let avatarIcon, speakerLabel, isNamedSpeaker, displayContent;
+
+            if (role === 'assistant') {
+                const parsed = parseSpeaker(content);
+                speakerLabel = parsed.speakerLabel;
+                isNamedSpeaker = parsed.isNamedSpeaker;
+                displayContent = parsed.cleanedText;
+                messageDiv.className = `message ${isNamedSpeaker ? 'relative' : 'patient'}`;
+                avatarIcon = isNamedSpeaker ? 'bi-people-fill' : 'bi-person-fill';
+            } else {
+                messageDiv.className = `message ${role}`;
+                avatarIcon = 'bi-person';
+                displayContent = content;
+            }
+
+            const speakerLabelHtml = (role === 'assistant')
+                ? `<div class="msg-speaker-label">${speakerLabel}</div>`
+                : '';
+
             messageDiv.innerHTML = `
                 <div class="message-avatar">
                     <i class="bi ${avatarIcon}"></i>
                 </div>
                 <div class="message-content">
-                    ${formatMessage(content)}
+                    ${speakerLabelHtml}${formatMessage(displayContent)}
                 </div>
             `;
-            
+
             elements.chatMessages.appendChild(messageDiv);
             scrollToBottom();
         }
 
         function addStreamingMessage(messageId) {
             const messageDiv = document.createElement('div');
-            messageDiv.className = 'message assistant';
+            messageDiv.className = 'message patient';
             messageDiv.id = messageId;
             
             messageDiv.innerHTML = `
                 <div class="message-avatar">
-                    <i class="bi bi-robot"></i>
+                    <i class="bi bi-person-fill"></i>
                 </div>
                 <div class="message-content">
+                    <div class="msg-speaker-label">Patient</div>
                     <span class="streaming-text"></span><span class="streaming-cursor">|</span>
                 </div>
             `;
@@ -1982,8 +2044,8 @@ chatState.deterioration = {
             if (messageDiv) {
                 const contentDiv = messageDiv.querySelector('.message-content');
                 if (contentDiv) {
-                    // Only format when complete
-                    contentDiv.innerHTML = formatMessage(content);
+                    // Preserve the speaker label, replace only the streamed text
+                    contentDiv.innerHTML = `<div class="msg-speaker-label">Patient</div>${formatMessage(content)}`;
                 }
             }
             userHasScrolledUp = false;
