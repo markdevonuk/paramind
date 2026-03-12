@@ -308,7 +308,7 @@
                                             'Content-Type': 'application/json'
                                         },
                                         body: JSON.stringify({
-                                            productId: tx.productId || null,
+                                            productId: tx.productIdentifier || null,
                                             transactionId: tx.transactionId || null,
                                             receipt: tx.receipt || null,
                                             restored: true
