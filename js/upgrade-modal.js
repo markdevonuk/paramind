@@ -287,43 +287,30 @@
                         const NativePurchases = window.Capacitor.Plugins.NativePurchases;
                         await NativePurchases.restorePurchases();
 
-                        // Check if any active subscriptions were found
-                        const purchases = await NativePurchases.getPurchases({ productType: 'subs' });
-                        if (purchases && purchases.transactions && purchases.transactions.length > 0) {
-                            // Found active subscription — update Firestore
-                            let token;
-                            if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-                                token = await firebase.auth().currentUser.getIdToken();
+                        // getPurchases() checks Apple's current entitlements — more reliable than result.transactions
+                        const purchases = await NativePurchases.getPurchases({});
+                        const allTx = (purchases && purchases.purchases) ? purchases.purchases : [];
+                        // Accept any transaction matching our product IDs — don't require isActive/subscriptionState
+                        // as these may not be set on freshly redeemed offer codes
+                        const activeSub = allTx.find(function(tx) {
+                            var id = tx.productIdentifier || '';
+                            return id === 'paramind_pro_monthly' || id === 'paramind_pro_annual';
+                        });
+
+                        if (activeSub) {
+                            // Write directly to Firestore
+                            const user = firebase.auth().currentUser;
+                            if (user) {
+                                await firebase.firestore().collection('users').doc(user.uid).update({
+                                    subscriptionStatus: 'active',
+                                    subscriptionPlatform: 'apple',
+                                    appleProductId: activeSub.productIdentifier || activeSub.productId || null,
+                                    appleTransactionId: activeSub.transactionId || null,
+                                    appleRestoredAt: new Date().toISOString(),
+                                    subscriptionUpdatedAt: new Date().toISOString()
+                                });
                             }
-                            if (token) {
-                                const baseUrl = window.paramind?.CONFIG?.api?.baseUrl
-                                    || (typeof API_CONFIG !== 'undefined' ? API_CONFIG.baseUrl : null)
-                                    || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
-                                try {
-                                    const tx = purchases.transactions[0];
-                                    await fetch(baseUrl + '/verifyApplePurchase', {
-                                        method: 'POST',
-                                        headers: {
-                                            'Authorization': 'Bearer ' + token,
-                                            'Content-Type': 'application/json'
-                                        },
-                                        body: JSON.stringify({
-                                            productId: tx.productId || null,
-                                            transactionId: tx.transactionId || null,
-                                            receipt: tx.receipt || null,
-                                            restored: true
-                                        })
-                                    });
-                                } catch (verifyErr) {
-                                    // Fallback: update locally
-                                    const uid = firebase.auth().currentUser.uid;
-                                    await firebase.firestore().collection('users').doc(uid).update({
-                                        subscriptionStatus: 'active',
-                                        subscriptionPlatform: 'apple',
-                                        subscriptionUpdatedAt: new Date().toISOString()
-                                    });
-                                }
-                            }
+
                             // Update local cache
                             try {
                                 const cached = JSON.parse(localStorage.getItem('paramind_user') || '{}');
@@ -366,7 +353,7 @@
                         const NativePurchases = window.Capacitor.Plugins.NativePurchases;
 
                         const purchases = await NativePurchases.getPurchases({ productType: 'subs' });
-                        if (purchases && purchases.transactions && purchases.transactions.length > 0) {
+                        if (purchases && purchases.purchases && purchases.purchases.length > 0) {
                             let token;
                             if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
                                 token = await firebase.auth().currentUser.getIdToken();
@@ -376,7 +363,7 @@
                                     || (typeof API_CONFIG !== 'undefined' ? API_CONFIG.baseUrl : null)
                                     || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
                                 try {
-                                    const tx = purchases.transactions[0];
+                                    const tx = purchases.purchases[0];
                                     await fetch(baseUrl + '/verifyGooglePurchase', {
                                         method: 'POST',
                                         headers: {

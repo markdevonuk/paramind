@@ -1011,6 +1011,7 @@
         // Transcript streaming
         currentAiMsgDiv: null,
         currentAiText: '',
+        firstAiMessageShown: false,
         // For assessment API calls
         scenarioSystemPrompt: null,
         voicePrefix: null,
@@ -1175,14 +1176,14 @@
         const chiefComplaint = (d.chiefComplaint || '').toLowerCase();
 
         let patientVoice, patientDesc;
-        // Ballad = most British-sounding female voice; Ash = deeper British male; Fable = child-like
-        if (age < 5)           { patientVoice = 'fable';  patientDesc = `a very young child, about ${age} years old`; }
-        else if (age < 13)     { patientVoice = 'fable';  patientDesc = `a ${age}-year-old ${gender === 'F' ? 'girl' : 'boy'}`; }
-        else if (age < 18)     { patientVoice = 'fable';  patientDesc = `a ${age}-year-old teenager`; }
-        else if (gender === 'F') { patientVoice = 'ballad'; patientDesc = `a ${age}-year-old woman`; }
-        else                   { patientVoice = 'ash';    patientDesc = `a ${age}-year-old man`; }
+        // Shimmer = softest/most female-sounding Realtime voice; Echo = male; Ash = deeper male; Shimmer also used for children
+        if (age < 5)           { patientVoice = 'shimmer';  patientDesc = `a very young child, about ${age} years old`; }
+        else if (age < 13)     { patientVoice = 'shimmer';  patientDesc = `a ${age}-year-old ${gender === 'F' ? 'girl' : 'boy'}`; }
+        else if (age < 18)     { patientVoice = 'shimmer';  patientDesc = `a ${age}-year-old teenager`; }
+        else if (gender === 'F') { patientVoice = 'shimmer'; patientDesc = `a ${age}-year-old woman`; }
+        else                   { patientVoice = 'echo';    patientDesc = `a ${age}-year-old man`; }
 
-        if (category === 'mental-health') patientVoice = 'ballad';
+        if (category === 'mental-health') patientVoice = 'shimmer';
 
         const emotionParts = [];
         if (/sever|agon|excruciating/.test(condition) || /severe pain/.test(chiefComplaint)) {
@@ -1221,7 +1222,10 @@
             emotionParts.push('You are concerned about your condition. Sound worried but able to communicate clearly.');
         }
 
+        const accentRule = 'IMPORTANT: You MUST speak with a British English accent at all times. Never use an American accent.';
+
         const patientInstructions = [
+            accentRule,
             `You are ${patientDesc}.`,
             emotionParts.join(' '),
             'Keep your responses SHORT — 1 to 3 sentences maximum.',
@@ -1229,24 +1233,24 @@
             'Sound like a real person, not an AI.'
         ].join(' ');
 
-        let relativeVoice = gender === 'M' ? 'ballad' : 'ash';
+        let relativeVoice = gender === 'M' ? 'ash' : 'shimmer';
         let relativeLabel = 'Relative';
-        let relativeInstructions = 'You are a worried relative. Speak with urgency. Keep to 1-2 sentences.';
+        let relativeInstructions = `${accentRule} You are a worried relative. Speak with urgency. Keep to 1-2 sentences.`;
         let starterIsRelative = false;
 
         if (category === 'paediatric') {
-            relativeVoice = gender === 'M' ? 'ballad' : 'ash';
+            relativeVoice = gender === 'M' ? 'ash' : 'shimmer';
             const parentGender = gender === 'M' ? 'mother' : 'father';
             relativeLabel = gender === 'M' ? 'Mother' : 'Father';
-            relativeInstructions = `You are the child's ${parentGender}. Extremely worried. Speak rapidly, voice trembling. Keep to 1-2 sentences.`;
+            relativeInstructions = `${accentRule} You are the child's ${parentGender}. Extremely worried. Speak rapidly, voice trembling. Keep to 1-2 sentences.`;
             starterIsRelative = age < 8;
         } else if (age >= 65) {
             const relOptions = gender === 'M' ? ['Wife', 'Daughter'] : ['Husband', 'Son'];
             relativeLabel = relOptions[Math.floor(Math.random() * relOptions.length)];
-            relativeInstructions = `You are the patient's ${relativeLabel.toLowerCase()}. Very worried, speak quickly and anxiously. Keep to 1-2 sentences.`;
+            relativeInstructions = `${accentRule} You are the patient's ${relativeLabel.toLowerCase()}. Very worried, speak quickly and anxiously. Keep to 1-2 sentences.`;
         } else {
             relativeLabel = 'Partner';
-            relativeInstructions = "You are the patient's partner. Worried and tense. Keep to 1-2 sentences.";
+            relativeInstructions = `${accentRule} You are the patient's partner. Worried and tense. Keep to 1-2 sentences.`;
         }
 
         const patientLabel = category === 'paediatric' && age < 8 ? 'Child' : 'Patient';
@@ -1254,8 +1258,19 @@
         return {
             patient:   { voice: patientVoice,  instructions: patientInstructions, label: patientLabel },
             relative:  { voice: relativeVoice,  instructions: relativeInstructions, label: relativeLabel },
-            bystander: { voice: 'coral',        instructions: 'You are a calm bystander. Speak clearly. Keep to 1-2 sentences.', label: 'Bystander' },
-            starterIsRelative: starterIsRelative
+            bystander: { voice: 'alloy',        instructions: `${accentRule} You are a calm bystander. Speak clearly. Keep to 1-2 sentences.`, label: 'Bystander' },
+            starterIsRelative: starterIsRelative,
+            starterLabel: (() => {
+                // Extract named speaker from *Midwife speaking*, *Mother speaking*, *Bystander on scene* etc.
+                // Ignore lowercase prefixes like *breathless* or *weak voice* — those are emotions, not speakers.
+                const m = scenario.starterMessage?.match(/^\*([^*]+)\*/);
+                if (!m || !/^[A-Z]/.test(m[1])) return null;
+                return m[1]
+                    .replace(/,.*$/, '')              // drop "Mother speaking, child crying" → "Mother speaking"
+                    .replace(/\s+speaking\s*$/i, '')  // drop trailing " speaking"
+                    .replace(/\s+on\s+\S+.*$/i, '')   // drop "on scene" etc.
+                    .trim();
+            })()
         };
     }
 
@@ -1271,6 +1286,7 @@
         state.isAssessing = false;
         state.currentAiMsgDiv = null;
         state.currentAiText = '';
+        state.firstAiMessageShown = false;
         state.deterioration = { exchangesSinceKeyAssessment: 0, currentPhase: null, warningShown: false, criticalShown: false };
         state.voiceConfig = getVoiceConfig(scenario);
 
@@ -1306,7 +1322,9 @@ This rule is NON-NEGOTIABLE.
 ===========================================
 
 VOICE CONVERSATION RULES:
-- You ARE the patient (and can also voice relatives/bystanders when appropriate)
+- You voice ONE character per response — never mix two characters into the same response
+- NEVER use name labels or prefixes like "PATIENT:", "RELATIVE:", or any character name — just speak as that person
+- If a relative or bystander is present, they speak in SEPARATE turns — never cram two characters into one response
 - Keep each response SHORT — maximum 2 to 3 sentences per turn
 - Use natural spoken British English — contractions, hesitations, realistic phrasing
 - Express emotion through your words and phrasing, not stage directions
@@ -1326,7 +1344,10 @@ When you receive a prompt tagged [CLINICAL ASSESSMENT], respond with the structu
             `\n\nBEGIN THE CONVERSATION: As soon as the session starts, speak your opening line in character:\n"${cleanedStarter}"\n\nAfter this, respond naturally to whatever the paramedic says or asks.`;
 
         try {
-            await initRealtimeSession(finalSystemPrompt, state.voiceConfig.patient.voice);
+            const selectedVoice = state.voiceConfig.patient.voice;
+            const scenarioGender = scenario.dispatch.gender;
+            console.log(`Voice debug — gender: "${scenarioGender}", voice: "${selectedVoice}"`);
+            await initRealtimeSession(finalSystemPrompt, selectedVoice);
         } catch (err) {
             console.error('Realtime session failed:', err);
             el.thinkingIndicator.classList.remove('visible');
@@ -1370,11 +1391,26 @@ When you receive a prompt tagged [CLINICAL ASSESSMENT], respond with the structu
         state.dataChannel = dc;
 
         dc.onopen = () => {
-            // Enable input transcription so we can show what the user said
-            // GA interface requires type: "realtime" in session.update
+            // Enable input transcription and configure VAD for a more natural pace
+            // GA interface: transcription and turn_detection are nested under audio.input
+            // semantic_vad with low eagerness waits for natural speech completion rather
+            // than cutting off on short silences — gives the user time to think and speak
             dc.send(JSON.stringify({
                 type: 'session.update',
-                session: { type: 'realtime', input_audio_transcription: { model: 'whisper-1' } }
+                session: {
+                    type: 'realtime',
+                    audio: {
+                        input: {
+                            transcription: { model: 'gpt-4o-mini-transcribe-2025-12-15' },
+                            turn_detection: {
+                                type: 'semantic_vad',
+                                eagerness: 'low',
+                                create_response: true,
+                                interrupt_response: true
+                            }
+                        }
+                    }
+                }
             }));
             // Trigger the model to speak its opening line immediately
             dc.send(JSON.stringify({ type: 'response.create', response: {} }));
@@ -1435,16 +1471,31 @@ When you receive a prompt tagged [CLINICAL ASSESSMENT], respond with the structu
                 break;
 
             // Show what the user said in the transcript
-            case 'conversation.item.input_audio_transcription.completed':
-                if (event.transcript && event.transcript.trim()) {
-                    addTranscriptMessage('user', event.transcript.trim());
-                    trackVoiceAssessments(event.transcript);
+            case 'conversation.item.input_audio_transcription.completed': {
+                const raw = (event.transcript || '').trim();
+                // Discard hallucinations: non-Latin characters (Korean, Japanese, Chinese etc.)
+                // or suspiciously short single-token outputs that appear on silence
+                const hasNonLatin = /[^\u0000-\u024F\s]/.test(raw);
+                const tooShort = raw.length < 2;
+                if (raw && !hasNonLatin && !tooShort) {
+                    // If the patient bubble is already in the DOM (transcript arrived late),
+                    // insert the user message before it so order is always: user → patient
+                    if (state.currentAiMsgDiv) {
+                        const userDiv = document.createElement('div');
+                        userDiv.className = 'sim-msg user';
+                        userDiv.innerHTML = `<div class="msg-speaker"><i class="bi bi-mic-fill"></i> You</div><div class="msg-text">${escapeHtml(raw)}</div>`;
+                        el.transcript.insertBefore(userDiv, state.currentAiMsgDiv);
+                    } else {
+                        addTranscriptMessage('user', raw);
+                    }
+                    trackVoiceAssessments(raw);
                     incrementDeteriorationCounter();
                 }
                 break;
+            }
 
             // AI response text streaming in (audio plays automatically via WebRTC track)
-            case 'response.audio_transcript.delta':
+            case 'response.output_audio_transcript.delta':
                 el.thinkingIndicator.classList.remove('visible');
                 el.audioWaveIndicator.classList.add('visible', 'playing');
                 el.waveLabel.textContent = 'Speaking...';
@@ -1452,10 +1503,16 @@ When you receive a prompt tagged [CLINICAL ASSESSMENT], respond with the structu
                 if (!state.currentAiMsgDiv) {
                     state.currentAiText = '';
                     state.currentAiMsgDiv = document.createElement('div');
-                    state.currentAiMsgDiv.className = 'sim-msg patient';
-                    const patientLabel = state.voiceConfig?.patient?.label || 'Patient';
+                    // Use starterLabel (e.g. "Midwife", "Mother") for the very first message if set
+                    const isFirstMsg = !state.firstAiMessageShown;
+                    const starterLabel = state.voiceConfig?.starterLabel;
+                    const useStarterLabel = isFirstMsg && starterLabel;
+                    const labelToShow = useStarterLabel ? starterLabel : (state.voiceConfig?.patient?.label || 'Patient');
+                    const iconClass = useStarterLabel ? 'bi-people-fill' : 'bi-person-fill';
+                    state.currentAiMsgDiv.className = useStarterLabel ? 'sim-msg relative' : 'sim-msg patient';
+                    state.firstAiMessageShown = true;
                     state.currentAiMsgDiv.innerHTML = `
-                        <div class="msg-speaker"><i class="bi bi-person-fill"></i> ${patientLabel}</div>
+                        <div class="msg-speaker"><i class="bi ${iconClass}"></i> ${labelToShow}</div>
                         <div class="msg-text"></div>
                     `;
                     el.transcript.insertBefore(state.currentAiMsgDiv, el.thinkingIndicator);
@@ -1467,7 +1524,7 @@ When you receive a prompt tagged [CLINICAL ASSESSMENT], respond with the structu
                 break;
 
             // AI finished this response
-            case 'response.audio_transcript.done': {
+            case 'response.output_audio_transcript.done': {
                 el.audioWaveIndicator.classList.remove('visible', 'playing');
                 const fullText = event.transcript || state.currentAiText;
                 if (state.currentAiMsgDiv) {
