@@ -1011,6 +1011,7 @@
         // Transcript streaming
         currentAiMsgDiv: null,
         currentAiText: '',
+        firstAiMessageShown: false,
         // For assessment API calls
         scenarioSystemPrompt: null,
         voicePrefix: null,
@@ -1258,7 +1259,18 @@
             patient:   { voice: patientVoice,  instructions: patientInstructions, label: patientLabel },
             relative:  { voice: relativeVoice,  instructions: relativeInstructions, label: relativeLabel },
             bystander: { voice: 'alloy',        instructions: `${accentRule} You are a calm bystander. Speak clearly. Keep to 1-2 sentences.`, label: 'Bystander' },
-            starterIsRelative: starterIsRelative
+            starterIsRelative: starterIsRelative,
+            starterLabel: (() => {
+                // Extract named speaker from *Midwife speaking*, *Mother speaking*, *Bystander on scene* etc.
+                // Ignore lowercase prefixes like *breathless* or *weak voice* — those are emotions, not speakers.
+                const m = scenario.starterMessage?.match(/^\*([^*]+)\*/);
+                if (!m || !/^[A-Z]/.test(m[1])) return null;
+                return m[1]
+                    .replace(/,.*$/, '')              // drop "Mother speaking, child crying" → "Mother speaking"
+                    .replace(/\s+speaking\s*$/i, '')  // drop trailing " speaking"
+                    .replace(/\s+on\s+\S+.*$/i, '')   // drop "on scene" etc.
+                    .trim();
+            })()
         };
     }
 
@@ -1274,6 +1286,7 @@
         state.isAssessing = false;
         state.currentAiMsgDiv = null;
         state.currentAiText = '';
+        state.firstAiMessageShown = false;
         state.deterioration = { exchangesSinceKeyAssessment: 0, currentPhase: null, warningShown: false, criticalShown: false };
         state.voiceConfig = getVoiceConfig(scenario);
 
@@ -1481,10 +1494,16 @@ When you receive a prompt tagged [CLINICAL ASSESSMENT], respond with the structu
                 if (!state.currentAiMsgDiv) {
                     state.currentAiText = '';
                     state.currentAiMsgDiv = document.createElement('div');
-                    state.currentAiMsgDiv.className = 'sim-msg patient';
-                    const patientLabel = state.voiceConfig?.patient?.label || 'Patient';
+                    // Use starterLabel (e.g. "Midwife", "Mother") for the very first message if set
+                    const isFirstMsg = !state.firstAiMessageShown;
+                    const starterLabel = state.voiceConfig?.starterLabel;
+                    const useStarterLabel = isFirstMsg && starterLabel;
+                    const labelToShow = useStarterLabel ? starterLabel : (state.voiceConfig?.patient?.label || 'Patient');
+                    const iconClass = useStarterLabel ? 'bi-people-fill' : 'bi-person-fill';
+                    state.currentAiMsgDiv.className = useStarterLabel ? 'sim-msg relative' : 'sim-msg patient';
+                    state.firstAiMessageShown = true;
                     state.currentAiMsgDiv.innerHTML = `
-                        <div class="msg-speaker"><i class="bi bi-person-fill"></i> ${patientLabel}</div>
+                        <div class="msg-speaker"><i class="bi ${iconClass}"></i> ${labelToShow}</div>
                         <div class="msg-text"></div>
                     `;
                     el.transcript.insertBefore(state.currentAiMsgDiv, el.thinkingIndicator);
