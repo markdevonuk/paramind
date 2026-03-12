@@ -185,3 +185,64 @@ window.paramind = {
         }
     });
 })();
+// ============================================
+// CAPACITOR - Apple offer code / transaction listener
+// Automatically activates Pro when a subscription is
+// redeemed outside the app (e.g. via an offer code link)
+// ============================================
+(function() {
+    // Only run on iOS inside the Capacitor native app
+    if (typeof window.Capacitor === 'undefined' || !window.Capacitor.isNativePlatform()) return;
+    if (window.Capacitor.getPlatform() !== 'ios') return;
+
+    var NativePurchases = window.Capacitor.Plugins.NativePurchases;
+    if (!NativePurchases) return;
+
+    NativePurchases.addListener('transactionUpdated', async function(transaction) {
+        console.log('transactionUpdated received:', JSON.stringify(transaction));
+
+        // Only handle active subscriptions
+        if (!transaction || !transaction.productIdentifier) return;
+
+        // Wait for Firebase auth to be ready
+        var waitForAuth = new Promise(function(resolve) {
+            if (typeof firebase === 'undefined') return resolve(null);
+            var unsubscribe = firebase.auth().onAuthStateChanged(function(user) {
+                unsubscribe();
+                resolve(user);
+            });
+        });
+
+        var user = await waitForAuth;
+        if (!user) {
+            console.log('transactionUpdated: no logged-in user, skipping');
+            return;
+        }
+
+        try {
+            // Write to Firestore directly
+            await firebase.firestore().collection('users').doc(user.uid).update({
+                subscriptionStatus: 'active',
+                subscriptionPlatform: 'apple',
+                appleProductId: transaction.productIdentifier || null,
+                appleTransactionId: transaction.transactionId || null,
+                subscriptionUpdatedAt: new Date().toISOString()
+            });
+            console.log('transactionUpdated: Firestore updated for user', user.uid);
+
+            // Update local cache
+            try {
+                var cached = JSON.parse(localStorage.getItem('paramind_user') || '{}');
+                cached.subscriptionStatus = 'active';
+                localStorage.setItem('paramind_user', JSON.stringify(cached));
+            } catch (e) {}
+
+            // Reload the page so the user sees Pro immediately
+            window.location.reload();
+        } catch (err) {
+            console.error('transactionUpdated: Firestore write failed:', err);
+        }
+    });
+
+    console.log('Apple transactionUpdated listener registered');
+})();
