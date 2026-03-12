@@ -1375,11 +1375,26 @@ When you receive a prompt tagged [CLINICAL ASSESSMENT], respond with the structu
         state.dataChannel = dc;
 
         dc.onopen = () => {
-            // Enable input transcription so we can show what the user said
-            // GA interface: transcription is nested under audio.input
+            // Enable input transcription and configure VAD for a more natural pace
+            // GA interface: transcription and turn_detection are nested under audio.input
+            // semantic_vad with low eagerness waits for natural speech completion rather
+            // than cutting off on short silences — gives the user time to think and speak
             dc.send(JSON.stringify({
                 type: 'session.update',
-                session: { type: 'realtime', audio: { input: { transcription: { model: 'gpt-4o-mini-transcribe-2025-12-15' } } } }
+                session: {
+                    type: 'realtime',
+                    audio: {
+                        input: {
+                            transcription: { model: 'gpt-4o-mini-transcribe-2025-12-15' },
+                            turn_detection: {
+                                type: 'semantic_vad',
+                                eagerness: 'low',
+                                create_response: true,
+                                interrupt_response: true
+                            }
+                        }
+                    }
+                }
             }));
             // Trigger the model to speak its opening line immediately
             dc.send(JSON.stringify({ type: 'response.create', response: {} }));
