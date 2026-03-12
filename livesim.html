@@ -1379,7 +1379,7 @@ When you receive a prompt tagged [CLINICAL ASSESSMENT], respond with the structu
             // GA interface: transcription is nested under audio.input
             dc.send(JSON.stringify({
                 type: 'session.update',
-                session: { type: 'realtime', audio: { input: { transcription: { model: 'gpt-4o-transcribe' } } } }
+                session: { type: 'realtime', audio: { input: { transcription: { model: 'gpt-4o-mini-transcribe-2025-12-15' } } } }
             }));
             // Trigger the model to speak its opening line immediately
             dc.send(JSON.stringify({ type: 'response.create', response: {} }));
@@ -1440,13 +1440,19 @@ When you receive a prompt tagged [CLINICAL ASSESSMENT], respond with the structu
                 break;
 
             // Show what the user said in the transcript
-            case 'conversation.item.input_audio_transcription.completed':
-                if (event.transcript && event.transcript.trim()) {
-                    addTranscriptMessage('user', event.transcript.trim());
-                    trackVoiceAssessments(event.transcript);
+            case 'conversation.item.input_audio_transcription.completed': {
+                const raw = (event.transcript || '').trim();
+                // Discard hallucinations: non-Latin characters (Korean, Japanese, Chinese etc.)
+                // or suspiciously short single-token outputs that appear on silence
+                const hasNonLatin = /[^\u0000-\u024F\s]/.test(raw);
+                const tooShort = raw.length < 2;
+                if (raw && !hasNonLatin && !tooShort) {
+                    addTranscriptMessage('user', raw);
+                    trackVoiceAssessments(raw);
                     incrementDeteriorationCounter();
                 }
                 break;
+            }
 
             // AI response text streaming in (audio plays automatically via WebRTC track)
             case 'response.output_audio_transcript.delta':
