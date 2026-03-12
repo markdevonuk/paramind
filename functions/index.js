@@ -2046,6 +2046,7 @@ exports.realtimeToken = onRequest(
 
     // --- Pull params from request body ---
     const { systemPrompt, voice } = req.body || {};
+    console.log(`realtimeToken: requested voice = "${voice}"`);
 
     // --- Request ephemeral token from OpenAI ---
     try {
@@ -2066,7 +2067,7 @@ exports.realtimeToken = onRequest(
               instructions: systemPrompt || "",
               audio: {
                 output: {
-                  voice: voice || "ballad",
+                  voice: voice || "echo",
                 },
               },
             },
