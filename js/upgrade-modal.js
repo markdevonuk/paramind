@@ -285,55 +285,29 @@
                         restoreLink.disabled = true;
                         restoreLink.textContent = 'Restoring...';
                         const NativePurchases = window.Capacitor.Plugins.NativePurchases;
-                        await NativePurchases.restorePurchases();
+                        const result = await NativePurchases.restorePurchases();
 
-                        // Check if any active subscriptions were found
-                        const purchases = await NativePurchases.getPurchases({ productType: 'subs' });
-                        if (purchases && purchases.purchases && purchases.purchases.length > 0) {
-                            const tx = purchases.purchases[0];
+                        // Use result directly — same approach as upgrade.html which works
+                        const transactions = (result && result.transactions) ? result.transactions : [];
+                        const activeSub = transactions.find(function(tx) {
+                            return tx.isActive || tx.subscriptionState === 'subscribed';
+                        });
 
-                            // Step 1: Always write directly to Firestore first — guaranteed path
-                            if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-                                const uid = firebase.auth().currentUser.uid;
-                                await firebase.firestore().collection('users').doc(uid).update({
+                        if (activeSub) {
+                            // Write directly to Firestore
+                            const user = firebase.auth().currentUser;
+                            if (user) {
+                                await firebase.firestore().collection('users').doc(user.uid).update({
                                     subscriptionStatus: 'active',
                                     subscriptionPlatform: 'apple',
-                                    appleProductId: tx.productIdentifier || null,
-                                    appleTransactionId: tx.transactionId || null,
+                                    appleProductId: activeSub.productIdentifier || activeSub.productId || null,
+                                    appleTransactionId: activeSub.transactionId || null,
                                     appleRestoredAt: new Date().toISOString(),
                                     subscriptionUpdatedAt: new Date().toISOString()
                                 });
                             }
 
-                            // Step 2: Also call backend to verify (non-blocking, best effort)
-                            try {
-                                let token;
-                                if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-                                    token = await firebase.auth().currentUser.getIdToken();
-                                }
-                                if (token) {
-                                    const baseUrl = window.paramind?.CONFIG?.api?.baseUrl
-                                        || (typeof API_CONFIG !== 'undefined' ? API_CONFIG.baseUrl : null)
-                                        || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
-                                    fetch(baseUrl + '/verifyApplePurchase', {
-                                        method: 'POST',
-                                        headers: {
-                                            'Authorization': 'Bearer ' + token,
-                                            'Content-Type': 'application/json'
-                                        },
-                                        body: JSON.stringify({
-                                            productId: tx.productIdentifier || null,
-                                            transactionId: tx.transactionId || null,
-                                            receipt: tx.receipt || null,
-                                            restored: true
-                                        })
-                                    }).catch(function(e) { console.warn('Backend verify failed (non-critical):', e); });
-                                }
-                            } catch (verifyErr) {
-                                console.warn('Backend verify error (non-critical):', verifyErr);
-                            }
-
-                            // Step 3: Update local cache
+                            // Update local cache
                             try {
                                 const cached = JSON.parse(localStorage.getItem('paramind_user') || '{}');
                                 cached.subscriptionStatus = 'active';
