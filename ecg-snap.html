@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>ECG Snap & Learn | Paramind</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Menu CSS -->
+    <link rel="stylesheet" href="css/menu-v2.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <style>
+        /* ===== PAGE LAYOUT ===== */
+        .ecg-page {
+            min-height: 100vh;
+            background: var(--color-gray-50);
+        }
+
+        .ecg-container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 1rem;
+            padding-bottom: 3rem;
+        }
+
+        .ecg-header {
+            text-align: center;
+            padding: 1.5rem 0 1rem;
+        }
+
+        .ecg-header h1 {
+            font-size: 1.75rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            color: var(--color-gray-900);
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .ecg-header p {
+            color: var(--color-gray-600);
+            font-family: 'DM Sans', sans-serif;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        /* ===== TEST BADGE ===== */
+        .test-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            border-radius: 999px;
+            padding: 0.35rem 0.85rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            margin-bottom: 1.25rem;
+        }
+
+        /* ===== API KEY SETUP ===== */
+        .api-setup {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #ffc107;
+        }
+
+        .api-setup-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--color-gray-700);
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .api-key-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .api-key-input {
+            flex: 1;
+            padding: 0.55rem 0.85rem;
+            border: 1.5px solid var(--color-gray-200);
+            border-radius: var(--radius-md);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--color-gray-700);
+            background: var(--color-gray-50);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .api-key-input:focus {
+            border-color: var(--color-teal);
+        }
+
+        .api-key-input::placeholder {
+            color: var(--color-gray-400);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+        }
+
+        .api-save-btn {
+            padding: 0.55rem 1rem;
+            background: var(--color-teal);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .api-save-btn:hover {
+            background: var(--color-teal-dark);
+        }
+
+        .api-status {
+            font-size: 0.8rem;
+            font-family: 'DM Sans', sans-serif;
+            margin-top: 0.5rem;
+        }
+
+        .api-status.ready {
+            color: #198754;
+        }
+
+        .api-status.missing {
+            color: #dc3545;
+        }
+
+        /* ===== INFO BANNER ===== */
+        .info-banner {
+            background: linear-gradient(135deg, rgba(43,138,156,0.08), rgba(43,138,156,0.04));
+            border: 1px solid rgba(43,138,156,0.2);
+            border-radius: var(--radius-lg);
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88rem;
+            color: var(--color-gray-700);
+            line-height: 1.5;
+        }
+
+        .info-banner i {
+            color: var(--color-teal);
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* ===== UPLOAD ZONE ===== */
+        .upload-zone {
+            background: var(--color-white);
+            border: 2.5px dashed var(--color-gray-300);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .upload-zone:hover, .upload-zone.drag-over {
+            border-color: var(--color-teal);
+            background: rgba(43,138,156,0.04);
+        }
+
+        .upload-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .upload-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(43,138,156,0.12), rgba(92,184,92,0.08));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin: 0 auto 1rem;
+        }
+
+        .upload-zone h3 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 0.4rem;
+        }
+
+        .upload-zone p {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88rem;
+            color: var(--color-gray-500);
+            margin: 0 0 1.25rem;
+        }
+
+        .upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.65rem 1.4rem;
+            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark));
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            pointer-events: none;
+            transition: all 0.2s;
+        }
+
+        .upload-zone:hover .upload-btn {
+            box-shadow: 0 4px 12px rgba(43,138,156,0.35);
+        }
+
+        .upload-divider {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            color: var(--color-gray-400);
+            margin: 0.75rem 0;
+        }
+
+        .camera-btn-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.6rem 1.2rem;
+            background: var(--color-white);
+            color: var(--color-gray-700);
+            border: 1.5px solid var(--color-gray-300);
+            border-radius: 9999px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .camera-btn-label:hover {
+            border-color: var(--color-teal);
+            color: var(--color-teal);
+        }
+
+        /* ===== PREVIEW SECTION ===== */
+        .preview-section {
+            display: none;
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+        }
+
+        .preview-section.visible {
+            display: block;
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.85rem;
+        }
+
+        .preview-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--color-gray-700);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .change-btn {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            color: var(--color-teal);
+            font-weight: 600;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .ecg-preview-img {
+            width: 100%;
+            border-radius: var(--radius-md);
+            border: 1.5px solid var(--color-gray-200);
+            display: block;
+            max-height: 280px;
+            object-fit: contain;
+            background: #111;
+        }
+
+        .analyse-btn {
+            width: 100%;
+            margin-top: 1rem;
+            padding: 0.85rem;
+            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark));
+            color: white;
+            border: none;
+            border-radius: var(--radius-lg);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .analyse-btn:hover:not(:disabled) {
+            box-shadow: 0 6px 16px rgba(43,138,156,0.35);
+            transform: translateY(-1px);
+        }
+
+        .analyse-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ===== LOADING STATE ===== */
+        .loading-state {
+            display: none;
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+        }
+
+        .loading-state.visible {
+            display: block;
+        }
+
+        .ecg-scan-animation {
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+            height: 80px;
+            margin: 0 auto 1.25rem;
+            overflow: hidden;
+        }
+
+        .ecg-line {
+            stroke: var(--color-teal);
+            stroke-width: 2.5;
+            fill: none;
+            stroke-dasharray: 600;
+            stroke-dashoffset: 600;
+            animation: drawEcg 2s ease-in-out infinite;
+        }
+
+        @keyframes drawEcg {
+            0% { stroke-dashoffset: 600; opacity: 1; }
+            80% { stroke-dashoffset: 0; opacity: 1; }
+            100% { stroke-dashoffset: 0; opacity: 0; }
+        }
+
+        .loading-state h3 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 0.3rem;
+        }
+
+        .loading-state p {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88rem;
+            color: var(--color-gray-500);
+            margin: 0;
+        }
+
+        /* ===== RESULTS SECTION ===== */
+        .results-section {
+            display: none;
+        }
+
+        .results-section.visible {
+            display: block;
+        }
+
+        /* Rhythm banner */
+        .rhythm-banner {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem 1.5rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-left: 5px solid var(--color-teal);
+        }
+
+        .rhythm-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(43,138,156,0.12), rgba(43,138,156,0.06));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .rhythm-name {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--color-gray-900);
+            margin: 0 0 0.2rem;
+        }
+
+        .rhythm-label {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            color: var(--color-gray-500);
+            margin: 0;
+        }
+
+        .confidence-badge {
+            margin-left: auto;
+            padding: 0.3rem 0.8rem;
+            border-radius: 999px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .confidence-badge.high {
+            background: rgba(25,135,84,0.1);
+            color: #198754;
+        }
+
+        .confidence-badge.medium {
+            background: rgba(255,193,7,0.15);
+            color: #856404;
+        }
+
+        .confidence-badge.low {
+            background: rgba(220,53,69,0.1);
+            color: #dc3545;
+        }
+
+        /* Metrics grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .metric-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+        }
+
+        .metric-label {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--color-gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.3rem;
+        }
+
+        .metric-value {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--color-gray-900);
+            margin-bottom: 0.15rem;
+        }
+
+        .metric-sub {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.72rem;
+            color: var(--color-gray-400);
+        }
+
+        /* Analysis cards */
+        .analysis-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1rem;
+        }
+
+        .analysis-card-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .analysis-card-title i {
+            color: var(--color-teal);
+            font-size: 1rem;
+        }
+
+        .analysis-text {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            color: var(--color-gray-700);
+            line-height: 1.65;
+            margin: 0;
+        }
+
+        /* Finding rows */
+        .finding-row {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+
+        .finding-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .finding-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-top: 0.35rem;
+            flex-shrink: 0;
+        }
+
+        .finding-dot.normal { background: #198754; }
+        .finding-dot.abnormal { background: #dc3545; }
+        .finding-dot.note { background: #ffc107; }
+
+        .finding-text {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88rem;
+            color: var(--color-gray-700);
+            line-height: 1.5;
+        }
+
+        /* Clinical significance */
+        .significance-box {
+            border-radius: var(--radius-md);
+            padding: 1rem 1.1rem;
+            margin-top: 0.85rem;
+        }
+
+        .significance-box.urgent {
+            background: rgba(220,53,69,0.07);
+            border-left: 3px solid #dc3545;
+        }
+
+        .significance-box.normal {
+            background: rgba(25,135,84,0.07);
+            border-left: 3px solid #198754;
+        }
+
+        .significance-box.monitor {
+            background: rgba(255,193,7,0.1);
+            border-left: 3px solid #ffc107;
+        }
+
+        .significance-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .significance-box.urgent .significance-title { color: #dc3545; }
+        .significance-box.normal .significance-title { color: #198754; }
+        .significance-box.monitor .significance-title { color: #856404; }
+
+        .significance-text {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88rem;
+            line-height: 1.55;
+            color: var(--color-gray-700);
+            margin: 0;
+        }
+
+        /* Ask Hollie CTA */
+        .hollie-cta {
+            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark));
+            border-radius: var(--radius-lg);
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .hollie-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(43,138,156,0.3);
+            text-decoration: none;
+        }
+
+        .hollie-cta img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            object-position: top;
+            border: 2px solid rgba(255,255,255,0.4);
+            flex-shrink: 0;
+        }
+
+        .hollie-cta-text {
+            flex: 1;
+        }
+
+        .hollie-cta-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: white;
+            margin: 0 0 0.2rem;
+        }
+
+        .hollie-cta-sub {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.8);
+            margin: 0;
+        }
+
+        .hollie-cta-arrow {
+            color: rgba(255,255,255,0.8);
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        /* Try another button */
+        .try-another-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--color-white);
+            color: var(--color-gray-700);
+            border: 1.5px solid var(--color-gray-300);
+            border-radius: var(--radius-lg);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            margin-bottom: 1.5rem;
+        }
+
+        .try-another-btn:hover {
+            border-color: var(--color-teal);
+            color: var(--color-teal);
+        }
+
+        /* Error card */
+        .error-card {
+            display: none;
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid #dc3545;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .error-card.visible {
+            display: block;
+        }
+
+        .error-card h3 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #dc3545;
+            margin-bottom: 0.4rem;
+        }
+
+        .error-card p {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88rem;
+            color: var(--color-gray-600);
+            margin: 0;
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            background: var(--color-gray-50);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-md);
+            padding: 0.9rem 1.1rem;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            color: var(--color-gray-500);
+            line-height: 1.5;
+            display: flex;
+            gap: 0.6rem;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .disclaimer i {
+            color: #ffc107;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 480px) {
+            .metrics-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.5rem;
+            }
+
+            .metric-value {
+                font-size: 1rem;
+            }
+
+            .rhythm-name {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body class="ecg-page">
+
+<!-- ==================== NAV ==================== -->
+<nav class="member-navbar">
+    <div class="container">
+        <span class="brand-text">
+            <a class="navbar-brand" href="landing.html">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </a>
+        </span>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</nav>
+
+<!-- ==================== MAIN CONTENT ==================== -->
+<div class="ecg-container">
+
+    <!-- Header -->
+    <div class="ecg-header">
+        <h1>🫀 ECG Snap &amp; Learn</h1>
+        <p>Photograph any ECG strip for instant AI analysis and clinical education</p>
+    </div>
+
+    <div style="text-align: center; margin-bottom: 1.25rem;">
+        <span class="test-badge">
+            <i class="bi bi-flask"></i> Test feature — educational use only
+        </span>
+    </div>
+
+    <!-- API Key Setup -->
+    <div class="api-setup" id="apiSetup">
+        <div class="api-setup-title">
+            <i class="bi bi-key"></i> Test setup — enter your Anthropic API key
+        </div>
+        <div class="api-key-row">
+            <input
+                type="password"
+                class="api-key-input"
+                id="apiKeyInput"
+                placeholder="sk-ant-api03-..."
+                autocomplete="off"
+                spellcheck="false"
+            >
+            <button class="api-save-btn" onclick="saveApiKey()">Save</button>
+        </div>
+        <div class="api-status" id="apiStatus"></div>
+        <div style="font-family: 'DM Sans', sans-serif; font-size: 0.78rem; color: var(--color-gray-400); margin-top: 0.5rem;">
+            Key is stored in session memory only and cleared when you close the browser. This will be replaced by the Firebase function before going live.
+        </div>
+    </div>
+
+    <!-- Info Banner -->
+    <div class="info-banner">
+        <i class="bi bi-info-circle-fill"></i>
+        <span>Photograph or upload any ECG strip — from a monitor, printout, or textbook. The AI will identify the rhythm and walk you through rate, intervals, axis, and clinical significance. <strong>For educational purposes only.</strong></span>
+    </div>
+
+    <!-- Upload Zone -->
+    <div class="upload-zone" id="uploadZone">
+        <input
+            type="file"
+            id="fileInput"
+            accept="image/*"
+            onchange="handleFileSelect(event)"
+        >
+        <div class="upload-icon">🫀</div>
+        <h3>Drop an ECG image here</h3>
+        <p>Supports JPG, PNG, HEIC and other common formats</p>
+        <div class="upload-btn">
+            <i class="bi bi-upload"></i> Choose from library
+        </div>
+        <div class="upload-divider">— or —</div>
+        <label class="camera-btn-label" for="cameraInput">
+            <i class="bi bi-camera"></i> Use camera
+        </label>
+        <input
+            type="file"
+            id="cameraInput"
+            accept="image/*"
+            capture="environment"
+            style="display:none"
+            onchange="handleFileSelect(event)"
+        >
+    </div>
+
+    <!-- Preview + Analyse -->
+    <div class="preview-section" id="previewSection">
+        <div class="preview-header">
+            <div class="preview-title">
+                <i class="bi bi-image"></i> ECG image loaded
+            </div>
+            <button class="change-btn" onclick="resetToUpload()">Change image</button>
+        </div>
+        <img id="previewImg" class="ecg-preview-img" src="" alt="ECG preview">
+        <button class="analyse-btn" id="analyseBtn" onclick="analyseEcg()">
+            <i class="bi bi-cpu"></i> Analyse ECG
+        </button>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-state" id="loadingState">
+        <div class="ecg-scan-animation">
+            <svg width="100%" height="80" viewBox="0 0 320 80">
+                <polyline class="ecg-line" points="0,40 30,40 40,10 50,70 60,25 70,55 80,40 130,40 140,8 150,72 160,20 170,60 180,40 230,40 240,9 250,71 260,22 270,58 280,40 320,40"/>
+            </svg>
+        </div>
+        <h3>Analysing your ECG...</h3>
+        <p>Reading rhythm, intervals, and clinical features</p>
+    </div>
+
+    <!-- Error -->
+    <div class="error-card" id="errorCard">
+        <h3><i class="bi bi-exclamation-circle"></i> Analysis failed</h3>
+        <p id="errorMsg">Something went wrong. Please try again.</p>
+    </div>
+
+    <!-- Results -->
+    <div class="results-section" id="resultsSection">
+
+        <!-- Rhythm banner -->
+        <div class="rhythm-banner" id="rhythmBanner">
+            <div class="rhythm-icon">🫀</div>
+            <div>
+                <div class="rhythm-name" id="rhythmName">—</div>
+                <div class="rhythm-label">Rhythm identified</div>
+            </div>
+            <span class="confidence-badge high" id="confidenceBadge">High confidence</span>
+        </div>
+
+        <!-- Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Rate</div>
+                <div class="metric-value" id="metricRate">—</div>
+                <div class="metric-sub">bpm</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Axis</div>
+                <div class="metric-value" id="metricAxis">—</div>
+                <div class="metric-sub">degrees</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">QRS</div>
+                <div class="metric-value" id="metricQrs">—</div>
+                <div class="metric-sub">ms</div>
+            </div>
+        </div>
+
+        <!-- Intervals card -->
+        <div class="analysis-card">
+            <div class="analysis-card-title">
+                <i class="bi bi-activity"></i> Interval & waveform analysis
+            </div>
+            <div id="intervalFindings"><!-- Populated by JS --></div>
+        </div>
+
+        <!-- Clinical interpretation -->
+        <div class="analysis-card">
+            <div class="analysis-card-title">
+                <i class="bi bi-heart-pulse"></i> Clinical interpretation
+            </div>
+            <p class="analysis-text" id="clinicalText">—</p>
+            <div id="significanceBox"></div>
+        </div>
+
+        <!-- Learning points -->
+        <div class="analysis-card">
+            <div class="analysis-card-title">
+                <i class="bi bi-mortarboard"></i> Learning points for paramedics
+            </div>
+            <p class="analysis-text" id="learningText">—</p>
+        </div>
+
+        <!-- Ask Hollie CTA -->
+        <a class="hollie-cta" href="chat.html" id="hollieCta">
+            <img src="images/hollie.png" alt="Hollie">
+            <div class="hollie-cta-text">
+                <div class="hollie-cta-title">Ask Hollie about this rhythm</div>
+                <div class="hollie-cta-sub" id="hollieCtaSub">Continue learning with your AI tutor</div>
+            </div>
+            <i class="bi bi-arrow-right-circle hollie-cta-arrow"></i>
+        </a>
+
+        <!-- Try another -->
+        <button class="try-another-btn" onclick="resetToUpload()">
+            <i class="bi bi-arrow-repeat"></i> Analyse another ECG
+        </button>
+
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span>This ECG analysis is generated by AI for <strong>educational purposes only</strong>. It must never be used for real clinical decision-making. Always interpret ECGs in the clinical context of the patient and refer to your trust protocols.</span>
+    </div>
+
+</div>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="member-footer">
+    <div class="container">
+        <div class="footer-brand">
+            <span class="brand-text">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </span>
+        </div>
+        <div class="footer-links">
+            <a href="terms.html">Terms of Service</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="purpose.html">Intended Purpose</a>
+            <a href="sources.html">Sources &amp; Citations</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <p class="footer-copyright">&copy; 2026 Paramind. All rights reserved.</p>
+    </div>
+</footer>
+
+<!-- ==================== SCRIPTS ==================== -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // ==================== API KEY MANAGEMENT ====================
+
+    let apiKey = sessionStorage.getItem('ecg_api_key') || '';
+
+    function saveApiKey() {
+        const input = document.getElementById('apiKeyInput');
+        const val = input.value.trim();
+        if (!val.startsWith('sk-ant-')) {
+            showApiStatus('Key should start with sk-ant-', false);
+            return;
+        }
+        apiKey = val;
+        sessionStorage.setItem('ecg_api_key', val);
+        showApiStatus('✓ API key saved for this session', true);
+    }
+
+    function showApiStatus(msg, ok) {
+        const el = document.getElementById('apiStatus');
+        el.textContent = msg;
+        el.className = 'api-status ' + (ok ? 'ready' : 'missing');
+    }
+
+    // Pre-fill if already saved this session
+    if (apiKey) {
+        document.getElementById('apiKeyInput').value = apiKey;
+        showApiStatus('✓ API key loaded from session', true);
+    }
+
+    // ==================== FILE HANDLING ====================
+
+    let currentImageBase64 = null;
+    let currentImageMime = 'image/jpeg';
+
+    function handleFileSelect(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        currentImageMime = file.type || 'image/jpeg';
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const dataUrl = e.target.result;
+            // Extract base64 part only
+            currentImageBase64 = dataUrl.split(',')[1];
+
+            // Show preview
+            document.getElementById('previewImg').src = dataUrl;
+            document.getElementById('uploadZone').style.display = 'none';
+            document.getElementById('previewSection').classList.add('visible');
+            document.getElementById('resultsSection').classList.remove('visible');
+            document.getElementById('errorCard').classList.remove('visible');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Drag and drop
+    const uploadZone = document.getElementById('uploadZone');
+    uploadZone.addEventListener('dragover', e => {
+        e.preventDefault();
+        uploadZone.classList.add('drag-over');
+    });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+    uploadZone.addEventListener('drop', e => {
+        e.preventDefault();
+        uploadZone.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const fakeEvent = { target: { files: [file] } };
+            handleFileSelect(fakeEvent);
+        }
+    });
+
+    function resetToUpload() {
+        currentImageBase64 = null;
+        document.getElementById('fileInput').value = '';
+        document.getElementById('cameraInput').value = '';
+        document.getElementById('uploadZone').style.display = '';
+        document.getElementById('previewSection').classList.remove('visible');
+        document.getElementById('loadingState').classList.remove('visible');
+        document.getElementById('resultsSection').classList.remove('visible');
+        document.getElementById('errorCard').classList.remove('visible');
+    }
+
+    // ==================== ECG ANALYSIS ====================
+
+    async function analyseEcg() {
+        if (!currentImageBase64) return;
+
+        if (!apiKey) {
+            showError('Please enter your Anthropic API key in the setup box above first.');
+            return;
+        }
+
+        // Show loading
+        document.getElementById('previewSection').classList.remove('visible');
+        document.getElementById('loadingState').classList.add('visible');
+        document.getElementById('errorCard').classList.remove('visible');
+        document.getElementById('resultsSection').classList.remove('visible');
+
+        const prompt = `You are an expert cardiac physiologist and paramedic educator. Analyse this ECG image for educational purposes and respond ONLY with a valid JSON object in exactly this structure — no markdown, no extra text:
+
+{
+  "rhythm": "Full rhythm name e.g. Normal Sinus Rhythm",
+  "confidence": "high|medium|low",
+  "rate": "numeric value or range e.g. 72 or 60-100",
+  "axis": "value or description e.g. +45 or Normal",
+  "qrs_duration": "value in ms e.g. 80",
+  "findings": [
+    {"type": "normal|abnormal|note", "text": "Finding description"},
+    {"type": "normal|abnormal|note", "text": "Finding description"}
+  ],
+  "clinical_interpretation": "2-3 sentence plain English explanation of what this ECG shows and why it matters clinically.",
+  "significance": "normal|monitor|urgent",
+  "significance_title": "Short title e.g. Clinically normal ECG",
+  "significance_detail": "1-2 sentence explanation of clinical significance for a paramedic.",
+  "learning_points": "2-3 sentences of educational content specifically relevant to UK paramedics — what to look for, what it means in the pre-hospital context, any common pitfalls.",
+  "hollie_topic": "Brief topic for asking Hollie e.g. the causes and pre-hospital management of atrial fibrillation"
+}
+
+If the image is not an ECG or is too unclear to analyse, return:
+{"error": "Brief explanation of why analysis was not possible"}`;
+
+        try {
+            const response = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                    'anthropic-version': '2023-06-01',
+                    'anthropic-dangerous-direct-browser-access': 'true'
+                },
+                body: JSON.stringify({
+                    model: 'claude-opus-4-6',
+                    max_tokens: 1000,
+                    messages: [{
+                        role: 'user',
+                        content: [
+                            {
+                                type: 'image',
+                                source: {
+                                    type: 'base64',
+                                    media_type: currentImageMime,
+                                    data: currentImageBase64
+                                }
+                            },
+                            {
+                                type: 'text',
+                                text: prompt
+                            }
+                        ]
+                    }]
+                })
+            });
+
+            if (!response.ok) {
+                const err = await response.json().catch(() => ({}));
+                throw new Error(err.error?.message || `API error ${response.status}`);
+            }
+
+            const data = await response.json();
+            const rawText = data.content[0].text.trim();
+
+            // Strip any accidental markdown fences
+            const jsonText = rawText.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+            const result = JSON.parse(jsonText);
+
+            if (result.error) {
+                showError(result.error);
+                return;
+            }
+
+            renderResults(result);
+
+        } catch (err) {
+            console.error(err);
+            showError(err.message || 'Unexpected error. Please check your API key and try again.');
+        }
+    }
+
+    // ==================== RENDER RESULTS ====================
+
+    function renderResults(r) {
+        document.getElementById('loadingState').classList.remove('visible');
+
+        // Rhythm banner
+        document.getElementById('rhythmName').textContent = r.rhythm || 'Unknown';
+
+        const confBadge = document.getElementById('confidenceBadge');
+        const confMap = {
+            high: { label: 'High confidence', cls: 'high' },
+            medium: { label: 'Medium confidence', cls: 'medium' },
+            low: { label: 'Low confidence', cls: 'low' }
+        };
+        const conf = confMap[r.confidence] || confMap.medium;
+        confBadge.textContent = conf.label;
+        confBadge.className = 'confidence-badge ' + conf.cls;
+
+        // Metrics
+        document.getElementById('metricRate').textContent = r.rate || '—';
+        document.getElementById('metricAxis').textContent = r.axis || '—';
+        document.getElementById('metricQrs').textContent = r.qrs_duration || '—';
+
+        // Interval findings
+        const findingsEl = document.getElementById('intervalFindings');
+        if (r.findings && r.findings.length) {
+            findingsEl.innerHTML = r.findings.map(f => `
+                <div class="finding-row">
+                    <div class="finding-dot ${f.type}"></div>
+                    <div class="finding-text">${escapeHtml(f.text)}</div>
+                </div>
+            `).join('');
+        } else {
+            findingsEl.innerHTML = '<p class="analysis-text" style="color:var(--color-gray-400)">No specific findings noted.</p>';
+        }
+
+        // Clinical interpretation
+        document.getElementById('clinicalText').textContent = r.clinical_interpretation || '—';
+
+        // Significance box
+        const sigBox = document.getElementById('significanceBox');
+        if (r.significance && r.significance_title) {
+            sigBox.innerHTML = `
+                <div class="significance-box ${r.significance}">
+                    <div class="significance-title">${escapeHtml(r.significance_title)}</div>
+                    <p class="significance-text">${escapeHtml(r.significance_detail || '')}</p>
+                </div>
+            `;
+        } else {
+            sigBox.innerHTML = '';
+        }
+
+        // Learning points
+        document.getElementById('learningText').textContent = r.learning_points || '—';
+
+        // Hollie CTA
+        if (r.hollie_topic) {
+            const topicEncoded = encodeURIComponent('Can you explain ' + r.hollie_topic + '?');
+            document.getElementById('hollieCta').href = `chat.html?q=${topicEncoded}`;
+            document.getElementById('hollieCtaSub').textContent = `Ask about ${r.hollie_topic}`;
+        }
+
+        // Show results
+        document.getElementById('resultsSection').classList.add('visible');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showError(msg) {
+        document.getElementById('loadingState').classList.remove('visible');
+        document.getElementById('previewSection').classList.add('visible');
+        document.getElementById('errorMsg').textContent = msg;
+        document.getElementById('errorCard').classList.add('visible');
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+</script>
+
+<script src="js/app.js"></script>
+<script src="js/menu-v2.js"></script>
+</body>
+</html>
