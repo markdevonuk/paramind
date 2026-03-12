@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drug Scanner — Test</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: sans-serif; background: #f4f4f4; color: #222; padding: 20px; max-width: 600px; margin: 0 auto; }
+        h1 { font-size: 1.3rem; margin-bottom: 4px; }
+        .sub { color: #666; font-size: 0.85rem; margin-bottom: 20px; }
+        .badge { display: inline-block; background: #fff3cd; border: 1px solid #ffc107; color: #856404; border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; margin-bottom: 16px; }
+
+        /* API key */
+        .key-box { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 14px; margin-bottom: 16px; }
+        .key-box label { font-size: 0.8rem; font-weight: 600; color: #555; display: block; margin-bottom: 6px; }
+        .key-row { display: flex; gap: 8px; }
+        .key-row input { flex: 1; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.85rem; font-family: monospace; }
+        .key-row button { padding: 8px 14px; background: #2b8a9c; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+        .key-note { font-size: 0.75rem; color: #999; margin-top: 6px; }
+        .key-ok { font-size: 0.8rem; color: #198754; margin-top: 6px; }
+        .key-err { font-size: 0.8rem; color: #dc3545; margin-top: 6px; }
+
+        /* Upload */
+        .upload-box { background: #fff; border: 2px dashed #ccc; border-radius: 8px; padding: 30px 20px; text-align: center; margin-bottom: 16px; cursor: pointer; position: relative; transition: border-color 0.2s; }
+        .upload-box:hover { border-color: #2b8a9c; }
+        .upload-box input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+        .upload-box p { color: #666; font-size: 0.9rem; margin-bottom: 10px; }
+        .upload-box .or { color: #aaa; font-size: 0.8rem; margin: 8px 0; }
+        .cam-label { display: inline-block; padding: 7px 16px; border: 1px solid #ccc; border-radius: 20px; font-size: 0.85rem; cursor: pointer; background: #fff; }
+        .cam-label:hover { border-color: #2b8a9c; color: #2b8a9c; }
+
+        /* Preview */
+        #previewWrap { display: none; margin-bottom: 16px; }
+        #previewWrap img { width: 100%; border-radius: 8px; border: 1px solid #ddd; max-height: 260px; object-fit: contain; background: #111; }
+        .preview-actions { display: flex; gap: 8px; margin-top: 8px; }
+        .btn-scan { flex: 1; padding: 12px; background: #2b8a9c; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+        .btn-scan:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-change { padding: 12px 16px; background: #fff; border: 1px solid #ccc; border-radius: 8px; font-size: 0.9rem; cursor: pointer; }
+
+        /* Loading */
+        #loading { display: none; text-align: center; padding: 30px; background: #fff; border-radius: 8px; margin-bottom: 16px; }
+        #loading p { color: #666; font-size: 0.9rem; margin-top: 10px; }
+        .spinner { width: 36px; height: 36px; border: 3px solid #eee; border-top-color: #2b8a9c; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Error */
+        #errorBox { display: none; background: #fff5f5; border: 1px solid #f5c2c7; border-radius: 8px; padding: 14px; margin-bottom: 16px; color: #842029; font-size: 0.88rem; }
+
+        /* Results */
+        #results { display: none; }
+        .drug-name { font-size: 1.5rem; font-weight: 700; margin-bottom: 2px; }
+        .drug-class { font-size: 0.85rem; color: #666; margin-bottom: 16px; }
+
+        .section { background: #fff; border-radius: 8px; padding: 14px; margin-bottom: 10px; border-left: 3px solid #2b8a9c; }
+        .section h3 { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #2b8a9c; margin-bottom: 8px; }
+        .section p { font-size: 0.9rem; line-height: 1.6; color: #333; }
+
+        .section.urgent { border-left-color: #dc3545; }
+        .section.urgent h3 { color: #dc3545; }
+
+        .section.caution { border-left-color: #ffc107; }
+        .section.caution h3 { color: #856404; }
+
+        .row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .mini-card { background: #fff; border-radius: 8px; padding: 12px; }
+        .mini-card .label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #999; margin-bottom: 4px; }
+        .mini-card .value { font-size: 0.9rem; font-weight: 600; color: #222; line-height: 1.4; }
+
+        .disclaimer { background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px; padding: 12px 14px; font-size: 0.78rem; color: #666; line-height: 1.5; margin-bottom: 10px; }
+
+        .btn-again { width: 100%; padding: 12px; background: #fff; border: 1px solid #ccc; border-radius: 8px; font-size: 0.9rem; cursor: pointer; margin-bottom: 20px; }
+        .btn-again:hover { border-color: #2b8a9c; color: #2b8a9c; }
+    </style>
+</head>
+<body>
+
+    <h1>💊 Drug Scanner</h1>
+    <p class="sub">Point at any medication label for instant paramedic-relevant information</p>
+    <span class="badge">⚗️ Test page — not for clinical use</span>
+
+    <!-- API Key -->
+    <div class="key-box">
+        <label>OpenAI API Key (test only)</label>
+        <div class="key-row">
+            <input type="password" id="apiKey" placeholder="sk-..." spellcheck="false" autocomplete="off">
+            <button onclick="saveKey()">Save</button>
+        </div>
+        <div id="keyStatus" class="key-note">Stored in session memory only. Will be replaced by Firebase function before going live.</div>
+    </div>
+
+    <!-- Upload -->
+    <div class="upload-box" id="uploadBox">
+        <input type="file" accept="image/*" onchange="handleFile(event)">
+        <p>📷 Tap to photograph a drug label<br>or drag an image here</p>
+        <div class="or">— or —</div>
+        <label class="cam-label" for="camInput">Use camera</label>
+        <input type="file" id="camInput" accept="image/*" capture="environment" style="display:none" onchange="handleFile(event)">
+    </div>
+
+    <!-- Preview -->
+    <div id="previewWrap">
+        <img id="previewImg" src="" alt="Drug label preview">
+        <div class="preview-actions">
+            <button class="btn-scan" id="scanBtn" onclick="scanDrug()">🔍 Identify this drug</button>
+            <button class="btn-change" onclick="reset()">Change</button>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading">
+        <div class="spinner"></div>
+        <p>Identifying drug and generating paramedic information...</p>
+    </div>
+
+    <!-- Error -->
+    <div id="errorBox"></div>
+
+    <!-- Results -->
+    <div id="results">
+        <div class="drug-name" id="rName"></div>
+        <div class="drug-class" id="rClass"></div>
+
+        <div class="row-grid">
+            <div class="mini-card">
+                <div class="label">Route</div>
+                <div class="value" id="rRoute"></div>
+            </div>
+            <div class="mini-card">
+                <div class="label">Typical onset</div>
+                <div class="value" id="rOnset"></div>
+            </div>
+        </div>
+
+        <div class="section" id="rDoseWrap">
+            <h3>Dose (adult)</h3>
+            <p id="rDose"></p>
+        </div>
+
+        <div class="section">
+            <h3>What it does</h3>
+            <p id="rMechanism"></p>
+        </div>
+
+        <div class="section">
+            <h3>Indications relevant to paramedics</h3>
+            <p id="rIndications"></p>
+        </div>
+
+        <div class="section caution" id="rContraWrap">
+            <h3>Key contraindications & cautions</h3>
+            <p id="rContra"></p>
+        </div>
+
+        <div class="section urgent" id="rSideWrap">
+            <h3>Side effects to watch for</h3>
+            <p id="rSide"></p>
+        </div>
+
+        <div class="section">
+            <h3>Paramedic notes</h3>
+            <p id="rNotes"></p>
+        </div>
+
+        <div class="disclaimer">
+            ⚠️ This information is AI-generated for <strong>educational purposes only</strong>. Always verify with the BNF and your trust formulary. Never use this for real clinical decision-making.
+        </div>
+
+        <button class="btn-again" onclick="reset()">↩ Scan another drug</button>
+    </div>
+
+<script>
+    let imgBase64 = null;
+    let imgMime = 'image/jpeg';
+    let apiKey = sessionStorage.getItem('ds_key') || '';
+
+    if (apiKey) {
+        document.getElementById('apiKey').value = apiKey;
+        document.getElementById('keyStatus').textContent = '✓ Key loaded from session';
+        document.getElementById('keyStatus').className = 'key-ok';
+    }
+
+    function saveKey() {
+        const v = document.getElementById('apiKey').value.trim();
+        if (!v.startsWith('sk-')) {
+            document.getElementById('keyStatus').textContent = 'Key should start with sk-';
+            document.getElementById('keyStatus').className = 'key-err';
+            return;
+        }
+        apiKey = v;
+        sessionStorage.setItem('ds_key', v);
+        document.getElementById('keyStatus').textContent = '✓ Saved for this session';
+        document.getElementById('keyStatus').className = 'key-ok';
+    }
+
+    function handleFile(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        imgMime = file.type || 'image/jpeg';
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            imgBase64 = ev.target.result.split(',')[1];
+            document.getElementById('previewImg').src = ev.target.result;
+            document.getElementById('uploadBox').style.display = 'none';
+            document.getElementById('previewWrap').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('errorBox').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function reset() {
+        imgBase64 = null;
+        document.getElementById('apiKey').value = apiKey;
+        document.getElementById('uploadBox').style.display = 'block';
+        document.getElementById('previewWrap').style.display = 'none';
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('results').style.display = 'none';
+        document.getElementById('errorBox').style.display = 'none';
+    }
+
+    async function scanDrug() {
+        if (!imgBase64) return;
+        if (!apiKey) {
+            showError('Please enter your OpenAI API key above first.');
+            return;
+        }
+
+        document.getElementById('previewWrap').style.display = 'none';
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('errorBox').style.display = 'none';
+        document.getElementById('results').style.display = 'none';
+
+        const system = `You are a senior UK paramedic educator and clinical pharmacologist. Your job is to identify a medication from a photograph of its label or packaging and provide concise, accurate, paramedic-relevant information about it.
+
+Always identify the drug from what is visible in the image — brand name, generic name, concentration, or any other visible detail. If you can see the drug clearly, provide the information even if the label is partially obscured. Focus on information relevant to UK pre-hospital care.`;
+
+        const user = `Look at this medication image and identify the drug. Then respond ONLY with a valid JSON object using exactly this structure — no markdown, no extra text:
+
+{
+  "name": "Generic name (Brand name if visible) e.g. Adrenaline (EpiPen)",
+  "drug_class": "Drug class e.g. Catecholamine / Sympathomimetic",
+  "route": "Routes of administration e.g. IM, IV, SC",
+  "onset": "Typical onset time e.g. 1-2 minutes IV, 5-10 minutes IM",
+  "dose_adult": "Standard adult dose and route relevant to paramedic practice",
+  "mechanism": "Plain English explanation of what this drug does in the body — 2 sentences max",
+  "indications": "Indications most relevant to UK paramedic practice — comma separated",
+  "contraindications": "Key contraindications and cautions a paramedic must know",
+  "side_effects": "Most important side effects to monitor for in the pre-hospital setting",
+  "paramedic_notes": "2-3 sentences of practical notes specific to pre-hospital use — storage, administration tips, common pitfalls, or things paramedics often get wrong",
+  "confidence": "high|medium|low"
+}
+
+If you cannot identify any medication in the image, return:
+{"error": "Brief explanation — e.g. no medication label visible, image too blurry"}`;
+
+        try {
+            const res = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'gpt-4o',
+                    max_tokens: 1000,
+                    messages: [
+                        { role: 'system', content: system },
+                        {
+                            role: 'user',
+                            content: [
+                                { type: 'image_url', image_url: { url: `data:${imgMime};base64,${imgBase64}` } },
+                                { type: 'text', text: user }
+                            ]
+                        }
+                    ]
+                })
+            });
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error?.message || `API error ${res.status}`);
+            }
+
+            const data = await res.json();
+            const raw = data.choices[0].message.content.trim()
+                .replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+            const r = JSON.parse(raw);
+
+            if (r.error) { showError(r.error); return; }
+
+            renderResults(r);
+
+        } catch(err) {
+            showError(err.message || 'Something went wrong. Check your API key and try again.');
+        }
+    }
+
+    function renderResults(r) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('previewWrap').style.display = 'none';
+
+        document.getElementById('rName').textContent = r.name || '—';
+        document.getElementById('rClass').textContent = r.drug_class || '';
+        document.getElementById('rRoute').textContent = r.route || '—';
+        document.getElementById('rOnset').textContent = r.onset || '—';
+        document.getElementById('rDose').textContent = r.dose_adult || '—';
+        document.getElementById('rMechanism').textContent = r.mechanism || '—';
+        document.getElementById('rIndications').textContent = r.indications || '—';
+        document.getElementById('rContra').textContent = r.contraindications || '—';
+        document.getElementById('rSide').textContent = r.side_effects || '—';
+        document.getElementById('rNotes').textContent = r.paramedic_notes || '—';
+
+        document.getElementById('results').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showError(msg) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('previewWrap').style.display = 'block';
+        const box = document.getElementById('errorBox');
+        box.textContent = '⚠️ ' + msg;
+        box.style.display = 'block';
+    }
+</script>
+</body>
+</html>
