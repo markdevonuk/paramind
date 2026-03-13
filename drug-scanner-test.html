@@ -31,11 +31,11 @@
         #previewWrap { display: none; margin-bottom: 16px; }
         #previewImg { width: 100%; border-radius: 8px; border: 1px solid #ddd; max-height: 260px; object-fit: contain; background: #111; display: block; }
 
-        /* Barcode status strip */
         #barcodeStatus { margin-top: 8px; padding: 8px 12px; border-radius: 6px; font-size: 0.82rem; display: none; }
-        #barcodeStatus.found { background: #d1e7dd; color: #0a3622; border: 1px solid #a3cfbb; }
+        #barcodeStatus.found    { background: #d1e7dd; color: #0a3622; border: 1px solid #a3cfbb; }
         #barcodeStatus.scanning { background: #e2e3e5; color: #41464b; border: 1px solid #c4c8cb; }
         #barcodeStatus.notfound { background: #fff3cd; color: #664d03; border: 1px solid #ffda6a; }
+        #barcodeStatus.unsupported { background: #e2e3e5; color: #41464b; border: 1px solid #c4c8cb; }
 
         .preview-actions { display: flex; gap: 8px; margin-top: 8px; }
         .btn-scan { flex: 1; padding: 12px; background: #2b8a9c; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; }
@@ -160,14 +160,14 @@
         <button class="btn-again" onclick="reset()">↩ Scan another drug</button>
     </div>
 
-    <!-- ZXing barcode library -->
-    <script src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
-
 <script>
     let imgBase64 = null;
     let imgMime = 'image/jpeg';
     let detectedBarcode = null;
     let apiKey = sessionStorage.getItem('ds_key') || '';
+
+    // Check BarcodeDetector support once on load
+    const barcodeDetectorSupported = ('BarcodeDetector' in window);
 
     if (apiKey) {
         document.getElementById('apiKey').value = apiKey;
@@ -197,50 +197,62 @@
         const reader = new FileReader();
         reader.onload = function(ev) {
             imgBase64 = ev.target.result.split(',')[1];
-            const img = document.getElementById('previewImg');
-            img.src = ev.target.result;
+
+            const imgEl = document.getElementById('previewImg');
+            imgEl.src = ev.target.result;
+
             document.getElementById('uploadBox').style.display = 'none';
             document.getElementById('previewWrap').style.display = 'block';
             document.getElementById('results').style.display = 'none';
             document.getElementById('errorBox').style.display = 'none';
 
-            // Try barcode decode once image has loaded
-            img.onload = () => tryDecodeBarcode(img);
-            if (img.complete) tryDecodeBarcode(img);
+            // Run barcode detection once image is loaded
+            if (imgEl.complete && imgEl.naturalWidth > 0) {
+                tryDecodeBarcode(imgEl);
+            } else {
+                imgEl.onload = () => tryDecodeBarcode(imgEl);
+            }
         };
         reader.readAsDataURL(file);
     }
 
-    function tryDecodeBarcode(imgEl) {
+    async function tryDecodeBarcode(imgEl) {
         const statusEl = document.getElementById('barcodeStatus');
-        statusEl.textContent = '🔍 Scanning for barcode...';
-        statusEl.className = 'scanning';
         statusEl.style.display = 'block';
 
+        if (!barcodeDetectorSupported) {
+            statusEl.textContent = 'ℹ️ Barcode scanning requires Chrome or Android — will identify from label image instead';
+            statusEl.className = 'unsupported';
+            return;
+        }
+
+        statusEl.textContent = '🔍 Scanning for barcode...';
+        statusEl.className = 'scanning';
+
         try {
-            // Draw image onto a canvas so ZXing can read it
-            const canvas = document.createElement('canvas');
-            canvas.width = imgEl.naturalWidth;
-            canvas.height = imgEl.naturalHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(imgEl, 0, 0);
+            const detector = new BarcodeDetector({
+                formats: ['ean_13', 'ean_8', 'code_128', 'code_39', 'data_matrix', 'qr_code', 'upc_a', 'upc_e']
+            });
 
-            const luminanceSource = new ZXing.HTMLCanvasElementLuminanceSource(canvas);
-            const binaryBitmap = new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(luminanceSource));
+            const barcodes = await detector.detect(imgEl);
 
-            // MultiFormatReader tries EAN-13, Code128, DataMatrix, QR etc.
-            const reader = new ZXing.MultiFormatReader();
-            const result = reader.decode(binaryBitmap);
-
-            detectedBarcode = result.getText();
-            statusEl.textContent = `✓ Barcode detected: ${detectedBarcode}`;
-            statusEl.className = 'found';
-
-        } catch(e) {
-            // No barcode found — that's fine, we'll rely on image analysis
+            if (barcodes.length > 0) {
+                // Prefer EAN-13 or Code128 (most common on UK drug packaging)
+                // If multiple found, pick the first
+                detectedBarcode = barcodes[0].rawValue;
+                const format = barcodes[0].format;
+                statusEl.textContent = `✓ Barcode detected (${format}): ${detectedBarcode}`;
+                statusEl.className = 'found';
+            } else {
+                detectedBarcode = null;
+                statusEl.textContent = '⚠️ No barcode found in image — will identify from label text instead';
+                statusEl.className = 'notfound';
+            }
+        } catch(err) {
             detectedBarcode = null;
-            statusEl.textContent = '⚠️ No barcode detected — will identify from label text and image';
+            statusEl.textContent = '⚠️ Barcode scan failed — will identify from label image instead';
             statusEl.className = 'notfound';
+            console.warn('BarcodeDetector error:', err);
         }
     }
 
@@ -253,6 +265,7 @@
         document.getElementById('loading').style.display = 'none';
         document.getElementById('results').style.display = 'none';
         document.getElementById('errorBox').style.display = 'none';
+        document.getElementById('apiKey').value = apiKey;
     }
 
     async function scanDrug() {
@@ -269,19 +282,17 @@
 
         const system = `You are a senior UK paramedic educator and clinical pharmacologist. Identify medications from packaging images and provide accurate, concise, paramedic-relevant information focused on UK pre-hospital care.`;
 
-        // Build the user message — barcode number makes identification much more precise
         const barcodeNote = detectedBarcode
-            ? `A barcode was detected in this image with the value: ${detectedBarcode}. Use this barcode number as the primary identifier for the drug — it is more reliable than visual label reading. Cross-reference it with your knowledge of drug barcodes (EAN-13, GS1 DataMatrix) to confirm the exact product, formulation, and concentration.`
-            : `No barcode was detected. Identify the drug from the visible label text, packaging design, and any other visual information.`;
+            ? `A barcode was successfully decoded from this image. The barcode value is: ${detectedBarcode}. Use this as the primary identifier — it is more reliable than visual label reading. Identify the exact product, formulation, and concentration from this barcode number.`
+            : `No barcode was detected. Identify the drug purely from the visible label text, packaging, and image.`;
 
         const user = `${barcodeNote}
 
-Respond ONLY with a valid JSON object in this exact structure — no markdown, no extra text:
+Respond ONLY with a valid JSON object — no markdown, no extra text:
 
 {
   "name": "Generic name (Brand name if visible) e.g. Adrenaline (EpiPen)",
   "drug_class": "Drug class e.g. Catecholamine / Sympathomimetic",
-  "identified_by": "barcode|label|image",
   "route": "Routes of administration e.g. IM, IV, SC",
   "onset": "Typical onset time e.g. 1-2 min IV, 5-10 min IM",
   "dose_adult": "Standard adult dose relevant to paramedic practice",
@@ -293,8 +304,7 @@ Respond ONLY with a valid JSON object in this exact structure — no markdown, n
   "confidence": "high|medium|low"
 }
 
-If you cannot identify any medication:
-{"error": "Brief explanation"}`;
+If you cannot identify any medication: {"error": "Brief explanation"}`;
 
         try {
             const res = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -343,13 +353,10 @@ If you cannot identify any medication:
         document.getElementById('rName').textContent = r.name || '—';
         document.getElementById('rClass').textContent = r.drug_class || '';
 
-        // Show how it was identified
         const usedEl = document.getElementById('rBarcodeUsed');
-        if (detectedBarcode) {
-            usedEl.innerHTML = `<span class="barcode-used">✓ Identified via barcode: ${detectedBarcode}</span>`;
-        } else {
-            usedEl.innerHTML = '';
-        }
+        usedEl.innerHTML = detectedBarcode
+            ? `<span class="barcode-used">✓ Identified via barcode: ${detectedBarcode}</span>`
+            : '';
 
         document.getElementById('rRoute').textContent = r.route || '—';
         document.getElementById('rOnset').textContent = r.onset || '—';
