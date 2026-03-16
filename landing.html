@@ -1107,29 +1107,33 @@
                                     const NativePurchases = window.Capacitor.Plugins.NativePurchases;
                                     if (!NativePurchases) return;
 
-                                    const result = await NativePurchases.restorePurchases();
-                                    if (!result || !result.transactions || result.transactions.length === 0) return;
+                                    // Step 1: Tell Apple to restore — mirrors the working restore button
+                                    await NativePurchases.restorePurchases();
 
-                                    // Find an active paramind subscription in restored transactions
-                                    const activeTx = result.transactions.find(tx =>
-                                        tx.productId &&
-                                        tx.productId.includes('paramind_pro')
-                                    );
-                                    if (!activeTx) return;
+                                    // Step 2: getPurchases() checks current entitlements — more reliable than restorePurchases() result
+                                    const purchases = await NativePurchases.getPurchases({});
+                                    const allTx = (purchases && purchases.purchases) ? purchases.purchases : [];
 
-                                    console.log('Silent restore found active Apple subscription:', activeTx.productId);
+                                    // Step 3: Find a paramind subscription in the results
+                                    const activeSub = allTx.find(function(tx) {
+                                        var id = tx.productIdentifier || '';
+                                        return id === 'paramind_pro_monthly' || id === 'paramind_pro_annual';
+                                    });
+                                    if (!activeSub) return;
 
-                                    // Update Firestore
+                                    console.log('Silent restore found active Apple subscription:', activeSub.productIdentifier);
+
+                                    // Step 4: Update Firestore
                                     await db.collection('users').doc(user.uid).update({
                                         subscriptionStatus: 'active',
                                         subscriptionPlatform: 'apple',
-                                        appleProductId: activeTx.productId || '',
-                                        appleTransactionId: activeTx.transactionId || '',
+                                        appleProductId: activeSub.productIdentifier || null,
+                                        appleTransactionId: activeSub.transactionId || null,
                                         subscriptionUpdatedAt: new Date().toISOString(),
                                         restoredSilentlyOnLogin: true
                                     });
 
-                                    // Update local state and refresh dashboard
+                                    // Step 5: Update local state and refresh dashboard
                                     isPro = true;
                                     userData.subscriptionStatus = 'active';
                                     updateUI();
