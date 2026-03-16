@@ -1113,7 +1113,7 @@ exports.verifyApplePurchase = onRequest(
 
     try {
       // Authenticate the user
-      const uid = await authenticateUser(req);
+      const uid = await verifyAuth(req);
       
       const { productId, transactionId, receipt, jwsRepresentation, restored } = req.body;
 
