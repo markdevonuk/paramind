@@ -295,6 +295,41 @@
      and BEFORE the <p class="text-muted text-center mt-3"> refresh line
      ============================================ -->
 
+            <!-- Missing Subscribers Finder -->
+            <div class="card mt-4 mb-4" id="missingSubscribersCard">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Missing Subscribers Finder</h5>
+                    <span class="badge bg-warning text-dark">Diagnostic Tool</span>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">
+                        These users may have subscribed via Apple but their account was not activated. 
+                        Check each one and click <strong>Activate</strong> if you can confirm they are a paying subscriber in App Store Connect.
+                    </p>
+                    <div id="missingSubs-loading" class="text-center py-3">
+                        <div class="spinner-border spinner-border-sm text-warning me-2" role="status"></div>
+                        Loading...
+                    </div>
+                    <div id="missingSubs-none" class="alert alert-success d-none">
+                        <i class="bi bi-check-circle-fill me-2"></i>No missing subscribers detected.
+                    </div>
+                    <div id="missingSubs-results" class="d-none">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Joined</th>
+                                    <th>Reason Flagged</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="missingSubs-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <!-- News Popup Manager -->
             <div class="card mt-4 mb-4" id="newsManager">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
@@ -483,7 +518,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getFirestore, collection, getDocs, doc, getDoc, setDoc, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
         import { firebaseConfig } from './js/firebase-config.js';
 
         // Initialize Firebase
@@ -562,7 +597,9 @@
                         subscriptionPlatform: userData.subscriptionPlatform || '',
                         stripeSubscriptionId: userData.stripeSubscriptionId || '',
                         discountApplied: userData.discountApplied || false,
-                        discountAmount: userData.discountAmount || 0
+                        discountAmount: userData.discountAmount || 0,
+                        appleTransactionId: userData.appleTransactionId || "",
+                        appleProductId: userData.appleProductId || ""
                     };
 
                     // Work out if this user paid £0 (100% discount on monthly = 499p)
@@ -603,6 +640,9 @@
                 // Update last refresh time
                 document.getElementById('lastRefresh').textContent = new Date().toLocaleString();
                 
+                // Render missing subscribers diagnostic
+                renderMissingSubscribers();
+                
             } catch (error) {
                 console.error('Error loading users:', error);
                 document.getElementById('allUsersBody').innerHTML = `
@@ -614,6 +654,84 @@
                         </td>
                     </tr>
                 `;
+            }
+        }
+
+        // ============================================
+        // MISSING SUBSCRIBERS FINDER
+        // ============================================
+        function renderMissingSubscribers() {
+            const loadingEl = document.getElementById('missingSubs-loading');
+            const noneEl    = document.getElementById('missingSubs-none');
+            const resultsEl = document.getElementById('missingSubs-results');
+            const bodyEl    = document.getElementById('missingSubs-body');
+
+            if (!loadingEl) return;
+            loadingEl.classList.add('d-none');
+
+            const fourteenDaysAgo = new Date();
+            fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+
+            // Flag users who look like missed Apple subscribers
+            const suspects = allUsers.filter(user => {
+                if (user.subscriptionStatus === 'active') return false;
+
+                const isAppleEmail  = user.email.includes('privaterelay.appleid.com');
+                const hasAppleField = user.appleTransactionId || user.appleProductId;
+                const recentJoiner  = user.createdAt && new Date(user.createdAt) >= fourteenDaysAgo;
+
+                return isAppleEmail || hasAppleField || (recentJoiner && user.subscriptionPlatform === 'apple');
+            });
+
+            if (suspects.length === 0) {
+                noneEl.classList.remove('d-none');
+                return;
+            }
+
+            resultsEl.classList.remove('d-none');
+            bodyEl.innerHTML = suspects.map(user => {
+                const reasons = [];
+                if (user.email.includes('privaterelay.appleid.com')) reasons.push('<span class="badge bg-info text-dark">Apple private email</span>');
+                if (user.appleTransactionId) reasons.push('<span class="badge bg-secondary">Has Apple Transaction ID</span>');
+                if (user.appleProductId)     reasons.push('<span class="badge bg-secondary">Has Apple Product ID</span>');
+                if (user.subscriptionPlatform === 'apple') reasons.push('<span class="badge bg-warning text-dark">Platform = Apple</span>');
+
+                const joined = user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-GB') : 'Unknown';
+                const name   = [user.firstName, user.surname].filter(Boolean).join(' ') || 'Unknown';
+
+                return `<tr>
+                    <td>${name}</td>
+                    <td><small>${user.email}</small></td>
+                    <td>${joined}</td>
+                    <td>${reasons.join(' ')}</td>
+                    <td>
+                        <button class="btn btn-sm btn-success" onclick="activateMissingSubscriber('${user.id}', this)">
+                            <i class="bi bi-check-circle me-1"></i>Activate
+                        </button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        async function activateMissingSubscriber(uid, btn) {
+            if (!confirm('Are you sure you want to manually activate this user as Pro?')) return;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Saving...';
+            try {
+                await updateDoc(doc(db, 'users', uid), {
+                    subscriptionStatus: 'active',
+                    subscriptionPlatform: 'apple',
+                    subscriptionUpdatedAt: new Date().toISOString(),
+                    manuallyActivatedByAdmin: true
+                });
+                btn.closest('tr').style.opacity = '0.4';
+                btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Activated';
+                btn.classList.replace('btn-success', 'btn-secondary');
+            } catch (err) {
+                console.error('Activation failed:', err);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i>Failed - retry';
+                alert('Could not activate user. Check console for details.');
             }
         }
 
