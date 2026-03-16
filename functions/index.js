@@ -452,7 +452,7 @@ if (session.total_details?.amount_discount > 0) {
 }
 
         await userRef.update(updateData);
-        console.log(`Checkout completed for user: ${uid} - current status: ${currentStatus}`);
+        console.log(`Checkout completed for user: ${uid}`);
     }
     break;
 }
