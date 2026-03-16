@@ -1090,6 +1090,59 @@
                         userData = doc.data();
                         isPro = userData.subscriptionStatus === 'active' || userData.isPro === true;
                         updateUI();
+
+                        // ==================== SILENT APPLE RESTORE ====================
+                        // If this user is on free tier and we are running on iOS,
+                        // silently check Apple for any existing subscription.
+                        // This recovers users who purchased before registering.
+                        if (!isPro &&
+                            window.Capacitor &&
+                            window.Capacitor.isNativePlatform &&
+                            window.Capacitor.isNativePlatform() &&
+                            window.Capacitor.getPlatform &&
+                            window.Capacitor.getPlatform() === 'ios') {
+
+                            (async () => {
+                                try {
+                                    const NativePurchases = window.Capacitor.Plugins.NativePurchases;
+                                    if (!NativePurchases) return;
+
+                                    const result = await NativePurchases.restorePurchases();
+                                    if (!result || !result.transactions || result.transactions.length === 0) return;
+
+                                    // Find an active paramind subscription in restored transactions
+                                    const activeTx = result.transactions.find(tx =>
+                                        tx.productId &&
+                                        tx.productId.includes('paramind_pro')
+                                    );
+                                    if (!activeTx) return;
+
+                                    console.log('Silent restore found active Apple subscription:', activeTx.productId);
+
+                                    // Update Firestore
+                                    await db.collection('users').doc(user.uid).update({
+                                        subscriptionStatus: 'active',
+                                        subscriptionPlatform: 'apple',
+                                        appleProductId: activeTx.productId || '',
+                                        appleTransactionId: activeTx.transactionId || '',
+                                        subscriptionUpdatedAt: new Date().toISOString(),
+                                        restoredSilentlyOnLogin: true
+                                    });
+
+                                    // Update local state and refresh dashboard
+                                    isPro = true;
+                                    userData.subscriptionStatus = 'active';
+                                    updateUI();
+                                    console.log('Silent restore complete — user upgraded to Pro');
+
+                                } catch (restoreErr) {
+                                    // Completely silent — never show an error to the user
+                                    console.log('Silent restore check completed with no action:', restoreErr.message);
+                                }
+                            })();
+                        }
+                        // ==================== END SILENT APPLE RESTORE ====================
+
                     } else {
                         console.log('No user document found');
                         userTrustEl.textContent = 'Setup required';
