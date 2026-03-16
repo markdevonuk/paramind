@@ -565,7 +565,7 @@
                 const NativePurchases = window.Capacitor.Plugins.NativePurchases;
                 const productId = selectedPlan === 'monthly' ? 'paramind_pro_monthly' : 'paramind_pro_annual';
 
-                const transaction = await NativePurchases.purchaseProduct({ productIdentifier: productId });
+                const transaction = await NativePurchases.purchaseProduct({ productIdentifier: productId, productType: 'subs' });
                 console.log('Google Play purchase successful:', JSON.stringify(transaction));
 
                 let uid = null;

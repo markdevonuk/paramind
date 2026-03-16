@@ -392,7 +392,7 @@
                 <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" style="color: var(--color-primary);">Apple EULA</a></span>
             </p>
             <script>
-                if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+                if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform() && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'ios') {
                     var el = document.getElementById('appleEulaLink');
                     if (el) el.style.display = 'inline';
                 }
@@ -664,7 +664,7 @@
                     const NativePurchases = window.Capacitor.Plugins.NativePurchases;
                     const productId = selectedPlan === 'monthly' ? 'paramind_pro_monthly' : 'paramind_pro_annual';
 
-                    const transaction = await NativePurchases.purchaseProduct({ productIdentifier: productId });
+                    const transaction = await NativePurchases.purchaseProduct({ productIdentifier: productId, productType: 'subs' });
                     console.log('Google Play purchase successful:', JSON.stringify(transaction));
 
                     try {
