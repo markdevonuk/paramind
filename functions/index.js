@@ -2139,7 +2139,9 @@ exports.appleServerNotifications = onRequest(
 
     // Helper: send notification email to hello@paramind.co.uk
     async function sendNotificationEmail(subject, body) {
+      console.log('sendNotificationEmail called, subject: ' + subject);
       try {
+        console.log('Creating nodemailer transporter...');
         const transporter = nodemailer.createTransport({
           service: "gmail",
           auth: {
