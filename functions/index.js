@@ -2151,7 +2151,7 @@ exports.appleServerNotifications = onRequest(
         });
         await transporter.sendMail({
           from: "ParaMind Notifications <markdevon@gmail.com>",
-          to: "hello@paramind.co.uk, markdevon@gmail.com",
+          to: "markdevon@gmail.com",
           subject,
           text: body,
         });
