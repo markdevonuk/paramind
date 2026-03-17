@@ -12,6 +12,7 @@ const Stripe = require("stripe");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+const nodemailer = require("nodemailer");
 
 // Set global options - deploy to London region
 setGlobalOptions({ region: "europe-west2" });
@@ -2133,8 +2134,31 @@ exports.realtimeToken = onRequest(
  * No secret required — Apple signs notifications with their own certificate.
  */
 exports.appleServerNotifications = onRequest(
-  { cors: false },
+  { cors: false, secrets: ["GMAIL_APP_PASSWORD"] },
   async (req, res) => {
+
+    // Helper: send notification email to hello@paramind.co.uk
+    async function sendNotificationEmail(subject, body) {
+      try {
+        const transporter = nodemailer.createTransport({
+          service: "gmail",
+          auth: {
+            user: "hello@paramind.co.uk",
+            pass: process.env.GMAIL_APP_PASSWORD,
+          },
+        });
+        await transporter.sendMail({
+          from: "ParaMind Notifications <hello@paramind.co.uk>",
+          to: "hello@paramind.co.uk",
+          subject,
+          text: body,
+        });
+        console.log("Notification email sent: " + subject);
+      } catch (emailErr) {
+        console.error("Failed to send notification email:", emailErr.message);
+      }
+    }
+
     if (req.method !== "POST") {
       return res.status(405).json({ error: "Method not allowed" });
     }
@@ -2238,6 +2262,17 @@ exports.appleServerNotifications = onRequest(
             subscriptionUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
           });
           console.log(`Apple notification: renewed/subscribed for user ${userDoc.id}`);
+          if (notificationType === 'SUBSCRIBED') {
+            const userEmail = userDoc.data().email || 'unknown';
+            await sendNotificationEmail(
+              'New Apple Subscription — ParaMind',
+              `A new Apple subscription has started.
+
+User: ${userEmail}
+Product: ${productId}
+Transaction ID: ${originalTransactionId}`
+            );
+          }
           break;
         }
 
@@ -2260,6 +2295,16 @@ exports.appleServerNotifications = onRequest(
               subscriptionUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
             });
             console.log(`Apple notification: cancelled for user ${userDoc.id}, access until ${accessUntil.toISOString()}`);
+            const userEmail = userDoc.data().email || 'unknown';
+            await sendNotificationEmail(
+              'Apple Subscription Cancelled — ParaMind',
+              `A user has cancelled their Apple subscription.
+
+User: ${userEmail}
+Product: ${productId}
+Access until: ${accessUntil.toISOString()}
+Transaction ID: ${originalTransactionId}`
+            );
           } else if (subtype === 'AUTO_RENEW_ENABLED') {
             // User un-cancelled — restore full active status
             await userDoc.ref.update({
@@ -2270,6 +2315,15 @@ exports.appleServerNotifications = onRequest(
               subscriptionUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
             });
             console.log(`Apple notification: re-subscribed for user ${userDoc.id}`);
+            const userEmail = userDoc.data().email || 'unknown';
+            await sendNotificationEmail(
+              'Apple Subscription Reactivated — ParaMind',
+              `A user has reactivated their Apple subscription.
+
+User: ${userEmail}
+Product: ${productId}
+Transaction ID: ${originalTransactionId}`
+            );
           }
           break;
         }
