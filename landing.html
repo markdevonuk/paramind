@@ -1088,7 +1088,11 @@
                     const doc = await db.collection('users').doc(user.uid).get();
                     if (doc.exists) {
                         userData = doc.data();
-                        isPro = userData.subscriptionStatus === 'active' || userData.isPro === true;
+                        // Pro if active, OR if cancelled but still within their paid access period
+                        const appleAccessExpiry = userData.accessExpiresAt ? new Date(userData.accessExpiresAt) : null;
+                        isPro = userData.subscriptionStatus === 'active' ||
+                                userData.isPro === true ||
+                                (appleAccessExpiry && appleAccessExpiry > new Date());
                         updateUI();
 
                         // ==================== SILENT APPLE RESTORE ====================

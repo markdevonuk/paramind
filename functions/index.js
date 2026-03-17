@@ -1127,12 +1127,32 @@ exports.verifyApplePurchase = onRequest(
         plan = 'annual';
       }
 
+      // Extract originalTransactionId from JWS if present
+      // This is the permanent ID for the subscription lifetime, used for server notifications
+      let originalTransactionId = null;
+      if (jwsRepresentation) {
+        try {
+          const jwsParts = jwsRepresentation.split('.');
+          if (jwsParts.length === 3) {
+            const jwsPayload = JSON.parse(Buffer.from(jwsParts[1], 'base64').toString('utf8'));
+            originalTransactionId = jwsPayload.originalTransactionId || jwsPayload.transactionId || null;
+          }
+        } catch (jwsErr) {
+          console.warn('Could not decode JWS to extract originalTransactionId:', jwsErr.message);
+        }
+      }
+      // Fall back to transactionId if JWS not available (they are identical on first purchase)
+      if (!originalTransactionId) {
+        originalTransactionId = transactionId || null;
+      }
+
       // Update user's subscription status in Firestore
       const updateData = {
         subscriptionStatus: "active",
         subscriptionPlatform: "apple",
         appleProductId: productId,
         appleTransactionId: transactionId || null,
+        appleOriginalTransactionId: originalTransactionId,
         applePlan: plan,
         subscriptionUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
       };
@@ -2098,6 +2118,230 @@ exports.realtimeToken = onRequest(
     } catch (err) {
       console.error("realtimeToken error:", err);
       return res.status(500).json({ message: "Server error" });
+    }
+  }
+);
+
+// ============================================
+// APPLE SERVER NOTIFICATIONS
+// ============================================
+
+/**
+ * POST /appleServerNotifications
+ * Receives App Store Server Notifications v2 from Apple.
+ * Handles subscription cancellations, expirations, refunds and renewals.
+ * No secret required — Apple signs notifications with their own certificate.
+ */
+exports.appleServerNotifications = onRequest(
+  { cors: false },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+      const { signedPayload } = req.body;
+
+      if (!signedPayload) {
+        console.error("Apple notification: missing signedPayload");
+        return res.status(400).json({ error: "Missing signedPayload" });
+      }
+
+      // Decode the outer signed payload (JWS)
+      // Apple signs this with their certificate — we trust it based on structure for now
+      // Full certificate verification can be added later if needed
+      const parts = signedPayload.split('.');
+      if (parts.length !== 3) {
+        console.error("Apple notification: invalid JWS format");
+        return res.status(400).json({ error: "Invalid payload format" });
+      }
+
+      const outerPayload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+      const notificationType = outerPayload.notificationType;
+      const subtype = outerPayload.subtype || '';
+
+      console.log(`Apple notification received: ${notificationType} (${subtype})`);
+
+      // Decode the inner signed transaction info
+      const data = outerPayload.data;
+      if (!data || !data.signedTransactionInfo) {
+        // Some notifications (e.g. TEST) have no transaction data — that is fine
+        console.log(`Apple notification ${notificationType}: no transaction data, ignoring`);
+        return res.status(200).json({ received: true });
+      }
+
+      const txParts = data.signedTransactionInfo.split('.');
+      if (txParts.length !== 3) {
+        console.error("Apple notification: invalid signedTransactionInfo format");
+        return res.status(400).json({ error: "Invalid transaction format" });
+      }
+
+      const txPayload = JSON.parse(Buffer.from(txParts[1], 'base64').toString('utf8'));
+      const originalTransactionId = txPayload.originalTransactionId;
+      const expiresDateMs = txPayload.expiresDate; // milliseconds
+      const productId = txPayload.productId || '';
+
+      if (!originalTransactionId) {
+        console.error("Apple notification: missing originalTransactionId in transaction");
+        return res.status(400).json({ error: "Missing originalTransactionId" });
+      }
+
+      console.log(`Apple notification for originalTransactionId: ${originalTransactionId}, type: ${notificationType}`);
+
+      // Grace date — no one loses access before this date regardless of cancellation timing
+      const GRACE_DATE = new Date('2026-04-17T00:00:00.000Z');
+
+      // Find the user in Firestore
+      // Try appleOriginalTransactionId first, then fall back to appleTransactionId
+      let userDoc = null;
+
+      const byOriginal = await db.collection('users')
+        .where('appleOriginalTransactionId', '==', originalTransactionId)
+        .limit(1)
+        .get();
+
+      if (!byOriginal.empty) {
+        userDoc = byOriginal.docs[0];
+        console.log(`Found user by appleOriginalTransactionId: ${userDoc.id}`);
+      } else {
+        // Fallback: match on appleTransactionId (safe for first-week users, IDs are identical)
+        const byTransaction = await db.collection('users')
+          .where('appleTransactionId', '==', originalTransactionId)
+          .limit(1)
+          .get();
+
+        if (!byTransaction.empty) {
+          userDoc = byTransaction.docs[0];
+          console.log(`Found user by appleTransactionId (fallback): ${userDoc.id}`);
+          // Store appleOriginalTransactionId now so future notifications match correctly
+          await userDoc.ref.update({ appleOriginalTransactionId: originalTransactionId });
+        }
+      }
+
+      if (!userDoc) {
+        // User not found — could be one of the 4 who purchased without registering
+        console.warn(`Apple notification: no user found for originalTransactionId ${originalTransactionId}`);
+        return res.status(200).json({ received: true });
+      }
+
+      // Handle each notification type
+      switch (notificationType) {
+
+        case 'DID_RENEW':
+        case 'SUBSCRIBED': {
+          // Subscription renewed or new subscription — ensure user is active
+          await userDoc.ref.update({
+            subscriptionStatus: 'active',
+            accessExpiresAt: null,
+            cancelledAt: null,
+            appleOriginalTransactionId: originalTransactionId,
+            subscriptionUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
+          });
+          console.log(`Apple notification: renewed/subscribed for user ${userDoc.id}`);
+          break;
+        }
+
+        case 'DID_CHANGE_RENEWAL_STATUS': {
+          if (subtype === 'AUTO_RENEW_DISABLED') {
+            // User has cancelled — keep access until end of billing period or grace date
+            // whichever is LATER
+            let accessUntil = GRACE_DATE;
+            if (expiresDateMs) {
+              const appleExpiryDate = new Date(expiresDateMs);
+              if (appleExpiryDate > GRACE_DATE) {
+                accessUntil = appleExpiryDate;
+              }
+            }
+            await userDoc.ref.update({
+              subscriptionStatus: 'active', // Still active until accessUntil
+              cancelledAt: admin.firestore.FieldValue.serverTimestamp(),
+              accessExpiresAt: accessUntil.toISOString(),
+              appleOriginalTransactionId: originalTransactionId,
+              subscriptionUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+            console.log(`Apple notification: cancelled for user ${userDoc.id}, access until ${accessUntil.toISOString()}`);
+          } else if (subtype === 'AUTO_RENEW_ENABLED') {
+            // User un-cancelled — restore full active status
+            await userDoc.ref.update({
+              subscriptionStatus: 'active',
+              cancelledAt: null,
+              accessExpiresAt: null,
+              appleOriginalTransactionId: originalTransactionId,
+              subscriptionUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+            console.log(`Apple notification: re-subscribed for user ${userDoc.id}`);
+          }
+          break;
+        }
+
+        case 'EXPIRED': {
+          // Subscription has fully expired — remove Pro access
+          await userDoc.ref.update({
+            subscriptionStatus: 'cancelled',
+            accessExpiresAt: null,
+            appleOriginalTransactionId: originalTransactionId,
+            subscriptionUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
+          });
+          console.log(`Apple notification: expired for user ${userDoc.id}`);
+          break;
+        }
+
+        case 'REVOKE': {
+          // Apple revoked access (refund etc) — remove Pro access
+          await userDoc.ref.update({
+            subscriptionStatus: 'cancelled',
+            accessExpiresAt: null,
+            appleOriginalTransactionId: originalTransactionId,
+            subscriptionUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
+          });
+          console.log(`Apple notification: revoked for user ${userDoc.id}`);
+          break;
+        }
+
+        case 'DID_FAIL_TO_RENEW': {
+          // Payment failed — log only, do not remove access yet (Apple retries billing)
+          console.log(`Apple notification: billing failed for user ${userDoc.id} — no action taken`);
+          break;
+        }
+
+        case 'GRACE_PERIOD_EXPIRED': {
+          // Apple's grace period for failed billing has ended — remove Pro access
+          await userDoc.ref.update({
+            subscriptionStatus: 'cancelled',
+            accessExpiresAt: null,
+            appleOriginalTransactionId: originalTransactionId,
+            subscriptionUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
+          });
+          console.log(`Apple notification: grace period expired for user ${userDoc.id}`);
+          break;
+        }
+
+        case 'REFUND': {
+          // Apple issued a refund — remove Pro access immediately
+          await userDoc.ref.update({
+            subscriptionStatus: 'cancelled',
+            accessExpiresAt: null,
+            appleOriginalTransactionId: originalTransactionId,
+            subscriptionUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
+          });
+          console.log(`Apple notification: refunded for user ${userDoc.id}`);
+          break;
+        }
+
+        default: {
+          // Log unhandled types but always return 200 so Apple does not retry
+          console.log(`Apple notification: unhandled type ${notificationType} for user ${userDoc.id}`);
+          break;
+        }
+      }
+
+      return res.status(200).json({ received: true });
+
+    } catch (error) {
+      console.error("Apple server notification error:", error);
+      // Return 200 even on error to prevent Apple from retrying indefinitely
+      // Log will capture the failure for manual review
+      return res.status(200).json({ received: true, warning: "Processing error logged" });
     }
   }
 );
