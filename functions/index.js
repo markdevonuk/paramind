@@ -1267,7 +1267,7 @@ exports.verifyGooglePurchase = onRequest(
  * Used by Capacitor iOS app where Firebase web SDK can't verify native Apple tokens.
  */
 exports.appleAuthToken = onRequest(
-  { cors: true },
+  { cors: true, minInstances: 1 },
   async (req, res) => {
     if (req.method !== "POST") {
       return res.status(405).json({ error: "Method not allowed" });
