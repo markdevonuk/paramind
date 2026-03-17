@@ -2145,13 +2145,13 @@ exports.appleServerNotifications = onRequest(
         const transporter = nodemailer.createTransport({
           service: "gmail",
           auth: {
-            user: "hello@paramind.co.uk",
+            user: "markdevon@gmail.com",
             pass: process.env.GMAIL_APP_PASSWORD,
           },
         });
         await transporter.sendMail({
-          from: "ParaMind Notifications <hello@paramind.co.uk>",
-          to: "hello@paramind.co.uk",
+          from: "ParaMind Notifications <markdevon@gmail.com>",
+          to: "hello@paramind.co.uk, markdevon@gmail.com",
           subject,
           text: body,
         });
