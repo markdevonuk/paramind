@@ -2297,7 +2297,9 @@ Transaction ID: ${originalTransactionId}`
               subscriptionUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
             });
             console.log(`Apple notification: cancelled for user ${userDoc.id}, access until ${accessUntil.toISOString()}`);
+            console.log('About to send cancellation email...');
             const userEmail = userDoc.data().email || 'unknown';
+            console.log('User email retrieved: ' + userEmail);
             await sendNotificationEmail(
               'Apple Subscription Cancelled — ParaMind',
               `A user has cancelled their Apple subscription.
