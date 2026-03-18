@@ -27,7 +27,8 @@
             { id: 'home', href: 'landing.html', icon: 'bi-house', label: 'Home' },
             { id: 'chat', href: 'chat.html', icon: 'bi-chat-dots', label: 'Chat' },
             { id: 'scenarios', href: 'scenarios.html', icon: 'bi-mortarboard', label: 'Scenarios' },
-            { id: 'differentials', href: 'differentials.html', icon: 'bi-clipboard2-pulse', label: 'Differentials' }
+            { id: 'differentials', href: 'differentials.html', icon: 'bi-clipboard2-pulse', label: 'Differentials' },
+            { id: 'podcast', href: 'podcast.html', icon: 'bi-headphones', label: 'Podcast' }
         ],
        // Pro features
         proNav: [
@@ -55,6 +56,7 @@
         if (path.includes('chat')) return 'chat';
         if (path.includes('scenarios')) return 'scenarios';
         if (path.includes('differentials')) return 'differentials';
+        if (path.includes('podcast')) return 'podcast';
         if (path.includes('interview')) return 'interview';
         if (path.includes('connections') || path.includes('connections')) return 'connections';
         if (path.includes('drugs')) return 'drugs';
