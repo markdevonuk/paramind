@@ -1106,7 +1106,7 @@ exports.speak = onRequest(
  * Called by the iOS app after a successful StoreKit purchase
  */
 exports.verifyApplePurchase = onRequest(
-  { cors: true },
+  { cors: true, secrets: ["GMAIL_APP_PASSWORD"] },
   async (req, res) => {
     if (req.method !== "POST") {
       return res.status(405).json({ error: "Method not allowed" });
@@ -1171,6 +1171,21 @@ exports.verifyApplePurchase = onRequest(
       await db.collection("users").doc(uid).update(updateData);
 
       console.log(`Apple purchase verified for user ${uid}: ${productId} (${plan})${restored ? ' [restored]' : ''}`);
+
+      // Send notification email for new purchases (not restores)
+      if (!restored) {
+        const userDoc = await db.collection('users').doc(uid).get();
+        const userEmail = userDoc.exists ? (userDoc.data().email || 'unknown') : 'unknown';
+        await sendNotificationEmail(
+          'New Apple Subscription — ParaMind',
+          `A new Apple subscription has started.
+
+User: ${userEmail}
+Product: ${productId}
+Plan: ${plan}
+Transaction ID: ${originalTransactionId || transactionId || 'unknown'}`
+        );
+      }
 
       return res.status(200).json({ 
         success: true, 
@@ -2124,6 +2139,35 @@ exports.realtimeToken = onRequest(
 );
 
 // ============================================
+// SHARED EMAIL HELPER
+// ============================================
+
+/**
+ * Send a notification email to markdevon@gmail.com
+ * Requires GMAIL_APP_PASSWORD secret to be available in the calling function.
+ */
+async function sendNotificationEmail(subject, body) {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "markdevon@gmail.com",
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    });
+    await transporter.sendMail({
+      from: "ParaMind Notifications <markdevon@gmail.com>",
+      to: "markdevon@gmail.com",
+      subject,
+      text: body,
+    });
+    console.log("Notification email sent: " + subject);
+  } catch (emailErr) {
+    console.error("Failed to send notification email:", emailErr.message);
+  }
+}
+
+// ============================================
 // APPLE SERVER NOTIFICATIONS
 // ============================================
 
@@ -2136,30 +2180,6 @@ exports.realtimeToken = onRequest(
 exports.appleServerNotifications = onRequest(
   { cors: false, secrets: ["GMAIL_APP_PASSWORD"] },
   async (req, res) => {
-
-    // Helper: send notification email to hello@paramind.co.uk
-    async function sendNotificationEmail(subject, body) {
-      console.log('sendNotificationEmail called, subject: ' + subject);
-      try {
-        console.log('Creating nodemailer transporter...');
-        const transporter = nodemailer.createTransport({
-          service: "gmail",
-          auth: {
-            user: "markdevon@gmail.com",
-            pass: process.env.GMAIL_APP_PASSWORD,
-          },
-        });
-        await transporter.sendMail({
-          from: "ParaMind Notifications <markdevon@gmail.com>",
-          to: "markdevon@gmail.com",
-          subject,
-          text: body,
-        });
-        console.log("Notification email sent: " + subject);
-      } catch (emailErr) {
-        console.error("Failed to send notification email:", emailErr.message);
-      }
-    }
 
     if (req.method !== "POST") {
       return res.status(405).json({ error: "Method not allowed" });
