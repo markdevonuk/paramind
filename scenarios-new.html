@@ -1321,7 +1321,7 @@ function tryAdvancePhase() {
     // Build nudge prompt for AI
     const missingList = missing.join(', ');
     const proCoachingSuffix = chatState.isPro
-        ? ` After your nudge, add a brief educational note (2-3 sentences) explaining why these steps matter clinically. Label it: "**Clinical note:**"`
+        ? ` After your nudge, add a brief educational note (2-3 sentences) explaining why these steps matter clinically in general — do NOT mention the actual diagnosis, condition name, or any specific details from this scenario.  Label it: "**Clinical note:**"`
         : '';
 
     const nudgePrompt = `[PHASE TRANSITION NUDGE] The paramedic wants to move to the Handover phase, but the following have not been done: ${missingList}. Give a natural, in-character nudge — as if a senior colleague is gently prompting them before they proceed. Do not break character. Do not use clinical jargon headings. Keep it conversational and brief.${proCoachingSuffix}`;
