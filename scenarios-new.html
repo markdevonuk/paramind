@@ -1,0 +1,2048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Enhanced Scenarios | ParaMind</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Menu CSS -->
+    <link rel="stylesheet" href="css/menu-v2.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        /* ==================== BASE PAGE STYLES ==================== */
+        .scenarios-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--color-gray-50);
+        }
+        
+        .message-limit-banner {
+            background: linear-gradient(135deg, rgba(43, 138, 156, 0.1) 0%, rgba(92, 184, 92, 0.1) 100%);
+            padding: 0.5rem 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        .message-limit-banner .count { font-weight: 700; color: var(--color-teal); }
+        .message-limit-banner .upgrade-link { color: var(--color-teal); font-weight: 600; text-decoration: none; }
+        
+        .main-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* ==================== CATEGORY VIEW ==================== */
+        .category-view { flex: 1; overflow-y: auto; padding: 1.5rem 1rem; }
+        .section-header { text-align: center; margin-bottom: 2rem; }
+        .section-header h1 { font-size: 1.5rem; font-weight: 700; color: var(--color-gray-800); margin-bottom: 0.5rem; }
+        .section-header p { color: var(--color-gray-600); margin: 0; }
+        .category-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; max-width: 800px; margin: 0 auto; }
+        @media (min-width: 768px) { .category-grid { grid-template-columns: repeat(4, 1fr); } }
+        
+        .category-card { background: var(--color-white); border-radius: var(--radius-lg); padding: 1.25rem 1rem; text-align: center; border: 2px solid var(--color-gray-200); cursor: pointer; transition: all 0.2s ease; }
+        .category-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+        
+        .category-card[data-category="cardiac"] { border-color: #fee2e2; background: #fef2f2; }
+        .category-card[data-category="cardiac"]:hover { border-color: #ef4444; }
+        .category-card[data-category="cardiac"] .category-icon { background: #ef4444; }
+        .category-card[data-category="cardiac"] .category-name { color: #dc2626; }
+        .category-card[data-category="respiratory"] { border-color: #e0f2fe; background: #f0f9ff; }
+        .category-card[data-category="respiratory"]:hover { border-color: #0ea5e9; }
+        .category-card[data-category="respiratory"] .category-icon { background: #0ea5e9; }
+        .category-card[data-category="respiratory"] .category-name { color: #0284c7; }
+        .category-card[data-category="abdominal"] { border-color: #fef3c7; background: #fffbeb; }
+        .category-card[data-category="abdominal"]:hover { border-color: #f59e0b; }
+        .category-card[data-category="abdominal"] .category-icon { background: #f59e0b; }
+        .category-card[data-category="abdominal"] .category-name { color: #d97706; }
+        .category-card[data-category="neuro"] { border-color: #f3e8ff; background: #faf5ff; }
+        .category-card[data-category="neuro"]:hover { border-color: #a855f7; }
+        .category-card[data-category="neuro"] .category-icon { background: #a855f7; }
+        .category-card[data-category="neuro"] .category-name { color: #9333ea; }
+        .category-card[data-category="trauma"] { border-color: #ffedd5; background: #fff7ed; }
+        .category-card[data-category="trauma"]:hover { border-color: #f97316; }
+        .category-card[data-category="trauma"] .category-icon { background: #f97316; }
+        .category-card[data-category="trauma"] .category-name { color: #ea580c; }
+        .category-card[data-category="paediatric"] { border-color: #d1fae5; background: #ecfdf5; }
+        .category-card[data-category="paediatric"]:hover { border-color: #10b981; }
+        .category-card[data-category="paediatric"] .category-icon { background: #10b981; }
+        .category-card[data-category="paediatric"] .category-name { color: #059669; }
+        .category-card[data-category="obstetric"] { border-color: #fce7f3; background: #fdf2f8; }
+        .category-card[data-category="obstetric"]:hover { border-color: #ec4899; }
+        .category-card[data-category="obstetric"] .category-icon { background: #ec4899; }
+        .category-card[data-category="obstetric"] .category-name { color: #db2777; }
+        .category-card[data-category="mental-health"] { border-color: #ccfbf1; background: #f0fdfa; }
+        .category-card[data-category="mental-health"]:hover { border-color: #14b8a6; }
+        .category-card[data-category="mental-health"] .category-icon { background: #14b8a6; }
+        .category-card[data-category="mental-health"] .category-name { color: #0d9488; }
+        
+        .category-icon { width: 50px; height: 50px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; color: white; font-size: 1.5rem; }
+        .category-name { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem; }
+        .category-count { font-size: 0.75rem; color: var(--color-gray-500); }
+        
+        /* ==================== DISPATCHER VIEW ==================== */
+        .dispatcher-view { flex: 1; overflow-y: auto; padding: 1rem; display: none; }
+        .dispatcher-view.active { display: block; }
+        .dispatcher-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .back-btn { display: flex; align-items: center; gap: 0.5rem; color: var(--color-teal); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+        .dispatcher-header h1 { font-size: 1.25rem; font-weight: 700; color: var(--color-gray-800); margin: 0; flex: 1; }
+        .incidents-outstanding { font-size: 0.85rem; color: var(--color-gray-500); width: 100%; }
+        
+        .dispatcher-screen { display: flex; flex-direction: column; gap: 1rem; max-width: 700px; margin: 0 auto; }
+        .dispatch-card { background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%); border: 1px solid #0f3460; border-radius: 12px; overflow: hidden; font-family: 'JetBrains Mono', monospace; }
+        .dispatch-header { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(0, 0, 0, 0.2); border-bottom: 1px solid #0f3460; }
+        .dispatch-incident-num { color: #00d9ff; font-size: 0.8rem; font-weight: 600; }
+        .dispatch-category { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; }
+        .dispatch-category.cat-1 { background: #dc3545; color: white; }
+        .dispatch-category.cat-2 { background: #ffc107; color: #1a1a2e; }
+        .dispatch-category.cat-3 { background: #28a745; color: white; }
+        .dispatch-body { padding: 1rem; }
+        .dispatch-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; font-size: 0.85rem; }
+        .dispatch-label { color: #8892b0; min-width: 80px; }
+        .dispatch-value { color: #ffffff; flex: 1; }
+        .dispatch-value.highlight { color: #e94560; font-weight: 600; }
+        .dispatch-footer { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(0, 0, 0, 0.2); border-top: 1px solid #0f3460; }
+        .dispatch-status { color: #ffc107; font-size: 0.75rem; font-weight: 600; animation: blink 1.5s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .dispatch-btn { background: linear-gradient(145deg, #00d9ff 0%, #00b4d8 100%); color: #1a1a2e; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+        .dispatch-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0, 217, 255, 0.4); }
+        
+        /* ==================== SCENARIO CHAT VIEW ==================== */
+        .scenario-chat-view { flex: 1; display: none; flex-direction: column; overflow: hidden; }
+        .scenario-chat-view.active { display: flex; }
+        
+        .incident-banner { background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%); border-bottom: 1px solid #0f3460; padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; flex-shrink: 0; }
+        .incident-info { flex: 1; }
+        .incident-title { color: #00d9ff; font-size: 0.8rem; font-weight: 600; }
+        .incident-detail { color: #e94560; font-size: 0.85rem; }
+        .incident-category { padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.65rem; font-weight: 700; }
+        .end-scenario-btn { background: transparent; border: 1px solid #dc3545; color: #dc3545; padding: 0.4rem 0.75rem; border-radius: 6px; font-size: 0.75rem; cursor: pointer; margin-left: 0.5rem; }
+        .end-scenario-btn:hover { background: #dc3545; color: white; }
+
+        /* ==================== PHASE PROGRESS BAR ==================== */
+        .phase-bar {
+            display: flex;
+            align-items: center;
+            padding: 0.6rem 0.75rem;
+            background: rgba(26, 26, 46, 0.97);
+            border-bottom: 1px solid #0f3460;
+            flex-shrink: 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .phase-bar::-webkit-scrollbar { display: none; }
+
+        .phase-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            flex: 1;
+            min-width: 52px;
+            position: relative;
+        }
+
+        .phase-dot {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            transition: all 0.35s ease;
+            flex-shrink: 0;
+        }
+
+        .phase-step-name {
+            font-size: 0.55rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            white-space: nowrap;
+            transition: color 0.35s ease;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .phase-connector {
+            height: 2px;
+            flex: 1;
+            min-width: 10px;
+            background: #1a2a4a;
+            transition: background 0.35s ease;
+            margin-bottom: 14px; /* aligns with dot centre */
+        }
+
+        /* Pending state */
+        .phase-step.pending .phase-dot {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid #2a3a5a;
+            color: #4a5a7a;
+        }
+        .phase-step.pending .phase-step-name { color: #4a5a7a; }
+
+        /* Active state */
+        .phase-step.active .phase-dot {
+            background: linear-gradient(135deg, #00d9ff, #00a8cc);
+            color: #1a1a2e;
+            box-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+            animation: phasePulse 2.5s infinite;
+        }
+        .phase-step.active .phase-step-name { color: #00d9ff; font-weight: 700; }
+
+        /* Completed state */
+        .phase-step.completed .phase-dot {
+            background: #00d9ff;
+            color: #1a1a2e;
+        }
+        .phase-step.completed .phase-step-name { color: #00d9ff; }
+
+        /* Connector colours */
+        .phase-connector.completed { background: #00d9ff; }
+
+        @keyframes phasePulse {
+            0%, 100% { box-shadow: 0 0 8px rgba(0, 217, 255, 0.4); }
+            50% { box-shadow: 0 0 18px rgba(0, 217, 255, 0.75); }
+        }
+
+        /* ==================== CHAT MESSAGES ==================== */
+        .chat-messages { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 1rem; }
+        
+        .message { display: flex; gap: 0.75rem; max-width: 85%; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .message.user { align-self: flex-end; flex-direction: row-reverse; }
+        .message.assistant { align-self: flex-start; }
+        
+        .message-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem; }
+        .message.user .message-avatar { background: var(--color-teal); color: white; }
+        .message.assistant .message-avatar { background: var(--color-gray-200); color: var(--color-gray-700); }
+        .message.patient .message-avatar { background: rgba(43, 138, 156, 0.15); color: var(--color-teal); }
+        .message.patient .message-content { background: var(--color-gray-50); border: 1px solid var(--color-gray-200); }
+        .message.relative .message-avatar { background: rgba(147, 51, 234, 0.12); color: #9333ea; }
+        .message.relative .message-content { background: #faf5ff; border: 1px solid #f3e8ff; }
+        
+        .msg-speaker-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.03em; margin-bottom: 0.3rem; text-transform: uppercase; }
+        .message.patient .msg-speaker-label { color: var(--color-teal); }
+        .message.relative .msg-speaker-label { color: #9333ea; }
+        
+        .message-content { background: var(--color-white); padding: 0.875rem 1rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); line-height: 1.5; }
+        .message.user .message-content { background: var(--color-teal); color: white; }
+        
+        .assessment-indicator { align-self: center; background: rgba(0, 217, 255, 0.1); border: 1px dashed #00d9ff; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.8rem; color: #00d9ff; }
+        .hint-indicator { align-self: center; background: rgba(233, 69, 96, 0.1); border: 1px dashed #e94560; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.8rem; color: #e94560; }
+        
+        /* Phase notification (shown in chat when phase changes) */
+        .phase-notification {
+            align-self: stretch;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.65rem 1rem;
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.07) 0%, rgba(0, 180, 216, 0.07) 100%);
+            border: 1px solid rgba(0, 217, 255, 0.25);
+            border-left: 3px solid #00d9ff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            color: #00d9ff;
+            animation: fadeIn 0.4s ease;
+        }
+        .phase-notification i { font-size: 1rem; flex-shrink: 0; }
+        .phase-notification-text { flex: 1; }
+        .phase-notification-label { font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .phase-notification-desc { font-size: 0.75rem; color: #8892b0; margin-top: 0.1rem; }
+
+        /* Streaming */
+        .streaming-cursor { display: inline-block; animation: cursorBlink 0.7s infinite; color: var(--color-teal); font-weight: bold; }
+        @keyframes cursorBlink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+        .streaming-text { white-space: pre-wrap; word-wrap: break-word; font-size: inherit; line-height: 1.5; }
+        
+        .message-content ul, .message-content ol { margin: 0.5rem 0; padding-left: 1.5rem; }
+        .message-content li { display: list-item; margin-bottom: 0.25rem; }
+        .message-content > li { display: list-item; list-style-type: disc; list-style-position: inside; margin-left: 0; }
+        .message-content p { margin: 0 0 0.5rem 0; }
+        .message-content p:last-child { margin-bottom: 0; }
+        .message-content h1, .message-content h2, .message-content h3 { font-size: 1rem; font-weight: 700; margin: 0.75rem 0 0.5rem 0; }
+        .message-content h1:first-child, .message-content h2:first-child, .message-content h3:first-child { margin-top: 0; }
+        
+        /* ==================== CHAT INPUT AREA ==================== */
+        .chat-input-area { padding: 1rem; background: var(--color-white); border-top: 1px solid var(--color-gray-200); flex-shrink: 0; }
+        
+        .assessment-toolbar { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap; align-items: center; }
+        .assessment-btn { flex: 1; min-width: 150px; border-radius: 8px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border: 2px solid #00d9ff; color: #00d9ff; background: rgba(0, 217, 255, 0.1); transition: all 0.2s ease; }
+        .assessment-btn:hover { background: #00d9ff; color: #1a1a2e; }
+        .hint-btn { border-radius: 8px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border: 2px solid #e94560; color: #e94560; background: rgba(233, 69, 96, 0.1); }
+        .hint-btn:hover { background: #e94560; color: white; }
+        
+        .assessment-dropdown { width: 100%; max-height: 350px; overflow-y: auto; border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15); border: 1px solid #0f3460; background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%); }
+        .assessment-dropdown .dropdown-header { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #8892b0; padding: 8px 16px 4px; }
+        .assessment-dropdown .dropdown-item { padding: 10px 16px; font-size: 0.9rem; color: #ffffff; }
+        .assessment-dropdown .dropdown-item:hover { background: rgba(0, 217, 255, 0.15); color: #00d9ff; }
+        .assessment-dropdown .dropdown-item i { color: #00d9ff; width: 20px; }
+        .assessment-dropdown .dropdown-divider { margin: 4px 0; border-color: #0f3460; }
+        
+        .chat-form { display: flex; gap: 0.75rem; align-items: flex-end; }
+        .chat-input-wrapper { flex: 1; }
+        .chat-input { width: 100%; border: 1px solid var(--color-gray-300); border-radius: var(--radius-lg); padding: 0.75rem 1rem; font-size: 1rem; resize: none; max-height: 120px; line-height: 1.5; font-family: inherit; }
+        .chat-input:focus { outline: none; border-color: var(--color-teal); box-shadow: 0 0 0 3px rgba(43, 138, 156, 0.15); }
+        .send-btn { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-teal-dark) 100%); border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+        .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* ==================== PHASE TOOLBAR ==================== */
+        .phase-toolbar {
+            margin-top: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        /* Main phase advance button */
+        .phase-advance-btn {
+            width: 100%;
+            border-radius: 8px;
+            padding: 11px 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            background: linear-gradient(145deg, rgba(0, 217, 255, 0.12) 0%, rgba(0, 180, 216, 0.12) 100%);
+            border: 1.5px solid #00d9ff;
+            color: #00d9ff;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+        }
+        .phase-advance-btn:hover {
+            background: linear-gradient(145deg, #00d9ff 0%, #00b4d8 100%);
+            color: #1a1a2e;
+            box-shadow: 0 4px 15px rgba(0, 217, 255, 0.3);
+        }
+        .phase-advance-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .phase-advance-btn:disabled:hover {
+            background: linear-gradient(145deg, rgba(0, 217, 255, 0.12) 0%, rgba(0, 180, 216, 0.12) 100%);
+            color: #00d9ff;
+            box-shadow: none;
+        }
+
+        /* Treatment action button (different colour) */
+        .phase-treatment-btn {
+            width: 100%;
+            border-radius: 8px;
+            padding: 11px 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            background: linear-gradient(145deg, rgba(92, 184, 92, 0.12) 0%, rgba(76, 174, 76, 0.12) 100%);
+            border: 1.5px solid #5cb85c;
+            color: #5cb85c;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+        }
+        .phase-treatment-btn:hover {
+            background: linear-gradient(145deg, #5cb85c 0%, #4cae4c 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(92, 184, 92, 0.3);
+        }
+
+        /* Complete scenario button */
+        .phase-complete-btn {
+            background: linear-gradient(145deg, rgba(255, 193, 7, 0.12) 0%, rgba(240, 180, 0, 0.12) 100%);
+            border-color: #ffc107;
+            color: #ffc107;
+        }
+        .phase-complete-btn:hover {
+            background: linear-gradient(145deg, #ffc107 0%, #e6ac00 100%);
+            color: #1a1a2e;
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+        }
+
+        /* "Proceed anyway" override button (shown after nudge) */
+        .phase-override-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+        .phase-override-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 193, 7, 0.35);
+            color: rgba(255, 193, 7, 0.7);
+            font-size: 0.72rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .phase-override-btn:hover {
+            background: rgba(255, 193, 7, 0.12);
+            color: #ffc107;
+            border-color: #ffc107;
+        }
+        .phase-override-label {
+            font-size: 0.68rem;
+            color: #4a5a7a;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* ==================== DETERIORATION ALERTS ==================== */
+        .deterioration-alert { display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem; margin: 1rem 0; border-radius: 8px; animation: alertSlideIn 0.5s ease; }
+        @keyframes alertSlideIn { 0% { transform: translateY(-10px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+        .deterioration-warning { background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 152, 0, 0.15) 100%); border: 1px solid #ffc107; border-left: 4px solid #ffc107; }
+        .deterioration-critical { background: linear-gradient(135deg, rgba(220, 53, 69, 0.15) 0%, rgba(200, 35, 51, 0.15) 100%); border: 1px solid #dc3545; border-left: 4px solid #dc3545; animation: alertSlideIn 0.5s ease, criticalPulse 2s infinite; }
+        @keyframes criticalPulse { 0%, 100% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.3); } 50% { box-shadow: 0 0 15px rgba(220, 53, 69, 0.5); } }
+        .deterioration-icon { font-size: 1.5rem; line-height: 1; }
+        .deterioration-content { flex: 1; }
+        .deterioration-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.25rem; }
+        .deterioration-warning .deterioration-title { color: #856404; }
+        .deterioration-critical .deterioration-title { color: #721c24; }
+        .deterioration-message { font-size: 0.85rem; color: var(--color-gray-700); line-height: 1.4; }
+        
+        /* ==================== MODALS ==================== */
+        .mdt-modal .modal-content { background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%); border: 1px solid #0f3460; color: white; }
+        .mdt-modal .modal-header { border-bottom: 1px solid #0f3460; }
+        .mdt-modal .modal-title { color: #00d9ff; font-family: 'JetBrains Mono', monospace; }
+        .mdt-modal .btn-close { filter: invert(1); }
+        .mdt-modal .modal-body { color: #e0e0e0; }
+        .mdt-modal .modal-footer { border-top: 1px solid #0f3460; }
+        
+        .modal-patient-info { background: rgba(0, 0, 0, 0.2); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+        .modal-patient-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .modal-patient-label { color: #8892b0; min-width: 80px; }
+        .modal-patient-value { color: #ffffff; }
+        
+        .difficulty-selector { margin-top: 1rem; }
+        .difficulty-selector .btn-group { width: 100%; }
+        .difficulty-selector .btn { flex: 1; }
+        .difficulty-selector .btn-check:checked + .btn-outline-success { background-color: #28a745; color: white; }
+        .difficulty-selector .btn-check:checked + .btn-outline-warning { background-color: #ffc107; color: #212529; }
+        .difficulty-selector .btn-check:checked + .btn-outline-danger { background-color: #dc3545; color: white; }
+        
+        .impression-modal .modal-content { background: var(--color-white); color: var(--color-gray-800); }
+        .impression-modal .form-control { border: 1px solid var(--color-gray-300); }
+        
+        /* ==================== ASSESSMENT PICKER MODAL ==================== */
+        .assessment-modal-content { background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%); border: 1px solid #0f3460; border-radius: 16px; overflow: hidden; }
+        .assessment-modal-header { background: rgba(0, 217, 255, 0.1); border-bottom: 1px solid #0f3460; padding: 1rem 1.25rem; }
+        .assessment-modal-header .modal-title { color: #00d9ff; font-size: 1rem; font-weight: 700; }
+        .assessment-modal-body { padding: 1rem 1.25rem 1.5rem; max-height: 70vh; overflow-y: auto; }
+        .assessment-group { margin-bottom: 1.25rem; }
+        .assessment-group:last-child { margin-bottom: 0; }
+        .assessment-group-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #8892b0; margin-bottom: 0.5rem; padding-left: 0.25rem; }
+        .assessment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+        .assessment-option { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 0.75rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: #ffffff; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.2s ease; text-align: left; }
+        .assessment-option:hover { background: rgba(0, 217, 255, 0.15); border-color: #00d9ff; color: #00d9ff; transform: translateY(-1px); }
+        .assessment-option i { color: #00d9ff; font-size: 1.1rem; flex-shrink: 0; }
+        @media (max-width: 480px) { .assessment-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+
+<body class="scenarios-page">
+
+<!-- ==================== NAVIGATION ==================== -->
+<nav class="member-navbar">
+    <div class="container">
+        <span class="brand-text">
+            <a class="navbar-brand" href="landing.html">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </a>
+        </span>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</nav>
+
+<!-- Message Limit Banner (Free Users) -->
+<div class="message-limit-banner" id="messageLimitBanner" style="display:none;">
+    <span>Daily messages: <span class="count"><span id="messagesUsed">0</span>/20</span></span>
+    <a href="#" class="upgrade-link" onclick="createCheckoutSession(); return false;">
+        <i class="bi bi-star-fill me-1"></i>Upgrade for unlimited
+    </a>
+</div>
+
+<!-- ==================== MAIN CONTAINER ==================== -->
+<div class="main-container">
+
+    <!-- ==================== CATEGORY VIEW ==================== -->
+    <div class="category-view" id="categoryView">
+        <div class="section-header">
+            <h1><i class="bi bi-mortarboard me-2"></i>Learning Scenarios</h1>
+            <p>Practice with interactive patient cases</p>
+        </div>
+        <div class="category-grid" id="categoryGrid">
+            <!-- Populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- ==================== DISPATCHER VIEW ==================== -->
+    <div class="dispatcher-view" id="dispatcherView">
+        <div class="dispatcher-header">
+            <a href="#" class="back-btn" id="backToCategories">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+            <h1 id="dispatcherTitle"><i class="bi bi-broadcast me-2"></i>Dispatcher Screen</h1>
+        </div>
+        <p class="incidents-outstanding" id="incidentsOutstanding">Incidents outstanding</p>
+        <div class="dispatcher-screen" id="scenarioList">
+            <!-- Dispatcher cards populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- ==================== SCENARIO CHAT VIEW ==================== -->
+    <div class="scenario-chat-view" id="scenarioChatView">
+
+        <!-- Active Incident Banner -->
+        <div class="incident-banner" id="incidentBanner">
+            <div class="incident-info">
+                <div class="incident-title">📟 ACTIVE INCIDENT</div>
+                <div class="incident-detail" id="incidentDetail">Loading...</div>
+            </div>
+            <span class="incident-category cat-1" id="incidentCategory">CAT 1</span>
+            <button class="end-scenario-btn" id="endScenarioBtn">
+                <i class="bi bi-x-lg me-1"></i>End
+            </button>
+        </div>
+
+        <!-- Phase Progress Bar -->
+        <div class="phase-bar" id="phaseBar">
+            <div class="phase-step pending" id="phaseStep-dispatch">
+                <div class="phase-dot"><i class="bi bi-broadcast"></i></div>
+                <span class="phase-step-name">Dispatch</span>
+            </div>
+            <div class="phase-connector" id="phaseConn-0"></div>
+            <div class="phase-step pending" id="phaseStep-enroute">
+                <div class="phase-dot"><i class="bi bi-truck"></i></div>
+                <span class="phase-step-name">En Route</span>
+            </div>
+            <div class="phase-connector" id="phaseConn-1"></div>
+            <div class="phase-step pending" id="phaseStep-onscene">
+                <div class="phase-dot"><i class="bi bi-person-fill"></i></div>
+                <span class="phase-step-name">On Scene</span>
+            </div>
+            <div class="phase-connector" id="phaseConn-2"></div>
+            <div class="phase-step pending" id="phaseStep-treatment">
+                <div class="phase-dot"><i class="bi bi-heart-pulse"></i></div>
+                <span class="phase-step-name">Treatment</span>
+            </div>
+            <div class="phase-connector" id="phaseConn-3"></div>
+            <div class="phase-step pending" id="phaseStep-handover">
+                <div class="phase-dot"><i class="bi bi-clipboard-check"></i></div>
+                <span class="phase-step-name">Handover</span>
+            </div>
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="chat-messages" id="chatMessages">
+            <!-- Messages populated by JavaScript -->
+        </div>
+
+        <!-- Chat Input Area -->
+        <div class="chat-input-area">
+
+            <!-- Assessment Toolbar (On Scene phase only) -->
+            <div class="assessment-toolbar" id="assessmentToolbar" style="display:none;">
+                <button class="btn assessment-btn flex-grow-1" type="button" id="openAssessmentModal">
+                    <i class="bi bi-clipboard2-pulse me-1"></i>Perform Assessment
+                </button>
+                <button class="btn hint-btn" id="hintBtn">
+                    <i class="bi bi-lightbulb me-1"></i>Hint
+                </button>
+            </div>
+
+            <!-- Chat Form -->
+            <div class="chat-form" id="chatFormWrapper">
+                <div class="chat-input-wrapper">
+                    <textarea
+                        class="chat-input"
+                        id="messageInput"
+                        placeholder="Ask a question or talk to the patient..."
+                        rows="1"
+                    ></textarea>
+                </div>
+                <button type="button" class="send-btn" id="sendBtn">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </div>
+
+            <!-- Phase Toolbar (replaces working impression toolbar) -->
+            <div class="phase-toolbar" id="phaseToolbar" style="display:none;">
+                <!-- Content injected by updatePhaseToolbar() -->
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- ==================== SCENARIO START MODAL ==================== -->
+<div class="modal fade mdt-modal" id="scenarioModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-broadcast me-2"></i>INCIDENT DETAILS</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-patient-info">
+                    <div class="modal-patient-row">
+                        <span class="modal-patient-label">Patient:</span>
+                        <span class="modal-patient-value" id="modalPatient">--</span>
+                    </div>
+                    <div class="modal-patient-row">
+                        <span class="modal-patient-label">Category:</span>
+                        <span class="modal-patient-value" id="modalCategory">--</span>
+                    </div>
+                    <div class="modal-patient-row">
+                        <span class="modal-patient-label">Condition:</span>
+                        <span class="modal-patient-value" id="modalCondition">--</span>
+                    </div>
+                </div>
+                <p class="small text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Work through all five phases: Dispatch, En Route, On Scene, Treatment, and Handover.
+                </p>
+                <div class="difficulty-selector">
+                    <label class="form-label fw-bold">Select Difficulty Level:</label>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="difficultyLevel" id="level1" value="1" checked>
+                        <label class="btn btn-outline-success" for="level1">
+                            <i class="bi bi-1-circle me-1"></i>Student
+                        </label>
+                        <input type="radio" class="btn-check" name="difficultyLevel" id="level2" value="2">
+                        <label class="btn btn-outline-warning" for="level2">
+                            <i class="bi bi-2-circle me-1"></i>NQP
+                        </label>
+                        <input type="radio" class="btn-check" name="difficultyLevel" id="level3" value="3">
+                        <label class="btn btn-outline-danger" for="level3">
+                            <i class="bi bi-3-circle me-1"></i>Paramedic
+                        </label>
+                    </div>
+                    <small class="text-muted d-block mt-2" id="difficultyDescription">Classic presentations, cooperative patients</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Stand Down</button>
+                <button type="button" class="btn btn-primary" id="startScenarioBtn">
+                    <i class="bi bi-truck me-1"></i>Respond to Incident
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== TREATMENT MODAL ==================== -->
+<div class="modal fade impression-modal" id="treatmentModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-heart-pulse me-2"></i>Working Impression &amp; Treatment Plan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="treatmentImpressionInput" class="form-label fw-bold">Working Impression</label>
+                    <input type="text" class="form-control" id="treatmentImpressionInput" placeholder="e.g., Acute coronary syndrome, Pneumonia">
+                </div>
+                <div class="mb-3">
+                    <label for="treatmentPlanInput" class="form-label fw-bold">Treatment Plan</label>
+                    <textarea class="form-control" id="treatmentPlanInput" rows="3" placeholder="What treatment will you initiate? e.g., High-flow O2, IV access, aspirin 300mg, 12-lead ECG, pre-alert to ED..."></textarea>
+                </div>
+                <div class="mb-2">
+                    <label for="treatmentReasoning" class="form-label">Clinical Reasoning <span class="text-muted fw-normal">(optional)</span></label>
+                    <textarea class="form-control" id="treatmentReasoning" rows="2" placeholder="Brief reasoning behind your impression..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submitTreatmentBtn">
+                    <i class="bi bi-check-lg me-1"></i>Submit Assessment &amp; Plan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== ASSESSMENT PICKER MODAL ==================== -->
+<div class="modal fade" id="assessmentPickerModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content assessment-modal-content">
+            <div class="modal-header assessment-modal-header">
+                <h5 class="modal-title"><i class="bi bi-clipboard2-pulse me-2"></i>Perform Assessment</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body assessment-modal-body">
+                <div class="assessment-group">
+                    <h6 class="assessment-group-title">Primary Survey</h6>
+                    <div class="assessment-grid">
+                        <button class="assessment-option" data-assessment="obs"><i class="bi bi-heart-pulse"></i><span>Observations (Vital Signs)</span></button>
+                        <button class="assessment-option" data-assessment="ecg"><i class="bi bi-activity"></i><span>ECG / Rhythm Check</span></button>
+                    </div>
+                </div>
+                <div class="assessment-group">
+                    <h6 class="assessment-group-title">Physical Examination</h6>
+                    <div class="assessment-grid">
+                        <button class="assessment-option" data-assessment="chest"><i class="bi bi-lungs"></i><span>Chest Examination</span></button>
+                        <button class="assessment-option" data-assessment="abdo"><i class="bi bi-bandaid"></i><span>Abdominal Examination</span></button>
+                        <button class="assessment-option" data-assessment="neuro"><i class="bi bi-lightning"></i><span>Neurological Exam</span></button>
+                        <button class="assessment-option" data-assessment="skin"><i class="bi bi-droplet"></i><span>Skin Assessment</span></button>
+                    </div>
+                </div>
+                <div class="assessment-group">
+                    <h6 class="assessment-group-title">Stroke Assessment</h6>
+                    <div class="assessment-grid">
+                        <button class="assessment-option" data-assessment="fast"><i class="bi bi-speedometer"></i><span>FAST Assessment</span></button>
+                        <button class="assessment-option" data-assessment="mend"><i class="bi bi-diagram-3"></i><span>MEND Assessment</span></button>
+                    </div>
+                </div>
+                <div class="assessment-group">
+                    <h6 class="assessment-group-title">History Taking</h6>
+                    <div class="assessment-grid">
+                        <button class="assessment-option" data-assessment="history"><i class="bi bi-card-list"></i><span>Full History (SAMPLE)</span></button>
+                        <button class="assessment-option" data-assessment="pain"><i class="bi bi-thermometer-half"></i><span>Pain Assessment (SOCRATES)</span></button>
+                        <button class="assessment-option" data-assessment="meds"><i class="bi bi-capsule"></i><span>Medications</span></button>
+                        <button class="assessment-option" data-assessment="social"><i class="bi bi-house"></i><span>Social History</span></button>
+                        <button class="assessment-option" data-assessment="scene"><i class="bi bi-eye"></i><span>Scene Assessment</span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="member-footer">
+    <div class="container">
+        <div class="footer-brand">
+            <span class="brand-text">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </span>
+        </div>
+        <div class="footer-links">
+            <a href="terms.html">Terms of Service</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="purpose.html">Intended Purpose</a>
+            <a href="sources.html">Sources &amp; Citations</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <p class="footer-copyright">&copy; 2026 Paramind. All rights reserved.</p>
+    </div>
+</footer>
+
+<!-- ==================== SCRIPTS ==================== -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="js/app.js"></script>
+<script src="js/UDscenarios.js"></script>
+<script src="js/menu-v2.js"></script>
+
+<script>
+// ==================== FIREBASE CONFIG ====================
+const firebaseConfig = {
+    apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
+    authDomain: "paramind-64b8e.firebaseapp.com",
+    projectId: "paramind-64b8e",
+    storageBucket: "paramind-64b8e.firebasestorage.app",
+    messagingSenderId: "452173393964",
+    appId: "1:452173393964:web:8599c0fe1983a6f441e189"
+};
+
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// ==================== API CONFIG ====================
+const API_CONFIG = {
+    get baseUrl() {
+        return window.paramind?.CONFIG?.api?.baseUrl || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
+    },
+    get chatEndpoint() {
+        return window.paramind?.CONFIG?.api?.chat || '/chat';
+    }
+};
+
+// ==================== ASSESSMENT PROMPTS ====================
+// Identical to scenarios.html — do not modify
+const ASSESSMENT_PROMPTS = {
+    obs: {
+        name: "Observations",
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is taking observations. Respond with a clinical data block:\n\nOBSERVATIONS:\n• HR: [value] bpm ([rhythm])\n• BP: [systolic]/[diastolic] mmHg\n• RR: [value] /min\n• SpO2: [value]% ([on air/oxygen])\n• Temp: [value]°C\n• GCS: E[x] V[x] M[x] = [total]/15\n• BM: [value] mmol/L\n• AVPU: [status]\n• Pain: [0-10]\n\nDo NOT roleplay. Just provide the clinical findings."
+    },
+    ecg: {
+        name: "ECG",
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a 12-lead ECG. Respond with ECG findings:\n\nECG FINDINGS:\n• Rhythm: [rhythm type]\n• Rate: [value] bpm\n• P waves: [present/absent/description]\n• PR interval: [normal/prolonged/shortened/variable]\n• QRS: [narrow/wide, duration]\n• ST segments: [normal/elevated/depressed, leads affected]\n• T waves: [normal/inverted/peaked, leads affected]\n• Other: [any notable findings]\n• Interpretation: [brief clinical interpretation]\n\nDo NOT roleplay. Just provide the clinical findings."
+    },
+    chest: {
+        name: "Chest Examination",
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a chest examination. Respond with clinical findings:\n\nCHEST EXAMINATION:\n• Inspection: [chest movement, symmetry, scars, deformity]\n• Palpation: [tenderness, crepitus, tracheal position]\n• Percussion: [resonant/dull/hyper-resonant, areas]\n• Auscultation: [breath sounds - vesicular/bronchial, added sounds - wheeze/crackles/absent]\n• Work of breathing: [accessory muscle use, positioning]\n\nDo NOT roleplay. Just provide the clinical findings."
+    },
+    abdo: {
+        name: "Abdominal Examination",
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing an abdominal examination. Respond with clinical findings:\n\nABDOMINAL EXAMINATION:\n• Inspection: [distension, scars, bruising, pulsation]\n• Auscultation: [bowel sounds - present/absent/hyperactive]\n• Palpation: [soft/rigid/guarding, tenderness location, masses, organomegaly]\n• Special signs: [rebound, Rovsing's, Murphy's if relevant]\n\nDo NOT roleplay. Just provide the clinical findings."
+    },
+    neuro: {
+        name: "Neurological Exam",
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a neurological examination. Respond with clinical findings:\n\nNEUROLOGICAL EXAMINATION:\n• GCS: E[x] V[x] M[x] = [total]/15\n• Pupils: [size, reactivity, equality - PEARL or abnormalities]\n• Limb movement: [all four limbs - normal/weakness/paralysis]\n• Facial symmetry: [normal/droop]\n• Speech: [normal/slurred/dysphasia]\n• Sensation: [normal/altered]\n• Coordination: [if testable]\n\nDo NOT roleplay. Just provide the clinical findings."
+    },
+    skin: {
+        name: "Skin Assessment",
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is assessing the skin. Respond with clinical findings:\n\nSKIN ASSESSMENT:\n• Colour: [pink/pale/cyanosed/flushed/jaundiced/mottled]\n• Temperature: [warm/hot/cool/cold]\n• Moisture: [dry/clammy/diaphoretic]\n• Turgor: [normal/reduced]\n• Capillary refill: [<2s / >2s, central/peripheral]\n• Rashes/lesions: [describe if present]\n• Oedema: [location and severity if present]\n\nDo NOT roleplay. Just provide the clinical findings."
+    },
+    fast: {
+        name: "FAST Assessment",
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a FAST stroke assessment. Respond with findings:\n\nFAST ASSESSMENT:\n• Face: [normal / facial droop - which side]\n• Arms: [normal / arm drift - which side / weakness]\n• Speech: [normal / slurred / unable to speak / word-finding difficulty]\n• Time: [when symptoms first noticed / when last seen well]\n• FAST positive: [Yes/No]\n\nDo NOT roleplay. Just provide the clinical findings."
+    },
+    mend: {
+        name: "MEND Assessment",
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a MEND assessment. Respond with findings:\n\nMEND ASSESSMENT:\n• Level of consciousness: [alert/drowsy/unresponsive]\n• Speech/Language: [normal/abnormal - describe]\n• Eye movement: [normal/gaze preference - which direction]\n• Visual fields: [normal/deficit - describe]\n• Facial palsy: [absent/present - describe]\n• Motor - Arms: [normal/drift/weakness/paralysis - which side]\n• Motor - Legs: [normal/drift/weakness/paralysis - which side]\n• Sensory: [normal/decreased - which side/area]\n• Ataxia: [absent/present]\n\nDo NOT roleplay. Just provide the clinical findings."
+    },
+    history: {
+        name: "Full History (SAMPLE)",
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is taking a SAMPLE history. Respond in character as the patient would:\n\nSAMPLE HISTORY:\n• Signs & Symptoms: [what the patient describes]\n• Allergies: [NKDA or list allergies]\n• Medications: [list current medications]\n• Past Medical History: [relevant conditions]\n• Last oral intake: [when and what]\n• Events leading up: [what happened before this]\n\nRespond as the patient would answer these questions - may be complete or incomplete depending on patient's condition/awareness."
+    },
+    pain: {
+        name: "Pain Assessment (SOCRATES)",
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is assessing pain using SOCRATES. Respond as the patient:\n\nSOCRATES PAIN ASSESSMENT:\n• Site: [where is the pain]\n• Onset: [when did it start, sudden/gradual]\n• Character: [sharp/dull/burning/crushing/colicky etc]\n• Radiation: [does it spread anywhere]\n• Associated symptoms: [nausea, sweating, SOB etc]\n• Timing: [constant/intermittent, duration]\n• Exacerbating/relieving: [what makes it better/worse]\n• Severity: [0-10 score]\n\nRespond as the patient would describe their pain."
+    },
+    meds: {
+        name: "Medications",
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is asking about medications. Respond as the patient or provide information:\n\nMEDICATIONS:\n[List the patient's regular medications with doses if known]\n\nRecent changes: [any recent medication changes]\nCompliance: [are they taking medications as prescribed]\nOTC/supplements: [any over-the-counter medications or supplements]\n\nRespond as the patient would - may not remember all medications or doses."
+    },
+    social: {
+        name: "Social History",
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is taking a social history. Respond as the patient:\n\nSOCIAL HISTORY:\n• Living situation: [alone/with family/care home etc]\n• Mobility: [independent/uses aids/housebound]\n• Smoking: [never/ex/current - pack years if relevant]\n• Alcohol: [units per week]\n• Recreational drugs: [if relevant]\n• Occupation: [current or previous]\n• Next of kin: [who and contact info if known]\n• Baseline function: [what can they normally do]\n\nRespond as the patient would share this information."
+    },
+    scene: {
+        name: "Scene Assessment",
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is assessing the scene. Respond with third-person observations:\n\nSCENE FINDINGS:\n• Location/environment: [description]\n• Safety hazards: [any noted]\n• Clues: [medication boxes, medical equipment, alcohol, etc.]\n• Patient position: [how/where found]\n• Other people present: [who else is there]\n\nDo NOT respond as the patient. Describe what the paramedic would observe on arrival."
+    }
+};
+
+// ==================== PHASE CONFIGURATION ====================
+const PHASES = ['dispatch', 'enroute', 'onscene', 'treatment', 'handover'];
+
+const PHASE_CONFIG = {
+    dispatch: {
+        label: 'Dispatch',
+        icon: 'bi-broadcast',
+        advanceLabel: 'Proceed En Route',
+        advanceIcon: 'bi-truck',
+        inputPlaceholder: 'Ask pre-arrival questions or review the call...',
+        showAssessmentToolbar: false,
+        showHint: false,
+        notificationText: 'Dispatch — Review the call details. You can ask pre-arrival questions before responding.',
+        contextForAI: `\n\n[PHASE CONTEXT: DISPATCH]\nThe paramedic is reviewing the dispatch information and may ask pre-arrival questions. Respond as the MDT system / dispatch narrator. Provide any additional call details if asked. Keep it brief and realistic MDT-style. Do not initiate patient contact — the paramedic is not yet on scene.`
+    },
+    enroute: {
+        label: 'En Route',
+        icon: 'bi-truck',
+        advanceLabel: 'Arrive on Scene',
+        advanceIcon: 'bi-geo-alt-fill',
+        inputPlaceholder: 'Think out loud — what are you planning?',
+        showAssessmentToolbar: false,
+        showHint: false,
+        notificationText: 'En Route — Think ahead. What are your clinical priorities on arrival?',
+        contextForAI: `\n\n[PHASE CONTEXT: EN ROUTE]\nThe paramedic is en route to scene. Engage with their pre-arrival clinical thinking. If they share their plan, respond encouragingly and ask one probing question (e.g., equipment, pre-alerts, differential considerations). If they haven't said much, you may gently prompt: "What's your pre-arrival plan given what you know so far?" Keep responses brief and practical.`
+    },
+    onscene: {
+        label: 'On Scene',
+        icon: 'bi-person-fill',
+        advanceLabel: 'Proceed to Treatment',
+        advanceIcon: 'bi-heart-pulse',
+        inputPlaceholder: 'Talk to the patient or ask questions...',
+        showAssessmentToolbar: true,
+        showHint: true,
+        notificationText: 'On Scene — Assess your patient. Take a history, perform examinations, gather all the information you need.',
+        contextForAI: `` // default scenario roleplay — no override needed
+    },
+    treatment: {
+        label: 'Treatment',
+        icon: 'bi-heart-pulse',
+        advanceLabel: 'Proceed to Handover',
+        advanceIcon: 'bi-clipboard-check',
+        inputPlaceholder: 'Discuss your clinical reasoning...',
+        showAssessmentToolbar: false,
+        showHint: false,
+        notificationText: 'Treatment Phase — State your working impression and treatment plan.',
+        contextForAI: `\n\n[PHASE CONTEXT: TREATMENT]\nThe paramedic has stated their working impression and treatment plan. Respond as a senior paramedic colleague / clinical supervisor. Acknowledge their assessment briefly, note any significant gap in the treatment plan with one focused question if needed, and give 2-3 sentences of constructive feedback on their reasoning. Do NOT give a full debrief yet — that comes after handover.`
+    },
+    handover: {
+        label: 'Handover',
+        icon: 'bi-clipboard-check',
+        advanceLabel: 'Complete Scenario',
+        advanceIcon: 'bi-check-circle',
+        inputPlaceholder: 'Deliver your ATMIST handover to the receiving team...',
+        showAssessmentToolbar: false,
+        showHint: false,
+        notificationText: 'Handover — Deliver your ATMIST handover to the receiving clinician.',
+        contextForAI: `\n\n[PHASE CONTEXT: HANDOVER]\nThe paramedic is at hospital delivering an ATMIST handover. You are now playing the A&E charge nurse / doctor receiving the patient. Respond as a realistic receiving clinician — acknowledge key findings, ask one or two questions about anything missing from the ATMIST (Age, Time of onset, Mechanism/Medical history, Injuries or key findings, Signs/vital signs, Treatment given), and confirm safe receipt of the patient. Be professional and concise.`
+    }
+};
+
+// ==================== STATE ====================
+const chatState = {
+    isPro: false,
+    messagesRemaining: 20,
+    conversationHistory: [],
+    isLoading: false,
+    currentScenario: null,
+    currentDifficultyLevel: 1,
+    userData: null,
+    // Scenario progress
+    scenarioProgress: {
+        questionsAsked: 0,
+        assessmentsPerformed: 0
+    },
+    // Deterioration tracking (same as scenarios.html)
+    deterioration: {
+        exchangesSinceKeyAssessment: 0,
+        currentPhase: null,
+        warningShown: false,
+        criticalShown: false
+    },
+    // ---- Phase tracking (new for Feature 1) ----
+    currentPhase: 'dispatch',
+    phaseMessageCounts: {
+        dispatch: 0,
+        enroute: 0,
+        onscene: 0,
+        treatment: 0,
+        handover: 0
+    },
+    phaseCheckpoints: {
+        obsPerformed: false,         // any physical assessment done in On Scene
+        historyStarted: false,       // history/pain/meds/social done, OR 3+ exchanges in On Scene
+        treatmentSubmitted: false,   // treatment modal submitted
+        workingImpression: ''        // stored for CPD record
+    },
+    nudgeGivenForTransition: false  // true once a nudge has been given for the current transition attempt
+};
+
+// ==================== DOM ELEMENTS ====================
+const elements = {
+    categoryView: document.getElementById('categoryView'),
+    dispatcherView: document.getElementById('dispatcherView'),
+    scenarioChatView: document.getElementById('scenarioChatView'),
+    categoryGrid: document.getElementById('categoryGrid'),
+    backToCategories: document.getElementById('backToCategories'),
+    dispatcherTitle: document.getElementById('dispatcherTitle'),
+    incidentsOutstanding: document.getElementById('incidentsOutstanding'),
+    scenarioList: document.getElementById('scenarioList'),
+    chatMessages: document.getElementById('chatMessages'),
+    sendBtn: document.getElementById('sendBtn'),
+    messageInput: document.getElementById('messageInput'),
+    incidentBanner: document.getElementById('incidentBanner'),
+    incidentDetail: document.getElementById('incidentDetail'),
+    incidentCategory: document.getElementById('incidentCategory'),
+    endScenarioBtn: document.getElementById('endScenarioBtn'),
+    assessmentToolbar: document.getElementById('assessmentToolbar'),
+    hintBtn: document.getElementById('hintBtn'),
+    phaseToolbar: document.getElementById('phaseToolbar'),
+    scenarioModal: document.getElementById('scenarioModal'),
+    startScenarioBtn: document.getElementById('startScenarioBtn'),
+    modalPatient: document.getElementById('modalPatient'),
+    modalCategory: document.getElementById('modalCategory'),
+    modalCondition: document.getElementById('modalCondition'),
+    treatmentModal: document.getElementById('treatmentModal'),
+    treatmentImpressionInput: document.getElementById('treatmentImpressionInput'),
+    treatmentPlanInput: document.getElementById('treatmentPlanInput'),
+    treatmentReasoning: document.getElementById('treatmentReasoning'),
+    submitTreatmentBtn: document.getElementById('submitTreatmentBtn'),
+    messageLimitBanner: document.getElementById('messageLimitBanner'),
+    messagesUsed: document.getElementById('messagesUsed')
+};
+
+// ==================== AUTH STATE ====================
+auth.onAuthStateChanged(async (user) => {
+    if (user) {
+        try {
+            const doc = await db.collection('users').doc(user.uid).get();
+            if (doc.exists) {
+                const userData = doc.data();
+                chatState.isPro = userData.subscriptionStatus === 'active' || userData.isPro === true;
+                chatState.userData = userData;
+
+                if (!chatState.isPro) {
+                    const today = new Date().toDateString();
+                    const lastDate = userData.lastMessageDate?.toDate?.()?.toDateString?.();
+                    const count = (lastDate === today) ? (userData.dailyMessageCount || 0) : 0;
+                    chatState.messagesRemaining = Math.max(0, 20 - count);
+                }
+
+                updateUIForUser();
+            }
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
+        buildCategoryGrid();
+    } else {
+        window.location.href = 'login.html';
+    }
+});
+
+// ==================== UI UPDATES ====================
+function updateUIForUser() {
+    if (chatState.isPro) {
+        elements.messageLimitBanner.style.display = 'none';
+    } else {
+        elements.messageLimitBanner.style.display = 'flex';
+        updateMessageCounter();
+    }
+}
+
+function updateMessageCounter() {
+    const used = Math.max(0, 20 - chatState.messagesRemaining);
+    elements.messagesUsed.textContent = used;
+}
+
+// ==================== CATEGORY GRID ====================
+function buildCategoryGrid() {
+    if (!window.scenarioData) { console.error('Scenario data not loaded'); return; }
+
+    const categories = window.scenarioData.SCENARIO_CATEGORIES;
+    const counts = window.scenarioData.getScenarioCountByCategory();
+
+    let html = '';
+    for (const [key, cat] of Object.entries(categories)) {
+        html += `
+            <div class="category-card" data-category="${key}">
+                <div class="category-icon"><i class="bi ${cat.icon}"></i></div>
+                <div class="category-name">${cat.title}</div>
+                <div class="category-count">${counts[key]} scenarios</div>
+            </div>`;
+    }
+    elements.categoryGrid.innerHTML = html;
+
+    elements.categoryGrid.querySelectorAll('.category-card').forEach(card => {
+        card.addEventListener('click', () => showDispatcher(card.dataset.category));
+    });
+}
+
+// ==================== VIEW NAVIGATION ====================
+function showCategoryView() {
+    elements.categoryView.style.display = 'block';
+    elements.dispatcherView.classList.remove('active');
+    elements.scenarioChatView.classList.remove('active');
+}
+
+function showDispatcher(categoryId) {
+    const category = window.scenarioData.SCENARIO_CATEGORIES[categoryId];
+    const scenarios = window.scenarioData.getScenariosByCategory(categoryId);
+    if (!category || !scenarios.length) return;
+
+    elements.dispatcherTitle.innerHTML = `<i class="bi bi-broadcast me-2"></i>Dispatcher Screen`;
+    elements.incidentsOutstanding.textContent = `${category.title} incidents outstanding`;
+
+    elements.scenarioList.innerHTML = scenarios.map((scenario, index) => {
+        const d = scenario.dispatch;
+        const genderDisplay = d.gender === 'M' ? 'Male' : d.gender === 'F' ? 'Female' : 'Unknown';
+        const ageDisplay = d.age ? `${d.age} years` : 'Unknown age';
+        const patientInfo = d.age ? `${ageDisplay}, ${genderDisplay}` : 'Multiple Patients';
+        const incidentNum = `INC-${Date.now().toString().slice(-6)}-${(index + 1).toString().padStart(3, '0')}`;
+        const catClass = d.category === 1 ? 'cat-1' : d.category === 2 ? 'cat-2' : 'cat-3';
+
+        return `
+            <div class="dispatch-card" data-scenario-id="${scenario.id}">
+                <div class="dispatch-header">
+                    <span class="dispatch-incident-num">${incidentNum}</span>
+                    <span class="dispatch-category ${catClass}">CAT ${d.category}</span>
+                </div>
+                <div class="dispatch-body">
+                    <div class="dispatch-row"><span class="dispatch-label">Patient:</span><span class="dispatch-value">${patientInfo}</span></div>
+                    <div class="dispatch-row"><span class="dispatch-label">Condition:</span><span class="dispatch-value highlight">${d.chiefComplaint}</span></div>
+                </div>
+                <div class="dispatch-footer">
+                    <div class="dispatch-status">AWAITING RESOURCE</div>
+                    <button class="dispatch-btn" data-scenario-id="${scenario.id}">
+                        <i class="bi bi-truck me-1"></i>Dispatch
+                    </button>
+                </div>
+            </div>`;
+    }).join('');
+
+    elements.scenarioList.querySelectorAll('.dispatch-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openScenarioModal(btn.dataset.scenarioId);
+        });
+    });
+
+    elements.categoryView.style.display = 'none';
+    elements.dispatcherView.classList.add('active');
+}
+
+function showScenarioChat() {
+    elements.categoryView.style.display = 'none';
+    elements.dispatcherView.classList.remove('active');
+    elements.scenarioChatView.classList.add('active');
+}
+
+// ==================== SCENARIO MODAL ====================
+function openScenarioModal(scenarioId) {
+    const scenario = window.scenarioData.getScenarioById(scenarioId);
+    if (!scenario) return;
+
+    chatState.currentScenario = scenarioId;
+    chatState.currentDifficultyLevel = 1;
+    document.getElementById('level1').checked = true;
+    document.getElementById('difficultyDescription').textContent = 'Classic presentations, cooperative patients';
+
+    const d = scenario.dispatch;
+    const genderDisplay = d.gender === 'M' ? 'Male' : d.gender === 'F' ? 'Female' : '';
+    const ageDisplay = d.age ? `${d.age}y` : '';
+
+    elements.modalPatient.textContent = d.age ? `${ageDisplay} ${genderDisplay}` : 'Multiple patients';
+    elements.modalCategory.innerHTML = `<span class="dispatch-category ${d.category === 1 ? 'cat-1' : d.category === 2 ? 'cat-2' : 'cat-3'}">CAT ${d.category}</span>`;
+    elements.modalCondition.textContent = d.chiefComplaint;
+
+    const modal = new bootstrap.Modal(elements.scenarioModal);
+    modal.show();
+}
+
+// ==================== START SCENARIO ====================
+function startScenario() {
+    const scenarioId = chatState.currentScenario;
+    const scenario = window.scenarioData.getScenarioById(scenarioId);
+    if (!scenario) return;
+
+    const modal = bootstrap.Modal.getInstance(elements.scenarioModal);
+    modal.hide();
+
+    // Reset all state
+    chatState.conversationHistory = [];
+    chatState.scenarioProgress = { questionsAsked: 0, assessmentsPerformed: 0 };
+    chatState.deterioration = { exchangesSinceKeyAssessment: 0, currentPhase: null, warningShown: false, criticalShown: false };
+
+    // Reset phase state
+    chatState.currentPhase = 'dispatch';
+    chatState.phaseMessageCounts = { dispatch: 0, enroute: 0, onscene: 0, treatment: 0, handover: 0 };
+    chatState.phaseCheckpoints = { obsPerformed: false, historyStarted: false, treatmentSubmitted: false, workingImpression: '' };
+    chatState.nudgeGivenForTransition = false;
+
+    elements.chatMessages.innerHTML = '';
+
+    // Update incident banner
+    const d = scenario.dispatch;
+    const genderDisplay = d.gender === 'M' ? 'Male' : d.gender === 'F' ? 'Female' : '';
+    const ageDisplay = d.age ? `${d.age}y` : '';
+    elements.incidentDetail.textContent = `${d.age ? `${ageDisplay} ${genderDisplay}` : 'Multiple patients'} - ${d.chiefComplaint}`;
+    elements.incidentCategory.textContent = `CAT ${d.category}`;
+    elements.incidentCategory.className = `incident-category ${d.category === 1 ? 'cat-1' : d.category === 2 ? 'cat-2' : 'cat-3'}`;
+
+    showScenarioChat();
+
+    // Add the scenario system prompt to conversation history
+    chatState.conversationHistory.push({
+        role: 'system',
+        content: window.scenarioData.getScenarioSystemPrompt(scenarioId, chatState.currentDifficultyLevel)
+    });
+
+    // Show the starter message (dispatch/scene info)
+    const starterMessage = scenario.starterMessage;
+    addMessage('assistant', starterMessage);
+    chatState.conversationHistory.push({ role: 'assistant', content: starterMessage });
+
+    // Render the phase bar and toolbar for Dispatch phase
+    renderPhaseBar();
+    updatePhaseUI();
+}
+
+// ==================== PHASE BAR ====================
+function renderPhaseBar() {
+    const phaseIndex = PHASES.indexOf(chatState.currentPhase);
+
+    PHASES.forEach((phase, i) => {
+        const stepEl = document.getElementById(`phaseStep-${phase}`);
+        const connEl = document.getElementById(`phaseConn-${i}`);
+
+        if (!stepEl) return;
+
+        stepEl.classList.remove('pending', 'active', 'completed');
+        if (i < phaseIndex) {
+            stepEl.classList.add('completed');
+            stepEl.querySelector('.phase-dot').innerHTML = '<i class="bi bi-check-lg"></i>';
+        } else if (i === phaseIndex) {
+            stepEl.classList.add('active');
+            // Restore original icon for active phase
+            const cfg = PHASE_CONFIG[phase];
+            stepEl.querySelector('.phase-dot').innerHTML = `<i class="bi ${cfg.icon}"></i>`;
+        } else {
+            stepEl.classList.add('pending');
+            const cfg = PHASE_CONFIG[phase];
+            stepEl.querySelector('.phase-dot').innerHTML = `<i class="bi ${cfg.icon}"></i>`;
+        }
+
+        if (connEl) {
+            connEl.classList.toggle('completed', i < phaseIndex);
+        }
+    });
+}
+
+// ==================== PHASE UI (toolbar + assessment bar) ====================
+function updatePhaseUI() {
+    const cfg = PHASE_CONFIG[chatState.currentPhase];
+
+    // Assessment toolbar visibility
+    elements.assessmentToolbar.style.display = cfg.showAssessmentToolbar ? 'flex' : 'none';
+
+    // Chat input placeholder
+    elements.messageInput.placeholder = cfg.inputPlaceholder;
+
+    // Build phase toolbar content
+    renderPhaseToolbar();
+}
+
+function renderPhaseToolbar() {
+    const phase = chatState.currentPhase;
+    const cfg = PHASE_CONFIG[phase];
+    const toolbar = elements.phaseToolbar;
+
+    // Always show the toolbar while a scenario is active
+    toolbar.style.display = 'flex';
+    toolbar.style.flexDirection = 'column';
+    toolbar.style.gap = '0.5rem';
+
+    let html = '';
+
+    if (phase === 'treatment' && !chatState.phaseCheckpoints.treatmentSubmitted) {
+        // Treatment phase — show "State WI & Treatment Plan" button first
+        html += `
+            <button class="btn phase-treatment-btn" id="phaseActionBtn" onclick="openTreatmentModal()">
+                <i class="bi bi-heart-pulse me-2"></i>State Working Impression &amp; Treatment Plan
+            </button>`;
+    } else if (phase === 'handover' && chatState.phaseMessageCounts.handover < 1) {
+        // Handover phase — complete button only available after first exchange
+        html += `
+            <button class="btn phase-advance-btn" id="phaseActionBtn" disabled>
+                <i class="bi bi-clipboard-check me-2"></i>Complete Scenario
+                <span style="font-size:0.65rem; opacity:0.6; margin-left:0.4rem;">(deliver handover first)</span>
+            </button>`;
+    } else if (phase === 'handover') {
+        html += `
+            <button class="btn phase-advance-btn phase-complete-btn" id="phaseActionBtn" onclick="completeScenario()">
+                <i class="bi bi-check-circle me-2"></i>Complete Scenario
+            </button>`;
+    } else if (phase === 'treatment' && chatState.phaseCheckpoints.treatmentSubmitted) {
+        // Treatment done — show advance to handover
+        html += `
+            <button class="btn phase-advance-btn" id="phaseActionBtn" onclick="advancePhase()">
+                <i class="bi ${cfg.advanceIcon} me-2"></i>${cfg.advanceLabel}
+            </button>`;
+    } else {
+        // All other phases — standard advance button
+        const needsCheckpoint = (phase === 'onscene');
+        if (needsCheckpoint) {
+            html += `
+                <button class="btn phase-advance-btn" id="phaseActionBtn" onclick="tryAdvancePhase()">
+                    <i class="bi ${cfg.advanceIcon} me-2"></i>${cfg.advanceLabel}
+                </button>`;
+        } else {
+            // Dispatch / En Route — always available (En Route needs 1+ exchange)
+            const enrouteReady = phase !== 'enroute' || chatState.phaseMessageCounts.enroute >= 1;
+            html += `
+                <button class="btn phase-advance-btn" id="phaseActionBtn" 
+                    ${enrouteReady ? `onclick="advancePhase()"` : 'disabled'}
+                    ${!enrouteReady ? 'title="Share your pre-arrival plan first"' : ''}>
+                    <i class="bi ${cfg.advanceIcon} me-2"></i>${cfg.advanceLabel}
+                    ${!enrouteReady ? '<span style="font-size:0.65rem; opacity:0.6; margin-left:0.4rem;">(think out loud first)</span>' : ''}
+                </button>`;
+        }
+    }
+
+    // If a nudge has been given for the current On Scene → Treatment transition, show override option
+    if (phase === 'onscene' && chatState.nudgeGivenForTransition) {
+        html += `
+            <div class="phase-override-row">
+                <span class="phase-override-label">Nudge given —</span>
+                <button class="phase-override-btn" onclick="forceAdvancePhase()">
+                    Proceed anyway (not recommended)
+                </button>
+            </div>`;
+    }
+
+    toolbar.innerHTML = html;
+}
+
+// ==================== PHASE TRANSITIONS ====================
+function addPhaseNotification(phase) {
+    const cfg = PHASE_CONFIG[phase];
+    const div = document.createElement('div');
+    div.className = 'phase-notification';
+    div.innerHTML = `
+        <i class="bi ${cfg.icon}"></i>
+        <div class="phase-notification-text">
+            <div class="phase-notification-label">${cfg.label}</div>
+            <div class="phase-notification-desc">${cfg.notificationText}</div>
+        </div>`;
+    elements.chatMessages.appendChild(div);
+    scrollToBottom();
+}
+
+function advancePhase() {
+    const currentIndex = PHASES.indexOf(chatState.currentPhase);
+    if (currentIndex >= PHASES.length - 1) return; // already at last phase
+
+    chatState.currentPhase = PHASES[currentIndex + 1];
+    chatState.nudgeGivenForTransition = false;
+
+    renderPhaseBar();
+    addPhaseNotification(chatState.currentPhase);
+    updatePhaseUI();
+}
+
+function tryAdvancePhase() {
+    // Only used for On Scene → Treatment transition
+    const missing = getOnSceneCheckpointsMissing();
+
+    if (missing.length === 0) {
+        advancePhase();
+        return;
+    }
+
+    // Build nudge prompt for AI
+    const missingList = missing.join(', ');
+    const proCoachingSuffix = chatState.isPro
+        ? ` After your nudge, add a brief educational note (2-3 sentences) explaining why these steps matter clinically. Label it: "**Clinical note:**"`
+        : '';
+
+    const nudgePrompt = `[PHASE TRANSITION NUDGE] The paramedic wants to move to the Treatment phase, but the following have not been done: ${missingList}. Give a natural, in-character nudge — as if a senior colleague is gently prompting them before they proceed. Do not break character. Do not use clinical jargon headings. Keep it conversational and brief.${proCoachingSuffix}`;
+
+    chatState.nudgeGivenForTransition = true;
+    renderPhaseToolbar(); // show the "Proceed anyway" option
+
+    // Send the nudge via the AI
+    if (chatState.isLoading) return;
+
+    const indicator = document.createElement('div');
+    indicator.className = 'hint-indicator';
+    indicator.innerHTML = `<i class="bi bi-arrow-right-circle me-1"></i>Checking assessment before advancing...`;
+    elements.chatMessages.appendChild(indicator);
+
+    const aiMessageId = 'ai-msg-' + Date.now();
+    addStreamingMessage(aiMessageId);
+
+    chatState.isLoading = true;
+    elements.sendBtn.disabled = true;
+
+    sendMessageToAPI(nudgePrompt, (partial) => {
+        updateStreamingMessage(aiMessageId, partial);
+    }).then(response => {
+        finalizeStreamingMessage(aiMessageId, response);
+        chatState.conversationHistory.push({ role: 'assistant', content: response });
+    }).catch(() => {
+        removeStreamingMessage(aiMessageId);
+    }).finally(() => {
+        chatState.isLoading = false;
+        elements.sendBtn.disabled = false;
+    });
+}
+
+function forceAdvancePhase() {
+    // User consciously overrides after receiving a nudge
+    if (confirm('Proceed to Treatment phase? The AI noted some gaps in your assessment — proceeding without addressing them will be reflected in your debrief.')) {
+        advancePhase();
+    }
+}
+
+function getOnSceneCheckpointsMissing() {
+    const missing = [];
+    if (!chatState.phaseCheckpoints.obsPerformed) missing.push('observations have not been taken');
+    if (!chatState.phaseCheckpoints.historyStarted) missing.push('history has not been started');
+    if (chatState.phaseMessageCounts.onscene < 2) missing.push('minimal patient interaction so far');
+    return missing;
+}
+
+// ==================== TREATMENT MODAL ====================
+function openTreatmentModal() {
+    elements.treatmentImpressionInput.value = '';
+    elements.treatmentPlanInput.value = '';
+    elements.treatmentReasoning.value = '';
+    const modal = new bootstrap.Modal(elements.treatmentModal);
+    modal.show();
+}
+
+async function submitTreatmentImpression() {
+    const impression = elements.treatmentImpressionInput.value.trim();
+    const plan = elements.treatmentPlanInput.value.trim();
+    if (!impression) { alert('Please enter your working impression'); return; }
+    if (!plan) { alert('Please enter your treatment plan'); return; }
+
+    const reasoning = elements.treatmentReasoning.value.trim();
+
+    // Store WI for later use in CPD record
+    chatState.phaseCheckpoints.workingImpression = impression;
+    chatState.phaseCheckpoints.treatmentSubmitted = true;
+
+    const modal = bootstrap.Modal.getInstance(elements.treatmentModal);
+    modal.hide();
+
+    let displayMessage = `**Working Impression:** ${impression}\n\n**Treatment Plan:** ${plan}`;
+    if (reasoning) displayMessage += `\n\n**Reasoning:** ${reasoning}`;
+
+    let triggerMessage = `[TREATMENT PHASE] My working impression is: ${impression}. My treatment plan: ${plan}.`;
+    if (reasoning) triggerMessage += ` Reasoning: ${reasoning}`;
+
+    addMessage('user', displayMessage);
+    chatState.conversationHistory.push({ role: 'user', content: triggerMessage });
+    chatState.phaseMessageCounts.treatment++;
+
+    const aiMessageId = 'ai-msg-' + Date.now();
+    addStreamingMessage(aiMessageId);
+    chatState.isLoading = true;
+    elements.sendBtn.disabled = true;
+
+    try {
+        const response = await sendMessageToAPI(triggerMessage, (partial) => {
+            updateStreamingMessage(aiMessageId, partial);
+        });
+        finalizeStreamingMessage(aiMessageId, response);
+        chatState.conversationHistory.push({ role: 'assistant', content: response });
+    } catch (error) {
+        removeStreamingMessage(aiMessageId);
+        addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+    } finally {
+        chatState.isLoading = false;
+        elements.sendBtn.disabled = false;
+    }
+
+    // Refresh toolbar to show "Proceed to Handover"
+    renderPhaseToolbar();
+}
+
+// ==================== COMPLETE SCENARIO (end of Handover) ====================
+async function completeScenario() {
+    if (chatState.isLoading) return;
+
+    const completedScenarioId = chatState.currentScenario;
+    const impression = chatState.phaseCheckpoints.workingImpression || 'Not recorded';
+
+    // Use existing DEBRIEF MODE trigger with the stored impression
+    let triggerMessage = `[DEBRIEF MODE] My working impression was: ${impression}. I have now completed my ATMIST handover. Please provide the full debrief.`;
+
+    addMessage('user', '✓ Handover complete — requesting debrief');
+    chatState.conversationHistory.push({ role: 'user', content: triggerMessage });
+
+    const aiMessageId = 'ai-msg-' + Date.now();
+    addStreamingMessage(aiMessageId);
+    chatState.isLoading = true;
+    elements.sendBtn.disabled = true;
+
+    // Hide phase toolbar during debrief
+    elements.phaseToolbar.style.display = 'none';
+
+    try {
+        const response = await sendMessageToAPI(triggerMessage, (partial) => {
+            updateStreamingMessage(aiMessageId, partial);
+        });
+        finalizeStreamingMessage(aiMessageId, response);
+        chatState.conversationHistory.push({ role: 'assistant', content: response });
+
+        // CPD record save — same logic as scenarios.html
+        if (chatState.isPro && completedScenarioId) {
+            const result = parseDebriefResult(response);
+            const recordId = await saveCpdRecord(completedScenarioId, impression, result);
+            if (recordId) {
+                const successDiv = document.createElement('div');
+                successDiv.className = 'alert alert-success mx-2 my-2';
+                successDiv.style.cssText = 'border-left: 4px solid #5CB85C;';
+                successDiv.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-award me-2"></i>
+                        <div>
+                            <strong>CPD Record Saved!</strong>
+                            <div class="small">View and download your certificate from the CPD Portfolio.</div>
+                        </div>
+                    </div>`;
+                elements.chatMessages.appendChild(successDiv);
+                successDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        } else if (!chatState.isPro && completedScenarioId) {
+            const upgradeDiv = document.createElement('div');
+            upgradeDiv.className = 'alert alert-info mx-2 my-2';
+            upgradeDiv.style.cssText = 'border-left: 4px solid #17a2b8;';
+            upgradeDiv.innerHTML = `
+                <div class="d-flex align-items-start">
+                    <i class="bi bi-star me-2 mt-1"></i>
+                    <div>
+                        <strong>Upgrade to Pro for CPD Tracking</strong>
+                        <div class="small mb-2">Save this scenario to your CPD Portfolio and download a certificate!</div>
+                        <button class="btn btn-primary btn-sm" onclick="createCheckoutSession()">
+                            <i class="bi bi-star me-1"></i>Upgrade Now — £4.99/month
+                        </button>
+                    </div>
+                </div>`;
+            elements.chatMessages.appendChild(upgradeDiv);
+        }
+
+    } catch (error) {
+        removeStreamingMessage(aiMessageId);
+        addMessage('assistant', 'Sorry, I encountered an error generating your debrief.');
+    } finally {
+        chatState.isLoading = false;
+        elements.sendBtn.disabled = false;
+        chatState.currentScenario = null;
+    }
+}
+
+// ==================== MESSAGE FUNCTIONS ====================
+function formatMessage(content) {
+    let processed = content.replace(/^[ \t]*•[ \t]*/gm, '- ');
+    if (typeof marked !== 'undefined') {
+        return marked.parse(processed);
+    }
+    return processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+}
+
+function parseSpeaker(content) {
+    const m = content.match(/^\*([^*]+)\*\s*/);
+    if (!m) return { speakerLabel: 'Patient', cleanedText: content, isNamedSpeaker: false };
+    const raw = m[1];
+    const isNamed = /^[A-Z]/.test(raw);
+    const cleanedText = content.slice(m[0].length).trim();
+    if (!isNamed) return { speakerLabel: 'Patient', cleanedText, isNamedSpeaker: false };
+    const label = raw
+        .replace(/,.*$/, '')
+        .replace(/\s+speaking\s*$/i, '')
+        .replace(/\s+on\s+\S+.*$/i, '')
+        .trim();
+    return { speakerLabel: label, cleanedText, isNamedSpeaker: true };
+}
+
+function addMessage(role, content) {
+    const messageDiv = document.createElement('div');
+    let avatarIcon, speakerLabel, isNamedSpeaker, displayContent;
+
+    if (role === 'assistant') {
+        const parsed = parseSpeaker(content);
+        speakerLabel = parsed.speakerLabel;
+        isNamedSpeaker = parsed.isNamedSpeaker;
+        displayContent = parsed.cleanedText;
+        messageDiv.className = `message ${isNamedSpeaker ? 'relative' : 'patient'}`;
+        avatarIcon = isNamedSpeaker ? 'bi-people-fill' : 'bi-person-fill';
+    } else {
+        messageDiv.className = `message ${role}`;
+        avatarIcon = 'bi-person';
+        displayContent = content;
+    }
+
+    const speakerLabelHtml = (role === 'assistant')
+        ? `<div class="msg-speaker-label">${speakerLabel}</div>` : '';
+
+    messageDiv.innerHTML = `
+        <div class="message-avatar"><i class="bi ${avatarIcon}"></i></div>
+        <div class="message-content">${speakerLabelHtml}${formatMessage(displayContent)}</div>`;
+
+    elements.chatMessages.appendChild(messageDiv);
+    scrollToBottom();
+}
+
+function addStreamingMessage(messageId) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message patient';
+    messageDiv.id = messageId;
+    messageDiv.innerHTML = `
+        <div class="message-avatar"><i class="bi bi-person-fill"></i></div>
+        <div class="message-content">
+            <div class="msg-speaker-label">Patient</div>
+            <span class="streaming-text"></span><span class="streaming-cursor">|</span>
+        </div>`;
+    elements.chatMessages.appendChild(messageDiv);
+    scrollToBottom();
+}
+
+let userHasScrolledUp = false;
+elements.chatMessages.addEventListener('scroll', function () {
+    userHasScrolledUp = (this.scrollHeight - this.scrollTop - this.clientHeight) >= 100;
+});
+
+function updateStreamingMessage(messageId, content) {
+    const messageDiv = document.getElementById(messageId);
+    if (!messageDiv) return;
+    const textSpan = messageDiv.querySelector('.streaming-text');
+    if (textSpan) {
+        textSpan.innerHTML = content
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\n/g, '<br>');
+    }
+    if (!userHasScrolledUp) elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+}
+
+function finalizeStreamingMessage(messageId, content) {
+    const messageDiv = document.getElementById(messageId);
+    if (!messageDiv) return;
+    const contentDiv = messageDiv.querySelector('.message-content');
+    if (contentDiv) {
+        contentDiv.innerHTML = `<div class="msg-speaker-label">Patient</div>${formatMessage(content)}`;
+    }
+    userHasScrolledUp = false;
+}
+
+function removeStreamingMessage(messageId) {
+    const el = document.getElementById(messageId);
+    if (el) el.remove();
+}
+
+function scrollToBottom() {
+    elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+}
+
+// ==================== DETERIORATION SYSTEM ====================
+function addDeteriorationAlert(phase) {
+    const config = window.scenarioData.DETERIORATION_CONFIG.alerts[phase];
+    if (!config) return;
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `deterioration-alert deterioration-${phase}`;
+    alertDiv.innerHTML = `
+        <div class="deterioration-icon">${config.icon}</div>
+        <div class="deterioration-content">
+            <div class="deterioration-title">${config.title}</div>
+            <div class="deterioration-message">${config.message}</div>
+        </div>`;
+    elements.chatMessages.appendChild(alertDiv);
+    scrollToBottom();
+}
+
+function checkDeterioration() {
+    if (!chatState.currentScenario || chatState.currentPhase !== 'onscene') return;
+    const phase = window.scenarioData.getDeteriorationPhase(
+        chatState.deterioration.exchangesSinceKeyAssessment,
+        chatState.currentDifficultyLevel
+    );
+    if (phase === 'critical' && !chatState.deterioration.criticalShown) {
+        chatState.deterioration.currentPhase = 'critical';
+        chatState.deterioration.criticalShown = true;
+        addDeteriorationAlert('critical');
+    } else if (phase === 'warning' && !chatState.deterioration.warningShown) {
+        chatState.deterioration.currentPhase = 'warning';
+        chatState.deterioration.warningShown = true;
+        addDeteriorationAlert('warning');
+    }
+}
+
+function resetDeteriorationCounter() {
+    chatState.deterioration.exchangesSinceKeyAssessment = 0;
+}
+
+function incrementDeteriorationCounter() {
+    chatState.deterioration.exchangesSinceKeyAssessment++;
+}
+
+// ==================== API CALL ====================
+async function sendMessageToAPI(message, onChunk) {
+    const user = auth.currentUser;
+    if (!user) throw new Error('Not authenticated');
+    const token = await user.getIdToken();
+
+    // Build scenario prompt with phase context appended
+    let scenarioPrompt = chatState.currentScenario
+        ? window.scenarioData.getScenarioSystemPrompt(
+            chatState.currentScenario,
+            chatState.currentDifficultyLevel,
+            chatState.deterioration.currentPhase
+          )
+        : null;
+
+    // Append phase context for AI
+    if (scenarioPrompt && PHASE_CONFIG[chatState.currentPhase]) {
+        const phaseContext = PHASE_CONFIG[chatState.currentPhase].contextForAI;
+        if (phaseContext) scenarioPrompt += phaseContext;
+    }
+
+    const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.chatEndpoint}`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            message: message,
+            conversationHistory: chatState.conversationHistory.slice(-10).filter(m => m.role !== 'system'),
+            scenarioId: chatState.currentScenario || null,
+            scenarioPrompt: scenarioPrompt
+        })
+    });
+
+    if (!response.ok) {
+        if (response.status === 429) throw new Error('LIMIT_REACHED');
+        throw new Error('Failed to send message');
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let fullMessage = '';
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const text = decoder.decode(value, { stream: true });
+        for (const line of text.split('\n')) {
+            if (line.startsWith('data: ')) {
+                try {
+                    const data = JSON.parse(line.slice(6));
+                    if (data.type === 'meta' && data.remaining !== undefined) {
+                        chatState.messagesRemaining = data.remaining;
+                        if (chatState.userData) chatState.userData.dailyMessageCount = 20 - data.remaining;
+                        updateMessageCounter();
+                    } else if (data.type === 'chunk') {
+                        fullMessage += data.content;
+                        if (onChunk) onChunk(fullMessage);
+                    } else if (data.type === 'error') {
+                        throw new Error(data.error);
+                    }
+                } catch (e) { /* skip non-JSON lines */ }
+            }
+        }
+    }
+
+    return fullMessage;
+}
+
+// ==================== SEND MESSAGE ====================
+async function handleSendMessage(e) {
+    if (e) e.preventDefault();
+
+    const message = elements.messageInput.value.trim();
+    if (!message || chatState.isLoading) return;
+
+    if (!chatState.isPro && chatState.messagesRemaining <= 0) {
+        showLimitReached();
+        return;
+    }
+
+    elements.messageInput.value = '';
+    elements.messageInput.style.height = 'auto';
+
+    addMessage('user', message);
+    chatState.conversationHistory.push({ role: 'user', content: message });
+    chatState.scenarioProgress.questionsAsked++;
+
+    // Track per-phase message count
+    chatState.phaseMessageCounts[chatState.currentPhase]++;
+
+    // Mark history checkpoint if in On Scene and enough conversation
+    if (chatState.currentPhase === 'onscene' && chatState.phaseMessageCounts.onscene >= 3) {
+        chatState.phaseCheckpoints.historyStarted = true;
+    }
+
+    // Only run deterioration in On Scene phase
+    if (chatState.currentPhase === 'onscene') {
+        incrementDeteriorationCounter();
+    }
+
+    // Refresh toolbar (e.g. En Route button enables after first exchange)
+    if (chatState.currentPhase === 'enroute' && chatState.phaseMessageCounts.enroute === 1) {
+        renderPhaseToolbar();
+    }
+    // Refresh handover complete button after first exchange
+    if (chatState.currentPhase === 'handover' && chatState.phaseMessageCounts.handover === 1) {
+        renderPhaseToolbar();
+    }
+
+    const aiMessageId = 'ai-msg-' + Date.now();
+    addStreamingMessage(aiMessageId);
+    chatState.isLoading = true;
+    elements.sendBtn.disabled = true;
+
+    try {
+        const response = await sendMessageToAPI(message, (partial) => {
+            updateStreamingMessage(aiMessageId, partial);
+        });
+        finalizeStreamingMessage(aiMessageId, response);
+        chatState.conversationHistory.push({ role: 'assistant', content: response });
+        if (chatState.currentPhase === 'onscene') checkDeterioration();
+    } catch (error) {
+        removeStreamingMessage(aiMessageId);
+        if (error.message === 'LIMIT_REACHED') {
+            showLimitReached();
+        } else {
+            addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+        }
+    } finally {
+        chatState.isLoading = false;
+        elements.sendBtn.disabled = false;
+    }
+}
+
+// ==================== ASSESSMENT ====================
+async function handleAssessment(assessmentType) {
+    const assessment = ASSESSMENT_PROMPTS[assessmentType];
+    if (!assessment || !chatState.currentScenario || chatState.isLoading) return;
+
+    if (!chatState.isPro && chatState.messagesRemaining <= 0) {
+        showLimitReached();
+        return;
+    }
+
+    chatState.scenarioProgress.assessmentsPerformed++;
+
+    // Mark obs checkpoint for any physical assessment
+    const physicalAssessments = ['obs', 'ecg', 'chest', 'abdo', 'neuro', 'skin', 'fast', 'mend', 'scene'];
+    if (physicalAssessments.includes(assessmentType)) {
+        chatState.phaseCheckpoints.obsPerformed = true;
+    }
+
+    // Mark history checkpoint for history-type assessments
+    const historyAssessments = ['history', 'pain', 'meds', 'social'];
+    if (historyAssessments.includes(assessmentType)) {
+        chatState.phaseCheckpoints.historyStarted = true;
+    }
+
+    if (!window.scenarioData.isKeyAssessment(assessmentType)) {
+        incrementDeteriorationCounter();
+    }
+
+    const indicator = document.createElement('div');
+    indicator.className = 'assessment-indicator';
+    indicator.innerHTML = `<i class="bi bi-clipboard2-pulse me-1"></i>Performing: ${assessment.name}`;
+    elements.chatMessages.appendChild(indicator);
+
+    const aiMessageId = 'ai-msg-' + Date.now();
+    addStreamingMessage(aiMessageId);
+    chatState.isLoading = true;
+    elements.sendBtn.disabled = true;
+
+    try {
+        const response = await sendMessageToAPI(assessment.prompt, (partial) => {
+            updateStreamingMessage(aiMessageId, partial);
+        });
+        finalizeStreamingMessage(aiMessageId, response);
+        chatState.conversationHistory.push({ role: 'user', content: `[Assessment: ${assessment.name}]` });
+        chatState.conversationHistory.push({ role: 'assistant', content: response });
+    } catch (error) {
+        removeStreamingMessage(aiMessageId);
+        if (error.message === 'LIMIT_REACHED') {
+            showLimitReached();
+        } else {
+            addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+        }
+    } finally {
+        chatState.isLoading = false;
+        elements.sendBtn.disabled = false;
+    }
+}
+
+// ==================== HINT ====================
+async function handleHint() {
+    if (!chatState.currentScenario || chatState.isLoading) return;
+    if (!chatState.isPro && chatState.messagesRemaining <= 0) {
+        showLimitReached();
+        return;
+    }
+
+    const indicator = document.createElement('div');
+    indicator.className = 'hint-indicator';
+    indicator.innerHTML = `<i class="bi bi-lightbulb me-1"></i>Requesting hint...`;
+    elements.chatMessages.appendChild(indicator);
+
+    const aiMessageId = 'ai-msg-' + Date.now();
+    addStreamingMessage(aiMessageId);
+    chatState.isLoading = true;
+
+    try {
+        const response = await sendMessageToAPI('[HINT MODE] Give me a gentle hint about what I should consider next.', (partial) => {
+            updateStreamingMessage(aiMessageId, partial);
+        });
+        finalizeStreamingMessage(aiMessageId, response);
+        chatState.conversationHistory.push({ role: 'assistant', content: response });
+    } catch (error) {
+        removeStreamingMessage(aiMessageId);
+        addMessage('assistant', 'Sorry, I could not provide a hint right now.');
+    } finally {
+        chatState.isLoading = false;
+    }
+}
+
+// ==================== END SCENARIO ====================
+function endScenario() {
+    if (confirm('Are you sure you want to end this scenario?')) {
+        chatState.currentScenario = null;
+        chatState.conversationHistory = [];
+        chatState.currentPhase = 'dispatch';
+        elements.phaseToolbar.style.display = 'none';
+        elements.assessmentToolbar.style.display = 'none';
+        showCategoryView();
+    }
+}
+
+// ==================== LIMIT REACHED ====================
+function showLimitReached() {
+    addMessage('assistant', `**Daily message limit reached**\n\nYou've used all 20 free messages for today. Your limit resets at midnight.\n\nUpgrade to Pro for unlimited messages.`);
+}
+
+// ==================== UPGRADE ====================
+async function createCheckoutSession() {
+    try {
+        const user = auth.currentUser;
+        if (!user) return;
+        const token = await user.getIdToken();
+        const checkoutUrl = window.paramind?.CONFIG?.api?.createCheckout || '/createCheckoutSession';
+        const response = await fetch(`${API_CONFIG.baseUrl}${checkoutUrl}`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        if (response.ok) window.location.href = data.url;
+    } catch (error) {
+        console.error('Checkout error:', error);
+    }
+}
+
+// ==================== CPD HELPERS ====================
+function parseDebriefResult(response) {
+    const upper = response.toUpperCase();
+    if (upper.includes('VERDICT: CORRECT') || upper.includes('VERDICT:**CORRECT') || upper.includes('VERDICT: **CORRECT')) return 'correct';
+    if (upper.includes('PARTIALLY CORRECT') || upper.includes('PARTIAL')) return 'partially_correct';
+    if (upper.includes('INCORRECT')) return 'incorrect';
+    return 'partially_correct';
+}
+
+async function saveCpdRecord(scenarioId, userImpression, result) {
+    if (!chatState.isPro) return null;
+    try {
+        const user = auth.currentUser;
+        if (!user) return null;
+        const token = await user.getIdToken();
+        const scenario = window.scenarioData.getScenarioById(scenarioId);
+        if (!scenario) return null;
+
+        const cpdData = {
+            scenarioId,
+            scenarioCode: generateJobCode(scenario),
+            scenarioType: formatScenarioType(scenario),
+            scenarioCategory: scenario.category,
+            patientName: scenario.dispatch.name || 'Unknown',
+            chiefComplaint: scenario.dispatch.chiefComplaint,
+            correctDiagnosis: scenario.patient.condition,
+            userImpression,
+            result,
+            questionsAsked: chatState.scenarioProgress.questionsAsked,
+            assessmentsPerformed: chatState.scenarioProgress.assessmentsPerformed
+        };
+
+        const response = await fetch(`${API_CONFIG.baseUrl}/saveCpdRecord`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(cpdData)
+        });
+
+        if (!response.ok) throw new Error('Failed to save CPD record');
+        const data = await response.json();
+        return data.recordId;
+    } catch (error) {
+        console.error('Error saving CPD record:', error);
+        return null;
+    }
+}
+
+function generateJobCode(scenario) {
+    const category = scenario.category.toUpperCase().substring(0, 3);
+    const id = scenario.id.split('-')[1] || '001';
+    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    return `${category}-${dateStr}-${id}`;
+}
+
+function formatScenarioType(scenario) {
+    const categoryInfo = window.scenarioData.SCENARIO_CATEGORIES[scenario.category];
+    const categoryTitle = categoryInfo ? categoryInfo.title : scenario.category;
+    return `${categoryTitle}: ${scenario.dispatch.chiefComplaint}`;
+}
+
+// ==================== EVENT LISTENERS ====================
+elements.backToCategories.addEventListener('click', (e) => {
+    e.preventDefault();
+    showCategoryView();
+});
+
+elements.startScenarioBtn.addEventListener('click', startScenario);
+
+// Send button click (no form submit — avoids mobile keyboard issues)
+elements.sendBtn.addEventListener('click', handleSendMessage);
+
+elements.messageInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSendMessage();
+    }
+});
+
+elements.messageInput.addEventListener('input', function () {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+
+elements.endScenarioBtn.addEventListener('click', endScenario);
+
+elements.hintBtn.addEventListener('click', handleHint);
+
+elements.submitTreatmentBtn.addEventListener('click', submitTreatmentImpression);
+
+// Assessment picker modal
+const assessmentPickerModal = new bootstrap.Modal(document.getElementById('assessmentPickerModal'));
+document.getElementById('openAssessmentModal').addEventListener('click', () => {
+    assessmentPickerModal.show();
+});
+
+document.querySelectorAll('.assessment-option[data-assessment]').forEach(item => {
+    item.addEventListener('click', (e) => {
+        e.preventDefault();
+        assessmentPickerModal.hide();
+        handleAssessment(item.dataset.assessment);
+    });
+});
+
+// Difficulty selector
+document.querySelectorAll('input[name="difficultyLevel"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+        chatState.currentDifficultyLevel = parseInt(e.target.value);
+        const descriptions = {
+            1: 'Classic presentations, cooperative patients',
+            2: 'Realistic presentations, some complexity',
+            3: 'Atypical presentations, complex patients'
+        };
+        document.getElementById('difficultyDescription').textContent = descriptions[chatState.currentDifficultyLevel];
+    });
+});
+
+</script>
+<script src="js/upgrade-modal.js"></script>
+
+</body>
+</html>
