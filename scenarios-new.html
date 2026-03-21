@@ -858,7 +858,7 @@ const PHASE_CONFIG = {
         showAssessmentToolbar: false,
         showHint: false,
         notificationText: 'Dispatch — Review the call details. You can ask pre-arrival questions before responding.',
-        contextForAI: `\n\n[PHASE CONTEXT: DISPATCH]\nThe paramedic is reviewing the dispatch information and may ask pre-arrival questions. Respond as the MDT system / dispatch narrator. Provide any additional call details if asked. Keep it brief and realistic MDT-style. Do not initiate patient contact — the paramedic is not yet on scene.`
+        contextForAI: `\n\n========== PHASE OVERRIDE — TAKES PRIORITY OVER ALL OTHER INSTRUCTIONS ==========\nCURRENT PHASE: DISPATCH. The paramedic has NOT yet arrived on scene. You MUST NOT respond as the patient or any other character from the scenario. The patient interaction has not started yet. Instead, respond as the MDT dispatch system — provide brief, realistic additional call details if asked, or acknowledge the question in a short MDT-style message. Do NOT use patient dialogue. Do NOT use PATIENT: or RELATIVE: prefixes. Keep it to 1-3 sentences.\n========== END PHASE OVERRIDE ==========`
     },
     enroute: {
         label: 'En Route',
@@ -869,7 +869,7 @@ const PHASE_CONFIG = {
         showAssessmentToolbar: false,
         showHint: false,
         notificationText: 'En Route — Think ahead. What are your clinical priorities on arrival?',
-        contextForAI: `\n\n[PHASE CONTEXT: EN ROUTE]\nThe paramedic is en route to scene. Engage with their pre-arrival clinical thinking. If they share their plan, respond encouragingly and ask one probing question (e.g., equipment, pre-alerts, differential considerations). If they haven't said much, you may gently prompt: "What's your pre-arrival plan given what you know so far?" Keep responses brief and practical.`
+        contextForAI: `\n\n========== PHASE OVERRIDE — TAKES PRIORITY OVER ALL OTHER INSTRUCTIONS ==========\nCURRENT PHASE: EN ROUTE. The paramedic has NOT yet arrived on scene. You MUST NOT respond as the patient or any other character from the scenario. The patient interaction has not started yet. Instead, respond as a brief internal voice / clinical thinking prompt — engage with the paramedic's pre-arrival thinking, ask one short probing question (e.g. about equipment, pre-alerts, or differentials), and keep your response to 2-4 sentences. Do NOT use patient dialogue. Do NOT use PATIENT: or RELATIVE: prefixes.\n========== END PHASE OVERRIDE ==========`
     },
     onscene: {
         label: 'On Scene',
@@ -1647,10 +1647,17 @@ async function sendMessageToAPI(message, onChunk) {
           )
         : null;
 
-    // Append phase context for AI
+    // Inject phase context — prepend for pre-scene phases so it overrides the roleplay instruction,
+    // append for On Scene / Handover where the scenario prompt should lead
     if (scenarioPrompt && PHASE_CONFIG[chatState.currentPhase]) {
         const phaseContext = PHASE_CONFIG[chatState.currentPhase].contextForAI;
-        if (phaseContext) scenarioPrompt += phaseContext;
+        if (phaseContext) {
+            if (chatState.currentPhase === 'dispatch' || chatState.currentPhase === 'enroute') {
+                scenarioPrompt = phaseContext + '\n\n' + scenarioPrompt;
+            } else {
+                scenarioPrompt += phaseContext;
+            }
+        }
     }
 
     const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.chatEndpoint}`, {
