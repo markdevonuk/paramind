@@ -369,6 +369,15 @@
         
         firebase.auth().onAuthStateChanged(function(user) {
             if (user) {
+                // Update last login time on every page load (fire-and-forget)
+                if (firebase.firestore) {
+                    firebase.firestore().collection('users').doc(user.uid).update({
+                        lastLogin: new Date().toISOString()
+                    }).catch(function(err) {
+                        console.warn('Menu: Could not update lastLogin:', err);
+                    });
+                }
+
                 // User is signed in - get their data from Firestore
                 if (firebase.firestore) {
                     firebase.firestore().collection('users').doc(user.uid).get()
