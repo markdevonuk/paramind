@@ -640,7 +640,10 @@
                 case 'email':     return (user.email || '').toLowerCase();
                 case 'trust':     return (user.trust || '').toLowerCase();
                 case 'status':    return (user.subscriptionStatus || '').toLowerCase();
-                case 'platform':  return (user.subscriptionPlatform || '').toLowerCase();
+                case 'platform':
+                    if (user.subscriptionPlatform === 'apple') return 'apple';
+                    if (user.stripeSubscriptionId) return 'stripe';
+                    return '';
                 case 'lastLogin': return user.lastLogin || '';
                 case 'createdAt': return user.createdAt || '';
                 default:          return '';
