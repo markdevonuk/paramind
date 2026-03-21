@@ -348,16 +348,16 @@
             box-shadow: none;
         }
 
-        /* Treatment action button (different colour) */
-        .phase-treatment-btn {
+        /* Working impression button */
+        .phase-wi-btn {
             width: 100%;
             border-radius: 8px;
             padding: 11px 20px;
             font-size: 0.85rem;
             font-weight: 700;
-            background: linear-gradient(145deg, rgba(92, 184, 92, 0.12) 0%, rgba(76, 174, 76, 0.12) 100%);
-            border: 1.5px solid #5cb85c;
-            color: #5cb85c;
+            background: linear-gradient(145deg, rgba(43,138,156,0.12) 0%, rgba(30,120,136,0.12) 100%);
+            border: 1.5px solid var(--color-teal);
+            color: var(--color-teal);
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
@@ -366,10 +366,10 @@
             font-family: 'JetBrains Mono', monospace;
             cursor: pointer;
         }
-        .phase-treatment-btn:hover {
-            background: linear-gradient(145deg, #5cb85c 0%, #4cae4c 100%);
+        .phase-wi-btn:hover {
+            background: linear-gradient(145deg, var(--color-teal) 0%, var(--color-teal-dark) 100%);
             color: white;
-            box-shadow: 0 4px 15px rgba(92, 184, 92, 0.3);
+            box-shadow: 0 4px 15px rgba(43,138,156,0.3);
         }
 
         /* Complete scenario button */
@@ -551,11 +551,6 @@
                 <span class="phase-step-name">On Scene</span>
             </div>
             <div class="phase-connector" id="phaseConn-2"></div>
-            <div class="phase-step pending" id="phaseStep-treatment">
-                <div class="phase-dot"><i class="bi bi-heart-pulse"></i></div>
-                <span class="phase-step-name">Treatment</span>
-            </div>
-            <div class="phase-connector" id="phaseConn-3"></div>
             <div class="phase-step pending" id="phaseStep-handover">
                 <div class="phase-dot"><i class="bi bi-clipboard-check"></i></div>
                 <span class="phase-step-name">Handover</span>
@@ -630,7 +625,7 @@
                 </div>
                 <p class="small text-muted">
                     <i class="bi bi-info-circle me-1"></i>
-                    Work through all five phases: Dispatch, En Route, On Scene, Treatment, and Handover.
+                    Work through all four phases: Dispatch, En Route, On Scene, and Handover.
                 </p>
                 <div class="difficulty-selector">
                     <label class="form-label fw-bold">Select Difficulty Level:</label>
@@ -661,32 +656,28 @@
     </div>
 </div>
 
-<!-- ==================== TREATMENT MODAL ==================== -->
-<div class="modal fade impression-modal" id="treatmentModal" tabindex="-1">
+<!-- ==================== WORKING IMPRESSION MODAL ==================== -->
+<div class="modal fade impression-modal" id="workingImpressionModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-heart-pulse me-2"></i>Working Impression &amp; Treatment Plan</h5>
+                <h5 class="modal-title"><i class="bi bi-clipboard-check me-2"></i>Working Impression</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label for="treatmentImpressionInput" class="form-label fw-bold">Working Impression</label>
-                    <input type="text" class="form-control" id="treatmentImpressionInput" placeholder="e.g., Acute coronary syndrome, Pneumonia">
-                </div>
-                <div class="mb-3">
-                    <label for="treatmentPlanInput" class="form-label fw-bold">Treatment Plan</label>
-                    <textarea class="form-control" id="treatmentPlanInput" rows="3" placeholder="What treatment will you initiate? e.g., High-flow O2, IV access, aspirin 300mg, 12-lead ECG, pre-alert to ED..."></textarea>
+                    <label for="workingImpressionInput" class="form-label fw-bold">What is your working impression?</label>
+                    <input type="text" class="form-control" id="workingImpressionInput" placeholder="e.g., Acute coronary syndrome, Pneumonia">
                 </div>
                 <div class="mb-2">
-                    <label for="treatmentReasoning" class="form-label">Clinical Reasoning <span class="text-muted fw-normal">(optional)</span></label>
-                    <textarea class="form-control" id="treatmentReasoning" rows="2" placeholder="Brief reasoning behind your impression..."></textarea>
+                    <label for="impressionReasoning" class="form-label">Clinical Reasoning <span class="text-muted fw-normal">(optional)</span></label>
+                    <textarea class="form-control" id="impressionReasoning" rows="3" placeholder="Explain your clinical reasoning..."></textarea>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="submitTreatmentBtn">
-                    <i class="bi bi-check-lg me-1"></i>Submit Assessment &amp; Plan
+                <button type="button" class="btn btn-primary" id="submitImpressionBtn">
+                    <i class="bi bi-check-lg me-1"></i>Submit Working Impression
                 </button>
             </div>
         </div>
@@ -855,7 +846,7 @@ const ASSESSMENT_PROMPTS = {
 };
 
 // ==================== PHASE CONFIGURATION ====================
-const PHASES = ['dispatch', 'enroute', 'onscene', 'treatment', 'handover'];
+const PHASES = ['dispatch', 'enroute', 'onscene', 'handover'];
 
 const PHASE_CONFIG = {
     dispatch: {
@@ -883,24 +874,13 @@ const PHASE_CONFIG = {
     onscene: {
         label: 'On Scene',
         icon: 'bi-person-fill',
-        advanceLabel: 'Proceed to Treatment',
-        advanceIcon: 'bi-heart-pulse',
+        advanceLabel: 'Proceed to Handover',
+        advanceIcon: 'bi-clipboard-check',
         inputPlaceholder: 'Talk to the patient or ask questions...',
         showAssessmentToolbar: true,
         showHint: true,
         notificationText: 'On Scene — Assess your patient. Take a history, perform examinations, gather all the information you need.',
         contextForAI: `` // default scenario roleplay — no override needed
-    },
-    treatment: {
-        label: 'Treatment',
-        icon: 'bi-heart-pulse',
-        advanceLabel: 'Proceed to Handover',
-        advanceIcon: 'bi-clipboard-check',
-        inputPlaceholder: 'Discuss your clinical reasoning...',
-        showAssessmentToolbar: false,
-        showHint: false,
-        notificationText: 'Treatment Phase — State your working impression and treatment plan.',
-        contextForAI: `\n\n[PHASE CONTEXT: TREATMENT]\nThe paramedic has stated their working impression and treatment plan. Respond as a senior paramedic colleague / clinical supervisor. Acknowledge their assessment briefly, note any significant gap in the treatment plan with one focused question if needed, and give 2-3 sentences of constructive feedback on their reasoning. Do NOT give a full debrief yet — that comes after handover.`
     },
     handover: {
         label: 'Handover',
@@ -911,7 +891,7 @@ const PHASE_CONFIG = {
         showAssessmentToolbar: false,
         showHint: false,
         notificationText: 'Handover — Deliver your ATMIST handover to the receiving clinician.',
-        contextForAI: `\n\n[PHASE CONTEXT: HANDOVER]\nThe paramedic is at hospital delivering an ATMIST handover. You are now playing the A&E charge nurse / doctor receiving the patient. Respond as a realistic receiving clinician — acknowledge key findings, ask one or two questions about anything missing from the ATMIST (Age, Time of onset, Mechanism/Medical history, Injuries or key findings, Signs/vital signs, Treatment given), and confirm safe receipt of the patient. Be professional and concise.`
+        contextForAI: `\n\n[PHASE CONTEXT: HANDOVER]\nThe paramedic is at hospital delivering an ATMIST handover. You are now playing the A&E charge nurse / doctor receiving the patient. Respond as a realistic receiving clinician — acknowledge key findings, ask one or two questions about anything missing from the ATMIST (Age, Time of onset, Mechanism/Medical history, Injuries or key findings, Signs/vital signs), and confirm safe receipt of the patient. Be professional and concise.`
     }
 };
 
@@ -942,14 +922,12 @@ const chatState = {
         dispatch: 0,
         enroute: 0,
         onscene: 0,
-        treatment: 0,
         handover: 0
     },
     phaseCheckpoints: {
-        obsPerformed: false,         // any physical assessment done in On Scene
-        historyStarted: false,       // history/pain/meds/social done, OR 3+ exchanges in On Scene
-        treatmentSubmitted: false,   // treatment modal submitted
-        workingImpression: ''        // stored for CPD record
+        obsPerformed: false,       // any physical assessment done in On Scene
+        historyStarted: false,     // history-type assessment done, OR 3+ exchanges in On Scene
+        workingImpression: ''      // stored for CPD record / debrief
     },
     nudgeGivenForTransition: false  // true once a nudge has been given for the current transition attempt
 };
@@ -979,11 +957,10 @@ const elements = {
     modalPatient: document.getElementById('modalPatient'),
     modalCategory: document.getElementById('modalCategory'),
     modalCondition: document.getElementById('modalCondition'),
-    treatmentModal: document.getElementById('treatmentModal'),
-    treatmentImpressionInput: document.getElementById('treatmentImpressionInput'),
-    treatmentPlanInput: document.getElementById('treatmentPlanInput'),
-    treatmentReasoning: document.getElementById('treatmentReasoning'),
-    submitTreatmentBtn: document.getElementById('submitTreatmentBtn'),
+    workingImpressionModal: document.getElementById('workingImpressionModal'),
+    workingImpressionInput: document.getElementById('workingImpressionInput'),
+    impressionReasoning: document.getElementById('impressionReasoning'),
+    submitImpressionBtn: document.getElementById('submitImpressionBtn'),
     messageLimitBanner: document.getElementById('messageLimitBanner'),
     messagesUsed: document.getElementById('messagesUsed')
 };
@@ -1151,8 +1128,8 @@ function startScenario() {
 
     // Reset phase state
     chatState.currentPhase = 'dispatch';
-    chatState.phaseMessageCounts = { dispatch: 0, enroute: 0, onscene: 0, treatment: 0, handover: 0 };
-    chatState.phaseCheckpoints = { obsPerformed: false, historyStarted: false, treatmentSubmitted: false, workingImpression: '' };
+    chatState.phaseMessageCounts = { dispatch: 0, enroute: 0, onscene: 0, handover: 0 };
+    chatState.phaseCheckpoints = { obsPerformed: false, historyStarted: false, workingImpression: '' };
     chatState.nudgeGivenForTransition = false;
 
     elements.chatMessages.innerHTML = '';
@@ -1233,24 +1210,31 @@ function renderPhaseToolbar() {
     const cfg = PHASE_CONFIG[phase];
     const toolbar = elements.phaseToolbar;
 
-    // Always show the toolbar while a scenario is active
     toolbar.style.display = 'flex';
     toolbar.style.flexDirection = 'column';
     toolbar.style.gap = '0.5rem';
 
     let html = '';
 
-    if (phase === 'treatment' && !chatState.phaseCheckpoints.treatmentSubmitted) {
-        // Treatment phase — show "State WI & Treatment Plan" button first
+    if (phase === 'onscene' && !chatState.phaseCheckpoints.workingImpression) {
+        // On Scene — show "State Working Impression" button + standard advance button
         html += `
-            <button class="btn phase-treatment-btn" id="phaseActionBtn" onclick="openTreatmentModal()">
-                <i class="bi bi-heart-pulse me-2"></i>State Working Impression &amp; Treatment Plan
+            <button class="btn phase-wi-btn" id="phaseWIBtn" onclick="openWorkingImpressionModal()">
+                <i class="bi bi-clipboard-check me-2"></i>State My Working Impression
+            </button>
+            <button class="btn phase-advance-btn" id="phaseActionBtn" onclick="tryAdvancePhase()">
+                <i class="bi ${cfg.advanceIcon} me-2"></i>${cfg.advanceLabel}
+            </button>`;
+    } else if (phase === 'onscene' && chatState.phaseCheckpoints.workingImpression) {
+        // Working impression already given — just show advance button
+        html += `
+            <button class="btn phase-advance-btn" id="phaseActionBtn" onclick="tryAdvancePhase()">
+                <i class="bi ${cfg.advanceIcon} me-2"></i>${cfg.advanceLabel}
             </button>`;
     } else if (phase === 'handover' && chatState.phaseMessageCounts.handover < 1) {
-        // Handover phase — complete button only available after first exchange
         html += `
             <button class="btn phase-advance-btn" id="phaseActionBtn" disabled>
-                <i class="bi bi-clipboard-check me-2"></i>Complete Scenario
+                <i class="bi bi-check-circle me-2"></i>Complete Scenario
                 <span style="font-size:0.65rem; opacity:0.6; margin-left:0.4rem;">(deliver handover first)</span>
             </button>`;
     } else if (phase === 'handover') {
@@ -1258,34 +1242,19 @@ function renderPhaseToolbar() {
             <button class="btn phase-advance-btn phase-complete-btn" id="phaseActionBtn" onclick="completeScenario()">
                 <i class="bi bi-check-circle me-2"></i>Complete Scenario
             </button>`;
-    } else if (phase === 'treatment' && chatState.phaseCheckpoints.treatmentSubmitted) {
-        // Treatment done — show advance to handover
-        html += `
-            <button class="btn phase-advance-btn" id="phaseActionBtn" onclick="advancePhase()">
-                <i class="bi ${cfg.advanceIcon} me-2"></i>${cfg.advanceLabel}
-            </button>`;
     } else {
-        // All other phases — standard advance button
-        const needsCheckpoint = (phase === 'onscene');
-        if (needsCheckpoint) {
-            html += `
-                <button class="btn phase-advance-btn" id="phaseActionBtn" onclick="tryAdvancePhase()">
-                    <i class="bi ${cfg.advanceIcon} me-2"></i>${cfg.advanceLabel}
-                </button>`;
-        } else {
-            // Dispatch / En Route — always available (En Route needs 1+ exchange)
-            const enrouteReady = phase !== 'enroute' || chatState.phaseMessageCounts.enroute >= 1;
-            html += `
-                <button class="btn phase-advance-btn" id="phaseActionBtn" 
-                    ${enrouteReady ? `onclick="advancePhase()"` : 'disabled'}
-                    ${!enrouteReady ? 'title="Share your pre-arrival plan first"' : ''}>
-                    <i class="bi ${cfg.advanceIcon} me-2"></i>${cfg.advanceLabel}
-                    ${!enrouteReady ? '<span style="font-size:0.65rem; opacity:0.6; margin-left:0.4rem;">(think out loud first)</span>' : ''}
-                </button>`;
-        }
+        // Dispatch and En Route — standard advance button
+        const enrouteReady = phase !== 'enroute' || chatState.phaseMessageCounts.enroute >= 1;
+        html += `
+            <button class="btn phase-advance-btn" id="phaseActionBtn"
+                ${enrouteReady ? `onclick="advancePhase()"` : 'disabled'}
+                ${!enrouteReady ? 'title="Think out loud first"' : ''}>
+                <i class="bi ${cfg.advanceIcon} me-2"></i>${cfg.advanceLabel}
+                ${!enrouteReady ? '<span style="font-size:0.65rem; opacity:0.6; margin-left:0.4rem;">(think out loud first)</span>' : ''}
+            </button>`;
     }
 
-    // If a nudge has been given for the current On Scene → Treatment transition, show override option
+    // Proceed anyway override (shown after a nudge on the On Scene → Handover transition)
     if (phase === 'onscene' && chatState.nudgeGivenForTransition) {
         html += `
             <div class="phase-override-row">
@@ -1327,7 +1296,7 @@ function advancePhase() {
 }
 
 function tryAdvancePhase() {
-    // Only used for On Scene → Treatment transition
+    // Only used for On Scene → Handover transition
     const missing = getOnSceneCheckpointsMissing();
 
     if (missing.length === 0) {
@@ -1341,7 +1310,7 @@ function tryAdvancePhase() {
         ? ` After your nudge, add a brief educational note (2-3 sentences) explaining why these steps matter clinically. Label it: "**Clinical note:**"`
         : '';
 
-    const nudgePrompt = `[PHASE TRANSITION NUDGE] The paramedic wants to move to the Treatment phase, but the following have not been done: ${missingList}. Give a natural, in-character nudge — as if a senior colleague is gently prompting them before they proceed. Do not break character. Do not use clinical jargon headings. Keep it conversational and brief.${proCoachingSuffix}`;
+    const nudgePrompt = `[PHASE TRANSITION NUDGE] The paramedic wants to move to the Handover phase, but the following have not been done: ${missingList}. Give a natural, in-character nudge — as if a senior colleague is gently prompting them before they proceed. Do not break character. Do not use clinical jargon headings. Keep it conversational and brief.${proCoachingSuffix}`;
 
     chatState.nudgeGivenForTransition = true;
     renderPhaseToolbar(); // show the "Proceed anyway" option
@@ -1375,7 +1344,7 @@ function tryAdvancePhase() {
 
 function forceAdvancePhase() {
     // User consciously overrides after receiving a nudge
-    if (confirm('Proceed to Treatment phase? The AI noted some gaps in your assessment — proceeding without addressing them will be reflected in your debrief.')) {
+    if (confirm('Proceed to Handover phase? The AI noted some gaps in your assessment — proceeding without addressing them will be reflected in your debrief.')) {
         advancePhase();
     }
 }
@@ -1388,39 +1357,37 @@ function getOnSceneCheckpointsMissing() {
     return missing;
 }
 
-// ==================== TREATMENT MODAL ====================
-function openTreatmentModal() {
-    elements.treatmentImpressionInput.value = '';
-    elements.treatmentPlanInput.value = '';
-    elements.treatmentReasoning.value = '';
-    const modal = new bootstrap.Modal(elements.treatmentModal);
+// ==================== WORKING IMPRESSION MODAL ====================
+function openWorkingImpressionModal() {
+    elements.workingImpressionInput.value = '';
+    elements.impressionReasoning.value = '';
+    const modal = new bootstrap.Modal(elements.workingImpressionModal);
     modal.show();
 }
 
-async function submitTreatmentImpression() {
-    const impression = elements.treatmentImpressionInput.value.trim();
-    const plan = elements.treatmentPlanInput.value.trim();
+async function submitWorkingImpression() {
+    const impression = elements.workingImpressionInput.value.trim();
     if (!impression) { alert('Please enter your working impression'); return; }
-    if (!plan) { alert('Please enter your treatment plan'); return; }
 
-    const reasoning = elements.treatmentReasoning.value.trim();
+    const reasoning = elements.impressionReasoning.value.trim();
 
-    // Store WI for later use in CPD record
+    // Store impression for debrief
     chatState.phaseCheckpoints.workingImpression = impression;
-    chatState.phaseCheckpoints.treatmentSubmitted = true;
 
-    const modal = bootstrap.Modal.getInstance(elements.treatmentModal);
+    const modal = bootstrap.Modal.getInstance(elements.workingImpressionModal);
     modal.hide();
 
-    let displayMessage = `**Working Impression:** ${impression}\n\n**Treatment Plan:** ${plan}`;
+    let displayMessage = `**Working Impression:** ${impression}`;
     if (reasoning) displayMessage += `\n\n**Reasoning:** ${reasoning}`;
 
-    let triggerMessage = `[TREATMENT PHASE] My working impression is: ${impression}. My treatment plan: ${plan}.`;
+    // Tell the AI the impression has been noted — no treatment discussion
+    let triggerMessage = `[WORKING IMPRESSION NOTED] My working impression is: ${impression}.`;
     if (reasoning) triggerMessage += ` Reasoning: ${reasoning}`;
+    triggerMessage += ` Please acknowledge this and confirm you have noted it. Do not discuss management or treatment — this is for educational assessment purposes only.`;
 
     addMessage('user', displayMessage);
     chatState.conversationHistory.push({ role: 'user', content: triggerMessage });
-    chatState.phaseMessageCounts.treatment++;
+    chatState.phaseMessageCounts.onscene++;
 
     const aiMessageId = 'ai-msg-' + Date.now();
     addStreamingMessage(aiMessageId);
@@ -1441,7 +1408,7 @@ async function submitTreatmentImpression() {
         elements.sendBtn.disabled = false;
     }
 
-    // Refresh toolbar to show "Proceed to Handover"
+    // Refresh toolbar — WI now recorded, advance button is the primary action
     renderPhaseToolbar();
 }
 
@@ -2012,7 +1979,7 @@ elements.endScenarioBtn.addEventListener('click', endScenario);
 
 elements.hintBtn.addEventListener('click', handleHint);
 
-elements.submitTreatmentBtn.addEventListener('click', submitTreatmentImpression);
+elements.submitImpressionBtn.addEventListener('click', submitWorkingImpression);
 
 // Assessment picker modal
 const assessmentPickerModal = new bootstrap.Modal(document.getElementById('assessmentPickerModal'));
