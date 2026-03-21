@@ -222,14 +222,14 @@
                             <table class="table table-hover" id="allUsersTable">
                                 <thead>
                                     <tr>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Trust</th>
-                                        <th>Status</th>
-                                        <th>Platform</th>
+                                        <th data-sort="name" onclick="handleSort('allUsersBody', 'name', true, true)" style="cursor:pointer;user-select:none;">Name <span class="sort-icon text-muted">⇅</span></th>
+                                        <th data-sort="email" onclick="handleSort('allUsersBody', 'email', true, true)" style="cursor:pointer;user-select:none;">Email <span class="sort-icon text-muted">⇅</span></th>
+                                        <th data-sort="trust" onclick="handleSort('allUsersBody', 'trust', true, true)" style="cursor:pointer;user-select:none;">Trust <span class="sort-icon text-muted">⇅</span></th>
+                                        <th data-sort="status" onclick="handleSort('allUsersBody', 'status', true, true)" style="cursor:pointer;user-select:none;">Status <span class="sort-icon text-muted">⇅</span></th>
+                                        <th data-sort="platform" onclick="handleSort('allUsersBody', 'platform', true, true)" style="cursor:pointer;user-select:none;">Platform <span class="sort-icon text-muted">⇅</span></th>
                                         <!-- CHANGE 1: Added Last Login column -->
-                                        <th>Last Login</th>
-                                        <th>Joined</th>
+                                        <th data-sort="lastLogin" onclick="handleSort('allUsersBody', 'lastLogin', true, true)" style="cursor:pointer;user-select:none;">Last Login <span class="sort-icon text-muted">⇅</span></th>
+                                        <th data-sort="createdAt" onclick="handleSort('allUsersBody', 'createdAt', true, true)" style="cursor:pointer;user-select:none;">Joined <span class="sort-icon text-muted">⇅</span></th>
                                     </tr>
                                 </thead>
                                 <tbody id="allUsersBody">
@@ -251,12 +251,12 @@
                             <table class="table table-hover" id="freeUsersTable">
                                 <thead>
                                     <tr>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Trust</th>
+                                        <th data-sort="name" onclick="handleSort('freeUsersBody', 'name', false, false)" style="cursor:pointer;user-select:none;">Name <span class="sort-icon text-muted">⇅</span></th>
+                                        <th data-sort="email" onclick="handleSort('freeUsersBody', 'email', false, false)" style="cursor:pointer;user-select:none;">Email <span class="sort-icon text-muted">⇅</span></th>
+                                        <th data-sort="trust" onclick="handleSort('freeUsersBody', 'trust', false, false)" style="cursor:pointer;user-select:none;">Trust <span class="sort-icon text-muted">⇅</span></th>
                                         <!-- CHANGE 3: Added Last Login column -->
-                                        <th>Last Login</th>
-                                        <th>Joined</th>
+                                        <th data-sort="lastLogin" onclick="handleSort('freeUsersBody', 'lastLogin', false, false)" style="cursor:pointer;user-select:none;">Last Login <span class="sort-icon text-muted">⇅</span></th>
+                                        <th data-sort="createdAt" onclick="handleSort('freeUsersBody', 'createdAt', false, false)" style="cursor:pointer;user-select:none;">Joined <span class="sort-icon text-muted">⇅</span></th>
                                     </tr>
                                 </thead>
                                 <tbody id="freeUsersBody">
@@ -271,13 +271,13 @@
                             <table class="table table-hover" id="paidUsersTable">
                                 <thead>
                                     <tr>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Trust</th>
-                                        <th>Platform</th>
+                                        <th data-sort="name" onclick="handleSort('paidUsersBody', 'name', false, true)" style="cursor:pointer;user-select:none;">Name <span class="sort-icon text-muted">⇅</span></th>
+                                        <th data-sort="email" onclick="handleSort('paidUsersBody', 'email', false, true)" style="cursor:pointer;user-select:none;">Email <span class="sort-icon text-muted">⇅</span></th>
+                                        <th data-sort="trust" onclick="handleSort('paidUsersBody', 'trust', false, true)" style="cursor:pointer;user-select:none;">Trust <span class="sort-icon text-muted">⇅</span></th>
+                                        <th data-sort="platform" onclick="handleSort('paidUsersBody', 'platform', false, true)" style="cursor:pointer;user-select:none;">Platform <span class="sort-icon text-muted">⇅</span></th>
                                         <!-- CHANGE 4: Added Last Login column -->
-                                        <th>Last Login</th>
-                                        <th>Joined</th>
+                                        <th data-sort="lastLogin" onclick="handleSort('paidUsersBody', 'lastLogin', false, true)" style="cursor:pointer;user-select:none;">Last Login <span class="sort-icon text-muted">⇅</span></th>
+                                        <th data-sort="createdAt" onclick="handleSort('paidUsersBody', 'createdAt', false, true)" style="cursor:pointer;user-select:none;">Joined <span class="sort-icon text-muted">⇅</span></th>
                                     </tr>
                                 </thead>
                                 <tbody id="paidUsersBody">
@@ -294,41 +294,6 @@
      Add this AFTER the closing </div> of the user tables section
      and BEFORE the <p class="text-muted text-center mt-3"> refresh line
      ============================================ -->
-
-            <!-- Missing Subscribers Finder -->
-            <div class="card mt-4 mb-4" id="missingSubscribersCard">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Missing Subscribers Finder</h5>
-                    <span class="badge bg-warning text-dark">Diagnostic Tool</span>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted mb-3">
-                        These users may have subscribed via Apple but their account was not activated. 
-                        Check each one and click <strong>Activate</strong> if you can confirm they are a paying subscriber in App Store Connect.
-                    </p>
-                    <div id="missingSubs-loading" class="text-center py-3">
-                        <div class="spinner-border spinner-border-sm text-warning me-2" role="status"></div>
-                        Loading...
-                    </div>
-                    <div id="missingSubs-none" class="alert alert-success d-none">
-                        <i class="bi bi-check-circle-fill me-2"></i>No missing subscribers detected.
-                    </div>
-                    <div id="missingSubs-results" class="d-none">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Joined</th>
-                                    <th>Reason Flagged</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="missingSubs-body"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
 
             <!-- News Popup Manager -->
             <div class="card mt-4 mb-4" id="newsManager">
@@ -640,9 +605,6 @@
                 // Update last refresh time
                 document.getElementById('lastRefresh').textContent = new Date().toLocaleString();
                 
-                // Render missing subscribers diagnostic
-                renderMissingSubscribers();
-                
             } catch (error) {
                 console.error('Error loading users:', error);
                 document.getElementById('allUsersBody').innerHTML = `
@@ -658,81 +620,75 @@
         }
 
         // ============================================
-        // MISSING SUBSCRIBERS FINDER
+        // COLUMN SORTING
         // ============================================
-        function renderMissingSubscribers() {
-            const loadingEl = document.getElementById('missingSubs-loading');
-            const noneEl    = document.getElementById('missingSubs-none');
-            const resultsEl = document.getElementById('missingSubs-results');
-            const bodyEl    = document.getElementById('missingSubs-body');
+        const sortState = {
+            allUsersBody:  { col: null, dir: 'asc' },
+            freeUsersBody: { col: null, dir: 'asc' },
+            paidUsersBody: { col: null, dir: 'asc' }
+        };
 
-            if (!loadingEl) return;
-            loadingEl.classList.add('d-none');
+        const baseArrayFor = {
+            allUsersBody:  () => allUsers,
+            freeUsersBody: () => freeUsersList,
+            paidUsersBody: () => paidUsersList
+        };
 
-            const fourteenDaysAgo = new Date();
-            fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
-
-            // Flag users who look like missed Apple subscribers
-            const suspects = allUsers.filter(user => {
-                if (user.subscriptionStatus === 'active') return false;
-
-                const isAppleEmail  = user.email.includes('privaterelay.appleid.com');
-                const hasAppleField = user.appleTransactionId || user.appleProductId;
-                const recentJoiner  = user.createdAt && new Date(user.createdAt) >= fourteenDaysAgo;
-
-                return isAppleEmail || hasAppleField || (recentJoiner && user.subscriptionPlatform === 'apple');
-            });
-
-            if (suspects.length === 0) {
-                noneEl.classList.remove('d-none');
-                return;
+        function getSortValue(user, col) {
+            switch (col) {
+                case 'name':      return ((user.firstName || '') + ' ' + (user.surname || '')).trim().toLowerCase();
+                case 'email':     return (user.email || '').toLowerCase();
+                case 'trust':     return (user.trust || '').toLowerCase();
+                case 'status':    return (user.subscriptionStatus || '').toLowerCase();
+                case 'platform':  return (user.subscriptionPlatform || '').toLowerCase();
+                case 'lastLogin': return user.lastLogin || '';
+                case 'createdAt': return user.createdAt || '';
+                default:          return '';
             }
-
-            resultsEl.classList.remove('d-none');
-            bodyEl.innerHTML = suspects.map(user => {
-                const reasons = [];
-                if (user.email.includes('privaterelay.appleid.com')) reasons.push('<span class="badge bg-info text-dark">Apple private email</span>');
-                if (user.appleTransactionId) reasons.push('<span class="badge bg-secondary">Has Apple Transaction ID</span>');
-                if (user.appleProductId)     reasons.push('<span class="badge bg-secondary">Has Apple Product ID</span>');
-                if (user.subscriptionPlatform === 'apple') reasons.push('<span class="badge bg-warning text-dark">Platform = Apple</span>');
-
-                const joined = user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-GB') : 'Unknown';
-                const name   = [user.firstName, user.surname].filter(Boolean).join(' ') || 'Unknown';
-
-                return `<tr>
-                    <td>${name}</td>
-                    <td><small>${user.email}</small></td>
-                    <td>${joined}</td>
-                    <td>${reasons.join(' ')}</td>
-                    <td>
-                        <button class="btn btn-sm btn-success" onclick="activateMissingSubscriber('${user.id}', this)">
-                            <i class="bi bi-check-circle me-1"></i>Activate
-                        </button>
-                    </td>
-                </tr>`;
-            }).join('');
         }
 
-        async function activateMissingSubscriber(uid, btn) {
-            if (!confirm('Are you sure you want to manually activate this user as Pro?')) return;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Saving...';
-            try {
-                await updateDoc(doc(db, 'users', uid), {
-                    subscriptionStatus: 'active',
-                    subscriptionPlatform: 'apple',
-                    subscriptionUpdatedAt: new Date().toISOString(),
-                    manuallyActivatedByAdmin: true
-                });
-                btn.closest('tr').style.opacity = '0.4';
-                btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Activated';
-                btn.classList.replace('btn-success', 'btn-secondary');
-            } catch (err) {
-                console.error('Activation failed:', err);
-                btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i>Failed - retry';
-                alert('Could not activate user. Check console for details.');
-            }
+        function applySort(users, tableBodyId) {
+            const { col, dir } = sortState[tableBodyId];
+            if (!col) return users;
+            return [...users].sort((a, b) => {
+                const av = getSortValue(a, col);
+                const bv = getSortValue(b, col);
+                if (av < bv) return dir === 'asc' ? -1 : 1;
+                if (av > bv) return dir === 'asc' ?  1 : -1;
+                return 0;
+            });
+        }
+
+        function updateSortIndicators(tableBodyId, activeCol, dir) {
+            const tbody = document.getElementById(tableBodyId);
+            if (!tbody) return;
+            tbody.closest('table').querySelectorAll('th[data-sort]').forEach(th => {
+                const icon = th.querySelector('.sort-icon');
+                if (!icon) return;
+                if (th.dataset.sort === activeCol) {
+                    icon.textContent = dir === 'asc' ? '▲' : '▼';
+                    icon.classList.remove('text-muted');
+                } else {
+                    icon.textContent = '⇅';
+                    icon.classList.add('text-muted');
+                }
+            });
+        }
+
+        function handleSort(tableBodyId, col, showStatus, showPlatform) {
+            const state = sortState[tableBodyId];
+            state.dir = (state.col === col && state.dir === 'asc') ? 'desc' : 'asc';
+            state.col = col;
+            updateSortIndicators(tableBodyId, col, state.dir);
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const base = baseArrayFor[tableBodyId]();
+            const filtered = searchTerm ? base.filter(u =>
+                (u.firstName || '').toLowerCase().includes(searchTerm) ||
+                (u.surname   || '').toLowerCase().includes(searchTerm) ||
+                (u.email     || '').toLowerCase().includes(searchTerm) ||
+                (u.trust     || '').toLowerCase().includes(searchTerm)
+            ) : base;
+            renderTable(tableBodyId, applySort(filtered, tableBodyId), showStatus, showPlatform);
         }
 
         // ============================================
@@ -824,9 +780,9 @@
                 );
             };
             
-            renderTable('allUsersBody', filterUsers(allUsers), true, true);
-            renderTable('freeUsersBody', filterUsers(freeUsersList), false, false);
-            renderTable('paidUsersBody', filterUsers(paidUsersList), false, true);
+            renderTable('allUsersBody',  applySort(filterUsers(allUsers),       'allUsersBody'),  true,  true);
+            renderTable('freeUsersBody', applySort(filterUsers(freeUsersList),   'freeUsersBody'), false, false);
+            renderTable('paidUsersBody', applySort(filterUsers(paidUsersList),   'paidUsersBody'), false, true);
         });
 
         // ============================================
