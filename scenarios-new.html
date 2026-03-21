@@ -1132,6 +1132,9 @@ function startScenario() {
     chatState.phaseCheckpoints = { obsPerformed: false, historyStarted: false, workingImpression: '' };
     chatState.nudgeGivenForTransition = false;
 
+    // Store the patient starter message — only shown when arriving On Scene
+    chatState.pendingStarterMessage = scenario.starterMessage;
+
     elements.chatMessages.innerHTML = '';
 
     // Update incident banner
@@ -1144,16 +1147,14 @@ function startScenario() {
 
     showScenarioChat();
 
-    // Add the scenario system prompt to conversation history
-    chatState.conversationHistory.push({
-        role: 'system',
-        content: window.scenarioData.getScenarioSystemPrompt(scenarioId, chatState.currentDifficultyLevel)
-    });
+    // Store the scenario system prompt in state — injected into API calls, not shown to user
+    chatState.scenarioSystemPrompt = window.scenarioData.getScenarioSystemPrompt(scenarioId, chatState.currentDifficultyLevel);
 
-    // Show the starter message (dispatch/scene info)
-    const starterMessage = scenario.starterMessage;
-    addMessage('assistant', starterMessage);
-    chatState.conversationHistory.push({ role: 'assistant', content: starterMessage });
+    // Show the Dispatch phase notification and a clean MDT-style opening message
+    addPhaseNotification('dispatch');
+    const dispatchMsg = `MDT: Call received. ${d.chiefComplaint}. Patient: ${d.age ? `${ageDisplay} ${genderDisplay}` : 'multiple patients'}. ${d.details || ''}`.trim();
+    addMessage('assistant', dispatchMsg);
+    // Do NOT add patient content to conversation history at this stage
 
     // Render the phase bar and toolbar for Dispatch phase
     renderPhaseBar();
@@ -1285,13 +1286,26 @@ function addPhaseNotification(phase) {
 
 function advancePhase() {
     const currentIndex = PHASES.indexOf(chatState.currentPhase);
-    if (currentIndex >= PHASES.length - 1) return; // already at last phase
+    if (currentIndex >= PHASES.length - 1) return;
 
     chatState.currentPhase = PHASES[currentIndex + 1];
     chatState.nudgeGivenForTransition = false;
 
     renderPhaseBar();
     addPhaseNotification(chatState.currentPhase);
+
+    // When arriving On Scene, introduce the patient for the first time
+    if (chatState.currentPhase === 'onscene' && chatState.pendingStarterMessage) {
+        // Now load the scenario system prompt into conversation history
+        if (chatState.scenarioSystemPrompt) {
+            chatState.conversationHistory.push({ role: 'system', content: chatState.scenarioSystemPrompt });
+        }
+        // Show and record the patient's opening message
+        addMessage('assistant', chatState.pendingStarterMessage);
+        chatState.conversationHistory.push({ role: 'assistant', content: chatState.pendingStarterMessage });
+        chatState.pendingStarterMessage = null;
+    }
+
     updatePhaseUI();
 }
 
@@ -1380,10 +1394,10 @@ async function submitWorkingImpression() {
     let displayMessage = `**Working Impression:** ${impression}`;
     if (reasoning) displayMessage += `\n\n**Reasoning:** ${reasoning}`;
 
-    // Tell the AI the impression has been noted — no treatment discussion
-    let triggerMessage = `[WORKING IMPRESSION NOTED] My working impression is: ${impression}.`;
+    // Tell the AI the impression has been noted — framed neutrally, must not trigger debrief
+    let triggerMessage = `My working impression at this stage is: ${impression}.`;
     if (reasoning) triggerMessage += ` Reasoning: ${reasoning}`;
-    triggerMessage += ` Please acknowledge this and confirm you have noted it. Do not discuss management or treatment — this is for educational assessment purposes only.`;
+    triggerMessage += ` Please acknowledge this briefly and confirm you have noted it. Continue the scenario normally — do not provide a debrief yet.`;
 
     addMessage('user', displayMessage);
     chatState.conversationHistory.push({ role: 'user', content: triggerMessage });
@@ -1638,26 +1652,24 @@ async function sendMessageToAPI(message, onChunk) {
     if (!user) throw new Error('Not authenticated');
     const token = await user.getIdToken();
 
-    // Build scenario prompt with phase context appended
-    let scenarioPrompt = chatState.currentScenario
-        ? window.scenarioData.getScenarioSystemPrompt(
+    // Build scenario prompt based on current phase
+    // Dispatch and En Route: no patient scenario context — just the phase override
+    // On Scene and Handover: full scenario prompt with phase context appended
+    let scenarioPrompt = null;
+
+    if (chatState.currentPhase === 'dispatch' || chatState.currentPhase === 'enroute') {
+        // Pre-scene: only send the phase override — no patient data at all
+        const phaseContext = PHASE_CONFIG[chatState.currentPhase].contextForAI;
+        scenarioPrompt = phaseContext || null;
+    } else if (chatState.currentScenario) {
+        // On scene or handover: full scenario prompt
+        scenarioPrompt = window.scenarioData.getScenarioSystemPrompt(
             chatState.currentScenario,
             chatState.currentDifficultyLevel,
             chatState.deterioration.currentPhase
-          )
-        : null;
-
-    // Inject phase context — prepend for pre-scene phases so it overrides the roleplay instruction,
-    // append for On Scene / Handover where the scenario prompt should lead
-    if (scenarioPrompt && PHASE_CONFIG[chatState.currentPhase]) {
-        const phaseContext = PHASE_CONFIG[chatState.currentPhase].contextForAI;
-        if (phaseContext) {
-            if (chatState.currentPhase === 'dispatch' || chatState.currentPhase === 'enroute') {
-                scenarioPrompt = phaseContext + '\n\n' + scenarioPrompt;
-            } else {
-                scenarioPrompt += phaseContext;
-            }
-        }
+        );
+        const phaseContext = PHASE_CONFIG[chatState.currentPhase]?.contextForAI;
+        if (phaseContext) scenarioPrompt += phaseContext;
     }
 
     const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.chatEndpoint}`, {
@@ -1668,7 +1680,10 @@ async function sendMessageToAPI(message, onChunk) {
         },
         body: JSON.stringify({
             message: message,
-            conversationHistory: chatState.conversationHistory.slice(-10).filter(m => m.role !== 'system'),
+            // For pre-scene phases, send no conversation history — the AI has no patient context yet
+            conversationHistory: (chatState.currentPhase === 'dispatch' || chatState.currentPhase === 'enroute')
+                ? []
+                : chatState.conversationHistory.slice(-10).filter(m => m.role !== 'system'),
             scenarioId: chatState.currentScenario || null,
             scenarioPrompt: scenarioPrompt
         })
