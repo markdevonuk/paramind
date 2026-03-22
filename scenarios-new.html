@@ -2686,22 +2686,14 @@ function renderECGCard(text) {
         return null;
     };
 
-    const rhythm  = get([/Rhythm:?\s*([^
-•]+)/i]);
-    const rate    = get([/Rate:?\s*([^
-•]+)/i]);
-    const pWaves  = get([/P\s+waves?:?\s*([^
-•]+)/i]);
-    const pr      = get([/PR\s+interval:?\s*([^
-•]+)/i]);
-    const qrs     = get([/QRS:?\s*([^
-•]+)/i]);
-    const st      = get([/ST\s+segments?:?\s*([^
-•]+)/i]);
-    const tWaves  = get([/T\s+waves?:?\s*([^
-•]+)/i]);
-    const other   = get([/Other:?\s*([^
-•]+)/i]);
+    const rhythm  = get([/Rhythm:?\s*(.+)/i]);
+    const rate    = get([/Rate:?\s*(.+)/i]);
+    const pWaves  = get([/P\s+waves?:?\s*(.+)/i]);
+    const pr      = get([/PR\s+interval:?\s*(.+)/i]);
+    const qrs     = get([/QRS:?\s*(.+)/i]);
+    const st      = get([/ST\s+segments?:?\s*(.+)/i]);
+    const tWaves  = get([/T\s+waves?:?\s*(.+)/i]);
+    const other   = get([/Other:?\s*(.+)/i]);
 
     // Determine alert classes
     const stAlert = st && /elevated|depressed|abnormal/i.test(st);
