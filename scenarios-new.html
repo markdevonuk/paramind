@@ -218,6 +218,10 @@
         /* Connector colours */
         .phase-connector.completed { background: #00d9ff; }
 
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
         @keyframes phasePulse {
             0%, 100% { box-shadow: 0 0 8px rgba(0, 217, 255, 0.4); }
             50% { box-shadow: 0 0 18px rgba(0, 217, 255, 0.75); }
@@ -1426,38 +1430,70 @@ async function submitWorkingImpression() {
     renderPhaseToolbar();
 }
 
-// ==================== COMPLETE SCENARIO (end of Handover) ====================
+// ==================== COMPLETE SCENARIO (Feature 2: Feedback Report) ====================
 async function completeScenario() {
     if (chatState.isLoading) return;
 
     const completedScenarioId = chatState.currentScenario;
+    const scenario = window.scenarioData.getScenarioById(completedScenarioId);
     const impression = chatState.phaseCheckpoints.workingImpression || 'Not recorded';
 
-    // Use existing DEBRIEF MODE trigger with the stored impression
-    let triggerMessage = `[DEBRIEF MODE] My working impression was: ${impression}. I have now completed my ATMIST handover. Please provide the full debrief.`;
-
-    addMessage('user', '✓ Handover complete — requesting debrief');
-    chatState.conversationHistory.push({ role: 'user', content: triggerMessage });
-
-    const aiMessageId = 'ai-msg-' + Date.now();
-    addStreamingMessage(aiMessageId);
-    chatState.isLoading = true;
-    elements.sendBtn.disabled = true;
-
-    // Hide phase toolbar during debrief
+    // Hide toolbar, mark scenario done
     elements.phaseToolbar.style.display = 'none';
+    elements.sendBtn.disabled = true;
+    chatState.isLoading = true;
+    chatState.currentScenario = null;
+
+    // Show loading indicator in chat
+    const loadingDiv = document.createElement('div');
+    loadingDiv.id = 'feedbackLoading';
+    loadingDiv.className = 'phase-notification';
+    loadingDiv.style.cssText = 'margin: 1rem 0;';
+    loadingDiv.innerHTML = `
+        <i class="bi bi-hourglass-split" style="animation: spin 1.5s linear infinite;"></i>
+        <div class="phase-notification-text">
+            <div class="phase-notification-label">Generating Feedback Report</div>
+            <div class="phase-notification-desc">Reviewing your performance across all phases...</div>
+        </div>`;
+    elements.chatMessages.appendChild(loadingDiv);
+    scrollToBottom();
 
     try {
-        const response = await sendMessageToAPI(triggerMessage, (partial) => {
-            updateStreamingMessage(aiMessageId, partial);
-        });
-        finalizeStreamingMessage(aiMessageId, response);
-        chatState.conversationHistory.push({ role: 'assistant', content: response });
+        const user = auth.currentUser;
+        if (!user) throw new Error('Not authenticated');
+        const token = await user.getIdToken();
 
-        // CPD record save — same logic as scenarios.html
-        if (chatState.isPro && completedScenarioId) {
-            const result = parseDebriefResult(response);
-            const recordId = await saveCpdRecord(completedScenarioId, impression, result);
+        // Build clean transcript — non-system messages only
+        const transcript = chatState.conversationHistory.filter(m => m.role !== 'system');
+
+        const feedbackResponse = await fetch(`${API_CONFIG.baseUrl}/generateScenarioFeedback`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                transcript,
+                scenarioId: completedScenarioId,
+                correctDiagnosis: scenario?.patient?.condition || 'Unknown',
+                userImpression: impression,
+                difficultyLevel: chatState.currentDifficultyLevel,
+                redFlags: scenario?.patient?.redFlags || [],
+            })
+        });
+
+        if (!feedbackResponse.ok) throw new Error('Failed to generate feedback');
+        const feedbackData = await feedbackResponse.json();
+
+        // Remove loading indicator
+        document.getElementById('feedbackLoading')?.remove();
+
+        // Render the feedback report card
+        renderFeedbackReport(feedbackData, scenario, impression);
+
+        // Save CPD record for Pro users (with debrief report saved alongside)
+        if (chatState.isPro && completedScenarioId && scenario) {
+            const recordId = await saveEnhancedCpdRecord(
+                completedScenarioId, scenario, impression,
+                feedbackData.result, feedbackData.report
+            );
             if (recordId) {
                 const successDiv = document.createElement('div');
                 successDiv.className = 'alert alert-success mx-2 my-2';
@@ -1471,33 +1507,110 @@ async function completeScenario() {
                         </div>
                     </div>`;
                 elements.chatMessages.appendChild(successDiv);
-                successDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                scrollToBottom();
             }
-        } else if (!chatState.isPro && completedScenarioId) {
-            const upgradeDiv = document.createElement('div');
-            upgradeDiv.className = 'alert alert-info mx-2 my-2';
-            upgradeDiv.style.cssText = 'border-left: 4px solid #17a2b8;';
-            upgradeDiv.innerHTML = `
-                <div class="d-flex align-items-start">
-                    <i class="bi bi-star me-2 mt-1"></i>
-                    <div>
-                        <strong>Upgrade to Pro for CPD Tracking</strong>
-                        <div class="small mb-2">Save this scenario to your CPD Portfolio and download a certificate!</div>
-                        <button class="btn btn-primary btn-sm" onclick="createCheckoutSession()">
-                            <i class="bi bi-star me-1"></i>Upgrade Now — £4.99/month
-                        </button>
-                    </div>
-                </div>`;
-            elements.chatMessages.appendChild(upgradeDiv);
         }
 
     } catch (error) {
-        removeStreamingMessage(aiMessageId);
-        addMessage('assistant', 'Sorry, I encountered an error generating your debrief.');
+        document.getElementById('feedbackLoading')?.remove();
+        console.error('Feedback error:', error);
+        addMessage('assistant', 'Sorry, I encountered an error generating your feedback report. Please try again.');
     } finally {
         chatState.isLoading = false;
         elements.sendBtn.disabled = false;
-        chatState.currentScenario = null;
+    }
+}
+
+function renderFeedbackReport(feedbackData, scenario, impression) {
+    const { report, result, isPro } = feedbackData;
+
+    const resultColour = result === 'correct' ? '#5cb85c' : result === 'incorrect' ? '#dc3545' : '#f0a500';
+    const resultLabel = result === 'correct' ? '✓ Correct' : result === 'incorrect' ? '✗ Incorrect' : '~ Partially Correct';
+    const resultBg = result === 'correct' ? 'rgba(92,184,92,0.08)' : result === 'incorrect' ? 'rgba(220,53,69,0.08)' : 'rgba(240,165,0,0.08)';
+
+    // Convert markdown to HTML for the report body
+    const reportHtml = formatMessage(report);
+
+    const cardDiv = document.createElement('div');
+    cardDiv.style.cssText = `
+        background: var(--color-white);
+        border: 1px solid var(--color-gray-200);
+        border-top: 4px solid ${resultColour};
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        margin: 1rem 0;
+        box-shadow: var(--shadow-sm);
+    `;
+
+    cardDiv.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+            <div style="font-weight:700;font-size:1rem;color:var(--color-gray-800);">
+                <i class="bi bi-clipboard-check me-2" style="color:${resultColour};"></i>Scenario Feedback
+            </div>
+            <span style="background:${resultBg};color:${resultColour};border:1px solid ${resultColour};padding:0.25rem 0.85rem;border-radius:20px;font-size:0.8rem;font-weight:700;">
+                ${resultLabel}
+            </span>
+        </div>
+        <div style="font-size:0.75rem;color:var(--color-gray-500);margin-bottom:1rem;font-family:'JetBrains Mono',monospace;">
+            Working Impression: <strong style="color:var(--color-gray-700);">${impression}</strong>
+            &nbsp;·&nbsp; Correct Diagnosis: <strong style="color:var(--color-gray-700);">${scenario?.patient?.condition || 'N/A'}</strong>
+        </div>
+        <div style="color:var(--color-gray-700);line-height:1.6;font-size:0.9rem;">
+            ${reportHtml}
+        </div>
+        ${!isPro ? `
+        <div style="margin-top:1rem;padding:1rem;background:linear-gradient(135deg,rgba(43,138,156,0.08),rgba(92,184,92,0.08));border-radius:8px;border:1px solid rgba(43,138,156,0.2);">
+            <div style="font-weight:700;font-size:0.9rem;color:var(--color-gray-800);margin-bottom:0.35rem;">
+                <i class="bi bi-star me-1" style="color:var(--color-teal);"></i>Unlock Your Full Feedback Report
+            </div>
+            <div style="font-size:0.82rem;color:var(--color-gray-600);margin-bottom:0.75rem;">
+                Pro members get a detailed 5-section report: what you did well, what you missed, clinical reasoning explained, and a model approach from an experienced paramedic.
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="createCheckoutSession()">
+                <i class="bi bi-star me-1"></i>Upgrade to Pro — £4.99/month
+            </button>
+        </div>` : ''}
+    `;
+
+    elements.chatMessages.appendChild(cardDiv);
+    cardDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ==================== SAVE ENHANCED CPD RECORD ====================
+async function saveEnhancedCpdRecord(scenarioId, scenario, userImpression, result, debriefReport) {
+    try {
+        const user = auth.currentUser;
+        if (!user) return null;
+        const token = await user.getIdToken();
+
+        const cpdData = {
+            scenarioId,
+            scenarioCode: generateJobCode(scenario),
+            scenarioType: formatScenarioType(scenario),
+            scenarioCategory: scenario.category,
+            patientName: scenario.dispatch.name || 'Unknown',
+            chiefComplaint: scenario.dispatch.chiefComplaint,
+            correctDiagnosis: scenario.patient.condition,
+            userImpression,
+            result,
+            questionsAsked: chatState.scenarioProgress.questionsAsked,
+            assessmentsPerformed: chatState.scenarioProgress.assessmentsPerformed,
+            debriefReport: debriefReport || null,
+            difficultyLevel: chatState.currentDifficultyLevel,
+        };
+
+        const response = await fetch(`${API_CONFIG.baseUrl}/saveEnhancedCpdRecord`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(cpdData)
+        });
+
+        if (!response.ok) throw new Error('Failed to save CPD record');
+        const data = await response.json();
+        return data.recordId;
+    } catch (error) {
+        console.error('Error saving enhanced CPD record:', error);
+        return null;
     }
 }
 
@@ -1937,52 +2050,6 @@ async function createCheckoutSession() {
 }
 
 // ==================== CPD HELPERS ====================
-function parseDebriefResult(response) {
-    const upper = response.toUpperCase();
-    if (upper.includes('VERDICT: CORRECT') || upper.includes('VERDICT:**CORRECT') || upper.includes('VERDICT: **CORRECT')) return 'correct';
-    if (upper.includes('PARTIALLY CORRECT') || upper.includes('PARTIAL')) return 'partially_correct';
-    if (upper.includes('INCORRECT')) return 'incorrect';
-    return 'partially_correct';
-}
-
-async function saveCpdRecord(scenarioId, userImpression, result) {
-    if (!chatState.isPro) return null;
-    try {
-        const user = auth.currentUser;
-        if (!user) return null;
-        const token = await user.getIdToken();
-        const scenario = window.scenarioData.getScenarioById(scenarioId);
-        if (!scenario) return null;
-
-        const cpdData = {
-            scenarioId,
-            scenarioCode: generateJobCode(scenario),
-            scenarioType: formatScenarioType(scenario),
-            scenarioCategory: scenario.category,
-            patientName: scenario.dispatch.name || 'Unknown',
-            chiefComplaint: scenario.dispatch.chiefComplaint,
-            correctDiagnosis: scenario.patient.condition,
-            userImpression,
-            result,
-            questionsAsked: chatState.scenarioProgress.questionsAsked,
-            assessmentsPerformed: chatState.scenarioProgress.assessmentsPerformed
-        };
-
-        const response = await fetch(`${API_CONFIG.baseUrl}/saveCpdRecord`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify(cpdData)
-        });
-
-        if (!response.ok) throw new Error('Failed to save CPD record');
-        const data = await response.json();
-        return data.recordId;
-    } catch (error) {
-        console.error('Error saving CPD record:', error);
-        return null;
-    }
-}
-
 function generateJobCode(scenario) {
     const category = scenario.category.toUpperCase().substring(0, 3);
     const id = scenario.id.split('-')[1] || '001';

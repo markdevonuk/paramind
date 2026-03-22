@@ -2423,3 +2423,224 @@ Transaction ID: ${originalTransactionId}`
     }
   }
 );
+
+// ============================================
+// FEATURE 2: POST-SCENARIO FEEDBACK REPORT
+// ============================================
+
+/**
+ * POST /generateScenarioFeedback
+ * Generates a structured post-scenario feedback report.
+ * Takes the full explicit transcript so the AI can accurately
+ * assess what the learner actually did — not rely on conversational memory.
+ *
+ * Free users: summary verdict + brief missed list + upgrade teaser
+ * Pro users: full 5-section report saved to Firestore
+ */
+exports.generateScenarioFeedback = onRequest(
+  {
+    cors: true,
+    secrets: ["OPENAI_API_KEY"],
+    timeoutSeconds: 120,
+  },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+      const uid = await verifyAuth(req);
+      const user = await getUser(uid);
+      const isPro = user.subscriptionStatus === "active" || user.isPro === true;
+
+      const {
+        transcript,        // array of {role, content} messages (non-system only)
+        scenarioId,
+        correctDiagnosis,
+        userImpression,
+        difficultyLevel,
+        redFlags,          // array of red flag strings from scenario data
+      } = req.body;
+
+      if (!transcript || !scenarioId || !userImpression) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      // Format transcript as readable text for the AI
+      const transcriptText = transcript
+        .filter(m => m.role !== "system")
+        .map(m => {
+          const label = m.role === "user" ? "PARAMEDIC" : "PATIENT/SYSTEM";
+          return `${label}: ${m.content}`;
+        })
+        .join("\n\n");
+
+      const redFlagList = Array.isArray(redFlags) && redFlags.length
+        ? redFlags.join(", ")
+        : "Not specified";
+
+      // Pro gets full 5-section report; free gets a shorter verdict-only report
+      const reportInstructions = isPro ? `
+You are a senior paramedic educator providing post-scenario feedback. Write in British English using NHS terminology throughout.
+
+Generate a detailed feedback report with EXACTLY these five sections using these exact headings:
+
+## 1. Overall Performance
+Write 2-3 sentences summarising the paramedic's overall performance. Be supportive but honest. Reference the difficulty level (${difficultyLevel === 3 ? 'Paramedic (Level 3)' : difficultyLevel === 2 ? 'NQP (Level 2)' : 'Student (Level 1)'}).
+
+## 2. What You Did Well
+List 2-4 specific things the paramedic actually did well, referencing their actual questions or actions from the transcript. Quote them directly where helpful. If they did very little, say so honestly but constructively.
+
+## 3. What You Missed
+List 3-5 specific things they should have done but did not. Be precise — name the specific questions not asked, assessments not performed, or history not gathered.
+
+## 4. Clinical Reasoning
+In 3-4 sentences, explain why the key findings in this case mattered clinically. Do NOT name the diagnosis directly if the learner got it wrong — focus on the clinical reasoning principles.
+
+## 5. Model Approach
+In 3-4 sentences, describe how an experienced paramedic would have approached this case from arrival to handover.
+
+CRITICAL RULES:
+- Base EVERY comment on the ACTUAL transcript provided. Do not invent or assume actions.
+- Use British English throughout (e.g. "breathlessness", "adrenaline", "paracetamol", NHS terminology).
+- Tone: supportive senior colleague, never harsh or condescending.
+- Do NOT start with any preamble — go straight to "## 1. Overall Performance".
+` : `
+You are a senior paramedic educator. Write in British English using NHS terminology.
+
+The paramedic has completed a scenario. Provide a SHORT feedback summary with EXACTLY these three sections:
+
+## Verdict
+State clearly: CORRECT, PARTIALLY CORRECT, or INCORRECT. One sentence explanation.
+
+## Key Gaps
+List up to 3 specific things they missed (bullet points, brief).
+
+## Next Steps
+One sentence encouraging them to review the case and upgrade to Pro for their full detailed feedback report.
+
+Base everything on the actual transcript. Do not invent actions. Be brief and constructive.
+`;
+
+      const systemPrompt = `You are a UK paramedic clinical educator generating post-scenario feedback. The scenario correct diagnosis is: ${correctDiagnosis}. The learner's working impression was: "${userImpression}". Key red flags for this condition: ${redFlagList}.
+
+${reportInstructions}`;
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",  // Full model for feedback quality — not mini
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: `Here is the full scenario transcript:\n\n${transcriptText}\n\nPlease generate the feedback report now.` }
+        ],
+        max_tokens: isPro ? 1200 : 400,
+        temperature: 0.4,  // Lower temperature for consistent, accurate feedback
+      });
+
+      const reportText = response.choices[0]?.message?.content || "";
+
+      // Parse verdict from the report for result classification
+      const upper = reportText.toUpperCase();
+      let result = "partially_correct";
+      if (upper.includes("VERDICT: CORRECT") || upper.includes("VERDICT\nCORRECT") || upper.includes("VERDICT\r\nCORRECT") || (upper.includes("VERDICT") && upper.includes(": CORRECT"))) result = "correct";
+      else if (upper.includes("INCORRECT")) result = "incorrect";
+      else if (upper.includes("PARTIALLY CORRECT") || upper.includes("PARTIAL")) result = "partially_correct";
+
+      return res.status(200).json({
+        success: true,
+        report: reportText,
+        result,
+        isPro,
+      });
+
+    } catch (error) {
+      console.error("generateScenarioFeedback error:", error);
+      if (error.message.includes("Unauthorized")) {
+        return res.status(401).json({ error: error.message });
+      }
+      return res.status(500).json({ error: "Failed to generate feedback" });
+    }
+  }
+);
+
+/**
+ * POST /saveEnhancedCpdRecord
+ * Saves a CPD record with the extended fields introduced in Feature 2.
+ * Additive only — does not affect existing cpdRecords documents.
+ * Pro only.
+ */
+exports.saveEnhancedCpdRecord = onRequest({ cors: true }, async (req, res) => {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  try {
+    const uid = await verifyAuth(req);
+    const user = await getUser(uid);
+
+    if (user.subscriptionStatus !== "active" && user.isPro !== true) {
+      return res.status(403).json({ error: "Pro subscription required" });
+    }
+
+    const {
+      scenarioId,
+      scenarioCode,
+      scenarioType,
+      scenarioCategory,
+      patientName,
+      chiefComplaint,
+      correctDiagnosis,
+      userImpression,
+      result,
+      questionsAsked,
+      assessmentsPerformed,
+      // New Feature 2 fields (additive)
+      debriefReport,
+      difficultyLevel,
+    } = req.body;
+
+    if (!scenarioId || !userImpression || !result) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const validResults = ["correct", "partially_correct", "incorrect"];
+    if (!validResults.includes(result)) {
+      return res.status(400).json({ error: "Invalid result value" });
+    }
+
+    const cpdRecordRef = await db
+      .collection("users")
+      .doc(uid)
+      .collection("cpdRecords")
+      .add({
+        scenarioId,
+        scenarioCode: scenarioCode || "N/A",
+        scenarioType: scenarioType || "Unknown",
+        scenarioCategory: scenarioCategory || "unknown",
+        patientName: patientName || "Unknown",
+        chiefComplaint: chiefComplaint || "N/A",
+        correctDiagnosis: correctDiagnosis || "N/A",
+        userImpression,
+        result,
+        questionsAsked: questionsAsked || 0,
+        assessmentsPerformed: assessmentsPerformed || 0,
+        completedAt: admin.firestore.FieldValue.serverTimestamp(),
+        // Feature 2 fields
+        debriefReport: debriefReport || null,
+        difficultyLevel: difficultyLevel || 1,
+      });
+
+    return res.status(200).json({
+      success: true,
+      recordId: cpdRecordRef.id,
+    });
+
+  } catch (error) {
+    console.error("saveEnhancedCpdRecord error:", error);
+    if (error.message.includes("Unauthorized")) {
+      return res.status(401).json({ error: error.message });
+    }
+    return res.status(500).json({ error: error.message });
+  }
+});
