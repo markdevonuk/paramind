@@ -1246,7 +1246,7 @@ const PHASE_CONFIG = {
         showAssessmentToolbar: false,
         showHint: false,
         notificationText: 'Handover — Deliver your ATMIST handover to the receiving clinician.',
-        contextForAI: `\n\n========== PHASE OVERRIDE — TAKES PRIORITY OVER ALL OTHER INSTRUCTIONS ==========\nCURRENT PHASE: HANDOVER. The patient journey is complete. You MUST NOT respond as the patient or continue any patient roleplay. You are now playing the A&E charge nurse or receiving doctor at the emergency department. Respond as a professional NHS clinician receiving the handover — acknowledge key findings, ask one or two brief questions about anything MISSING from the ATMIST structure (Age, Time of onset, Mechanism or Medical history, Injuries or key findings, Signs and vital signs), and confirm safe receipt. Use British English and NHS terminology throughout. Keep your response concise and professional. IMPORTANT: Do NOT ask about any medications given, treatments administered, or clinical interventions — this is an educational tool and treatment discussion is out of scope.\n========== END PHASE OVERRIDE ==========`
+        contextForAI: `\n\n========== PHASE OVERRIDE — TAKES PRIORITY OVER ALL OTHER INSTRUCTIONS ==========\nCURRENT PHASE: HANDOVER. The patient journey is complete. You MUST NOT respond as the patient or continue any patient roleplay. You are now playing the A&E charge nurse or receiving doctor at the emergency department.\n\nRespond professionally as an NHS clinician receiving the handover:\n1. Acknowledge the key findings from the handover\n2. Ask ONE brief question ONLY about ATMIST elements that are genuinely missing or incomplete from what was said — do NOT ask about anything the paramedic already covered\n3. Confirm safe receipt\n\nIMPORTANT: Read the handover carefully. Only ask about things not mentioned. Do NOT ask about age, time, mechanism, or vital signs if they were already given. Use British English. Keep your response concise. Do NOT ask about medications given, treatments, or clinical interventions.\n========== END PHASE OVERRIDE ==========`
     }
 };
 
@@ -1709,21 +1709,27 @@ function tryAdvancePhase() {
 
 function getOnSceneCheckpointsMissing() {
     const missing = [];
-    // Only check patient communication — the user should have spoken to the patient
-    // Assessments (obs, ECG etc) are fine without prompting; rapport/history matters
-    if (chatState.phaseMessageCounts.onscene < 3) {
-        missing.push('you have not spent enough time talking with the patient — make sure you have spoken to them directly and gathered their history');
+    // Only check direct patient communication — typed messages, not assessments
+    // Assessments are a different skill and don't count as patient communication
+    if (chatState.phaseMessageCounts.onscene < 5) {
+        missing.push('you have not spoken enough directly with the patient — make sure you have asked them questions and gathered their history through conversation, not just assessments');
     }
     return missing;
 }
 
 // ==================== WORKING IMPRESSION MODAL ====================
 function openWorkingImpressionModal() {
-    // Require at least one assessment and one exchange before allowing WI submission
-    if (!chatState.phaseCheckpoints.obsPerformed && !chatState.phaseCheckpoints.historyStarted) {
+    // Require at least one assessment AND some direct patient conversation
+    const hasAssessment = chatState.phaseCheckpoints.obsPerformed || chatState.phaseCheckpoints.historyStarted;
+    const hasCommunicated = chatState.phaseMessageCounts.onscene >= 2;
+
+    if (!hasAssessment || !hasCommunicated) {
+        const what = [];
+        if (!hasAssessment) what.push('perform at least one assessment');
+        if (!hasCommunicated) what.push('speak directly with the patient (type at least 2 questions)');
         const alertDiv = document.createElement('div');
         alertDiv.className = 'alert alert-warning mx-0 my-2';
-        alertDiv.innerHTML = `<i class="bi bi-exclamation-triangle me-2"></i><strong>Not ready yet</strong> — please perform at least one assessment and start taking a history before submitting your working impression.`;
+        alertDiv.innerHTML = `<i class="bi bi-exclamation-triangle me-2"></i><strong>Not ready yet</strong> — please ${what.join(' and ')} before submitting your working impression.`;
         elements.chatMessages.appendChild(alertDiv);
         scrollToBottom();
         setTimeout(() => alertDiv.remove(), 4000);
@@ -1788,9 +1794,9 @@ const GRADE_CHECKPOINTS = [
     },
     {
         id: 'patient_comms',
-        label: 'Good patient communication (3+ exchanges)',
+        label: 'Direct patient communication (5+ typed exchanges)',
         points: 1,
-        check: () => chatState.phaseMessageCounts.onscene >= 3
+        check: () => chatState.phaseMessageCounts.onscene >= 5
     },
     {
         id: 'assessment_breadth',
@@ -1967,6 +1973,8 @@ async function completeScenario() {
         elements.sendBtn.disabled = true;
         elements.messageInput.disabled = true;
         elements.messageInput.placeholder = 'Scenario complete — start a new scenario to continue';
+        // Hide vitals panel — scenario is done
+        document.getElementById('vitalsPanel').style.display = 'none';
         // Show a new scenario prompt
         const newScenarioDiv = document.createElement('div');
         newScenarioDiv.style.cssText = 'text-align:center;padding:1rem 0;';
@@ -2635,13 +2643,15 @@ async function selectDPOption(cardId, letter, optionText, question) {
  * Uses a dedicated prompt rather than relying on the AI to spontaneously format it.
  */
 async function triggerDecisionPoint() {
-    if (chatState.isLoading || chatState.scenarioComplete) return;
+    if (chatState.scenarioComplete) return;
     if (chatState.currentPhase !== 'onscene') return;
+    if (chatState.isLoading) return;
 
     // Small delay so the obs/ECG response finishes rendering first
-    await new Promise(r => setTimeout(r, 800));
+    await new Promise(r => setTimeout(r, 1200));
 
-    if (chatState.isLoading || chatState.scenarioComplete) return;
+    // Re-check after delay
+    if (chatState.isLoading || chatState.scenarioComplete || chatState.currentPhase !== 'onscene') return;
 
     const user = auth.currentUser;
     if (!user) return;
@@ -2849,13 +2859,8 @@ async function handleSendMessage(e) {
     chatState.conversationHistory.push({ role: 'user', content: message });
     chatState.scenarioProgress.questionsAsked++;
 
-    // Track per-phase message count
+    // Track per-phase message count (typed messages only — not assessments)
     chatState.phaseMessageCounts[chatState.currentPhase]++;
-
-    // Mark history checkpoint if in On Scene and enough conversation
-    if (chatState.currentPhase === 'onscene' && chatState.phaseMessageCounts.onscene >= 3) {
-        chatState.phaseCheckpoints.historyStarted = true;
-    }
 
     // Only run deterioration in On Scene phase
     if (chatState.currentPhase === 'onscene') {
