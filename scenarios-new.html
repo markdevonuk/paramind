@@ -1683,6 +1683,7 @@ async function completeScenario() {
         userImpression: impression,
         difficultyLevel: chatState.currentDifficultyLevel,
         redFlags: scenario?.patient?.redFlags || [],
+        handoverDelivered: chatState.phaseMessageCounts.handover >= 1,
         gradeInputs: {
             hasVitalsData:        vitalsState.hasData,
             historyStarted:       chatState.phaseCheckpoints.historyStarted,

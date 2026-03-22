@@ -2462,6 +2462,7 @@ exports.generateScenarioFeedback = onRequest(
         userImpression,
         difficultyLevel,
         redFlags,          // array of red flag strings from scenario data
+        handoverDelivered, // boolean — whether the learner actually delivered a handover
       } = req.body;
 
       if (!transcript || !scenarioId || !userImpression) {
@@ -2505,7 +2506,10 @@ Generate a feedback report with EXACTLY these five sections:
 3-5 specific things they did NOT do in terms of history-taking, communication with the patient, or clinical examination. Examples: "You did not ask about onset of symptoms", "You did not take a social history", "You did not speak directly to the patient before performing assessments". Only assessment and communication gaps — nothing clinical or managerial.
 
 ## 4. Handover Quality
-Assess the ATMIST handover — Age, Time of onset, Mechanism/Medical history, Injuries or key findings, Signs and vital signs. Comment on which elements were present, which were missing or vague, and whether the receiving team had enough information. Do NOT comment on the Treatment element of ATMIST.
+${handoverDelivered
+  ? `Assess the ATMIST handover — Age, Time of onset, Mechanism/Medical history, Injuries or key findings, Signs and vital signs. Comment on which elements were present, which were missing or vague, and whether the receiving team had enough information. Do NOT comment on the Treatment element of ATMIST.`
+  : `The learner did NOT deliver a handover. State this clearly and briefly explain why a structured ATMIST handover is important before handing over to the receiving team. Do NOT fabricate or assume a handover was given. Do NOT refer to anything from the On Scene conversation as if it were a handover.`
+}
 
 ## 5. Clinical Reasoning
 3-4 sentences on why the history and examination findings mattered — what pattern of symptoms and signs the paramedic should have recognised, and why systematic history-taking matters in cases like this. No medications, no interventions, no management.
