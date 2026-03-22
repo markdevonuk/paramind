@@ -1377,6 +1377,16 @@ function getOnSceneCheckpointsMissing() {
 
 // ==================== WORKING IMPRESSION MODAL ====================
 function openWorkingImpressionModal() {
+    // Require at least one assessment and one exchange before allowing WI submission
+    if (!chatState.phaseCheckpoints.obsPerformed && !chatState.phaseCheckpoints.historyStarted) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-warning mx-0 my-2';
+        alertDiv.innerHTML = `<i class="bi bi-exclamation-triangle me-2"></i><strong>Not ready yet</strong> — please perform at least one assessment and start taking a history before submitting your working impression.`;
+        elements.chatMessages.appendChild(alertDiv);
+        scrollToBottom();
+        setTimeout(() => alertDiv.remove(), 4000);
+        return;
+    }
     elements.workingImpressionInput.value = '';
     elements.impressionReasoning.value = '';
     const modal = new bootstrap.Modal(elements.workingImpressionModal);
@@ -1388,45 +1398,34 @@ async function submitWorkingImpression() {
     if (!impression) { alert('Please enter your working impression'); return; }
 
     const reasoning = elements.impressionReasoning.value.trim();
-
-    // Store impression for debrief
     chatState.phaseCheckpoints.workingImpression = impression;
 
     const modal = bootstrap.Modal.getInstance(elements.workingImpressionModal);
     modal.hide();
 
+    // Display to user as a clean message — no AI call needed, just record it
     let displayMessage = `**Working Impression:** ${impression}`;
     if (reasoning) displayMessage += `\n\n**Reasoning:** ${reasoning}`;
-
-    // Tell the AI the impression has been noted — framed neutrally, must not trigger debrief
-    let triggerMessage = `My working impression at this stage is: ${impression}.`;
-    if (reasoning) triggerMessage += ` Reasoning: ${reasoning}`;
-    triggerMessage += ` Please acknowledge this briefly and confirm you have noted it. Continue the scenario normally — do not provide a debrief yet.`;
-
     addMessage('user', displayMessage);
-    chatState.conversationHistory.push({ role: 'user', content: triggerMessage });
+
+    // Add a simple inline confirmation — no AI round-trip which risks triggering roleplay
+    const confirmDiv = document.createElement('div');
+    confirmDiv.className = 'phase-notification';
+    confirmDiv.style.cssText = 'margin: 0.5rem 0;';
+    confirmDiv.innerHTML = `
+        <i class="bi bi-check-circle" style="color:#5cb85c;"></i>
+        <div class="phase-notification-text">
+            <div class="phase-notification-label" style="color:#5cb85c;">Working Impression Noted</div>
+            <div class="phase-notification-desc">Recorded: <strong>${impression}</strong>. Continue your assessment or proceed to Handover when ready.</div>
+        </div>`;
+    elements.chatMessages.appendChild(confirmDiv);
+    scrollToBottom();
+
+    // Store in conversation history so it's in the transcript for the feedback report
+    chatState.conversationHistory.push({ role: 'user', content: `[Working impression recorded: ${impression}${reasoning ? '. Reasoning: ' + reasoning : ''}]` });
     chatState.phaseMessageCounts.onscene++;
 
-    const aiMessageId = 'ai-msg-' + Date.now();
-    addStreamingMessage(aiMessageId);
-    chatState.isLoading = true;
-    elements.sendBtn.disabled = true;
-
-    try {
-        const response = await sendMessageToAPI(triggerMessage, (partial) => {
-            updateStreamingMessage(aiMessageId, partial);
-        });
-        finalizeStreamingMessage(aiMessageId, response);
-        chatState.conversationHistory.push({ role: 'assistant', content: response });
-    } catch (error) {
-        removeStreamingMessage(aiMessageId);
-        addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
-    } finally {
-        chatState.isLoading = false;
-        elements.sendBtn.disabled = false;
-    }
-
-    // Refresh toolbar — WI now recorded, advance button is the primary action
+    // Refresh toolbar
     renderPhaseToolbar();
 }
 
