@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Scenario Feedback | ParaMind</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/menu-v2.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+
+    <style>
+        .feedback-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--color-gray-50);
+        }
+
+        .feedback-body {
+            flex: 1;
+            padding: 1.25rem 1rem 3rem;
+            max-width: 680px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ── LOADER ── */
+        .loader-wrap {
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .loader-icon-ring {
+            position: relative;
+            width: 90px;
+            height: 90px;
+        }
+
+        .loader-icon-ring svg {
+            position: absolute;
+            inset: 0;
+            animation: spinRing 1.4s linear infinite;
+        }
+
+        @keyframes spinRing {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+
+        .loader-icon-inner {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            animation: iconPulse 1.8s ease-in-out infinite;
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1);    opacity: 1; }
+            50%       { transform: scale(1.15); opacity: 0.7; }
+        }
+
+        .loader-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            width: 100%;
+            max-width: 280px;
+        }
+
+        .loader-step {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0.875rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+            transition: all 0.4s ease;
+            background: var(--color-gray-100);
+            color: var(--color-gray-500);
+        }
+
+        .loader-step.active {
+            background: rgba(43,138,156,0.1);
+            border: 1px solid rgba(43,138,156,0.25);
+            color: var(--color-teal);
+        }
+
+        .loader-step.done {
+            background: rgba(92,184,92,0.1);
+            border: 1px solid rgba(92,184,92,0.25);
+            color: var(--color-green-dark);
+        }
+
+        .loader-step-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+            background: var(--color-gray-200);
+            color: var(--color-gray-500);
+        }
+
+        .loader-step.active .loader-step-icon {
+            background: var(--color-teal);
+            color: white;
+            animation: stepPulse 1s infinite;
+        }
+
+        .loader-step.done .loader-step-icon {
+            background: var(--color-green);
+            color: white;
+        }
+
+        @keyframes stepPulse {
+            0%, 100% { box-shadow: 0 0 0 0   rgba(43,138,156,0.5); }
+            50%       { box-shadow: 0 0 0 6px rgba(43,138,156,0); }
+        }
+
+        .loader-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--color-gray-800);
+            letter-spacing: -0.01em;
+        }
+
+        .loader-sub {
+            font-size: 0.85rem;
+            color: var(--color-gray-500);
+            margin-top: -1.25rem;
+        }
+
+        /* ── FEEDBACK REPORT ── */
+        #feedbackReport { display: none; }
+
+        /* Dark header strip */
+        .feedback-header-card {
+            background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+            border: 1px solid #0f3460;
+            border-radius: var(--radius-xl);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .feedback-header-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .feedback-scenario-label {
+            font-size: 0.72rem;
+            color: #00d9ff;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .result-badge {
+            padding: 0.3rem 0.875rem;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            border: 1px solid;
+        }
+
+        /* Grade banner — on dark background */
+        .grade-banner {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.875rem 1rem;
+            border-radius: var(--radius-lg);
+            border: 1.5px solid;
+        }
+
+        .grade-banner.gold         { background: rgba(255,193,7,0.12);  border-color: #ffc107; }
+        .grade-banner.silver       { background: rgba(200,200,200,0.1); border-color: #a0a0a0; }
+        .grade-banner.bronze       { background: rgba(205,127,50,0.12); border-color: #cd7f32; }
+        .grade-banner.needs-practice { background: rgba(220,53,69,0.1); border-color: #dc3545; }
+
+        .grade-medal { font-size: 2.25rem; line-height: 1; flex-shrink: 0; }
+        .grade-text  { flex: 1; }
+
+        .grade-title { font-weight: 800; font-size: 1.05rem; margin-bottom: 0.1rem; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .grade-banner.gold   .grade-title { color: #ffd54f; }
+        .grade-banner.silver .grade-title { color: #e0e0e0; }
+        .grade-banner.bronze .grade-title { color: #ffcc80; }
+        .grade-banner.needs-practice .grade-title { color: #ef9a9a; }
+
+        .grade-subtitle { font-size: 0.78rem; color: rgba(255,255,255,0.5); font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        /* Impression meta row */
+        .impression-meta {
+            margin-top: 0.875rem;
+            padding-top: 0.875rem;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.45);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .impression-meta strong {
+            color: rgba(255,255,255,0.75);
+            font-weight: 600;
+        }
+
+        /* Grade breakdown */
+        .grade-breakdown {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .grade-breakdown-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--color-gray-500);
+            margin-bottom: 0.75rem;
+        }
+
+        .grade-checkpoint {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.82rem;
+            padding: 0.35rem 0;
+            color: var(--color-gray-700);
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+
+        .grade-checkpoint:last-child { border-bottom: none; }
+        .grade-checkpoint i { font-size: 0.875rem; flex-shrink: 0; }
+        .grade-checkpoint.hit i { color: var(--color-green); }
+        .grade-checkpoint.miss i { color: var(--color-danger); }
+
+        .grade-total {
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--color-gray-200);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            text-align: right;
+        }
+
+        /* Report card */
+        .report-card {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .report-card-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--color-gray-500);
+            margin-bottom: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .report-content {
+            color: var(--color-gray-700);
+            line-height: 1.65;
+            font-size: 0.9rem;
+        }
+
+        .report-content ul, .report-content ol { margin: 0.5rem 0; padding-left: 1.5rem; }
+        .report-content li { margin-bottom: 0.25rem; }
+        .report-content p { margin: 0 0 0.6rem 0; }
+        .report-content p:last-child { margin-bottom: 0; }
+        .report-content h1, .report-content h2, .report-content h3 {
+            font-size: 0.95rem; font-weight: 700;
+            margin: 1rem 0 0.4rem; color: var(--color-gray-800);
+        }
+        .report-content strong { color: var(--color-gray-800); }
+
+        /* Pro upsell */
+        .pro-upsell {
+            background: linear-gradient(135deg, rgba(43,138,156,0.06), rgba(92,184,92,0.06));
+            border: 1px solid rgba(43,138,156,0.2);
+            border-radius: var(--radius-lg);
+            padding: 1.125rem;
+            margin-bottom: 1rem;
+        }
+
+        .pro-upsell-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--color-gray-800);
+            margin-bottom: 0.3rem;
+        }
+
+        .pro-upsell-desc {
+            font-size: 0.82rem;
+            color: var(--color-gray-600);
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+        }
+
+        /* CPD saved banner */
+        .cpd-saved-banner {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            background: rgba(92,184,92,0.08);
+            border: 1px solid rgba(92,184,92,0.3);
+            border-radius: var(--radius-lg);
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .cpd-saved-banner i { color: var(--color-green); font-size: 1.1rem; }
+
+        /* Action buttons */
+        .action-row {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .action-row .btn {
+            flex: 1;
+            padding: 0.75rem;
+            font-weight: 600;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Error state */
+        .error-wrap {
+            min-height: 50vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            text-align: center;
+            padding: 2rem;
+        }
+    </style>
+</head>
+
+<body class="feedback-page">
+
+<!-- ==================== NAVIGATION ==================== -->
+<nav class="member-navbar">
+    <div class="container">
+        <span class="brand-text">
+            <a class="navbar-brand" href="landing.html">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </a>
+        </span>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</nav>
+
+<div class="feedback-body">
+
+    <!-- ==================== LOADER ==================== -->
+    <div id="loaderWrap" class="loader-wrap">
+
+        <div class="loader-icon-ring">
+            <svg viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="45" cy="45" r="40" stroke="#E9ECEF" stroke-width="5"/>
+                <path d="M45 5 A40 40 0 0 1 85 45" stroke="#2B8A9C" stroke-width="5" stroke-linecap="round"/>
+            </svg>
+            <div class="loader-icon-inner">🩺</div>
+        </div>
+
+        <div>
+            <div class="loader-title">Building Your Feedback Report</div>
+            <div class="loader-sub mt-1">Reviewing your clinical performance…</div>
+        </div>
+
+        <div class="loader-steps">
+            <div class="loader-step active" id="step1">
+                <div class="loader-step-icon"><i class="bi bi-file-text"></i></div>
+                <span>Reviewing your transcript</span>
+            </div>
+            <div class="loader-step" id="step2">
+                <div class="loader-step-icon"><i class="bi bi-clipboard2-pulse"></i></div>
+                <span>Analysing clinical decisions</span>
+            </div>
+            <div class="loader-step" id="step3">
+                <div class="loader-step-icon"><i class="bi bi-award"></i></div>
+                <span>Calculating your grade</span>
+            </div>
+            <div class="loader-step" id="step4">
+                <div class="loader-step-icon"><i class="bi bi-check2-circle"></i></div>
+                <span>Finalising report</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ==================== FEEDBACK REPORT ==================== -->
+    <div id="feedbackReport">
+
+        <!-- Dark header card -->
+        <div class="feedback-header-card">
+            <div class="feedback-header-meta">
+                <div class="feedback-scenario-label" id="scenarioLabel">Scenario Feedback</div>
+                <span class="result-badge" id="resultBadge">—</span>
+            </div>
+
+            <!-- Grade banner -->
+            <div class="grade-banner" id="gradeBanner">
+                <div class="grade-medal" id="gradeMedal">🏅</div>
+                <div class="grade-text">
+                    <div class="grade-title" id="gradeTitle">—</div>
+                    <div class="grade-subtitle" id="gradeSubtitle">—</div>
+                </div>
+            </div>
+
+            <div class="impression-meta" id="impressionMeta"></div>
+        </div>
+
+        <!-- Grade breakdown (Pro only) -->
+        <div class="grade-breakdown" id="gradeBreakdown" style="display:none;">
+            <div class="grade-breakdown-title"><i class="bi bi-bar-chart me-2"></i>Grade Breakdown</div>
+            <div id="checkpointList"></div>
+            <div class="grade-total" id="gradeTotal"></div>
+        </div>
+
+        <!-- Pro upsell (free users) -->
+        <div class="pro-upsell" id="proUpsell" style="display:none;">
+            <div class="pro-upsell-title"><i class="bi bi-star me-1" style="color:var(--color-teal);"></i>Unlock Your Full Grade Breakdown</div>
+            <div class="pro-upsell-desc">Pro members see exactly which checkpoints they hit and missed, with points for each.</div>
+            <button class="btn btn-primary btn-sm" id="upgradeBtn">
+                <i class="bi bi-star me-1"></i>Upgrade to Pro — £4.99/month
+            </button>
+        </div>
+
+        <!-- CPD saved confirmation (Pro only) -->
+        <div class="cpd-saved-banner" id="cpdSavedBanner" style="display:none;">
+            <i class="bi bi-award-fill"></i>
+            <div>
+                <strong>CPD Record Saved</strong>
+                <div class="small text-muted">Added to your CPD Portfolio. <a href="cpd.html" style="color:var(--color-teal);font-weight:600;">View certificate →</a></div>
+            </div>
+        </div>
+
+        <!-- Full feedback report text -->
+        <div class="report-card" id="reportCard" style="display:none;">
+            <div class="report-card-title"><i class="bi bi-clipboard-check text-teal me-1" style="color:var(--color-teal);"></i>Full Feedback Report</div>
+            <div class="report-content" id="reportContent"></div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="action-row">
+            <a href="cpd.html" class="btn btn-outline-secondary">
+                <i class="bi bi-award me-1"></i>CPD Portfolio
+            </a>
+            <a href="scenarios-new.html" class="btn btn-primary">
+                <i class="bi bi-arrow-repeat me-1"></i>New Scenario
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Error state -->
+    <div id="errorWrap" class="error-wrap" style="display:none;">
+        <i class="bi bi-exclamation-circle" style="font-size:2.5rem;color:var(--color-gray-400);"></i>
+        <div>
+            <div style="font-weight:700;margin-bottom:0.3rem;">Unable to generate feedback</div>
+            <div class="text-muted small">An error occurred. Please try again.</div>
+        </div>
+        <a href="scenarios-new.html" class="btn btn-primary mt-2">
+            <i class="bi bi-arrow-left me-1"></i>Back to Scenarios
+        </a>
+    </div>
+
+</div>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="member-footer">
+    <div class="container">
+        <div class="footer-brand">
+            <span class="brand-text">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </span>
+        </div>
+        <div class="footer-links">
+            <a href="terms.html">Terms of Service</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="purpose.html">Intended Purpose</a>
+            <a href="sources.html">Sources &amp; Citations</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <p class="footer-copyright">&copy; 2026 Paramind. All rights reserved.</p>
+    </div>
+</footer>
+
+<!-- ==================== SCRIPTS ==================== -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="js/app.js"></script>
+<script src="js/menu-v2.js"></script>
+
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
+    authDomain: "paramind-64b8e.firebaseapp.com",
+    projectId: "paramind-64b8e",
+    storageBucket: "paramind-64b8e.firebasestorage.app",
+    messagingSenderId: "452173393964",
+    appId: "1:452173393964:web:8599c0fe1983a6f441e189"
+};
+
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+const API_CONFIG = {
+    get baseUrl() { return window.paramind?.CONFIG?.api?.baseUrl || 'https://europe-west2-paramind-64b8e.cloudfunctions.net'; },
+    get chatEndpoint() { return window.paramind?.CONFIG?.api?.chat || '/chat'; }
+};
+
+// ── Grade computation (mirrors scenarios-new.html) ──
+const GRADE_THRESHOLDS = { gold: 12, silver: 8, bronze: 4 };
+
+function computeGrade(result, gi) {
+    const checkpoints = [
+        { id: 'obs',                label: 'Observations taken',                        points: 2, hit: gi.hasVitalsData },
+        { id: 'history',            label: 'History gathered from patient',              points: 2, hit: gi.historyStarted },
+        { id: 'patient_comms',      label: 'Direct patient communication (5+ exchanges)',points: 1, hit: gi.onsceneMessages >= 5 },
+        { id: 'assessment_breadth', label: 'Multiple assessments performed',             points: 1, hit: gi.assessmentsPerformed >= 2 },
+        { id: 'enroute_planning',   label: 'Pre-arrival planning en route',              points: 1, hit: gi.enrouteMessages >= 1 },
+        { id: 'wi_submitted',       label: 'Working impression submitted',               points: 2, hit: !!gi.workingImpression && gi.workingImpression !== 'Not recorded' },
+        { id: 'wi_correct',         label: 'Working impression correct',                 points: 3, hit: result === 'correct' },
+        { id: 'wi_partial',         label: 'Working impression partially correct',       points: 1, hit: result === 'partially_correct' },
+        { id: 'handover_delivered', label: 'Handover delivered',                         points: 2, hit: gi.handoverMessages >= 1 },
+        { id: 'handover_thorough',  label: 'Thorough handover (3+ exchanges)',           points: 1, hit: gi.handoverMessages >= 3 },
+        { id: 'decision_points',    label: 'Engaged with clinical decision points',      points: 1, hit: gi.dpCount >= 1 },
+    ].filter(cp => {
+        if (cp.id === 'wi_partial' && result === 'correct') return false;
+        if (cp.id === 'wi_correct' && result !== 'correct') return false;
+        return true;
+    });
+
+    const totalPoints = checkpoints.reduce((sum, cp) => sum + (cp.hit ? cp.points : 0), 0);
+
+    let grade, medal, subtitle;
+    if      (totalPoints >= GRADE_THRESHOLDS.gold)   { grade = 'gold';          medal = '🥇'; subtitle = 'Exceptional performance'; }
+    else if (totalPoints >= GRADE_THRESHOLDS.silver)  { grade = 'silver';        medal = '🥈'; subtitle = 'Good performance, minor gaps'; }
+    else if (totalPoints >= GRADE_THRESHOLDS.bronze)  { grade = 'bronze';        medal = '🥉'; subtitle = 'Passed but significant areas missed'; }
+    else                                               { grade = 'needs-practice'; medal = '❌'; subtitle = 'Fundamental checkpoints missed'; }
+
+    return { grade, medal, subtitle, totalPoints, checkpoints };
+}
+
+function formatMessage(content) {
+    let processed = content.replace(/^[ \t]*•[ \t]*/gm, '- ');
+    if (typeof marked !== 'undefined') return marked.parse(processed);
+    return processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+}
+
+// ── Loader step animation ──
+const STEP_IDS = ['step1','step2','step3','step4'];
+let stepIndex = 0;
+
+function advanceStep() {
+    if (stepIndex > 0) {
+        const prev = document.getElementById(STEP_IDS[stepIndex - 1]);
+        if (prev) {
+            prev.classList.remove('active');
+            prev.classList.add('done');
+            prev.querySelector('.loader-step-icon').innerHTML = '<i class="bi bi-check-lg"></i>';
+        }
+    }
+    if (stepIndex < STEP_IDS.length) {
+        const curr = document.getElementById(STEP_IDS[stepIndex]);
+        if (curr) curr.classList.add('active');
+        stepIndex++;
+    }
+}
+
+function showError() {
+    document.getElementById('loaderWrap').style.display = 'none';
+    document.getElementById('errorWrap').style.display = 'flex';
+}
+
+function showReport() {
+    document.getElementById('loaderWrap').style.display = 'none';
+    document.getElementById('feedbackReport').style.display = 'block';
+}
+
+// ── Main ──
+auth.onAuthStateChanged(async (user) => {
+    if (!user) { window.location.href = 'login.html'; return; }
+
+    // Read payload from sessionStorage
+    let payload;
+    try {
+        payload = JSON.parse(sessionStorage.getItem('paramind_feedback'));
+        if (!payload) throw new Error('No payload');
+    } catch (e) {
+        showError();
+        return;
+    }
+
+    // Start loader animation — step through as API call progresses
+    advanceStep(); // step 1 active immediately
+    const stepTimer1 = setTimeout(() => advanceStep(), 1800); // step 2
+    const stepTimer2 = setTimeout(() => advanceStep(), 3600); // step 3
+
+    try {
+        const token = await user.getIdToken();
+
+        const res = await fetch(`${API_CONFIG.baseUrl}/generateScenarioFeedback`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                transcript:       payload.transcript,
+                scenarioId:       payload.scenarioId,
+                correctDiagnosis: payload.correctDiagnosis,
+                userImpression:   payload.userImpression,
+                difficultyLevel:  payload.difficultyLevel,
+                redFlags:         payload.redFlags,
+            })
+        });
+
+        if (!res.ok) throw new Error('API error');
+        const feedbackData = await res.json();
+
+        // Step 4 — finalising
+        clearTimeout(stepTimer1);
+        clearTimeout(stepTimer2);
+        // Mark all previous steps done
+        while (stepIndex <= 3) advanceStep();
+
+        await new Promise(r => setTimeout(r, 600)); // brief pause so step 4 shows
+
+        // Compute grade
+        const gradeData = computeGrade(feedbackData.result, payload.gradeInputs);
+
+        // Populate header
+        const gradeNames = { gold: 'Gold — Excellent', silver: 'Silver — Good', bronze: 'Bronze — Developing', 'needs-practice': 'Needs More Practice' };
+        document.getElementById('scenarioLabel').textContent = payload.scenarioTitle || 'Scenario Feedback';
+
+        const resultColour = feedbackData.result === 'correct' ? '#5CB85C' : feedbackData.result === 'incorrect' ? '#DC3545' : '#F59E0B';
+        const resultLabel  = feedbackData.result === 'correct' ? '✓ Correct' : feedbackData.result === 'incorrect' ? '✗ Incorrect' : '~ Partially Correct';
+        const badge = document.getElementById('resultBadge');
+        badge.textContent = resultLabel;
+        badge.style.cssText = `color:${resultColour};border-color:${resultColour};background:${resultColour}22;`;
+
+        const banner = document.getElementById('gradeBanner');
+        banner.className = `grade-banner ${gradeData.grade}`;
+        document.getElementById('gradeMedal').textContent = gradeData.medal;
+        document.getElementById('gradeTitle').textContent = gradeNames[gradeData.grade];
+        document.getElementById('gradeSubtitle').textContent = gradeData.subtitle;
+
+        document.getElementById('impressionMeta').innerHTML = `
+            <span>Working Impression: <strong>${payload.userImpression}</strong></span>
+            <span>Correct Diagnosis: <strong>${payload.correctDiagnosis}</strong></span>`;
+
+        // Grade breakdown (Pro) or upsell (free)
+        if (payload.isPro) {
+            const list = document.getElementById('checkpointList');
+            list.innerHTML = gradeData.checkpoints.map(cp => `
+                <div class="grade-checkpoint ${cp.hit ? 'hit' : 'miss'}">
+                    <i class="bi ${cp.hit ? 'bi-check-circle-fill' : 'bi-x-circle-fill'}"></i>
+                    <span style="flex:1;">${cp.label}</span>
+                    <span style="font-size:0.75rem;font-weight:700;color:${cp.hit ? 'var(--color-green)' : 'var(--color-danger);'}">${cp.hit ? '+'+cp.points : '0'} pts</span>
+                </div>`).join('');
+            document.getElementById('gradeTotal').textContent = `Total: ${gradeData.totalPoints} points`;
+            document.getElementById('gradeBreakdown').style.display = 'block';
+        } else {
+            document.getElementById('proUpsell').style.display = 'block';
+            document.getElementById('upgradeBtn').addEventListener('click', async () => {
+                try {
+                    const t = await user.getIdToken();
+                    const checkoutUrl = window.paramind?.CONFIG?.api?.createCheckout || '/createCheckoutSession';
+                    const r = await fetch(`${API_CONFIG.baseUrl}${checkoutUrl}`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${t}`, 'Content-Type': 'application/json' }
+                    });
+                    const d = await r.json();
+                    if (r.ok) window.location.href = d.url;
+                } catch (e) { console.error(e); }
+            });
+        }
+
+        // Full report text (Pro only)
+        if (payload.isPro && feedbackData.report) {
+            document.getElementById('reportContent').innerHTML = formatMessage(feedbackData.report);
+            document.getElementById('reportCard').style.display = 'block';
+        }
+
+        // CPD save (Pro only)
+        if (payload.isPro && payload.cpdData) {
+            try {
+                const cpdPayload = {
+                    ...payload.cpdData,
+                    result: feedbackData.result,
+                    debriefReport: feedbackData.report || null,
+                };
+                const cpdRes = await fetch(`${API_CONFIG.baseUrl}/saveEnhancedCpdRecord`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(cpdPayload)
+                });
+                if (cpdRes.ok) {
+                    document.getElementById('cpdSavedBanner').style.display = 'flex';
+                }
+            } catch (e) {
+                console.warn('CPD save failed silently:', e);
+            }
+        }
+
+        // Clear session data
+        sessionStorage.removeItem('paramind_feedback');
+
+        showReport();
+
+    } catch (err) {
+        console.error('Feedback page error:', err);
+        clearTimeout(stepTimer1);
+        clearTimeout(stepTimer2);
+        showError();
+    }
+});
+</script>
+<script src="js/upgrade-modal.js"></script>
+</body>
+</html>

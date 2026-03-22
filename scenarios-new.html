@@ -1671,190 +1671,58 @@ async function completeScenario() {
     const scenario = window.scenarioData.getScenarioById(completedScenarioId);
     const impression = chatState.phaseCheckpoints.workingImpression || 'Not recorded';
 
-    // Hide toolbar, mark scenario done
     elements.phaseToolbar.style.display = 'none';
     elements.sendBtn.disabled = true;
     chatState.isLoading = true;
     chatState.currentScenario = null;
 
-    // Show loading indicator in chat
-    const loadingDiv = document.createElement('div');
-    loadingDiv.id = 'feedbackLoading';
-    loadingDiv.className = 'phase-notification';
-    loadingDiv.style.cssText = 'margin: 1rem 0;';
-    loadingDiv.innerHTML = `
-        <i class="bi bi-hourglass-split" style="animation: spin 1.5s linear infinite;"></i>
-        <div class="phase-notification-text">
-            <div class="phase-notification-label">Generating Feedback Report</div>
-            <div class="phase-notification-desc">Reviewing your performance across all phases...</div>
-        </div>`;
-    elements.chatMessages.appendChild(loadingDiv);
-    scrollToBottom();
+    const feedbackPayload = {
+        transcript: chatState.conversationHistory.filter(m => m.role !== 'system'),
+        scenarioId: completedScenarioId,
+        correctDiagnosis: scenario?.patient?.condition || 'Unknown',
+        userImpression: impression,
+        difficultyLevel: chatState.currentDifficultyLevel,
+        redFlags: scenario?.patient?.redFlags || [],
+        gradeInputs: {
+            hasVitalsData:        vitalsState.hasData,
+            historyStarted:       chatState.phaseCheckpoints.historyStarted,
+            onsceneMessages:      chatState.phaseMessageCounts.onscene,
+            assessmentsPerformed: chatState.scenarioProgress.assessmentsPerformed,
+            enrouteMessages:      chatState.phaseMessageCounts.enroute,
+            workingImpression:    impression,
+            handoverMessages:     chatState.phaseMessageCounts.handover,
+            dpCount:              dpState.count,
+        },
+        scenarioTitle: scenario
+            ? `${scenario.dispatch.age ? scenario.dispatch.age + 'y ' : ''}${scenario.dispatch.gender === 'M' ? 'Male' : scenario.dispatch.gender === 'F' ? 'Female' : ''} — ${scenario.dispatch.chiefComplaint}`.trim()
+            : 'Scenario',
+        categoryTitle: scenario ? (window.scenarioData.SCENARIO_CATEGORIES[scenario.category]?.title || scenario.category) : '',
+        isPro: chatState.isPro,
+        cpdData: chatState.isPro && scenario ? {
+            scenarioId: completedScenarioId,
+            scenarioCode: generateJobCode(scenario),
+            scenarioType: formatScenarioType(scenario),
+            scenarioCategory: scenario.category,
+            patientName: scenario.dispatch.name || 'Unknown',
+            chiefComplaint: scenario.dispatch.chiefComplaint,
+            correctDiagnosis: scenario.patient.condition,
+            userImpression: impression,
+            questionsAsked: chatState.scenarioProgress.questionsAsked,
+            assessmentsPerformed: chatState.scenarioProgress.assessmentsPerformed,
+            difficultyLevel: chatState.currentDifficultyLevel,
+        } : null,
+    };
 
     try {
-        const user = auth.currentUser;
-        if (!user) throw new Error('Not authenticated');
-        const token = await user.getIdToken();
-
-        // Build clean transcript — non-system messages only
-        const transcript = chatState.conversationHistory.filter(m => m.role !== 'system');
-
-        const feedbackResponse = await fetch(`${API_CONFIG.baseUrl}/generateScenarioFeedback`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                transcript,
-                scenarioId: completedScenarioId,
-                correctDiagnosis: scenario?.patient?.condition || 'Unknown',
-                userImpression: impression,
-                difficultyLevel: chatState.currentDifficultyLevel,
-                redFlags: scenario?.patient?.redFlags || [],
-            })
-        });
-
-        if (!feedbackResponse.ok) throw new Error('Failed to generate feedback');
-        const feedbackData = await feedbackResponse.json();
-
-        // Compute grade client-side from tracked checkpoints
-        const gradeData = computeGrade(feedbackData.result);
-
-        // Remove loading indicator
-        document.getElementById('feedbackLoading')?.remove();
-
-        // Render the feedback report card
-        renderFeedbackReport(feedbackData, scenario, impression, gradeData);
-
-        // Save CPD record for Pro users (with debrief report saved alongside)
-        if (chatState.isPro && completedScenarioId && scenario) {
-            const recordId = await saveEnhancedCpdRecord(
-                completedScenarioId, scenario, impression,
-                feedbackData.result, feedbackData.report
-            );
-            if (recordId) {
-                const successDiv = document.createElement('div');
-                successDiv.className = 'alert alert-success mx-2 my-2';
-                successDiv.style.cssText = 'border-left: 4px solid #5CB85C;';
-                successDiv.innerHTML = `
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-award me-2"></i>
-                        <div>
-                            <strong>CPD Record Saved!</strong>
-                            <div class="small">View and download your certificate from the CPD Portfolio.</div>
-                        </div>
-                    </div>`;
-                elements.chatMessages.appendChild(successDiv);
-                scrollToBottom();
-            }
-        }
-
-    } catch (error) {
-        document.getElementById('feedbackLoading')?.remove();
-        console.error('Feedback error:', error);
-        addMessage('assistant', 'Sorry, I encountered an error generating your feedback report. Please try again.');
-    } finally {
+        sessionStorage.setItem('paramind_feedback', JSON.stringify(feedbackPayload));
+        window.location.href = 'scenarios-feedback.html';
+    } catch (e) {
+        console.error('Failed to save feedback payload:', e);
         chatState.isLoading = false;
-        chatState.scenarioComplete = true;
-        elements.sendBtn.disabled = true;
-        elements.messageInput.disabled = true;
-        elements.messageInput.placeholder = 'Scenario complete';
-        // Hide the entire input area — scenario is done
-        document.getElementById('chatInputArea').style.display = 'none';
-        // Hide vitals panel — scenario is done
-        document.getElementById('vitalsPanel').style.display = 'none';
-        // Show a new scenario prompt
-        const newScenarioDiv = document.createElement('div');
-        newScenarioDiv.style.cssText = 'text-align:center;padding:1rem 0;';
-        newScenarioDiv.innerHTML = `
-            <button class="btn btn-outline-secondary btn-sm" onclick="endScenarioAndReset()" style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;">
-                <i class="bi bi-arrow-left me-1"></i>Start a new scenario
-            </button>`;
-        elements.chatMessages.appendChild(newScenarioDiv);
-        scrollToBottom();
+        elements.sendBtn.disabled = false;
+        elements.phaseToolbar.style.display = 'flex';
+        renderPhaseToolbar();
     }
-}
-
-function renderFeedbackReport(feedbackData, scenario, impression, gradeData) {
-    const { report, result, isPro } = feedbackData;
-
-    const resultColour = result === 'correct' ? '#5cb85c' : result === 'incorrect' ? '#dc3545' : '#f0a500';
-    const resultLabel = result === 'correct' ? '✓ Correct' : result === 'incorrect' ? '✗ Incorrect' : '~ Partially Correct';
-    const resultBg = result === 'correct' ? 'rgba(92,184,92,0.08)' : result === 'incorrect' ? 'rgba(220,53,69,0.08)' : 'rgba(240,165,0,0.08)';
-
-    const reportHtml = formatMessage(report);
-
-    // Grade banner HTML
-    const gradeNames = { gold: 'Gold', silver: 'Silver', bronze: 'Bronze', 'needs-practice': 'Needs Practice' };
-    const gradeBannerHtml = gradeData ? `
-        <div class="grade-banner ${gradeData.grade}">
-            <div class="grade-medal">${gradeData.medal}</div>
-            <div class="grade-text">
-                <div class="grade-title">${gradeNames[gradeData.grade]}</div>
-                <div class="grade-subtitle">${gradeData.subtitle}</div>
-            </div>
-        </div>
-        ${isPro ? `
-        <div class="grade-breakdown">
-            <div class="grade-breakdown-title">Grade Breakdown</div>
-            ${gradeData.checkpointResults.map(cp => `
-                <div class="grade-checkpoint ${cp.hit ? 'hit' : 'miss'}">
-                    <i class="bi ${cp.hit ? 'bi-check-circle-fill' : 'bi-x-circle-fill'}"></i>
-                    <span>${cp.label}</span>
-                    <span style="margin-left:auto;font-size:0.75rem;font-weight:600;color:${cp.hit ? '#5cb85c' : '#dc3545'};">${cp.hit ? '+' + cp.points : '0'} pts</span>
-                </div>`).join('')}
-            <div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid var(--color-gray-200);font-size:0.8rem;font-weight:700;color:var(--color-gray-700);">
-                Total: ${gradeData.totalPoints} points
-            </div>
-        </div>` : `
-        <div style="font-size:0.78rem;color:var(--color-gray-500);margin-bottom:0.75rem;">
-            <i class="bi bi-star me-1" style="color:var(--color-teal);"></i>
-            <a href="#" onclick="createCheckoutSession();return false;" style="color:var(--color-teal);font-weight:600;">Upgrade to Pro</a> to see exactly which checkpoints contributed to your grade.
-        </div>`}
-    ` : '';
-
-    const cardDiv = document.createElement('div');
-    cardDiv.style.cssText = `
-        background: var(--color-white);
-        border: 1px solid var(--color-gray-200);
-        border-top: 4px solid ${resultColour};
-        border-radius: var(--radius-lg);
-        padding: 1.25rem;
-        margin: 1rem 0;
-        box-shadow: var(--shadow-sm);
-    `;
-
-    cardDiv.innerHTML = `
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
-            <div style="font-weight:700;font-size:1rem;color:var(--color-gray-800);">
-                <i class="bi bi-clipboard-check me-2" style="color:${resultColour};"></i>Scenario Feedback
-            </div>
-            <span style="background:${resultBg};color:${resultColour};border:1px solid ${resultColour};padding:0.25rem 0.85rem;border-radius:20px;font-size:0.8rem;font-weight:700;">
-                ${resultLabel}
-            </span>
-        </div>
-        ${gradeBannerHtml}
-        <div style="font-size:0.75rem;color:var(--color-gray-500);margin-bottom:1rem;font-family:'JetBrains Mono',monospace;">
-            Working Impression: <strong style="color:var(--color-gray-700);">${impression}</strong>
-            &nbsp;·&nbsp; Correct Diagnosis: <strong style="color:var(--color-gray-700);">${scenario?.patient?.condition || 'N/A'}</strong>
-        </div>
-        <div style="color:var(--color-gray-700);line-height:1.6;font-size:0.9rem;">
-            ${reportHtml}
-        </div>
-        ${!isPro ? `
-        <div style="margin-top:1rem;padding:1rem;background:linear-gradient(135deg,rgba(43,138,156,0.08),rgba(92,184,92,0.08));border-radius:8px;border:1px solid rgba(43,138,156,0.2);">
-            <div style="font-weight:700;font-size:0.9rem;color:var(--color-gray-800);margin-bottom:0.35rem;">
-                <i class="bi bi-star me-1" style="color:var(--color-teal);"></i>Unlock Your Full Feedback Report
-            </div>
-            <div style="font-size:0.82rem;color:var(--color-gray-600);margin-bottom:0.75rem;">
-                Pro members get a detailed 5-section report plus full grade breakdown showing exactly which checkpoints you hit and missed.
-            </div>
-            <button class="btn btn-primary btn-sm" onclick="createCheckoutSession()">
-                <i class="bi bi-star me-1"></i>Upgrade to Pro — £4.99/month
-            </button>
-        </div>` : ''}
-    `;
-
-    elements.chatMessages.appendChild(cardDiv);
-    cardDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ==================== SAVE ENHANCED CPD RECORD ====================
