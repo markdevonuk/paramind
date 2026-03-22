@@ -895,7 +895,7 @@ const PHASE_CONFIG = {
         showAssessmentToolbar: false,
         showHint: false,
         notificationText: 'Handover — Deliver your ATMIST handover to the receiving clinician.',
-        contextForAI: `\n\n========== PHASE OVERRIDE — TAKES PRIORITY OVER ALL OTHER INSTRUCTIONS ==========\nCURRENT PHASE: HANDOVER. The patient journey is complete. You MUST NOT respond as the patient or continue any patient roleplay. You are now playing the A&E charge nurse or receiving doctor at the emergency department. Respond as a professional NHS clinician receiving the handover — acknowledge key findings, ask one or two brief questions about anything missing from the ATMIST, and confirm safe receipt. Use British English and NHS terminology throughout. Keep your response concise and professional.\n========== END PHASE OVERRIDE ==========`
+        contextForAI: `\n\n========== PHASE OVERRIDE — TAKES PRIORITY OVER ALL OTHER INSTRUCTIONS ==========\nCURRENT PHASE: HANDOVER. The patient journey is complete. You MUST NOT respond as the patient or continue any patient roleplay. You are now playing the A&E charge nurse or receiving doctor at the emergency department. Respond as a professional NHS clinician receiving the handover — acknowledge key findings, ask one or two brief questions about anything MISSING from the ATMIST structure (Age, Time of onset, Mechanism or Medical history, Injuries or key findings, Signs and vital signs), and confirm safe receipt. Use British English and NHS terminology throughout. Keep your response concise and professional. IMPORTANT: Do NOT ask about any medications given, treatments administered, or clinical interventions — this is an educational tool and treatment discussion is out of scope.\n========== END PHASE OVERRIDE ==========`
     }
 };
 
@@ -1315,6 +1315,13 @@ function advancePhase() {
 
 function tryAdvancePhase() {
     // Only used for On Scene → Handover transition
+    // Guard: never fire if already loading or nudge already in flight
+    if (chatState.isLoading) return;
+    if (chatState.nudgeGivenForTransition) {
+        // Nudge already given — user must either proceed anyway or keep going
+        return;
+    }
+
     const missing = getOnSceneCheckpointsMissing();
 
     if (missing.length === 0) {
@@ -1325,15 +1332,13 @@ function tryAdvancePhase() {
     // Build nudge prompt for AI
     const missingList = missing.join(', ');
     const proCoachingSuffix = chatState.isPro
-        ? ` After your nudge, add a brief educational note (2-3 sentences) explaining why these steps matter clinically in general — do NOT mention the actual diagnosis, condition name, or any specific details from this scenario.  Label it: "**Clinical note:**"`
+        ? ` After your nudge, add a brief educational note (2-3 sentences) explaining why these steps matter clinically in general — do NOT mention the actual diagnosis, condition name, or any specific details from this scenario. Label it: "**Clinical note:**"`
         : '';
 
-    const nudgePrompt = `[PHASE TRANSITION NUDGE] The paramedic wants to move to the Handover phase, but the following have not been done: ${missingList}. Give a natural, in-character nudge — as if a senior colleague is gently prompting them before they proceed. Do not break character. Do not use clinical jargon headings. Keep it conversational and brief.${proCoachingSuffix}`;
+    const nudgePrompt = `[PHASE TRANSITION NUDGE] The paramedic wants to move to the Handover phase, but the following have not been done: ${missingList}. Give a natural, in-character nudge — as if a senior colleague is gently prompting them before they proceed. Keep it conversational and brief.${proCoachingSuffix}`;
 
     chatState.nudgeGivenForTransition = true;
     renderPhaseToolbar();
-
-    if (chatState.isLoading) return;
 
     const indicator = document.createElement('div');
     indicator.className = 'hint-indicator';
@@ -1345,8 +1350,6 @@ function tryAdvancePhase() {
     chatState.isLoading = true;
     elements.sendBtn.disabled = true;
 
-    // Use a direct API call with a clinical educator prompt — NOT the scenario system prompt
-    // This prevents the AI responding as the patient
     sendNudgeToAPI(nudgePrompt, (partial) => {
         updateStreamingMessage(aiMessageId, partial);
     }).then(response => {
@@ -1361,7 +1364,6 @@ function tryAdvancePhase() {
 }
 
 function forceAdvancePhase() {
-    // User consciously overrides after receiving a nudge
     if (confirm('Proceed to Handover phase? The AI noted some gaps in your assessment — proceeding without addressing them will be reflected in your debrief.')) {
         advancePhase();
     }
@@ -1369,9 +1371,11 @@ function forceAdvancePhase() {
 
 function getOnSceneCheckpointsMissing() {
     const missing = [];
-    if (!chatState.phaseCheckpoints.obsPerformed) missing.push('observations have not been taken');
-    if (!chatState.phaseCheckpoints.historyStarted) missing.push('history has not been started');
-    if (chatState.phaseMessageCounts.onscene < 2) missing.push('minimal patient interaction so far');
+    // Only check patient communication — the user should have spoken to the patient
+    // Assessments (obs, ECG etc) are fine without prompting; rapport/history matters
+    if (chatState.phaseMessageCounts.onscene < 3) {
+        missing.push('you have not spent enough time talking with the patient — make sure you have spoken to them directly and gathered their history');
+    }
     return missing;
 }
 
@@ -1516,7 +1520,19 @@ async function completeScenario() {
         addMessage('assistant', 'Sorry, I encountered an error generating your feedback report. Please try again.');
     } finally {
         chatState.isLoading = false;
-        elements.sendBtn.disabled = false;
+        // Lock the input — scenario is complete
+        elements.sendBtn.disabled = true;
+        elements.messageInput.disabled = true;
+        elements.messageInput.placeholder = 'Scenario complete — start a new scenario to continue';
+        // Show a new scenario prompt
+        const newScenarioDiv = document.createElement('div');
+        newScenarioDiv.style.cssText = 'text-align:center;padding:1rem 0;';
+        newScenarioDiv.innerHTML = `
+            <button class="btn btn-outline-secondary btn-sm" onclick="endScenarioAndReset()" style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;">
+                <i class="bi bi-arrow-left me-1"></i>Start a new scenario
+            </button>`;
+        elements.chatMessages.appendChild(newScenarioDiv);
+        scrollToBottom();
     }
 }
 
@@ -2104,7 +2120,20 @@ async function handleHint() {
     }
 }
 
-// ==================== END SCENARIO ====================
+// ==================== END SCENARIO AND RESET ====================
+function endScenarioAndReset() {
+    chatState.currentScenario = null;
+    chatState.conversationHistory = [];
+    chatState.currentPhase = 'dispatch';
+    elements.phaseToolbar.style.display = 'none';
+    elements.assessmentToolbar.style.display = 'none';
+    elements.messageInput.disabled = false;
+    elements.sendBtn.disabled = false;
+    elements.messageInput.placeholder = 'Ask a question or talk to the patient...';
+    showCategoryView();
+}
+
+// ==================== END SCENARIO (mid-scenario) ====================
 function endScenario() {
     if (confirm('Are you sure you want to end this scenario?')) {
         chatState.currentScenario = null;
