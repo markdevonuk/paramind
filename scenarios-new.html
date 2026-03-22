@@ -417,6 +417,137 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
+        /* ==================== VITALS MONITOR PANEL ==================== */
+        .vitals-panel {
+            background: linear-gradient(145deg, #0a0f1e 0%, #0d1526 100%);
+            border-bottom: 1px solid #1a2a4a;
+            flex-shrink: 0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .vitals-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.4rem 0.75rem;
+            border-bottom: 1px solid #1a2a4a;
+            cursor: pointer;
+        }
+
+        .vitals-panel-title {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #00d9ff;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: flex;
+            align-items: center;
+        }
+
+        .vitals-panel-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .vitals-alert-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #dc3545;
+            animation: vitalAlertPulse 1s infinite;
+        }
+
+        @keyframes vitalAlertPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.3); }
+        }
+
+        .vitals-collapse-btn {
+            background: transparent;
+            border: none;
+            color: #4a5a7a;
+            font-size: 0.7rem;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+        .vitals-collapse-btn:hover { color: #00d9ff; }
+
+        .vitals-panel-body {
+            padding: 0.5rem 0.75rem 0.6rem;
+        }
+
+        .vitals-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.4rem;
+        }
+
+        @media (min-width: 600px) {
+            .vitals-grid { grid-template-columns: repeat(8, 1fr); }
+        }
+
+        .vital-cell {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid #1a2a4a;
+            border-radius: 6px;
+            padding: 0.35rem 0.25rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .vital-cell.alert {
+            border-color: #dc3545;
+            background: rgba(220,53,69,0.12);
+            animation: vitalCellFlash 1.5s infinite;
+        }
+
+        @keyframes vitalCellFlash {
+            0%, 100% { border-color: #dc3545; background: rgba(220,53,69,0.12); }
+            50% { border-color: #ff6b6b; background: rgba(220,53,69,0.22); }
+        }
+
+        .vital-label {
+            font-size: 0.55rem;
+            font-weight: 700;
+            color: #4a6a8a;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.1rem;
+        }
+
+        .vital-cell.alert .vital-label { color: #ff8888; }
+
+        .vital-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #00d9ff;
+            line-height: 1.1;
+        }
+
+        .vital-value-sm { font-size: 0.8rem; }
+
+        .vital-cell.alert .vital-value { color: #ff4444; }
+
+        .vital-unit {
+            font-size: 0.5rem;
+            color: #4a6a8a;
+            margin-top: 0.05rem;
+        }
+
+        .vital-cell.alert .vital-unit { color: #ff8888; }
+
+        .vitals-timestamp {
+            font-size: 0.55rem;
+            color: #2a3a5a;
+            text-align: right;
+            margin-top: 0.4rem;
+            letter-spacing: 0.03em;
+        }
+
         /* ==================== DETERIORATION ALERTS ==================== */
         .deterioration-alert { display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem; margin: 1rem 0; border-radius: 8px; animation: alertSlideIn 0.5s ease; }
         @keyframes alertSlideIn { 0% { transform: translateY(-10px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
@@ -558,6 +689,67 @@
             <div class="phase-step pending" id="phaseStep-handover">
                 <div class="phase-dot"><i class="bi bi-clipboard-check"></i></div>
                 <span class="phase-step-name">Handover</span>
+            </div>
+        </div>
+
+        <!-- Vitals Monitor Panel (Feature 4 - shown On Scene after obs performed) -->
+        <div class="vitals-panel" id="vitalsPanel" style="display:none;">
+            <div class="vitals-panel-header" id="vitalsPanelHeader">
+                <div class="vitals-panel-title">
+                    <i class="bi bi-heart-pulse me-1"></i>
+                    <span>Patient Monitor</span>
+                </div>
+                <div class="vitals-panel-controls">
+                    <span class="vitals-alert-dot" id="vitalsAlertDot" style="display:none;"></span>
+                    <button class="vitals-collapse-btn" id="vitalsCollapseBtn" onclick="toggleVitalsPanel()">
+                        <i class="bi bi-chevron-up" id="vitalsCollapseIcon"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="vitals-panel-body" id="vitalsPanelBody">
+                <div class="vitals-grid">
+                    <div class="vital-cell" id="vital-hr">
+                        <div class="vital-label">HR</div>
+                        <div class="vital-value" id="vital-hr-value">--</div>
+                        <div class="vital-unit">bpm</div>
+                    </div>
+                    <div class="vital-cell" id="vital-spo2">
+                        <div class="vital-label">SpO2</div>
+                        <div class="vital-value" id="vital-spo2-value">--</div>
+                        <div class="vital-unit">%</div>
+                    </div>
+                    <div class="vital-cell" id="vital-rr">
+                        <div class="vital-label">RR</div>
+                        <div class="vital-value" id="vital-rr-value">--</div>
+                        <div class="vital-unit">/min</div>
+                    </div>
+                    <div class="vital-cell" id="vital-bp">
+                        <div class="vital-label">BP</div>
+                        <div class="vital-value vital-value-sm" id="vital-bp-value">--</div>
+                        <div class="vital-unit">mmHg</div>
+                    </div>
+                    <div class="vital-cell" id="vital-gcs">
+                        <div class="vital-label">GCS</div>
+                        <div class="vital-value" id="vital-gcs-value">--</div>
+                        <div class="vital-unit">/15</div>
+                    </div>
+                    <div class="vital-cell" id="vital-temp">
+                        <div class="vital-label">Temp</div>
+                        <div class="vital-value vital-value-sm" id="vital-temp-value">--</div>
+                        <div class="vital-unit">°C</div>
+                    </div>
+                    <div class="vital-cell" id="vital-bm">
+                        <div class="vital-label">BM</div>
+                        <div class="vital-value vital-value-sm" id="vital-bm-value">--</div>
+                        <div class="vital-unit">mmol/L</div>
+                    </div>
+                    <div class="vital-cell" id="vital-pain">
+                        <div class="vital-label">Pain</div>
+                        <div class="vital-value" id="vital-pain-value">--</div>
+                        <div class="vital-unit">/10</div>
+                    </div>
+                </div>
+                <div class="vitals-timestamp" id="vitalsTimestamp">Awaiting observations</div>
             </div>
         </div>
 
@@ -1152,6 +1344,7 @@ function startScenario() {
     elements.incidentCategory.className = `incident-category ${d.category === 1 ? 'cat-1' : d.category === 2 ? 'cat-2' : 'cat-3'}`;
 
     showScenarioChat();
+    initVitalsPanel();
 
     // Store the scenario system prompt in state — injected into API calls, not shown to user
     chatState.scenarioSystemPrompt = window.scenarioData.getScenarioSystemPrompt(scenarioId, chatState.currentDifficultyLevel);
@@ -1816,10 +2009,12 @@ function checkDeterioration() {
         chatState.deterioration.currentPhase = 'critical';
         chatState.deterioration.criticalShown = true;
         addDeteriorationAlert('critical');
+        updateVitalsOnDeterioration('critical');
     } else if (phase === 'warning' && !chatState.deterioration.warningShown) {
         chatState.deterioration.currentPhase = 'warning';
         chatState.deterioration.warningShown = true;
         addDeteriorationAlert('warning');
+        updateVitalsOnDeterioration('warning');
     }
 }
 
@@ -1831,7 +2026,227 @@ function incrementDeteriorationCounter() {
     chatState.deterioration.exchangesSinceKeyAssessment++;
 }
 
-// ==================== NUDGE API CALL (no scenario context) ====================
+// ==================== VITALS PANEL (Feature 4) ====================
+
+// Normal ranges for alert detection
+const VITAL_RANGES = {
+    hr:   { min: 60,   max: 100  },
+    spo2: { min: 95,   max: 100  },
+    rr:   { min: 12,   max: 20   },
+    bpSys:{ min: 90,   max: 140  },
+    gcs:  { min: 15,   max: 15   },
+    temp: { min: 36.1, max: 37.2 },
+    bm:   { min: 4.0,  max: 7.8  },
+    pain: { min: 0,    max: 3    }  // pain >3 flagged
+};
+
+const vitalsState = {
+    current: null,       // current displayed vitals object
+    hasData: false,
+    collapsed: false,
+    hasNewAlert: false,
+    audioContext: null
+};
+
+function initVitalsPanel() {
+    vitalsState.current = null;
+    vitalsState.hasData = false;
+    vitalsState.collapsed = false;
+    vitalsState.hasNewAlert = false;
+    document.getElementById('vitalsPanel').style.display = 'none';
+    document.getElementById('vitalsAlertDot').style.display = 'none';
+    document.getElementById('vitalsPanelBody').style.display = 'block';
+    document.getElementById('vitalsCollapseIcon').className = 'bi bi-chevron-up';
+    resetAllVitalCells();
+}
+
+function resetAllVitalCells() {
+    ['hr','spo2','rr','bp','gcs','temp','bm','pain'].forEach(key => {
+        const el = document.getElementById(`vital-${key}-value`);
+        if (el) el.textContent = '--';
+        const cell = document.getElementById(`vital-${key}`);
+        if (cell) cell.classList.remove('alert');
+    });
+    document.getElementById('vitalsTimestamp').textContent = 'Awaiting observations';
+}
+
+function toggleVitalsPanel() {
+    vitalsState.collapsed = !vitalsState.collapsed;
+    const body = document.getElementById('vitalsPanelBody');
+    const icon = document.getElementById('vitalsCollapseIcon');
+    const dot = document.getElementById('vitalsAlertDot');
+
+    body.style.display = vitalsState.collapsed ? 'none' : 'block';
+    icon.className = vitalsState.collapsed ? 'bi bi-chevron-down' : 'bi bi-chevron-up';
+
+    // If reopening, clear the alert dot
+    if (!vitalsState.collapsed) {
+        vitalsState.hasNewAlert = false;
+        dot.style.display = 'none';
+    }
+}
+
+/**
+ * Parse obs values from AI response text
+ * Returns object with extracted vitals or null if not obs data
+ */
+function parseVitalsFromResponse(text) {
+    if (!/OBSERVATIONS|CLINICAL DATA/i.test(text)) return null;
+
+    const get = (patterns) => {
+        for (const p of patterns) {
+            const m = text.match(p);
+            if (m) return m[1].trim();
+        }
+        return null;
+    };
+
+    const hrRaw   = get([/HR:\s*([\d]+)/i]);
+    const bpRaw   = get([/BP:\s*([\d]+\/[\d]+)/i]);
+    const rrRaw   = get([/RR:\s*([\d]+)/i]);
+    const spo2Raw = get([/SpO2?:\s*([\d]+)/i]);
+    const tempRaw = get([/Temp:\s*([\d.]+)/i]);
+    const gcsRaw  = get([/GCS:.*?=\s*([\d]+)\/15/i, /GCS:\s*([\d]+)/i]);
+    const bmRaw   = get([/BM:\s*([\d.]+)/i]);
+    const painRaw = get([/Pain:\s*([\d]+)/i, /Pain:\s*Unable/i]);
+
+    if (!hrRaw && !bpRaw && !spo2Raw) return null; // not enough data to show
+
+    return {
+        hr:   hrRaw   ? parseInt(hrRaw)   : null,
+        bp:   bpRaw   || null,
+        rr:   rrRaw   ? parseInt(rrRaw)   : null,
+        spo2: spo2Raw ? parseInt(spo2Raw) : null,
+        temp: tempRaw ? parseFloat(tempRaw) : null,
+        gcs:  gcsRaw  ? parseInt(gcsRaw)  : null,
+        bm:   bmRaw   ? parseFloat(bmRaw) : null,
+        pain: painRaw ? parseInt(painRaw) : null,
+        bpSys: bpRaw  ? parseInt(bpRaw.split('/')[0]) : null
+    };
+}
+
+function isAbnormal(key, value) {
+    if (value === null || value === undefined) return false;
+    const range = VITAL_RANGES[key];
+    if (!range) return false;
+    return value < range.min || value > range.max;
+}
+
+function updateVitalsPanel(vitals) {
+    if (!vitals) return;
+
+    vitalsState.current = vitals;
+    vitalsState.hasData = true;
+
+    const panel = document.getElementById('vitalsPanel');
+    panel.style.display = 'block';
+
+    let anyAlert = false;
+
+    const setCell = (key, displayKey, value, displayValue) => {
+        const el = document.getElementById(`vital-${displayKey}-value`);
+        const cell = document.getElementById(`vital-${displayKey}`);
+        if (!el || !cell) return;
+
+        el.textContent = (value !== null && value !== undefined) ? displayValue : '--';
+
+        const abnormal = isAbnormal(key, value);
+        if (abnormal) {
+            cell.classList.add('alert');
+            anyAlert = true;
+        } else {
+            cell.classList.remove('alert');
+        }
+    };
+
+    setCell('hr',   'hr',   vitals.hr,   vitals.hr);
+    setCell('spo2', 'spo2', vitals.spo2, vitals.spo2);
+    setCell('rr',   'rr',   vitals.rr,   vitals.rr);
+    setCell('gcs',  'gcs',  vitals.gcs,  vitals.gcs);
+    setCell('temp', 'temp', vitals.temp, vitals.temp);
+    setCell('bm',   'bm',   vitals.bm,   vitals.bm);
+    setCell('pain', 'pain', vitals.pain, vitals.pain);
+
+    // BP special case — display string, alert on systolic
+    const bpEl   = document.getElementById('vital-bp-value');
+    const bpCell = document.getElementById('vital-bp');
+    if (bpEl) bpEl.textContent = vitals.bp || '--';
+    if (bpCell) {
+        if (isAbnormal('bpSys', vitals.bpSys)) {
+            bpCell.classList.add('alert');
+            anyAlert = true;
+        } else {
+            bpCell.classList.remove('alert');
+        }
+    }
+
+    // Timestamp
+    const now = new Date();
+    document.getElementById('vitalsTimestamp').textContent =
+        `Last updated ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+
+    // Alert handling
+    if (anyAlert) {
+        playVitalAlertSound();
+        if (vitalsState.collapsed) {
+            vitalsState.hasNewAlert = true;
+            document.getElementById('vitalsAlertDot').style.display = 'block';
+        }
+    }
+}
+
+/**
+ * Update vitals when deterioration occurs
+ * Called from the existing checkDeterioration() function
+ */
+function updateVitalsOnDeterioration(phase) {
+    if (!vitalsState.hasData || !vitalsState.current) return;
+
+    const changes = window.scenarioData.DETERIORATION_CONFIG.vitalChanges[phase];
+    if (!changes) return;
+
+    const v = { ...vitalsState.current };
+
+    if (v.hr   !== null) v.hr   = Math.min(180, v.hr   + parseInt(changes.hr));
+    if (v.rr   !== null) v.rr   = Math.min(45,  v.rr   + parseInt(changes.rr));
+    if (v.spo2 !== null) v.spo2 = Math.max(70,  v.spo2 + parseInt(changes.spo2));
+    if (v.gcs  !== null) v.gcs  = Math.max(3,   v.gcs  + parseInt(changes.gcs));
+
+    if (v.bp && v.bpSys !== null) {
+        const [sys, dia] = v.bp.split('/').map(Number);
+        const newSys = Math.max(60, sys + parseInt(changes.bp_systolic));
+        const newDia = Math.max(40, Math.round(dia + parseInt(changes.bp_systolic) / 2));
+        v.bp    = `${newSys}/${newDia}`;
+        v.bpSys = newSys;
+    }
+
+    updateVitalsPanel(v);
+}
+
+function playVitalAlertSound() {
+    // iOS blocks audio until user interaction — we always show visual alert
+    // Only attempt audio, never rely on it
+    try {
+        if (!vitalsState.audioContext) {
+            vitalsState.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        const ctx = vitalsState.audioContext;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 880;
+        osc.type = 'sine';
+        gain.gain.setValueAtTime(0.15, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.3);
+    } catch (e) { /* audio blocked — visual alert is always present */ }
+}
+
+// ==================== END VITALS PANEL ====================
+
+
 // Used for phase transition nudges only — bypasses scenario system prompt entirely
 // so the AI cannot respond as the patient
 async function sendNudgeToAPI(nudgePrompt, onChunk) {
@@ -2078,6 +2493,12 @@ async function handleAssessment(assessmentType) {
         finalizeStreamingMessage(aiMessageId, response);
         chatState.conversationHistory.push({ role: 'user', content: `[Assessment: ${assessment.name}]` });
         chatState.conversationHistory.push({ role: 'assistant', content: response });
+
+        // If this was an obs assessment, try to parse vitals and update the panel
+        if (assessmentType === 'obs') {
+            const vitals = parseVitalsFromResponse(response);
+            if (vitals) updateVitalsPanel(vitals);
+        }
     } catch (error) {
         removeStreamingMessage(aiMessageId);
         if (error.message === 'LIMIT_REACHED') {
@@ -2132,6 +2553,7 @@ function endScenarioAndReset() {
     elements.messageInput.disabled = false;
     elements.sendBtn.disabled = false;
     elements.messageInput.placeholder = 'Ask a question or talk to the patient...';
+    initVitalsPanel();
     showCategoryView();
 }
 
