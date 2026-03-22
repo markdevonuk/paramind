@@ -653,7 +653,7 @@
                     <span class="vitals-alert-badge" id="vitalsAlertBadge" style="display:none;"></span>
                 </div>
                 <button class="vitals-toggle-btn" id="vitalsCollapseBtn" aria-label="Toggle monitor">
-                    <i class="bi bi-chevron-up" id="vitalsCollapseIcon"></i>
+                    <i class="bi bi-chevron-down" id="vitalsCollapseIcon"></i>
                 </button>
             </div>
             <div class="vitals-panel-body" id="vitalsPanelBody">
@@ -704,7 +704,7 @@
         </div>
 
         <!-- Chat Input Area -->
-        <div class="chat-input-area">
+        <div class="chat-input-area" id="chatInputArea">
 
             <!-- Chat Form — assess icon left, textarea centre, send right -->
             <div class="chat-form" id="chatFormWrapper">
@@ -718,7 +718,7 @@
                     <textarea
                         class="chat-input"
                         id="messageInput"
-                        placeholder="Ask a question or talk to the patient..."
+                        placeholder="Talk to the patient..."
                         rows="1"
                     ></textarea>
                 </div>
@@ -773,15 +773,15 @@
                     <div class="btn-group w-100" role="group">
                         <input type="radio" class="btn-check" name="difficultyLevel" id="level1" value="1" checked>
                         <label class="btn btn-outline-success" for="level1">
-                            <i class="bi bi-1-circle me-1"></i>Student
+                            Student
                         </label>
                         <input type="radio" class="btn-check" name="difficultyLevel" id="level2" value="2">
                         <label class="btn btn-outline-warning" for="level2">
-                            <i class="bi bi-2-circle me-1"></i>NQP
+                            NQP
                         </label>
                         <input type="radio" class="btn-check" name="difficultyLevel" id="level3" value="3">
                         <label class="btn btn-outline-danger" for="level3">
-                            <i class="bi bi-3-circle me-1"></i>Paramedic
+                            Paramedic
                         </label>
                     </div>
                     <small class="text-muted d-block mt-2" id="difficultyDescription">Classic presentations, cooperative patients</small>
@@ -995,7 +995,7 @@ const PHASE_CONFIG = {
         icon: 'bi-broadcast',
         advanceLabel: 'Proceed En Route',
         advanceIcon: 'bi-truck',
-        inputPlaceholder: 'Ask pre-arrival questions or review the call...',
+        inputPlaceholder: 'Pre-arrival questions...',
         showAssessmentToolbar: false,
         showHint: false,
         notificationText: 'Dispatch — Review the call details. You can ask pre-arrival questions before responding.',
@@ -1006,7 +1006,7 @@ const PHASE_CONFIG = {
         icon: 'bi-truck',
         advanceLabel: 'Arrive on Scene',
         advanceIcon: 'bi-geo-alt-fill',
-        inputPlaceholder: 'Think out loud — what are you planning?',
+        inputPlaceholder: 'Think out loud...',
         showAssessmentToolbar: false,
         showHint: false,
         notificationText: 'En Route — Think ahead. What are your clinical priorities on arrival?',
@@ -1017,7 +1017,7 @@ const PHASE_CONFIG = {
         icon: 'bi-person-fill',
         advanceLabel: 'Proceed to Handover',
         advanceIcon: 'bi-clipboard-check',
-        inputPlaceholder: 'Talk to the patient or ask questions...',
+        inputPlaceholder: 'Talk to the patient...',
         showAssessmentToolbar: true,
         showHint: true,
         notificationText: 'On Scene — Assess your patient. Take a history, perform examinations, gather all the information you need.',
@@ -1028,7 +1028,7 @@ const PHASE_CONFIG = {
         icon: 'bi-clipboard-check',
         advanceLabel: 'Complete Scenario',
         advanceIcon: 'bi-check-circle',
-        inputPlaceholder: 'Deliver your ATMIST handover to the receiving team...',
+        inputPlaceholder: 'Deliver your ATMIST handover...',
         showAssessmentToolbar: false,
         showHint: false,
         notificationText: 'Handover — Deliver your ATMIST handover to the receiving clinician.',
@@ -1756,7 +1756,9 @@ async function completeScenario() {
         chatState.scenarioComplete = true;
         elements.sendBtn.disabled = true;
         elements.messageInput.disabled = true;
-        elements.messageInput.placeholder = 'Scenario complete — start a new scenario to continue';
+        elements.messageInput.placeholder = 'Scenario complete';
+        // Hide the entire input area — scenario is done
+        document.getElementById('chatInputArea').style.display = 'none';
         // Hide vitals panel — scenario is done
         document.getElementById('vitalsPanel').style.display = 'none';
         // Show a new scenario prompt
@@ -2134,7 +2136,7 @@ function initVitalsPanel() {
     document.getElementById('vitalsPanel').style.display = 'none';
     document.getElementById('vitalsAlertDot').style.display = 'none';
     document.getElementById('vitalsPanelBody').style.display = 'block';
-    document.getElementById('vitalsCollapseIcon').className = 'bi bi-chevron-up';
+    document.getElementById('vitalsCollapseIcon').className = 'bi bi-chevron-down';
     resetAllVitalCells();
 }
 
@@ -2155,7 +2157,7 @@ function toggleVitalsPanel() {
     const dot = document.getElementById('vitalsAlertDot');
 
     body.style.display = vitalsState.collapsed ? 'none' : 'block';
-    icon.className = vitalsState.collapsed ? 'bi bi-chevron-down' : 'bi bi-chevron-up';
+    icon.className = vitalsState.collapsed ? 'bi bi-chevron-up' : 'bi bi-chevron-down';
 
     // If reopening, clear the alert dot
     if (!vitalsState.collapsed) {
@@ -2831,9 +2833,11 @@ function endScenarioAndReset() {
     chatState.currentPhase = 'dispatch';
     elements.phaseToolbar.style.display = 'none';
     elements.assessmentToolbar.style.display = 'none';
+    elements.hintBtn.style.display = 'none';
     elements.messageInput.disabled = false;
     elements.sendBtn.disabled = false;
-    elements.messageInput.placeholder = 'Ask a question or talk to the patient...';
+    elements.messageInput.placeholder = 'Talk to the patient...';
+    document.getElementById('chatInputArea').style.display = 'block';
     initVitalsPanel();
     showCategoryView();
 }
@@ -2846,6 +2850,8 @@ function endScenario() {
         chatState.currentPhase = 'dispatch';
         elements.phaseToolbar.style.display = 'none';
         elements.assessmentToolbar.style.display = 'none';
+        elements.hintBtn.style.display = 'none';
+        document.getElementById('chatInputArea').style.display = 'block';
         showCategoryView();
     }
 }
