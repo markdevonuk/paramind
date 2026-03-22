@@ -420,6 +420,7 @@
         /* ==================== VITALS MONITOR PANEL ==================== */
         .vitals-panel {
             background: linear-gradient(145deg, #0a0f1e 0%, #0d1526 100%);
+            border-top: 1px solid #1a2a4a;
             border-bottom: 1px solid #1a2a4a;
             flex-shrink: 0;
             font-family: 'JetBrains Mono', monospace;
@@ -692,7 +693,12 @@
             </div>
         </div>
 
-        <!-- Vitals Monitor Panel (Feature 4 - shown On Scene after obs performed) -->
+        <!-- Chat Messages -->
+        <div class="chat-messages" id="chatMessages">
+            <!-- Messages populated by JavaScript -->
+        </div>
+
+        <!-- Vitals Monitor Panel (Feature 4 - above input, always in view) -->
         <div class="vitals-panel" id="vitalsPanel" style="display:none;">
             <div class="vitals-panel-header" id="vitalsPanelHeader">
                 <div class="vitals-panel-title">
@@ -751,11 +757,6 @@
                 </div>
                 <div class="vitals-timestamp" id="vitalsTimestamp">Awaiting observations</div>
             </div>
-        </div>
-
-        <!-- Chat Messages -->
-        <div class="chat-messages" id="chatMessages">
-            <!-- Messages populated by JavaScript -->
         </div>
 
         <!-- Chat Input Area -->
