@@ -2494,18 +2494,19 @@ Write 2-3 sentences summarising the paramedic's overall performance. Be supporti
 List 2-4 specific things the paramedic actually did well, referencing their actual questions or actions from the transcript. Quote them directly where helpful. If they did very little, say so honestly but constructively.
 
 ## 3. What You Missed
-List 3-5 specific things they should have done but did not. Be precise — name the specific questions not asked, assessments not performed, or history not gathered. If they rushed to handover without adequate assessment, say so.
+List 3-5 specific things they should have done but did not. Be precise — name the specific questions not asked, assessments not performed, or history not gathered. If they rushed to handover without adequate assessment, say so. Do NOT suggest specific clinical interventions or treatments — focus only on assessment and history-taking gaps.
 
 ## 4. Handover Quality
-Assess the ATMIST handover they delivered. ATMIST = Age, Time of onset, Mechanism or Medical history, Injuries or key findings, Signs and vital signs, Treatment given. Comment specifically on which elements were present, which were missing or vague, and whether the receiving clinician had enough information to safely take over care. If the handover was poor or incomplete, say so directly and specifically — this is important feedback.
+Assess the ATMIST handover they delivered. ATMIST = Age, Time of onset, Mechanism or Medical history, Injuries or key findings, Signs and vital signs, Treatment given. Comment specifically on which elements were present, which were missing or vague, and whether the receiving clinician had enough information to safely take over care. If the handover was poor or incomplete, say so directly. Do NOT suggest what treatment should have been given.
 
 ## 5. Clinical Reasoning
-In 3-4 sentences, explain why the key findings in this case mattered clinically. Do NOT name the diagnosis directly if the learner got it wrong — focus on the clinical reasoning principles.
+In 3-4 sentences, explain why the key findings in this case mattered clinically — focus on the significance of the history, examination findings, and vital signs. Do NOT name specific interventions, medications, or treatments. Do NOT name the diagnosis directly if the learner got it wrong — focus on clinical reasoning principles only.
 
 CRITICAL RULES:
 - Base EVERY comment on the ACTUAL transcript provided. Do not invent or assume actions.
-- If the handover in the transcript is brief or poor, reflect that honestly in section 4.
-- Use British English throughout (e.g. "breathlessness", "adrenaline", "paracetamol", NHS terminology).
+- Do NOT mention specific medications, drug doses, or clinical interventions anywhere in the report.
+- Do NOT suggest what the paramedic should have done clinically — only what they should have assessed or asked.
+- Use British English throughout (e.g. "breathlessness", NHS terminology).
 - Tone: supportive senior colleague, never harsh or condescending, but always honest.
 - Do NOT start with any preamble — go straight to "## 1. Overall Performance".
 ` : `
@@ -2517,7 +2518,7 @@ The paramedic has completed a scenario. Provide a SHORT feedback summary with EX
 State clearly: CORRECT, PARTIALLY CORRECT, or INCORRECT. One sentence explanation.
 
 ## Key Gaps
-List up to 3 specific things they missed from their assessment or handover (bullet points, brief). If the handover was poor quality, include that.
+List up to 3 specific things they missed from their assessment or handover (bullet points, brief). Focus on assessment and history-taking gaps only — do not mention specific interventions or treatments.
 
 ## Unlock Full Feedback
 One sentence: upgrade to Pro for the full 5-section report including a detailed ATMIST handover assessment.

@@ -1331,9 +1331,8 @@ function tryAdvancePhase() {
     const nudgePrompt = `[PHASE TRANSITION NUDGE] The paramedic wants to move to the Handover phase, but the following have not been done: ${missingList}. Give a natural, in-character nudge — as if a senior colleague is gently prompting them before they proceed. Do not break character. Do not use clinical jargon headings. Keep it conversational and brief.${proCoachingSuffix}`;
 
     chatState.nudgeGivenForTransition = true;
-    renderPhaseToolbar(); // show the "Proceed anyway" option
+    renderPhaseToolbar();
 
-    // Send the nudge via the AI
     if (chatState.isLoading) return;
 
     const indicator = document.createElement('div');
@@ -1343,15 +1342,16 @@ function tryAdvancePhase() {
 
     const aiMessageId = 'ai-msg-' + Date.now();
     addStreamingMessage(aiMessageId);
-
     chatState.isLoading = true;
     elements.sendBtn.disabled = true;
 
-    sendMessageToAPI(nudgePrompt, (partial) => {
+    // Use a direct API call with a clinical educator prompt — NOT the scenario system prompt
+    // This prevents the AI responding as the patient
+    sendNudgeToAPI(nudgePrompt, (partial) => {
         updateStreamingMessage(aiMessageId, partial);
     }).then(response => {
-        finalizeStreamingMessage(aiMessageId, response);
-        chatState.conversationHistory.push({ role: 'assistant', content: response });
+        finalizeStreamingMessage(aiMessageId, response, 'Clinical Educator');
+        chatState.conversationHistory.push({ role: 'assistant', content: `[Clinical Educator nudge: ${response}]` });
     }).catch(() => {
         removeStreamingMessage(aiMessageId);
     }).finally(() => {
@@ -1729,18 +1729,27 @@ function updateStreamingMessage(messageId, content) {
     if (!userHasScrolledUp) elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
 }
 
-function finalizeStreamingMessage(messageId, content) {
+function finalizeStreamingMessage(messageId, content, overrideLabel) {
     const messageDiv = document.getElementById(messageId);
     if (!messageDiv) return;
     const contentDiv = messageDiv.querySelector('.message-content');
     if (contentDiv) {
         const isPreScene = chatState.currentPhase === 'dispatch' || chatState.currentPhase === 'enroute';
-        // Detect clinical data responses by their header keywords
-        const isClinicalData = /^(CLINICAL DATA|OBSERVATIONS|ECG FINDINGS|CHEST EXAMINATION|ABDOMINAL EXAMINATION|NEUROLOGICAL EXAMINATION|SKIN ASSESSMENT|FAST ASSESSMENT|MEND ASSESSMENT|SAMPLE HISTORY|SOCRATES PAIN|MEDICATIONS|SOCIAL HISTORY|SCENE FINDINGS)[\s:]/im.test(content.trim());
+        const isHandover = chatState.currentPhase === 'handover';
 
-        if (isPreScene) {
+        // Detect clinical data: explicit headers OR starts with known data patterns
+        const isClinicalData = /^(CLINICAL DATA|OBSERVATIONS|ECG FINDINGS|ECG:|CHEST EXAMINATION|ABDOMINAL EXAMINATION|NEUROLOGICAL EXAMINATION|SKIN ASSESSMENT|FAST ASSESSMENT|MEND ASSESSMENT|SAMPLE HISTORY|SOCRATES PAIN|MEDICATIONS|SOCIAL HISTORY|SCENE FINDINGS|Rate\s+\d|HR:|BP:)/im.test(content.trim());
+
+        if (overrideLabel) {
+            // Explicit label override (e.g. for nudge)
+            contentDiv.innerHTML = `<div class="msg-speaker-label" style="color:var(--color-teal);">${overrideLabel}</div>${formatMessage(content)}`;
+            messageDiv.className = 'message assistant';
+        } else if (isPreScene) {
             contentDiv.innerHTML = `<div class="msg-speaker-label" style="color:#00d9ff;">MDT</div>${formatMessage(content)}`;
             messageDiv.className = 'message assistant';
+        } else if (isHandover) {
+            contentDiv.innerHTML = `<div class="msg-speaker-label" style="color:#9333ea;">Receiving Clinician</div>${formatMessage(content)}`;
+            messageDiv.className = 'message relative';
         } else if (isClinicalData) {
             contentDiv.innerHTML = `<div class="msg-speaker-label" style="color:#00d9ff;">Clinical Data</div>${formatMessage(content)}`;
             messageDiv.className = 'message assistant';
@@ -1802,6 +1811,51 @@ function resetDeteriorationCounter() {
 
 function incrementDeteriorationCounter() {
     chatState.deterioration.exchangesSinceKeyAssessment++;
+}
+
+// ==================== NUDGE API CALL (no scenario context) ====================
+// Used for phase transition nudges only — bypasses scenario system prompt entirely
+// so the AI cannot respond as the patient
+async function sendNudgeToAPI(nudgePrompt, onChunk) {
+    const user = auth.currentUser;
+    if (!user) throw new Error('Not authenticated');
+    const token = await user.getIdToken();
+
+    const systemPrompt = `You are a clinical educator giving a brief, supportive nudge to a paramedic student who is about to move to the handover phase of a scenario. Speak as a calm senior colleague. Do NOT respond as a patient. Do NOT mention specific diagnoses or conditions. Do NOT suggest specific clinical interventions. Keep your response to 2-3 sentences maximum. Use British English.`;
+
+    const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.chatEndpoint}`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            message: nudgePrompt,
+            conversationHistory: [],
+            scenarioId: null,
+            scenarioPrompt: systemPrompt
+        })
+    });
+
+    if (!response.ok) throw new Error('Failed to send nudge');
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let fullMessage = '';
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        for (const line of decoder.decode(value, { stream: true }).split('\n')) {
+            if (line.startsWith('data: ')) {
+                try {
+                    const data = JSON.parse(line.slice(6));
+                    if (data.type === 'chunk') {
+                        fullMessage += data.content;
+                        if (onChunk) onChunk(fullMessage);
+                    }
+                } catch (e) { /* skip */ }
+            }
+        }
+    }
+    return fullMessage;
 }
 
 // ==================== API CALL ====================
