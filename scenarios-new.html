@@ -922,6 +922,7 @@ const chatState = {
     },
     // ---- Phase tracking (new for Feature 1) ----
     currentPhase: 'dispatch',
+    scenarioComplete: false,
     phaseMessageCounts: {
         dispatch: 0,
         enroute: 0,
@@ -1135,6 +1136,7 @@ function startScenario() {
     chatState.phaseMessageCounts = { dispatch: 0, enroute: 0, onscene: 0, handover: 0 };
     chatState.phaseCheckpoints = { obsPerformed: false, historyStarted: false, workingImpression: '' };
     chatState.nudgeGivenForTransition = false;
+    chatState.scenarioComplete = false;
 
     // Store the patient starter message — only shown when arriving On Scene
     chatState.pendingStarterMessage = scenario.starterMessage;
@@ -1520,7 +1522,7 @@ async function completeScenario() {
         addMessage('assistant', 'Sorry, I encountered an error generating your feedback report. Please try again.');
     } finally {
         chatState.isLoading = false;
-        // Lock the input — scenario is complete
+        chatState.scenarioComplete = true;
         elements.sendBtn.disabled = true;
         elements.messageInput.disabled = true;
         elements.messageInput.placeholder = 'Scenario complete — start a new scenario to continue';
@@ -1970,7 +1972,7 @@ async function handleSendMessage(e) {
     if (e) e.preventDefault();
 
     const message = elements.messageInput.value.trim();
-    if (!message || chatState.isLoading) return;
+    if (!message || chatState.isLoading || chatState.scenarioComplete) return;
 
     if (!chatState.isPro && chatState.messagesRemaining <= 0) {
         showLimitReached();
