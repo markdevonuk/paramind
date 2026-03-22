@@ -938,7 +938,7 @@ const ASSESSMENT_PROMPTS = {
     },
     ecg: {
         name: "ECG",
-        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a 12-lead ECG. Respond with ECG findings:\n\nECG FINDINGS:\n• Rhythm: [rhythm type]\n• Rate: [value] bpm\n• P waves: [present/absent/description]\n• PR interval: [normal/prolonged/shortened/variable]\n• QRS: [narrow/wide, duration]\n• ST segments: [normal/elevated/depressed, leads affected]\n• T waves: [normal/inverted/peaked, leads affected]\n• Other: [any notable findings]\n• Interpretation: [brief clinical interpretation]\n\nDo NOT roleplay. Just provide the clinical findings."
+        prompt: "[CLINICAL ASSESSMENT - PROVIDE DATA, NOT ROLEPLAY]\n\nThe paramedic is performing a 12-lead ECG. Respond with ECG findings:\n\nECG FINDINGS:\n• Rhythm: [rhythm type]\n• Rate: [value] bpm\n• P waves: [present/absent/description]\n• PR interval: [normal/prolonged/shortened/variable]\n• QRS: [narrow/wide, duration]\n• ST segments: [normal/elevated/depressed, leads affected]\n• T waves: [normal/inverted/peaked, leads affected]\n• Other: [any notable findings]\n\nDo NOT roleplay. Do NOT include any interpretation or diagnosis. Just provide the raw clinical findings."
     },
     chest: {
         name: "Chest Examination",
@@ -1009,7 +1009,7 @@ const PHASE_CONFIG = {
         inputPlaceholder: 'Think out loud...',
         showAssessmentToolbar: false,
         showHint: false,
-        notificationText: 'En Route — Think ahead. What are your clinical priorities on arrival?',
+        notificationText: 'En Route — Think ahead. What are your clinical priorities on arrival? You can answer or just click Arrive on Scene.',
         contextForAI: `\n\n========== PHASE OVERRIDE — TAKES PRIORITY OVER ALL OTHER INSTRUCTIONS ==========\nCURRENT PHASE: EN ROUTE. The paramedic has NOT yet arrived on scene. You MUST NOT respond as the patient or any character from the scenario.\n\nYour role: engage with the paramedic's pre-arrival thinking as a brief internal prompt. Ask one short question to develop their clinical reasoning.\n\nSTRICT RULES — you MUST follow all of these:\n- Do NOT mention or hint at any specific diagnosis, condition, or pathology — not even as a possibility\n- Do NOT suggest pre-alerting the hospital — in UK practice this only happens after patient assessment\n- Do NOT suggest specific interventions or treatments\n- Do NOT use American terminology (e.g. do not say "ischemic", use "ischaemic")\n- Focus only on general pre-arrival preparation: scene safety, equipment, crew roles, clinical approach\n- Keep your response to 2-3 sentences maximum\n- Do NOT use PATIENT: or any patient dialogue\n========== END PHASE OVERRIDE ==========`
     },
     onscene: {
@@ -2536,6 +2536,10 @@ async function handleSendMessage(e) {
     // Only run deterioration in On Scene phase
     if (chatState.currentPhase === 'onscene') {
         incrementDeteriorationCounter();
+        // Mark history started once patient has had 3+ typed exchanges
+        if (chatState.phaseMessageCounts.onscene >= 3) {
+            chatState.phaseCheckpoints.historyStarted = true;
+        }
     }
 
     // Refresh toolbar (e.g. En Route button enables after first exchange)
@@ -2646,6 +2650,14 @@ async function handleAssessment(assessmentType) {
         chatState.conversationHistory.push({ role: 'user', content: `[Assessment: ${assessment.name}]` });
         chatState.conversationHistory.push({ role: 'assistant', content: response });
 
+        // Render ECG as a data grid card (not plain text)
+        if (assessmentType === 'ecg') {
+            // Remove the streaming bubble and replace with a styled ECG card
+            const existingMsg = document.getElementById(aiMessageId);
+            if (existingMsg) existingMsg.remove();
+            renderECGCard(response);
+        }
+
         // After obs or ECG, auto-trigger a decision point if not already shown one recently
         if ((assessmentType === 'obs' || assessmentType === 'ecg') && dpState.count < 3) {
             triggerDecisionPoint();
@@ -2661,6 +2673,77 @@ async function handleAssessment(assessmentType) {
         chatState.isLoading = false;
         elements.sendBtn.disabled = false;
     }
+}
+
+// ==================== ECG CARD RENDERER ====================
+function renderECGCard(text) {
+    // Parse ECG fields from the response text
+    const get = (patterns) => {
+        for (const p of patterns) {
+            const m = text.match(p);
+            if (m) return m[1].trim();
+        }
+        return null;
+    };
+
+    const rhythm  = get([/Rhythm:?\s*([^
+•]+)/i]);
+    const rate    = get([/Rate:?\s*([^
+•]+)/i]);
+    const pWaves  = get([/P\s+waves?:?\s*([^
+•]+)/i]);
+    const pr      = get([/PR\s+interval:?\s*([^
+•]+)/i]);
+    const qrs     = get([/QRS:?\s*([^
+•]+)/i]);
+    const st      = get([/ST\s+segments?:?\s*([^
+•]+)/i]);
+    const tWaves  = get([/T\s+waves?:?\s*([^
+•]+)/i]);
+    const other   = get([/Other:?\s*([^
+•]+)/i]);
+
+    // Determine alert classes
+    const stAlert = st && /elevated|depressed|abnormal/i.test(st);
+    const tAlert  = tWaves && /inverted|peaked|abnormal/i.test(tWaves);
+
+    const row = (label, value, alert) => value ? `
+        <div class="vital-cell${alert ? ' alert' : ''}">
+            <div class="vital-label">${label}</div>
+            <div class="vital-value vital-value-sm" style="font-size:0.72rem;line-height:1.3;">${value}</div>
+        </div>` : '';
+
+    const cardDiv = document.createElement('div');
+    cardDiv.className = 'assessment-indicator';
+    cardDiv.style.cssText = `
+        align-self: stretch;
+        background: linear-gradient(145deg, #0a0f1e 0%, #0d1526 100%);
+        border: 1px solid #1a2a4a;
+        border-left: 3px solid #00d9ff;
+        border-radius: var(--radius-lg);
+        padding: 0.875rem;
+        font-family: 'JetBrains Mono', monospace;
+        margin: 0.25rem 0;
+    `;
+
+    cardDiv.innerHTML = `
+        <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#00d9ff;margin-bottom:0.6rem;display:flex;align-items:center;gap:6px;">
+            <i class="bi bi-activity"></i> ECG Findings
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.35rem;">
+            ${row('Rhythm', rhythm, false)}
+            ${row('Rate', rate, false)}
+            ${row('ST Seg', st, stAlert)}
+            ${row('T Waves', tWaves, tAlert)}
+            ${row('P Waves', pWaves, false)}
+            ${row('PR Int', pr, false)}
+            ${row('QRS', qrs, false)}
+            ${other ? row('Other', other, false) : ''}
+        </div>
+    `;
+
+    elements.chatMessages.appendChild(cardDiv);
+    scrollToBottom();
 }
 
 // ==================== HINT ====================

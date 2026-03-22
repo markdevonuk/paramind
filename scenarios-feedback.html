@@ -435,6 +435,9 @@
 
     <!-- ==================== FEEDBACK REPORT ==================== -->
     <div id="feedbackReport">
+        <div style="margin-bottom:1rem;">
+            <h1 style="font-size:1.2rem;font-weight:800;color:var(--color-gray-800);letter-spacing:-0.01em;margin:0;">Assessment</h1>
+        </div>
 
         <!-- Dark header card -->
         <div class="feedback-header-card">
@@ -471,15 +474,6 @@
             </button>
         </div>
 
-        <!-- CPD saved confirmation (Pro only) -->
-        <div class="cpd-saved-banner" id="cpdSavedBanner" style="display:none;">
-            <i class="bi bi-award-fill"></i>
-            <div>
-                <strong>CPD Record Saved</strong>
-                <div class="small text-muted">Added to your CPD Portfolio. <a href="cpd.html" style="color:var(--color-teal);font-weight:600;">View certificate →</a></div>
-            </div>
-        </div>
-
         <!-- Full feedback report text -->
         <div class="report-card" id="reportCard" style="display:none;">
             <div class="report-card-title"><i class="bi bi-clipboard-check text-teal me-1" style="color:var(--color-teal);"></i>Full Feedback Report</div>
@@ -494,6 +488,15 @@
             <a href="scenarios-new.html" class="btn btn-primary">
                 <i class="bi bi-arrow-repeat me-1"></i>New Scenario
             </a>
+        </div>
+
+        <!-- CPD saved confirmation (Pro only) — shown at bottom after actions -->
+        <div class="cpd-saved-banner" id="cpdSavedBanner" style="display:none;margin-top:0.75rem;">
+            <i class="bi bi-award-fill"></i>
+            <div>
+                <strong>CPD Record Saved</strong>
+                <div class="small text-muted">Added to your CPD Portfolio. <a href="cpd.html" style="color:var(--color-teal);font-weight:600;">View certificate →</a></div>
+            </div>
         </div>
 
     </div>
@@ -672,6 +675,24 @@ auth.onAuthStateChanged(async (user) => {
         while (stepIndex <= 3) advanceStep();
 
         await new Promise(r => setTimeout(r, 600)); // brief pause so step 4 shows
+
+        // Fuzzy impression check — if all key words match, treat as correct
+        // (handles word-order variations e.g. "STEMI ACS" vs "ACS - STEMI")
+        function normaliseImpression(str) {
+            return str.toLowerCase()
+                .replace(/[^a-z0-9\s]/g, ' ')
+                .split(/\s+/)
+                .filter(w => w.length > 2)
+                .sort();
+        }
+        const impWords  = normaliseImpression(payload.userImpression);
+        const diagWords = normaliseImpression(payload.correctDiagnosis);
+        const overlap   = impWords.filter(w => diagWords.includes(w));
+        // If 80%+ of diagnosis words appear in impression, treat as correct
+        if (feedbackData.result === 'partially_correct' && diagWords.length > 0) {
+            const matchRatio = overlap.length / diagWords.length;
+            if (matchRatio >= 0.8) feedbackData.result = 'correct';
+        }
 
         // Compute grade
         const gradeData = computeGrade(feedbackData.result, payload.gradeInputs);
