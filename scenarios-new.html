@@ -549,6 +549,67 @@
             letter-spacing: 0.03em;
         }
 
+        /* ==================== GRADE BADGE ==================== */
+        .grade-banner {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-lg);
+            margin-bottom: 1rem;
+            border: 2px solid;
+        }
+        .grade-banner.gold   { background: rgba(255,193,7,0.08);  border-color: #ffc107; }
+        .grade-banner.silver { background: rgba(160,160,160,0.08); border-color: #a0a0a0; }
+        .grade-banner.bronze { background: rgba(205,127,50,0.08);  border-color: #cd7f32; }
+        .grade-banner.needs-practice { background: rgba(220,53,69,0.08); border-color: #dc3545; }
+
+        .grade-medal {
+            font-size: 2.2rem;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .grade-text { flex: 1; }
+        .grade-title {
+            font-weight: 800;
+            font-size: 1.1rem;
+            margin-bottom: 0.1rem;
+        }
+        .grade-banner.gold   .grade-title { color: #d4a000; }
+        .grade-banner.silver .grade-title { color: #808080; }
+        .grade-banner.bronze .grade-title { color: #cd7f32; }
+        .grade-banner.needs-practice .grade-title { color: #dc3545; }
+
+        .grade-subtitle {
+            font-size: 0.8rem;
+            color: var(--color-gray-500);
+        }
+
+        .grade-breakdown {
+            margin-top: 0.75rem;
+            border-top: 1px solid var(--color-gray-200);
+            padding-top: 0.75rem;
+        }
+        .grade-breakdown-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--color-gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+        .grade-checkpoint {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.82rem;
+            padding: 0.2rem 0;
+            color: var(--color-gray-700);
+        }
+        .grade-checkpoint i { font-size: 0.85rem; flex-shrink: 0; }
+        .grade-checkpoint.hit i   { color: #5cb85c; }
+        .grade-checkpoint.miss i  { color: #dc3545; }
+
         /* ==================== CLINICAL DECISION POINTS ==================== */
         .decision-point-card {
             align-self: stretch;
@@ -1710,7 +1771,109 @@ async function submitWorkingImpression() {
     renderPhaseToolbar();
 }
 
-// ==================== COMPLETE SCENARIO (Feature 2: Feedback Report) ====================
+// ==================== SCORING & GRADING (Feature 5) ====================
+
+const GRADE_CHECKPOINTS = [
+    {
+        id: 'obs',
+        label: 'Observations taken',
+        points: 2,
+        check: () => vitalsState.hasData
+    },
+    {
+        id: 'history',
+        label: 'History gathered from patient',
+        points: 2,
+        check: () => chatState.phaseCheckpoints.historyStarted
+    },
+    {
+        id: 'patient_comms',
+        label: 'Good patient communication (3+ exchanges)',
+        points: 1,
+        check: () => chatState.phaseMessageCounts.onscene >= 3
+    },
+    {
+        id: 'assessment_breadth',
+        label: 'Multiple assessments performed',
+        points: 1,
+        check: () => chatState.scenarioProgress.assessmentsPerformed >= 2
+    },
+    {
+        id: 'enroute_planning',
+        label: 'Pre-arrival planning en route',
+        points: 1,
+        check: () => chatState.phaseMessageCounts.enroute >= 1
+    },
+    {
+        id: 'wi_submitted',
+        label: 'Working impression submitted',
+        points: 2,
+        check: () => !!chatState.phaseCheckpoints.workingImpression
+    },
+    {
+        id: 'wi_correct',
+        label: 'Working impression correct',
+        points: 3,
+        check: (result) => result === 'correct'
+    },
+    {
+        id: 'wi_partial',
+        label: 'Working impression partially correct',
+        points: 1,
+        check: (result) => result === 'partially_correct'
+    },
+    {
+        id: 'handover_delivered',
+        label: 'Handover delivered',
+        points: 2,
+        check: () => chatState.phaseMessageCounts.handover >= 1
+    },
+    {
+        id: 'handover_thorough',
+        label: 'Thorough handover (3+ exchanges)',
+        points: 1,
+        check: () => chatState.phaseMessageCounts.handover >= 3
+    },
+    {
+        id: 'decision_points',
+        label: 'Engaged with clinical decision points',
+        points: 1,
+        check: () => dpState.count >= 1
+    },
+];
+
+// Max possible points = 17 (wi_correct and wi_partial are mutually exclusive so real max = 16)
+const GRADE_THRESHOLDS = { gold: 12, silver: 8, bronze: 4 };
+
+function computeGrade(result) {
+    let totalPoints = 0;
+    const checkpointResults = [];
+
+    for (const cp of GRADE_CHECKPOINTS) {
+        // wi_correct and wi_partial are mutually exclusive — only one can score
+        if (cp.id === 'wi_partial' && result === 'correct') continue;
+        if (cp.id === 'wi_correct' && result !== 'correct') continue;
+
+        const hit = cp.check(result);
+        if (hit) totalPoints += cp.points;
+        checkpointResults.push({ ...cp, hit });
+    }
+
+    let grade, medal, subtitle;
+    if (totalPoints >= GRADE_THRESHOLDS.gold) {
+        grade = 'gold'; medal = '🥇'; subtitle = 'Exceptional performance';
+    } else if (totalPoints >= GRADE_THRESHOLDS.silver) {
+        grade = 'silver'; medal = '🥈'; subtitle = 'Good performance, minor gaps';
+    } else if (totalPoints >= GRADE_THRESHOLDS.bronze) {
+        grade = 'bronze'; medal = '🥉'; subtitle = 'Passed but significant areas missed';
+    } else {
+        grade = 'needs-practice'; medal = '❌'; subtitle = 'Fundamental checkpoints missed';
+    }
+
+    return { grade, medal, subtitle, totalPoints, checkpointResults };
+}
+
+// ==================== COMPLETE SCENARIO ====================
 async function completeScenario() {
     if (chatState.isLoading) return;
 
@@ -1762,11 +1925,14 @@ async function completeScenario() {
         if (!feedbackResponse.ok) throw new Error('Failed to generate feedback');
         const feedbackData = await feedbackResponse.json();
 
+        // Compute grade client-side from tracked checkpoints
+        const gradeData = computeGrade(feedbackData.result);
+
         // Remove loading indicator
         document.getElementById('feedbackLoading')?.remove();
 
         // Render the feedback report card
-        renderFeedbackReport(feedbackData, scenario, impression);
+        renderFeedbackReport(feedbackData, scenario, impression, gradeData);
 
         // Save CPD record for Pro users (with debrief report saved alongside)
         if (chatState.isPro && completedScenarioId && scenario) {
@@ -1813,15 +1979,43 @@ async function completeScenario() {
     }
 }
 
-function renderFeedbackReport(feedbackData, scenario, impression) {
+function renderFeedbackReport(feedbackData, scenario, impression, gradeData) {
     const { report, result, isPro } = feedbackData;
 
     const resultColour = result === 'correct' ? '#5cb85c' : result === 'incorrect' ? '#dc3545' : '#f0a500';
     const resultLabel = result === 'correct' ? '✓ Correct' : result === 'incorrect' ? '✗ Incorrect' : '~ Partially Correct';
     const resultBg = result === 'correct' ? 'rgba(92,184,92,0.08)' : result === 'incorrect' ? 'rgba(220,53,69,0.08)' : 'rgba(240,165,0,0.08)';
 
-    // Convert markdown to HTML for the report body
     const reportHtml = formatMessage(report);
+
+    // Grade banner HTML
+    const gradeNames = { gold: 'Gold', silver: 'Silver', bronze: 'Bronze', 'needs-practice': 'Needs Practice' };
+    const gradeBannerHtml = gradeData ? `
+        <div class="grade-banner ${gradeData.grade}">
+            <div class="grade-medal">${gradeData.medal}</div>
+            <div class="grade-text">
+                <div class="grade-title">${gradeNames[gradeData.grade]}</div>
+                <div class="grade-subtitle">${gradeData.subtitle}</div>
+            </div>
+        </div>
+        ${isPro ? `
+        <div class="grade-breakdown">
+            <div class="grade-breakdown-title">Grade Breakdown</div>
+            ${gradeData.checkpointResults.map(cp => `
+                <div class="grade-checkpoint ${cp.hit ? 'hit' : 'miss'}">
+                    <i class="bi ${cp.hit ? 'bi-check-circle-fill' : 'bi-x-circle-fill'}"></i>
+                    <span>${cp.label}</span>
+                    <span style="margin-left:auto;font-size:0.75rem;font-weight:600;color:${cp.hit ? '#5cb85c' : '#dc3545'};">${cp.hit ? '+' + cp.points : '0'} pts</span>
+                </div>`).join('')}
+            <div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid var(--color-gray-200);font-size:0.8rem;font-weight:700;color:var(--color-gray-700);">
+                Total: ${gradeData.totalPoints} points
+            </div>
+        </div>` : `
+        <div style="font-size:0.78rem;color:var(--color-gray-500);margin-bottom:0.75rem;">
+            <i class="bi bi-star me-1" style="color:var(--color-teal);"></i>
+            <a href="#" onclick="createCheckoutSession();return false;" style="color:var(--color-teal);font-weight:600;">Upgrade to Pro</a> to see exactly which checkpoints contributed to your grade.
+        </div>`}
+    ` : '';
 
     const cardDiv = document.createElement('div');
     cardDiv.style.cssText = `
@@ -1843,6 +2037,7 @@ function renderFeedbackReport(feedbackData, scenario, impression) {
                 ${resultLabel}
             </span>
         </div>
+        ${gradeBannerHtml}
         <div style="font-size:0.75rem;color:var(--color-gray-500);margin-bottom:1rem;font-family:'JetBrains Mono',monospace;">
             Working Impression: <strong style="color:var(--color-gray-700);">${impression}</strong>
             &nbsp;·&nbsp; Correct Diagnosis: <strong style="color:var(--color-gray-700);">${scenario?.patient?.condition || 'N/A'}</strong>
@@ -1856,7 +2051,7 @@ function renderFeedbackReport(feedbackData, scenario, impression) {
                 <i class="bi bi-star me-1" style="color:var(--color-teal);"></i>Unlock Your Full Feedback Report
             </div>
             <div style="font-size:0.82rem;color:var(--color-gray-600);margin-bottom:0.75rem;">
-                Pro members get a detailed 5-section report: what you did well, what you missed, clinical reasoning explained, and a model approach from an experienced paramedic.
+                Pro members get a detailed 5-section report plus full grade breakdown showing exactly which checkpoints you hit and missed.
             </div>
             <button class="btn btn-primary btn-sm" onclick="createCheckoutSession()">
                 <i class="bi bi-star me-1"></i>Upgrade to Pro — £4.99/month
