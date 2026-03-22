@@ -1811,12 +1811,13 @@ async function sendMessageToAPI(message, onChunk) {
     const token = await user.getIdToken();
 
     // Build scenario prompt based on current phase
-    // Dispatch and En Route: no patient scenario context — just the phase override
-    // On Scene and Handover: full scenario prompt with phase context appended
+    // Dispatch, En Route, Handover: phase override only — no patient scenario prompt
+    //   (Handover only needs the receiving clinician role, not patient data or debrief rules)
+    // On Scene: full scenario prompt + British English context
     let scenarioPrompt = null;
 
     if (chatState.currentPhase === 'dispatch' || chatState.currentPhase === 'enroute') {
-        // Pre-scene: phase override only, but include actual dispatch details so AI doesn't hallucinate
+        // Pre-scene: phase override + actual dispatch details so AI doesn't hallucinate
         const scenario = chatState.currentScenario
             ? window.scenarioData.getScenarioById(chatState.currentScenario)
             : null;
@@ -1827,22 +1828,18 @@ async function sendMessageToAPI(message, onChunk) {
         })() : '';
         const phaseContext = PHASE_CONFIG[chatState.currentPhase].contextForAI;
         scenarioPrompt = phaseContext + (dispatchDetails ? '\n\n' + dispatchDetails : '');
+    } else if (chatState.currentPhase === 'handover') {
+        // Handover: phase override only — no patient scenario prompt, no debrief rules
+        scenarioPrompt = PHASE_CONFIG.handover.contextForAI;
     } else if (chatState.currentScenario) {
-        // On scene or handover: full scenario prompt
+        // On Scene: full scenario prompt + British English context
         scenarioPrompt = window.scenarioData.getScenarioSystemPrompt(
             chatState.currentScenario,
             chatState.currentDifficultyLevel,
             chatState.deterioration.currentPhase
         );
         const phaseContext = PHASE_CONFIG[chatState.currentPhase]?.contextForAI;
-        if (phaseContext) {
-            // Handover override must also prepend to defeat the roleplay instruction
-            if (chatState.currentPhase === 'handover') {
-                scenarioPrompt = phaseContext + '\n\n' + scenarioPrompt;
-            } else {
-                scenarioPrompt += phaseContext;
-            }
-        }
+        if (phaseContext) scenarioPrompt += phaseContext;
     }
 
     const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.chatEndpoint}`, {
@@ -1853,8 +1850,9 @@ async function sendMessageToAPI(message, onChunk) {
         },
         body: JSON.stringify({
             message: message,
-            // For pre-scene phases, send no conversation history — the AI has no patient context yet
-            conversationHistory: (chatState.currentPhase === 'dispatch' || chatState.currentPhase === 'enroute')
+            // Dispatch/En Route: no conversation history (no patient context yet)
+            // Handover: no conversation history (receiving clinician has no prior context)
+            conversationHistory: (chatState.currentPhase === 'dispatch' || chatState.currentPhase === 'enroute' || chatState.currentPhase === 'handover')
                 ? []
                 : chatState.conversationHistory.slice(-10).filter(m => m.role !== 'system'),
             scenarioId: chatState.currentScenario || null,

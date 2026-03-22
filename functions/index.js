@@ -2494,18 +2494,19 @@ Write 2-3 sentences summarising the paramedic's overall performance. Be supporti
 List 2-4 specific things the paramedic actually did well, referencing their actual questions or actions from the transcript. Quote them directly where helpful. If they did very little, say so honestly but constructively.
 
 ## 3. What You Missed
-List 3-5 specific things they should have done but did not. Be precise — name the specific questions not asked, assessments not performed, or history not gathered.
+List 3-5 specific things they should have done but did not. Be precise — name the specific questions not asked, assessments not performed, or history not gathered. If they rushed to handover without adequate assessment, say so.
 
-## 4. Clinical Reasoning
+## 4. Handover Quality
+Assess the ATMIST handover they delivered. ATMIST = Age, Time of onset, Mechanism or Medical history, Injuries or key findings, Signs and vital signs, Treatment given. Comment specifically on which elements were present, which were missing or vague, and whether the receiving clinician had enough information to safely take over care. If the handover was poor or incomplete, say so directly and specifically — this is important feedback.
+
+## 5. Clinical Reasoning
 In 3-4 sentences, explain why the key findings in this case mattered clinically. Do NOT name the diagnosis directly if the learner got it wrong — focus on the clinical reasoning principles.
-
-## 5. Model Approach
-In 3-4 sentences, describe how an experienced paramedic would have approached this case from arrival to handover.
 
 CRITICAL RULES:
 - Base EVERY comment on the ACTUAL transcript provided. Do not invent or assume actions.
+- If the handover in the transcript is brief or poor, reflect that honestly in section 4.
 - Use British English throughout (e.g. "breathlessness", "adrenaline", "paracetamol", NHS terminology).
-- Tone: supportive senior colleague, never harsh or condescending.
+- Tone: supportive senior colleague, never harsh or condescending, but always honest.
 - Do NOT start with any preamble — go straight to "## 1. Overall Performance".
 ` : `
 You are a senior paramedic educator. Write in British English using NHS terminology.
@@ -2516,12 +2517,12 @@ The paramedic has completed a scenario. Provide a SHORT feedback summary with EX
 State clearly: CORRECT, PARTIALLY CORRECT, or INCORRECT. One sentence explanation.
 
 ## Key Gaps
-List up to 3 specific things they missed (bullet points, brief).
+List up to 3 specific things they missed from their assessment or handover (bullet points, brief). If the handover was poor quality, include that.
 
-## Next Steps
-One sentence encouraging them to review the case and upgrade to Pro for their full detailed feedback report.
+## Unlock Full Feedback
+One sentence: upgrade to Pro for the full 5-section report including a detailed ATMIST handover assessment.
 
-Base everything on the actual transcript. Do not invent actions. Be brief and constructive.
+Base everything on the actual transcript. Do not invent actions. Be brief and honest.
 `;
 
       const systemPrompt = `You are a UK paramedic clinical educator generating post-scenario feedback. The scenario correct diagnosis is: ${correctDiagnosis}. The learner's working impression was: "${userImpression}". Key red flags for this condition: ${redFlagList}.
