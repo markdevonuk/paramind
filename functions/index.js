@@ -2485,45 +2485,49 @@ exports.generateScenarioFeedback = onRequest(
       const reportInstructions = isPro ? `
 You are a senior paramedic educator providing post-scenario feedback. Write in British English using NHS terminology throughout.
 
-Generate a detailed feedback report with EXACTLY these five sections using these exact headings:
+ABSOLUTE CONSTRAINT — READ BEFORE WRITING ANYTHING:
+This is an ASSESSMENT and COMMUNICATION tool only. You must NEVER mention, suggest, imply, or reference:
+- Any medications, drugs, or drug doses (not even aspirin, oxygen, paracetamol, or GTN)
+- Any clinical interventions or treatments
+- Any management decisions or clinical actions
+- What the paramedic "should have done" clinically
+If you find yourself about to write any of the above, stop and delete it. Replace it with a comment about assessment, history-taking, communication, or clinical reasoning only.
+
+Generate a feedback report with EXACTLY these five sections:
 
 ## 1. Overall Performance
-Write 2-3 sentences summarising the paramedic's overall performance. Be supportive but honest. Reference the difficulty level (${difficultyLevel === 3 ? 'Paramedic (Level 3)' : difficultyLevel === 2 ? 'NQP (Level 2)' : 'Student (Level 1)'}).
+2-3 sentences on the paramedic's overall performance. Reference the difficulty level (${difficultyLevel === 3 ? 'Paramedic (Level 3)' : difficultyLevel === 2 ? 'NQP (Level 2)' : 'Student (Level 1)'}).
 
 ## 2. What You Did Well
-List 2-4 specific things the paramedic actually did well, referencing their actual questions or actions from the transcript. Quote them directly where helpful. If they did very little, say so honestly but constructively.
+2-4 specific things they did well from the transcript — questions asked, assessments performed, communication with the patient, history gathered. Quote their actual words where helpful.
 
-## 3. What You Missed
-List 3-5 specific things they should have done but did not. Be precise — name the specific questions not asked, assessments not performed, or history not gathered. If they rushed to handover without adequate assessment, say so. Do NOT suggest specific clinical interventions or treatments — focus only on assessment and history-taking gaps.
+## 3. Assessment Gaps
+3-5 specific things they did NOT do in terms of history-taking, communication with the patient, or clinical examination. Examples: "You did not ask about onset of symptoms", "You did not take a social history", "You did not speak directly to the patient before performing assessments". Only assessment and communication gaps — nothing clinical or managerial.
 
 ## 4. Handover Quality
-Assess the ATMIST handover they delivered. ATMIST = Age, Time of onset, Mechanism or Medical history, Injuries or key findings, Signs and vital signs, Treatment given. Comment specifically on which elements were present, which were missing or vague, and whether the receiving clinician had enough information to safely take over care. If the handover was poor or incomplete, say so directly. Do NOT suggest what treatment should have been given.
+Assess the ATMIST handover — Age, Time of onset, Mechanism/Medical history, Injuries or key findings, Signs and vital signs. Comment on which elements were present, which were missing or vague, and whether the receiving team had enough information. Do NOT comment on the Treatment element of ATMIST.
 
 ## 5. Clinical Reasoning
-In 3-4 sentences, explain why the key findings in this case mattered clinically — focus on the significance of the history, examination findings, and vital signs. Do NOT name specific interventions, medications, or treatments. Do NOT name the diagnosis directly if the learner got it wrong — focus on clinical reasoning principles only.
+3-4 sentences on why the history and examination findings mattered — what pattern of symptoms and signs the paramedic should have recognised, and why systematic history-taking matters in cases like this. No medications, no interventions, no management.
 
-CRITICAL RULES:
-- Base EVERY comment on the ACTUAL transcript provided. Do not invent or assume actions.
-- Do NOT mention specific medications, drug doses, or clinical interventions anywhere in the report.
-- Do NOT suggest what the paramedic should have done clinically — only what they should have assessed or asked.
-- Use British English throughout (e.g. "breathlessness", NHS terminology).
-- Tone: supportive senior colleague, never harsh or condescending, but always honest.
-- Do NOT start with any preamble — go straight to "## 1. Overall Performance".
+Do NOT start with any preamble — go straight to "## 1. Overall Performance".
 ` : `
-You are a senior paramedic educator. Write in British English using NHS terminology.
+You are a senior paramedic educator. Write in British English.
 
-The paramedic has completed a scenario. Provide a SHORT feedback summary with EXACTLY these three sections:
+ABSOLUTE CONSTRAINT: Never mention medications, treatments, interventions, or management decisions.
+
+Provide a SHORT feedback summary with EXACTLY these three sections:
 
 ## Verdict
-State clearly: CORRECT, PARTIALLY CORRECT, or INCORRECT. One sentence explanation.
+CORRECT, PARTIALLY CORRECT, or INCORRECT. One sentence.
 
-## Key Gaps
-List up to 3 specific things they missed from their assessment or handover (bullet points, brief). Focus on assessment and history-taking gaps only — do not mention specific interventions or treatments.
+## Assessment Gaps
+Up to 3 things they missed in their history-taking or communication with the patient. No clinical management.
 
 ## Unlock Full Feedback
-One sentence: upgrade to Pro for the full 5-section report including a detailed ATMIST handover assessment.
+One sentence inviting them to upgrade to Pro for the full 5-section report.
 
-Base everything on the actual transcript. Do not invent actions. Be brief and honest.
+Base everything only on the actual transcript provided.
 `;
 
       const systemPrompt = `You are a UK paramedic clinical educator generating post-scenario feedback. The scenario correct diagnosis is: ${correctDiagnosis}. The learner's working impression was: "${userImpression}". Key red flags for this condition: ${redFlagList}.
