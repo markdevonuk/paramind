@@ -549,6 +549,103 @@
             letter-spacing: 0.03em;
         }
 
+        /* ==================== CLINICAL DECISION POINTS ==================== */
+        .decision-point-card {
+            align-self: stretch;
+            background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+            border: 1px solid #0f3460;
+            border-left: 3px solid #ffc107;
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+            margin: 0.5rem 0;
+            animation: fadeIn 0.4s ease;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .dp-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .dp-badge {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #ffc107;
+            background: rgba(255,193,7,0.12);
+            border: 1px solid rgba(255,193,7,0.3);
+            padding: 0.15rem 0.5rem;
+            border-radius: 20px;
+        }
+
+        .dp-question {
+            font-size: 0.9rem;
+            color: #e0e0e0;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .dp-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .dp-option-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.6rem 0.75rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: #c0c0c0;
+            font-size: 0.85rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+
+        .dp-option-btn:hover {
+            background: rgba(255,193,7,0.1);
+            border-color: #ffc107;
+            color: #ffc107;
+        }
+
+        .dp-option-letter {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #ffc107;
+            background: rgba(255,193,7,0.15);
+            border-radius: 4px;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .dp-option-btn.selected {
+            background: rgba(255,193,7,0.15);
+            border-color: #ffc107;
+            color: #ffc107;
+            cursor: default;
+        }
+
+        .dp-option-btn.disabled {
+            opacity: 0.4;
+            cursor: default;
+            pointer-events: none;
+        }
+
         /* ==================== DETERIORATION ALERTS ==================== */
         .deterioration-alert { display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem; margin: 1rem 0; border-radius: 8px; animation: alertSlideIn 0.5s ease; }
         @keyframes alertSlideIn { 0% { transform: translateY(-10px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
@@ -1077,7 +1174,7 @@ const PHASE_CONFIG = {
         showAssessmentToolbar: true,
         showHint: true,
         notificationText: 'On Scene — Assess your patient. Take a history, perform examinations, gather all the information you need.',
-        contextForAI: `\n\nLANGUAGE: You are in the United Kingdom. Use British English throughout — spellings (e.g. "breathlessness" not "shortness of breath" as a label, "adrenaline" not "epinephrine", "paracetamol" not "acetaminophen"), British NHS terminology, and UK ambulance service conventions. Never use American medical slang or US-specific terminology.`
+        contextForAI: `\n\nLANGUAGE: You are in the United Kingdom. Use British English throughout — spellings, British NHS terminology, and UK ambulance service conventions. Never use American medical slang.\n\nCLINICAL DECISION POINTS: At key clinical moments during the scenario — for example, after the paramedic has gathered significant findings, identified a critical sign, or reached a point where a management decision would normally be made — you MAY pause the scenario and present a clinical decision point. Do this sparingly and only when genuinely clinically significant.\n\nTo present a decision point, output ONLY the following format on its own line, with no other text before or after it:\n[DP]What do you want to do?|A) First option|B) Second option|C) Third option|D) Fourth option[/DP]\n\nRULES for decision points:\n- Options must be plausible — include 1-2 correct and 2-3 realistic but suboptimal choices\n- Do NOT include obviously absurd options\n- Do NOT mention specific medications, drugs, or treatments in any option\n- Focus options on assessment actions, communication decisions, or prioritisation choices\n- After the user selects an option, respond in character with the realistic consequence of that choice\n- If they chose poorly, play out what would realistically happen, then add a brief in-character nudge\n- Do NOT break the [DP] format — it must be exact`
     },
     handover: {
         label: 'Handover',
@@ -1330,6 +1427,7 @@ function startScenario() {
     chatState.phaseCheckpoints = { obsPerformed: false, historyStarted: false, workingImpression: '' };
     chatState.nudgeGivenForTransition = false;
     chatState.scenarioComplete = false;
+    resetDPState();
 
     // Store the patient starter message — only shown when arriving On Scene
     chatState.pendingStarterMessage = scenario.starterMessage;
@@ -1932,11 +2030,20 @@ function finalizeStreamingMessage(messageId, content, overrideLabel) {
         const isPreScene = chatState.currentPhase === 'dispatch' || chatState.currentPhase === 'enroute';
         const isHandover = chatState.currentPhase === 'handover';
 
+        // Check for decision point block — if present, remove the streaming bubble
+        // and render a decision point card instead
+        const dp = parseDecisionPoint(content);
+        if (dp && chatState.currentPhase === 'onscene') {
+            messageDiv.remove();
+            renderDecisionPoint(dp);
+            userHasScrolledUp = false;
+            return;
+        }
+
         // Detect clinical data: explicit headers OR starts with known data patterns
         const isClinicalData = /^(CLINICAL DATA|OBSERVATIONS|ECG FINDINGS|ECG:|CHEST EXAMINATION|ABDOMINAL EXAMINATION|NEUROLOGICAL EXAMINATION|SKIN ASSESSMENT|FAST ASSESSMENT|MEND ASSESSMENT|SAMPLE HISTORY|SOCRATES PAIN|MEDICATIONS|SOCIAL HISTORY|SCENE FINDINGS|Rate\s+\d|HR:|BP:)/im.test(content.trim());
 
         if (overrideLabel) {
-            // Explicit label override (e.g. for nudge)
             contentDiv.innerHTML = `<div class="msg-speaker-label" style="color:var(--color-teal);">${overrideLabel}</div>${formatMessage(content)}`;
             messageDiv.className = 'message assistant';
         } else if (isPreScene) {
@@ -2229,6 +2336,106 @@ function playVitalAlertSound() {
 }
 
 // ==================== END VITALS PANEL ====================
+
+// ==================== CLINICAL DECISION POINTS (Feature 3) ====================
+
+const dpState = {
+    count: 0,
+    activeId: null
+};
+
+function resetDPState() {
+    dpState.count = 0;
+    dpState.activeId = null;
+}
+
+function parseDecisionPoint(text) {
+    const match = text.match(/\[DP\]([\s\S]*?)\[\/DP\]/);
+    if (!match) return null;
+    const parts = match[1].split('|').map(s => s.trim()).filter(Boolean);
+    if (parts.length < 3) return null;
+    return { question: parts[0], options: parts.slice(1), raw: match[0] };
+}
+
+function renderDecisionPoint(dp) {
+    dpState.count++;
+    const cardId = `dp-card-${dpState.count}`;
+    dpState.activeId = cardId;
+
+    const card = document.createElement('div');
+    card.className = 'decision-point-card';
+    card.id = cardId;
+
+    const optionsHtml = dp.options.map((opt, i) => {
+        const letter = opt.match(/^([A-D])\)/)?.[1] || String.fromCharCode(65 + i);
+        const text = opt.replace(/^[A-D]\)\s*/, '');
+        const escapedText = text.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/'/g, "\\'");
+        const escapedQ = dp.question.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/'/g, "\\'");
+        return `
+            <button class="dp-option-btn" onclick="selectDPOption('${cardId}', '${letter}', '${escapedText}', '${escapedQ}')">
+                <span class="dp-option-letter">${letter}</span>
+                <span>${text}</span>
+            </button>`;
+    }).join('');
+
+    card.innerHTML = `
+        <div class="dp-header">
+            <span class="dp-badge"><i class="bi bi-signpost-split me-1"></i>Decision Point</span>
+        </div>
+        <div class="dp-question">${dp.question}</div>
+        <div class="dp-options">${optionsHtml}</div>`;
+
+    elements.chatMessages.appendChild(card);
+    scrollToBottom();
+}
+
+async function selectDPOption(cardId, letter, optionText, question) {
+    if (chatState.isLoading || chatState.scenarioComplete) return;
+
+    const card = document.getElementById(cardId);
+    if (!card) return;
+
+    // Disable all options and highlight selected
+    card.querySelectorAll('.dp-option-btn').forEach((btn, i) => {
+        const btnLetter = btn.querySelector('.dp-option-letter')?.textContent;
+        btn.classList.add(btnLetter === letter ? 'selected' : 'disabled');
+    });
+
+    dpState.activeId = null;
+
+    const userDisplayMessage = `**Decision:** ${letter}) ${optionText}`;
+    const proSuffix = chatState.isPro
+        ? ` After playing out the consequence, add a "**Learning point:**" (2 sentences max) explaining why this choice was or was not ideal. Do NOT mention specific medications or treatments.`
+        : '';
+    const triggerMessage = `[DECISION POINT RESPONSE] The paramedic was asked: "${question}". They chose: ${letter}) ${optionText}. Play out the realistic consequence of this choice in character.${proSuffix}`;
+
+    addMessage('user', userDisplayMessage);
+    chatState.conversationHistory.push({ role: 'user', content: triggerMessage });
+    chatState.phaseMessageCounts.onscene++;
+
+    const aiMessageId = 'ai-msg-' + Date.now();
+    addStreamingMessage(aiMessageId);
+    chatState.isLoading = true;
+    elements.sendBtn.disabled = true;
+
+    try {
+        const response = await sendMessageToAPI(triggerMessage, (partial) => {
+            updateStreamingMessage(aiMessageId, partial);
+        });
+        finalizeStreamingMessage(aiMessageId, response);
+        chatState.conversationHistory.push({ role: 'assistant', content: response });
+        checkDeterioration();
+    } catch (error) {
+        removeStreamingMessage(aiMessageId);
+        addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+    } finally {
+        chatState.isLoading = false;
+        elements.sendBtn.disabled = false;
+    }
+}
+
+// ==================== END DECISION POINTS ====================
+
 
 
 // Used for phase transition nudges only — bypasses scenario system prompt entirely
