@@ -228,7 +228,35 @@
         @keyframes cursorBlink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
         .streaming-text { white-space: pre-wrap; word-wrap: break-word; font-size: inherit; line-height: 1.5; }
 
-        /* Assessment + hint indicators */
+        /* Assessment + hint icon buttons — sit inside the chat form row */
+        .assess-icon-btn {
+            width: 42px; height: 42px; flex-shrink: 0; border-radius: 50%;
+            background: rgba(0,217,255,0.1);
+            border: 1.5px solid rgba(0,217,255,0.5);
+            color: #00d9ff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.05rem; cursor: pointer; transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .assess-icon-btn:hover { background: rgba(0,217,255,0.2); }
+        .assess-icon-btn:active { transform: scale(0.93); }
+
+        .hint-icon-btn {
+            width: 42px; height: 42px; flex-shrink: 0; border-radius: 50%;
+            background: rgba(233,69,96,0.08);
+            border: 1.5px solid rgba(233,69,96,0.45);
+            color: #e94560;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.05rem; cursor: pointer; transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .hint-icon-btn:hover { background: rgba(233,69,96,0.18); }
+        .hint-icon-btn:active { transform: scale(0.93); }
+
+        /* Remove the old full-width assessment toolbar styles */
+        .assessment-toolbar { display: contents; } /* wrapper becomes invisible, child button flows into flex */
+
+        /* Assessment + hint indicators in chat */
         .scenario-chat-view .assessment-indicator { align-self: center; background: rgba(0,217,255,0.1); border: 1px dashed #00d9ff; padding: 0.4rem 0.875rem; border-radius: 20px; font-size: 0.78rem; color: #00d9ff; font-family: 'JetBrains Mono', monospace; font-weight: 500; }
         .scenario-chat-view .hint-indicator { align-self: center; background: rgba(233,69,96,0.1); border: 1px dashed #e94560; padding: 0.4rem 0.875rem; border-radius: 20px; font-size: 0.78rem; color: #e94560; font-family: 'JetBrains Mono', monospace; font-weight: 500; }
 
@@ -620,8 +648,9 @@
         <div class="vitals-panel" id="vitalsPanel" style="display:none;">
             <div class="vitals-panel-header" onclick="toggleVitalsPanel()">
                 <div class="vitals-panel-left">
-                    <span class="vitals-alert-blob" id="vitalsAlertDot"></span>
+                    <span class="vitals-alert-blob" id="vitalsAlertDot" style="display:none;"></span>
                     <span class="vitals-panel-title"><i class="bi bi-heart-pulse me-1"></i>Patient Monitor</span>
+                    <span class="vitals-alert-badge" id="vitalsAlertBadge" style="display:none;"></span>
                 </div>
                 <button class="vitals-toggle-btn" id="vitalsCollapseBtn" aria-label="Toggle monitor">
                     <i class="bi bi-chevron-up" id="vitalsCollapseIcon"></i>
@@ -677,18 +706,14 @@
         <!-- Chat Input Area -->
         <div class="chat-input-area">
 
-            <!-- Assessment Toolbar (On Scene phase only) -->
-            <div class="assessment-toolbar" id="assessmentToolbar" style="display:none;">
-                <button class="btn assessment-btn flex-grow-1" type="button" id="openAssessmentModal">
-                    <i class="bi bi-clipboard2-pulse me-1"></i>Perform Assessment
-                </button>
-                <button class="btn hint-btn" id="hintBtn">
-                    <i class="bi bi-lightbulb me-1"></i>Hint
-                </button>
-            </div>
-
-            <!-- Chat Form -->
+            <!-- Chat Form — assess icon left, textarea centre, send right -->
             <div class="chat-form" id="chatFormWrapper">
+                <!-- Assessment icon — shown only On Scene, hidden by assessmentToolbar JS -->
+                <div id="assessmentToolbar" style="display:none;">
+                    <button class="assess-icon-btn" type="button" id="openAssessmentModal" title="Perform Assessment">
+                        <i class="bi bi-clipboard2-pulse"></i>
+                    </button>
+                </div>
                 <div class="chat-input-wrapper">
                     <textarea
                         class="chat-input"
@@ -697,6 +722,10 @@
                         rows="1"
                     ></textarea>
                 </div>
+                <!-- Hint button — shown only On Scene -->
+                <button class="hint-icon-btn" id="hintBtn" style="display:none;" title="Get a hint">
+                    <i class="bi bi-lightbulb"></i>
+                </button>
                 <button type="button" class="send-btn" id="sendBtn">
                     <i class="bi bi-send-fill"></i>
                 </button>
@@ -1312,8 +1341,9 @@ function renderPhaseBar() {
 function updatePhaseUI() {
     const cfg = PHASE_CONFIG[chatState.currentPhase];
 
-    // Assessment toolbar visibility
+    // Assessment icon + hint button — both on only during On Scene
     elements.assessmentToolbar.style.display = cfg.showAssessmentToolbar ? 'flex' : 'none';
+    elements.hintBtn.style.display = cfg.showHint ? 'flex' : 'none';
 
     // Chat input placeholder
     elements.messageInput.placeholder = cfg.inputPlaceholder;
@@ -2237,10 +2267,27 @@ function updateVitalsPanel(vitals) {
     // Alert handling
     if (anyAlert) {
         playVitalAlertSound();
+        // Always show the pulsing blob and count badge in the header
+        const alertDot = document.getElementById('vitalsAlertDot');
+        const alertBadge = document.getElementById('vitalsAlertBadge');
+        const alertCount = document.querySelectorAll('.vital-cell.alert').length;
+        if (alertDot) alertDot.style.display = 'block';
+        if (alertBadge) {
+            alertBadge.style.display = 'inline-block';
+            alertBadge.textContent = alertCount + ' Abnormal';
+        }
+        // Also pulse the panel border
+        document.getElementById('vitalsPanel').classList.add('has-alerts');
+        // Track for collapse indicator
         if (vitalsState.collapsed) {
             vitalsState.hasNewAlert = true;
-            document.getElementById('vitalsAlertDot').style.display = 'block';
         }
+    } else {
+        const alertDot = document.getElementById('vitalsAlertDot');
+        const alertBadge = document.getElementById('vitalsAlertBadge');
+        if (alertDot) alertDot.style.display = 'none';
+        if (alertBadge) alertBadge.style.display = 'none';
+        document.getElementById('vitalsPanel').classList.remove('has-alerts');
     }
 }
 
