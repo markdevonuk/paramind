@@ -880,7 +880,7 @@ const PHASE_CONFIG = {
         showAssessmentToolbar: true,
         showHint: true,
         notificationText: 'On Scene — Assess your patient. Take a history, perform examinations, gather all the information you need.',
-        contextForAI: `` // default scenario roleplay — no override needed
+        contextForAI: `\n\nLANGUAGE: You are in the United Kingdom. Use British English throughout — spellings (e.g. "breathlessness" not "shortness of breath" as a label, "adrenaline" not "epinephrine", "paracetamol" not "acetaminophen"), British NHS terminology, and UK ambulance service conventions. Never use American medical slang or US-specific terminology.`
     },
     handover: {
         label: 'Handover',
@@ -891,7 +891,7 @@ const PHASE_CONFIG = {
         showAssessmentToolbar: false,
         showHint: false,
         notificationText: 'Handover — Deliver your ATMIST handover to the receiving clinician.',
-        contextForAI: `\n\n[PHASE CONTEXT: HANDOVER]\nThe paramedic is at hospital delivering an ATMIST handover. You are now playing the A&E charge nurse / doctor receiving the patient. Respond as a realistic receiving clinician — acknowledge key findings, ask one or two questions about anything missing from the ATMIST (Age, Time of onset, Mechanism/Medical history, Injuries or key findings, Signs/vital signs), and confirm safe receipt of the patient. Be professional and concise.`
+        contextForAI: `\n\n========== PHASE OVERRIDE — TAKES PRIORITY OVER ALL OTHER INSTRUCTIONS ==========\nCURRENT PHASE: HANDOVER. The patient journey is complete. You MUST NOT respond as the patient or continue any patient roleplay. You are now playing the A&E charge nurse or receiving doctor at the emergency department. Respond as a professional NHS clinician receiving the handover — acknowledge key findings, ask one or two brief questions about anything missing from the ATMIST, and confirm safe receipt. Use British English and NHS terminology throughout. Keep your response concise and professional.\n========== END PHASE OVERRIDE ==========`
     }
 };
 
@@ -1684,7 +1684,14 @@ async function sendMessageToAPI(message, onChunk) {
             chatState.deterioration.currentPhase
         );
         const phaseContext = PHASE_CONFIG[chatState.currentPhase]?.contextForAI;
-        if (phaseContext) scenarioPrompt += phaseContext;
+        if (phaseContext) {
+            // Handover override must also prepend to defeat the roleplay instruction
+            if (chatState.currentPhase === 'handover') {
+                scenarioPrompt = phaseContext + '\n\n' + scenarioPrompt;
+            } else {
+                scenarioPrompt += phaseContext;
+            }
+        }
     }
 
     const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.chatEndpoint}`, {
