@@ -2934,24 +2934,46 @@ async function handleAssessment(assessmentType) {
     indicator.innerHTML = `<i class="bi bi-clipboard2-pulse me-1"></i>Performing: ${assessment.name}`;
     elements.chatMessages.appendChild(indicator);
 
+    // For obs, don't show a streaming bubble — values go to the monitor panel
+    const isObs = assessmentType === 'obs';
     const aiMessageId = 'ai-msg-' + Date.now();
-    addStreamingMessage(aiMessageId);
+    if (!isObs) addStreamingMessage(aiMessageId);
     chatState.isLoading = true;
     elements.sendBtn.disabled = true;
 
     try {
         const response = await sendMessageToAPI(assessment.prompt, (partial) => {
-            updateStreamingMessage(aiMessageId, partial);
+            if (!isObs) updateStreamingMessage(aiMessageId, partial);
         });
-        finalizeStreamingMessage(aiMessageId, response);
+
+        if (isObs) {
+            // Parse and populate the monitor panel
+            const vitals = parseVitalsFromResponse(response);
+            if (vitals) {
+                updateVitalsPanel(vitals);
+                // Show a brief inline note instead of the full data bubble
+                const noteDiv = document.createElement('div');
+                noteDiv.className = 'phase-notification';
+                noteDiv.style.cssText = 'margin:0.5rem 0;';
+                noteDiv.innerHTML = `
+                    <i class="bi bi-heart-pulse" style="color:#00d9ff;"></i>
+                    <div class="phase-notification-text">
+                        <div class="phase-notification-label" style="color:#00d9ff;">Patient Monitor Updated</div>
+                        <div class="phase-notification-desc">Your monitoring equipment is now showing the patient's observations. Check the monitor panel below.</div>
+                    </div>`;
+                elements.chatMessages.appendChild(noteDiv);
+                scrollToBottom();
+            } else {
+                // Parsing failed — fall back to showing the response normally
+                addStreamingMessage(aiMessageId);
+                finalizeStreamingMessage(aiMessageId, response);
+            }
+        } else {
+            finalizeStreamingMessage(aiMessageId, response);
+        }
+
         chatState.conversationHistory.push({ role: 'user', content: `[Assessment: ${assessment.name}]` });
         chatState.conversationHistory.push({ role: 'assistant', content: response });
-
-        // If this was an obs assessment, try to parse vitals and update the panel
-        if (assessmentType === 'obs') {
-            const vitals = parseVitalsFromResponse(response);
-            if (vitals) updateVitalsPanel(vitals);
-        }
 
         // After obs or ECG, auto-trigger a decision point if not already shown one recently
         if ((assessmentType === 'obs' || assessmentType === 'ecg') && dpState.count < 3) {
