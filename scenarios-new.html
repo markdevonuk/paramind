@@ -1455,17 +1455,6 @@ function renderPhaseToolbar() {
             </button>`;
     }
 
-    // Proceed anyway override (shown after a nudge on the On Scene → Handover transition)
-    if (phase === 'onscene' && chatState.nudgeGivenForTransition) {
-        html += `
-            <div class="phase-override-row">
-                <span class="phase-override-label">Nudge given —</span>
-                <button class="phase-override-btn" onclick="forceAdvancePhase()">
-                    Proceed anyway (not recommended)
-                </button>
-            </div>`;
-    }
-
     toolbar.innerHTML = html;
 }
 
@@ -1510,11 +1499,11 @@ function advancePhase() {
 }
 
 function tryAdvancePhase() {
-    // Only used for On Scene → Handover transition
-    // Guard: never fire if already loading or nudge already in flight
     if (chatState.isLoading) return;
+
+    // If nudge already given, just advance — user has been informed
     if (chatState.nudgeGivenForTransition) {
-        // Nudge already given — user must either proceed anyway or keep going
+        advancePhase();
         return;
     }
 
@@ -1557,12 +1546,6 @@ function tryAdvancePhase() {
         chatState.isLoading = false;
         elements.sendBtn.disabled = false;
     });
-}
-
-function forceAdvancePhase() {
-    if (confirm('Proceed to Handover phase? The AI noted some gaps in your assessment — proceeding without addressing them will be reflected in your debrief.')) {
-        advancePhase();
-    }
 }
 
 function getOnSceneCheckpointsMissing() {
