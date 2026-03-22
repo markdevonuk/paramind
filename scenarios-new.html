@@ -1736,8 +1736,18 @@ function finalizeStreamingMessage(messageId, content) {
     const contentDiv = messageDiv.querySelector('.message-content');
     if (contentDiv) {
         const isPreScene = chatState.currentPhase === 'dispatch' || chatState.currentPhase === 'enroute';
+        // Detect clinical data responses by their header keywords
+        const isClinicalData = /^(CLINICAL DATA|OBSERVATIONS|ECG FINDINGS|CHEST EXAMINATION|ABDOMINAL EXAMINATION|NEUROLOGICAL EXAMINATION|SKIN ASSESSMENT|FAST ASSESSMENT|MEND ASSESSMENT|SAMPLE HISTORY|SOCRATES PAIN|MEDICATIONS|SOCIAL HISTORY|SCENE FINDINGS)[\s:]/im.test(content.trim());
+
         if (isPreScene) {
             contentDiv.innerHTML = `<div class="msg-speaker-label" style="color:#00d9ff;">MDT</div>${formatMessage(content)}`;
+            messageDiv.className = 'message assistant';
+        } else if (isClinicalData) {
+            contentDiv.innerHTML = `<div class="msg-speaker-label" style="color:#00d9ff;">Clinical Data</div>${formatMessage(content)}`;
+            messageDiv.className = 'message assistant';
+            contentDiv.style.cssText = 'background:rgba(0,217,255,0.05);border:1px solid rgba(0,217,255,0.2);padding:0.875rem 1rem;border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);line-height:1.5;font-family:"JetBrains Mono",monospace;font-size:0.85rem;';
+            messageDiv.querySelector('.message-avatar').style.cssText = 'background:rgba(0,217,255,0.15);color:#00d9ff;';
+            messageDiv.querySelector('.message-avatar i').className = 'bi bi-clipboard2-pulse';
         } else {
             contentDiv.innerHTML = `<div class="msg-speaker-label">Patient</div>${formatMessage(content)}`;
         }
