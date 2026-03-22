@@ -1683,14 +1683,30 @@ function addMessage(role, content) {
 
 function addStreamingMessage(messageId) {
     const messageDiv = document.createElement('div');
-    messageDiv.className = 'message patient';
-    messageDiv.id = messageId;
-    messageDiv.innerHTML = `
-        <div class="message-avatar"><i class="bi bi-person-fill"></i></div>
-        <div class="message-content">
-            <div class="msg-speaker-label">Patient</div>
-            <span class="streaming-text"></span><span class="streaming-cursor">|</span>
-        </div>`;
+    const isPreScene = chatState.currentPhase === 'dispatch' || chatState.currentPhase === 'enroute';
+
+    if (isPreScene) {
+        messageDiv.className = 'message assistant';
+        messageDiv.id = messageId;
+        messageDiv.innerHTML = `
+            <div class="message-avatar" style="background:rgba(0,217,255,0.15);color:#00d9ff;">
+                <i class="bi bi-broadcast"></i>
+            </div>
+            <div class="message-content" style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;background:rgba(26,26,46,0.06);border:1px solid rgba(0,217,255,0.2);">
+                <div class="msg-speaker-label" style="color:#00d9ff;">MDT</div>
+                <span class="streaming-text"></span><span class="streaming-cursor">|</span>
+            </div>`;
+    } else {
+        messageDiv.className = 'message patient';
+        messageDiv.id = messageId;
+        messageDiv.innerHTML = `
+            <div class="message-avatar"><i class="bi bi-person-fill"></i></div>
+            <div class="message-content">
+                <div class="msg-speaker-label">Patient</div>
+                <span class="streaming-text"></span><span class="streaming-cursor">|</span>
+            </div>`;
+    }
+
     elements.chatMessages.appendChild(messageDiv);
     scrollToBottom();
 }
@@ -1719,7 +1735,12 @@ function finalizeStreamingMessage(messageId, content) {
     if (!messageDiv) return;
     const contentDiv = messageDiv.querySelector('.message-content');
     if (contentDiv) {
-        contentDiv.innerHTML = `<div class="msg-speaker-label">Patient</div>${formatMessage(content)}`;
+        const isPreScene = chatState.currentPhase === 'dispatch' || chatState.currentPhase === 'enroute';
+        if (isPreScene) {
+            contentDiv.innerHTML = `<div class="msg-speaker-label" style="color:#00d9ff;">MDT</div>${formatMessage(content)}`;
+        } else {
+            contentDiv.innerHTML = `<div class="msg-speaker-label">Patient</div>${formatMessage(content)}`;
+        }
     }
     userHasScrolledUp = false;
 }
@@ -1786,9 +1807,17 @@ async function sendMessageToAPI(message, onChunk) {
     let scenarioPrompt = null;
 
     if (chatState.currentPhase === 'dispatch' || chatState.currentPhase === 'enroute') {
-        // Pre-scene: only send the phase override — no patient data at all
+        // Pre-scene: phase override only, but include actual dispatch details so AI doesn't hallucinate
+        const scenario = chatState.currentScenario
+            ? window.scenarioData.getScenarioById(chatState.currentScenario)
+            : null;
+        const dispatchDetails = scenario ? (() => {
+            const d = scenario.dispatch;
+            const gender = d.gender === 'M' ? 'Male' : d.gender === 'F' ? 'Female' : 'Unknown';
+            return `ACTUAL CALL DETAILS (use these — do not invent any other details):\nPatient: ${d.age ? `${d.age} year old ${gender}` : 'Multiple patients'}\nChief complaint: ${d.chiefComplaint}\nAdditional details: ${d.details || 'None provided'}\nTriage category: ${d.category}`;
+        })() : '';
         const phaseContext = PHASE_CONFIG[chatState.currentPhase].contextForAI;
-        scenarioPrompt = phaseContext || null;
+        scenarioPrompt = phaseContext + (dispatchDetails ? '\n\n' + dispatchDetails : '');
     } else if (chatState.currentScenario) {
         // On scene or handover: full scenario prompt
         scenarioPrompt = window.scenarioData.getScenarioSystemPrompt(
