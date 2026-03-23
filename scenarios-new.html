@@ -2686,28 +2686,36 @@ async function handleAssessment(assessmentType) {
 
 // ==================== ECG CARD RENDERER ====================
 function renderECGCard(text) {
-    // Parse ECG fields from the response text
+    // Parse ECG fields from the response text.
+    // Stop at newline, bullet, or the next known field keyword.
+    const FIELD_STOP = /(?:\n|•|\r|(?=\s*(?:Rate|P\s+waves?|PR\s+interval|QRS|ST\s+seg|T\s+waves?|Other)\s*:))/i;
+
     const get = (patterns) => {
         for (const p of patterns) {
             const m = text.match(p);
             if (m) {
-                const val = m[1].trim();
-                // Skip N/A, not performed, not indicated etc.
+                let val = m[1].trim();
+                // Truncate at the next field boundary (handles single-line AI responses)
+                const stop = val.search(FIELD_STOP);
+                if (stop > 0) val = val.slice(0, stop).trim();
+                // Strip trailing comma/period/semicolon
+                val = val.replace(/[,;.]+$/, '').trim();
+                // Reject N/A-type responses
                 if (/^(n\/a|not\s+applicable|not\s+performed|not\s+indicated|unable|unknown|--|-)$/i.test(val)) return null;
-                return val;
+                return val || null;
             }
         }
         return null;
     };
 
-    const rhythm  = get([/Rhythm:?\s*(.+)/i]);
-    const rate    = get([/Rate:?\s*(.+)/i]);
-    const pWaves  = get([/P\s+waves?:?\s*(.+)/i]);
-    const pr      = get([/PR\s+interval:?\s*(.+)/i]);
-    const qrs     = get([/QRS:?\s*(.+)/i]);
-    const st      = get([/ST\s+segments?:?\s*(.+)/i]);
-    const tWaves  = get([/T\s+waves?:?\s*(.+)/i]);
-    const other   = get([/Other:?\s*(.+)/i]);
+    const rhythm  = get([/Rhythm:?\s*([^\n•\r]+)/i]);
+    const rate    = get([/Rate:?\s*([^\n•\r]+)/i]);
+    const pWaves  = get([/P\s+waves?:?\s*([^\n•\r]+)/i]);
+    const pr      = get([/PR\s+interval:?\s*([^\n•\r]+)/i]);
+    const qrs     = get([/QRS:?\s*([^\n•\r]+)/i]);
+    const st      = get([/ST\s+segments?:?\s*([^\n•\r]+)/i]);
+    const tWaves  = get([/T\s+waves?:?\s*([^\n•\r]+)/i]);
+    const other   = get([/Other:?\s*([^\n•\r]+)/i]);
 
     // If fewer than 2 real values parsed, ECG wasn't actually performed —
     // show the response as a regular clinical data text bubble instead
