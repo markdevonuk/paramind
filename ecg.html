@@ -1882,7 +1882,7 @@
                     
                 case 'secondDegreeMobitz1':
                     const wenkeBeat = Math.floor((adjustedX / beatInterval) % 4);
-                    const prProlongation = wenkeBeat * 0.03;
+                    const prProlongation = wenkeBeat * 0.08; // 0.08 per beat gives clearly visible PR lengthening
                     
                     if (wenkeBeat < 3) {
                         if (cyclePos >= 0.0 && cyclePos < 0.08) {
@@ -1893,8 +1893,9 @@
                             y = baselineY - Math.sin(((cyclePos - 0.18 - prProlongation) / 0.04) * Math.PI) * 60;
                         } else if (cyclePos >= (0.22 + prProlongation) && cyclePos < (0.26 + prProlongation)) {
                             y = baselineY + Math.sin(((cyclePos - 0.22 - prProlongation) / 0.04) * Math.PI) * 15;
-                        } else if (cyclePos >= 0.40 && cyclePos < 0.55) {
-                            y = baselineY - Math.sin(((cyclePos - 0.40) / 0.15) * Math.PI) * 15;
+                        } else if (cyclePos >= (0.40 + prProlongation) && cyclePos < (0.56 + prProlongation)) {
+                            // T wave follows QRS so it doesn't collide as PR lengthens
+                            y = baselineY - Math.sin(((cyclePos - 0.40 - prProlongation) / 0.16) * Math.PI) * 15;
                         }
                     } else {
                         if (cyclePos >= 0.0 && cyclePos < 0.08) {
