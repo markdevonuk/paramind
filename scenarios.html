@@ -3214,91 +3214,46 @@ document.querySelectorAll('input[name="difficultyLevel"]').forEach(radio => {
 // ==================== GUIDED TOUR ====================
 const TOUR_STEPS = [
     {
+        target: '.section-header',
+        title: 'Welcome to Scenarios',
+        desc: 'Work through real patient cases from dispatch to hospital handover — just like a genuine 999 job. Start by choosing a clinical category.'
+    },
+    {
         target: '.category-grid',
         title: 'Choose a Category',
-        desc: 'Start by picking a clinical topic — Cardiac, Respiratory, Trauma, Neuro, and more. Each contains several unique patient cases.'
+        desc: 'Pick a clinical topic — Cardiac, Respiratory, Trauma, Neuro, and more. Each contains several unique patient cases at different difficulty levels.'
     },
     {
-        target: '.dispatcher-view',
-        title: 'Dispatcher Screen',
-        desc: 'You see real 999 dispatch cards with patient details and triage category. Choose a job and hit Dispatch to respond.',
-        action: () => {
-            const firstCat = document.querySelector('.category-card');
-            if (firstCat) showDispatcher(firstCat.dataset.category);
-        }
+        target: '.category-card',
+        title: 'Pick a Case',
+        desc: 'Tap any category card to open the dispatcher screen — a realistic 999 dispatch interface showing available incidents with patient details and triage category.'
     },
     {
-        target: '.dispatch-btn',
-        title: 'Select Difficulty',
-        desc: 'Hit Dispatch to open the briefing. Choose Student for classic cases, NQP for added complexity, or Paramedic for atypical presentations.',
-        action: () => {
-            const firstBtn = document.querySelector('.dispatch-btn');
-            if (firstBtn) openScenarioModal(firstBtn.dataset.scenarioId);
-            setTimeout(() => {
-                document.body.appendChild(tourTooltip);
-                tourTooltip.style.zIndex = '99999';
-                tourTooltip.style.position = 'fixed';
-                tourSpotlight.style.display = 'none';
-            }, 400);
-        }
+        target: '.category-card',
+        title: 'Four Phases Per Scenario',
+        desc: 'Every case has four phases: Dispatch (review the call), En Route (optional thinking time), On Scene (assess the patient), and Handover (hand over to the receiving team).'
     },
     {
-        target: '#phaseBar',
-        title: 'Four Phases',
-        desc: 'Every scenario has four phases: Dispatch, En Route, On Scene, and Handover — mirroring a real 999 job from call to hospital.',
-        action: () => {
-            tourTooltip.style.zIndex = '';
-            tourSpotlight.style.display = '';
-            document.body.contains(tourTooltip) && document.getElementById('tourOverlay').appendChild(tourTooltip);
-            const modalEl = document.getElementById('scenarioModal');
-            if (modalEl) {
-                const modal = bootstrap.Modal.getInstance(modalEl);
-                if (modal) modal.hide();
-            }
-            setTimeout(() => {
-                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-                document.body.classList.remove('modal-open');
-                document.body.style.overflow = '';
-                document.body.style.paddingRight = '';
-            }, 300);
-        }
+        target: '.category-card',
+        title: 'On Scene — Assessments',
+        desc: 'Once on scene, use the clipboard button in the input bar to open the assessment picker. Run Observations, ECG, SAMPLE history and more — results appear as clinical data.'
     },
     {
-        target: '.phase-notification',
-        title: 'Phase Notifications',
-        desc: 'Each phase starts with a prompt telling you what to do. En Route is optional — you can think out loud or just click Arrive on Scene straight away.'
-    },
-    {
-        target: '#openAssessmentModal',
-        title: 'Perform Assessments',
-        desc: 'Tap to open the assessment picker. Run structured clinical assessments — Observations, ECG, Chest Exam, FAST, SAMPLE history and more.'
-    },
-    {
-        target: '#vitalsPanel',
+        target: '.category-card',
         title: 'Patient Monitor',
-        desc: 'After taking observations, vital signs populate the monitor. Abnormal values flash red. Tap the header to collapse or expand the panel.'
+        desc: 'After taking observations, vitals populate the patient monitor panel. Abnormal values flash red. The panel sits above the input area while you work.'
     },
     {
-        target: '.phase-toolbar',
-        title: 'Progress Through Phases',
-        desc: 'Use the button at the bottom to advance — submit your working impression, then proceed to handover. Your performance is scored at the end.'
+        target: '.category-card',
+        title: 'Working Impression & Handover',
+        desc: 'Submit your working impression when ready, then deliver an ATMIST handover. Your whole performance is scored and a detailed feedback report is generated at the end.'
+    },
+    {
+        target: '.category-card',
+        title: 'Ready to go!',
+        desc: 'Tap any category to start your first case. Good luck — and remember, in this scenario it's always safe to try things and make mistakes.'
     }
 ];
-
-const tourOverlay  = document.getElementById('tourOverlay');
-const tourSpotlight = document.getElementById('tourSpotlight');
-const tourTooltip  = document.getElementById('tourTooltip');
-const tourArrow    = document.getElementById('tourArrow');
-const tourTitle    = document.getElementById('tourTitle');
-const tourDesc     = document.getElementById('tourDesc');
-const tourStepNum  = document.getElementById('tourStepNum');
-const tourStepLabel = document.getElementById('tourStepLabel');
-const tourDots     = document.getElementById('tourDots');
-const tourNextBtn  = document.getElementById('tourNextBtn');
-const tourSkipBtn  = document.getElementById('tourSkipBtn');
-const tourWelcome  = document.getElementById('tourWelcome');
-const tourStartBtn = document.getElementById('tourStartBtn');
-const tourDismissBtn = document.getElementById('tourDismissBtn');
 
 let tourStep = 0;
 
@@ -3312,6 +3267,8 @@ function initTour() {
 
 function startTour() {
     tourStep = 0;
+    // Ensure we're on category view
+    showCategoryView();
     tourOverlay.classList.add('active');
     tourDots.innerHTML = TOUR_STEPS.map((_, i) =>
         `<div class="tour-dot ${i === 0 ? 'active' : ''}" data-dot="${i}"></div>`
@@ -3323,7 +3280,6 @@ function startTour() {
 
 function showTourStep(idx) {
     const step = TOUR_STEPS[idx];
-    if (step.action) step.action();
 
     tourSpotlight.style.transition = 'none';
     tourSpotlight.style.top = '-9999px';
@@ -3343,7 +3299,7 @@ function showTourStep(idx) {
             tourTitle.textContent = step.title;
             tourDesc.textContent = step.desc;
             tourNextBtn.innerHTML = idx === TOUR_STEPS.length - 1
-                ? 'Get started <i class="bi bi-check-lg"></i>'
+                ? 'Start playing <i class="bi bi-play-fill"></i>'
                 : 'Next <i class="bi bi-arrow-right"></i>';
 
             tourDots.querySelectorAll('.tour-dot').forEach((dot, i) => {
@@ -3353,7 +3309,7 @@ function showTourStep(idx) {
             });
 
             const rect = targetEl.getBoundingClientRect();
-            const pad = 6;
+            const pad = 8;
             tourSpotlight.style.top    = (rect.top - pad) + 'px';
             tourSpotlight.style.left   = (rect.left - pad) + 'px';
             tourSpotlight.style.width  = (rect.width + pad * 2) + 'px';
@@ -3370,11 +3326,11 @@ function showTourStep(idx) {
             const spaceBelow = window.innerHeight - spotBottom;
 
             if (spaceBelow > 220) {
-                tourTooltip.style.top = (spotBottom + 12) + 'px';
+                tourTooltip.style.top    = (spotBottom + 12) + 'px';
                 tourTooltip.style.bottom = 'auto';
                 tourArrow.className = 'tour-tooltip-arrow arrow-top';
             } else {
-                tourTooltip.style.top = 'auto';
+                tourTooltip.style.top    = 'auto';
                 tourTooltip.style.bottom = (window.innerHeight - rect.top + pad + 12) + 'px';
                 tourArrow.className = 'tour-tooltip-arrow arrow-bottom';
             }
@@ -3386,7 +3342,7 @@ function showTourStep(idx) {
             const arrowLeft = Math.max(20, Math.min(rect.left + rect.width / 2 - tooltipLeft - 7, 280));
             tourArrow.style.left = arrowLeft + 'px';
         }, inView ? 60 : 550);
-    }, step.actionDelay || 150);
+    }, 150);
 }
 
 function nextTourStep() {
@@ -3396,21 +3352,7 @@ function nextTourStep() {
 
 function endTour() {
     tourOverlay.classList.remove('active');
-    if (tourTooltip.parentElement !== tourOverlay) tourOverlay.appendChild(tourTooltip);
-    tourTooltip.style.zIndex = '';
-    tourSpotlight.style.display = '';
     markTourDone();
-    const modalEl = document.getElementById('scenarioModal');
-    if (modalEl) {
-        const modal = bootstrap.Modal.getInstance(modalEl);
-        if (modal) modal.hide();
-    }
-    setTimeout(() => {
-        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-        document.body.classList.remove('modal-open');
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
-    }, 400);
     showCategoryView();
 }
 
