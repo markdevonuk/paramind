@@ -737,6 +737,8 @@
                 if (user.subscriptionStatus === 'active' || user.isZeroPaid) {
                     if (user.subscriptionPlatform === 'apple') {
                         platformBadge = '<span class="badge bg-dark">\u{1F34E} Apple</span>';
+                    } else if (user.subscriptionPlatform === 'google') {
+                        platformBadge = '<span class="badge bg-success">\u{1F916} Google</span>';
                     } else if (user.stripeSubscriptionId) {
                         platformBadge = '<span class="badge bg-primary">\u{1F4B3} Stripe</span>';
                     }
@@ -804,6 +806,8 @@
                 let platform = '';
                 if (user.subscriptionPlatform === 'apple') {
                     platform = 'Apple';
+                } else if (user.subscriptionPlatform === 'google') {
+                    platform = 'Google';
                 } else if (user.stripeSubscriptionId) {
                     platform = 'Stripe';
                 }
