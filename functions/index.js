@@ -2536,6 +2536,10 @@ Base everything only on the actual transcript provided.
 
       const systemPrompt = `You are a UK paramedic clinical educator generating post-scenario feedback. The scenario correct diagnosis is: ${correctDiagnosis}. The learner's working impression was: "${userImpression}". Key red flags for this condition: ${redFlagList}.
 
+CRITICAL — VERDICT RULES:
+1. If the working impression is not a genuine clinical diagnosis (e.g. it is nonsense, a joke, a placeholder, or shows no attempt at clinical reasoning), the VERDICT must be INCORRECT — do not give partial credit for non-clinical answers.
+2. Only give CORRECT or PARTIALLY CORRECT if the impression contains recognisable medical/clinical terminology that relates to the actual diagnosis.
+
 ${reportInstructions}`;
 
       const response = await openai.chat.completions.create({
@@ -2552,10 +2556,10 @@ ${reportInstructions}`;
 
       // Parse verdict from the report for result classification
       const upper = reportText.toUpperCase();
-      let result = "partially_correct";
+      let result = "incorrect";
       if (upper.includes("VERDICT: CORRECT") || upper.includes("VERDICT\nCORRECT") || upper.includes("VERDICT\r\nCORRECT") || (upper.includes("VERDICT") && upper.includes(": CORRECT"))) result = "correct";
+      else if (upper.includes("VERDICT: PARTIALLY") || upper.includes("PARTIALLY CORRECT") || upper.includes("PARTIAL")) result = "partially_correct";
       else if (upper.includes("INCORRECT")) result = "incorrect";
-      else if (upper.includes("PARTIALLY CORRECT") || upper.includes("PARTIAL")) result = "partially_correct";
 
       return res.status(200).json({
         success: true,

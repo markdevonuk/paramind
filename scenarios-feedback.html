@@ -687,6 +687,18 @@ auth.onAuthStateChanged(async (user) => {
 
         await new Promise(r => setTimeout(r, 600)); // brief pause so step 4 shows
 
+        // If impression contains no recognisable clinical terminology, force incorrect
+        const clinicalTerms = /[a-z]{4,}/i; // at least one word with 4+ letters
+        const diagKeywords = normaliseImpression(payload.correctDiagnosis);
+        const impKeywords  = normaliseImpression(payload.userImpression);
+        const hasAnyClinicalOverlap = impKeywords.some(w => diagKeywords.includes(w));
+        const impressionLooksNonClinical = payload.userImpression.trim().split(/\s+/).length <= 3
+            && !hasAnyClinicalOverlap
+            && !/overdose|cardiac|arrest|stroke|fracture|asthma|diabetes|sepsis|anaphylax|haemorrhage|hemorrhage|infarct|pneumo|seizure|syncope|hypoglycaem|stemi|nstemi|acs|copd|pe |dvt|ectopic|aorta|meningitis|appendicit|bowel|obstetric|eclampsia|labour|trauma|head\s*injur/i.test(payload.userImpression);
+        if (impressionLooksNonClinical && feedbackData.result !== 'correct') {
+            feedbackData.result = 'incorrect';
+        }
+
         // Fuzzy impression check — if all key words match, treat as correct
         // (handles word-order variations e.g. "STEMI ACS" vs "ACS - STEMI")
         function normaliseImpression(str) {
