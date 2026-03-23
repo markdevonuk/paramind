@@ -2686,53 +2686,43 @@ async function handleAssessment(assessmentType) {
 
 // ==================== ECG CARD RENDERER ====================
 function renderECGCard(text) {
-    // Two-strategy parser: line-by-line for bullet responses, keyword-split for single-line
-    const results = {};
-
-    // Strategy 1: parse each line (handles bullet-point responses)
-    const lines = text.split('\n');
-    for (const rawLine of lines) {
-        const line = rawLine.trim().replace(/^[•\-–]\s*/, '');
-        const fieldPatterns = [
-            [/^Rhythm:?\s*(.+)/i,           'rhythm'],
-            [/^Rate:?\s*(.+)/i,              'rate'],
-            [/^P\s+waves?:?\s*(.+)/i,        'pWaves'],
-            [/^PR\s+interval:?\s*(.+)/i,     'pr'],
-            [/^QRS:?\s*(.+)/i,               'qrs'],
-            [/^ST\s+segments?:?\s*(.+)/i,    'st'],
-            [/^T\s+waves?:?\s*(.+)/i,        'tWaves'],
-            [/^Other:?\s*(.+)/i,             'other'],
+    // Parse ECG fields line-by-line (expects bullet-point format)
+    const fields = {};
+    for (const rawLine of text.split('\n')) {
+        const line = rawLine.trim().replace(/^[\u2022\-]\s*/, '');
+        const pairs = [
+            [/^Rhythm:\s*(.+)/i,         'rhythm'],
+            [/^Rate:\s*(.+)/i,           'rate'],
+            [/^P\s+waves?:\s*(.+)/i,    'pWaves'],
+            [/^PR\s+interval:\s*(.+)/i, 'pr'],
+            [/^QRS:\s*(.+)/i,            'qrs'],
+            [/^ST\s+segments?:\s*(.+)/i,'st'],
+            [/^T\s+waves?:\s*(.+)/i,    'tWaves'],
+            [/^Other:\s*(.+)/i,          'other'],
         ];
-        for (const [pat, key] of fieldPatterns) {
+        for (const [pat, key] of pairs) {
             const m = line.match(pat);
-            if (m) {
-                const val = m[1].trim().replace(/[,;.]+$/, '').trim();
-                if (val && val !== '•' && val !== '-') results[key] = val;
-                break;
-            }
+            if (m) { fields[key] = m[1].trim().replace(/[,;.]+$/, ''); break; }
         }
     }
 
-    // Strategy 2: if fewer than 3 fields found, try splitting on "FieldName:" keywords
-    if (Object.keys(results).length < 3) {
-        const FIELDS = ['Rhythm','Rate','P waves','PR interval','QRS','ST segments','T waves','Other'];
-        const KEY_MAP = {
-            'rhythm':'rhythm','rate':'rate','p waves':'pWaves','pr interval':'pr',
-            'qrs':'qrs','st segments':'st','t waves':'tWaves','other':'other'
-        };
-        const splitPat = new RegExp(',?\\s*(' + FIELDS.map(f => f.replace(' ','\\s+')).join('|') + ')\\s*:', 'gi');
-        const parts = text.split(splitPat);
-        for (let i = 1; i < parts.length - 1; i += 2) {
-            const keyRaw = parts[i].trim().toLowerCase().replace(/\s+/g, ' ');
-            const val = (parts[i + 1] || '').trim().replace(/[,;.]+$/, '').trim();
-            const mappedKey = KEY_MAP[keyRaw];
-            if (mappedKey && val && val !== '•') results[mappedKey] = val;
-        }
+    // If fewer than 3 fields found, AI used free text — show as styled bubble
+    if (Object.keys(fields).length < 3) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'message message-mdt';
+        msgDiv.innerHTML = `
+            <div class="message-avatar"><i class="bi bi-activity"></i></div>
+            <div class="message-content">
+                <div class="msg-speaker-label" style="color:#00d9ff;">ECG Findings</div>
+                ${formatMessage(text)}
+            </div>`;
+        elements.chatMessages.appendChild(msgDiv);
+        scrollToBottom();
+        return;
     }
 
-    // Determine alert classes
-    const stAlert = results.st && /elevated|depressed|abnormal/i.test(results.st);
-    const tAlert  = results.tWaves && /inverted|peaked|abnormal/i.test(results.tWaves);
+    const stAlert = fields.st && /elevated|depressed|abnormal/i.test(fields.st);
+    const tAlert  = fields.tWaves && /inverted|peaked|abnormal/i.test(fields.tWaves);
 
     const row = (label, value, alert) => value ? `
         <div class="vital-cell${alert ? ' alert' : ''}">
@@ -2758,14 +2748,14 @@ function renderECGCard(text) {
             <i class="bi bi-activity"></i> ECG Findings
         </div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.35rem;">
-            ${row('Rhythm', results.rhythm, false)}
-            ${row('Rate', results.rate, false)}
-            ${row('ST Seg', results.st, stAlert)}
-            ${row('T Waves', results.tWaves, tAlert)}
-            ${row('P Waves', results.pWaves, false)}
-            ${row('PR Int', results.pr, false)}
-            ${row('QRS', results.qrs, false)}
-            ${results.other ? row('Other', results.other, false) : ''}
+            ${row('Rhythm', fields.rhythm, false)}
+            ${row('Rate', fields.rate, false)}
+            ${row('ST Seg', fields.st, stAlert)}
+            ${row('T Waves', fields.tWaves, tAlert)}
+            ${row('P Waves', fields.pWaves, false)}
+            ${row('PR Int', fields.pr, false)}
+            ${row('QRS', fields.qrs, false)}
+            ${fields.other ? row('Other', fields.other, false) : ''}
         </div>
     `;
 
