@@ -742,6 +742,388 @@ const SCENARIOS = [
         starterMessage: "I keep going all dizzy and nearly falling over. It's happened about five times today. I've had these funny turns on and off for a while but never this bad."
     },
 
+    // ==================== CARDIAC (scenarios 11-20) ====================
+    {
+        id: "cardiac-011",
+        category: "cardiac",
+        dispatch: {
+            name: "Gary",
+            age: 52,
+            gender: "M",
+            chiefComplaint: "Collapse",
+            details: "Found collapsed at gym, bystander CPR in progress",
+            category: 1
+        },
+        patient: {
+            condition: "Ventricular Tachycardia with Pulse",
+            history: "Previous MI 2 years ago, ICD implanted but patient says device 'hasn't fired'",
+            medications: "Amiodarone, Bisoprolol, Atorvastatin, Aspirin",
+            vitals: {
+                hr: 180,
+                bp: "80/50",
+                rr: 28,
+                spo2: 93,
+                temp: 36.9,
+                gcs: 13,
+                bm: 6.1,
+                pain: 4
+            },
+            presentation: "Broad complex tachycardia, haemodynamically compromised, pale and sweating",
+            ecg: "Rate 180bpm, regular rhythm. Broad QRS complexes (>160ms). Fusion beats visible. AV dissociation - P waves march through independently. Concordance in V1-V6 (all positive).",
+            redFlags: [
+                "Broad complex tachycardia - treat as VT until proven otherwise",
+                "Haemodynamic compromise (BP 80/50)",
+                "Previous MI (substrate for VT)",
+                "ICD has not fired - may be undersensing",
+                "Altered consciousness",
+                "TIME CRITICAL - synchronised DC cardioversion if pulsed"
+            ]
+        },
+        starterMessage: "*confused and very distressed* I was just on the treadmill... I feel... I feel terrible. Everything went grey and I came round on the floor. My chest is pounding."
+    },
+    {
+        id: "cardiac-012",
+        category: "cardiac",
+        dispatch: {
+            name: "Denise",
+            age: 60,
+            gender: "F",
+            chiefComplaint: "Severe headache and chest pain",
+            details: "Sudden onset, very high blood pressure reported by GP",
+            category: 2
+        },
+        patient: {
+            condition: "Hypertensive Emergency with End-Organ Damage",
+            history: "Poorly controlled hypertension, CKD stage 3, stopped medication 2 weeks ago",
+            medications: "Amlodipine, Ramipril (stopped), Doxazosin (stopped)",
+            vitals: {
+                hr: 98,
+                bp: "240/130",
+                rr: 22,
+                spo2: 97,
+                temp: 36.6,
+                gcs: 14,
+                bm: 7.2,
+                pain: 8
+            },
+            presentation: "Hypertensive emergency, blurred vision, severe headache, confusion, chest pain suggesting aortic involvement",
+            ecg: "Rate 98bpm, regular rhythm with P waves before each QRS. LVH pattern - Sokolow-Lyon criteria met. ST depression in V5-V6, I, aVL. T wave inversion laterally.",
+            redFlags: [
+                "BP >220/120 (hypertensive emergency)",
+                "End-organ damage - altered GCS, visual changes",
+                "Chest pain with severe hypertension (aortic dissection risk)",
+                "Stopped antihypertensives 2 weeks ago",
+                "Epistaxis or confusion indicates cerebral oedema risk",
+                "DO NOT lower BP rapidly - controlled reduction only"
+            ]
+        },
+        starterMessage: "My head... the pain is the worst I've ever had. And my chest feels tight. I stopped taking my tablets because they were making me feel dizzy. I can't see properly - everything looks blurry."
+    },
+    {
+        id: "cardiac-013",
+        category: "cardiac",
+        dispatch: {
+            name: "Patrick",
+            age: 38,
+            gender: "M",
+            chiefComplaint: "Chest pain - sharp, worse on breathing",
+            details: "Young male, chest pain since yesterday, flu last week",
+            category: 3
+        },
+        patient: {
+            condition: "Acute Pericarditis",
+            history: "Viral illness (flu-like) 10 days ago, otherwise fit and well",
+            medications: "Ibuprofen (self-medicating - partially helps)",
+            vitals: {
+                hr: 102,
+                bp: "120/80",
+                rr: 20,
+                spo2: 98,
+                temp: 37.9,
+                gcs: 15,
+                bm: 5.4,
+                pain: 6
+            },
+            presentation: "Pleuritic chest pain, relieved sitting forward, pericardial friction rub, post-viral",
+            ecg: "Rate 102bpm, regular rhythm. Widespread saddle-shaped ST elevation in most leads (I, II, aVF, V2-V6). PR depression in II and V4-V6. No reciprocal changes. No focal ST elevation pattern.",
+            redFlags: [
+                "Widespread saddle-shaped ST elevation (pericarditis pattern)",
+                "Pain relieved sitting forward - classic pericarditic feature",
+                "Post-viral trigger",
+                "Pericardial friction rub on auscultation",
+                "Monitor for pericardial effusion/tamponade",
+                "Differentiate from STEMI - widespread elevation, no reciprocal changes"
+            ]
+        },
+        starterMessage: "The pain is really sharp and it's worse when I breathe in deeply. Strangely it's better when I sit forward and lean on my knees. I had the flu last week but I thought I was getting better."
+    },
+    {
+        id: "cardiac-014",
+        category: "cardiac",
+        dispatch: {
+            name: "Roger",
+            age: 70,
+            gender: "M",
+            chiefComplaint: "Known cancer patient - very breathless",
+            details: "Lung cancer, progressive breathlessness over 24 hours",
+            category: 2
+        },
+        patient: {
+            condition: "Cardiac Tamponade",
+            history: "Metastatic lung cancer, pericardial metastases known",
+            medications: "Morphine SR, Dexamethasone, Omeprazole, Cyclizine",
+            vitals: {
+                hr: 125,
+                bp: "88/72",
+                rr: 28,
+                spo2: 92,
+                temp: 36.3,
+                gcs: 15,
+                bm: 6.0,
+                pain: 3
+            },
+            presentation: "Beck's triad - hypotension, raised JVP, muffled heart sounds. Pulsus paradoxus present",
+            ecg: "Rate 125bpm, regular. Electrical alternans - QRS complexes alternating in size beat-to-beat. Low voltage complexes throughout. Sinus tachycardia.",
+            redFlags: [
+                "Beck's triad (hypotension, raised JVP, muffled heart sounds)",
+                "Electrical alternans on ECG - pathognomonic of tamponade",
+                "Pulsus paradoxus (BP drops >10mmHg on inspiration)",
+                "Malignant pericardial effusion (known cancer)",
+                "TIME CRITICAL - pericardiocentesis needed",
+                "Obstructive shock mechanism"
+            ]
+        },
+        starterMessage: "I've been getting so much worse today... I can't catch my breath at all. I know my cancer is bad but this feels different - my heart feels like it's being squeezed."
+    },
+    {
+        id: "cardiac-015",
+        category: "cardiac",
+        dispatch: {
+            name: "Carol",
+            age: 66,
+            gender: "F",
+            chiefComplaint: "Chest pain and collapse",
+            details: "Post-MI patient, now shocked and very unwell",
+            category: 1
+        },
+        patient: {
+            condition: "Cardiogenic Shock - Post STEMI Complication",
+            history: "STEMI 3 days ago, discharged early, returns feeling worse",
+            medications: "Dual antiplatelet therapy, Bisoprolol, Ramipril, Atorvastatin (all new post-MI)",
+            vitals: {
+                hr: 118,
+                bp: "78/50",
+                rr: 30,
+                spo2: 88,
+                temp: 36.1,
+                gcs: 14,
+                bm: 9.8,
+                pain: 7
+            },
+            presentation: "Cold clammy peripheries, reduced urine output, pulmonary oedema, profound hypotension",
+            ecg: "Rate 118bpm, regular. Evolving STEMI changes - new left bundle branch block. Q waves V1-V4. ST still elevated V2-V3.",
+            redFlags: [
+                "Cardiogenic shock - hypotension + signs of hypoperfusion",
+                "Cold clammy peripheries (vasoconstriction)",
+                "New LBBB post-MI (mechanical complication?)",
+                "SpO2 88% (pulmonary oedema)",
+                "TIME CRITICAL - early revascularisation",
+                "Mortality >50% without rapid intervention"
+            ]
+        },
+        starterMessage: "I came home three days ago after a heart attack and I've just been getting worse and worse. I feel absolutely dreadful - I'm so cold and I can barely breathe. I feel like I'm dying."
+    },
+    {
+        id: "cardiac-016",
+        category: "cardiac",
+        dispatch: {
+            name: "Jordan",
+            age: 24,
+            gender: "M",
+            chiefComplaint: "Chest pain, feels unwell",
+            details: "Young male, chest pain for 3 days, recent flu",
+            category: 3
+        },
+        patient: {
+            condition: "Myocarditis",
+            history: "COVID infection 2 weeks ago, competitive athlete",
+            medications: "None regular, paracetamol and ibuprofen self-medicating",
+            vitals: {
+                hr: 110,
+                bp: "105/70",
+                rr: 22,
+                spo2: 97,
+                temp: 38.1,
+                gcs: 15,
+                bm: 5.1,
+                pain: 5
+            },
+            presentation: "Exertional chest pain, fatigue, palpitations, post-viral - myocarditis until proven otherwise",
+            ecg: "Rate 110bpm, regular. Widespread ST changes - diffuse ST elevation with T wave changes. Occasional ventricular ectopics. QTc mildly prolonged at 460ms.",
+            redFlags: [
+                "Post-viral presentation (COVID, flu) in young person",
+                "Chest pain with exertion in athlete",
+                "Ventricular ectopics - arrhythmia risk",
+                "Myocarditis can cause sudden cardiac death in young athletes",
+                "DO NOT allow to exercise",
+                "Needs troponin, echo, cardiac MRI"
+            ]
+        },
+        starterMessage: "I'm a runner and I've been training for a marathon... but since I had COVID a couple of weeks ago I've had this chest pain. It's worst when I try to exercise. I thought I was just unfit from being ill but it's getting worse."
+    },
+    {
+        id: "cardiac-017",
+        category: "cardiac",
+        dispatch: {
+            name: "Helen",
+            age: 22,
+            gender: "F",
+            chiefComplaint: "Fainted at work",
+            details: "Student nurse, fainted during a procedure, now recovering",
+            category: 3
+        },
+        patient: {
+            condition: "Vasovagal Syncope",
+            history: "Previous faints when anxious or seeing blood, low BMI",
+            medications: "Combined oral contraceptive pill",
+            vitals: {
+                hr: 58,
+                bp: "105/65",
+                rr: 16,
+                spo2: 99,
+                temp: 36.5,
+                gcs: 15,
+                bm: 4.9,
+                pain: 0
+            },
+            presentation: "Witnessed collapse with prodrome, rapid recovery, triggered by emotional stimulus, no injury",
+            ecg: "Rate 58bpm, regular rhythm with P waves before each QRS. Normal sinus rhythm. No ST changes. Normal PR and QRS intervals.",
+            redFlags: [
+                "Exclude dangerous causes - no features of VT, structural disease",
+                "Age and trigger are reassuring for vasovagal",
+                "Prolonged LOC or no prodrome would be concerning",
+                "On COCP - check for PE risk factors",
+                "ECG normal (important to rule out long QT, WPW)",
+                "Advise on avoidance and physical counter-pressure manoeuvres"
+            ]
+        },
+        starterMessage: "I was helping with a cannula and I felt really hot and sick all of a sudden... everything went tunnel-y and I woke up on the floor. It happened to me at school when I had a blood test once. I'm fine now, honestly."
+    },
+    {
+        id: "cardiac-018",
+        category: "cardiac",
+        dispatch: {
+            name: "Yvonne",
+            age: 45,
+            gender: "F",
+            chiefComplaint: "Collapsed - possible cardiac arrest",
+            details: "Witness says she fell and shook briefly, now unresponsive",
+            category: 1
+        },
+        patient: {
+            condition: "Torsades de Pointes / Polymorphic VT",
+            history: "Known long QT syndrome, recently started new antibiotic",
+            medications: "Azithromycin (new this week), Citalopram, Domperidone",
+            vitals: {
+                hr: 220,
+                bp: "60/40",
+                rr: 8,
+                spo2: 85,
+                temp: 36.7,
+                gcs: 8,
+                bm: 5.3,
+                pain: 0
+            },
+            presentation: "Polymorphic VT with twisting QRS axis, severely compromised, multiple QT-prolonging drugs",
+            ecg: "Rate approximately 220bpm, irregular. QRS complexes twist around isoelectric baseline in characteristic spindle pattern - axis rotates every 5-20 beats. Underlying long QT intervals visible in sinus beats.",
+            redFlags: [
+                "Torsades de Pointes - specific VT subtype",
+                "Multiple QT-prolonging drugs (azithromycin, citalopram, domperidone)",
+                "Known long QT syndrome",
+                "MAGNESIUM SULPHATE is first-line treatment",
+                "Defibrillation if pulseless",
+                "DO NOT give amiodarone (prolongs QT further)"
+            ]
+        },
+        starterMessage: "*Patient unresponsive - bystander speaks* She just fell and shook for a few seconds. She's been on a new antibiotic since Monday for a chest infection."
+    },
+    {
+        id: "cardiac-019",
+        category: "cardiac",
+        dispatch: {
+            name: "Norman",
+            age: 68,
+            gender: "M",
+            chiefComplaint: "Breathless and very swollen legs",
+            details: "Known COPD, getting much worse over last week",
+            category: 3
+        },
+        patient: {
+            condition: "Cor Pulmonale - Right Heart Failure secondary to COPD",
+            history: "Severe COPD (FEV1 30% predicted), chronic hypoxia, home oxygen 16hrs/day",
+            medications: "Tiotropium, Salbutamol, Seretide, Prednisolone, Home O2",
+            vitals: {
+                hr: 105,
+                bp: "130/85",
+                rr: 26,
+                spo2: 82,
+                temp: 36.8,
+                gcs: 15,
+                bm: 5.7,
+                pain: 0
+            },
+            presentation: "Massive peripheral oedema, raised JVP, no pulmonary crackles (right heart failure pattern), severe hypoxia",
+            ecg: "Rate 105bpm, regular. Right axis deviation. Tall R in V1, deep S in V6. P pulmonale (tall peaked P waves >2.5mm in II). RBBB pattern. ST-T changes right-sided leads.",
+            redFlags: [
+                "Right heart failure (cor pulmonale) - no pulmonary oedema",
+                "Severe hypoxia (SpO2 82%) - but HYPERCAPNIC RISK",
+                "Target SpO2 88-92% only in COPD",
+                "Massive peripheral oedema - right-sided overload",
+                "Right axis deviation and P pulmonale on ECG",
+                "DO NOT over-oxygenate - hypoxic drive"
+            ]
+        },
+        starterMessage: "I know I've got bad lungs but this is different - my legs are like tree trunks and I can't walk to the bathroom. I've been on oxygen at home but I've been turning it up a bit because I feel so bad. Is that alright?"
+    },
+    {
+        id: "cardiac-020",
+        category: "cardiac",
+        dispatch: {
+            name: "Brian",
+            age: 61,
+            gender: "M",
+            chiefComplaint: "Post-cardiac arrest - now has pulse",
+            details: "Bystander CPR, ROSC achieved, 999 crew on scene",
+            category: 1
+        },
+        patient: {
+            condition: "Post-Resuscitation Care - ROSC after VF Arrest",
+            history: "Known IHD, previous CABG 5 years ago",
+            medications: "Aspirin, Clopidogrel, Atorvastatin, Ramipril",
+            vitals: {
+                hr: 88,
+                bp: "100/65",
+                rr: 12,
+                spo2: 95,
+                temp: 35.8,
+                gcs: 7,
+                bm: 8.5,
+                pain: 0
+            },
+            presentation: "Post-ROSC: unconscious, agonal breathing, post-hypoxic brain injury risk, hypothermia, needs immediate transfer",
+            ecg: "Rate 88bpm, regular. ST elevation V2-V4 (2mm). LBBB morphology - possible new. Frequent ventricular ectopics. QTc prolonged at 480ms.",
+            redFlags: [
+                "Post-ROSC - re-arrest risk is high",
+                "GCS 7 - needs airway protection",
+                "ST elevation present - possible underlying STEMI (cause of arrest)",
+                "Targeted temperature management consideration",
+                "TARGET SpO2 94-98% - avoid hyperoxia post-arrest",
+                "TIME CRITICAL - direct to PCI-capable centre"
+            ]
+        },
+        starterMessage: "*Patient unconscious - crew handover* We've had a ROSC after approximately 15 minutes of VF. Two shocks delivered. He's breathing but GCS is about 7. ECG looks like there might be a STEMI. What's your plan?"
+    },
+
     // ==================== RESPIRATORY (10 scenarios) ====================
     {
         id: "resp-001",
@@ -1129,6 +1511,393 @@ const SCENARIOS = [
         starterMessage: "I've been getting more and more breathless over the past few months. I used to be able to do all my housework but now I can barely make it up the stairs. I've got this dry cough that won't go away. My fingers look a bit odd too - the ends have gone all rounded."
     },
 
+    // ==================== RESPIRATORY (scenarios 11-20) ====================
+    {
+        id: "resp-011",
+        category: "respiratory",
+        dispatch: {
+            name: "Tracey",
+            age: 35,
+            gender: "F",
+            chiefComplaint: "Asthma attack - not responding to inhaler",
+            details: "Known severe asthmatic, unable to complete sentences, very distressed",
+            category: 1
+        },
+        patient: {
+            condition: "Near-Fatal Asthma - Silent Chest",
+            history: "Brittle asthma, 3 previous ICU admissions, oral steroid-dependent",
+            medications: "Salbutamol, Clenil, Seretide, Montelukast, Prednisolone 30mg daily",
+            vitals: {
+                hr: 130,
+                bp: "120/85",
+                rr: 10,
+                spo2: 85,
+                temp: 37.2,
+                gcs: 13,
+                bm: 7.8,
+                pain: 0
+            },
+            presentation: "Silent chest (no wheeze - too tight to move air), exhausted respiratory effort, cyanosis",
+            ecg: "Rate 130bpm, regular. Sinus tachycardia. P pulmonale. Right axis deviation. No ST changes.",
+            redFlags: [
+                "SILENT CHEST - absence of wheeze indicates critical obstruction",
+                "Exhausted respiratory effort - imminent respiratory arrest",
+                "SpO2 85% despite supplemental oxygen",
+                "Previous ICU admissions - high risk of death",
+                "Altered consciousness - pre-arrest signs",
+                "PREPARE FOR RSI/INTUBATION - call pre-alert",
+                "Magnesium sulphate 2g IV if no response to nebulisers"
+            ]
+        },
+        starterMessage: "*barely audible, cannot complete sentences* Can't... breathe... *gestures to nebuliser, shaking head* Not... working..."
+    },
+    {
+        id: "resp-012",
+        category: "respiratory",
+        dispatch: {
+            name: "Callum",
+            age: 27,
+            gender: "M",
+            chiefComplaint: "Chest pain and breathlessness after stab wound",
+            details: "Assault, single stab left chest, walked to neighbour's house",
+            category: 1
+        },
+        patient: {
+            condition: "Tension Pneumothorax - Penetrating Trauma",
+            history: "No significant medical history",
+            medications: "None",
+            vitals: {
+                hr: 138,
+                bp: "80/60",
+                rr: 32,
+                spo2: 84,
+                temp: 36.9,
+                gcs: 14,
+                bm: 5.0,
+                pain: 8
+            },
+            presentation: "Absent breath sounds left, tracheal deviation right, distended neck veins, tension pneumothorax",
+            ecg: "Rate 138bpm, sinus tachycardia. No ST changes.",
+            redFlags: [
+                "TENSION PNEUMOTHORAX - clinical diagnosis, do not wait for X-ray",
+                "Tracheal deviation (late sign)",
+                "Absent breath sounds on affected side",
+                "Distended neck veins (impaired venous return)",
+                "Haemodynamic compromise",
+                "TIME CRITICAL - immediate needle decompression 2nd ICS MCL then chest drain",
+                "Penetrating mechanism - consider haemothorax too"
+            ]
+        },
+        starterMessage: "He stabbed me in the chest... *struggling to breathe, visibly distressed* I walked here but I'm getting worse... I can't breathe properly... it's really tight."
+    },
+    {
+        id: "resp-013",
+        category: "respiratory",
+        dispatch: {
+            name: "Geoffrey",
+            age: 71,
+            gender: "M",
+            chiefComplaint: "Breathlessness - gradual worsening",
+            details: "Known lung cancer, very breathless now, can't walk across room",
+            category: 2
+        },
+        patient: {
+            condition: "Malignant Pleural Effusion",
+            history: "Stage 4 lung adenocarcinoma, on chemotherapy",
+            medications: "Chemotherapy agents, Dexamethasone, Omeprazole, Codeine",
+            vitals: {
+                hr: 100,
+                bp: "135/82",
+                rr: 24,
+                spo2: 91,
+                temp: 36.7,
+                gcs: 15,
+                bm: 5.5,
+                pain: 2
+            },
+            presentation: "Stony dull percussion, absent breath sounds at base, reduced expansion right side, pleural effusion",
+            ecg: "Rate 100bpm, regular. Low voltage complexes. No ST changes.",
+            redFlags: [
+                "Stony dull percussion (effusion vs haemothorax)",
+                "SpO2 91% - significant hypoxia",
+                "Malignant effusion - palliative context but can be drained",
+                "Respiratory distress",
+                "Assess goals of care - is drainage consistent with patient wishes?",
+                "Mediastinal shift if large effusion"
+            ]
+        },
+        starterMessage: "It's just been getting gradually worse over the last few weeks. I can barely do anything now without getting breathless. I know about my cancer... I just want to be able to breathe a bit better."
+    },
+    {
+        id: "resp-014",
+        category: "respiratory",
+        dispatch: {
+            name: "Maureen",
+            age: 80,
+            gender: "F",
+            chiefComplaint: "Breathlessness and confusion",
+            details: "Care home resident, choked on food at lunchtime, now unwell",
+            category: 2
+        },
+        patient: {
+            condition: "Aspiration Pneumonia",
+            history: "Advanced dementia, previous aspiration episodes, DNAR in place",
+            medications: "Risperidone, Lactulose, Memantine, Aspirin",
+            vitals: {
+                hr: 105,
+                bp: "125/78",
+                rr: 26,
+                spo2: 90,
+                temp: 38.8,
+                gcs: 12,
+                bm: 7.0,
+                pain: 0
+            },
+            presentation: "Right lower lobe consolidation, aspiration history, confusion worse than baseline, hypoxia",
+            ecg: "Rate 105bpm, regular. No acute ST changes. P waves normal.",
+            redFlags: [
+                "Aspiration event - content unknown (solid vs liquid)",
+                "Right lower lobe most common site (gravity-dependent)",
+                "DNAR in place - clarify scope and patient wishes",
+                "Altered consciousness above baseline",
+                "Risk of chemical pneumonitis vs infective pneumonia",
+                "Swallowing assessment needed",
+                "Discuss with family and care home regarding care ceiling"
+            ]
+        },
+        starterMessage: "*Care home staff speaks* Maureen choked at lunch - she's been getting more muddled than normal and her breathing has gone off. There's a DNAR in place. Her daughter is on the way."
+    },
+    {
+        id: "resp-015",
+        category: "respiratory",
+        dispatch: {
+            name: "Phillip",
+            age: 48,
+            gender: "M",
+            chiefComplaint: "Coughing up thick green sputum",
+            details: "Worse than normal, has had this all his life, now very unwell",
+            category: 3
+        },
+        patient: {
+            condition: "Bronchiectasis - Acute Exacerbation",
+            history: "Bronchiectasis (idiopathic), previous Pseudomonas colonisation, ex-smoker",
+            medications: "Azithromycin 250mg 3x/week, Carbocisteine, Salbutamol, Tiotropium",
+            vitals: {
+                hr: 108,
+                bp: "130/80",
+                rr: 24,
+                spo2: 93,
+                temp: 38.4,
+                gcs: 15,
+                bm: 5.3,
+                pain: 3
+            },
+            presentation: "Purulent sputum (green-brown), worse productive cough, crackles bilaterally, fever",
+            ecg: "Rate 108bpm, regular. No acute changes.",
+            redFlags: [
+                "Purulent sputum production (increased volume and quality)",
+                "SpO2 93% - monitor closely",
+                "Previous Pseudomonas - atypical antibiotic needed",
+                "Risk of mucus plugging",
+                "Active airway clearance techniques",
+                "Needs sputum culture before antibiotics if possible"
+            ]
+        },
+        starterMessage: "I produce a lot of phlegm every day - that's normal for me. But this last few days it's been really thick and green, more than usual, and I feel awful with it. I know I need IV antibiotics when Pseudomonas kicks off."
+    },
+    {
+        id: "resp-016",
+        category: "respiratory",
+        dispatch: {
+            name: "Alfie",
+            age: 4,
+            gender: "M",
+            chiefComplaint: "Choking on toy",
+            details: "Playing with LEGO, mum found him distressed and coughing",
+            category: 1
+        },
+        patient: {
+            condition: "Foreign Body Aspiration - Partial Airway Obstruction",
+            history: "Fit and well child",
+            medications: "None",
+            vitals: {
+                hr: 135,
+                bp: "90/55",
+                rr: 30,
+                spo2: 94,
+                temp: 36.8,
+                gcs: 15,
+                bm: "N/A",
+                pain: 0
+            },
+            presentation: "Sudden onset cough, unilateral wheeze (right), intermittent stridor, maintaining own airway",
+            ecg: "N/A - paediatric patient",
+            redFlags: [
+                "Sudden onset in previously well child",
+                "Unilateral wheeze - unilateral obstruction until proven otherwise",
+                "DO NOT attempt blind finger sweeps",
+                "Effective cough - encourage coughing, do not intervene",
+                "If cough becomes ineffective - back blows and chest thrusts (not abdominal in <1yr)",
+                "Keep child calm - agitation worsens obstruction",
+                "TIME CRITICAL if deteriorating - do not delay transport"
+            ]
+        },
+        starterMessage: "*Mother speaking, very distressed* He was playing and then he just started choking and coughing - he was fine and then suddenly not fine. He's still coughing. Did he swallow something? I don't know what he had."
+    },
+    {
+        id: "resp-017",
+        category: "respiratory",
+        dispatch: {
+            name: "Gemma",
+            age: 19,
+            gender: "F",
+            chiefComplaint: "Breathing problems - feels like she cannot breathe properly",
+            details: "Had an argument with boyfriend, now crying and hyperventilating",
+            category: 3
+        },
+        patient: {
+            condition: "Hyperventilation Syndrome / Acute Panic Attack",
+            history: "Previous episodes, GAD diagnosis, on waiting list for CBT",
+            medications: "Sertraline 50mg",
+            vitals: {
+                hr: 115,
+                bp: "130/85",
+                rr: 36,
+                spo2: 99,
+                temp: 36.6,
+                gcs: 15,
+                bm: 5.0,
+                pain: 2
+            },
+            presentation: "Carpopedal spasm, paraesthesia in hands and face, chest tightness, hyperventilating, SpO2 paradoxically normal",
+            ecg: "Rate 115bpm, regular. Sinus tachycardia. No ST changes.",
+            redFlags: [
+                "EXCLUDE ORGANIC CAUSE before diagnosing panic/hyperventilation",
+                "PE must be considered (young female, tachycardia, breathlessness)",
+                "SpO2 normal differentiates from PE or asthma",
+                "Carpopedal spasm is caused by hypocapnia (respiratory alkalosis)",
+                "Do NOT give paper bag - risk of hypoxia",
+                "Reassurance and breathing coaching most effective",
+                "Safeguarding check - context of relationship argument"
+            ]
+        },
+        starterMessage: "I cannot breathe... I cannot breathe properly. Everything has gone tingly - my hands are cramping up. I just had a massive row and then I could not breathe. Please, I feel like I am dying."
+    },
+    {
+        id: "resp-018",
+        category: "respiratory",
+        dispatch: {
+            name: "Derek",
+            age: 74,
+            gender: "M",
+            chiefComplaint: "Drowsy and confused",
+            details: "Carer says he has been off all day, COPD patient",
+            category: 3
+        },
+        patient: {
+            condition: "Type 2 Respiratory Failure - Hypercapnic Encephalopathy",
+            history: "Severe COPD, CO2 retainer, home NIV at night",
+            medications: "Tiotropium, Salbutamol, Seretide, home NIV machine",
+            vitals: {
+                hr: 95,
+                bp: "145/88",
+                rr: 9,
+                spo2: 92,
+                temp: 36.5,
+                gcs: 12,
+                bm: 6.2,
+                pain: 0
+            },
+            presentation: "Slow respiratory rate, confusion, asterixis (CO2 flap), warm peripheries - CO2 narcosis",
+            ecg: "Rate 95bpm, regular. P pulmonale. Right axis deviation.",
+            redFlags: [
+                "CO2 narcosis - SpO2 appears reasonable but CO2 is critically high",
+                "Warm peripheries and bounding pulse indicate CO2 vasodilation",
+                "Asterixis (coarse hand tremor) indicates hypercapnic encephalopathy",
+                "LOW respiratory rate is the danger sign here",
+                "TARGET SpO2 88-92% - high flow O2 will worsen CO2 retention",
+                "Needs NIV (BiPAP) - pre-alert hospital"
+            ]
+        },
+        starterMessage: "*Carer speaks* He has just been getting more and more muddled today. I thought he was just tired but I cannot get any sense out of him now. He uses one of those breathing machine things at night. I gave him some extra oxygen from his machine but he seems worse."
+    },
+    {
+        id: "resp-019",
+        category: "respiratory",
+        dispatch: {
+            name: "Valerie",
+            age: 55,
+            gender: "F",
+            chiefComplaint: "Severe breathlessness on exertion",
+            details: "Exertional breathlessness, feeling faint, ankle swelling",
+            category: 3
+        },
+        patient: {
+            condition: "Pulmonary Arterial Hypertension",
+            history: "Mixed connective tissue disease, Raynaud's phenomenon",
+            medications: "Sildenafil, Bosentan, Nifedipine, Hydroxychloroquine",
+            vitals: {
+                hr: 100,
+                bp: "110/70",
+                rr: 22,
+                spo2: 92,
+                temp: 36.7,
+                gcs: 15,
+                bm: 5.4,
+                pain: 0
+            },
+            presentation: "Right heart strain, exertional syncope, loud P2, raised JVP, ankle oedema",
+            ecg: "Rate 100bpm, regular. Right axis deviation. Right bundle branch block. Tall R in V1. T wave inversion V1-V3. Sinus tachycardia.",
+            redFlags: [
+                "Exertional syncope or presyncope - high risk for sudden death",
+                "Right heart strain pattern on ECG",
+                "Connective tissue disease - associated PAH is well-recognised",
+                "SpO2 92% at rest - will drop further on exertion",
+                "Careful with fluid - right ventricle is preload-sensitive",
+                "Needs specialist pulmonary hypertension centre"
+            ]
+        },
+        starterMessage: "I have been slowly getting worse over the last year - I cannot walk far without feeling like I am going to faint. I am under a specialist for my connective tissue disease. I am on tablets for my lungs but I just feel so much worse today."
+    },
+    {
+        id: "resp-020",
+        category: "respiratory",
+        dispatch: {
+            name: "Liam",
+            age: 22,
+            gender: "M",
+            chiefComplaint: "Chest tightness and breathlessness",
+            details: "Known CF patient, feeling very unwell, worse over past week",
+            category: 2
+        },
+        patient: {
+            condition: "Cystic Fibrosis - Acute Pulmonary Exacerbation",
+            history: "Cystic Fibrosis (DF508 homozygous), FEV1 baseline 45% predicted, awaiting lung transplant assessment",
+            medications: "Ivacaftor/Lumacaftor (Orkambi), DNase, Tobramycin inhaled (alternate months), Azithromycin, Creon, vitamins",
+            vitals: {
+                hr: 110,
+                bp: "118/75",
+                rr: 26,
+                spo2: 91,
+                temp: 38.6,
+                gcs: 15,
+                bm: 5.2,
+                pain: 4
+            },
+            presentation: "Increased cough with purulent sputum, reduced exercise tolerance, weight loss, haemoptysis",
+            ecg: "Rate 110bpm, regular. No acute changes.",
+            redFlags: [
+                "Haemoptysis in CF - can be massive and life-threatening",
+                "SpO2 91% - significantly below his baseline (usually 95%)",
+                "Weight loss - metabolic consequence of exacerbation",
+                "Established antibiotic resistance patterns likely",
+                "ALERT CF centre - patient should be known to them",
+                "IV antibiotics needed urgently - Pseudomonas typically"
+            ]
+        },
+        starterMessage: "I have been feeling rough for about a week - my cough is way worse than usual and I have been coughing up blood a couple of times. I know when my CF is kicking off and this is bad. I need to get to the CF unit."
+    },
+
     // ==================== ABDOMINAL (10 scenarios) ====================
     {
         id: "abdo-001",
@@ -1512,6 +2281,390 @@ const SCENARIOS = [
             ]
         },
         starterMessage: "*very distressed* The pain is unbearable... it came on suddenly about 2 hours ago. I've been going to the toilet and there's blood. My tummy doesn't feel that bad when you press it but the pain inside is terrible. I've got that heart rhythm problem... takes warfarin for it."
+    },
+
+    // ==================== ABDOMINAL (scenarios 11-20) ====================
+    {
+        id: "abdo-011",
+        category: "abdominal",
+        dispatch: {
+            name: "Raymond",
+            age: 67,
+            gender: "M",
+            chiefComplaint: "Severe abdominal pain - rigid abdomen",
+            details: "Sudden onset pain, stopped eating, abdomen very hard",
+            category: 1
+        },
+        patient: {
+            condition: "Bowel Perforation - Generalised Peritonitis",
+            history: "Diverticular disease, long-term NSAID use for arthritis",
+            medications: "Diclofenac 75mg BD, Lansoprazole, Amlodipine",
+            vitals: {
+                hr: 118,
+                bp: "95/60",
+                rr: 26,
+                spo2: 96,
+                temp: 38.9,
+                gcs: 15,
+                bm: 7.5,
+                pain: 10
+            },
+            presentation: "Board-like rigid abdomen, absent bowel sounds, guarding and rebound throughout, septic shock",
+            ecg: "Rate 118bpm, regular. Sinus tachycardia. No ST changes.",
+            redFlags: [
+                "Board-like rigidity - generalised peritonitis",
+                "Absent bowel sounds",
+                "Septic shock (hypotension, tachycardia, fever)",
+                "NSAID use - peptic ulcer perforation risk",
+                "TIME CRITICAL - needs emergency laparotomy",
+                "IV access, fluids, analgesia, urgent transport",
+                "Nil by mouth"
+            ]
+        },
+        starterMessage: "The pain came on really suddenly about three hours ago - it was like something had burst inside me. Now my whole belly is rock hard and I can't move. I feel terrible... hot and shivery."
+    },
+    {
+        id: "abdo-012",
+        category: "abdominal",
+        dispatch: {
+            name: "Colin",
+            age: 58,
+            gender: "M",
+            chiefComplaint: "Confusion and jaundice",
+            details: "Found confused by wife, yellowing of skin, known to drink alcohol",
+            category: 2
+        },
+        patient: {
+            condition: "Hepatic Encephalopathy - Acute on Chronic Liver Failure",
+            history: "Alcoholic liver disease (cirrhosis), previous variceal bleeding",
+            medications: "Lactulose, Spironolactone, Propranolol, Thiamine",
+            vitals: {
+                hr: 92,
+                bp: "105/65",
+                rr: 18,
+                spo2: 97,
+                temp: 37.8,
+                gcs: 12,
+                bm: 3.8,
+                pain: 0
+            },
+            presentation: "Jaundice, asterixis, confusion (Grade II encephalopathy), abdominal ascites, fetor hepaticus",
+            ecg: "Rate 92bpm, regular. No acute changes.",
+            redFlags: [
+                "Hepatic encephalopathy (asterixis, confusion, fetor hepaticus)",
+                "Hypoglycaemia (BM 3.8) - liver unable to maintain glucose",
+                "Cirrhosis - risk of variceal bleeding",
+                "Coagulopathy risk (liver not producing clotting factors)",
+                "Infection can precipitate encephalopathy - look for source",
+                "Give Thiamine BEFORE any glucose"
+            ]
+        },
+        starterMessage: "*Wife speaks* He's been getting more and more muddled since yesterday. He's gone yellow and his tummy is huge - it's been swelling for weeks. He has been drinking heavily again. He keeps flapping his hands."
+    },
+    {
+        id: "abdo-013",
+        category: "abdominal",
+        dispatch: {
+            name: "Shirley",
+            age: 70,
+            gender: "F",
+            chiefComplaint: "Passing blood from back passage",
+            details: "Large amount of fresh red blood from rectum, feeling faint",
+            category: 2
+        },
+        patient: {
+            condition: "Acute Lower GI Bleed - Likely Diverticular",
+            history: "Known diverticular disease, hypertension, on warfarin for AF",
+            medications: "Warfarin, Ramipril, Amlodipine",
+            vitals: {
+                hr: 115,
+                bp: "92/58",
+                rr: 22,
+                spo2: 97,
+                temp: 36.5,
+                gcs: 15,
+                bm: 6.0,
+                pain: 3
+            },
+            presentation: "Haemodynamic compromise, large volume PR bleed, anticoagulated patient",
+            ecg: "Rate 115bpm, irregularly irregular. AF. No ST changes.",
+            redFlags: [
+                "Haemodynamic compromise from acute blood loss",
+                "Anticoagulation (warfarin) - major haemorrhage protocol",
+                "Reversal of warfarin needed (Vitamin K, PCC)",
+                "IV access, fluids, urgent transfer",
+                "Large volume PR bleed suggests diverticular or angiodysplasia",
+                "AF - do not stop anticoagulation without senior review"
+            ]
+        },
+        starterMessage: "I went to the toilet and there was blood everywhere - bright red blood. I feel really dizzy and faint. I take warfarin - does that matter? I feel awful."
+    },
+    {
+        id: "abdo-014",
+        category: "abdominal",
+        dispatch: {
+            name: "Leonard",
+            age: 72,
+            gender: "M",
+            chiefComplaint: "Hernia has come out and won't go back",
+            details: "Right groin lump, unable to reduce, now with vomiting",
+            category: 2
+        },
+        patient: {
+            condition: "Strangulated Inguinal Hernia",
+            history: "Known inguinal hernia for 5 years, usually reduces, hypertension",
+            medications: "Amlodipine, Aspirin",
+            vitals: {
+                hr: 112,
+                bp: "140/88",
+                rr: 20,
+                spo2: 97,
+                temp: 38.2,
+                gcs: 15,
+                bm: 7.0,
+                pain: 9
+            },
+            presentation: "Irreducible tense hernia, overlying skin erythema, vomiting, signs of early bowel ischaemia",
+            ecg: "Rate 112bpm, regular. Sinus tachycardia. No ST changes.",
+            redFlags: [
+                "Strangulated hernia - blood supply to herniated bowel compromised",
+                "Irreducible (unlike his usual hernia)",
+                "Overlying skin changes - bowel ischaemia developing",
+                "Vomiting indicates obstruction",
+                "DO NOT attempt forceful reduction",
+                "TIME CRITICAL - needs emergency surgery"
+            ]
+        },
+        starterMessage: "My hernia has been coming and going for years - I usually just push it back in. But this time I cannot get it back in. It happened at dinner time and now it is rock hard and agony. I've been sick twice."
+    },
+    {
+        id: "abdo-015",
+        category: "abdominal",
+        dispatch: {
+            name: "Harry",
+            age: 76,
+            gender: "M",
+            chiefComplaint: "Cannot pass urine",
+            details: "No urine for 12 hours, lower abdominal pain, distressed",
+            category: 2
+        },
+        patient: {
+            condition: "Acute Urinary Retention",
+            history: "Known BPH (benign prostatic hyperplasia), recent cold and flu tablets",
+            medications: "Tamsulosin, recently started pseudoephedrine-containing decongestant",
+            vitals: {
+                hr: 95,
+                bp: "155/90",
+                rr: 18,
+                spo2: 98,
+                temp: 36.9,
+                gcs: 15,
+                bm: 6.8,
+                pain: 7
+            },
+            presentation: "Suprapubic mass (distended bladder to umbilicus), urge to void but unable, agonising discomfort",
+            ecg: "Rate 95bpm, regular. No acute changes.",
+            redFlags: [
+                "Suprapubic mass - grossly distended bladder",
+                "Pseudoephedrine precipitated retention in BPH patient",
+                "Duration 12 hours - risk of renal impairment (post-renal AKI)",
+                "Catheterisation needed (in/out or indwelling)",
+                "Beware rapid decompression of large volume (>1L)",
+                "Pain should resolve after catheterisation"
+            ]
+        },
+        starterMessage: "I am absolutely bursting but I just cannot go. I can feel my bladder - it is huge. I started taking some cold tablets earlier this week. I have had trouble with my waterworks before but never like this."
+    },
+    {
+        id: "abdo-016",
+        category: "abdominal",
+        dispatch: {
+            name: "Naomi",
+            age: 26,
+            gender: "F",
+            chiefComplaint: "Severe right-sided pelvic pain",
+            details: "Sudden onset severe pain, feels faint, young woman",
+            category: 2
+        },
+        patient: {
+            condition: "Ovarian Torsion",
+            history: "Known right ovarian cyst (6cm) on previous scan",
+            medications: "Combined oral contraceptive pill",
+            vitals: {
+                hr: 120,
+                bp: "105/70",
+                rr: 22,
+                spo2: 99,
+                temp: 37.3,
+                gcs: 15,
+                bm: 5.1,
+                pain: 9
+            },
+            presentation: "Sudden onset unilateral pelvic pain, nausea and vomiting, known ovarian cyst - torsion until proven otherwise",
+            ecg: "Rate 120bpm, regular. Sinus tachycardia. No ST changes.",
+            redFlags: [
+                "Sudden onset severe unilateral pelvic pain in young woman",
+                "Known ovarian cyst - torsion risk",
+                "TIME CRITICAL - ovary can infarct within 6 hours",
+                "Nausea and vomiting from pain severity",
+                "Must exclude ectopic pregnancy (urine or serum pregnancy test)",
+                "Needs urgent laparoscopy - do not delay"
+            ]
+        },
+        starterMessage: "The pain just came on out of nowhere - it is really severe, on my right side, and I feel like I am going to be sick. I know I have a cyst on my right ovary - they found it on a scan recently. This is different to period pain."
+    },
+    {
+        id: "abdo-017",
+        category: "abdominal",
+        dispatch: {
+            name: "Zoe",
+            age: 22,
+            gender: "F",
+            chiefComplaint: "Pelvic pain and vaginal discharge",
+            details: "Pelvic pain for 3 days, discharge, fever",
+            category: 3
+        },
+        patient: {
+            condition: "Pelvic Inflammatory Disease (PID) - Severe",
+            history: "Multiple sexual partners, inconsistent contraception, previous chlamydia",
+            medications: "None",
+            vitals: {
+                hr: 105,
+                bp: "118/72",
+                rr: 20,
+                spo2: 99,
+                temp: 39.1,
+                gcs: 15,
+                bm: 5.0,
+                pain: 7
+            },
+            presentation: "Cervical motion tenderness, purulent vaginal discharge, bilateral adnexal tenderness, fever, systemic sepsis",
+            ecg: "Rate 105bpm, regular. Sinus tachycardia. No ST changes.",
+            redFlags: [
+                "Sepsis from PID - can cause tubo-ovarian abscess",
+                "Cervical motion tenderness (pathognomonic of PID)",
+                "Must exclude ectopic pregnancy",
+                "High-dose IV antibiotics needed",
+                "Risk of future infertility if untreated",
+                "Contact tracing needed - notifiable"
+            ]
+        },
+        starterMessage: "I have had this pelvic pain for a few days but it is getting really bad now. I have a horrible discharge as well. I feel hot and shivery. I thought it might sort itself out but it has got worse."
+    },
+    {
+        id: "abdo-018",
+        category: "abdominal",
+        dispatch: {
+            name: "Keith",
+            age: 42,
+            gender: "M",
+            chiefComplaint: "Vomiting and diarrhoea",
+            details: "Family barbecue yesterday, all unwell, this patient worst affected",
+            category: 3
+        },
+        patient: {
+            condition: "Severe Gastroenteritis with Dehydration - Suspected Salmonella",
+            history: "Type 1 Diabetes, partially-eaten chicken at barbecue yesterday",
+            medications: "Insulin (NovoRapid and Lantus)",
+            vitals: {
+                hr: 118,
+                bp: "105/68",
+                rr: 22,
+                spo2: 98,
+                temp: 38.5,
+                gcs: 15,
+                bm: 4.1,
+                pain: 5
+            },
+            presentation: "Dehydration, hypoglycaemia (Type 1 DM affected by vomiting/reduced oral intake), food poisoning cluster",
+            ecg: "Rate 118bpm, regular. Sinus tachycardia. Flattened T waves (hypokalaemia risk from vomiting).",
+            redFlags: [
+                "Hypoglycaemia in Type 1 DM - vomiting prevents oral intake",
+                "Dehydration with haemodynamic compromise",
+                "Potassium depletion from vomiting and diarrhoea",
+                "Food poisoning cluster - Public Health notification needed",
+                "IV access and fluid resuscitation",
+                "Dextrose for BM 4.1 with symptoms"
+            ]
+        },
+        starterMessage: "We all had the barbecue yesterday - the chicken. My wife and kids are ill but I am the worst. I have vomited about 10 times and my bowels... I cannot stop going. I am a diabetic - I have not been able to eat or take my insulin properly."
+    },
+    {
+        id: "abdo-019",
+        category: "abdominal",
+        dispatch: {
+            name: "Vernon",
+            age: 75,
+            gender: "M",
+            chiefComplaint: "Back pain radiating to abdomen",
+            details: "Sudden onset severe back and flank pain, feeling faint",
+            category: 1
+        },
+        patient: {
+            condition: "Symptomatic AAA - Impending Rupture",
+            history: "Known 5.8cm AAA under surveillance, hypertension, ex-smoker",
+            medications: "Amlodipine, Atorvastatin, Aspirin",
+            vitals: {
+                hr: 108,
+                bp: "100/65",
+                rr: 20,
+                spo2: 96,
+                temp: 36.6,
+                gcs: 15,
+                bm: 6.3,
+                pain: 9
+            },
+            presentation: "Pulsatile abdominal mass, periumbilical bruising developing (Cullen's), pain radiating to back",
+            ecg: "Rate 108bpm, regular. Sinus tachycardia. No ST changes.",
+            redFlags: [
+                "KNOWN AAA now symptomatic - impending rupture",
+                "Pulsatile abdominal mass",
+                "Haemodynamic compromise",
+                "DO NOT palpate abdomen repeatedly",
+                "TIME CRITICAL - needs emergency vascular surgery",
+                "Permissive hypotension (allow SBP 80-100) en route - do not over-resuscitate",
+                "Pre-alert vascular centre"
+            ]
+        },
+        starterMessage: "I have got an aneurysm in my tummy - they have been watching it. The pain is absolutely dreadful... it started in my back and now it is in my front too. I feel very faint. Am I going to be alright?"
+    },
+    {
+        id: "abdo-020",
+        category: "abdominal",
+        dispatch: {
+            name: "Fiona",
+            age: 32,
+            gender: "F",
+            chiefComplaint: "Severe abdominal pain and diarrhoea",
+            details: "Known bowel condition, much worse than usual flare-up",
+            category: 2
+        },
+        patient: {
+            condition: "Crohn's Disease - Severe Acute Exacerbation with Abscess",
+            history: "Crohn's disease diagnosed age 22, previous small bowel resection, on immunosuppressants",
+            medications: "Azathioprine, Prednisolone (current flare), Mesalazine, Iron supplements",
+            vitals: {
+                hr: 115,
+                bp: "110/70",
+                rr: 22,
+                spo2: 98,
+                temp: 39.2,
+                gcs: 15,
+                bm: 5.0,
+                pain: 8
+            },
+            presentation: "RIF mass (possible abscess), bloody diarrhoea, systemic sepsis, on immunosuppressants masking signs",
+            ecg: "Rate 115bpm, regular. Sinus tachycardia. No ST changes.",
+            redFlags: [
+                "Immunosuppressants masking sepsis signs",
+                "RIF mass - possible intra-abdominal abscess or fistula",
+                "Systemic sepsis (fever, tachycardia)",
+                "High-dose steroids already (adrenal suppression risk)",
+                "Risk of toxic megacolon",
+                "Needs CT abdomen, IV antibiotics, surgical review"
+            ]
+        },
+        starterMessage: "I have Crohn's and I have had flares before but this is different. I have a horrible mass in my right side and I can feel it. I have got a temperature and I cannot stop going to the loo with blood. I am on azathioprine - does that matter?"
     },
 
     // ==================== NEUROLOGICAL (10 scenarios) ====================
@@ -1906,6 +3059,396 @@ const SCENARIOS = [
         starterMessage: "It started in my feet about 5 days ago - they felt tingly and numb. Now it's spreading up my legs and they feel weak. I'm struggling to walk and my legs feel like jelly."
     },
 
+    // ==================== NEUROLOGICAL (scenarios 11-20) ====================
+    {
+        id: "neuro-011",
+        category: "neuro",
+        dispatch: {
+            name: "Clive",
+            age: 54,
+            gender: "M",
+            chiefComplaint: "Severe headache and becoming confused",
+            details: "Headache for 2 days, now confused and drowsy, wife very worried",
+            category: 3
+        },
+        patient: {
+            condition: "Adult Bacterial Meningitis - Pneumococcal",
+            history: "Type 2 Diabetes, ex-smoker, no recent viral illness, no rash",
+            medications: "Metformin, Ramipril",
+            vitals: {
+                hr: 112,
+                bp: "145/90",
+                rr: 24,
+                spo2: 96,
+                temp: 39.8,
+                gcs: 13,
+                bm: 14.2,
+                pain: 10
+            },
+            presentation: "Gradual onset over 48 hours, NO rash, neck stiffness, photophobia, Kernig's sign positive - adult pneumococcal meningitis is more insidious than meningococcal",
+            ecg: "Rate 112bpm, regular rhythm with P waves before each QRS. Sinus tachycardia. No ST changes.",
+            redFlags: [
+                "Adult meningitis often has NO rash - do not rely on petechiae",
+                "Kernig's sign positive (pain/resistance on knee extension with hip flexed)",
+                "Classic triad: headache, fever, neck stiffness (only 45% have all three)",
+                "Photophobia and phonophobia",
+                "GCS declining - altered consciousness",
+                "TIME CRITICAL - immediate hospital transfer, antibiotics within 1 hour of diagnosis",
+                "Diabetic patient - consider dexamethasone with antibiotics to reduce cerebral oedema"
+            ]
+        },
+        starterMessage: "*Wife speaks* He has had a terrible headache for two days but I thought it was flu. Now he keeps saying odd things and he seemed confused when he woke up. He cannot stand bright lights and he said his neck hurts. He has not got a rash - I checked."
+    },
+    {
+        id: "neuro-012",
+        category: "neuro",
+        dispatch: {
+            name: "Craig",
+            age: 28,
+            gender: "M",
+            chiefComplaint: "Fitting - not stopping",
+            details: "Witness reports continuous seizure for 10 minutes, no history of epilepsy",
+            category: 1
+        },
+        patient: {
+            condition: "Status Epilepticus - First Presentation",
+            history: "No known epilepsy, recreational drug use (MDMA last night), sleep deprived",
+            medications: "None",
+            vitals: {
+                hr: 140,
+                bp: "155/100",
+                rr: 8,
+                spo2: 88,
+                temp: 38.8,
+                gcs: 6,
+                bm: 3.5,
+                pain: 0
+            },
+            presentation: "Continuous tonic-clonic activity, hypoxia, hyperthermia, hypoglycaemia, drug-induced - status epilepticus",
+            ecg: "Rate 140bpm (artefact from movement). Unable to assess rhythm accurately during seizure.",
+            redFlags: [
+                "Status epilepticus - seizure >5 minutes requires treatment",
+                "Hypoglycaemia (BM 3.5) may be cause or consequence - give glucose",
+                "Hypoxia (SpO2 88%) - airway at risk during seizure",
+                "Hyperthermia - MDMA toxicity",
+                "MDMA can cause hyponatraemia - seizure risk",
+                "Buccal midazolam or IV/IO lorazepam first-line",
+                "If no response - second agent and RSI preparation"
+            ]
+        },
+        starterMessage: "*Bystander speaks* He has been shaking for ages - I do not know what to do. He was at a party last night. He just collapsed and started fitting and he has not stopped."
+    },
+    {
+        id: "neuro-013",
+        category: "neuro",
+        dispatch: {
+            name: "Arthur",
+            age: 62,
+            gender: "M",
+            chiefComplaint: "Headache and confusion",
+            details: "Hypertensive patient, very confused, severe headache",
+            category: 2
+        },
+        patient: {
+            condition: "Hypertensive Encephalopathy",
+            history: "Poorly controlled hypertension, non-compliant with medications",
+            medications: "Amlodipine (not taking), Ramipril (not taking)",
+            vitals: {
+                hr: 88,
+                bp: "235/135",
+                rr: 20,
+                spo2: 97,
+                temp: 36.8,
+                gcs: 13,
+                bm: 7.2,
+                pain: 8
+            },
+            presentation: "Altered consciousness, severe hypertension, visual disturbance, headache, no focal neurology (differentiates from stroke)",
+            ecg: "Rate 88bpm, regular. LVH criteria met. ST depression V5-V6. T wave inversion laterally.",
+            redFlags: [
+                "Hypertensive encephalopathy - BP >220 with end-organ dysfunction",
+                "Differentiating from stroke is critical (no focal deficits here)",
+                "POSTERIOR REVERSIBLE ENCEPHALOPATHY SYNDROME (PRES) possible",
+                "Sudden visual changes with hypertension",
+                "DO NOT lower BP rapidly - risk of watershed infarction",
+                "Needs controlled reduction in monitored setting",
+                "Aortic dissection must be excluded"
+            ]
+        },
+        starterMessage: "My head is splitting and I cannot think straight. I know I should take my blood pressure tablets but they run out and I keep forgetting to get more. My vision has gone funny - blurry patches."
+    },
+    {
+        id: "neuro-014",
+        category: "neuro",
+        dispatch: {
+            name: "Rebecca",
+            age: 31,
+            gender: "F",
+            chiefComplaint: "Severe headache with visual problems",
+            details: "Worst headache of her life, flashing lights, vomiting",
+            category: 3
+        },
+        patient: {
+            condition: "Complicated Migraine with Hemiplegic Aura",
+            history: "Migraines since age 16, usually responds to triptans, family history of hemiplegic migraine",
+            medications: "Sumatriptan PRN, Combined Oral Contraceptive Pill",
+            vitals: {
+                hr: 90,
+                bp: "135/88",
+                rr: 18,
+                spo2: 99,
+                temp: 36.9,
+                gcs: 15,
+                bm: 5.0,
+                pain: 9
+            },
+            presentation: "Unilateral arm weakness (aura), visual disturbance, photophobia, normal GCS, known migraineur - but needs SAH excluded",
+            ecg: "Rate 90bpm, regular. No acute changes.",
+            redFlags: [
+                "Must EXCLUDE subarachnoid haemorrhage (thunderclap headache)",
+                "Hemiplegic aura - focal neurology requires CT to exclude structural cause",
+                "COCP and migraine with aura - increased stroke risk",
+                "Triptan CONTRAINDICATED in hemiplegic migraine",
+                "Worst headache ever - treat as SAH until proven otherwise",
+                "LP may be needed even if CT negative (12 hours post onset)"
+            ]
+        },
+        starterMessage: "I get migraines but this is so much worse than usual. I have got flashing lights and the left side of my arm has gone weak and tingly. My head is pounding and I have been sick twice. I have had similar ones before but this feels different... more intense."
+    },
+    {
+        id: "neuro-015",
+        category: "neuro",
+        dispatch: {
+            name: "Walter",
+            age: 65,
+            gender: "M",
+            chiefComplaint: "Cannot move face on right side",
+            details: "Woke up with facial weakness, worried about stroke",
+            category: 3
+        },
+        patient: {
+            condition: "Bell's Palsy - Peripheral Facial Nerve Palsy",
+            history: "Recent viral illness (cold sore), hypertension",
+            medications: "Amlodipine",
+            vitals: {
+                hr: 72,
+                bp: "148/90",
+                rr: 16,
+                spo2: 99,
+                temp: 36.6,
+                gcs: 15,
+                bm: 6.0,
+                pain: 2
+            },
+            presentation: "Complete unilateral facial weakness INCLUDING forehead (distinguishes peripheral from central), normal limbs, hyperacusis, post-viral",
+            ecg: "Rate 72bpm, regular. No acute changes.",
+            redFlags: [
+                "CRITICAL DISTINCTION: Forehead involvement = PERIPHERAL (Bell's palsy)",
+                "Forehead sparing = CENTRAL (stroke) - FAST stroke pathway applies",
+                "This patient has forehead involvement - peripheral palsy",
+                "Ramsay Hunt syndrome if vesicles in ear canal (herpes zoster)",
+                "Eye protection essential (cannot blink fully)",
+                "Prednisolone within 72 hours improves outcomes",
+                "Exclude stroke with FAST assessment first"
+            ]
+        },
+        starterMessage: "I woke up and half my face would not work. I cannot close my right eye properly and my mouth droops. My wife thinks it is a stroke - I am terrified. I had a cold sore on my lip last week."
+    },
+    {
+        id: "neuro-016",
+        category: "neuro",
+        dispatch: {
+            name: "Martin",
+            age: 55,
+            gender: "M",
+            chiefComplaint: "Confused and unsteady - found by police",
+            details: "Found wandering, smells of alcohol, confused",
+            category: 3
+        },
+        patient: {
+            condition: "Wernicke's Encephalopathy",
+            history: "Alcohol dependency, poor diet, previous admissions for alcohol detox",
+            medications: "None current (was on thiamine but stopped)",
+            vitals: {
+                hr: 105,
+                bp: "128/78",
+                rr: 18,
+                spo2: 97,
+                temp: 36.3,
+                gcs: 11,
+                bm: 3.2,
+                pain: 0
+            },
+            presentation: "Classic triad: ophthalmoplegia (bilateral nystagmus), ataxia, confusion - Wernicke's encephalopathy",
+            ecg: "Rate 105bpm, regular. Sinus tachycardia. No acute changes.",
+            redFlags: [
+                "Wernicke's triad: ophthalmoplegia + ataxia + confusion (all three in only 10%)",
+                "Hypoglycaemia (BM 3.2) - alcohol depletes glycogen",
+                "GIVE THIAMINE BEFORE GLUCOSE - glucose without thiamine can precipitate Wernicke's",
+                "Parenteral thiamine (Pabrinex) needed - oral absorption poor in alcoholic patients",
+                "If untreated, progresses to irreversible Korsakoff's syndrome",
+                "Do not assume confusion is purely alcohol intoxication"
+            ]
+        },
+        starterMessage: "*Confused, slightly slurred speech* I feel... I do not know where I am... *eyes flickering and jerking* I have had a few drinks... I cannot walk properly. *patient stumbles when trying to stand*"
+    },
+    {
+        id: "neuro-017",
+        category: "neuro",
+        dispatch: {
+            name: "Diana",
+            age: 38,
+            gender: "F",
+            chiefComplaint: "Severe headache and right arm weak",
+            details: "Headache for days, right arm weakness developed today, on contraceptive pill",
+            category: 2
+        },
+        patient: {
+            condition: "Cerebral Venous Sinus Thrombosis (CVST)",
+            history: "Dehydration from recent illness, oral contraceptive pill, recently started new job with long screen hours",
+            medications: "Combined oral contraceptive pill, NSAIDs PRN",
+            vitals: {
+                hr: 95,
+                bp: "138/88",
+                rr: 18,
+                spo2: 98,
+                temp: 37.2,
+                gcs: 14,
+                bm: 5.3,
+                pain: 9
+            },
+            presentation: "Progressive headache over days, focal neurology (right arm weakness), seizure risk, young woman on COCP",
+            ecg: "Rate 95bpm, regular. No acute changes.",
+            redFlags: [
+                "CVST - often missed as it mimics migraine or tension headache",
+                "Progressive headache over DAYS (different from thunderclap of SAH)",
+                "Focal neurology developing = venous infarction",
+                "COCP is the commonest identifiable risk factor",
+                "Anticoagulation is treatment of choice (even with haemorrhagic transformation)",
+                "CT often normal - MRI/MRV needed for diagnosis",
+                "Seizure risk high"
+            ]
+        },
+        starterMessage: "I have had the most dreadful headache for about four days and I thought it was stress or tension. But this morning my right arm feels weak and heavy. I am on the pill. I have never had headaches like this before."
+    },
+    {
+        id: "neuro-018",
+        category: "neuro",
+        dispatch: {
+            name: "Leslie",
+            age: 58,
+            gender: "M",
+            chiefComplaint: "Back pain and cannot walk",
+            details: "Sudden weakness in both legs, back pain, cannot stand",
+            category: 1
+        },
+        patient: {
+            condition: "Cauda Equina Syndrome",
+            history: "Known lumbar disc prolapse, previous back pain, now with new symptoms",
+            medications: "Co-codamol, Naproxen",
+            vitals: {
+                hr: 85,
+                bp: "135/82",
+                rr: 18,
+                spo2: 99,
+                temp: 36.7,
+                gcs: 15,
+                bm: 6.5,
+                pain: 9
+            },
+            presentation: "Bilateral leg weakness, saddle anaesthesia, urinary retention with overflow, faecal incontinence",
+            ecg: "Rate 85bpm, regular. No acute changes.",
+            redFlags: [
+                "Cauda equina syndrome - surgical emergency",
+                "Saddle anaesthesia (inner thighs, perineum, perianal) - MUST ASK",
+                "Bladder dysfunction (retention or incontinence)",
+                "Bilateral lower limb weakness",
+                "TIME CRITICAL - decompression within hours prevents permanent incontinence",
+                "Urgent MRI lumbar spine needed",
+                "Log-roll if moving patient"
+            ]
+        },
+        starterMessage: "My back pain has been bad for months but this morning I woke up and my legs just gave way. I cannot stand properly. The worst thing is... I cannot feel anything down below in my... private area. And I do not know if I have wet myself - I cannot feel it."
+    },
+    {
+        id: "neuro-019",
+        category: "neuro",
+        dispatch: {
+            name: "Penelope",
+            age: 32,
+            gender: "F",
+            chiefComplaint: "Sudden vision loss in one eye",
+            details: "Right eye went completely dark suddenly 30 minutes ago",
+            category: 1
+        },
+        patient: {
+            condition: "Central Retinal Artery Occlusion (CRAO)",
+            history: "Atrial fibrillation (paroxysmal, not anticoagulated), migraine history",
+            medications: "None (declined anticoagulation)",
+            vitals: {
+                hr: 88,
+                bp: "148/92",
+                rr: 16,
+                spo2: 99,
+                temp: 36.6,
+                gcs: 15,
+                bm: 5.4,
+                pain: 0
+            },
+            presentation: "Painless complete monocular vision loss (curtain came down), Marcus Gunn pupil (RAPD), fundoscopy shows cherry red spot",
+            ecg: "Rate 88bpm, irregularly irregular. AF rhythm. No ST changes.",
+            redFlags: [
+                "CRAO = 'stroke of the eye' - time-critical emergency",
+                "Painless monocular vision loss = CRAO until proven otherwise",
+                "Window for treatment is 90 minutes (ideally) - 4.5 hours maximum",
+                "Paroxysmal AF without anticoagulation - embolic source likely",
+                "TIME CRITICAL - needs urgent ophthalmology and stroke assessment",
+                "Relative Afferent Pupillary Defect (RAPD) on examination",
+                "CRAO is equivalent to STEMI of the eye"
+            ]
+        },
+        starterMessage: "I was reading and suddenly everything went completely black in my right eye - like a curtain just dropped. It has not come back at all. It is not painful. I have had a funny heart rhythm in the past but I decided not to take the blood thinners."
+    },
+    {
+        id: "neuro-020",
+        category: "neuro",
+        dispatch: {
+            name: "Joanna",
+            age: 29,
+            gender: "F",
+            chiefComplaint: "Weakness and visual problems - known neurological condition",
+            details: "MS patient, severe relapse, unable to walk today",
+            category: 2
+        },
+        patient: {
+            condition: "Multiple Sclerosis - Acute Relapse with Optic Neuritis",
+            history: "Relapsing-remitting MS diagnosed 4 years ago, 2 previous relapses",
+            medications: "Natalizumab (infusion monthly), Amitriptyline 10mg",
+            vitals: {
+                hr: 88,
+                bp: "118/75",
+                rr: 18,
+                spo2: 99,
+                temp: 37.9,
+                gcs: 15,
+                bm: 5.1,
+                pain: 4
+            },
+            presentation: "Right eye pain on movement, reduced visual acuity right, bilateral leg spasticity, Lhermitte's sign, urinary urgency",
+            ecg: "Rate 88bpm, regular. No acute changes.",
+            redFlags: [
+                "Uhthoff's phenomenon - heat and fever worsen MS symptoms",
+                "High temperature may mimic relapse (pseudorelapse) - exclude infection first",
+                "Optic neuritis: eye pain on movement + visual loss",
+                "Lhermitte's sign - electric shock sensation down spine on neck flexion",
+                "On natalizumab - risk of PML (progressive multifocal leukoencephalopathy)",
+                "Needs urine dip - UTI is commonest pseudorelapse trigger",
+                "Contact MS nurse and neurology"
+            ]
+        },
+        starterMessage: "I have got MS and I know what a relapse feels like, but I want to make sure I am doing the right thing. My right eye hurts when I move it and my vision has gone blurry. My legs are so stiff and heavy. I also feel a bit feverish - could that be making it worse?"
+    },
+
     // ==================== TRAUMA (10 scenarios) ====================
     {
         id: "trauma-001",
@@ -2298,6 +3841,398 @@ const SCENARIOS = [
             ]
         },
         starterMessage: "The horse got spooked and kicked out... caught me right in the stomach. I was winded at first but now the pain is mainly up here on the left side of my tummy. Weirdly my left shoulder hurts too even though it didn't touch me. I feel a bit sick and lightheaded."
+    },
+
+    // ==================== TRAUMA (scenarios 11-20) ====================
+    {
+        id: "trauma-011",
+        category: "trauma",
+        dispatch: {
+            name: "Kevin",
+            age: 45,
+            gender: "M",
+            chiefComplaint: "Cyclist vs car - pelvis injury",
+            details: "High-energy mechanism, complaining of pelvis and hip pain",
+            category: 1
+        },
+        patient: {
+            condition: "Unstable Pelvic Fracture with Haemorrhage",
+            history: "Fit and well, no medications",
+            medications: "None",
+            vitals: {
+                hr: 128,
+                bp: "88/60",
+                rr: 26,
+                spo2: 95,
+                temp: 35.8,
+                gcs: 14,
+                bm: 5.8,
+                pain: 10
+            },
+            presentation: "Pelvic instability, haemodynamic compromise, perineal bruising, suspected major pelvic haemorrhage",
+            ecg: "Rate 128bpm, regular. Sinus tachycardia. No ST changes.",
+            redFlags: [
+                "Unstable pelvis - DO NOT rock pelvis (worsens bleeding)",
+                "Pelvic fracture can lose 3-4 litres blood into retroperitoneum",
+                "APPLY PELVIC BINDER immediately (greater trochanter level, not iliac crests)",
+                "Hypothermia developing - keep warm",
+                "TIME CRITICAL - needs IR (interventional radiology) or REBOA",
+                "Major haemorrhage protocol",
+                "TXA within 3 hours of injury"
+            ]
+        },
+        starterMessage: "*conscious but in agony* I came off my bike - the car just pulled out. I cannot move my legs properly. Please be careful with my pelvis - it feels like everything is moving when it should not be. I feel sick and cold."
+    },
+    {
+        id: "trauma-012",
+        category: "trauma",
+        dispatch: {
+            name: "Stuart",
+            age: 19,
+            gender: "M",
+            chiefComplaint: "Head injury - fell at rugby",
+            details: "Initially unconscious briefly, now confused, GCS falling",
+            category: 1
+        },
+        patient: {
+            condition: "Extradural (Epidural) Haematoma - Lucid Interval then Deterioration",
+            history: "Fit young male, no medications, temporal head impact",
+            medications: "None",
+            vitals: {
+                hr: 58,
+                bp: "155/90",
+                rr: 10,
+                spo2: 96,
+                temp: 36.5,
+                gcs: 11,
+                bm: 5.5,
+                pain: 7
+            },
+            presentation: "Classic lucid interval - brief LOC then recovery then deterioration, Cushing's triad developing",
+            ecg: "Rate 58bpm, regular. Sinus bradycardia. No ST changes.",
+            redFlags: [
+                "LUCID INTERVAL - classic EDH presentation (brief LOC, recovery, then deterioration)",
+                "Cushing's triad developing: hypertension + bradycardia + abnormal respirations",
+                "GCS falling - expanding haematoma compressing brainstem",
+                "Temporal impact = middle meningeal artery at risk",
+                "TIME CRITICAL - needs neurosurgical evacuation within minutes/hours",
+                "PRE-ALERT trauma centre",
+                "Keep normotensive, normoxic, normocapnic"
+            ]
+        },
+        starterMessage: "*confused and increasingly drowsy* I got hit on the side of my head in a tackle... I was fine after for a bit but now I have the worst headache and I feel sleepy... *speech becoming slurred*"
+    },
+    {
+        id: "trauma-013",
+        category: "trauma",
+        dispatch: {
+            name: "Danny",
+            age: 22,
+            gender: "M",
+            chiefComplaint: "Stab wound to neck",
+            details: "Zone II neck stab, bleeding controlled with pressure, talking",
+            category: 1
+        },
+        patient: {
+            condition: "Penetrating Neck Trauma - Zone II",
+            history: "No medical history",
+            medications: "None",
+            vitals: {
+                hr: 122,
+                bp: "108/72",
+                rr: 22,
+                spo2: 96,
+                temp: 36.8,
+                gcs: 15,
+                bm: 5.2,
+                pain: 6
+            },
+            presentation: "Zone II neck stab, risk of carotid, jugular, airway, oesophageal injury - currently stable but can deteriorate rapidly",
+            ecg: "Rate 122bpm, regular. Sinus tachycardia. No ST changes.",
+            redFlags: [
+                "Zone II - between cricoid and angle of mandible - most common zone",
+                "Any of: carotid, jugular, airway, trachea, oesophagus at risk",
+                "DO NOT remove penetrating object if still in situ",
+                "Maintain C-spine (penetrating trauma - selective immobilisation)",
+                "Expanding haematoma will compromise airway - watch for stridor",
+                "DO NOT probe the wound",
+                "TIME CRITICAL - direct to MTC with vascular surgery"
+            ]
+        },
+        starterMessage: "My mate is pressing on it... it happened so fast. I can breathe... I can talk. There is a lot of blood but he is pressing on it. I feel a bit lightheaded."
+    },
+    {
+        id: "trauma-014",
+        category: "trauma",
+        dispatch: {
+            name: "Emily",
+            age: 8,
+            gender: "F",
+            chiefComplaint: "Near-drowning at swimming pool",
+            details: "Found submerged, bystander CPR, now breathing",
+            category: 1
+        },
+        patient: {
+            condition: "Near-Drowning - Secondary Drowning Risk",
+            history: "Non-swimmer, fell in at birthday party, submerged for estimated 3-4 minutes",
+            medications: "None",
+            vitals: {
+                hr: 130,
+                bp: "85/55",
+                rr: 30,
+                spo2: 89,
+                temp: 34.2,
+                gcs: 12,
+                bm: 5.5,
+                pain: 0
+            },
+            presentation: "Post-submersion, hypothermic, hypoxic, altered GCS, risk of secondary drowning from pulmonary oedema",
+            ecg: "Rate 130bpm. Sinus tachycardia. J waves (Osborn waves) present - hypothermia. No other ST changes.",
+            redFlags: [
+                "Secondary drowning risk - delayed pulmonary oedema can occur hours later",
+                "Hypothermia (34.2 degrees) - do NOT assume death in cold water drowning",
+                "GCS 12 - neurological monitoring essential",
+                "J (Osborn) waves on ECG = hypothermia marker",
+                "Rewarm actively but gently",
+                "All near-drowning patients require hospital observation minimum 24 hours",
+                "High-flow oxygen and early CPAP/BiPAP if available"
+            ]
+        },
+        starterMessage: "*Mother speaking, very distressed* She fell in and was under the water. They got her out and she started breathing. She is shivering and she is confused - she keeps asking where she is. Please help her."
+    },
+    {
+        id: "trauma-015",
+        category: "trauma",
+        dispatch: {
+            name: "Paul",
+            age: 38,
+            gender: "M",
+            chiefComplaint: "Electrocution at work",
+            details: "240V electrical contact, fell from ladder after shock",
+            category: 1
+        },
+        patient: {
+            condition: "Electrical Injury with Fall Trauma",
+            history: "Electrician, 240V domestic supply, contact for several seconds",
+            medications: "None",
+            vitals: {
+                hr: 95,
+                bp: "128/85",
+                rr: 18,
+                spo2: 97,
+                temp: 36.7,
+                gcs: 15,
+                bm: 5.8,
+                pain: 7
+            },
+            presentation: "Entry and exit burns (hand/foot), fall trauma injuries, cardiac arrhythmia risk for 24 hours, rhabdomyolysis risk",
+            ecg: "Rate 95bpm, regular. Multiple ventricular ectopics. QTc prolonged at 470ms. T wave changes throughout.",
+            redFlags: [
+                "ELECTRICAL INJURY - scene safety first (power isolated?)",
+                "Cardiac monitoring mandatory for 24 hours (arrhythmia can be delayed)",
+                "Rhabdomyolysis - dark urine, muscle pain, AKI risk",
+                "Entry and exit wounds - tissue damage may be extensive under skin",
+                "Spinal injury from fall - appropriate immobilisation",
+                "High fluid requirements (IV) - IV access needed",
+                "Ventricular ectopics on ECG - rhythm monitoring critical"
+            ]
+        },
+        starterMessage: "I grabbed the live wire and I could not let go - it was only a few seconds but it felt like forever. I fell off the ladder too. My hand is burned and my foot feels weird. I feel shaky but alright. Do I need to go to hospital?"
+    },
+    {
+        id: "trauma-016",
+        category: "trauma",
+        dispatch: {
+            name: "Unknown male",
+            age: null,
+            gender: "M",
+            chiefComplaint: "Explosion at industrial site",
+            details: "Gas explosion, multiple casualties, one patient closest to blast",
+            category: 1
+        },
+        patient: {
+            condition: "Blast Injury - Primary and Secondary",
+            history: "Factory worker, no medical history known",
+            medications: "Unknown",
+            vitals: {
+                hr: 135,
+                bp: "88/55",
+                rr: 32,
+                spo2: 87,
+                temp: 36.9,
+                gcs: 12,
+                bm: 5.5,
+                pain: 8
+            },
+            presentation: "Primary blast (barotrauma - lung injury, tympanic perforation), secondary blast (shrapnel), burns, haemodynamic compromise",
+            ecg: "Rate 135bpm, irregular. Multiple ectopics. Right heart strain pattern. No ST elevation.",
+            redFlags: [
+                "PRIMARY BLAST INJURY - tympanic perforation suggests lung barotrauma",
+                "Blast lung - pulmonary contusion, haemothorax, pneumothorax",
+                "Ruptured tympanic membranes = marker of blast exposure intensity",
+                "Scene safety - secondary explosion risk",
+                "Shrapnel wounds can penetrate unexpectedly deeply",
+                "Hypothermia from burns + exposure",
+                "Major incident protocol - triage and command structure"
+            ]
+        },
+        starterMessage: "*Dazed, shouting due to hearing loss* I cannot hear anything - there was a massive bang. I was near the explosion. *multiple lacerations visible, clothing scorched* My chest feels all wrong... I cannot breathe right."
+    },
+    {
+        id: "trauma-017",
+        category: "trauma",
+        dispatch: {
+            name: "Michael",
+            age: 34,
+            gender: "M",
+            chiefComplaint: "Found hanging - cut down by neighbour",
+            details: "Partial suspension hanging, neighbour cut rope, GCS now 12",
+            category: 1
+        },
+        patient: {
+            condition: "Hanging - Partial Suspension",
+            history: "History of depression, recent relationship breakdown, neighbour heard noise",
+            medications: "Sertraline 100mg (prescribed but compliance unknown)",
+            vitals: {
+                hr: 105,
+                bp: "165/105",
+                rr: 10,
+                spo2: 92,
+                temp: 36.8,
+                gcs: 12,
+                bm: 5.5,
+                pain: 0
+            },
+            presentation: "Ligature mark, airway oedema risk, hypoxic brain injury possible, cervical spine injury possible, post-hanging physiology",
+            ecg: "Rate 105bpm, regular. Sinus tachycardia. QTc prolonged. T wave changes laterally.",
+            redFlags: [
+                "Airway oedema from ligature compression - may worsen over hours",
+                "Cervical spine injury possible (judicial vs partial suspension - assess mechanism)",
+                "Hypoxic brain injury if prolonged suspension",
+                "Hypertensive response (post-hypoxic)",
+                "Safeguarding - mental health risk, MHA assessment may be needed",
+                "Document scene carefully - forensic considerations",
+                "Airway management priority - early intubation if airway threatened"
+            ]
+        },
+        starterMessage: "*groggy and confused* Leave me... *ligature mark visible on neck, hoarse voice* ...alone."
+    },
+    {
+        id: "trauma-018",
+        category: "trauma",
+        dispatch: {
+            name: "James",
+            age: 26,
+            gender: "M",
+            chiefComplaint: "Farm machinery accident - arm caught",
+            details: "Forearm caught in farm machinery, arm traumatically amputated below elbow",
+            category: 1
+        },
+        patient: {
+            condition: "Traumatic Amputation - Below Elbow",
+            history: "Farmer, no significant medical history, tetanus status unknown",
+            medications: "None",
+            vitals: {
+                hr: 140,
+                bp: "88/60",
+                rr: 28,
+                spo2: 95,
+                temp: 35.9,
+                gcs: 14,
+                bm: 5.2,
+                pain: 4
+            },
+            presentation: "Traumatic below-elbow amputation, haemorrhagic shock, tourniquet applied by bystander - limb potentially replantable",
+            ecg: "Rate 140bpm, regular. Sinus tachycardia. No ST changes.",
+            redFlags: [
+                "Haemorrhagic shock - major blood loss",
+                "Tourniquet - document time of application",
+                "PRESERVE amputated part: wrap in saline-moistened gauze, place in sealed bag, place bag on ice - do NOT freeze",
+                "Limb replantation may be possible if <6 hours warm ischaemia",
+                "TXA within 3 hours of injury",
+                "TIME CRITICAL - direct to replantation-capable centre",
+                "Tetanus prophylaxis needed"
+            ]
+        },
+        starterMessage: "*pale and distressed, tourniquet on upper arm* I got my arm caught... my hand is over there. The bloke working with me put a belt on my arm. I feel very cold and dizzy. Is it going to be alright?"
+    },
+    {
+        id: "trauma-019",
+        category: "trauma",
+        dispatch: {
+            name: "Patricia",
+            age: 52,
+            gender: "F",
+            chiefComplaint: "Chemical splash to eyes",
+            details: "Industrial cleaning fluid splashed in eyes at work, in severe pain",
+            category: 2
+        },
+        patient: {
+            condition: "Chemical Eye Injury - Alkali Burn",
+            history: "Factory worker, no eye conditions, no glasses",
+            medications: "None",
+            vitals: {
+                hr: 110,
+                bp: "145/92",
+                rr: 20,
+                spo2: 99,
+                temp: 36.8,
+                gcs: 15,
+                bm: 6.2,
+                pain: 9
+            },
+            presentation: "Bilateral eye involvement, alkali agent (industrial cleaner), pain and visual impairment, needs immediate irrigation",
+            ecg: "Rate 110bpm, regular. Sinus tachycardia. No ST changes.",
+            redFlags: [
+                "ALKALI BURNS are worse than acid - penetrate deeper and continue to damage",
+                "IMMEDIATE irrigation - start before transport and continue throughout",
+                "Minimum 30 minutes continuous irrigation per eye (normal saline or water)",
+                "Remove contact lenses immediately if present",
+                "Check pH of conjunctival sac - target >7",
+                "Alkali agent - identify substance for hospital team",
+                "Ophthalmology emergency - can cause permanent blindness if delayed"
+            ]
+        },
+        starterMessage: "*screaming in pain, hands over eyes* Get it out get it out! It went in my eyes - the cleaning fluid! I cannot open them - it burns so much. Please help, I cannot see!"
+    },
+    {
+        id: "trauma-020",
+        category: "trauma",
+        dispatch: {
+            name: "Ryan",
+            age: 23,
+            gender: "M",
+            chiefComplaint: "Motorbike accident - thigh injury",
+            details: "MCA, significant thigh deformity, reduced sensation in foot",
+            category: 2
+        },
+        patient: {
+            condition: "Femoral Shaft Fracture with Vascular Injury",
+            history: "No significant medical history",
+            medications: "None",
+            vitals: {
+                hr: 125,
+                bp: "95/65",
+                rr: 24,
+                spo2: 96,
+                temp: 35.6,
+                gcs: 15,
+                bm: 5.0,
+                pain: 10
+            },
+            presentation: "Femoral shaft fracture with significant thigh haematoma, reduced distal perfusion, haemorrhagic shock",
+            ecg: "Rate 125bpm, regular. Sinus tachycardia. No ST changes.",
+            redFlags: [
+                "Femoral shaft can bleed 1-2 litres into thigh",
+                "Assess 6 Ps: Pain, Pallor, Pulselessness, Paraesthesia, Paralysis, Perishingly cold",
+                "Reduced sensation and pulse = vascular injury until proven otherwise",
+                "Traction splint (e.g. Thomas splint) reduces pain and blood loss",
+                "TXA within 3 hours",
+                "TIME CRITICAL - vascular injury needs OR within 6 hours",
+                "Spinal board/log roll - assess for other injuries"
+            ]
+        },
+        starterMessage: "My leg is in a really bad way - it looks all wrong, bent in the middle. My foot feels strange... I cannot feel it properly. There is so much pain. I was doing about 50 when he pulled out."
     },
 
     // ==================== PAEDIATRIC (10 scenarios) ====================
@@ -2697,6 +4632,398 @@ const SCENARIOS = [
             ]
         },
         starterMessage: "*Ella speaking, holding tummy* My tummy really hurts. I don't want to eat anything and I've been sick once. *Mother adds* She's been hot and she never refuses food normally."
+    },
+
+    // ==================== PAEDIATRIC (scenarios 11-20) ====================
+    {
+        id: "paed-011",
+        category: "paediatric",
+        dispatch: {
+            name: "Leo",
+            age: 14,
+            gender: "M",
+            chiefComplaint: "Sudden severe testicular pain",
+            details: "Woke up in night with severe left testicular pain, vomiting",
+            category: 1
+        },
+        patient: {
+            condition: "Testicular Torsion",
+            history: "Fit and well, previously had intermittent scrotal pain",
+            medications: "None",
+            vitals: {
+                hr: 118,
+                bp: "125/78",
+                rr: 22,
+                spo2: 99,
+                temp: 37.5,
+                gcs: 15,
+                bm: 5.2,
+                pain: 10
+            },
+            presentation: "Sudden onset severe testicular pain, high-riding testicle, absent cremasteric reflex, vomiting from pain - surgical emergency",
+            ecg: "N/A - paediatric patient",
+            redFlags: [
+                "TESTICULAR TORSION - surgical emergency, time-critical",
+                "Viability: 100% if <6hrs, 50% if 6-12hrs, <10% if >24hrs",
+                "High-riding testicle (shortened spermatic cord)",
+                "Absent cremasteric reflex (key sign)",
+                "Previous intermittent episodes (intermittent torsion)",
+                "DO NOT delay for ultrasound - clinical diagnosis",
+                "TIME CRITICAL - needs urgent scrotal exploration"
+            ]
+        },
+        starterMessage: "*in agony, hunched over* My left... it came on in the night and I woke up in absolute agony. I have been sick twice. Please, it is so bad. *Mother adds: I was worried something was seriously wrong.*"
+    },
+    {
+        id: "paed-012",
+        category: "paediatric",
+        dispatch: {
+            name: "Freddie",
+            age: 7,
+            gender: "M",
+            chiefComplaint: "Abdominal pain and screaming episodes",
+            details: "Intermittent severe crying then normal, vomited twice",
+            category: 2
+        },
+        patient: {
+            condition: "Intussusception",
+            history: "Recent viral illness last week, fit and well otherwise",
+            medications: "None",
+            vitals: {
+                hr: 130,
+                bp: "92/60",
+                rr: 26,
+                spo2: 98,
+                temp: 37.8,
+                gcs: 15,
+                bm: "N/A",
+                pain: 0
+            },
+            presentation: "Intermittent colicky pain (child screams then goes quiet/pale), redcurrant jelly stool, palpable sausage-shaped mass RUQ",
+            ecg: "N/A - paediatric patient",
+            redFlags: [
+                "Intermittent screaming with pallor then floppy/quiet - classic intussusception",
+                "Redcurrant jelly stool (blood and mucus) = late sign, bowel ischaemia",
+                "Sausage-shaped mass palpable (RUQ most common)",
+                "Dehydration from vomiting",
+                "Recent viral illness - mesenteric adenitis can be lead point",
+                "Needs ultrasound and possible air/hydrostatic enema reduction",
+                "TIME CRITICAL if ischaemia suspected"
+            ]
+        },
+        starterMessage: "*Mother speaks, distressed* He keeps screaming and then going quiet and pale and floppy for a few minutes, then he is almost normal, then it happens again. He was sick and I noticed something strange in his nappy that looked like redcurrant jelly."
+    },
+    {
+        id: "paed-013",
+        category: "paediatric",
+        dispatch: {
+            name: "Charlie",
+            age: 3,
+            gender: "M",
+            chiefComplaint: "Difficulty breathing - drooling and not moving",
+            details: "Woke this morning with high fever, drooling, sitting forward, very quiet",
+            category: 1
+        },
+        patient: {
+            condition: "Epiglottitis",
+            history: "Unvaccinated (parents declined Hib vaccine), previously well",
+            medications: "None",
+            vitals: {
+                hr: 148,
+                bp: "88/55",
+                rr: 42,
+                spo2: 91,
+                temp: 39.8,
+                gcs: 15,
+                bm: "N/A",
+                pain: 0
+            },
+            presentation: "Tripod position (sitting forward, hands on knees), drooling, high fever, muffled voice, stridor, toxic-looking child",
+            ecg: "N/A - paediatric patient",
+            redFlags: [
+                "EPIGLOTTITIS - do NOT examine throat or cause distress",
+                "Tripod position is diagnostic - do not move child",
+                "DO NOT lie child flat - can cause complete obstruction",
+                "DO NOT attempt cannula or blood tests until airway secured",
+                "Unvaccinated child - Hib epiglottitis still occurs",
+                "TIME CRITICAL - needs immediate anaesthetic team, theatre",
+                "Pre-alert as IMMEDIATELY LIFE-THREATENING"
+            ]
+        },
+        starterMessage: "*Mother whispers, terrified* He has been like this all morning - sitting completely still, drooling, not moving. His voice is all muffled. He is burning up and he will not let me touch him. I am so scared."
+    },
+    {
+        id: "paed-014",
+        category: "paediatric",
+        dispatch: {
+            name: "Isla",
+            age: 9,
+            gender: "F",
+            chiefComplaint: "Bee sting - now has rash and breathing difficulty",
+            details: "Multiple bee stings at park, now swollen face and wheezing",
+            category: 1
+        },
+        patient: {
+            condition: "Paediatric Anaphylaxis",
+            history: "No known allergies, first bee sting, no EpiPen",
+            medications: "Salbutamol inhaler (mild asthma)",
+            vitals: {
+                hr: 145,
+                bp: "75/50",
+                rr: 34,
+                spo2: 90,
+                temp: 37.0,
+                gcs: 14,
+                bm: "N/A",
+                pain: 6
+            },
+            presentation: "Anaphylaxis: urticaria, angioedema, bronchospasm, cardiovascular compromise, paediatric weight-based adrenaline dosing needed",
+            ecg: "N/A - paediatric patient",
+            redFlags: [
+                "ANAPHYLAXIS - adrenaline IM immediately (0.01mg/kg, max 0.5mg)",
+                "Paediatric dosing: 0.15mg if <25kg (junior EpiPen), 0.3mg if >25kg",
+                "Angioedema - airway compromise risk",
+                "Bronchospasm (known asthmatic)",
+                "Cardiovascular compromise (BP 75/50)",
+                "Position: sit up if respiratory compromise, lie flat if shock",
+                "Repeat adrenaline after 5 minutes if no improvement"
+            ]
+        },
+        starterMessage: "*Father speaking, running to ambulance* She was stung about 15 minutes ago - loads of times. Her face is swelling up and she says she cannot breathe. She is covered in a rash. She has never had this before!"
+    },
+    {
+        id: "paed-015",
+        category: "paediatric",
+        dispatch: {
+            name: "Harry",
+            age: 13,
+            gender: "M",
+            chiefComplaint: "Vomiting and confusion - known diabetic",
+            details: "Type 1 diabetic, vomiting since yesterday, very confused now",
+            category: 2
+        },
+        patient: {
+            condition: "Diabetic Ketoacidosis (DKA) - Paediatric",
+            history: "Type 1 DM diagnosed age 8, missed insulin injections for 2 days",
+            medications: "NovoRapid, Lantus (missed doses)",
+            vitals: {
+                hr: 128,
+                bp: "95/60",
+                rr: 30,
+                spo2: 98,
+                temp: 37.5,
+                gcs: 13,
+                bm: 28.5,
+                pain: 4
+            },
+            presentation: "Kussmaul breathing, fruity breath, dehydration, altered GCS - paediatric DKA with cerebral oedema risk",
+            ecg: "N/A - paediatric patient",
+            redFlags: [
+                "Kussmaul breathing (deep regular - compensatory respiratory alkalosis)",
+                "Cerebral oedema risk in paediatric DKA - MOST DANGEROUS complication",
+                "DO NOT rehydrate too rapidly - slow rehydration protocol",
+                "Altered GCS in DKA = suspect cerebral oedema - CALL PAEDIATRICS",
+                "BM 28.5 - severe hyperglycaemia",
+                "Dehydration assessment: capillary refill, skin turgor",
+                "Needs paediatric HDU/ICU management"
+            ]
+        },
+        starterMessage: "*Mother speaking* He has been vomiting since yesterday and I could not get his sugars down. He has not taken his insulin for 2 days - he said he did not want to. He is very drowsy now and his breathing sounds really strange and deep."
+    },
+    {
+        id: "paed-016",
+        category: "paediatric",
+        dispatch: {
+            name: "Evie",
+            age: 6,
+            gender: "F",
+            chiefComplaint: "Found in swimming pool",
+            details: "Found face-down in garden paddling pool, unclear submersion time",
+            category: 1
+        },
+        patient: {
+            condition: "Paediatric Near-Drowning",
+            history: "Fit and well, unsupervised briefly, found by older sibling",
+            medications: "None",
+            vitals: {
+                hr: 52,
+                bp: "70/40",
+                rr: 6,
+                spo2: 74,
+                temp: 33.5,
+                gcs: 4,
+                bm: 3.8,
+                pain: 0
+            },
+            presentation: "Apnoeic on arrival, bradycardic, hypothermic - near-drowning with CPR in progress by family",
+            ecg: "Rate 52bpm. Bradycardia. J waves (Osborn) present - hypothermia.",
+            redFlags: [
+                "Hypothermic cardiac arrest - DO NOT confirm death until warm",
+                "In cold water cardiac arrest: 'Not dead until warm and dead'",
+                "Paediatric BLS - 5 initial rescue breaths",
+                "Hypothermia significantly slows metabolism - prolonged CPR warranted",
+                "Hypoglycaemia (BM 3.8) - glucose needed",
+                "Safeguarding assessment - supervision at time of incident",
+                "ECMO may be considered at receiving hospital for refractory arrest"
+            ]
+        },
+        starterMessage: "*Bystander (older sibling, distressed) speaks* I found her in the paddling pool - I do not know how long. Dad is doing chest compressions. She did not wake up when I pulled her out."
+    },
+    {
+        id: "paed-017",
+        category: "paediatric",
+        dispatch: {
+            name: "Chloe",
+            age: 15,
+            gender: "F",
+            chiefComplaint: "Taken lots of tablets",
+            details: "Parents found empty packets of paracetamol and ibuprofen, teenager",
+            category: 2
+        },
+        patient: {
+            condition: "Paediatric Mixed Overdose - Paracetamol and Ibuprofen",
+            history: "Bullying at school, self-harmed previously (cutting), no psychiatric history",
+            medications: "None regular",
+            vitals: {
+                hr: 105,
+                bp: "110/70",
+                rr: 20,
+                spo2: 98,
+                temp: 37.2,
+                gcs: 15,
+                bm: 5.2,
+                pain: 4
+            },
+            presentation: "Weight-based paracetamol toxic dose calculation needed, early stage (currently well), gastric symptoms from ibuprofen",
+            ecg: "N/A - paediatric patient",
+            redFlags: [
+                "Paracetamol in overdose - initially WELL (presentation to liver failure can be delayed 24-72 hours)",
+                "TIME since ingestion critical for NAC decision",
+                "Weight-based toxic dose: >150mg/kg in children potentially hepatotoxic",
+                "Do NOT assume small amount because she is small",
+                "IBUPROFEN overdose - renal and GI toxicity",
+                "Safeguarding MUST be documented",
+                "CAMHS referral - mental health assessment required"
+            ]
+        },
+        starterMessage: "*Mother speaking, crying* I found the empty boxes in her room. She took them this afternoon I think. She will not talk to me. She is sitting there... she looks fine but I am terrified. She has been so unhappy at school."
+    },
+    {
+        id: "paed-018",
+        category: "paediatric",
+        dispatch: {
+            name: "Noah",
+            age: 3,
+            gender: "M",
+            chiefComplaint: "Projectile vomiting for 2 weeks",
+            details: "3-week-old, vomiting immediately after every feed, losing weight",
+            category: 2
+        },
+        patient: {
+            condition: "Pyloric Stenosis",
+            history: "First child, bottle-fed, well immediately after birth",
+            medications: "None",
+            vitals: {
+                hr: 155,
+                bp: "65/40",
+                rr: 42,
+                spo2: 97,
+                temp: 37.0,
+                gcs: 15,
+                bm: "N/A",
+                pain: 0
+            },
+            presentation: "Non-bilious projectile vomiting, dehydration, visible peristaltic waves, hungry infant who vomits after every feed",
+            ecg: "N/A - paediatric patient",
+            redFlags: [
+                "Non-bilious vomiting in infant - differentiates from bowel obstruction",
+                "Projectile - forceful (across the room)",
+                "Hungry immediately after vomiting (unlike intestinal obstruction where appetite lost)",
+                "Hypochloraemic hypokalaemic metabolic alkalosis (classic biochemical finding)",
+                "Dehydration in neonate - high surface area:volume ratio",
+                "Olive-shaped mass palpable in RUQ if experienced examiner",
+                "Needs urgent paediatric surgical review for pyloromyotomy"
+            ]
+        },
+        starterMessage: "*Father speaks* He vomits after every single feed - it literally shoots across the room. He seems hungry still afterwards and wants more milk. He has been losing weight and now he looks really dehydrated. He is three weeks old."
+    },
+    {
+        id: "paed-019",
+        category: "paediatric",
+        dispatch: {
+            name: "Jake",
+            age: 14,
+            gender: "M",
+            chiefComplaint: "Collapsed at football training",
+            details: "Collapsed during running drill, no warning, currently unresponsive",
+            category: 1
+        },
+        patient: {
+            condition: "Long QT Syndrome - Arrhythmic Collapse in Young Person",
+            history: "Sudden death of uncle at age 35, was told to 'get his heart checked' but never did",
+            medications: "None",
+            vitals: {
+                hr: 0,
+                bp: "Undetectable",
+                rr: 0,
+                spo2: 0,
+                temp: 36.8,
+                gcs: 3,
+                bm: 5.0,
+                pain: 0
+            },
+            presentation: "Witnessed sudden cardiac arrest during exercise, no prodrome, strong family history of sudden cardiac death - likely channelopathy",
+            ecg: "AED delivered 2 shocks, rhythm now: Rate 85bpm regular. Sinus rhythm with prolonged QTc (540ms). T wave abnormalities throughout.",
+            redFlags: [
+                "SUDDEN CARDIAC ARREST IN YOUNG PERSON - channelopathy until proven otherwise",
+                "Post-ROSC with prolonged QTc - high re-arrest risk",
+                "Family history of sudden cardiac death (uncle aged 35)",
+                "Exercise-triggered - classic for Long QT and CPVT",
+                "All first-degree relatives need cardiac screening",
+                "DO NOT give adrenaline if rhythm restored - worsens long QT",
+                "TIME CRITICAL - cardiac genetics centre referral"
+            ]
+        },
+        starterMessage: "*Coach speaking, very distressed* He just dropped mid-sprint - no warning at all. We got the defibrillator from the sports centre and it shocked him twice. He has a pulse now but he will not wake up. He was absolutely fine two minutes ago."
+    },
+    {
+        id: "paed-020",
+        category: "paediatric",
+        dispatch: {
+            name: "Sophie",
+            age: 2,
+            gender: "F",
+            chiefComplaint: "Vomiting and diarrhoea - very lethargic",
+            details: "3 days of vomiting and diarrhoea, now not responding normally",
+            category: 2
+        },
+        patient: {
+            condition: "Severe Gastroenteritis with Dehydration - Paediatric",
+            history: "Nursery outbreak of gastroenteritis (norovirus likely), not vaccinated against rotavirus",
+            medications: "None",
+            vitals: {
+                hr: 175,
+                bp: "68/40",
+                rr: 44,
+                spo2: 97,
+                temp: 38.3,
+                gcs: 12,
+                bm: 2.8,
+                pain: 0
+            },
+            presentation: "Severe dehydration (>10%), sunken fontanelle, no tears, capillary refill 4 seconds, hypoglycaemia, altered GCS",
+            ecg: "N/A - paediatric patient",
+            redFlags: [
+                "HYPOGLYCAEMIA (BM 2.8) - altered GCS in toddler with low BM",
+                "Severe dehydration: >10% body weight loss in infant",
+                "Sunken fontanelle, sunken eyes, dry mucous membranes",
+                "Capillary refill 4 seconds - shock",
+                "Altered GCS from hypoglycaemia and dehydration",
+                "IV/IO access - oral rehydration not appropriate in this state",
+                "Paediatric fluid bolus: 10ml/kg 0.9% NaCl (not 20ml/kg as in adult)"
+            ]
+        },
+        starterMessage: "*Father speaking, very worried* She has not kept anything down for three days. She has got diarrhoea as well. She was a bit poorly to begin with but now she just lies there and barely opens her eyes. She feels floppy. She has not been herself for hours."
     },
 
     // ==================== OBSTETRIC (10 scenarios) ====================
