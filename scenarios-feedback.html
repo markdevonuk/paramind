@@ -779,6 +779,9 @@ auth.onAuthStateChanged(async (user) => {
                     ...payload.cpdData,
                     result: feedbackData.result,
                     debriefReport: feedbackData.report || null,
+                    grade: gradeData.grade,
+                    totalPoints: gradeData.totalPoints,
+                    redFlags: payload.redFlags || [],
                 };
                 const cpdRes = await fetch(`${API_CONFIG.baseUrl}/saveEnhancedCpdRecord`, {
                     method: 'POST',

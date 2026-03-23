@@ -555,6 +555,14 @@
                                 <i class="bi bi-clipboard2-pulse"></i>
                                 ${record.assessmentsPerformed || 0} assessments
                             </span>
+                            ${record.difficultyLevel ? `<span class="cpd-record-stat">
+                                <i class="bi bi-bar-chart"></i>
+                                ${['','Student','NQP','Paramedic'][record.difficultyLevel] || 'Student'}
+                            </span>` : ''}
+                            ${record.grade ? `<span class="cpd-record-stat">
+                                <i class="bi bi-award"></i>
+                                ${{ gold:'🥇 Gold', silver:'🥈 Silver', bronze:'🥉 Bronze', 'needs-practice':'Needs Practice' }[record.grade] || record.grade}
+                            </span>` : ''}
                         </div>
                         <div class="cpd-record-actions">
                             <button class="btn btn-certificate" onclick="downloadCertificate('${record.id}')">
@@ -635,8 +643,284 @@
             }
         }
 
-        // ==================== GENERATE CERTIFICATE PDF ====================
+        // ==================== CERTIFICATE ROUTER ====================
         function generateCertificatePdf(record, userName) {
+            // Route: enhanced cert for new records (have debriefReport), legacy for old
+            if (record.debriefReport) {
+                generateEnhancedCertificatePdf(record, userName);
+            } else {
+                generateLegacyCertificatePdf(record, userName);
+            }
+        }
+
+        // ==================== ENHANCED CERTIFICATE (Feature 6) ====================
+        function generateEnhancedCertificatePdf(record, userName) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+            const pw = doc.internal.pageSize.getWidth();   // 210mm
+            const ph = doc.internal.pageSize.getHeight();  // 297mm
+            const cx = pw / 2;
+            const m  = 18; // margin
+
+            const teal     = [43, 138, 156];
+            const green    = [92, 184, 92];
+            const darkBlue = [26, 26, 46];
+            const gray     = [108, 117, 125];
+            const lgray    = [180, 188, 196];
+            const white    = [255, 255, 255];
+
+            // ── BORDERS ──
+            doc.setDrawColor(...teal);
+            doc.setLineWidth(2.5);
+            doc.rect(8, 8, pw - 16, ph - 16);
+            doc.setDrawColor(...green);
+            doc.setLineWidth(0.7);
+            doc.rect(12, 12, pw - 24, ph - 24);
+
+            // ── HEADER BAND ──
+            doc.setFillColor(...darkBlue);
+            doc.rect(12, 12, pw - 24, 28, 'F');
+
+            doc.setFontSize(9);
+            doc.setTextColor(...teal);
+            doc.setFont('helvetica', 'bold');
+            doc.text('PARAMIND', m + 1, 23);
+            doc.setFontSize(7);
+            doc.setTextColor(...lgray);
+            doc.setFont('helvetica', 'normal');
+            doc.text('AI-Powered Paramedic Learning', m + 1, 28);
+
+            doc.setFontSize(15);
+            doc.setTextColor(...white);
+            doc.setFont('helvetica', 'bold');
+            doc.text('CERTIFICATE OF COMPLETION', cx, 23, { align: 'center' });
+            doc.setFontSize(8);
+            doc.setTextColor(...teal);
+            doc.setFont('helvetica', 'normal');
+            doc.text('CONTINUING PROFESSIONAL DEVELOPMENT', cx, 30, { align: 'center' });
+
+            // ── RECIPIENT ──
+            let y = 50;
+            doc.setFontSize(9);
+            doc.setTextColor(...gray);
+            doc.text('This certifies that', cx, y, { align: 'center' });
+            y += 8;
+            doc.setFontSize(20);
+            doc.setTextColor(...darkBlue);
+            doc.setFont('helvetica', 'bold');
+            doc.text(userName, cx, y, { align: 'center' });
+            y += 6;
+            doc.setFontSize(8.5);
+            doc.setTextColor(...gray);
+            doc.setFont('helvetica', 'normal');
+            doc.text('has successfully completed the following clinical scenario:', cx, y, { align: 'center' });
+            y += 8;
+
+            // ── SCENARIO TITLE ──
+            doc.setFontSize(14);
+            doc.setTextColor(...darkBlue);
+            doc.setFont('helvetica', 'bold');
+            const titleLines = doc.splitTextToSize(record.scenarioType || 'Clinical Scenario', pw - m * 2 - 8);
+            doc.text(titleLines, cx, y, { align: 'center' });
+            y += titleLines.length * 6 + 2;
+
+            doc.setFontSize(8);
+            doc.setTextColor(...gray);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Ref: ' + (record.scenarioCode || 'N/A'), cx, y, { align: 'center' });
+            y += 7;
+
+            // ── DIVIDER ──
+            doc.setDrawColor(...teal);
+            doc.setLineWidth(0.4);
+            doc.line(m, y, pw - m, y);
+            y += 6;
+
+            // ── DIFFICULTY + GRADE + RESULT (3 columns) ──
+            const diffNames = { 1: 'Student', 2: 'NQP', 3: 'Paramedic' };
+            const diff = diffNames[record.difficultyLevel] || 'Student';
+            const gradeDisplay = { gold: '🥇  Gold', silver: '🥈  Silver', bronze: '🥉  Bronze', 'needs-practice': 'Needs Practice' };
+            const grade = record.grade ? (gradeDisplay[record.grade] || record.grade) : '—';
+            const resultDisplay = record.result === 'correct' ? 'Correct' : record.result === 'partially_correct' ? 'Partially Correct' : 'Incorrect';
+            const resultColor = record.result === 'correct' ? green : record.result === 'partially_correct' ? [240, 173, 78] : [217, 83, 79];
+
+            const col1x = m + 12;
+            const col2x = cx;
+            const col3x = pw - m - 12;
+
+            const drawPill = (lx, ly, label, value, valColor) => {
+                doc.setFillColor(245, 247, 250);
+                doc.roundedRect(lx - 22, ly - 5, 44, 16, 2, 2, 'F');
+                doc.setFontSize(7);
+                doc.setTextColor(...gray);
+                doc.setFont('helvetica', 'normal');
+                doc.text(label, lx, ly, { align: 'center' });
+                doc.setFontSize(9.5);
+                doc.setTextColor(...(valColor || darkBlue));
+                doc.setFont('helvetica', 'bold');
+                doc.text(value, lx, ly + 6, { align: 'center' });
+            };
+
+            drawPill(col1x, y + 5, 'DIFFICULTY', diff, teal);
+            drawPill(col2x, y + 5, 'GRADE', grade, darkBlue);
+            drawPill(col3x, y + 5, 'OUTCOME', resultDisplay, resultColor);
+            y += 22;
+
+            // ── DIVIDER ──
+            doc.setDrawColor(...lgray);
+            doc.setLineWidth(0.3);
+            doc.line(m, y, pw - m, y);
+            y += 6;
+
+            // ── CLINICAL TOPICS COVERED ──
+            doc.setFontSize(8.5);
+            doc.setTextColor(...darkBlue);
+            doc.setFont('helvetica', 'bold');
+            doc.text('CLINICAL TOPICS COVERED', m, y);
+            y += 5;
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            doc.setTextColor(...gray);
+            const flags = Array.isArray(record.redFlags) && record.redFlags.length
+                ? record.redFlags.slice(0, 6)
+                : ['Clinical assessment', 'Patient history', 'Clinical reasoning'];
+            // Two columns
+            const half = Math.ceil(flags.length / 2);
+            flags.forEach((f, i) => {
+                const fx = i < half ? m + 3 : cx + 3;
+                const fy = y + (i < half ? i : i - half) * 5;
+                doc.text('• ' + f, fx, fy);
+            });
+            y += Math.ceil(flags.length / 2) * 5 + 4;
+
+            // ── WORKING IMPRESSION ──
+            doc.setDrawColor(...lgray);
+            doc.line(m, y, pw - m, y);
+            y += 6;
+            doc.setFontSize(8.5);
+            doc.setTextColor(...darkBlue);
+            doc.setFont('helvetica', 'bold');
+            doc.text('CLINICAL ASSESSMENT', m, y);
+            y += 5;
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            doc.setTextColor(...gray);
+            doc.text('Working Impression:', m, y);
+            doc.setTextColor(...darkBlue);
+            doc.text(record.userImpression || 'Not recorded', m + 32, y);
+            y += 5;
+            doc.setTextColor(...gray);
+            doc.text('Correct Diagnosis:', m, y);
+            doc.setTextColor(...darkBlue);
+            doc.text(record.correctDiagnosis || 'N/A', m + 32, y);
+            y += 8;
+
+            // ── LEARNING POINTS ──
+            doc.setDrawColor(...lgray);
+            doc.line(m, y, pw - m, y);
+            y += 6;
+            doc.setFontSize(8.5);
+            doc.setTextColor(...darkBlue);
+            doc.setFont('helvetica', 'bold');
+            doc.text('KEY LEARNING POINTS', m, y);
+            y += 5;
+
+            // Extract from debrief report — prefer Section 3 (gaps) or Section 5 (reasoning)
+            const learningPoints = extractLearningPoints(record.debriefReport);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            doc.setTextColor(...gray);
+            learningPoints.forEach((pt, i) => {
+                const lines = doc.splitTextToSize((i + 1) + '.  ' + pt, pw - m * 2 - 4);
+                if (y + lines.length * 4.5 > ph - 50) return; // don't overflow
+                doc.text(lines, m + 3, y);
+                y += lines.length * 4.5 + 2;
+            });
+            y += 2;
+
+            // ── HCPC STANDARDS ──
+            doc.setDrawColor(...lgray);
+            doc.line(m, y, pw - m, y);
+            y += 6;
+            doc.setFontSize(8.5);
+            doc.setTextColor(...darkBlue);
+            doc.setFont('helvetica', 'bold');
+            doc.text('HCPC STANDARDS MET', m, y);
+            y += 5;
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7.5);
+            doc.setTextColor(...gray);
+            doc.text('Standard 6: Keep your professional knowledge and skills up to date.', m + 3, y);
+            y += 4.5;
+            doc.text('Standard 8: Communicate effectively with service users, carers and colleagues.', m + 3, y);
+            y += 8;
+
+            // ── DATE ──
+            doc.setDrawColor(...lgray);
+            doc.line(m, y, pw - m, y);
+            y += 6;
+            const completedDate = record.completedAt
+                ? new Date(record.completedAt._seconds * 1000).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+                : new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+            doc.setFontSize(8.5);
+            doc.setTextColor(...gray);
+            doc.text('Completed: ' + completedDate, m, y);
+            doc.text('Questions: ' + (record.questionsAsked || 0) + '   |   Assessments: ' + (record.assessmentsPerformed || 0), cx, y, { align: 'center' });
+
+            // ── FOOTER ──
+            doc.setFillColor(...darkBlue);
+            doc.rect(12, ph - 22, pw - 24, 10, 'F');
+            doc.setFontSize(7);
+            doc.setTextColor(...teal);
+            doc.setFont('helvetica', 'normal');
+            doc.text('ParaMind — AI-Powered Paramedic Learning  |  www.paramind.co.uk', cx, ph - 16, { align: 'center' });
+            doc.setTextColor(...lgray);
+            doc.setFontSize(6);
+            doc.text('Certificate ID: ' + record.id, cx, ph - 13, { align: 'center' });
+
+            const safeDate = completedDate.replace(/\s/g, '_').replace(/,/g, '');
+            doc.save('CPD_Enhanced_' + (record.scenarioCode || 'N-A') + '_' + safeDate + '.pdf');
+        }
+
+        // Extract 2-3 learning points from debrief report text
+        function extractLearningPoints(report) {
+            if (!report) return ['Completed clinical scenario assessment.'];
+            const points = [];
+
+            // Try to extract from Section 3 (Assessment Gaps) — these are most useful
+            const sec3 = report.match(/##\s*3\.?\s*(?:Assessment\s*Gaps?|What\s*You\s*Missed)[\s\S]*?(?=##\s*[45]|$)/i);
+            if (sec3) {
+                const bullets = sec3[0].match(/[-•*]\s*(.+)/g) || [];
+                bullets.slice(0, 2).forEach(b => {
+                    const text = b.replace(/^[-•*]\s*/, '').trim();
+                    if (text.length > 10) points.push(text);
+                });
+            }
+
+            // Top up from Section 5 (Clinical Reasoning) if needed
+            if (points.length < 2) {
+                const sec5 = report.match(/##\s*5\.?\s*(?:Clinical\s*Reasoning)[\s\S]*?(?=##|$)/i);
+                if (sec5) {
+                    const sentences = sec5[0].replace(/##[^\n]*/g, '').trim().split(/\.\s+/);
+                    sentences.slice(0, 3 - points.length).forEach(s => {
+                        const text = s.trim();
+                        if (text.length > 15) points.push(text + (text.endsWith('.') ? '' : '.'));
+                    });
+                }
+            }
+
+            // Fallback
+            if (points.length === 0) {
+                const sentences = report.replace(/##[^\n]*/g, '').trim().split(/\.\s+/);
+                sentences.filter(s => s.length > 20).slice(0, 2).forEach(s => points.push(s.trim() + '.'));
+            }
+
+            return points.slice(0, 3);
+        }
+
+        // ==================== GENERATE CERTIFICATE PDF ====================
+        function generateLegacyCertificatePdf(record, userName) {
             const { jsPDF } = window.jspdf;
             
             // Create PDF in landscape A4

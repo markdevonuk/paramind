@@ -2641,6 +2641,10 @@ exports.saveEnhancedCpdRecord = onRequest({ cors: true }, async (req, res) => {
       // New Feature 2 fields (additive)
       debriefReport,
       difficultyLevel,
+      // Feature 6 fields
+      grade,
+      totalPoints,
+      redFlags,
     } = req.body;
 
     if (!scenarioId || !userImpression || !result) {
@@ -2672,6 +2676,10 @@ exports.saveEnhancedCpdRecord = onRequest({ cors: true }, async (req, res) => {
         // Feature 2 fields
         debriefReport: debriefReport || null,
         difficultyLevel: difficultyLevel || 1,
+        // Feature 6 fields
+        grade: grade || null,
+        totalPoints: totalPoints || 0,
+        redFlags: Array.isArray(redFlags) ? redFlags : [],
       });
 
     return res.status(200).json({
