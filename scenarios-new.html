@@ -2595,12 +2595,6 @@ async function handleSendMessage(e) {
         chatState.conversationHistory.push({ role: 'assistant', content: response });
         if (chatState.currentPhase === 'onscene') {
             checkDeterioration();
-            // Trigger a DP at the 3rd and 6th typed On Scene message if fewer than 3 DPs shown
-            // and the AI didn't spontaneously include one in this response
-            const count = chatState.phaseMessageCounts.onscene;
-            if ((count === 3 || count === 6) && dpState.count < 3 && !parseDecisionPoint(response)) {
-                triggerDecisionPoint();
-            }
         }
     } catch (error) {
         removeStreamingMessage(aiMessageId);
@@ -2612,6 +2606,15 @@ async function handleSendMessage(e) {
     } finally {
         chatState.isLoading = false;
         elements.sendBtn.disabled = false;
+    }
+
+    // Trigger DP after finally — isLoading is now false
+    if (chatState.currentPhase === 'onscene' && !chatState.scenarioComplete) {
+        const count = chatState.phaseMessageCounts.onscene;
+        const lastResponse = chatState.conversationHistory[chatState.conversationHistory.length - 1]?.content || '';
+        if ((count === 3 || count === 6) && dpState.count < 3 && !parseDecisionPoint(lastResponse)) {
+            triggerDecisionPoint();
+        }
     }
 }
 
@@ -2697,11 +2700,6 @@ async function handleAssessment(assessmentType) {
             renderECGCard(response);
         }
 
-        // After any physical assessment, trigger a DP if fewer than 3 shown
-        const physicalAssessments = ['obs', 'ecg', 'chest', 'abdo', 'neuro', 'skin', 'fast', 'mend', 'scene'];
-        if (physicalAssessments.includes(assessmentType) && dpState.count < 3) {
-            triggerDecisionPoint();
-        }
     } catch (error) {
         removeStreamingMessage(aiMessageId);
         if (error.message === 'LIMIT_REACHED') {
@@ -2712,6 +2710,12 @@ async function handleAssessment(assessmentType) {
     } finally {
         chatState.isLoading = false;
         elements.sendBtn.disabled = false;
+    }
+
+    // Trigger DP after finally — isLoading is now false
+    const physicalAssessmentsDP = ['obs', 'ecg', 'chest', 'abdo', 'neuro', 'skin', 'fast', 'mend', 'scene'];
+    if (physicalAssessmentsDP.includes(assessmentType) && dpState.count < 3 && !chatState.scenarioComplete) {
+        triggerDecisionPoint();
     }
 }
 
