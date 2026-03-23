@@ -2563,7 +2563,15 @@ async function handleSendMessage(e) {
         });
         finalizeStreamingMessage(aiMessageId, response);
         chatState.conversationHistory.push({ role: 'assistant', content: response });
-        if (chatState.currentPhase === 'onscene') checkDeterioration();
+        if (chatState.currentPhase === 'onscene') {
+            checkDeterioration();
+            // Trigger a DP at the 3rd and 6th typed On Scene message if fewer than 3 DPs shown
+            // and the AI didn't spontaneously include one in this response
+            const count = chatState.phaseMessageCounts.onscene;
+            if ((count === 3 || count === 6) && dpState.count < 3 && !parseDecisionPoint(response)) {
+                triggerDecisionPoint();
+            }
+        }
     } catch (error) {
         removeStreamingMessage(aiMessageId);
         if (error.message === 'LIMIT_REACHED') {
@@ -2659,8 +2667,9 @@ async function handleAssessment(assessmentType) {
             renderECGCard(response);
         }
 
-        // After obs or ECG, auto-trigger a decision point if not already shown one recently
-        if ((assessmentType === 'obs' || assessmentType === 'ecg') && dpState.count < 3) {
+        // After any physical assessment, trigger a DP if fewer than 3 shown
+        const physicalAssessments = ['obs', 'ecg', 'chest', 'abdo', 'neuro', 'skin', 'fast', 'mend', 'scene'];
+        if (physicalAssessments.includes(assessmentType) && dpState.count < 3) {
             triggerDecisionPoint();
         }
     } catch (error) {
