@@ -261,11 +261,11 @@
         .scenario-chat-view .hint-indicator { align-self: center; background: rgba(233,69,96,0.1); border: 1px dashed #e94560; padding: 0.4rem 0.875rem; border-radius: 20px; font-size: 0.78rem; color: #e94560; font-family: 'JetBrains Mono', monospace; font-weight: 500; }
 
         /* Phase notification in chat */
-        .phase-notification { align-self: stretch; display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 1rem; border-radius: 8px; background: linear-gradient(135deg, rgba(0,217,255,0.07) 0%, rgba(0,180,216,0.07) 100%); border: 1px solid rgba(0,217,255,0.25); border-left: 3px solid #00d9ff; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: #00d9ff; animation: fadeIn 0.4s ease; }
-        .phase-notification i { font-size: 1rem; flex-shrink: 0; }
+        .phase-notification { align-self: stretch; display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 8px; background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%); border: 1px solid #0f3460; border-left: 3px solid #ffc107; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: #ffc107; animation: fadeIn 0.4s ease; }
+        .phase-notification i { font-size: 1rem; flex-shrink: 0; color: #ffc107; }
         .phase-notification-text { flex: 1; }
-        .phase-notification-label { font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; }
-        .phase-notification-desc { font-size: 0.75rem; color: rgba(0,217,255,0.75); margin-top: 0.1rem; }
+        .phase-notification-label { font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: #ffc107; }
+        .phase-notification-desc { font-size: 0.75rem; color: rgba(255,193,7,0.8); margin-top: 0.2rem; line-height: 1.4; }
 
         /* Deterioration alerts */
         .deterioration-alert { display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem; border-radius: 8px; animation: alertSlideIn 0.5s ease; }
@@ -998,7 +998,7 @@ const PHASE_CONFIG = {
         inputPlaceholder: 'Pre-arrival questions...',
         showAssessmentToolbar: false,
         showHint: false,
-        notificationText: 'Dispatch — Review the call details. You can ask pre-arrival questions before responding.',
+        notificationText: 'Review the call details. You can ask pre-arrival questions before responding.',
         contextForAI: `\n\n========== PHASE OVERRIDE — TAKES PRIORITY OVER ALL OTHER INSTRUCTIONS ==========\nCURRENT PHASE: DISPATCH. The paramedic has NOT yet arrived on scene. You MUST NOT respond as the patient or any other character from the scenario. The patient interaction has not started yet. Instead, respond as the MDT dispatch system — provide brief, realistic additional call details if asked, or acknowledge the question in a short MDT-style message. Do NOT use patient dialogue. Do NOT use PATIENT: or RELATIVE: prefixes. Keep it to 1-3 sentences.\n========== END PHASE OVERRIDE ==========`
     },
     enroute: {
@@ -1009,7 +1009,7 @@ const PHASE_CONFIG = {
         inputPlaceholder: 'Think out loud...',
         showAssessmentToolbar: false,
         showHint: false,
-        notificationText: 'En Route — Think ahead. What are your clinical priorities on arrival? You can answer or just click Arrive on Scene.',
+        notificationText: 'Think ahead. What are your clinical priorities on arrival? You can answer or just click Arrive on Scene.',
         contextForAI: `\n\n========== PHASE OVERRIDE — TAKES PRIORITY OVER ALL OTHER INSTRUCTIONS ==========\nCURRENT PHASE: EN ROUTE. The paramedic has NOT yet arrived on scene. You MUST NOT respond as the patient or any character from the scenario.\n\nYour role: engage with the paramedic's pre-arrival thinking as a brief internal prompt. Ask one short question to develop their clinical reasoning.\n\nSTRICT RULES — you MUST follow all of these:\n- Do NOT mention or hint at any specific diagnosis, condition, or pathology — not even as a possibility\n- Do NOT suggest pre-alerting the hospital — in UK practice this only happens after patient assessment\n- Do NOT suggest specific interventions or treatments\n- Do NOT use American terminology (e.g. do not say "ischemic", use "ischaemic")\n- Focus only on general pre-arrival preparation: scene safety, equipment, crew roles, clinical approach\n- Keep your response to 2-3 sentences maximum\n- Do NOT use PATIENT: or any patient dialogue\n========== END PHASE OVERRIDE ==========`
     },
     onscene: {
@@ -1020,7 +1020,7 @@ const PHASE_CONFIG = {
         inputPlaceholder: 'Talk to the patient...',
         showAssessmentToolbar: true,
         showHint: true,
-        notificationText: 'On Scene — Assess your patient. Take a history, perform examinations, gather all the information you need.',
+        notificationText: 'Assess your patient. Take a history, perform examinations, gather all the information you need.',
         contextForAI: `\n\nLANGUAGE: You are in the United Kingdom. Use British English throughout — spellings, British NHS terminology, and UK ambulance service conventions. Never use American medical slang.\n\nCLINICAL DECISION POINTS — IMPORTANT: You MUST use these during the scenario. At key clinical moments — for example after the paramedic has received significant clinical findings (e.g. abnormal vitals, positive ECG findings, or a concerning history), or when they face a clear prioritisation choice — you MUST pause and present a clinical decision point using the exact format below.\n\nWhen to trigger one (use your judgement — aim for 1-3 per scenario):\n- After abnormal observations or ECG findings have been revealed\n- When the paramedic has gathered enough history to face a real choice\n- When there is a meaningful clinical fork in the road\n- When the paramedic asks "what should I do next" or similar\n\nTo present a decision point, output ONLY this format, with nothing before or after it:\n[DP]Your question here?|A) First option|B) Second option|C) Third option|D) Fourth option[/DP]\n\nRULES:\n- Include 1-2 correct choices and 2-3 plausible but suboptimal ones\n- Do NOT include absurd or obviously wrong options\n- ABSOLUTE BAN on all options involving treatments, medications, or clinical interventions — this includes oxygen, fluids, splinting, positioning for treatment, or ANY clinical action. Options must ONLY cover assessment priorities, history-taking choices, communication decisions, or scene management choices\n- After the user selects, respond in character with the realistic consequence\n- If they chose poorly, show what realistically happens as a result\n- The [DP] format must be exact — no extra text, no preamble`
     },
     handover: {
@@ -1031,7 +1031,7 @@ const PHASE_CONFIG = {
         inputPlaceholder: 'Deliver your ATMIST handover...',
         showAssessmentToolbar: false,
         showHint: false,
-        notificationText: 'Handover — Deliver your ATMIST handover to the receiving clinician.',
+        notificationText: 'Deliver your ATMIST handover to the receiving clinician.',
         contextForAI: `\n\n========== PHASE OVERRIDE — TAKES PRIORITY OVER ALL OTHER INSTRUCTIONS ==========\nCURRENT PHASE: HANDOVER. The patient journey is complete. You MUST NOT respond as the patient or continue any patient roleplay. You are now playing the A&E charge nurse or receiving doctor at the emergency department.\n\nRespond professionally as an NHS clinician receiving the handover:\n1. Acknowledge the key findings from the handover\n2. Ask ONE brief question ONLY about ATMIST elements that are genuinely missing or incomplete from what was said — do NOT ask about anything the paramedic already covered\n3. Confirm safe receipt\n\nIMPORTANT: Read the handover carefully. Only ask about things not mentioned. Do NOT ask about age, time, mechanism, or vital signs if they were already given. Use British English. Keep your response concise. Do NOT ask about medications given, treatments, or clinical interventions.\n========== END PHASE OVERRIDE ==========`
     }
 };
