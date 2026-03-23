@@ -717,7 +717,7 @@ auth.onAuthStateChanged(async (user) => {
         }
 
         // Compute grade
-        const gradeData = computeGrade(feedbackData.result, payload.gradeInputs, feedbackData.handoverScore ?? (payload.gradeInputs.handoverMessages >= 1 ? 1 : 0));
+        const gradeData = computeGrade(feedbackData.result, payload.gradeInputs, feedbackData.handoverScore ?? 0);
 
         // Populate header
         const gradeNames = { gold: 'Gold — Excellent', silver: 'Silver — Good', bronze: 'Bronze — Developing', 'needs-practice': 'Needs More Practice' };
