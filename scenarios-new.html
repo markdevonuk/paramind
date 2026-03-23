@@ -2690,7 +2690,12 @@ function renderECGCard(text) {
     const get = (patterns) => {
         for (const p of patterns) {
             const m = text.match(p);
-            if (m) return m[1].trim();
+            if (m) {
+                const val = m[1].trim();
+                // Skip N/A, not performed, not indicated etc.
+                if (/^(n\/a|not\s+applicable|not\s+performed|not\s+indicated|unable|unknown|--|-)$/i.test(val)) return null;
+                return val;
+            }
         }
         return null;
     };
@@ -2703,6 +2708,23 @@ function renderECGCard(text) {
     const st      = get([/ST\s+segments?:?\s*(.+)/i]);
     const tWaves  = get([/T\s+waves?:?\s*(.+)/i]);
     const other   = get([/Other:?\s*(.+)/i]);
+
+    // If fewer than 2 real values parsed, ECG wasn't actually performed —
+    // show the response as a regular clinical data text bubble instead
+    const realValues = [rhythm, rate, pWaves, pr, qrs, st, tWaves, other].filter(Boolean);
+    if (realValues.length < 2) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'message message-mdt';
+        msgDiv.innerHTML = `
+            <div class="message-avatar"><i class="bi bi-activity"></i></div>
+            <div class="message-content">
+                <div class="msg-speaker-label">ECG</div>
+                ${formatMessage(text)}
+            </div>`;
+        elements.chatMessages.appendChild(msgDiv);
+        scrollToBottom();
+        return;
+    }
 
     // Determine alert classes
     const stAlert = st && /elevated|depressed|abnormal/i.test(st);
