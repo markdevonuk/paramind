@@ -1071,7 +1071,7 @@ const chatState = {
     },
     phaseCheckpoints: {
         obsPerformed: false,       // any physical assessment done in On Scene
-        historyStarted: false,     // history-type assessment done, OR 3+ exchanges in On Scene
+        historyStarted: false,     // only true when a history-type assessment button was used (SAMPLE, SOCRATES, Meds, Social)
         workingImpression: ''      // stored for CPD record / debrief
     },
     nudgeGivenForTransition: false  // true once a nudge has been given for the current transition attempt
@@ -2526,10 +2526,6 @@ async function handleSendMessage(e) {
     // Only run deterioration in On Scene phase
     if (chatState.currentPhase === 'onscene') {
         incrementDeteriorationCounter();
-        // Mark history started once patient has had 3+ typed exchanges
-        if (chatState.phaseMessageCounts.onscene >= 3) {
-            chatState.phaseCheckpoints.historyStarted = true;
-        }
     }
 
     // Refresh handover complete button after first exchange
