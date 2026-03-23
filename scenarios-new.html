@@ -1439,6 +1439,11 @@ function advancePhase() {
         chatState.pendingStarterMessage = null;
     }
 
+    // Inject sentinel so Cloud Function can isolate handover messages for ATMIST scoring
+    if (chatState.currentPhase === 'handover') {
+        chatState.conversationHistory.push({ role: 'user', content: '[HANDOVER_PHASE_START]' });
+    }
+
     updatePhaseUI();
 }
 

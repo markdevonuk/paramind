@@ -2561,20 +2561,26 @@ ${reportInstructions}`;
       else if (upper.includes("VERDICT: PARTIALLY") || upper.includes("PARTIALLY CORRECT") || upper.includes("PARTIAL")) result = "partially_correct";
       else if (upper.includes("INCORRECT")) result = "incorrect";
 
-      // Score handover quality 0/1/2 by checking ATMIST elements in the transcript
-      // A = Age, T = Time, M = Mechanism/Medical history, I = Injuries/findings,
-      // S = Signs/vitals, T = Treatment (we skip treatment per clinical guidelines)
+      // Score handover quality 0/1/2 by checking ATMIST elements in handover-phase messages only
+      // A = Age, T = Time, M = Mechanism/Medical history, I = Injuries/findings, S = Signs/vitals
       let handoverScore = 0;
       if (handoverDelivered) {
-        const handoverMsgs = transcript
-          .filter(m => m.role === "user")
+        // Find sentinel — only messages after [HANDOVER_PHASE_START] count
+        const sentinelIdx = transcript.findIndex(m => m.content === '[HANDOVER_PHASE_START]');
+        const handoverOnly = sentinelIdx >= 0
+          ? transcript.slice(sentinelIdx + 1)
+          : transcript; // fallback: use all if sentinel missing
+
+        const handoverMsgs = handoverOnly
+          .filter(m => m.role === "user" && m.content !== '[HANDOVER_PHASE_START]')
           .map(m => m.content.toLowerCase())
           .join(" ");
+
         const atmistChecks = [
-          /\b(\d+[\s-]*(year|yr|y\/o|y\.o|yo)|\bage\b)/i,           // A — Age
-          /\b(onset|started|began|since|ago|time|this (morning|afternoon|evening|night))/i, // T — Time
+          /\b(\d+[\s-]*(year|yr|y\/o|y\.o|yo)|\bage\b)/i,                                       // A — Age
+          /\b(onset|started|began|since|ago|time|this (morning|afternoon|evening|night))/i,       // T — Time
           /\b(history|pmh|medical|condition|cardiac|diabetic|hypertension|previous|background)/i, // M — Mechanism/Med hx
-          /\b(pain|injury|bleeding|wound|lacerat|fracture|finding|complain|symptom|present)/i,  // I — Injuries/findings
+          /\b(pain|injury|bleeding|wound|lacerat|fracture|finding|complain|symptom|present)/i,    // I — Injuries/findings
           /\b(bp|blood pressure|pulse|heart rate|spo2|oxygen|gcs|rr|resps|temp|obs|vital|sat)/i, // S — Signs
         ];
         const hits = atmistChecks.filter(p => p.test(handoverMsgs)).length;
