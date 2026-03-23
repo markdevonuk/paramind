@@ -2705,8 +2705,8 @@ function renderECGCard(text) {
     const other   = get([/Other:?\s*([^\n•]+)/i]);
 
     // Determine alert classes
-    const stAlert = st && /elevated|depressed|abnormal/i.test(st);
-    const tAlert  = tWaves && /inverted|peaked|abnormal/i.test(tWaves);
+    const stAlert = st && /elevat|depress|abnormal/i.test(st);
+    const tAlert  = tWaves && /invert|peaked|abnormal/i.test(tWaves);
 
     const row = (label, value, alert) => value ? `
         <div class="vital-cell${alert ? ' alert' : ''}">
