@@ -1215,7 +1215,8 @@ Transaction ID: ${originalTransactionId || transactionId || 'unknown'}`
  */
 exports.verifyGooglePurchase = onRequest(
   {
-    cors: true
+    cors: true,
+    secrets: ["GMAIL_APP_PASSWORD"]
   },
   async (req, res) => {
     if (req.method !== "POST") {
@@ -1254,6 +1255,16 @@ exports.verifyGooglePurchase = onRequest(
       await db.collection("users").doc(uid).update(updateData);
 
       console.log(`Google Play purchase verified for user ${uid}: ${productId} (${plan})${restored ? ' [restored]' : ''}`);
+
+      // Send notification email for new purchases (not restores)
+      if (!restored) {
+        const userDoc = await db.collection('users').doc(uid).get();
+        const userEmail = userDoc.exists ? (userDoc.data().email || 'unknown') : 'unknown';
+        await sendNotificationEmail(
+          'New Google Play Subscription — ParaMind',
+          `A new Google Play subscription has started.\n\nUser: ${userEmail}\nProduct: ${productId}\nPlan: ${plan}\nTransaction ID: ${transactionId || 'unknown'}`
+        );
+      }
 
       return res.status(200).json({
         success: true,
