@@ -658,229 +658,269 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-            const pw = doc.internal.pageSize.getWidth();   // 210mm
-            const ph = doc.internal.pageSize.getHeight();  // 297mm
-            const cx = pw / 2;
-            const m  = 18; // margin
+            const pw  = 210;  // A4 portrait width
+            const ph  = 297;  // A4 portrait height
+            const cx  = pw / 2;
+            const m   = 14;   // side margin
+            const iw  = pw - m * 2;  // inner content width = 182mm
 
-            const teal     = [43, 138, 156];
-            const green    = [92, 184, 92];
-            const darkBlue = [26, 26, 46];
-            const gray     = [108, 117, 125];
-            const lgray    = [180, 188, 196];
-            const white    = [255, 255, 255];
+            // Brand colours
+            const teal    = [43, 138, 156];
+            const green   = [92, 184, 92];
+            const navy    = [26, 26, 46];
+            const navyMid = [22, 33, 62];
+            const white   = [255, 255, 255];
+            const gray    = [100, 110, 120];
+            const lgray   = [190, 196, 204];
+            const offwhite= [245, 247, 250];
 
-            // ── BORDERS ──
+            // ── OUTER BORDER (teal, stays well inside page edge) ──
             doc.setDrawColor(...teal);
-            doc.setLineWidth(2.5);
-            doc.rect(8, 8, pw - 16, ph - 16);
+            doc.setLineWidth(2.2);
+            doc.rect(6, 6, pw - 12, ph - 12);
             doc.setDrawColor(...green);
-            doc.setLineWidth(0.7);
-            doc.rect(12, 12, pw - 24, ph - 24);
+            doc.setLineWidth(0.5);
+            doc.rect(9, 9, pw - 18, ph - 18);
 
             // ── HEADER BAND ──
-            doc.setFillColor(...darkBlue);
-            doc.rect(12, 12, pw - 24, 28, 'F');
+            doc.setFillColor(...navy);
+            doc.rect(9, 9, pw - 18, 32, 'F');
 
-            doc.setFontSize(9);
-            doc.setTextColor(...teal);
+            // "para" + "mind" split branding (top-left)
+            doc.setFontSize(11);
             doc.setFont('helvetica', 'bold');
-            doc.text('PARAMIND', m + 1, 23);
-            doc.setFontSize(7);
+            doc.setTextColor(...teal);
+            const paraW = doc.getTextWidth('para');
+            doc.text('para', m, 22);
+            doc.setTextColor(...green);
+            doc.text('mind', m + paraW, 22);
+            doc.setFontSize(6.5);
+            doc.setFont('helvetica', 'normal');
             doc.setTextColor(...lgray);
-            doc.setFont('helvetica', 'normal');
-            doc.text('AI-Powered Paramedic Learning', m + 1, 28);
+            doc.text('AI-Powered Paramedic Learning', m, 27);
 
-            doc.setFontSize(15);
-            doc.setTextColor(...white);
+            // Certificate title (centred in header)
+            doc.setFontSize(17);
             doc.setFont('helvetica', 'bold');
-            doc.text('CERTIFICATE OF COMPLETION', cx, 23, { align: 'center' });
-            doc.setFontSize(8);
-            doc.setTextColor(...teal);
+            doc.setTextColor(...white);
+            doc.text('CERTIFICATE OF COMPLETION', cx, 22, { align: 'center' });
+            doc.setFontSize(7.5);
             doc.setFont('helvetica', 'normal');
-            doc.text('CONTINUING PROFESSIONAL DEVELOPMENT', cx, 30, { align: 'center' });
+            doc.setTextColor(...teal);
+            doc.text('CONTINUING PROFESSIONAL DEVELOPMENT', cx, 29, { align: 'center' });
 
             // ── RECIPIENT ──
-            let y = 50;
-            doc.setFontSize(9);
+            let y = 52;
+            doc.setFontSize(8.5);
+            doc.setFont('helvetica', 'normal');
             doc.setTextColor(...gray);
             doc.text('This certifies that', cx, y, { align: 'center' });
-            y += 8;
-            doc.setFontSize(20);
-            doc.setTextColor(...darkBlue);
-            doc.setFont('helvetica', 'bold');
-            doc.text(userName, cx, y, { align: 'center' });
-            y += 6;
-            doc.setFontSize(8.5);
-            doc.setTextColor(...gray);
-            doc.setFont('helvetica', 'normal');
-            doc.text('has successfully completed the following clinical scenario:', cx, y, { align: 'center' });
-            y += 8;
+            y += 9;
 
-            // ── SCENARIO TITLE ──
-            doc.setFontSize(14);
-            doc.setTextColor(...darkBlue);
+            doc.setFontSize(22);
             doc.setFont('helvetica', 'bold');
-            const titleLines = doc.splitTextToSize(record.scenarioType || 'Clinical Scenario', pw - m * 2 - 8);
+            doc.setTextColor(...navy);
+            doc.text(userName, cx, y, { align: 'center' });
+            y += 7;
+
+            doc.setFontSize(8.5);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(...gray);
+            doc.text('has successfully completed the following clinical scenario:', cx, y, { align: 'center' });
+            y += 9;
+
+            // Scenario title
+            doc.setFontSize(13);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(...navy);
+            const titleLines = doc.splitTextToSize(record.scenarioType || 'Clinical Scenario', iw - 10);
             doc.text(titleLines, cx, y, { align: 'center' });
             y += titleLines.length * 6 + 2;
 
-            doc.setFontSize(8);
-            doc.setTextColor(...gray);
+            doc.setFontSize(7.5);
             doc.setFont('helvetica', 'normal');
+            doc.setTextColor(...gray);
             doc.text('Ref: ' + (record.scenarioCode || 'N/A'), cx, y, { align: 'center' });
+            y += 9;
+
+            // ── TEAL DIVIDER ──
+            doc.setDrawColor(...teal);
+            doc.setLineWidth(0.5);
+            doc.line(m, y, pw - m, y);
             y += 7;
 
-            // ── DIVIDER ──
-            doc.setDrawColor(...teal);
-            doc.setLineWidth(0.4);
-            doc.line(m, y, pw - m, y);
-            y += 6;
+            // ── THREE STAT BOXES: Difficulty | Grade | Outcome ──
+            // Each box is exactly iw/3 wide, safely within margins
+            const boxW  = iw / 3;
+            const boxH  = 18;
+            const diffNames    = { 1: 'Student', 2: 'NQP', 3: 'Paramedic' };
+            const diff         = diffNames[record.difficultyLevel] || 'Student';
+            const gradeLabels  = { gold: 'Gold', silver: 'Silver', bronze: 'Bronze', 'needs-practice': 'Needs Practice' };
+            const gradeVal     = record.grade ? (gradeLabels[record.grade] || '—') : '—';
+            const gradeMedals  = { gold: '🥇 ', silver: '🥈 ', bronze: '🥉 ', 'needs-practice': '' };
+            const gradeMedal   = record.grade ? (gradeMedals[record.grade] || '') : '';
+            const gradeColor   = record.grade === 'gold'   ? [180, 140, 0]
+                               : record.grade === 'silver' ? [100, 100, 110]
+                               : record.grade === 'bronze' ? [160, 100, 40]
+                               : record.grade === 'needs-practice' ? [200, 60, 60]
+                               : navy;
+            const resultLabel  = record.result === 'correct' ? 'Correct'
+                               : record.result === 'partially_correct' ? 'Partially Correct' : 'Incorrect';
+            const resultColor  = record.result === 'correct'           ? [40, 140, 60]
+                               : record.result === 'partially_correct' ? [180, 120, 0]
+                               : [190, 50, 50];
 
-            // ── DIFFICULTY + GRADE + RESULT (3 columns) ──
-            const diffNames = { 1: 'Student', 2: 'NQP', 3: 'Paramedic' };
-            const diff = diffNames[record.difficultyLevel] || 'Student';
-            const gradeDisplay = { gold: '🥇  Gold', silver: '🥈  Silver', bronze: '🥉  Bronze', 'needs-practice': 'Needs Practice' };
-            const grade = record.grade ? (gradeDisplay[record.grade] || record.grade) : '—';
-            const resultDisplay = record.result === 'correct' ? 'Correct' : record.result === 'partially_correct' ? 'Partially Correct' : 'Incorrect';
-            const resultColor = record.result === 'correct' ? green : record.result === 'partially_correct' ? [240, 173, 78] : [217, 83, 79];
-
-            const col1x = m + 12;
-            const col2x = cx;
-            const col3x = pw - m - 12;
-
-            const drawPill = (lx, ly, label, value, valColor) => {
-                doc.setFillColor(245, 247, 250);
-                doc.roundedRect(lx - 22, ly - 5, 44, 16, 2, 2, 'F');
-                doc.setFontSize(7);
-                doc.setTextColor(...gray);
+            const drawStatBox = (idx, label, value, valueColor) => {
+                const bx = m + idx * boxW;
+                // Subtle fill
+                doc.setFillColor(...offwhite);
+                doc.rect(bx, y, boxW - 1, boxH, 'F');
+                // Teal top accent on first, green on others
+                doc.setFillColor(...(idx === 0 ? teal : idx === 1 ? green : teal));
+                doc.rect(bx, y, boxW - 1, 1.5, 'F');
+                // Label
+                doc.setFontSize(6.5);
                 doc.setFont('helvetica', 'normal');
-                doc.text(label, lx, ly, { align: 'center' });
+                doc.setTextColor(...gray);
+                doc.text(label, bx + (boxW - 1) / 2, y + 6, { align: 'center' });
+                // Value
                 doc.setFontSize(9.5);
-                doc.setTextColor(...(valColor || darkBlue));
                 doc.setFont('helvetica', 'bold');
-                doc.text(value, lx, ly + 6, { align: 'center' });
+                doc.setTextColor(...valueColor);
+                doc.text(value, bx + (boxW - 1) / 2, y + 13, { align: 'center' });
             };
 
-            drawPill(col1x, y + 5, 'DIFFICULTY', diff, teal);
-            drawPill(col2x, y + 5, 'GRADE', grade, darkBlue);
-            drawPill(col3x, y + 5, 'OUTCOME', resultDisplay, resultColor);
-            y += 22;
+            drawStatBox(0, 'DIFFICULTY', diff, teal);
+            drawStatBox(1, 'GRADE', gradeMedal + gradeVal, gradeColor);
+            drawStatBox(2, 'OUTCOME', resultLabel, resultColor);
+            y += boxH + 8;
 
-            // ── DIVIDER ──
+            // ── SECTION helper ──
+            const sectionHead = (title, yy) => {
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(...navy);
+                // Left teal accent bar
+                doc.setFillColor(...teal);
+                doc.rect(m, yy - 3.5, 2.5, 6, 'F');
+                doc.text(title, m + 5, yy, { align: 'left' });
+                return yy + 5;
+            };
+
+            // ── CLINICAL TOPICS ──
             doc.setDrawColor(...lgray);
-            doc.setLineWidth(0.3);
+            doc.setLineWidth(0.25);
             doc.line(m, y, pw - m, y);
-            y += 6;
-
-            // ── CLINICAL TOPICS COVERED ──
-            doc.setFontSize(8.5);
-            doc.setTextColor(...darkBlue);
-            doc.setFont('helvetica', 'bold');
-            doc.text('CLINICAL TOPICS COVERED', m, y);
             y += 5;
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(8);
-            doc.setTextColor(...gray);
+            y = sectionHead('CLINICAL TOPICS COVERED', y);
+
             const flags = Array.isArray(record.redFlags) && record.redFlags.length
                 ? record.redFlags.slice(0, 6)
                 : ['Clinical assessment', 'Patient history', 'Clinical reasoning'];
-            // Two columns
             const half = Math.ceil(flags.length / 2);
-            flags.forEach((f, i) => {
-                const fx = i < half ? m + 3 : cx + 3;
-                const fy = y + (i < half ? i : i - half) * 5;
-                doc.text('• ' + f, fx, fy);
-            });
-            y += Math.ceil(flags.length / 2) * 5 + 4;
-
-            // ── WORKING IMPRESSION ──
-            doc.setDrawColor(...lgray);
-            doc.line(m, y, pw - m, y);
-            y += 6;
-            doc.setFontSize(8.5);
-            doc.setTextColor(...darkBlue);
-            doc.setFont('helvetica', 'bold');
-            doc.text('CLINICAL ASSESSMENT', m, y);
-            y += 5;
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(8);
             doc.setTextColor(...gray);
-            doc.text('Working Impression:', m, y);
-            doc.setTextColor(...darkBlue);
-            doc.text(record.userImpression || 'Not recorded', m + 32, y);
+            for (let i = 0; i < flags.length; i++) {
+                const fx = i < half ? m + 5 : cx + 3;
+                const fy = y + (i < half ? i : i - half) * 5;
+                doc.setFillColor(...teal);
+                doc.circle(fx - 1.5, fy - 1.2, 0.8, 'F');
+                doc.text(flags[i], fx + 1, fy);
+            }
+            y += half * 5 + 4;
+
+            // ── CLINICAL ASSESSMENT ──
+            doc.setDrawColor(...lgray);
+            doc.line(m, y, pw - m, y);
             y += 5;
+            y = sectionHead('CLINICAL ASSESSMENT', y);
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
             doc.setTextColor(...gray);
-            doc.text('Correct Diagnosis:', m, y);
-            doc.setTextColor(...darkBlue);
-            doc.text(record.correctDiagnosis || 'N/A', m + 32, y);
+            doc.text('Working Impression:', m + 5, y);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(...navy);
+            doc.text(record.userImpression || 'Not recorded', m + 42, y);
+            y += 5;
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(...gray);
+            doc.text('Correct Diagnosis:', m + 5, y);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(...navy);
+            doc.text(record.correctDiagnosis || 'N/A', m + 42, y);
             y += 8;
 
-            // ── LEARNING POINTS ──
+            // ── KEY LEARNING POINTS ──
             doc.setDrawColor(...lgray);
             doc.line(m, y, pw - m, y);
-            y += 6;
-            doc.setFontSize(8.5);
-            doc.setTextColor(...darkBlue);
-            doc.setFont('helvetica', 'bold');
-            doc.text('KEY LEARNING POINTS', m, y);
             y += 5;
+            y = sectionHead('KEY LEARNING POINTS', y);
 
-            // Extract from debrief report — prefer Section 3 (gaps) or Section 5 (reasoning)
             const learningPoints = extractLearningPoints(record.debriefReport);
             doc.setFont('helvetica', 'normal');
-            doc.setFontSize(8);
+            doc.setFontSize(7.8);
             doc.setTextColor(...gray);
             learningPoints.forEach((pt, i) => {
-                const lines = doc.splitTextToSize((i + 1) + '.  ' + pt, pw - m * 2 - 4);
-                if (y + lines.length * 4.5 > ph - 50) return; // don't overflow
-                doc.text(lines, m + 3, y);
+                if (y > ph - 60) return;
+                const lines = doc.splitTextToSize((i + 1) + '.  ' + pt, iw - 8);
+                doc.text(lines, m + 5, y);
                 y += lines.length * 4.5 + 2;
             });
-            y += 2;
+            y += 3;
 
             // ── HCPC STANDARDS ──
             doc.setDrawColor(...lgray);
             doc.line(m, y, pw - m, y);
-            y += 6;
-            doc.setFontSize(8.5);
-            doc.setTextColor(...darkBlue);
-            doc.setFont('helvetica', 'bold');
-            doc.text('HCPC STANDARDS MET', m, y);
             y += 5;
+            y = sectionHead('HCPC STANDARDS MET', y);
+
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(7.5);
             doc.setTextColor(...gray);
-            doc.text('Standard 6: Keep your professional knowledge and skills up to date.', m + 3, y);
+            doc.text('Standard 6:  Keep your professional knowledge and skills up to date.', m + 5, y);
             y += 4.5;
-            doc.text('Standard 8: Communicate effectively with service users, carers and colleagues.', m + 3, y);
+            doc.text('Standard 8:  Communicate effectively with service users, carers and colleagues.', m + 5, y);
             y += 8;
 
-            // ── DATE ──
+            // ── DATE / STATS ──
             doc.setDrawColor(...lgray);
             doc.line(m, y, pw - m, y);
-            y += 6;
+            y += 5;
             const completedDate = record.completedAt
                 ? new Date(record.completedAt._seconds * 1000).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
                 : new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-            doc.setFontSize(8.5);
+            doc.setFontSize(8);
             doc.setTextColor(...gray);
-            doc.text('Completed: ' + completedDate, m, y);
-            doc.text('Questions: ' + (record.questionsAsked || 0) + '   |   Assessments: ' + (record.assessmentsPerformed || 0), cx, y, { align: 'center' });
+            doc.text('Completed: ' + completedDate, m + 5, y);
+            doc.text('Questions: ' + (record.questionsAsked || 0) + '   |   Assessments: ' + (record.assessmentsPerformed || 0), pw - m, y, { align: 'right' });
 
-            // ── FOOTER ──
-            doc.setFillColor(...darkBlue);
-            doc.rect(12, ph - 22, pw - 24, 10, 'F');
-            doc.setFontSize(7);
+            // ── FOOTER BAND ──
+            doc.setFillColor(...navy);
+            doc.rect(9, ph - 22, pw - 18, 13, 'F');
+
+            // "para" + "mind" in footer
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
             doc.setTextColor(...teal);
+            const fpW = doc.getTextWidth('para');
+            const ftotal = doc.getTextWidth('paramind');
+            const fstart = cx - ftotal / 2;
+            doc.text('para', fstart, ph - 14);
+            doc.setTextColor(...green);
+            doc.text('mind', fstart + fpW, ph - 14);
+
+            doc.setFontSize(7);
             doc.setFont('helvetica', 'normal');
-            doc.text('ParaMind — AI-Powered Paramedic Learning  |  www.paramind.co.uk', cx, ph - 16, { align: 'center' });
             doc.setTextColor(...lgray);
-            doc.setFontSize(6);
-            doc.text('Certificate ID: ' + record.id, cx, ph - 13, { align: 'center' });
+            doc.text('www.paramind.co.uk  |  AI-Powered Paramedic Learning', cx, ph - 10, { align: 'center' });
+            doc.setFontSize(5.5);
+            doc.setTextColor(80, 90, 110);
+            doc.text('Certificate ID: ' + record.id, cx, ph - 12.5, { align: 'center' });
 
             const safeDate = completedDate.replace(/\s/g, '_').replace(/,/g, '');
-            doc.save('CPD_Enhanced_' + (record.scenarioCode || 'N-A') + '_' + safeDate + '.pdf');
+            doc.save('ParaMind_CPD_' + (record.scenarioCode || 'N-A') + '_' + safeDate + '.pdf');
         }
 
         // Extract 2-3 learning points from debrief report text
