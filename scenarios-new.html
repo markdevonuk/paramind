@@ -1012,8 +1012,8 @@ const PHASE_CONFIG = {
         inputPlaceholder: 'Think out loud...',
         showAssessmentToolbar: false,
         showHint: false,
-        notificationText: 'Think ahead. What are your clinical priorities on arrival? You can answer or just click Arrive on Scene.',
-        contextForAI: `\n\n========== PHASE OVERRIDE — TAKES PRIORITY OVER ALL OTHER INSTRUCTIONS ==========\nCURRENT PHASE: EN ROUTE. The paramedic has NOT yet arrived on scene. You MUST NOT respond as the patient or any character from the scenario.\n\nYour role: engage with the paramedic's pre-arrival thinking as a brief internal prompt. Ask one short question to develop their clinical reasoning.\n\nSTRICT RULES — you MUST follow all of these:\n- Do NOT mention or hint at any specific diagnosis, condition, or pathology — not even as a possibility\n- Do NOT suggest pre-alerting the hospital — in UK practice this only happens after patient assessment\n- Do NOT suggest specific interventions or treatments\n- Do NOT use American terminology (e.g. do not say "ischemic", use "ischaemic")\n- Focus only on general pre-arrival preparation: scene safety, equipment, crew roles, clinical approach\n- Keep your response to 2-3 sentences maximum\n- Do NOT use PATIENT: or any patient dialogue\n========== END PHASE OVERRIDE ==========`
+        notificationText: 'Optional — think out loud about your priorities, or just click Arrive on Scene whenever you\'re ready.',
+        contextForAI: `\n\n========== PHASE OVERRIDE — TAKES PRIORITY OVER ALL OTHER INSTRUCTIONS ==========\nCURRENT PHASE: EN ROUTE. The paramedic has NOT yet arrived on scene. You MUST NOT respond as the patient or any character from the scenario.\n\nBriefly affirm their thinking in 1-2 sentences. Do NOT ask any questions — they should feel free to proceed immediately.\n\nSTRICT RULES:\n- Do NOT mention or hint at any specific diagnosis, condition, or pathology\n- Do NOT suggest pre-alerting the hospital\n- Do NOT suggest specific interventions or treatments\n- Do NOT use American terminology\n- Focus only on scene safety, equipment, crew roles\n- 1-2 sentences MAX, no question\n- Do NOT use PATIENT: or any patient dialogue\n========== END PHASE OVERRIDE ==========`
     },
     onscene: {
         label: 'On Scene',
@@ -1391,13 +1391,9 @@ function renderPhaseToolbar() {
             </button>`;
     } else {
         // Dispatch and En Route — standard advance button
-        const enrouteReady = phase !== 'enroute' || chatState.phaseMessageCounts.enroute >= 1;
         html += `
-            <button class="btn phase-advance-btn" id="phaseActionBtn"
-                ${enrouteReady ? `onclick="advancePhase()"` : 'disabled'}
-                ${!enrouteReady ? 'title="Think out loud first"' : ''}>
+            <button class="btn phase-advance-btn" id="phaseActionBtn" onclick="advancePhase()">
                 <i class="bi ${cfg.advanceIcon} me-2"></i>${cfg.advanceLabel}
-                ${!enrouteReady ? '<span style="font-size:0.65rem; opacity:0.6; margin-left:0.4rem;">(think out loud first)</span>' : ''}
             </button>`;
     }
 
@@ -1590,12 +1586,6 @@ const GRADE_CHECKPOINTS = [
         label: 'Multiple assessments performed',
         points: 1,
         check: () => chatState.scenarioProgress.assessmentsPerformed >= 2
-    },
-    {
-        id: 'enroute_planning',
-        label: 'Pre-arrival planning en route',
-        points: 1,
-        check: () => chatState.phaseMessageCounts.enroute >= 1
     },
     {
         id: 'wi_submitted',
@@ -2542,10 +2532,6 @@ async function handleSendMessage(e) {
         }
     }
 
-    // Refresh toolbar (e.g. En Route button enables after first exchange)
-    if (chatState.currentPhase === 'enroute' && chatState.phaseMessageCounts.enroute === 1) {
-        renderPhaseToolbar();
-    }
     // Refresh handover complete button after first exchange
     if (chatState.currentPhase === 'handover' && chatState.phaseMessageCounts.handover === 1) {
         renderPhaseToolbar();
