@@ -1074,7 +1074,8 @@ const chatState = {
         historyStarted: false,     // only true when a history-type assessment button was used (SAMPLE, SOCRATES, Meds, Social)
         workingImpression: ''      // stored for CPD record / debrief
     },
-    nudgeGivenForTransition: false  // true once a nudge has been given for the current transition attempt
+    nudgeGivenForTransition: false,  // true once a nudge has been given for the current transition attempt
+    profWarningShown: false       // true once professionalism warning has been shown this scenario
 };
 
 // ==================== DOM ELEMENTS ====================
@@ -1276,6 +1277,7 @@ function startScenario() {
     chatState.phaseMessageCounts = { dispatch: 0, enroute: 0, onscene: 0, handover: 0 };
     chatState.phaseCheckpoints = { obsPerformed: false, historyStarted: false, workingImpression: '' };
     chatState.nudgeGivenForTransition = false;
+    chatState.profWarningShown = false;
     chatState.scenarioComplete = false;
     resetDPState();
 
@@ -1527,6 +1529,25 @@ function openWorkingImpressionModal() {
 async function submitWorkingImpression() {
     const impression = elements.workingImpressionInput.value.trim();
     if (!impression) { alert('Please enter your working impression'); return; }
+
+    // Reject clearly non-clinical submissions
+    const CLINICAL_TERM = /[a-zA-Z]{4,}/;
+    const NON_CLINICAL = /^(who\s*cares?|idiot|stupid|moron|whatever|idk|dunno|nothing|no\s*idea|i\s*don.t\s*know|not\s*sure|unsure|pass|skip|test|abc|xyz|asdf|hello|bye|ok|okay|yes|no|none)$/i;
+    const words = impression.trim().split(/\s+/);
+    const looksNonClinical = NON_CLINICAL.test(impression.trim()) ||
+        (words.length <= 2 && !CLINICAL_TERM.test(impression) );
+    if (looksNonClinical) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-warning mx-0 my-2';
+        alertDiv.innerHTML = `<i class="bi bi-exclamation-triangle me-2"></i><strong>Please enter a clinical working impression</strong> — your working impression should be a medical diagnosis or condition (e.g. "Acute MI", "Pneumonia", "Hypoglycaemia").`;
+        elements.chatMessages.appendChild(alertDiv);
+        scrollToBottom();
+        setTimeout(() => alertDiv.remove(), 5000);
+        // Close modal without saving
+        const modal = bootstrap.Modal.getInstance(elements.workingImpressionModal);
+        if (modal) modal.hide();
+        return;
+    }
 
     const reasoning = elements.impressionReasoning.value.trim();
     chatState.phaseCheckpoints.workingImpression = impression;
@@ -2522,6 +2543,35 @@ async function handleSendMessage(e) {
 
     // Track per-phase message count (typed messages only — not assessments)
     chatState.phaseMessageCounts[chatState.currentPhase]++;
+
+    // Only apply these checks during On Scene patient interaction
+    if (chatState.currentPhase === 'onscene') {
+
+        // Professionalism check — client-side, reliable regardless of AI model
+        const PROFANITY = /\b(fuck|shit|cunt|bastard|bitch|dickhead|asshole|arsehole|twat|wanker|idiot|loser|stupid|moron|retard|piss\s*off|sod\s*off|prick|tosser)\b/i;
+        const DISMISSIVE = /\b(shut\s*up|stop\s*being\s*dramatic|nothing\s*wrong|your\s*(own\s*)?fault|did\s*this\s*to\s*yourself|obviously|just\s*answer|stop\s*wasting)\b/i;
+        if ((PROFANITY.test(message) || DISMISSIVE.test(message)) && !chatState.profWarningShown) {
+            chatState.profWarningShown = true;
+            const warnDiv = document.createElement('div');
+            warnDiv.style.cssText = 'background:rgba(220,53,69,0.1);border:1px solid #dc3545;border-left:4px solid #dc3545;border-radius:8px;padding:0.875rem 1rem;margin:0.25rem 0;font-size:0.875rem;';
+            warnDiv.innerHTML = `
+                <div style="font-weight:700;color:#dc3545;margin-bottom:0.4rem;"><i class="bi bi-exclamation-octagon-fill me-2"></i>PROFESSIONALISM WARNING</div>
+                <div style="color:var(--color-gray-700);line-height:1.5;">
+                    Speaking to patients in this manner is unacceptable in clinical practice. This behaviour could result in formal complaints, fitness to practise investigations, and potential removal from the HCPC register.
+                    <strong style="display:block;margin-top:0.4rem;">All patients must be treated with dignity and respect regardless of the circumstances.</strong>
+                </div>`;
+            elements.chatMessages.appendChild(warnDiv);
+            scrollToBottom();
+        }
+
+        // History keyword detection — credit genuine history-taking via typed conversation
+        if (!chatState.phaseCheckpoints.historyStarted) {
+            const HISTORY_KEYWORDS = /\b(medical\s*hist|past\s*medical|pmh|pmhx|previous\s*(illness|condition|diagno)|any\s*condition|any\s*illness|allergies|allerg|medications?|meds\b|what\s*(medication|tablet|drug)|current\s*med|regular\s*med|when\s*did\s*(this|it|the|you)|how\s*long\s*(have|has|ago)|tell\s*me\s*(about|how|what)|can\s*you\s*tell|what\s*happened|any\s*pain|where.*pain|describe.*pain|any\s*symptoms?|what\s*symptoms|family\s*hist|social\s*hist|do\s*you\s*(live|smoke|drink|have)|who\s*do\s*you\s*live|any\s*next|next\s*of\s*kin)\b/i;
+            if (HISTORY_KEYWORDS.test(message)) {
+                chatState.phaseCheckpoints.historyStarted = true;
+            }
+        }
+    }
 
     // Only run deterioration in On Scene phase
     if (chatState.currentPhase === 'onscene') {
