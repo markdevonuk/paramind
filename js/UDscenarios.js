@@ -362,6 +362,7 @@ const SCENARIOS = [
     {
         id: "cardiac-001",
         category: "cardiac",
+        frequency: "common",
         dispatch: {
             name: "Edward",
             age: 65,
@@ -400,6 +401,7 @@ const SCENARIOS = [
     {
         id: "cardiac-002",
         category: "cardiac",
+        frequency: "common",
         dispatch: {
             name: "Margaret",
             age: 72,
@@ -438,6 +440,7 @@ const SCENARIOS = [
     {
         id: "cardiac-003",
         category: "cardiac",
+        frequency: "common",
         dispatch: {
             name: "James",
             age: 45,
@@ -476,6 +479,7 @@ const SCENARIOS = [
     {
         id: "cardiac-004",
         category: "cardiac",
+        frequency: "common",
         dispatch: {
             name: "Dorothy",
             age: 78,
@@ -514,6 +518,7 @@ const SCENARIOS = [
     {
         id: "cardiac-005",
         category: "cardiac",
+        frequency: "common",
         dispatch: {
             name: "William",
             age: 62,
@@ -552,6 +557,7 @@ const SCENARIOS = [
     {
         id: "cardiac-006",
         category: "cardiac",
+        frequency: "less-common",
         dispatch: {
             name: "Albert",
             age: 80,
@@ -590,6 +596,7 @@ const SCENARIOS = [
     {
         id: "cardiac-007",
         category: "cardiac",
+        frequency: "common",
         dispatch: {
             name: "Thomas",
             age: 55,
@@ -628,6 +635,7 @@ const SCENARIOS = [
     {
         id: "cardiac-008",
         category: "cardiac",
+        frequency: "common",
         dispatch: {
             name: "Michael",
             age: 58,
@@ -666,6 +674,7 @@ const SCENARIOS = [
     {
         id: "cardiac-009",
         category: "cardiac",
+        frequency: "uncommon",
         dispatch: {
             name: "Kenneth",
             age: 68,
@@ -705,6 +714,7 @@ const SCENARIOS = [
     {
         id: "cardiac-010",
         category: "cardiac",
+        frequency: "less-common",
         dispatch: {
             name: "Brenda",
             age: 74,
@@ -746,6 +756,7 @@ const SCENARIOS = [
     {
         id: "cardiac-011",
         category: "cardiac",
+        frequency: "less-common",
         dispatch: {
             name: "Gary",
             age: 52,
@@ -784,6 +795,7 @@ const SCENARIOS = [
     {
         id: "cardiac-012",
         category: "cardiac",
+        frequency: "less-common",
         dispatch: {
             name: "Denise",
             age: 60,
@@ -822,6 +834,7 @@ const SCENARIOS = [
     {
         id: "cardiac-013",
         category: "cardiac",
+        frequency: "less-common",
         dispatch: {
             name: "Patrick",
             age: 38,
@@ -860,6 +873,7 @@ const SCENARIOS = [
     {
         id: "cardiac-014",
         category: "cardiac",
+        frequency: "uncommon",
         dispatch: {
             name: "Roger",
             age: 70,
@@ -898,6 +912,7 @@ const SCENARIOS = [
     {
         id: "cardiac-015",
         category: "cardiac",
+        frequency: "less-common",
         dispatch: {
             name: "Carol",
             age: 66,
@@ -936,6 +951,7 @@ const SCENARIOS = [
     {
         id: "cardiac-016",
         category: "cardiac",
+        frequency: "uncommon",
         dispatch: {
             name: "Jordan",
             age: 24,
@@ -974,6 +990,7 @@ const SCENARIOS = [
     {
         id: "cardiac-017",
         category: "cardiac",
+        frequency: "common",
         dispatch: {
             name: "Helen",
             age: 22,
@@ -1012,6 +1029,7 @@ const SCENARIOS = [
     {
         id: "cardiac-018",
         category: "cardiac",
+        frequency: "uncommon",
         dispatch: {
             name: "Yvonne",
             age: 45,
@@ -1050,6 +1068,7 @@ const SCENARIOS = [
     {
         id: "cardiac-019",
         category: "cardiac",
+        frequency: "less-common",
         dispatch: {
             name: "Norman",
             age: 68,
@@ -1088,6 +1107,7 @@ const SCENARIOS = [
     {
         id: "cardiac-020",
         category: "cardiac",
+        frequency: "less-common",
         dispatch: {
             name: "Brian",
             age: 61,
@@ -1128,6 +1148,7 @@ const SCENARIOS = [
     {
         id: "resp-001",
         category: "respiratory",
+        frequency: "common",
         dispatch: {
             name: "Sophie",
             age: 28,
@@ -1167,6 +1188,7 @@ const SCENARIOS = [
     {
         id: "resp-002",
         category: "respiratory",
+        frequency: "common",
         dispatch: {
             name: "Harold",
             age: 72,
@@ -1205,6 +1227,7 @@ const SCENARIOS = [
     {
         id: "resp-003",
         category: "respiratory",
+        frequency: "common",
         dispatch: {
             name: "Robert",
             age: 65,
@@ -1243,6 +1266,7 @@ const SCENARIOS = [
     {
         id: "resp-004",
         category: "respiratory",
+        frequency: "less-common",
         dispatch: {
             name: "Charlotte",
             age: 35,
@@ -1281,6 +1305,7 @@ const SCENARIOS = [
     {
         id: "resp-005",
         category: "respiratory",
+        frequency: "less-common",
         dispatch: {
             name: "Lisa",
             age: 25,
@@ -1320,6 +1345,7 @@ const SCENARIOS = [
     {
         id: "resp-006",
         category: "respiratory",
+        frequency: "common",
         dispatch: {
             name: "Daniel",
             age: 55,
@@ -1358,6 +1384,7 @@ const SCENARIOS = [
     {
         id: "resp-007",
         category: "respiratory",
+        frequency: "less-common",
         dispatch: {
             name: "Gary",
             age: 22,
@@ -1396,6 +1423,7 @@ const SCENARIOS = [
     {
         id: "resp-008",
         category: "respiratory",
+        frequency: "less-common",
         dispatch: {
             name: "Maureen",
             age: 82,
@@ -1435,6 +1463,7 @@ const SCENARIOS = [
     {
         id: "resp-009",
         category: "respiratory",
+        frequency: "uncommon",
         dispatch: {
             name: "Simon",
             age: 45,
@@ -1474,6 +1503,7 @@ const SCENARIOS = [
     {
         id: "resp-010",
         category: "respiratory",
+        frequency: "less-common",
         dispatch: {
             name: "Evelyn",
             age: 70,
@@ -1515,6 +1545,7 @@ const SCENARIOS = [
     {
         id: "resp-011",
         category: "respiratory",
+        frequency: "less-common",
         dispatch: {
             name: "Tracey",
             age: 35,
@@ -1554,6 +1585,7 @@ const SCENARIOS = [
     {
         id: "resp-012",
         category: "respiratory",
+        frequency: "less-common",
         dispatch: {
             name: "Callum",
             age: 27,
@@ -1593,6 +1625,7 @@ const SCENARIOS = [
     {
         id: "resp-013",
         category: "respiratory",
+        frequency: "uncommon",
         dispatch: {
             name: "Geoffrey",
             age: 71,
@@ -1631,6 +1664,7 @@ const SCENARIOS = [
     {
         id: "resp-014",
         category: "respiratory",
+        frequency: "less-common",
         dispatch: {
             name: "Maureen",
             age: 80,
@@ -1670,6 +1704,7 @@ const SCENARIOS = [
     {
         id: "resp-015",
         category: "respiratory",
+        frequency: "less-common",
         dispatch: {
             name: "Phillip",
             age: 48,
@@ -1708,6 +1743,7 @@ const SCENARIOS = [
     {
         id: "resp-016",
         category: "respiratory",
+        frequency: "uncommon",
         dispatch: {
             name: "Alfie",
             age: 4,
@@ -1747,6 +1783,7 @@ const SCENARIOS = [
     {
         id: "resp-017",
         category: "respiratory",
+        frequency: "common",
         dispatch: {
             name: "Gemma",
             age: 19,
@@ -1786,6 +1823,7 @@ const SCENARIOS = [
     {
         id: "resp-018",
         category: "respiratory",
+        frequency: "less-common",
         dispatch: {
             name: "Derek",
             age: 74,
@@ -1824,6 +1862,7 @@ const SCENARIOS = [
     {
         id: "resp-019",
         category: "respiratory",
+        frequency: "uncommon",
         dispatch: {
             name: "Valerie",
             age: 55,
@@ -1862,6 +1901,7 @@ const SCENARIOS = [
     {
         id: "resp-020",
         category: "respiratory",
+        frequency: "uncommon",
         dispatch: {
             name: "Liam",
             age: 22,
@@ -1902,6 +1942,7 @@ const SCENARIOS = [
     {
         id: "abdo-001",
         category: "abdominal",
+        frequency: "common",
         dispatch: {
             name: "Jack",
             age: 22,
@@ -1940,6 +1981,7 @@ const SCENARIOS = [
     {
         id: "abdo-002",
         category: "abdominal",
+        frequency: "common",
         dispatch: {
             name: "Susan",
             age: 48,
@@ -1978,6 +2020,7 @@ const SCENARIOS = [
     {
         id: "abdo-003",
         category: "abdominal",
+        frequency: "uncommon",
         dispatch: {
             name: "George",
             age: 75,
@@ -2017,6 +2060,7 @@ const SCENARIOS = [
     {
         id: "abdo-004",
         category: "abdominal",
+        frequency: "less-common",
         dispatch: {
             name: "Betty",
             age: 68,
@@ -2055,6 +2099,7 @@ const SCENARIOS = [
     {
         id: "abdo-005",
         category: "abdominal",
+        frequency: "common",
         dispatch: {
             name: "Frank",
             age: 60,
@@ -2094,6 +2139,7 @@ const SCENARIOS = [
     {
         id: "abdo-006",
         category: "abdominal",
+        frequency: "common",
         dispatch: {
             name: "Andrew",
             age: 40,
@@ -2132,6 +2178,7 @@ const SCENARIOS = [
     {
         id: "abdo-007",
         category: "abdominal",
+        frequency: "common",
         dispatch: {
             name: "Richard",
             age: 50,
@@ -2170,6 +2217,7 @@ const SCENARIOS = [
     {
         id: "abdo-008",
         category: "abdominal",
+        frequency: "less-common",
         dispatch: {
             name: "Carol",
             age: 58,
@@ -2208,6 +2256,7 @@ const SCENARIOS = [
     {
         id: "abdo-009",
         category: "abdominal",
+        frequency: "less-common",
         dispatch: {
             name: "Patricia",
             age: 32,
@@ -2246,6 +2295,7 @@ const SCENARIOS = [
     {
         id: "abdo-010",
         category: "abdominal",
+        frequency: "uncommon",
         dispatch: {
             name: "Norman",
             age: 78,
@@ -2287,6 +2337,7 @@ const SCENARIOS = [
     {
         id: "abdo-011",
         category: "abdominal",
+        frequency: "less-common",
         dispatch: {
             name: "Raymond",
             age: 67,
@@ -2326,6 +2377,7 @@ const SCENARIOS = [
     {
         id: "abdo-012",
         category: "abdominal",
+        frequency: "less-common",
         dispatch: {
             name: "Colin",
             age: 58,
@@ -2364,6 +2416,7 @@ const SCENARIOS = [
     {
         id: "abdo-013",
         category: "abdominal",
+        frequency: "less-common",
         dispatch: {
             name: "Shirley",
             age: 70,
@@ -2402,6 +2455,7 @@ const SCENARIOS = [
     {
         id: "abdo-014",
         category: "abdominal",
+        frequency: "less-common",
         dispatch: {
             name: "Leonard",
             age: 72,
@@ -2440,6 +2494,7 @@ const SCENARIOS = [
     {
         id: "abdo-015",
         category: "abdominal",
+        frequency: "common",
         dispatch: {
             name: "Harry",
             age: 76,
@@ -2478,6 +2533,7 @@ const SCENARIOS = [
     {
         id: "abdo-016",
         category: "abdominal",
+        frequency: "uncommon",
         dispatch: {
             name: "Naomi",
             age: 26,
@@ -2516,6 +2572,7 @@ const SCENARIOS = [
     {
         id: "abdo-017",
         category: "abdominal",
+        frequency: "less-common",
         dispatch: {
             name: "Zoe",
             age: 22,
@@ -2554,6 +2611,7 @@ const SCENARIOS = [
     {
         id: "abdo-018",
         category: "abdominal",
+        frequency: "common",
         dispatch: {
             name: "Keith",
             age: 42,
@@ -2592,6 +2650,7 @@ const SCENARIOS = [
     {
         id: "abdo-019",
         category: "abdominal",
+        frequency: "uncommon",
         dispatch: {
             name: "Vernon",
             age: 75,
@@ -2631,6 +2690,7 @@ const SCENARIOS = [
     {
         id: "abdo-020",
         category: "abdominal",
+        frequency: "uncommon",
         dispatch: {
             name: "Fiona",
             age: 32,
@@ -2671,6 +2731,7 @@ const SCENARIOS = [
     {
         id: "neuro-001",
         category: "neuro",
+        frequency: "common",
         dispatch: {
             name: "Arthur",
             age: 72,
@@ -2710,6 +2771,7 @@ const SCENARIOS = [
     {
         id: "neuro-002",
         category: "neuro",
+        frequency: "common",
         dispatch: {
             name: "Emma",
             age: 35,
@@ -2748,6 +2810,7 @@ const SCENARIOS = [
     {
         id: "neuro-003",
         category: "neuro",
+        frequency: "less-common",
         dispatch: {
             name: "Oliver",
             age: 20,
@@ -2787,6 +2850,7 @@ const SCENARIOS = [
     {
         id: "neuro-004",
         category: "neuro",
+        frequency: "common",
         dispatch: {
             name: "Peter",
             age: 45,
@@ -2826,6 +2890,7 @@ const SCENARIOS = [
     {
         id: "neuro-005",
         category: "neuro",
+        frequency: "common",
         dispatch: {
             name: "Joan",
             age: 58,
@@ -2865,6 +2930,7 @@ const SCENARIOS = [
     {
         id: "neuro-006",
         category: "neuro",
+        frequency: "less-common",
         dispatch: {
             name: "Helen",
             age: 42,
@@ -2905,6 +2971,7 @@ const SCENARIOS = [
     {
         id: "neuro-007",
         category: "neuro",
+        frequency: "common",
         dispatch: {
             name: "Dennis",
             age: 68,
@@ -2944,6 +3011,7 @@ const SCENARIOS = [
     {
         id: "neuro-008",
         category: "neuro",
+        frequency: "less-common",
         dispatch: {
             name: "Irene",
             age: 75,
@@ -2983,6 +3051,7 @@ const SCENARIOS = [
     {
         id: "neuro-009",
         category: "neuro",
+        frequency: "less-common",
         dispatch: {
             name: "Colin",
             age: 55,
@@ -3022,6 +3091,7 @@ const SCENARIOS = [
     {
         id: "neuro-010",
         category: "neuro",
+        frequency: "uncommon",
         dispatch: {
             name: "Sandra",
             age: 38,
@@ -3063,6 +3133,7 @@ const SCENARIOS = [
     {
         id: "neuro-011",
         category: "neuro",
+        frequency: "less-common",
         dispatch: {
             name: "Clive",
             age: 54,
@@ -3102,6 +3173,7 @@ const SCENARIOS = [
     {
         id: "neuro-012",
         category: "neuro",
+        frequency: "less-common",
         dispatch: {
             name: "Craig",
             age: 28,
@@ -3141,6 +3213,7 @@ const SCENARIOS = [
     {
         id: "neuro-013",
         category: "neuro",
+        frequency: "less-common",
         dispatch: {
             name: "Arthur",
             age: 62,
@@ -3180,6 +3253,7 @@ const SCENARIOS = [
     {
         id: "neuro-014",
         category: "neuro",
+        frequency: "less-common",
         dispatch: {
             name: "Rebecca",
             age: 31,
@@ -3218,6 +3292,7 @@ const SCENARIOS = [
     {
         id: "neuro-015",
         category: "neuro",
+        frequency: "less-common",
         dispatch: {
             name: "Walter",
             age: 65,
@@ -3257,6 +3332,7 @@ const SCENARIOS = [
     {
         id: "neuro-016",
         category: "neuro",
+        frequency: "uncommon",
         dispatch: {
             name: "Martin",
             age: 55,
@@ -3295,6 +3371,7 @@ const SCENARIOS = [
     {
         id: "neuro-017",
         category: "neuro",
+        frequency: "uncommon",
         dispatch: {
             name: "Diana",
             age: 38,
@@ -3334,6 +3411,7 @@ const SCENARIOS = [
     {
         id: "neuro-018",
         category: "neuro",
+        frequency: "uncommon",
         dispatch: {
             name: "Leslie",
             age: 58,
@@ -3373,6 +3451,7 @@ const SCENARIOS = [
     {
         id: "neuro-019",
         category: "neuro",
+        frequency: "uncommon",
         dispatch: {
             name: "Penelope",
             age: 32,
@@ -3412,6 +3491,7 @@ const SCENARIOS = [
     {
         id: "neuro-020",
         category: "neuro",
+        frequency: "uncommon",
         dispatch: {
             name: "Joanna",
             age: 29,
@@ -3453,6 +3533,7 @@ const SCENARIOS = [
     {
         id: "trauma-001",
         category: "trauma",
+        frequency: "common",
         dispatch: {
             name: "Multiple patients",
             age: null,
@@ -3493,6 +3574,7 @@ const SCENARIOS = [
     {
         id: "trauma-002",
         category: "trauma",
+        frequency: "common",
         dispatch: {
             name: "David",
             age: 35,
@@ -3532,6 +3614,7 @@ const SCENARIOS = [
     {
         id: "trauma-003",
         category: "trauma",
+        frequency: "less-common",
         dispatch: {
             name: "Jayden",
             age: 25,
@@ -3571,6 +3654,7 @@ const SCENARIOS = [
     {
         id: "trauma-004",
         category: "trauma",
+        frequency: "less-common",
         dispatch: {
             name: "Catherine",
             age: 42,
@@ -3611,6 +3695,7 @@ const SCENARIOS = [
     {
         id: "trauma-005",
         category: "trauma",
+        frequency: "less-common",
         dispatch: {
             name: "Ryan",
             age: 28,
@@ -3650,6 +3735,7 @@ const SCENARIOS = [
     {
         id: "trauma-006",
         category: "trauma",
+        frequency: "less-common",
         dispatch: {
             name: "Mark",
             age: 19,
@@ -3689,6 +3775,7 @@ const SCENARIOS = [
     {
         id: "trauma-007",
         category: "trauma",
+        frequency: "uncommon",
         dispatch: {
             name: "Trevor",
             age: 52,
@@ -3728,6 +3815,7 @@ const SCENARIOS = [
     {
         id: "trauma-008",
         category: "trauma",
+        frequency: "less-common",
         dispatch: {
             name: "Sophie",
             age: 8,
@@ -3767,6 +3855,7 @@ const SCENARIOS = [
     {
         id: "trauma-009",
         category: "trauma",
+        frequency: "less-common",
         dispatch: {
             name: "Brian",
             age: 45,
@@ -3806,6 +3895,7 @@ const SCENARIOS = [
     {
         id: "trauma-010",
         category: "trauma",
+        frequency: "less-common",
         dispatch: {
             name: "Kerry",
             age: 31,
@@ -3847,6 +3937,7 @@ const SCENARIOS = [
     {
         id: "trauma-011",
         category: "trauma",
+        frequency: "less-common",
         dispatch: {
             name: "Kevin",
             age: 45,
@@ -3886,6 +3977,7 @@ const SCENARIOS = [
     {
         id: "trauma-012",
         category: "trauma",
+        frequency: "less-common",
         dispatch: {
             name: "Stuart",
             age: 19,
@@ -3925,6 +4017,7 @@ const SCENARIOS = [
     {
         id: "trauma-013",
         category: "trauma",
+        frequency: "uncommon",
         dispatch: {
             name: "Danny",
             age: 22,
@@ -3964,6 +4057,7 @@ const SCENARIOS = [
     {
         id: "trauma-014",
         category: "trauma",
+        frequency: "uncommon",
         dispatch: {
             name: "Emily",
             age: 8,
@@ -4003,6 +4097,7 @@ const SCENARIOS = [
     {
         id: "trauma-015",
         category: "trauma",
+        frequency: "uncommon",
         dispatch: {
             name: "Paul",
             age: 38,
@@ -4042,6 +4137,7 @@ const SCENARIOS = [
     {
         id: "trauma-016",
         category: "trauma",
+        frequency: "uncommon",
         dispatch: {
             name: "Unknown male",
             age: null,
@@ -4081,6 +4177,7 @@ const SCENARIOS = [
     {
         id: "trauma-017",
         category: "trauma",
+        frequency: "less-common",
         dispatch: {
             name: "Michael",
             age: 34,
@@ -4120,6 +4217,7 @@ const SCENARIOS = [
     {
         id: "trauma-018",
         category: "trauma",
+        frequency: "uncommon",
         dispatch: {
             name: "James",
             age: 26,
@@ -4159,6 +4257,7 @@ const SCENARIOS = [
     {
         id: "trauma-019",
         category: "trauma",
+        frequency: "uncommon",
         dispatch: {
             name: "Patricia",
             age: 52,
@@ -4198,6 +4297,7 @@ const SCENARIOS = [
     {
         id: "trauma-020",
         category: "trauma",
+        frequency: "less-common",
         dispatch: {
             name: "Ryan",
             age: 23,
@@ -4239,6 +4339,7 @@ const SCENARIOS = [
     {
         id: "paed-001",
         category: "paediatric",
+        frequency: "common",
         dispatch: {
             name: "Lily",
             age: 2,
@@ -4278,6 +4379,7 @@ const SCENARIOS = [
     {
         id: "paed-002",
         category: "paediatric",
+        frequency: "common",
         dispatch: {
             name: "Baby Thomas",
             age: 0.5,
@@ -4318,6 +4420,7 @@ const SCENARIOS = [
     {
         id: "paed-003",
         category: "paediatric",
+        frequency: "common",
         dispatch: {
             name: "Charlie",
             age: 1.5,
@@ -4357,6 +4460,7 @@ const SCENARIOS = [
     {
         id: "paed-004",
         category: "paediatric",
+        frequency: "less-common",
         dispatch: {
             name: "Amelia",
             age: 4,
@@ -4397,6 +4501,7 @@ const SCENARIOS = [
     {
         id: "paed-005",
         category: "paediatric",
+        frequency: "less-common",
         dispatch: {
             name: "Sophie",
             age: 3,
@@ -4437,6 +4542,7 @@ const SCENARIOS = [
     {
         id: "paed-006",
         category: "paediatric",
+        frequency: "common",
         dispatch: {
             name: "Jake",
             age: 8,
@@ -4477,6 +4583,7 @@ const SCENARIOS = [
     {
         id: "paed-007",
         category: "paediatric",
+        frequency: "less-common",
         dispatch: {
             name: "Baby Mia",
             age: 0.25,
@@ -4517,6 +4624,7 @@ const SCENARIOS = [
     {
         id: "paed-008",
         category: "paediatric",
+        frequency: "less-common",
         dispatch: {
             name: "Tyler",
             age: 12,
@@ -4557,6 +4665,7 @@ const SCENARIOS = [
     {
         id: "paed-009",
         category: "paediatric",
+        frequency: "uncommon",
         dispatch: {
             name: "Oscar",
             age: 5,
@@ -4597,6 +4706,7 @@ const SCENARIOS = [
     {
         id: "paed-010",
         category: "paediatric",
+        frequency: "less-common",
         dispatch: {
             name: "Ella",
             age: 10,
@@ -4638,6 +4748,7 @@ const SCENARIOS = [
     {
         id: "paed-011",
         category: "paediatric",
+        frequency: "less-common",
         dispatch: {
             name: "Leo",
             age: 14,
@@ -4677,6 +4788,7 @@ const SCENARIOS = [
     {
         id: "paed-012",
         category: "paediatric",
+        frequency: "uncommon",
         dispatch: {
             name: "Freddie",
             age: 7,
@@ -4716,6 +4828,7 @@ const SCENARIOS = [
     {
         id: "paed-013",
         category: "paediatric",
+        frequency: "uncommon",
         dispatch: {
             name: "Charlie",
             age: 3,
@@ -4755,6 +4868,7 @@ const SCENARIOS = [
     {
         id: "paed-014",
         category: "paediatric",
+        frequency: "less-common",
         dispatch: {
             name: "Isla",
             age: 9,
@@ -4794,6 +4908,7 @@ const SCENARIOS = [
     {
         id: "paed-015",
         category: "paediatric",
+        frequency: "less-common",
         dispatch: {
             name: "Harry",
             age: 13,
@@ -4833,6 +4948,7 @@ const SCENARIOS = [
     {
         id: "paed-016",
         category: "paediatric",
+        frequency: "uncommon",
         dispatch: {
             name: "Evie",
             age: 6,
@@ -4872,6 +4988,7 @@ const SCENARIOS = [
     {
         id: "paed-017",
         category: "paediatric",
+        frequency: "less-common",
         dispatch: {
             name: "Chloe",
             age: 15,
@@ -4911,6 +5028,7 @@ const SCENARIOS = [
     {
         id: "paed-018",
         category: "paediatric",
+        frequency: "uncommon",
         dispatch: {
             name: "Noah",
             age: 3,
@@ -4950,6 +5068,7 @@ const SCENARIOS = [
     {
         id: "paed-019",
         category: "paediatric",
+        frequency: "uncommon",
         dispatch: {
             name: "Jake",
             age: 14,
@@ -4989,6 +5108,7 @@ const SCENARIOS = [
     {
         id: "paed-020",
         category: "paediatric",
+        frequency: "common",
         dispatch: {
             name: "Sophie",
             age: 2,
@@ -5030,6 +5150,7 @@ const SCENARIOS = [
     {
         id: "obs-001",
         category: "obstetric",
+        frequency: "common",
         dispatch: {
             name: "Hannah",
             age: 28,
@@ -5070,6 +5191,7 @@ const SCENARIOS = [
     {
         id: "obs-002",
         category: "obstetric",
+        frequency: "less-common",
         dispatch: {
             name: "Rebecca",
             age: 32,
@@ -5110,6 +5232,7 @@ const SCENARIOS = [
     {
         id: "obs-003",
         category: "obstetric",
+        frequency: "less-common",
         dispatch: {
             name: "Sarah",
             age: 35,
@@ -5150,6 +5273,7 @@ const SCENARIOS = [
     {
         id: "obs-004",
         category: "obstetric",
+        frequency: "uncommon",
         dispatch: {
             name: "Amy",
             age: 26,
@@ -5190,6 +5314,7 @@ const SCENARIOS = [
     {
         id: "obs-005",
         category: "obstetric",
+        frequency: "less-common",
         dispatch: {
             name: "Lucy",
             age: 29,
@@ -5230,6 +5355,7 @@ const SCENARIOS = [
     {
         id: "obs-006",
         category: "obstetric",
+        frequency: "less-common",
         dispatch: {
             name: "Jennifer",
             age: 31,
@@ -5270,6 +5396,7 @@ const SCENARIOS = [
     {
         id: "obs-007",
         category: "obstetric",
+        frequency: "less-common",
         dispatch: {
             name: "Michelle",
             age: 33,
@@ -5311,6 +5438,7 @@ const SCENARIOS = [
     {
         id: "obs-008",
         category: "obstetric",
+        frequency: "common",
         dispatch: {
             name: "Kate",
             age: 24,
@@ -5351,6 +5479,7 @@ const SCENARIOS = [
     {
         id: "obs-009",
         category: "obstetric",
+        frequency: "uncommon",
         dispatch: {
             name: "Natalie",
             age: 27,
@@ -5391,6 +5520,7 @@ const SCENARIOS = [
     {
         id: "obs-010",
         category: "obstetric",
+        frequency: "less-common",
         dispatch: {
             name: "Emma",
             age: 30,
@@ -5433,6 +5563,7 @@ const SCENARIOS = [
     {
         id: "mh-001",
         category: "mental-health",
+        frequency: "common",
         dispatch: {
             name: "Jessica",
             age: 18,
@@ -5473,6 +5604,7 @@ const SCENARIOS = [
     {
         id: "mh-002",
         category: "mental-health",
+        frequency: "common",
         dispatch: {
             name: "David",
             age: 45,
@@ -5514,6 +5646,7 @@ const SCENARIOS = [
     {
         id: "mh-003",
         category: "mental-health",
+        frequency: "common",
         dispatch: {
             name: "Marcus",
             age: 30,
@@ -5554,6 +5687,7 @@ const SCENARIOS = [
     {
         id: "mh-004",
         category: "mental-health",
+        frequency: "common",
         dispatch: {
             name: "Lauren",
             age: 25,
@@ -5594,6 +5728,7 @@ const SCENARIOS = [
     {
         id: "mh-005",
         category: "mental-health",
+        frequency: "less-common",
         dispatch: {
             name: "Graham",
             age: 68,
@@ -5634,6 +5769,7 @@ const SCENARIOS = [
     {
         id: "mh-006",
         category: "mental-health",
+        frequency: "common",
         dispatch: {
             name: "Jade",
             age: 22,
@@ -5673,6 +5809,7 @@ const SCENARIOS = [
     {
         id: "mh-007",
         category: "mental-health",
+        frequency: "common",
         dispatch: {
             name: "Anthony",
             age: 35,
@@ -5714,6 +5851,7 @@ const SCENARIOS = [
     {
         id: "mh-008",
         category: "mental-health",
+        frequency: "less-common",
         dispatch: {
             name: "Stephanie",
             age: 28,
@@ -5755,6 +5893,7 @@ const SCENARIOS = [
     {
         id: "mh-009",
         category: "mental-health",
+        frequency: "less-common",
         dispatch: {
             name: "Tom",
             age: 40,
@@ -5796,6 +5935,7 @@ const SCENARIOS = [
     {
         id: "mh-010",
         category: "mental-health",
+        frequency: "uncommon",
         dispatch: {
             name: "Priya",
             age: 32,
