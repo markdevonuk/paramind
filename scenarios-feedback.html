@@ -575,7 +575,7 @@ const API_CONFIG = {
 // ── Grade computation (mirrors scenarios-new.html) ──
 const GRADE_THRESHOLDS = { gold: 12, silver: 8, bronze: 4 };
 
-function computeGrade(result, gi) {
+function computeGrade(result, gi, handoverScore) {
     const checkpoints = [
         { id: 'obs',                label: 'Observations taken',                        points: 2, hit: gi.hasVitalsData },
         { id: 'history',            label: 'History gathered from patient',              points: 2, hit: gi.historyStarted },
@@ -585,8 +585,7 @@ function computeGrade(result, gi) {
         { id: 'wi_submitted',       label: 'Working impression submitted',               points: 2, hit: !!gi.workingImpression && gi.workingImpression !== 'Not recorded' },
         { id: 'wi_correct',         label: 'Working impression correct',                 points: 3, hit: result === 'correct' },
         { id: 'wi_partial',         label: 'Working impression partially correct',       points: 1, hit: result === 'partially_correct' },
-        { id: 'handover_delivered', label: 'Handover delivered',                         points: 2, hit: gi.handoverMessages >= 1 },
-        { id: 'handover_thorough',  label: 'Thorough handover (3+ exchanges)',           points: 1, hit: gi.handoverMessages >= 3 },
+        { id: 'handover_quality',   label: 'Handover quality (ATMIST)',                  points: handoverScore, hit: handoverScore > 0, scoreLabel: handoverScore === 2 ? 'Full ATMIST' : handoverScore === 1 ? 'Partial ATMIST' : 'No relevant info' },
         { id: 'decision_points',    label: 'Engaged with clinical decision points',      points: 1, hit: gi.dpCount >= 1 },
     ].filter(cp => {
         if (cp.id === 'wi_partial' && result === 'correct') return false;
@@ -718,7 +717,7 @@ auth.onAuthStateChanged(async (user) => {
         }
 
         // Compute grade
-        const gradeData = computeGrade(feedbackData.result, payload.gradeInputs);
+        const gradeData = computeGrade(feedbackData.result, payload.gradeInputs, feedbackData.handoverScore ?? (payload.gradeInputs.handoverMessages >= 1 ? 1 : 0));
 
         // Populate header
         const gradeNames = { gold: 'Gold — Excellent', silver: 'Silver — Good', bronze: 'Bronze — Developing', 'needs-practice': 'Needs More Practice' };
@@ -746,8 +745,8 @@ auth.onAuthStateChanged(async (user) => {
             list.innerHTML = gradeData.checkpoints.map(cp => `
                 <div class="grade-checkpoint ${cp.hit ? 'hit' : 'miss'}">
                     <i class="bi ${cp.hit ? 'bi-check-circle-fill' : 'bi-x-circle-fill'}"></i>
-                    <span style="flex:1;">${cp.label}</span>
-                    <span style="font-size:0.75rem;font-weight:700;color:${cp.hit ? 'var(--color-green)' : 'var(--color-danger);'}">${cp.hit ? '+'+cp.points : '0'} pts</span>
+                    <span style="flex:1;">${cp.label}${cp.scoreLabel ? ` <span style="font-size:0.7rem;opacity:0.7;">(${cp.scoreLabel})</span>` : ''}</span>
+                    <span style="font-size:0.75rem;font-weight:700;color:${cp.hit ? 'var(--color-green)' : 'var(--color-danger)'}">${cp.hit ? '+'+cp.points : '0'} pts</span>
                 </div>`).join('');
             document.getElementById('gradeTotal').textContent = `Total: ${gradeData.totalPoints} points`;
             document.getElementById('gradeBreakdown').style.display = 'block';

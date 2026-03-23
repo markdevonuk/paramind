@@ -1627,16 +1627,10 @@ const GRADE_CHECKPOINTS = [
         check: (result) => result === 'partially_correct'
     },
     {
-        id: 'handover_delivered',
-        label: 'Handover delivered',
-        points: 2,
+        id: 'handover_quality',
+        label: 'Handover quality',
+        points: 2,  // 0=none, 1=partial, 2=full — resolved on feedback page from handoverScore
         check: () => chatState.phaseMessageCounts.handover >= 1
-    },
-    {
-        id: 'handover_thorough',
-        label: 'Thorough handover (3+ exchanges)',
-        points: 1,
-        check: () => chatState.phaseMessageCounts.handover >= 3
     },
     {
         id: 'decision_points',

@@ -2561,11 +2561,34 @@ ${reportInstructions}`;
       else if (upper.includes("VERDICT: PARTIALLY") || upper.includes("PARTIALLY CORRECT") || upper.includes("PARTIAL")) result = "partially_correct";
       else if (upper.includes("INCORRECT")) result = "incorrect";
 
+      // Score handover quality 0/1/2 by checking ATMIST elements in the transcript
+      // A = Age, T = Time, M = Mechanism/Medical history, I = Injuries/findings,
+      // S = Signs/vitals, T = Treatment (we skip treatment per clinical guidelines)
+      let handoverScore = 0;
+      if (handoverDelivered) {
+        const handoverMsgs = transcript
+          .filter(m => m.role === "user")
+          .map(m => m.content.toLowerCase())
+          .join(" ");
+        const atmistChecks = [
+          /\b(\d+[\s-]*(year|yr|y\/o|y\.o|yo)|\bage\b)/i,           // A — Age
+          /\b(onset|started|began|since|ago|time|this (morning|afternoon|evening|night))/i, // T — Time
+          /\b(history|pmh|medical|condition|cardiac|diabetic|hypertension|previous|background)/i, // M — Mechanism/Med hx
+          /\b(pain|injury|bleeding|wound|lacerat|fracture|finding|complain|symptom|present)/i,  // I — Injuries/findings
+          /\b(bp|blood pressure|pulse|heart rate|spo2|oxygen|gcs|rr|resps|temp|obs|vital|sat)/i, // S — Signs
+        ];
+        const hits = atmistChecks.filter(p => p.test(handoverMsgs)).length;
+        if (hits >= 4) handoverScore = 2;       // full/near-full ATMIST
+        else if (hits >= 2) handoverScore = 1;  // partial ATMIST
+        else handoverScore = 0;                 // delivered but no relevant content
+      }
+
       return res.status(200).json({
         success: true,
         report: reportText,
         result,
         isPro,
+        handoverScore,
       });
 
     } catch (error) {
