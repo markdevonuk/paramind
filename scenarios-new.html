@@ -253,8 +253,11 @@
         .hint-icon-btn:hover { background: rgba(233,69,96,0.18); }
         .hint-icon-btn:active { transform: scale(0.93); }
 
-        /* Remove the old full-width assessment toolbar styles */
-        .assessment-toolbar { display: contents; } /* wrapper becomes invisible, child button flows into flex */
+        /* MDT / pre-scene message — dark terminal style, must beat styles.css */
+        .scenario-chat-view .message.message-mdt { align-self: flex-start; }
+        .scenario-chat-view .message.message-mdt .message-avatar { background: rgba(0,217,255,0.15) !important; color: #00d9ff !important; }
+        .scenario-chat-view .message.message-mdt .message-content { background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%) !important; border: 1px solid rgba(0,217,255,0.25) !important; border-left: 3px solid #00d9ff !important; color: #e0e6f0 !important; font-family: 'JetBrains Mono', monospace !important; font-size: 0.82rem !important; line-height: 1.65 !important; border-bottom-left-radius: var(--radius-sm) !important; }
+        .scenario-chat-view .message.message-mdt .msg-speaker-label { color: #00d9ff !important; }
 
         /* Assessment + hint indicators in chat */
         .scenario-chat-view .assessment-indicator { align-self: center; background: rgba(0,217,255,0.1); border: 1px dashed #00d9ff; padding: 0.4rem 0.875rem; border-radius: 20px; font-size: 0.78rem; color: #00d9ff; font-family: 'JetBrains Mono', monospace; font-weight: 500; }
@@ -1790,13 +1793,11 @@ function parseSpeaker(content) {
 
 function addMDTMessage(content) {
     const messageDiv = document.createElement('div');
-    messageDiv.className = 'message assistant';
+    messageDiv.className = 'message message-mdt';
     messageDiv.innerHTML = `
-        <div class="message-avatar" style="background:rgba(0,217,255,0.15);color:#00d9ff;">
-            <i class="bi bi-broadcast"></i>
-        </div>
-        <div class="message-content" style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;background:rgba(26,26,46,0.06);border:1px solid rgba(0,217,255,0.2);">
-            <div class="msg-speaker-label" style="color:#00d9ff;">MDT</div>
+        <div class="message-avatar"><i class="bi bi-broadcast"></i></div>
+        <div class="message-content">
+            <div class="msg-speaker-label">MDT</div>
             ${content}
         </div>`;
     elements.chatMessages.appendChild(messageDiv);
@@ -1836,14 +1837,12 @@ function addStreamingMessage(messageId) {
     const isPreScene = chatState.currentPhase === 'dispatch' || chatState.currentPhase === 'enroute';
 
     if (isPreScene) {
-        messageDiv.className = 'message assistant';
+        messageDiv.className = 'message message-mdt';
         messageDiv.id = messageId;
         messageDiv.innerHTML = `
-            <div class="message-avatar" style="background:rgba(0,217,255,0.15);color:#00d9ff;">
-                <i class="bi bi-broadcast"></i>
-            </div>
-            <div class="message-content" style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;background:rgba(26,26,46,0.06);border:1px solid rgba(0,217,255,0.2);">
-                <div class="msg-speaker-label" style="color:#00d9ff;">MDT</div>
+            <div class="message-avatar"><i class="bi bi-broadcast"></i></div>
+            <div class="message-content">
+                <div class="msg-speaker-label">MDT</div>
                 <span class="streaming-text"></span><span class="streaming-cursor">|</span>
             </div>`;
     } else {
@@ -1905,8 +1904,8 @@ function finalizeStreamingMessage(messageId, content, overrideLabel) {
             contentDiv.innerHTML = `<div class="msg-speaker-label" style="color:var(--color-teal);">${overrideLabel}</div>${formatMessage(content)}`;
             messageDiv.className = 'message assistant';
         } else if (isPreScene) {
-            contentDiv.innerHTML = `<div class="msg-speaker-label" style="color:#00d9ff;">MDT</div>${formatMessage(content)}`;
-            messageDiv.className = 'message assistant';
+            contentDiv.innerHTML = `<div class="msg-speaker-label">MDT</div>${formatMessage(content)}`;
+            messageDiv.className = 'message message-mdt';
         } else if (isHandover) {
             contentDiv.innerHTML = `<div class="msg-speaker-label" style="color:#9333ea;">Receiving Clinician</div>${formatMessage(content)}`;
             messageDiv.className = 'message relative';
