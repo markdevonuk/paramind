@@ -230,12 +230,12 @@
                                         <!-- CHANGE 1: Added Last Login column -->
                                         <th data-sort="lastLogin" onclick="handleSort('allUsersBody', 'lastLogin', true, true)" style="cursor:pointer;user-select:none;">Last Login <span class="sort-icon text-muted">⇅</span></th>
                                         <th data-sort="createdAt" onclick="handleSort('allUsersBody', 'createdAt', true, true)" style="cursor:pointer;user-select:none;">Joined <span class="sort-icon text-muted">⇅</span></th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody id="allUsersBody">
                                     <tr>
-                                        <!-- Updated colspan to 7 for Platform column -->
-                                        <td colspan="7" class="text-center py-4">
+                                        <td colspan="8" class="text-center py-4">
                                             <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
                                             Loading users...
                                         </td>
@@ -257,6 +257,7 @@
                                         <!-- CHANGE 3: Added Last Login column -->
                                         <th data-sort="lastLogin" onclick="handleSort('freeUsersBody', 'lastLogin', false, false)" style="cursor:pointer;user-select:none;">Last Login <span class="sort-icon text-muted">⇅</span></th>
                                         <th data-sort="createdAt" onclick="handleSort('freeUsersBody', 'createdAt', false, false)" style="cursor:pointer;user-select:none;">Joined <span class="sort-icon text-muted">⇅</span></th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody id="freeUsersBody">
@@ -278,6 +279,7 @@
                                         <!-- CHANGE 4: Added Last Login column -->
                                         <th data-sort="lastLogin" onclick="handleSort('paidUsersBody', 'lastLogin', false, true)" style="cursor:pointer;user-select:none;">Last Login <span class="sort-icon text-muted">⇅</span></th>
                                         <th data-sort="createdAt" onclick="handleSort('paidUsersBody', 'createdAt', false, true)" style="cursor:pointer;user-select:none;">Joined <span class="sort-icon text-muted">⇅</span></th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody id="paidUsersBody">
@@ -483,7 +485,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
         import { firebaseConfig } from './js/firebase-config.js';
 
         // Initialize Firebase
@@ -609,8 +611,8 @@
                 console.error('Error loading users:', error);
                 document.getElementById('allUsersBody').innerHTML = `
                     <tr>
-                        <!-- Updated colspan to 7 for Platform column -->
-                        <td colspan="7" class="text-center text-danger py-4">
+                        <!-- Updated colspan to 8 for actions column -->
+                        <td colspan="8" class="text-center text-danger py-4">
                             <i class="bi bi-exclamation-triangle me-2"></i>
                             Error loading users. Check console for details.
                         </td>
@@ -700,8 +702,8 @@
         function renderTable(tableBodyId, users, showStatus = false, showPlatform = false) {
             const tbody = document.getElementById(tableBodyId);
             
-            // Calculate colspan: base 5 + 1 if status + 1 if platform
-            const colspan = 5 + (showStatus ? 1 : 0) + (showPlatform ? 1 : 0);
+            // base 5 cols + status + platform + actions column
+            const colspan = 5 + (showStatus ? 1 : 0) + (showPlatform ? 1 : 0) + 1;
             
             if (users.length === 0) {
                 tbody.innerHTML = `
@@ -765,6 +767,7 @@
                 if (showPlatform) row += `<td>${platformBadge}</td>`;
                 row += `<td>${lastLogin}</td>`;
                 row += `<td>${joinDate}</td>`;
+                row += `<td><button class="btn btn-outline-danger btn-sm" onclick="deleteUser('${user.id}', '${escapeHtml(user.email)}', '${escapeHtml(fullName)}')"><i class="bi bi-trash"></i></button></td>`;
                 row += `</tr>`;
                 return row;
             }).join('');
@@ -865,6 +868,40 @@
                 console.error('Logout error:', error);
             }
         });
+
+        // ============================================
+        // DELETE USER
+        // ============================================
+        window.deleteUser = async function(userId, userEmail, userName) {
+            const displayName = userName && userName !== 'No name' ? userName : userEmail;
+            const confirmed = window.confirm(
+                `Are you sure you want to delete this user?\n\n${displayName} (${userEmail})\n\nThis will remove their Paramind data permanently. This cannot be undone.`
+            );
+            if (!confirmed) return;
+
+            try {
+                await deleteDoc(doc(db, 'users', userId));
+
+                // Remove from all in-memory arrays
+                allUsers      = allUsers.filter(u => u.id !== userId);
+                freeUsersList = freeUsersList.filter(u => u.id !== userId);
+                paidUsersList = paidUsersList.filter(u => u.id !== userId);
+
+                // Update stats
+                document.getElementById('totalUsers').textContent = allUsers.length;
+                document.getElementById('freeUsers').textContent  = freeUsersList.length;
+                document.getElementById('paidUsers').textContent  = paidUsersList.length;
+
+                // Re-render all three tables
+                renderTable('allUsersBody',  allUsers,      true,  true);
+                renderTable('freeUsersBody', freeUsersList, false, false);
+                renderTable('paidUsersBody', paidUsersList, false, true);
+
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                alert('Failed to delete user: ' + error.message);
+            }
+        };
 
         // ============================================
         // UTILITY FUNCTIONS
