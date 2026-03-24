@@ -2525,7 +2525,10 @@ ${handoverDelivered
 ## 5. Clinical Reasoning
 3-4 sentences on why the history and examination findings mattered — what pattern of symptoms and signs the paramedic should have recognised, and why systematic history-taking matters in cases like this. No medications, no interventions, no management.
 
-Do NOT start with any preamble — go straight to "## 1. Overall Performance".
+Start your response with EXACTLY this line (no preamble before it):
+VERDICT: [CORRECT / PARTIALLY CORRECT / INCORRECT]
+
+Then immediately follow with the five sections below. Do not add any text between the VERDICT line and ## 1. Overall Performance.
 ` : `
 You are a senior paramedic educator. Write in British English.
 
