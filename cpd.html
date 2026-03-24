@@ -588,6 +588,20 @@
         }
 
         // ==================== DOWNLOAD CERTIFICATE ====================
+        // iOS Safari doesn't support the <a download> trick that jsPDF uses.
+        // Instead we open the PDF as a blob URL in a new tab — the user can then
+        // tap the share sheet to save it to Files or print it.
+        function savePdf(doc, fileName) {
+            const isIOS = /ipad|iphone|ipod/i.test(navigator.userAgent) ||
+                          (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            if (isIOS) {
+                const blobUrl = doc.output('bloburl');
+                window.open(blobUrl, '_blank');
+            } else {
+                doc.save(fileName);
+            }
+        }
+
         async function downloadCertificate(recordId) {
             try {
                 const user = firebase.auth().currentUser;
@@ -920,7 +934,7 @@
             doc.text('Certificate ID: ' + record.id, cx, ph - 12.5, { align: 'center' });
 
             const safeDate = completedDate.replace(/\s/g, '_').replace(/,/g, '');
-            doc.save('ParaMind_CPD_' + (record.scenarioCode || 'N-A') + '_' + safeDate + '.pdf');
+            savePdf(doc, 'ParaMind_CPD_' + (record.scenarioCode || 'N-A') + '_' + safeDate + '.pdf');
         }
 
         // Extract 2-3 learning points from debrief report text
@@ -1072,7 +1086,7 @@
             // ===== SAVE =====
             const safeDate = completedDate.replace(/\s/g, '_').replace(/,/g, '');
             const fileName = `CPD_Certificate_${record.scenarioCode || 'N-A'}_${safeDate}.pdf`;
-            doc.save(fileName);
+            savePdf(doc, fileName);
         }
 
         // ==================== DELETE RECORD ====================
