@@ -474,6 +474,10 @@
                 <button id="refreshBtn" class="btn btn-link btn-sm">
                     <i class="bi bi-arrow-clockwise"></i> Refresh
                 </button>
+                <button id="capitaliseNamesBtn" class="btn btn-link btn-sm text-warning">
+                    <i class="bi bi-fonts"></i> Capitalise Names
+                </button>
+                <span id="capitaliseStatus" class="ms-2 small"></span>
             </p>
         </main>
     </div>
@@ -902,6 +906,75 @@
                 alert('Failed to delete user: ' + error.message);
             }
         };
+
+        // ============================================
+        // CAPITALISE NAMES
+        // ============================================
+        function toTitleCase(str) {
+            if (!str) return str;
+            return str.replace(/\S+/g, word =>
+                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+            );
+        }
+
+        document.getElementById('capitaliseNamesBtn').addEventListener('click', async () => {
+            const toFix = allUsers.filter(u => {
+                const fixedFirst = toTitleCase(u.firstName);
+                const fixedSur   = toTitleCase(u.surname);
+                return fixedFirst !== u.firstName || fixedSur !== u.surname;
+            });
+
+            if (toFix.length === 0) {
+                alert('All names are already correctly capitalised.');
+                return;
+            }
+
+            const confirmed = window.confirm(
+                `This will capitalise the names of ${toFix.length} user(s) in Firestore.
+
+This cannot be undone. Continue?`
+            );
+            if (!confirmed) return;
+
+            const statusEl = document.getElementById('capitaliseStatus');
+            statusEl.textContent = `Updating 0 / ${toFix.length}...`;
+            statusEl.className = 'ms-2 small text-muted';
+
+            let count = 0;
+            let errors = 0;
+            for (const user of toFix) {
+                try {
+                    const updates = {};
+                    const fixedFirst = toTitleCase(user.firstName);
+                    const fixedSur   = toTitleCase(user.surname);
+                    if (fixedFirst !== user.firstName) updates.firstName = fixedFirst;
+                    if (fixedSur   !== user.surname)   updates.surname   = fixedSur;
+                    await updateDoc(doc(db, 'users', user.id), updates);
+                    // Update in-memory
+                    user.firstName = fixedFirst;
+                    user.surname   = fixedSur;
+                    count++;
+                    statusEl.textContent = `Updating ${count} / ${toFix.length}...`;
+                } catch (e) {
+                    console.error('Failed to update user', user.id, e);
+                    errors++;
+                }
+            }
+
+            // Re-render tables with updated data
+            renderTable('allUsersBody',  allUsers,      true,  true);
+            renderTable('freeUsersBody', freeUsersList, false, false);
+            renderTable('paidUsersBody', paidUsersList, false, true);
+
+            if (errors === 0) {
+                statusEl.textContent = `✓ Done — ${count} name(s) updated.`;
+                statusEl.className = 'ms-2 small text-success';
+            } else {
+                statusEl.textContent = `Done — ${count} updated, ${errors} failed. Check console.`;
+                statusEl.className = 'ms-2 small text-danger';
+            }
+            setTimeout(() => { statusEl.textContent = ''; }, 5000);
+        });
 
         // ============================================
         // UTILITY FUNCTIONS
