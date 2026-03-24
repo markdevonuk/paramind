@@ -357,12 +357,20 @@ onAuthStateChanged(auth, (user) => {
         return errorMessages[errorCode] || 'An error occurred. Please try again.';
     }
 
+    // Helper: capitalise each word in a name
+    function toTitleCase(str) {
+        if (!str) return str;
+        return str.replace(/\S+/g, word =>
+            word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        );
+    }
+
     // Form submission handler
     document.getElementById('registerForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        const firstName = document.getElementById('firstName').value.trim();
-const surname = document.getElementById('surname').value.trim();
+        const firstName = toTitleCase(document.getElementById('firstName').value.trim());
+const surname = toTitleCase(document.getElementById('surname').value.trim());
 const email = document.getElementById('email').value.trim();
 const password = document.getElementById('password').value;
 const confirmPassword = document.getElementById('confirmPassword').value;
