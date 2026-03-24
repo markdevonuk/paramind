@@ -678,6 +678,31 @@ auth.onAuthStateChanged(async (user) => {
         if (!res.ok) throw new Error('API error');
         const feedbackData = await res.json();
 
+        // For Pro users the server returns a full report. Use it to determine
+        // the correct verdict — this prevents the badge disagreeing with the text.
+        if (feedbackData.report) {
+            const rUp = feedbackData.report.toUpperCase();
+            // First try: explicit VERDICT line (reliable once functions are redeployed)
+            if (rUp.includes('VERDICT: CORRECT') && !rUp.includes('VERDICT: PARTIALLY') && !rUp.includes('VERDICT: INCORRECT')) {
+                feedbackData.result = 'correct';
+            } else if (rUp.includes('VERDICT: PARTIALLY')) {
+                feedbackData.result = 'partially_correct';
+            } else if (rUp.includes('VERDICT: INCORRECT')) {
+                feedbackData.result = 'incorrect';
+            } else {
+                // Fallback: read the language of the report itself
+                const reportText = feedbackData.report;
+                const isCorrect  = /correctly identified|correctly identifying|correctly recognised|you identified the condition|you correctly/i.test(reportText);
+                const isPartial  = /partially correct|nearly correct|almost correct|close but|significant areas|some key|missed.*aspect|aspect.*missed/i.test(reportText);
+                if (isCorrect && !isPartial) {
+                    feedbackData.result = 'correct';
+                } else if (isPartial) {
+                    feedbackData.result = 'partially_correct';
+                }
+                // else leave whatever the server returned
+            }
+        }
+
         // Step 4 — finalising
         clearTimeout(stepTimer1);
         clearTimeout(stepTimer2);
