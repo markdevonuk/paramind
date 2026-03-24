@@ -246,3 +246,60 @@ window.paramind = {
 
     console.log('Apple transactionUpdated listener registered');
 })();
+
+// ============================================
+// VERSION CHECK — Force refresh for app users
+// If the version in Firestore doesn't match what
+// the user last saw, clear caches and hard-reload.
+// To trigger a force refresh: go to Firestore >
+// config > app > set version to any new string.
+// ============================================
+(function () {
+    var MAX_CHECKS = 80;
+    var checkCount = 0;
+
+    var interval = setInterval(function () {
+        checkCount++;
+        if (checkCount >= MAX_CHECKS) {
+            clearInterval(interval);
+            return;
+        }
+
+        if (typeof firebase === 'undefined' || !firebase.apps || !firebase.apps.length) return;
+        clearInterval(interval);
+
+        firebase.firestore()
+            .collection('config')
+            .doc('app')
+            .get()
+            .then(function (doc) {
+                if (!doc.exists) return;
+                var remoteVersion = doc.data() && doc.data().version;
+                if (!remoteVersion) return;
+
+                var localVersion = localStorage.getItem('paramind_app_version');
+
+                if (localVersion !== null && localVersion !== remoteVersion) {
+                    // Version has changed — store the new version then clear caches and reload
+                    localStorage.setItem('paramind_app_version', remoteVersion);
+                    if ('caches' in window) {
+                        caches.keys().then(function (names) {
+                            return Promise.all(names.map(function (n) { return caches.delete(n); }));
+                        }).then(function () {
+                            window.location.reload(true);
+                        }).catch(function () {
+                            window.location.reload(true);
+                        });
+                    } else {
+                        window.location.reload(true);
+                    }
+                } else {
+                    // First visit or version matches — just store it
+                    localStorage.setItem('paramind_app_version', remoteVersion);
+                }
+            })
+            .catch(function () {
+                // Silently fail — never break the app over a version check
+            });
+    }, 200);
+})();
