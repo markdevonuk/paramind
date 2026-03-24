@@ -6,6 +6,19 @@
 /* FIXED: iPad Safari scroll lock (position fixed + scroll save/restore) */
 /* Add to your pages BEFORE </body>: <script src="js/menu-v2.js"></script> */
 
+// ==================== GOOGLE ANALYTICS 4 ====================
+(function() {
+    var gaScript = document.createElement('script');
+    gaScript.async = true;
+    gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-GW385S6L0L';
+    document.head.appendChild(gaScript);
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    window.gtag = gtag;
+    gtag('js', new Date());
+    gtag('config', 'G-GW385S6L0L');
+})();
+
 (function() {
     'use strict';
 
