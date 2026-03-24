@@ -98,7 +98,16 @@ self.addEventListener('fetch', (event) => {
   }
   
   event.respondWith(
-    fetch(event.request)
+    (() => {
+      // For HTML pages, always bypass the HTTP cache so updates come through immediately
+      const isHtml = event.request.headers.get('accept')?.includes('text/html') ||
+                     event.request.url.endsWith('.html') ||
+                     event.request.mode === 'navigate';
+      const fetchRequest = isHtml
+        ? new Request(event.request, { cache: 'no-cache' })
+        : event.request;
+
+      return fetch(fetchRequest)
       .then((networkResponse) => {
         // Network succeeded — cache the fresh response and return it
         if (networkResponse && networkResponse.status === 200) {
@@ -124,6 +133,7 @@ self.addEventListener('fetch', (event) => {
             return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
           });
       })
+    })()
   );
 });
 
