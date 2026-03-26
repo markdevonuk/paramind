@@ -1849,11 +1849,24 @@
                     break;
                     
                 case 'ventricularTachycardia':
-                    if (cyclePos >= 0.0 && cyclePos < 0.35) {
-                        const vtPos = cyclePos / 0.35;
-                        y = baselineY - Math.sin(vtPos * Math.PI) * 50 * Math.sin(vtPos * Math.PI * 2);
-                        y += Math.sin(vtPos * Math.PI * 3) * 20;
+                    // Monomorphic VT: wide bizarre QRS, no P waves, discordant T
+                    // Wide complex spans ~50% of the cycle (>120ms at any VT rate)
+                    if (cyclePos < 0.08) {
+                        // Slow slurred initial upstroke - broad QRS onset
+                        y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI * 0.5) * 28;
+                    } else if (cyclePos >= 0.08 && cyclePos < 0.26) {
+                        // Broad main positive deflection - no sharp QRS spike
+                        const p = (cyclePos - 0.08) / 0.18;
+                        y = baselineY - 28 - Math.sin(p * Math.PI) * 38;
+                    } else if (cyclePos >= 0.26 && cyclePos < 0.50) {
+                        // Broad slurred downstroke returning to baseline (wide QRS end)
+                        const d = (cyclePos - 0.26) / 0.24;
+                        y = baselineY + (-28 + 28 * (0.5 - 0.5 * Math.cos(d * Math.PI)));
+                    } else if (cyclePos >= 0.52 && cyclePos < 0.72) {
+                        // Discordant T wave - negative, opposite to main QRS deflection
+                        y = baselineY + Math.sin(((cyclePos - 0.52) / 0.20) * Math.PI) * 14;
                     }
+                    // 0.72-1.0: brief isoelectric baseline before next complex
                     break;
                     
                 case 'firstDegreeBlock':
