@@ -1309,8 +1309,8 @@
             },
             lbbb: {
                 name: "Left Bundle Branch Block (LBBB)",
-                description: "Conduction delay in the left bundle branch producing a broad, wide negative QRS in lead II. New LBBB in the context of chest pain should be treated as a STEMI equivalent.",
-                keyFeatures: ["Wide QRS (≥0.12s)", "Broad, predominantly negative QRS in lead II", "No septal Q waves", "Discordant T waves (opposite direction to QRS)"],
+                description: "Conduction delay in the left bundle branch. In V1, produces a small r wave followed by a deep broad S wave (rS pattern), with a discordant positive T wave. New LBBB in the context of chest pain should be treated as a STEMI equivalent.",
+                keyFeatures: ["Wide QRS (≥0.12s)", "rS pattern in V1 — small r, deep broad S", "No septal Q waves in lateral leads", "Discordant T waves (opposite direction to QRS)"],
                 defaultRate: 70,
                 minRate: 40,
                 maxRate: 100,
@@ -1318,8 +1318,8 @@
             },
             rbbb: {
                 name: "Right Bundle Branch Block (RBBB)",
-                description: "Conduction delay in the right bundle branch producing a characteristic RSR' ('M' or rabbit ears) pattern in V1. Wide S waves are seen in lateral leads. Often an incidental finding but can indicate structural heart disease.",
-                keyFeatures: ["Wide QRS (≥0.12s)", "RSR' pattern in V1 ('M' or rabbit ears)", "Wide S waves in lateral leads (I, V6)", "Discordant T waves in V1"],
+                description: "Conduction delay in the right bundle branch. In V2, produces a small r wave, a deep S wave, then a tall R' prime — the classic RSR' or 'rabbit ears' pattern. Often an incidental finding but can indicate structural heart disease.",
+                keyFeatures: ["Wide QRS (≥0.12s)", "RSR' pattern in V1/V2 — small r, S, tall R' prime", "Wide S waves in lateral leads (I, V6)", "Discordant inverted T wave"],
                 defaultRate: 70,
                 minRate: 40,
                 maxRate: 100,
@@ -2174,41 +2174,44 @@
                     break;
 
                 case 'lbbb':
-                    // LBBB — Lead II representation
-                    // Normal P wave, normal PR, broad DOWNWARD wide QRS (negative in lead II), discordant UPWARD T wave
-                    if (cyclePos >= 0.0 && cyclePos < 0.08) {
-                        // Normal P wave — positive in lead II
-                        y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
-                    } else if (cyclePos >= 0.16 && cyclePos < 0.38) {
-                        // Broad, wide, predominantly NEGATIVE (downward) QRS — no sharp peak, slurred and wide
-                        y = baselineY + Math.sin(((cyclePos - 0.16) / 0.22) * Math.PI) * 50;
-                    } else if (cyclePos >= 0.44 && cyclePos < 0.66) {
-                        // Discordant T wave — POSITIVE (upward) because QRS was negative
-                        y = baselineY - Math.sin(((cyclePos - 0.44) / 0.22) * Math.PI) * 16;
-                    }
-                    break;
-
-                case 'rbbb':
-                    // RBBB — V1 lead representation
-                    // Key features: normal P, normal PR, small r, deep S descent, tall R' prime (rabbit ear), discordant inverted T
+                    // LBBB — V1 representation (rS pattern)
+                    // Small r up, deep broad S down, broad positive discordant T
                     if (cyclePos >= 0.0 && cyclePos < 0.08) {
                         // Normal P wave
                         y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
                     } else if (cyclePos >= 0.16 && cyclePos < 0.21) {
-                        // Small initial r wave (first component of RSR')
-                        y = baselineY - Math.sin(((cyclePos - 0.16) / 0.05) * Math.PI) * 22;
-                    } else if (cyclePos >= 0.21 && cyclePos < 0.30) {
-                        // S wave — descends below baseline
-                        y = baselineY + Math.sin(((cyclePos - 0.21) / 0.09) * Math.PI) * 28;
-                    } else if (cyclePos >= 0.30 && cyclePos < 0.42) {
-                        // R' prime — tall second upward deflection (the hallmark rabbit ear of RBBB)
-                        y = baselineY - Math.sin(((cyclePos - 0.30) / 0.12) * Math.PI) * 58;
+                        // Small r wave — slight upward deflection
+                        y = baselineY - Math.sin(((cyclePos - 0.16) / 0.05) * Math.PI) * 14;
+                    } else if (cyclePos >= 0.21 && cyclePos < 0.38) {
+                        // Deep broad S wave — the dominant downward deflection
+                        y = baselineY + Math.sin(((cyclePos - 0.21) / 0.17) * Math.PI) * 55;
+                    } else if (cyclePos >= 0.44 && cyclePos < 0.66) {
+                        // Broad positive discordant T wave (opposite to the negative QRS)
+                        y = baselineY - Math.sin(((cyclePos - 0.44) / 0.22) * Math.PI) * 20;
+                    }
+                    break;
+
+                case 'rbbb':
+                    // RBBB — V2 representation
+                    // Small r up, deep S down, tall sharp R' prime up, inverted discordant T down
+                    if (cyclePos >= 0.0 && cyclePos < 0.08) {
+                        // Normal P wave
+                        y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
+                    } else if (cyclePos >= 0.16 && cyclePos < 0.22) {
+                        // Small r wave — upward
+                        y = baselineY - Math.sin(((cyclePos - 0.16) / 0.06) * Math.PI) * 28;
+                    } else if (cyclePos >= 0.22 && cyclePos < 0.31) {
+                        // Deep S wave — downward
+                        y = baselineY + Math.sin(((cyclePos - 0.22) / 0.09) * Math.PI) * 38;
+                    } else if (cyclePos >= 0.31 && cyclePos < 0.42) {
+                        // Tall R' prime — sharp prominent upward deflection (taller than initial r)
+                        y = baselineY - Math.sin(((cyclePos - 0.31) / 0.11) * Math.PI) * 65;
                     } else if (cyclePos >= 0.42 && cyclePos < 0.48) {
-                        // Return to baseline with slight S
-                        y = baselineY + Math.sin(((cyclePos - 0.42) / 0.06) * Math.PI) * 10;
+                        // Return to baseline
+                        y = baselineY + Math.sin(((cyclePos - 0.42) / 0.06) * Math.PI) * 8;
                     } else if (cyclePos >= 0.52 && cyclePos < 0.70) {
-                        // Discordant T wave — inverted in V1 (below baseline)
-                        y = baselineY + Math.sin(((cyclePos - 0.52) / 0.18) * Math.PI) * 15;
+                        // Discordant inverted T wave — downward (opposite to R' which was positive)
+                        y = baselineY + Math.sin(((cyclePos - 0.52) / 0.18) * Math.PI) * 18;
                     }
                     break;
                     
