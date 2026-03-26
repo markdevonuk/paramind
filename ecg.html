@@ -1306,6 +1306,24 @@
                 minRate: 50,
                 maxRate: 90,
                 color: "#a855f7"
+            },
+            lbbb: {
+                name: "Left Bundle Branch Block (LBBB)",
+                description: "Conduction delay in the left bundle branch producing a broad, notched M-shaped R wave in lateral leads. New LBBB in the context of chest pain should be treated as a STEMI equivalent.",
+                keyFeatures: ["Wide QRS (≥0.12s)", "Broad notched 'M' R wave in lateral leads (I, V5, V6)", "No septal Q waves in lateral leads", "Discordant T waves (opposite to QRS)"],
+                defaultRate: 70,
+                minRate: 40,
+                maxRate: 100,
+                color: "#f97316"
+            },
+            rbbb: {
+                name: "Right Bundle Branch Block (RBBB)",
+                description: "Conduction delay in the right bundle branch producing a characteristic RSR' ('M' or rabbit ears) pattern in V1. Wide S waves are seen in lateral leads. Often an incidental finding but can indicate structural heart disease.",
+                keyFeatures: ["Wide QRS (≥0.12s)", "RSR' pattern in V1 ('M' or rabbit ears)", "Wide S waves in lateral leads (I, V6)", "Discordant T waves in V1"],
+                defaultRate: 70,
+                minRate: 40,
+                maxRate: 100,
+                color: "#f97316"
             }
         };
         
@@ -2154,6 +2172,55 @@
                         }
                     }
                     break;
+
+                case 'lbbb':
+                    // LBBB — lateral lead representation (Lead I / V6)
+                    // Key features: normal P, normal PR, broad notched M-shaped R, no Q wave, discordant inverted T
+                    if (cyclePos >= 0.0 && cyclePos < 0.08) {
+                        // Normal P wave
+                        y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
+                    } else if (cyclePos >= 0.16 && cyclePos < 0.24) {
+                        // First hump of M — rises to peak (no Q wave precedes it)
+                        y = baselineY - Math.sin(((cyclePos - 0.16) / 0.08) * Math.PI) * 55;
+                    } else if (cyclePos >= 0.24 && cyclePos < 0.30) {
+                        // Notch — brief partial return toward baseline then climbs again
+                        const notchPos = (cyclePos - 0.24) / 0.06;
+                        y = baselineY - 55 + Math.sin(notchPos * Math.PI) * 22;
+                    } else if (cyclePos >= 0.30 && cyclePos < 0.38) {
+                        // Second hump of M — slightly lower than first
+                        y = baselineY - Math.sin(((cyclePos - 0.30) / 0.08) * Math.PI) * 50;
+                    } else if (cyclePos >= 0.38 && cyclePos < 0.44) {
+                        // Small S wave / return to baseline
+                        y = baselineY + Math.sin(((cyclePos - 0.38) / 0.06) * Math.PI) * 8;
+                    } else if (cyclePos >= 0.48 && cyclePos < 0.68) {
+                        // Discordant T wave — inverted (below baseline) because QRS was positive
+                        y = baselineY + Math.sin(((cyclePos - 0.48) / 0.20) * Math.PI) * 18;
+                    }
+                    break;
+
+                case 'rbbb':
+                    // RBBB — V1 lead representation
+                    // Key features: normal P, normal PR, small r, deep S descent, tall R' prime (rabbit ear), discordant inverted T
+                    if (cyclePos >= 0.0 && cyclePos < 0.08) {
+                        // Normal P wave
+                        y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
+                    } else if (cyclePos >= 0.16 && cyclePos < 0.21) {
+                        // Small initial r wave (first component of RSR')
+                        y = baselineY - Math.sin(((cyclePos - 0.16) / 0.05) * Math.PI) * 22;
+                    } else if (cyclePos >= 0.21 && cyclePos < 0.30) {
+                        // S wave — descends below baseline
+                        y = baselineY + Math.sin(((cyclePos - 0.21) / 0.09) * Math.PI) * 28;
+                    } else if (cyclePos >= 0.30 && cyclePos < 0.42) {
+                        // R' prime — tall second upward deflection (the hallmark rabbit ear of RBBB)
+                        y = baselineY - Math.sin(((cyclePos - 0.30) / 0.12) * Math.PI) * 58;
+                    } else if (cyclePos >= 0.42 && cyclePos < 0.48) {
+                        // Return to baseline with slight S
+                        y = baselineY + Math.sin(((cyclePos - 0.42) / 0.06) * Math.PI) * 10;
+                    } else if (cyclePos >= 0.52 && cyclePos < 0.70) {
+                        // Discordant T wave — inverted in V1 (below baseline)
+                        y = baselineY + Math.sin(((cyclePos - 0.52) / 0.18) * Math.PI) * 15;
+                    }
+                    break;
                     
                 default:
                     if (cyclePos >= 0.0 && cyclePos < 0.08) {
@@ -2187,7 +2254,7 @@
         {
             target: '.rhythm-btn',
             title: 'Rhythm Selector',
-            desc: 'Tap any rhythm to load it on the monitor. Covers 23 rhythms from Normal Sinus to cardiac arrest patterns — colour-coded by severity.'
+            desc: 'Tap any rhythm to load it on the monitor. Covers 25 rhythms from Normal Sinus to cardiac arrest patterns — colour-coded by severity.'
         },
         {
             target: '#rateCard',
