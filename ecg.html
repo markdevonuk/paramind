@@ -1309,8 +1309,8 @@
             },
             lbbb: {
                 name: "Left Bundle Branch Block (LBBB)",
-                description: "Conduction delay in the left bundle branch producing a broad, notched M-shaped R wave in lateral leads. New LBBB in the context of chest pain should be treated as a STEMI equivalent.",
-                keyFeatures: ["Wide QRS (≥0.12s)", "Broad notched 'M' R wave in lateral leads (I, V5, V6)", "No septal Q waves in lateral leads", "Discordant T waves (opposite to QRS)"],
+                description: "Conduction delay in the left bundle branch producing a broad, wide negative QRS in lead II. New LBBB in the context of chest pain should be treated as a STEMI equivalent.",
+                keyFeatures: ["Wide QRS (≥0.12s)", "Broad, predominantly negative QRS in lead II", "No septal Q waves", "Discordant T waves (opposite direction to QRS)"],
                 defaultRate: 70,
                 minRate: 40,
                 maxRate: 100,
@@ -2174,27 +2174,17 @@
                     break;
 
                 case 'lbbb':
-                    // LBBB — lateral lead representation (Lead I / V6)
-                    // Key features: normal P, normal PR, broad notched M-shaped R, no Q wave, discordant inverted T
+                    // LBBB — Lead II representation
+                    // Normal P wave, normal PR, broad DOWNWARD wide QRS (negative in lead II), discordant UPWARD T wave
                     if (cyclePos >= 0.0 && cyclePos < 0.08) {
-                        // Normal P wave
+                        // Normal P wave — positive in lead II
                         y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
-                    } else if (cyclePos >= 0.16 && cyclePos < 0.24) {
-                        // First hump of M — rises to peak (no Q wave precedes it)
-                        y = baselineY - Math.sin(((cyclePos - 0.16) / 0.08) * Math.PI) * 55;
-                    } else if (cyclePos >= 0.24 && cyclePos < 0.30) {
-                        // Notch — brief partial return toward baseline then climbs again
-                        const notchPos = (cyclePos - 0.24) / 0.06;
-                        y = baselineY - 55 + Math.sin(notchPos * Math.PI) * 22;
-                    } else if (cyclePos >= 0.30 && cyclePos < 0.38) {
-                        // Second hump of M — slightly lower than first
-                        y = baselineY - Math.sin(((cyclePos - 0.30) / 0.08) * Math.PI) * 50;
-                    } else if (cyclePos >= 0.38 && cyclePos < 0.44) {
-                        // Small S wave / return to baseline
-                        y = baselineY + Math.sin(((cyclePos - 0.38) / 0.06) * Math.PI) * 8;
-                    } else if (cyclePos >= 0.48 && cyclePos < 0.68) {
-                        // Discordant T wave — inverted (below baseline) because QRS was positive
-                        y = baselineY + Math.sin(((cyclePos - 0.48) / 0.20) * Math.PI) * 18;
+                    } else if (cyclePos >= 0.16 && cyclePos < 0.38) {
+                        // Broad, wide, predominantly NEGATIVE (downward) QRS — no sharp peak, slurred and wide
+                        y = baselineY + Math.sin(((cyclePos - 0.16) / 0.22) * Math.PI) * 50;
+                    } else if (cyclePos >= 0.44 && cyclePos < 0.66) {
+                        // Discordant T wave — POSITIVE (upward) because QRS was negative
+                        y = baselineY - Math.sin(((cyclePos - 0.44) / 0.22) * Math.PI) * 16;
                     }
                     break;
 
