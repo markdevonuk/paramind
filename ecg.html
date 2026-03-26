@@ -1714,7 +1714,16 @@
                         Math.sin(adjustedX * 0.27) * 14     // ~4.3 Hz mid-component
                     );
                 } else if (rhythm === 'asystole') {
-                    y = baselineY + (Math.random() - 0.5) * 2;
+                    // Near-flat with occasional gentle agonal bumps at irregular intervals
+                    // Two bumps per long cycle at different spacings — never dead flat
+                    const agonalCycle = adjustedX % 380;
+                    let agonalBump = 0;
+                    if (agonalCycle >= 0 && agonalCycle < 30) {
+                        agonalBump = -Math.sin((agonalCycle / 30) * Math.PI) * 7;
+                    } else if (agonalCycle >= 210 && agonalCycle < 235) {
+                        agonalBump = -Math.sin(((agonalCycle - 210) / 25) * Math.PI) * 4;
+                    }
+                    y = baselineY + agonalBump + Math.sin(adjustedX * 0.04) * 1.2;
                 } else if (rhythm === 'atrialFibrillation') {
                     const patternLength = 800;
                     const posInPattern = adjustedX % patternLength;
