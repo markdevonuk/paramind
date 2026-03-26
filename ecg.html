@@ -1854,24 +1854,21 @@
                     break;
                     
                 case 'ventricularTachycardia':
-                    // Monomorphic VT: wide bizarre QRS, no P waves, discordant T
-                    // Wide complex spans ~50% of the cycle (>120ms at any VT rate)
-                    if (cyclePos < 0.08) {
-                        // Slow slurred initial upstroke - broad QRS onset
-                        y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI * 0.5) * 28;
-                    } else if (cyclePos >= 0.08 && cyclePos < 0.26) {
-                        // Broad main positive deflection - no sharp QRS spike
-                        const p = (cyclePos - 0.08) / 0.18;
-                        y = baselineY - 28 - Math.sin(p * Math.PI) * 38;
-                    } else if (cyclePos >= 0.26 && cyclePos < 0.50) {
-                        // Broad slurred downstroke returning to baseline (wide QRS end)
-                        const d = (cyclePos - 0.26) / 0.24;
-                        y = baselineY + (-28 + 28 * (0.5 - 0.5 * Math.cos(d * Math.PI)));
-                    } else if (cyclePos >= 0.52 && cyclePos < 0.72) {
-                        // Discordant T wave - negative, opposite to main QRS deflection
-                        y = baselineY + Math.sin(((cyclePos - 0.52) / 0.20) * Math.PI) * 14;
+                    // Monomorphic VT: one smooth wide sine arch — no sharp QRS, no straight edges
+                    // Main complex: single half-sine spanning 0.0–0.52 of the cycle
+                    if (cyclePos < 0.52) {
+                        // Slightly asymmetric: slower rise (0-0.28) than fall (0.28-0.52)
+                        // Achieved by stretching sin over the full window — produces a naturally
+                        // rounded, broad peak with no kinks or straight sections
+                        const vtPhase = cyclePos / 0.52;
+                        // Add a gentle notch on the downstroke (S-wave shoulder) for realism
+                        const notch = cyclePos > 0.30 ? Math.sin(((cyclePos - 0.30) / 0.22) * Math.PI) * 8 : 0;
+                        y = baselineY - Math.sin(vtPhase * Math.PI) * 58 + notch;
+                    } else if (cyclePos >= 0.58 && cyclePos < 0.80) {
+                        // Discordant T wave — broad, negative, opposite to main deflection
+                        y = baselineY + Math.sin(((cyclePos - 0.58) / 0.22) * Math.PI) * 16;
                     }
-                    // 0.72-1.0: brief isoelectric baseline before next complex
+                    // 0.80-1.0: isoelectric gap before next complex
                     break;
                     
                 case 'firstDegreeBlock':
