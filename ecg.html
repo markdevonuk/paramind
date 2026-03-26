@@ -1854,21 +1854,17 @@
                     break;
                     
                 case 'ventricularTachycardia':
-                    // Monomorphic VT: one smooth wide sine arch — no sharp QRS, no straight edges
-                    // Main complex: single half-sine spanning 0.0–0.52 of the cycle
-                    if (cyclePos < 0.52) {
-                        // Slightly asymmetric: slower rise (0-0.28) than fall (0.28-0.52)
-                        // Achieved by stretching sin over the full window — produces a naturally
-                        // rounded, broad peak with no kinks or straight sections
-                        const vtPhase = cyclePos / 0.52;
-                        // Add a gentle notch on the downstroke (S-wave shoulder) for realism
-                        const notch = cyclePos > 0.30 ? Math.sin(((cyclePos - 0.30) / 0.22) * Math.PI) * 8 : 0;
-                        y = baselineY - Math.sin(vtPhase * Math.PI) * 58 + notch;
-                    } else if (cyclePos >= 0.58 && cyclePos < 0.80) {
-                        // Discordant T wave — broad, negative, opposite to main deflection
-                        y = baselineY + Math.sin(((cyclePos - 0.58) / 0.22) * Math.PI) * 16;
+                    // Monomorphic VT: wide dome-shaped complex, no sharp QRS
+                    // sin^0.25 squashes the peak into a broad flat-topped dome with
+                    // smoothly curved edges — far more rounded than a plain sine arch
+                    if (cyclePos < 0.55) {
+                        const vtPhase = cyclePos / 0.55;
+                        const dome = Math.pow(Math.sin(vtPhase * Math.PI), 0.25);
+                        y = baselineY - dome * 62;
+                    } else if (cyclePos >= 0.60 && cyclePos < 0.85) {
+                        // Discordant T wave — broad, negative
+                        y = baselineY + Math.pow(Math.sin(((cyclePos - 0.60) / 0.25) * Math.PI), 0.5) * 18;
                     }
-                    // 0.80-1.0: isoelectric gap before next complex
                     break;
                     
                 case 'firstDegreeBlock':
