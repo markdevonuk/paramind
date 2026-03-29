@@ -2614,6 +2614,24 @@ async function selectDPOption(cardId, letter, optionText, question) {
     chatState.isLoading = true;
     elements.sendBtn.disabled = true;
 
+    // Determine if this option maps to an assessment BEFORE the try block so it's in scope after finally
+    const assessmentMap = [
+        { key: 'ecg',     pattern: /\b(ecg|12.lead|twelve.lead|rhythm\s+check)\b/i },
+        { key: 'obs',     pattern: /\b(obs(?:ervation)?s?|vital[s]?|blood\s+pressure|bp|spo2|sats|heart\s+rate|pulse|temperature|respiratory\s+rate|gcs|blood\s+sugar|blood\s+glucose|bm)\b/i },
+        { key: 'chest',   pattern: /\b(chest\s+exam(?:ination)?|auscult|listen\s+to\s+(the\s+)?chest|lung\s+sounds?|breath\s+sounds?)\b/i },
+        { key: 'abdo',    pattern: /\b(abdo(?:men|minal)?\s+exam(?:ination)?|abdo\s+palpat|palpat.*abdomen|bowel\s+sounds?)\b/i },
+        { key: 'neuro',   pattern: /\b(neuro(?:logical)?\s+exam(?:ination)?|pupils?|limb\s+(strength|movement)|pronator\s+drift)\b/i },
+        { key: 'skin',    pattern: /\b(skin\s+assess(?:ment)?|capillary\s+refill|skin\s+colour|skin\s+temperature|diaphor)\b/i },
+        { key: 'fast',    pattern: /\b(fast\s+assess(?:ment)?|stroke\s+screen(?:ing)?|facial\s+droop)\b/i },
+        { key: 'mend',    pattern: /\b(mend\s+assess(?:ment)?)\b/i },
+        { key: 'history', pattern: /\b(sample\s+history|full\s+history|take.*history)\b/i },
+        { key: 'pain',    pattern: /\b(socrates|pain\s+assess(?:ment)?|pain\s+history)\b/i },
+        { key: 'meds',    pattern: /\b(medic(?:ation)?s?|drug\s+history|what.*taking)\b/i },
+        { key: 'social',  pattern: /\b(social\s+history)\b/i },
+        { key: 'scene',   pattern: /\b(scene\s+assess(?:ment)?|scene\s+survey)\b/i },
+    ];
+    const matchedAssessment = assessmentMap.find(a => a.pattern.test(optionText)) || null;
+
     try {
         const response = await sendMessageToAPI(triggerMessage, (partial) => {
             updateStreamingMessage(aiMessageId, partial);
@@ -2621,39 +2639,18 @@ async function selectDPOption(cardId, letter, optionText, question) {
         finalizeStreamingMessage(aiMessageId, response);
         chatState.conversationHistory.push({ role: 'assistant', content: response });
         checkDeterioration();
-
-        // If the chosen option involves performing a clinical assessment, automatically run it
-        // so the actual data card is shown (not just the patient's dialogue reaction)
-        const assessmentMap = [
-            { key: 'ecg',     pattern: /\b(ecg|12.lead|twelve.lead|rhythm\s+check)\b/i },
-            { key: 'obs',     pattern: /\b(obs(?:ervation)?s?|vital[s]?|blood\s+pressure|bp|spo2|sats|heart\s+rate|pulse|temperature|respiratory\s+rate|gcs|blood\s+sugar|blood\s+glucose|bm)\b/i },
-            { key: 'chest',   pattern: /\b(chest\s+exam(?:ination)?|auscult|listen\s+to\s+(the\s+)?chest|lung\s+sounds?|breath\s+sounds?)\b/i },
-            { key: 'abdo',    pattern: /\b(abdo(?:men|minal)?\s+exam(?:ination)?|abdo\s+palpat|palpat.*abdomen|bowel\s+sounds?)\b/i },
-            { key: 'neuro',   pattern: /\b(neuro(?:logical)?\s+exam(?:ination)?|pupils?|limb\s+(strength|movement)|pronator\s+drift)\b/i },
-            { key: 'skin',    pattern: /\b(skin\s+assess(?:ment)?|capillary\s+refill|skin\s+colour|skin\s+temperature|diaphor)\b/i },
-            { key: 'fast',    pattern: /\b(fast\s+assess(?:ment)?|stroke\s+screen(?:ing)?|facial\s+droop)\b/i },
-            { key: 'mend',    pattern: /\b(mend\s+assess(?:ment)?)\b/i },
-            { key: 'history', pattern: /\b(sample\s+history|full\s+history|take.*history)\b/i },
-            { key: 'pain',    pattern: /\b(socrates|pain\s+assess(?:ment)?|pain\s+history)\b/i },
-            { key: 'meds',    pattern: /\b(medic(?:ation)?s?|drug\s+history|what.*taking)\b/i },
-            { key: 'social',  pattern: /\b(social\s+history)\b/i },
-            { key: 'scene',   pattern: /\b(scene\s+assess(?:ment)?|scene\s+survey)\b/i },
-        ];
-
-        const matched = assessmentMap.find(a => a.pattern.test(optionText));
-        if (matched) {
-            await new Promise(r => setTimeout(r, 800));
-            if (!chatState.scenarioComplete) {
-                await handleAssessment(matched.key);
-            }
-        }
-
     } catch (error) {
         removeStreamingMessage(aiMessageId);
         addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
     } finally {
         chatState.isLoading = false;
         elements.sendBtn.disabled = false;
+    }
+
+    // Run the matched assessment AFTER finally so isLoading is false and handleAssessment won't bail out
+    if (matchedAssessment && !chatState.scenarioComplete) {
+        await new Promise(r => setTimeout(r, 800));
+        await handleAssessment(matchedAssessment.key);
     }
 }
 
