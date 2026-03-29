@@ -2621,6 +2621,17 @@ async function selectDPOption(cardId, letter, optionText, question) {
         finalizeStreamingMessage(aiMessageId, response);
         chatState.conversationHistory.push({ role: 'assistant', content: response });
         checkDeterioration();
+
+        // If the chosen option involves performing an ECG, automatically run the ECG assessment
+        // so the actual ECG data card is shown (not just the patient's dialogue reaction)
+        const ecgKeywords = /\b(ecg|12.lead|twelve.lead|rhythm\s+check)\b/i;
+        if (ecgKeywords.test(optionText)) {
+            await new Promise(r => setTimeout(r, 800));
+            if (!chatState.scenarioComplete) {
+                await handleAssessment('ecg');
+            }
+        }
+
     } catch (error) {
         removeStreamingMessage(aiMessageId);
         addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
