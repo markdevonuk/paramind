@@ -20,9 +20,8 @@
     <link rel="stylesheet" href="css/styles.css">
 
     <style>
-        /* ==================== ARREST SCENARIOS PAGE ==================== */
-        /* Intro page only — minimal CSS, uses Paramind existing classes */
-        .arrest-scenarios-page {
+        /* ==================== PAGE SHELL ==================== */
+        .arrest-page {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -30,16 +29,20 @@
         }
         .main-container {
             flex: 1;
-            overflow-y: auto;
-            position: relative;
-        }
-        /* Scenario selection card — extends Paramind's existing card pattern */
-        .scenario-select-card {
             display: flex;
-            align-items: center;
-            gap: 1rem;
-            width: 100%;
-            text-align: left;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== VIEWS ==================== */
+        .view { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+        .view.active { display: flex; }
+
+        /* ==================== SELECTION VIEW ==================== */
+        .selection-view { overflow-y: auto; padding: 1.25rem 1rem 2rem; }
+        .scenario-select-card {
+            display: flex; align-items: center; gap: 1rem;
+            width: 100%; text-align: left;
             background: var(--color-white);
             border: 2px solid var(--color-gray-200);
             border-radius: var(--radius-lg);
@@ -49,10 +52,7 @@
             transition: all 0.2s ease;
             box-shadow: var(--shadow-sm);
         }
-        .scenario-select-card:hover {
-            border-color: var(--color-teal);
-            box-shadow: var(--shadow-md);
-        }
+        .scenario-select-card:hover { border-color: var(--color-teal); box-shadow: var(--shadow-md); }
         .scenario-select-card.selected {
             border-color: var(--color-teal);
             background: rgba(43,138,156,0.05);
@@ -65,355 +65,413 @@
             display: flex; align-items: center; justify-content: center;
             font-size: 1.5rem;
         }
-        .scenario-select-card.selected .scenario-card-icon {
-            background: rgba(43,138,156,0.12);
-        }
-        .scenario-card-name {
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: var(--color-gray-800);
-            margin-bottom: 0.1rem;
-        }
-        .scenario-card-meta {
-            font-size: 0.78rem;
-            color: var(--color-gray-500);
-        }
-        /* Full-screen scenario shell — dark themed, shown during scenario only */
-        .scenario-shell {
-            position: fixed;
-            inset: 0;
-            z-index: 1050;
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .scenario-shell.active {
+        .scenario-select-card.selected .scenario-card-icon { background: rgba(43,138,156,0.12); }
+        .scenario-card-name { font-weight: 600; font-size: 0.9rem; color: var(--color-gray-800); margin-bottom: 0.1rem; }
+        .scenario-card-meta { font-size: 0.78rem; color: var(--color-gray-500); }
+
+        /* ==================== RUNNING VIEW ==================== */
+        /* Incident banner — matches scenarios.html style */
+        .arrest-incident-banner {
+            background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+            border-bottom: 1px solid #0f3460;
+            padding: 0.6rem 1rem;
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'JetBrains Mono', monospace;
+            flex-shrink: 0;
         }
+        .arrest-track-label { color: #00d9ff; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .arrest-patient-name { color: #ffffff; font-size: 0.82rem; font-weight: 600; margin-top: 2px; }
+        .arrest-clock-wrap { text-align: center; }
+        .arrest-clock-label { font-size: 0.55rem; color: #4a6a8a; text-transform: uppercase; letter-spacing: 0.1em; }
+        .arrest-clock {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: 0.05em;
+            line-height: 1;
+        }
+        .arrest-clock.amber { color: #ffc107; }
+        .arrest-clock.red { color: #dc3545; animation: clockPulse 1s infinite; }
+        @keyframes clockPulse { 0%,100%{opacity:1}50%{opacity:0.6} }
+        .arrest-vitals-mini { display: flex; gap: 0.75rem; font-family: 'JetBrains Mono', monospace; }
+        .arrest-vital { text-align: center; }
+        .arrest-vital-label { font-size: 0.5rem; color: #4a6a8a; text-transform: uppercase; letter-spacing: 0.06em; display: block; }
+        .arrest-vital-value { font-size: 0.85rem; font-weight: 700; }
+        .arrest-vital-value.off { color: #dc3545; }
+        .arrest-vital-value.ok { color: #00d9ff; }
+        .arrest-vital-value.warn { color: #ffc107; }
 
-        /* ==================== DARK SCENARIO THEME ==================== */
-        /* Everything below is scoped to .scenario-shell — zero effect on Paramind intro */
-.scenario-shell {
-  --teal:#2B8A9C; --teal-dim:rgba(43,138,156,0.12); --teal-glow:rgba(43,138,156,0.35);
-  --red:#FF4444; --amber:#FFA500; --green:#00E676;
-  --bg:#0A0D0F; --surface:#111518; --surface2:#181D21;
-  --border:rgba(255,255,255,0.08); --text:#E8ECEF; --text-dim:#6B7882;
-  --mono:'JetBrains Mono',monospace;
-  --sans:'Plus Jakarta Sans',sans-serif;
-  --cond:'DM Sans',sans-serif;
-}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden;}
+        /* Scenario content area */
+        .arrest-content { flex: 1; overflow-y: auto; padding: 0.875rem; display: flex; flex-direction: column; gap: 0.75rem; background: var(--color-gray-50); }
 
+        /* Patient banner — matches dispatch card style */
+        .arrest-patient-card {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-left: 3px solid var(--color-teal);
+            border-radius: var(--radius-lg);
+            padding: 0.75rem 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .arrest-patient-title { font-weight: 700; font-size: 0.9rem; color: var(--color-teal); margin-bottom: 0.25rem; }
+        .arrest-patient-meta { font-size: 0.8rem; color: var(--color-gray-600); line-height: 1.5; }
 
-/* HEADER */
-.header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;gap:10px;}
-.header-left{display:flex;align-items:center;gap:8px;}
-.logo{font-family:var(--cond);font-weight:900;font-size:17px;color:var(--teal);letter-spacing:1px;}
-.scenario-badge{background:var(--teal-dim);border:1px solid var(--teal);color:var(--teal);font-family:var(--cond);font-weight:700;font-size:10px;letter-spacing:1.5px;padding:2px 8px;border-radius:3px;text-transform:uppercase;}
-.clock-bar{display:flex;flex-direction:column;align-items:center;}
-.clock-label{font-family:var(--cond);font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:1px;}
-.clock{font-family:var(--mono);font-size:26px;letter-spacing:2px;transition:color 0.5s;}
-.clock.neutral{color:var(--text);}
-.clock.amber{color:var(--amber);text-shadow:0 0 10px rgba(255,165,0,0.4);}
-.clock.red{color:var(--red);text-shadow:0 0 10px rgba(255,68,68,0.4);animation:pulse-red 1s ease-in-out infinite;}
-@keyframes pulse-red{0%,100%{opacity:1}50%{opacity:0.6}}
-.vitals-bar{display:flex;align-items:center;gap:6px;font-family:var(--mono);}
-.vital{display:flex;flex-direction:column;align-items:center;gap:1px;}
-.vital-label{color:var(--text-dim);font-size:8px;letter-spacing:1px;}
-.vital-value{font-size:12px;}
-.vital-value.off{color:var(--red);}
-.vital-value.ok{color:var(--green);}
-.vital-value.warn{color:var(--amber);}
-.vital-divider{width:1px;height:26px;background:var(--border);}
+        /* ECG monitor — dark panel, same as vitals-panel in scenarios.html */
+        .arrest-ecg-panel {
+            background: linear-gradient(145deg, #0a0f1e 0%, #0d1526 100%);
+            border: 1px solid #1a2a4a;
+            border-radius: var(--radius-lg);
+            padding: 0.75rem;
+        }
+        .arrest-ecg-label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: #2a5c2a; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+        .arrest-ecg-canvas { width: 100%; height: 64px; display: block; }
 
-/* GOLDEN MINUTE BANNER */
-.golden-banner{background:linear-gradient(135deg,rgba(255,165,0,0.15),rgba(255,165,0,0.08));border:1px solid rgba(255,165,0,0.4);border-radius:8px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;animation:golden-pulse 2s ease-in-out infinite;}
-.golden-banner.hidden{display:none;}
-@keyframes golden-pulse{0%,100%{border-color:rgba(255,165,0,0.4)}50%{border-color:rgba(255,165,0,0.8)}}
-.golden-countdown{font-family:var(--mono);font-size:26px;color:var(--amber);font-weight:700;flex-shrink:0;}
-.golden-text{flex:1;}
-.golden-title{font-family:var(--cond);font-weight:900;font-size:13px;letter-spacing:1px;color:var(--amber);text-transform:uppercase;margin-bottom:2px;}
-.golden-sub{font-size:11px;color:var(--text-dim);line-height:1.4;}
+        /* NB monitor panel */
+        .arrest-nb-monitor {
+            background: linear-gradient(145deg, #0a0f1e 0%, #0d1526 100%);
+            border: 1px solid #1a2a4a;
+            border-radius: var(--radius-lg);
+            padding: 0.875rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .arrest-nb-hr { text-align: center; }
+        .arrest-nb-hr-label { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: #2a5c2a; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.2rem; }
+        .arrest-nb-hr-value { font-family: 'JetBrains Mono', monospace; font-size: 2rem; color: #00d9ff; font-weight: 700; line-height: 1; }
+        .arrest-nb-hr-value.critical { color: #dc3545; animation: clockPulse 0.8s infinite; }
+        .arrest-nb-hr-value.caution { color: #ffc107; }
+        .arrest-nb-divider { width: 1px; height: 48px; background: #1a2a4a; flex-shrink: 0; }
+        .arrest-nb-status-title { font-weight: 700; font-size: 0.8rem; margin-bottom: 0.2rem; }
+        .arrest-nb-status-title.good { color: #5cb85c; }
+        .arrest-nb-status-title.warn { color: #ffc107; }
+        .arrest-nb-status-title.bad { color: #dc3545; }
+        .arrest-nb-status-sub { font-size: 0.75rem; color: #8892b0; line-height: 1.4; }
 
-/* SPO2 TARGETS (newborn) */
-.spo2-targets{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:9px 14px;margin-bottom:10px;display:none;}
-.spo2-targets.show{display:block;}
-.spo2-title{font-family:var(--cond);font-size:10px;letter-spacing:1.5px;color:var(--text-dim);text-transform:uppercase;margin-bottom:7px;}
-.spo2-row{display:flex;gap:6px;}
-.spo2-target{flex:1;text-align:center;padding:5px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);}
-.spo2-target.current{border-color:var(--teal);background:var(--teal-dim);}
-.spo2-target.past{border-color:var(--green);background:rgba(0,230,118,0.08);}
-.spo2-time{font-family:var(--cond);font-size:9px;color:var(--text-dim);letter-spacing:1px;display:block;}
-.spo2-val{font-family:var(--mono);font-size:13px;color:var(--teal);display:block;margin-top:1px;}
-.spo2-target.current .spo2-val{color:var(--amber);}
-.spo2-target.past .spo2-val{color:var(--green);}
+        /* Golden minute banner */
+        .arrest-golden {
+            background: rgba(255,193,7,0.12);
+            border: 1px solid rgba(255,193,7,0.4);
+            border-radius: var(--radius-lg);
+            padding: 0.65rem 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+        }
+        .arrest-golden-count { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; color: #ffc107; font-weight: 700; flex-shrink: 0; }
+        .arrest-golden-title { font-weight: 700; font-size: 0.78rem; color: #ffc107; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.15rem; }
+        .arrest-golden-sub { font-size: 0.72rem; color: var(--color-gray-600); }
 
-/* MAIN */
-.main{max-width:680px;margin:0 auto;padding:14px 14px 120px;}
-.patient-banner{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:6px;padding:10px 14px;margin-bottom:10px;}
-.patient-name{font-family:var(--cond);font-weight:700;font-size:15px;color:var(--teal);margin-bottom:3px;}
-.patient-meta{font-size:11px;color:var(--text-dim);line-height:1.6;}
+        /* SpO2 targets (newborn) */
+        .arrest-spo2-targets {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-lg);
+            padding: 0.65rem 0.875rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .arrest-spo2-title { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-gray-500); margin-bottom: 0.5rem; }
+        .arrest-spo2-row { display: flex; gap: 0.5rem; }
+        .arrest-spo2-target { flex: 1; text-align: center; padding: 0.4rem; border-radius: var(--radius-md); border: 1px solid var(--color-gray-200); background: var(--color-gray-50); }
+        .arrest-spo2-target.current { border-color: #ffc107; background: rgba(255,193,7,0.08); }
+        .arrest-spo2-target.past { border-color: var(--color-teal); background: rgba(43,138,156,0.06); }
+        .arrest-spo2-time { font-size: 0.6rem; color: var(--color-gray-500); display: block; }
+        .arrest-spo2-val { font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: var(--color-gray-700); display: block; margin-top: 0.1rem; }
+        .arrest-spo2-target.current .arrest-spo2-val { color: #d97706; }
+        .arrest-spo2-target.past .arrest-spo2-val { color: var(--color-teal); }
 
-/* ECG / MONITOR (adult only) */
-.ecg-container{background:#050A06;border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:10px;}
-.ecg-label{font-family:var(--mono);font-size:9px;color:#2A5C2A;margin-bottom:6px;letter-spacing:1px;}
-.ecg-canvas{width:100%;height:64px;display:block;}
+        /* Algo step (newborn) */
+        .arrest-algo-step {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-left: 3px solid var(--color-teal);
+            border-radius: var(--radius-lg);
+            padding: 0.65rem 0.875rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .arrest-algo-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-teal); margin-bottom: 0.25rem; }
+        .arrest-algo-text { font-size: 0.82rem; color: var(--color-gray-700); line-height: 1.5; }
+        .arrest-algo-text strong { color: #d97706; }
 
-/* NEWBORN MONITOR (HR display) */
-.nb-monitor{background:#050A06;border:1px solid var(--border);border-radius:6px;padding:12px 14px;margin-bottom:10px;display:none;}
-.nb-monitor.show{display:flex;align-items:center;gap:16px;}
-.nb-hr-display{display:flex;flex-direction:column;align-items:center;}
-.nb-hr-label{font-family:var(--cond);font-size:9px;letter-spacing:2px;color:#2A5C2A;text-transform:uppercase;margin-bottom:2px;}
-.nb-hr-value{font-family:var(--mono);font-size:32px;color:var(--green);line-height:1;}
-.nb-hr-value.critical{color:var(--red);animation:pulse-red 0.8s ease-in-out infinite;}
-.nb-hr-value.caution{color:var(--amber);}
-.nb-hr-unit{font-family:var(--cond);font-size:10px;color:#2A5C2A;margin-top:2px;}
-.nb-hr-divider{width:1px;height:50px;background:var(--border);}
-.nb-status{flex:1;}
-.nb-status-title{font-family:var(--cond);font-weight:700;font-size:12px;letter-spacing:1px;margin-bottom:4px;}
-.nb-status-title.good{color:var(--green);}
-.nb-status-title.warn{color:var(--amber);}
-.nb-status-title.bad{color:var(--red);}
-.nb-status-sub{font-size:11px;color:var(--text-dim);line-height:1.5;}
+        /* CPR indicator */
+        .arrest-cpr-bar {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-lg);
+            padding: 0.65rem 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .arrest-cpr-dot {
+            width: 10px; height: 10px;
+            background: var(--color-teal);
+            border-radius: 50%;
+            flex-shrink: 0;
+            animation: cprPulse 0.52s ease-in-out infinite;
+        }
+        @keyframes cprPulse { 0%,100%{transform:scale(1);opacity:0.4}50%{transform:scale(1.5);opacity:1} }
+        .arrest-cpr-dot.nb { animation-duration: 0.67s; }
+        .arrest-cpr-text { font-weight: 600; font-size: 0.82rem; color: var(--color-teal); }
+        .arrest-cpr-rate { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--color-gray-500); }
 
-/* ALGORITHM STEP (newborn) */
-.algo-step{background:var(--surface);border:1px solid rgba(43,138,156,0.25);border-left:3px solid var(--teal);border-radius:6px;padding:10px 14px;margin-bottom:10px;display:none;}
-.algo-step.show{display:block;}
-.algo-step-label{font-family:var(--cond);font-size:9px;letter-spacing:2px;color:var(--teal);text-transform:uppercase;margin-bottom:4px;}
-.algo-step-text{font-size:12px;color:var(--text);line-height:1.6;}
-.algo-step-text strong{color:var(--amber);}
+        /* Progress bar */
+        .arrest-progress-bar {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-lg);
+            padding: 0.5rem 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .arrest-progress-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-gray-500); white-space: nowrap; }
+        .arrest-progress-track { flex: 1; height: 4px; background: var(--color-gray-200); border-radius: 2px; overflow: hidden; }
+        .arrest-progress-fill { height: 100%; background: var(--color-teal); border-radius: 2px; transition: width 1s linear; }
+        .arrest-progress-fill.amber { background: #ffc107; }
+        .arrest-progress-fill.red { background: #dc3545; }
+        .arrest-progress-time { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--color-teal); white-space: nowrap; }
 
-/* CPR indicator */
-.cpr-indicator{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:9px 14px;margin-bottom:10px;}
-.cpr-beat{width:9px;height:9px;background:var(--teal);border-radius:50%;animation:cpr-pulse 0.52s ease-in-out infinite;flex-shrink:0;}
-@keyframes cpr-pulse{0%,100%{transform:scale(1);opacity:0.4}50%{transform:scale(1.5);opacity:1;box-shadow:0 0 8px var(--teal-glow)}}
-.cpr-beat.nb{animation-duration:0.67s;} /* 90/min */
-.cpr-text{font-family:var(--cond);font-weight:700;font-size:13px;letter-spacing:1px;color:var(--teal);}
-.cpr-rate{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--text-dim);}
+        /* Action button */
+        .arrest-action-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-teal-dark) 100%);
+            border: none;
+            border-radius: var(--radius-lg);
+            padding: 0.875rem 1rem;
+            color: white;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-md);
+        }
+        .arrest-action-btn:hover { box-shadow: 0 4px 15px rgba(43,138,156,0.4); }
 
-/* NEXT CHECK BAR */
-.next-check-bar{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
-.next-check-label{font-family:var(--cond);font-size:10px;letter-spacing:1.5px;color:var(--text-dim);text-transform:uppercase;white-space:nowrap;}
-.progress-track{flex:1;height:3px;background:var(--surface2);border-radius:2px;overflow:hidden;}
-.progress-fill{height:100%;background:var(--teal);border-radius:2px;transition:width 1s linear;box-shadow:0 0 6px var(--teal-glow);}
-.next-check-time{font-family:var(--mono);font-size:11px;color:var(--teal);white-space:nowrap;}
+        /* Event log */
+        .arrest-log-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-gray-500); padding-bottom: 0.4rem; border-bottom: 1px solid var(--color-gray-200); margin-bottom: 0.5rem; }
+        .arrest-log-entry {
+            display: flex;
+            gap: 0.625rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--color-gray-100);
+            font-size: 0.8rem;
+            align-items: flex-start;
+        }
+        .arrest-log-time { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--color-gray-400); white-space: nowrap; flex-shrink: 0; margin-top: 1px; }
+        .arrest-log-text { color: var(--color-gray-700); line-height: 1.4; }
+        .arrest-log-text.good { color: #3d8b3d; }
+        .arrest-log-text.warn { color: #b45309; }
+        .arrest-log-text.info { color: var(--color-teal); }
+        .arrest-log-text.bad { color: #dc3545; }
 
-/* ACTION BUTTON */
-.action-row{display:flex;gap:8px;margin-bottom:14px;}
-.action-main-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--teal);color:#0A0D0F;font-family:var(--cond);font-weight:900;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;padding:12px;border-radius:8px;border:none;cursor:pointer;transition:all 0.15s;}
-.action-main-btn:hover{background:#3DA4B8;transform:translateY(-1px);box-shadow:0 4px 14px var(--teal-glow);}
+        /* Feedback flash */
+        .arrest-feedback {
+            position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 0.5rem 1.25rem;
+            font-weight: 600; font-size: 0.82rem;
+            box-shadow: var(--shadow-lg);
+            z-index: 2000;
+            animation: feedbackAnim 2.2s ease forwards;
+            pointer-events: none; white-space: nowrap;
+        }
+        .arrest-feedback.good { border-left: 3px solid #3d8b3d; color: #3d8b3d; }
+        .arrest-feedback.bad  { border-left: 3px solid #dc3545; color: #dc3545; }
+        @keyframes feedbackAnim { 0%{opacity:0;transform:translateX(-50%) translateY(-8px)}15%{opacity:1;transform:translateX(-50%) translateY(0)}70%{opacity:1}100%{opacity:0} }
 
-/* EVENT LOG */
-.section-label{font-family:var(--cond);font-size:10px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border);}
-.log-entry{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:12px;align-items:flex-start;}
-.log-time{font-family:var(--mono);font-size:10px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;margin-top:1px;}
-.log-text{color:var(--text);line-height:1.5;}
-.log-text.good{color:var(--green);}
-.log-text.warn{color:var(--amber);}
-.log-text.info{color:var(--teal);}
-.log-text.bad{color:var(--red);}
+        /* ==================== DEBRIEF VIEW ==================== */
+        .debrief-view { overflow-y: auto; padding: 1rem 1rem 3rem; }
+        .debrief-stat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 0.5rem; margin-bottom: 1rem; }
+        .debrief-stat-card { background: var(--color-white); border: 1px solid var(--color-gray-200); border-radius: var(--radius-lg); padding: 0.875rem; text-align: center; box-shadow: var(--shadow-sm); }
+        .debrief-stat-val { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 700; color: var(--color-teal); display: block; line-height: 1; }
+        .debrief-stat-label { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-gray-500); margin-top: 0.3rem; display: block; }
+        .debrief-section-card { background: var(--color-white); border: 1px solid var(--color-gray-200); border-radius: var(--radius-lg); padding: 0.875rem; margin-bottom: 0.75rem; box-shadow: var(--shadow-sm); }
+        .debrief-section-title { font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem; }
+        .debrief-section-title.good { color: #3d8b3d; }
+        .debrief-section-title.warn { color: #b45309; }
+        .debrief-section-title.info { color: var(--color-teal); }
+        .debrief-item { font-size: 0.82rem; color: var(--color-gray-700); line-height: 1.5; padding: 0.4rem 0; border-bottom: 1px solid var(--color-gray-100); }
+        .debrief-item:last-child { border-bottom: none; }
+        .debrief-hollie { background: rgba(43,138,156,0.06); border: 1px solid rgba(43,138,156,0.2); border-radius: var(--radius-lg); padding: 0.875rem; margin-bottom: 0.75rem; }
+        .debrief-hollie-header { font-weight: 700; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-teal); margin-bottom: 0.5rem; }
+        .debrief-hollie-text { font-size: 0.85rem; color: var(--color-gray-700); line-height: 1.6; font-style: italic; }
+        .debrief-variant { background: rgba(43,138,156,0.06); border: 1px solid rgba(43,138,156,0.2); border-radius: var(--radius-lg); padding: 0.75rem; margin-bottom: 0.75rem; }
+        .debrief-variant-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-teal); margin-bottom: 0.3rem; }
+        .debrief-variant-name { font-weight: 700; font-size: 0.9rem; color: var(--color-gray-800); margin-bottom: 0.3rem; }
+        .debrief-variant-desc { font-size: 0.8rem; color: var(--color-gray-600); line-height: 1.5; }
+        .debrief-tl-entry { display: flex; gap: 0.625rem; padding: 0.5rem 0; border-bottom: 1px solid var(--color-gray-100); font-size: 0.78rem; align-items: flex-start; }
+        .debrief-tl-time { font-family: 'JetBrains Mono', monospace; color: var(--color-gray-400); white-space: nowrap; flex-shrink: 0; }
+        .debrief-tl-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 3px; flex-shrink: 0; }
+        .debrief-tl-dot.good { background: #3d8b3d; }
+        .debrief-tl-dot.warn { background: #d97706; }
+        .debrief-tl-dot.bad  { background: #dc3545; }
+        .debrief-tl-text { color: var(--color-gray-700); line-height: 1.4; }
 
-/* ACTION MODAL */
-.modal-backdrop-custom{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:400;display:flex;align-items:flex-end;justify-content:center;}
-.modal-backdrop-custom.hidden{display:none;}
-.action-modal{background:linear-gradient(145deg,#111518 0%,#0e1215 100%);border:1px solid #1a2530;border-bottom:none;border-radius:20px 20px 0 0;width:100%;max-width:680px;max-height:82vh;display:flex;flex-direction:column;animation:modal-up 0.28s ease-out;}
-@keyframes modal-up{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
-.modal-header-custom{background:rgba(43,138,156,0.08);border-bottom:1px solid rgba(43,138,156,0.15);padding:14px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;border-radius:20px 20px 0 0;}
-.modal-title-custom{font-family:var(--cond);font-weight:700;font-size:16px;color:var(--teal);letter-spacing:0.5px;}
-.modal-close-btn{margin-left:auto;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:20px;padding:2px 6px;border-radius:4px;transition:color 0.15s;}
-.modal-close-btn:hover{color:var(--text);}
-.modal-body-custom{padding:14px 16px 28px;overflow-y:auto;flex:1;}
-.action-group{margin-bottom:18px;}
-.action-group:last-child{margin-bottom:0;}
-.action-group-title{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#8892b0;margin-bottom:8px;padding-left:2px;}
-.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
-@media(max-width:420px){.action-grid{grid-template-columns:1fr;}}
-.action-option{display:flex;align-items:center;gap:9px;padding:11px 12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#fff;font-size:0.82rem;font-weight:500;cursor:pointer;transition:all 0.18s;text-align:left;font-family:var(--sans);}
-.action-option:hover{background:rgba(43,138,156,0.12);border-color:var(--teal);color:var(--teal);}
-.action-option i{color:var(--teal);font-size:1rem;flex-shrink:0;}
-.action-option.done{opacity:0.45;cursor:default;pointer-events:none;}
-.action-option.done::after{content:' ✓';color:var(--green);font-size:0.75rem;margin-left:auto;}
-.response-panel{background:var(--surface2);border:1px solid rgba(43,138,156,0.2);border-radius:10px;padding:14px 16px;margin-bottom:14px;animation:slide-in 0.25s ease-out;}
-@keyframes slide-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.response-panel-title{font-family:var(--cond);font-weight:700;font-size:12px;letter-spacing:1.5px;color:var(--teal);text-transform:uppercase;margin-bottom:8px;}
-.response-panel-body{font-size:12px;line-height:1.7;color:var(--text);}
-.response-panel-body strong{color:var(--amber);}
-.response-panel-body .good{color:var(--green);}
-.response-panel-body .warn{color:var(--amber);}
-.response-panel-body .bad{color:var(--red);}
-.jrcalc-box{background:rgba(255,165,0,0.06);border:1px solid rgba(255,165,0,0.25);border-radius:6px;padding:10px 12px;margin-top:10px;}
-.jrcalc-box-title{font-family:var(--cond);font-weight:700;font-size:11px;letter-spacing:1.5px;color:var(--amber);text-transform:uppercase;margin-bottom:4px;}
-.jrcalc-box-text{font-size:11px;color:var(--text-dim);line-height:1.6;}
-.response-close{margin-top:12px;width:100%;padding:9px;background:var(--teal);color:#0A0D0F;border:none;border-radius:7px;font-family:var(--cond);font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
-.response-close:hover{background:#3DA4B8;}
+        /* ==================== OVERLAYS (inside page, not full-screen) ==================== */
+        /* Rhythm check overlay — position:fixed but within z-index hierarchy */
+        .arrest-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.75);
+            z-index: 1060;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .arrest-overlay.active { display: flex; }
+        .arrest-overlay-card {
+            background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+            border: 1px solid #0f3460;
+            border-radius: var(--radius-lg);
+            width: 100%; max-width: 560px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 1.25rem;
+            color: white;
+        }
+        .arrest-overlay-title { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #00d9ff; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .arrest-overlay-banner { font-family: 'JetBrains Mono', monospace; font-weight: 900; font-size: clamp(1rem, 4vw, 1.5rem); letter-spacing: 0.15em; color: #dc3545; text-align: center; margin-bottom: 0.25rem; animation: clockPulse 0.8s infinite; }
+        .arrest-overlay-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; color: #8892b0; text-align: center; margin-bottom: 1rem; text-transform: uppercase; }
 
-/* HR REASSESSMENT OVERLAY (newborn) */
-.hr-overlay{position:fixed;inset:0;background:rgba(5,8,10,0.97);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
-.hr-overlay.hidden{display:none;}
-.hr-overlay-title{font-family:var(--cond);font-weight:900;font-size:clamp(18px,5vw,28px);letter-spacing:3px;color:var(--teal);text-align:center;margin-bottom:4px;text-transform:uppercase;}
-.hr-overlay-sub{font-family:var(--cond);font-weight:600;font-size:13px;letter-spacing:2px;color:var(--text-dim);text-align:center;margin-bottom:20px;text-transform:uppercase;}
+        /* ECG strip in overlay */
+        .arrest-ecg-strip { background: #050a06; border: 1px solid #1a3a1a; border-radius: 8px; padding: 0.75rem; margin-bottom: 1rem; }
+        .arrest-ecg-strip canvas { width: 100%; height: 70px; display: block; }
+        .arrest-ecg-strip-label { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: #2a5c2a; text-align: right; margin-top: 0.3rem; }
 
-/* Stethoscope / auscultation UI */
-.auscult-card{width:100%;max-width:440px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
-.auscult-method{font-size:11px;color:var(--text-dim);line-height:1.6;margin-bottom:16px;text-align:center;}
-.auscult-method strong{color:var(--amber);}
-.auscult-listen-btn{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:var(--teal-dim);border:2px solid var(--teal);border-radius:10px;padding:18px;cursor:pointer;transition:all 0.2s;color:var(--teal);font-family:var(--cond);font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;}
-.auscult-listen-btn:hover{background:rgba(43,138,156,0.2);box-shadow:0 0 20px var(--teal-glow);}
-.auscult-listen-btn .scope-icon{font-size:32px;line-height:1;}
-.auscult-listen-btn .scope-sub{font-size:10px;font-weight:400;color:var(--text-dim);letter-spacing:1px;margin-top:2px;}
+        /* Rhythm buttons */
+        .arrest-rhythm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.75rem; }
+        .arrest-rhythm-btn { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 600; padding: 0.875rem; border-radius: 8px; border: 1px solid #1a2a4a; background: rgba(255,255,255,0.04); color: #c0c0c0; cursor: pointer; text-align: center; transition: all 0.15s; }
+        .arrest-rhythm-btn:hover { border-color: #00d9ff; color: #00d9ff; background: rgba(0,217,255,0.08); }
+        .arrest-rhythm-btn.correct { border-color: #5cb85c; color: #5cb85c; background: rgba(92,184,92,0.1); }
+        .arrest-rhythm-btn.wrong   { border-color: #dc3545; color: #dc3545; background: rgba(220,53,69,0.1); }
 
-/* Listening active state */
-.auscult-active{width:100%;max-width:440px;background:var(--surface);border:1px solid rgba(43,138,156,0.3);border-radius:12px;padding:20px;margin-bottom:16px;text-align:center;display:none;}
-.auscult-active.show{display:block;}
-.auscult-countdown-label{font-family:var(--cond);font-size:10px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px;}
-.auscult-countdown{font-family:var(--mono);font-size:48px;color:var(--teal);line-height:1;margin-bottom:12px;transition:color 0.3s;}
-.auscult-countdown.ending{color:var(--amber);}
-.pulse-ring-wrap{display:flex;justify-content:center;align-items:center;height:70px;margin-bottom:12px;}
-.pulse-ring{width:54px;height:54px;border-radius:50%;background:rgba(43,138,156,0.1);border:2px solid rgba(43,138,156,0.3);display:flex;align-items:center;justify-content:center;transition:all 0.05s;}
-.pulse-ring.beat{background:rgba(43,138,156,0.35);border-color:var(--teal);box-shadow:0 0 20px var(--teal-glow);transform:scale(1.15);}
-.pulse-ring-inner{width:22px;height:22px;border-radius:50%;background:rgba(43,138,156,0.2);border:2px solid rgba(0,194,178,0.5);}
-.pulse-ring.beat .pulse-ring-inner{background:var(--teal);}
-.auscult-beat-count{font-family:var(--mono);font-size:13px;color:var(--text-dim);}
-.auscult-beat-count span{color:var(--teal);font-size:18px;}
-.auscult-instruction{font-size:11px;color:var(--text-dim);margin-top:8px;font-style:italic;}
+        /* Stage result feedback inside overlay */
+        .arrest-stage-result { border-radius: 8px; padding: 0.75rem 0.875rem; margin-bottom: 0.75rem; font-size: 0.82rem; line-height: 1.5; animation: fadeSlide 0.25s ease; }
+        @keyframes fadeSlide { from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)} }
+        .arrest-stage-result.correct { background: rgba(92,184,92,0.1); border: 1px solid rgba(92,184,92,0.3); color: #5cb85c; }
+        .arrest-stage-result.incorrect { background: rgba(220,53,69,0.1); border: 1px solid rgba(220,53,69,0.3); color: #ff6b6b; }
+        .arrest-stage-result.info { background: rgba(0,217,255,0.08); border: 1px solid rgba(0,217,255,0.25); color: #00d9ff; }
 
-/* Count selection */
-.hr-count-section{width:100%;max-width:440px;display:none;}
-.hr-count-section.show{display:block;}
-.hr-count-label{font-family:var(--cond);font-size:11px;letter-spacing:1.5px;color:var(--text-dim);text-transform:uppercase;margin-bottom:10px;text-align:center;}
-.hr-count-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:10px;}
-.hr-count-btn{font-family:var(--mono);font-size:18px;padding:14px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;transition:all 0.15s;text-align:center;}
-.hr-count-btn:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-dim);}
-.hr-count-btn .count-label{display:block;font-family:var(--cond);font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-top:3px;}
-.hr-count-none{width:100%;font-family:var(--cond);font-weight:700;font-size:12px;letter-spacing:1px;padding:11px;border-radius:8px;border:1px solid rgba(255,68,68,0.3);background:rgba(255,68,68,0.06);color:var(--red);cursor:pointer;transition:all 0.15s;}
-.hr-count-none:hover{background:rgba(255,68,68,0.12);}
-.hr-multiply-hint{font-size:11px;color:var(--text-dim);text-align:center;margin-bottom:10px;font-style:italic;}
+        /* Pulse check buttons */
+        .arrest-pulse-grid { display: flex; gap: 0.75rem; margin-bottom: 0.75rem; }
+        .arrest-pulse-btn { flex: 1; padding: 1rem; border-radius: 8px; font-weight: 700; font-size: 0.875rem; cursor: pointer; transition: all 0.15s; border: 2px solid; font-family: 'JetBrains Mono', monospace; text-align: center; }
+        .arrest-pulse-btn.yes { background: rgba(0,217,255,0.08); border-color: #00d9ff; color: #00d9ff; }
+        .arrest-pulse-btn.yes:hover { background: rgba(0,217,255,0.2); }
+        .arrest-pulse-btn.no  { background: rgba(220,53,69,0.08); border-color: #dc3545; color: #dc3545; }
+        .arrest-pulse-btn.no:hover  { background: rgba(220,53,69,0.2); }
 
-/* RHYTHM CHECK OVERLAY (adult) */
-.rhythm-overlay{position:fixed;inset:0;background:rgba(5,8,10,0.97);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;animation:overlay-in 0.35s ease-out;}
-.rhythm-overlay.hidden{display:none;}
-@keyframes overlay-in{from{opacity:0}to{opacity:1}}
-.hold-cpr-banner{font-family:var(--cond);font-weight:900;font-size:clamp(18px,5vw,30px);letter-spacing:4px;color:var(--red);text-align:center;margin-bottom:4px;animation:pulse-red 0.8s ease-in-out infinite;}
-.rhythm-check-sub{font-family:var(--cond);font-weight:700;font-size:clamp(11px,2.5vw,16px);letter-spacing:3px;color:var(--text-dim);text-align:center;margin-bottom:20px;text-transform:uppercase;}
-.ecg-rhythm-display{width:100%;max-width:560px;background:#050A06;border:1px solid #1a3a1a;border-radius:8px;padding:14px;margin-bottom:18px;}
-.rhythm-strip-canvas{width:100%;height:76px;display:block;margin-bottom:6px;}
-.rhythm-strip-label{font-family:var(--mono);font-size:9px;color:#2A5C2A;text-align:right;letter-spacing:1px;}
-.rhythm-question{font-family:var(--cond);font-weight:700;font-size:15px;color:var(--text);text-align:center;margin-bottom:14px;}
-.rhythm-options{display:grid;grid-template-columns:1fr 1fr;gap:7px;width:100%;max-width:560px;}
+        /* HR check (auscultation) */
+        .arrest-auscult-btn {
+            width: 100%; padding: 1.25rem;
+            background: rgba(0,217,255,0.08);
+            border: 2px solid #00d9ff;
+            border-radius: 8px;
+            color: #00d9ff;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700; font-size: 0.875rem;
+            cursor: pointer; text-align: center;
+            transition: all 0.2s; margin-bottom: 0.5rem;
+        }
+        .arrest-auscult-btn:hover { background: rgba(0,217,255,0.18); }
+        .arrest-skip-btn { width: 100%; padding: 0.625rem; background: transparent; border: 1px solid #1a2a4a; border-radius: 8px; color: #8892b0; font-size: 0.78rem; cursor: pointer; transition: all 0.15s; }
+        .arrest-skip-btn:hover { border-color: #2a3a5a; color: #c0c0c0; }
+        .arrest-countdown-label { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: #4a6a8a; text-align: center; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.06em; }
+        .arrest-countdown { font-family: 'JetBrains Mono', monospace; font-size: 3rem; color: #00d9ff; text-align: center; line-height: 1; margin-bottom: 0.75rem; transition: color 0.3s; }
+        .arrest-countdown.ending { color: #ffc107; }
+        .arrest-pulse-ring-wrap { display: flex; justify-content: center; margin-bottom: 0.75rem; }
+        .arrest-pulse-ring { width: 56px; height: 56px; border-radius: 50%; background: rgba(0,217,255,0.1); border: 2px solid rgba(0,217,255,0.3); display: flex; align-items: center; justify-content: center; transition: all 0.05s; }
+        .arrest-pulse-ring.beat { background: rgba(0,217,255,0.35); border-color: #00d9ff; transform: scale(1.15); box-shadow: 0 0 20px rgba(0,217,255,0.4); }
+        .arrest-pulse-ring-inner { width: 22px; height: 22px; border-radius: 50%; background: rgba(0,217,255,0.2); border: 2px solid rgba(0,217,255,0.5); }
+        .arrest-pulse-ring.beat .arrest-pulse-ring-inner { background: #00d9ff; }
+        .arrest-beat-count { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: #8892b0; text-align: center; }
+        .arrest-beat-count span { color: #00d9ff; font-size: 1.1rem; }
+        .arrest-count-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 0.5rem; margin-bottom: 0.5rem; }
+        .arrest-count-btn { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; padding: 0.875rem 0.5rem; border-radius: 8px; border: 1px solid #1a2a4a; background: rgba(255,255,255,0.04); color: #c0c0c0; cursor: pointer; text-align: center; transition: all 0.15s; }
+        .arrest-count-btn .count-sub { display: block; font-size: 0.6rem; color: #8892b0; margin-top: 0.2rem; }
+        .arrest-count-btn:hover { border-color: #00d9ff; color: #00d9ff; background: rgba(0,217,255,0.08); }
+        .arrest-count-none { width: 100%; padding: 0.7rem; background: rgba(220,53,69,0.06); border: 1px solid rgba(220,53,69,0.3); border-radius: 8px; color: #dc3545; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+        .arrest-count-none:hover { background: rgba(220,53,69,0.15); }
+        .arrest-multiply-hint { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: #8892b0; text-align: center; margin-bottom: 0.5rem; }
 
-/* Pulse check stage */
-.pulse-check-wrap{width:100%;max-width:560px;text-align:center;}
-.pulse-check-q{font-family:var(--cond);font-weight:700;font-size:15px;color:var(--text);margin-bottom:6px;letter-spacing:0.5px;}
-.pulse-check-hint{font-size:11px;color:var(--text-dim);margin-bottom:16px;line-height:1.5;}
-.pulse-check-btns{display:flex;gap:10px;}
-.pulse-check-btn{flex:1;padding:16px;border-radius:8px;font-family:var(--cond);font-weight:900;font-size:15px;letter-spacing:1px;text-transform:uppercase;border:2px solid;cursor:pointer;transition:all 0.15s;}
-.pulse-check-btn.yes{background:rgba(43,138,156,0.1);border-color:var(--teal);color:var(--teal);}
-.pulse-check-btn.yes:hover{background:rgba(43,138,156,0.25);}
-.pulse-check-btn.no{background:rgba(255,68,68,0.08);border-color:var(--red);color:var(--red);}
-.pulse-check-btn.no:hover{background:rgba(255,68,68,0.2);}
+        /* HR response in overlay */
+        .arrest-hr-response { margin-top: 0.75rem; }
+        .arrest-hr-response-title { font-weight: 700; font-size: 0.875rem; margin-bottom: 0.5rem; }
+        .arrest-hr-response-title.good { color: #5cb85c; }
+        .arrest-hr-response-title.warn { color: #ffc107; }
+        .arrest-hr-response-title.bad  { color: #dc3545; }
+        .arrest-hr-response-body { font-size: 0.8rem; line-height: 1.6; color: #c0c0c0; margin-bottom: 0.75rem; }
 
-/* Stage result feedback */
-.stage-result{width:100%;max-width:560px;border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:12px;line-height:1.6;text-align:left;animation:slide-in 0.2s ease-out;}
-.stage-result.correct{background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.3);color:var(--green);}
-.stage-result.incorrect{background:rgba(255,68,68,0.08);border:1px solid rgba(255,68,68,0.3);color:var(--red);}
-.stage-result.info{background:rgba(43,138,156,0.08);border:1px solid rgba(43,138,156,0.25);color:var(--teal);}
-.rhythm-btn{font-family:var(--cond);font-weight:700;font-size:13px;padding:13px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;transition:all 0.15s;text-align:center;}
-.rhythm-btn:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-dim);}
-.rhythm-btn.correct{border-color:var(--green);color:var(--green);background:rgba(0,230,118,0.1);}
-.rhythm-btn.wrong{border-color:var(--red);color:var(--red);background:rgba(255,68,68,0.1);}
+        /* Overlay buttons */
+        .arrest-overlay-btn { width: 100%; padding: 0.875rem; border-radius: 8px; font-weight: 700; font-size: 0.875rem; cursor: pointer; transition: all 0.15s; margin-bottom: 0.5rem; border: none; }
+        .arrest-overlay-btn.primary { background: linear-gradient(135deg, #2B8A9C, #237282); color: white; }
+        .arrest-overlay-btn.primary:hover { box-shadow: 0 4px 15px rgba(43,138,156,0.4); }
+        .arrest-overlay-btn.danger { background: transparent; border: 1px solid #dc3545; color: #dc3545; }
+        .arrest-overlay-btn.danger:hover { background: rgba(220,53,69,0.1); }
+        .arrest-overlay-btn.secondary { background: transparent; border: 1px solid #2a3a5a; color: #8892b0; }
+        .arrest-overlay-btn.secondary:hover { border-color: #3a4a6a; color: #c0c0c0; }
 
-/* HR RESPONSE PANEL (inside overlay) */
-.hr-response{width:100%;max-width:480px;background:var(--surface);border-radius:10px;padding:18px;margin-top:16px;animation:slide-in 0.25s ease-out;}
-.hr-response-title{font-family:var(--cond);font-weight:900;font-size:16px;letter-spacing:1px;margin-bottom:10px;}
-.hr-response-title.good{color:var(--green);}
-.hr-response-title.warn{color:var(--amber);}
-.hr-response-title.bad{color:var(--red);}
-.hr-response-body{font-size:12px;line-height:1.7;color:var(--text);margin-bottom:14px;}
-.hr-response-actions{display:flex;gap:8px;}
-.btn{font-family:var(--cond);font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;padding:10px 14px;border-radius:6px;border:none;cursor:pointer;transition:all 0.15s;flex:1;}
-.btn-primary{background:var(--teal);color:#0A0D0F;}
-.btn-primary:hover{background:#3DA4B8;}
-.btn-secondary{background:transparent;color:var(--text);border:1px solid var(--border);}
-.btn-secondary:hover{border-color:var(--text-dim);background:var(--surface2);}
+        /* JRCalc note in overlay */
+        .arrest-jrcalc { background: rgba(255,193,7,0.08); border: 1px solid rgba(255,193,7,0.3); border-radius: 8px; padding: 0.75rem; margin: 0.75rem 0; }
+        .arrest-jrcalc-title { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #ffc107; margin-bottom: 0.35rem; }
+        .arrest-jrcalc-text { font-size: 0.75rem; color: #8892b0; line-height: 1.5; }
 
-/* DEBRIEF */
-.debrief-overlay{position:fixed;inset:0;background:var(--bg);z-index:600;overflow-y:auto;padding:22px 14px;animation:overlay-in 0.4s ease-out;}
-.debrief-overlay.hidden{display:none;}
-.debrief-inner{max-width:580px;margin:0 auto;}
-.debrief-title{font-family:var(--cond);font-weight:900;font-size:28px;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
-.debrief-subtitle{font-size:12px;color:var(--text-dim);margin-bottom:20px;}
-.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:16px;}
-.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:11px;text-align:center;}
-.stat-val{font-family:var(--mono);font-size:20px;color:var(--teal);display:block;margin-bottom:2px;}
-.stat-label{font-family:var(--cond);font-size:9px;letter-spacing:1.5px;color:var(--text-dim);text-transform:uppercase;}
-.debrief-section{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px;}
-.debrief-sec-title{font-family:var(--cond);font-weight:700;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
-.debrief-sec-title.good{color:var(--green);}
-.debrief-sec-title.warn{color:var(--amber);}
-.debrief-sec-title.info{color:var(--teal);}
-.debrief-item{font-size:12px;color:var(--text);line-height:1.6;padding:5px 0;border-bottom:1px solid var(--border);}
-.debrief-item:last-child{border-bottom:none;}
-.hollie-note{background:var(--teal-dim);border:1px solid rgba(43,138,156,0.25);border-radius:8px;padding:13px 15px;margin-bottom:12px;}
-.hollie-note-header{font-family:var(--cond);font-weight:700;font-size:11px;letter-spacing:1.5px;color:var(--teal);text-transform:uppercase;margin-bottom:7px;}
-.hollie-note-text{font-size:12px;line-height:1.7;color:var(--text);font-style:italic;}
-.tl-entry{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px;align-items:flex-start;}
-.tl-time{font-family:var(--mono);color:var(--text-dim);white-space:nowrap;flex-shrink:0;}
-.tl-dot{width:7px;height:7px;border-radius:50%;margin-top:3px;flex-shrink:0;}
-.tl-dot.good{background:var(--green)}.tl-dot.warn{background:var(--amber)}.tl-dot.bad{background:var(--red)}
-.tl-text{color:var(--text);line-height:1.5;}
-.bottom-btns{display:flex;gap:8px;margin-top:18px;padding-bottom:40px;}
+        /* ==================== ACTION MODAL (bottom sheet, matches scenarios.html) ==================== */
+        #arrestActionModal .modal-dialog {
+            margin: 0;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            max-width: 100%;
+            transform: translateY(100%);
+            transition: transform 0.32s cubic-bezier(0.32,0.72,0,1);
+        }
+        #arrestActionModal.show .modal-dialog { transform: translateY(0); }
+        #arrestActionModal .modal-content {
+            border-radius: 20px 20px 0 0;
+            max-height: 82vh;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+            border: 1px solid #0f3460;
+        }
+        .arrest-modal-header { background: rgba(0,217,255,0.1); border-bottom: 1px solid #0f3460; padding: 1rem 1.25rem; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; }
+        .arrest-modal-title { color: #00d9ff; font-size: 0.9rem; font-weight: 700; }
+        .arrest-modal-body { padding: 1rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom,0px)); overflow-y: auto; flex: 1; }
+        .arrest-action-group { margin-bottom: 1.25rem; }
+        .arrest-action-group:last-child { margin-bottom: 0; }
+        .arrest-action-group-title { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #8892b0; margin-bottom: 0.5rem; padding-left: 0.25rem; }
+        .arrest-action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+        @media(max-width:420px){ .arrest-action-grid { grid-template-columns: 1fr; } }
+        .arrest-action-option { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 0.82rem; font-weight: 500; cursor: pointer; transition: all 0.2s; text-align: left; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .arrest-action-option:hover { background: rgba(0,217,255,0.15); border-color: #00d9ff; color: #00d9ff; }
+        .arrest-action-option i { color: #00d9ff; font-size: 1rem; flex-shrink: 0; }
+        .arrest-action-option.done { opacity: 0.45; cursor: default; pointer-events: none; }
+        .arrest-action-option.done::after { content: ' ✓'; color: #5cb85c; font-size: 0.72rem; margin-left: auto; }
 
-/* INTRO */
-.intro-overlay{position:fixed;inset:0;background:var(--bg);z-index:700;display:flex;align-items:center;justify-content:center;padding:22px;}
-.intro-overlay.hidden{display:none;}
-.intro-card{width:100%;max-width:460px;}
-.intro-eyebrow{font-family:var(--cond);font-size:11px;letter-spacing:3px;color:var(--teal);text-transform:uppercase;margin-bottom:7px;}
-.intro-title{font-family:var(--cond);font-weight:900;font-size:clamp(26px,7vw,40px);line-height:1;color:var(--text);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px;}
-.intro-title span{color:var(--teal);}
-.intro-desc{font-size:13px;line-height:1.7;color:var(--text-dim);margin-bottom:22px;}
-.track-select{display:flex;flex-direction:column;gap:7px;margin-bottom:18px;}
-.track-btn{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;cursor:pointer;transition:all 0.18s;text-align:left;display:flex;align-items:center;gap:11px;}
-.track-btn:hover,.track-btn.selected{border-color:var(--teal);background:var(--teal-dim);}
-.track-icon{font-size:18px;flex-shrink:0;}
-.track-name{font-family:var(--cond);font-weight:700;font-size:14px;color:var(--text);margin-bottom:1px;}
-.track-meta{font-size:10px;color:var(--text-dim);}
-.start-btn{width:100%;background:var(--teal);color:#0A0D0F;font-family:var(--cond);font-weight:900;font-size:15px;letter-spacing:2px;text-transform:uppercase;padding:15px;border-radius:8px;border:none;cursor:pointer;transition:all 0.15s;}
-.start-btn:hover{background:#3DA4B8;transform:translateY(-2px);box-shadow:0 6px 20px var(--teal-glow);}
-
-/* TRIGGER WARNING */
-.trigger-overlay{position:fixed;inset:0;background:rgba(5,8,10,0.97);z-index:750;display:flex;align-items:center;justify-content:center;padding:24px;animation:overlay-in 0.3s ease-out;}
-.trigger-overlay.hidden{display:none;}
-.trigger-card{width:100%;max-width:460px;background:var(--surface);border:1px solid rgba(255,165,0,0.35);border-radius:14px;overflow:hidden;box-shadow:0 0 60px rgba(255,165,0,0.08);}
-.trigger-header{background:rgba(255,165,0,0.1);border-bottom:1px solid rgba(255,165,0,0.2);padding:18px 20px;display:flex;align-items:center;gap:12px;}
-.trigger-header-icon{font-size:24px;flex-shrink:0;}
-.trigger-header-title{font-family:var(--cond);font-weight:900;font-size:17px;letter-spacing:1px;color:var(--amber);text-transform:uppercase;}
-.trigger-header-sub{font-family:var(--cond);font-size:11px;letter-spacing:1.5px;color:rgba(255,165,0,0.6);text-transform:uppercase;margin-top:2px;}
-.trigger-body{padding:22px 20px;}
-.trigger-text{font-size:14px;line-height:1.85;color:var(--text);margin-bottom:20px;}
-.trigger-text strong{color:var(--amber);}
-.trigger-text em{color:var(--teal);font-style:normal;}
-.trigger-divider{height:1px;background:var(--border);margin:18px 0;}
-.trigger-ready-btn{width:100%;background:var(--teal);color:#0A0D0F;font-family:var(--cond);font-weight:900;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;padding:15px;border-radius:8px;border:none;cursor:pointer;transition:all 0.2s;margin-bottom:10px;}
-.trigger-ready-btn:hover{background:#3DA4B8;transform:translateY(-1px);box-shadow:0 4px 16px var(--teal-glow);}
-.trigger-back-btn{width:100%;background:none;border:1px solid var(--border);color:var(--text-dim);font-family:var(--cond);font-weight:600;font-size:12px;letter-spacing:1px;text-transform:uppercase;padding:11px;border-radius:8px;cursor:pointer;transition:all 0.15s;}
-.trigger-back-btn:hover{border-color:var(--text-dim);color:var(--text);}
-
-/* FEEDBACK */
-.feedback-flash{position:fixed;top:66px;left:50%;transform:translateX(-50%);background:var(--surface);border-radius:8px;padding:9px 18px;font-family:var(--cond);font-weight:700;font-size:13px;z-index:800;animation:flash-in-out 2.2s ease forwards;pointer-events:none;white-space:nowrap;}
-.feedback-flash.good{border:1px solid var(--green);color:var(--green);}
-.feedback-flash.bad{border:1px solid var(--red);color:var(--red);}
-@keyframes flash-in-out{0%{opacity:0;transform:translateX(-50%) translateY(-8px)}15%{opacity:1;transform:translateX(-50%) translateY(0)}70%{opacity:1}100%{opacity:0}}
-
-/* DEMO BAR */
-
-
-
-
+        /* Response panel inside modal */
+        .arrest-response-panel { background: rgba(255,255,255,0.04); border: 1px solid rgba(0,217,255,0.2); border-radius: 10px; padding: 1rem; margin-bottom: 0.75rem; animation: fadeSlide 0.25s ease; }
+        .arrest-response-title { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #00d9ff; margin-bottom: 0.5rem; }
+        .arrest-response-body { font-size: 0.82rem; line-height: 1.6; color: #c0c0c0; }
+        .arrest-response-body strong { color: #ffc107; }
+        .arrest-response-body .good { color: #5cb85c; }
+        .arrest-response-body .warn { color: #ffc107; }
+        .arrest-response-body .bad  { color: #dc3545; }
+        .arrest-response-confirm { width: 100%; margin-top: 0.75rem; padding: 0.75rem; background: linear-gradient(135deg, #2B8A9C, #237282); border: none; border-radius: 8px; color: white; font-weight: 700; font-size: 0.82rem; cursor: pointer; }
+        .arrest-response-back { width: 100%; margin-top: 0.5rem; padding: 0.625rem; background: transparent; border: 1px solid #1a2a4a; border-radius: 8px; color: #8892b0; font-size: 0.78rem; cursor: pointer; }
     </style>
 </head>
 
-<body class="arrest-scenarios-page">
+<body class="arrest-page">
 
 <!-- ==================== NAVIGATION ==================== -->
 <nav class="member-navbar">
@@ -429,47 +487,202 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
     </div>
 </nav>
 
-<!-- ==================== MAIN CONTENT ==================== -->
+<!-- ==================== MAIN CONTAINER ==================== -->
 <div class="main-container">
 
-    <div class="page-header" style="background:var(--color-white);padding:1.25rem 1rem;border-bottom:1px solid var(--color-gray-200);text-align:center;">
-        <h1 style="font-size:1.4rem;font-weight:700;color:var(--color-gray-800);margin:0 0 0.25rem;">
-            <i class="bi bi-heart-pulse me-2" style="color:var(--color-teal)"></i>Cardiac Arrest Scenarios
-        </h1>
-        <p style="color:var(--color-gray-500);margin:0;font-size:0.875rem;">Real-time resuscitation simulations. Every decision is timed, logged, and debriefed.</p>
+    <!-- ── SELECTION VIEW ─────────────────────────────────── -->
+    <div class="view selection-view active" id="selectionView">
+        <div style="max-width:560px;margin:0 auto;width:100%;padding:1.25rem 1rem 2rem;">
+
+            <div class="section-header">
+                <h1><i class="bi bi-heart-pulse me-2" style="color:var(--color-teal)"></i>Cardiac Arrest Scenarios</h1>
+                <p>Real-time resuscitation simulations. Every decision is timed, logged, and reviewed in a full clinical debrief.</p>
+            </div>
+
+            <button class="scenario-select-card selected" onclick="selectTrack(this,'adult')">
+                <div class="scenario-card-icon">🫀</div>
+                <div>
+                    <div class="scenario-card-name">Adult ALS</div>
+                    <div class="scenario-card-meta">70kg male &middot; Cardiac arrest &middot; Bystander CPR in progress</div>
+                </div>
+            </button>
+
+            <button class="scenario-select-card" onclick="selectTrack(this,'newborn')">
+                <div class="scenario-card-icon">👶</div>
+                <div>
+                    <div class="scenario-card-name">Newborn Life Support</div>
+                    <div class="scenario-card-meta">Term infant &middot; Poor tone &middot; Not breathing at birth &middot; Scenario varies each run</div>
+                </div>
+            </button>
+
+            <button class="btn btn-primary w-100 py-3 mt-1 mb-3"
+                    style="font-size:0.95rem;font-weight:600;"
+                    onclick="openTriggerWarning()">
+                <i class="bi bi-play-fill me-2"></i>Start Scenario
+            </button>
+
+            <div class="welcome-disclaimer">
+                <i class="bi bi-shield-check me-2"></i>
+                <strong>Educational tool only.</strong> These are simulations for learning purposes.
+                Always refer to your trust protocols and JRCalc for clinical guidance.
+            </div>
+
+        </div>
     </div>
 
-    <div style="max-width:560px;margin:0 auto;padding:1.25rem 1rem 3rem;">
+    <!-- ── RUNNING VIEW ────────────────────────────────────── -->
+    <div class="view" id="runningView" style="flex-direction:column;">
 
-        <button class="scenario-select-card selected" onclick="selectTrack(this,'adult')">
-            <div class="scenario-card-icon">🫀</div>
+        <!-- Incident banner with clock -->
+        <div class="arrest-incident-banner">
             <div>
-                <div class="scenario-card-name">Adult ALS</div>
-                <div class="scenario-card-meta">70kg male &middot; Cardiac arrest &middot; Bystander CPR in progress</div>
+                <div class="arrest-track-label" id="trackLabel">Adult ALS</div>
+                <div class="arrest-patient-name" id="bannerPatientName">Male, approx. 58 years</div>
             </div>
-        </button>
-
-        <button class="scenario-select-card" onclick="selectTrack(this,'newborn')">
-            <div class="scenario-card-icon">👶</div>
-            <div>
-                <div class="scenario-card-name">Newborn Life Support</div>
-                <div class="scenario-card-meta">Term infant &middot; Poor tone &middot; Not breathing at birth &middot; Scenario varies each run</div>
+            <div class="arrest-clock-wrap">
+                <div class="arrest-clock-label">Elapsed</div>
+                <div class="arrest-clock" id="mainClock">00:00</div>
             </div>
-        </button>
-
-        <button class="btn btn-primary w-100 py-3 mt-1 mb-3"
-                style="font-size:0.95rem;font-weight:600;letter-spacing:0.3px;"
-                onclick="showTriggerWarning()">
-            <i class="bi bi-play-fill me-2"></i>Start Scenario
-        </button>
-
-        <div class="welcome-disclaimer">
-            <i class="bi bi-shield-check me-2"></i>
-            <strong>Educational tool only.</strong> These are simulations for learning purposes.
-            Always refer to your trust protocols and JRCalc for clinical guidance.
+            <div class="arrest-vitals-mini">
+                <div class="arrest-vital">
+                    <span class="arrest-vital-label" id="v1label">SpO₂</span>
+                    <span class="arrest-vital-value off" id="v1">---</span>
+                </div>
+                <div class="arrest-vital">
+                    <span class="arrest-vital-label" id="v2label">HR</span>
+                    <span class="arrest-vital-value off" id="v2">---</span>
+                </div>
+            </div>
         </div>
 
+        <!-- Scrollable content -->
+        <div class="arrest-content" id="arrestContent">
+
+            <!-- Golden minute (newborn only) -->
+            <div class="arrest-golden" id="goldenBanner" style="display:none">
+                <div class="arrest-golden-count" id="goldenCountdown">60</div>
+                <div>
+                    <div class="arrest-golden-title">⏱ Golden Minute</div>
+                    <div class="arrest-golden-sub">Dry · Stimulate · Airway · Assess</div>
+                </div>
+            </div>
+
+            <!-- SpO2 targets (newborn only) -->
+            <div class="arrest-spo2-targets" id="spo2Targets" style="display:none">
+                <div class="arrest-spo2-title">Pre-ductal SpO₂ Targets</div>
+                <div class="arrest-spo2-row">
+                    <div class="arrest-spo2-target" id="spo2t2"><span class="arrest-spo2-time">2 min</span><span class="arrest-spo2-val">≥65%</span></div>
+                    <div class="arrest-spo2-target" id="spo2t5"><span class="arrest-spo2-time">5 min</span><span class="arrest-spo2-val">≥85%</span></div>
+                    <div class="arrest-spo2-target" id="spo2t10"><span class="arrest-spo2-time">10 min</span><span class="arrest-spo2-val">≥90%</span></div>
+                </div>
+            </div>
+
+            <!-- Patient card -->
+            <div class="arrest-patient-card">
+                <div class="arrest-patient-title" id="patientName">Male, approx. 58 years</div>
+                <div class="arrest-patient-meta" id="patientMeta">Found collapsed in driveway · Bystander CPR commenced approx. 4 mins prior to arrival · Unknown downtime</div>
+            </div>
+
+            <!-- ECG (adult only) -->
+            <div class="arrest-ecg-panel" id="ecgContainer" style="display:none">
+                <div class="arrest-ecg-label">II · 25mm/s · 10mm/mV</div>
+                <canvas class="arrest-ecg-canvas" id="ecgCanvas"></canvas>
+            </div>
+
+            <!-- NB monitor (newborn only) -->
+            <div class="arrest-nb-monitor" id="nbMonitor" style="display:none">
+                <div class="arrest-nb-hr">
+                    <div class="arrest-nb-hr-label">Heart Rate</div>
+                    <div class="arrest-nb-hr-value" id="nbHrValue">---</div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:0.55rem;color:#4a6a8a;margin-top:2px;">beats/min</div>
+                </div>
+                <div class="arrest-nb-divider"></div>
+                <div>
+                    <div class="arrest-nb-status-title warn" id="nbStatusTitle">Awaiting Assessment</div>
+                    <div class="arrest-nb-status-sub" id="nbStatusSub">Assess HR by auscultation over the chest</div>
+                </div>
+            </div>
+
+            <!-- Algo step (newborn only) -->
+            <div class="arrest-algo-step" id="algoStep" style="display:none">
+                <div class="arrest-algo-label">Current Step</div>
+                <div class="arrest-algo-text" id="algoStepText">Start clock · <strong>Dry, wrap and stimulate</strong> · Keep warm · Assess colour, tone, breathing and heart rate</div>
+            </div>
+
+            <!-- CPR indicator -->
+            <div class="arrest-cpr-bar" id="cprIndicator" style="display:none">
+                <div class="arrest-cpr-dot" id="cprBeat"></div>
+                <span class="arrest-cpr-text" id="cprText">CPR IN PROGRESS</span>
+                <span class="arrest-cpr-rate" id="cprRate">~110 bpm</span>
+            </div>
+
+            <!-- Progress bar -->
+            <div class="arrest-progress-bar">
+                <span class="arrest-progress-label" id="checkLabel">Next rhythm check</span>
+                <div class="arrest-progress-track"><div class="arrest-progress-fill" id="progressFill" style="width:0%"></div></div>
+                <span class="arrest-progress-time" id="nextCheckTime">--:--</span>
+            </div>
+
+            <!-- Action button -->
+            <button class="arrest-action-btn" onclick="openActionModal()">
+                <i class="bi bi-clipboard2-pulse"></i>
+                Perform Action / Assessment
+            </button>
+
+            <!-- Event log -->
+            <div>
+                <div class="arrest-log-label">Event Log</div>
+                <div id="eventLog"></div>
+            </div>
+
+        </div>
     </div>
+
+    <!-- ── DEBRIEF VIEW ────────────────────────────────────── -->
+    <div class="view debrief-view" id="debriefView">
+        <div style="max-width:600px;margin:0 auto;width:100%;">
+
+            <div class="section-header mb-3">
+                <h1>Scenario Complete</h1>
+                <p id="debriefSub" style="color:var(--color-gray-600);font-size:0.875rem;"></p>
+            </div>
+
+            <div id="debriefVariant"></div>
+
+            <div class="debrief-stat-grid">
+                <div class="debrief-stat-card"><span class="debrief-stat-val" id="statA">-</span><span class="debrief-stat-label" id="statALabel">-</span></div>
+                <div class="debrief-stat-card"><span class="debrief-stat-val" id="statB">-</span><span class="debrief-stat-label" id="statBLabel">-</span></div>
+                <div class="debrief-stat-card"><span class="debrief-stat-val" id="statC">-</span><span class="debrief-stat-label" id="statCLabel">-</span></div>
+            </div>
+
+            <div class="debrief-hollie">
+                <div class="debrief-hollie-header">💬 Hollie's Summary</div>
+                <div class="debrief-hollie-text" id="hollieSummary">—</div>
+            </div>
+
+            <div class="debrief-section-card">
+                <div class="debrief-section-title good"><i class="bi bi-check-circle"></i> What You Did Well</div>
+                <div id="debriefGood"></div>
+            </div>
+
+            <div class="debrief-section-card">
+                <div class="debrief-section-title warn"><i class="bi bi-exclamation-triangle"></i> Areas to Review</div>
+                <div id="debriefWarn"></div>
+            </div>
+
+            <div class="debrief-section-card">
+                <div class="debrief-section-title info"><i class="bi bi-clock-history"></i> Decision Timeline</div>
+                <div id="debriefTimeline"></div>
+            </div>
+
+            <div class="d-flex gap-2 mt-3 pb-5">
+                <button class="btn btn-primary flex-grow-1 py-2" onclick="tryAgain()">Try Again</button>
+                <button class="btn btn-outline-secondary flex-grow-1 py-2" onclick="goBack()"><i class="bi bi-arrow-left me-1"></i>All Scenarios</button>
+            </div>
+
+        </div>
+    </div>
+
 </div>
 
 <!-- ==================== FOOTER ==================== -->
@@ -491,250 +704,50 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
     </div>
 </footer>
 
-<!-- ==================== SCENARIO SHELL ==================== -->
-<!-- The scenario shell is dark themed and full screen.     -->
-<!-- It activates on scenario start and covers the page.   -->
-<div class="scenario-shell" id="scenarioShell">
-<!-- TRIGGER WARNING OVERLAY -->
-<div class="trigger-overlay hidden" id="triggerOverlay">
-  <div class="trigger-card">
-    <div class="trigger-header">
-      <div class="trigger-header-icon">⚠️</div>
-      <div>
-        <div class="trigger-header-title">Before You Begin</div>
-        <div class="trigger-header-sub">Simulated Cardiac Arrest Scenario</div>
-      </div>
+<!-- ==================== TRIGGER WARNING MODAL ==================== -->
+<div class="modal fade" id="triggerModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background:linear-gradient(145deg,#1a1a2e 0%,#16213e 100%);border:1px solid #0f3460;color:white;">
+            <div class="modal-header" style="border-bottom:1px solid #0f3460;">
+                <h5 class="modal-title" style="color:#ffc107;font-family:'JetBrains Mono',monospace;font-size:0.9rem;">
+                    ⚠️ Before You Begin
+                </h5>
+            </div>
+            <div class="modal-body" style="font-size:0.875rem;line-height:1.75;color:#c0c0c0;">
+                You are about to enter a <strong style="color:#ffc107;">simulated cardiac arrest scenario</strong>. This is designed to put you under real pressure — because that's exactly the point.<br><br>
+                You may feel <strong style="color:#ffc107;">frightened, overwhelmed, or not ready</strong> to face this on the road. That feeling is completely normal. It means the simulation is doing its job.<br><br>
+                <em style="color:#2B8A9C;">Take a breath. Think about your training. Work through it steadily.</em><br><br>
+                These patients are not real. No one gets hurt here. Every mistake is a learning opportunity, not a consequence.
+            </div>
+            <div class="modal-footer" style="border-top:1px solid #0f3460;flex-direction:column;gap:0.5rem;">
+                <button type="button" class="btn btn-primary w-100" onclick="confirmStart()">I'm ready — let's do this</button>
+                <button type="button" class="btn btn-outline-secondary w-100" data-bs-dismiss="modal">Go back</button>
+            </div>
+        </div>
     </div>
-    <div class="trigger-body">
-      <div class="trigger-text">
-        You are about to enter a <strong>simulated cardiac arrest scenario</strong>. This is designed to put you under real pressure — because that's exactly the point.<br><br>
-        You may feel <strong>frightened, overwhelmed, or not ready</strong> to face this on the road. That feeling is completely normal. It means the simulation is doing its job.<br><br>
-        <em>Take a breath. Think about your training. Work through it steadily.</em><br><br>
-        These patients are not real. No one gets hurt here. Every mistake is a learning opportunity, not a consequence.
-      </div>
-      <div class="trigger-divider"></div>
-      <button class="trigger-ready-btn" onclick="confirmReady()">I'm ready — let's do this</button>
-      <button class="trigger-back-btn" onclick="dismissTrigger()">Go back and choose a different scenario</button>
-    </div>
-  </div>
 </div>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="header-left">
-    <span class="logo">PARAMIND</span>
-    <span class="scenario-badge" id="trackBadge">Adult ALS</span>
-  </div>
-  <div class="clock-bar">
-    <div class="clock-label">Elapsed</div>
-    <div class="clock neutral" id="mainClock">00:00</div>
-  </div>
-  <div class="vitals-bar">
-    <div class="vital"><span class="vital-label" id="v1label">SpO₂</span><span class="vital-value off" id="v1">---</span></div>
-    <div class="vital-divider"></div>
-    <div class="vital"><span class="vital-label" id="v2label">HR</span><span class="vital-value off" id="v2">---</span></div>
-  </div>
+<!-- ==================== ACTION MODAL (bottom sheet) ==================== -->
+<div class="modal fade" id="arrestActionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="arrest-modal-header">
+                <span class="arrest-modal-title"><i class="bi bi-clipboard2-pulse me-2"></i>Perform Action / Assessment</span>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="arrest-modal-body" id="actionModalBody">
+                <div id="responsePanel" style="display:none"></div>
+                <div id="actionGroups"></div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- MAIN -->
-<div class="main">
-
-  <!-- GOLDEN MINUTE (newborn only) -->
-  <div class="golden-banner hidden" id="goldenBanner">
-    <div class="golden-countdown" id="goldenCountdown">60</div>
-    <div class="golden-text">
-      <div class="golden-title">⏱ Golden Minute</div>
-      <div class="golden-sub">Dry · Stimulate · Airway · Assess — minimise intervention time</div>
+<!-- ==================== RHYTHM / HR OVERLAY ==================== -->
+<div class="arrest-overlay" id="rhythmOverlay">
+    <div class="arrest-overlay-card" id="rhythmCard">
+        <!-- Content injected by JS -->
     </div>
-  </div>
-
-  <!-- SPO2 TARGETS (newborn only) -->
-  <div class="spo2-targets" id="spo2Targets">
-    <div class="spo2-title">Pre-ductal SpO₂ Targets</div>
-    <div class="spo2-row">
-      <div class="spo2-target" id="spo2t2"><span class="spo2-time">2 min</span><span class="spo2-val">≥65%</span></div>
-      <div class="spo2-target" id="spo2t5"><span class="spo2-time">5 min</span><span class="spo2-val">≥85%</span></div>
-      <div class="spo2-target" id="spo2t10"><span class="spo2-time">10 min</span><span class="spo2-val">≥90%</span></div>
-    </div>
-  </div>
-
-  <!-- PATIENT BANNER -->
-  <div class="patient-banner">
-    <div class="patient-name" id="patientName">Male, approx. 58 years</div>
-    <div class="patient-meta" id="patientMeta">Found collapsed in driveway · Bystander CPR commenced approx. 4 mins prior to arrival · Unknown downtime</div>
-  </div>
-
-  <!-- ADULT ECG -->
-  <div class="ecg-container" id="ecgContainer">
-    <div class="ecg-label">II · 25mm/s · 10mm/mV</div>
-    <canvas class="ecg-canvas" id="ecgCanvas"></canvas>
-  </div>
-
-  <!-- NEWBORN HR MONITOR -->
-  <div class="nb-monitor" id="nbMonitor">
-    <div class="nb-hr-display">
-      <div class="nb-hr-label">Heart Rate</div>
-      <div class="nb-hr-value" id="nbHrValue">---</div>
-      <div class="nb-hr-unit">beats/min</div>
-    </div>
-    <div class="nb-hr-divider"></div>
-    <div class="nb-status">
-      <div class="nb-status-title warn" id="nbStatusTitle">Awaiting Assessment</div>
-      <div class="nb-status-sub" id="nbStatusSub">Assess HR by auscultation over the chest or palpation of the umbilical cord</div>
-    </div>
-  </div>
-
-  <!-- NEWBORN ALGORITHM STEP -->
-  <div class="algo-step show" id="algoStep">
-    <div class="algo-step-label">Current Step</div>
-    <div class="algo-step-text" id="algoStepText">Start clock · <strong>Dry, wrap and stimulate</strong> · Keep warm · Assess colour, tone, breathing and heart rate</div>
-  </div>
-
-  <!-- CPR INDICATOR -->
-  <div class="cpr-indicator" id="cprIndicator" style="display:none">
-    <div class="cpr-beat" id="cprBeat"></div>
-    <span class="cpr-text" id="cprText">CPR IN PROGRESS</span>
-    <span class="cpr-rate" id="cprRate">~110 bpm</span>
-  </div>
-
-  <!-- NEXT CHECK BAR -->
-  <div class="next-check-bar">
-    <span class="next-check-label" id="checkLabel">Next check</span>
-    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-    <span class="next-check-time" id="nextCheckTime">0:30</span>
-  </div>
-
-  <!-- ACTION BUTTON -->
-  <div class="action-row">
-    <button class="action-main-btn" onclick="openActionModal()">
-      <i class="bi bi-clipboard2-pulse"></i>
-      Perform Action / Assessment
-    </button>
-  </div>
-
-  <!-- EVENT LOG -->
-  <div class="log-section">
-    <div class="section-label">Event Log</div>
-    <div id="eventLog"></div>
-  </div>
-</div>
-
-<!-- ═══ ACTION MODAL ═══ -->
-<div class="modal-backdrop-custom hidden" id="actionModalBackdrop" onclick="closeActionModal(event)">
-  <div class="action-modal">
-    <div class="modal-header-custom">
-      <i class="bi bi-clipboard2-pulse" style="color:var(--teal);font-size:16px"></i>
-      <span class="modal-title-custom">Perform Action / Assessment</span>
-      <button class="modal-close-btn" onclick="closeModal()"><i class="bi bi-x-lg"></i></button>
-    </div>
-    <div class="modal-body-custom" id="modalBody">
-      <div id="responsePanel" style="display:none"></div>
-      <div id="actionGroups"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ RHYTHM CHECK OVERLAY (adult) ═══ -->
-<div class="rhythm-overlay hidden" id="rhythmOverlay">
-  <div class="hold-cpr-banner">HOLD CPR</div>
-  <div class="rhythm-check-sub">Rhythm Check — Cycle <span id="cycleNum">1</span></div>
-  <!-- ECG strip — always visible throughout all stages -->
-  <div class="ecg-rhythm-display">
-    <canvas class="rhythm-strip-canvas" id="rhythmCanvas"></canvas>
-    <div class="rhythm-strip-label">25mm/s · 10mm/mV · Lead II</div>
-  </div>
-  <!-- Stage feedback (correct/incorrect result shown between stages) -->
-  <div id="stageResult" style="display:none"></div>
-  <!-- Stage 1: Pulse check -->
-  <div class="pulse-check-wrap" id="stagePulse">
-    <div class="pulse-check-q">Is a pulse check indicated for this rhythm?</div>
-    <div class="pulse-check-hint">Check for carotid pulse for no more than 10 seconds — but only when appropriate to do so</div>
-    <div class="pulse-check-btns">
-      <button class="pulse-check-btn yes" onclick="answerPulseCheck(true)">✓ Yes — Check Pulse</button>
-      <button class="pulse-check-btn no" onclick="answerPulseCheck(false)">✗ No — Not Indicated</button>
-    </div>
-  </div>
-  <!-- Stage 2: Rhythm identification -->
-  <div style="display:none;width:100%;max-width:560px;" id="stageRhythm">
-    <div class="rhythm-question">What rhythm is this?</div>
-    <div class="rhythm-options" id="rhythmOptions"></div>
-  </div>
-  <!-- Stage 3: Shock decision -->
-  <div style="display:none;width:100%;max-width:560px;" id="stageShock"></div>
-</div>
-
-<!-- ═══ HR REASSESSMENT OVERLAY (newborn) ═══ -->
-<div class="hr-overlay hidden" id="hrOverlay">
-  <div class="hr-overlay-title">Reassess Heart Rate</div>
-  <div class="hr-overlay-sub">Auscultation over chest · 6-second count</div>
-
-  <!-- STEP 1: Listen button -->
-  <div class="auscult-card" id="auscultCard">
-    <div class="auscult-method">
-      Place stethoscope over the <strong>left side of the chest</strong>.<br>
-      Count beats for 6 seconds — then multiply by 10.<br>
-      Do not use cord palpation as the sole method.
-    </div>
-    <button class="auscult-listen-btn" id="listenBtn" onclick="startListening()">
-      <span class="scope-icon">🩺</span>
-      <span>Tap to Auscultate</span>
-      <span class="scope-sub">6-second count will begin</span>
-    </button>
-    <button onclick="skipHRCheck()" style="width:100%;margin-top:10px;padding:10px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font-family:var(--cond);font-weight:600;font-size:12px;letter-spacing:1px;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--text-dim)'" onmouseout="this.style.borderColor='var(--border)'">Skip this time</button>
-  </div>
-
-  <!-- STEP 2: Active listening -->
-  <div class="auscult-active" id="auscultActive">
-    <div class="auscult-countdown-label">Counting for</div>
-    <div class="auscult-countdown" id="auscultCountdown">6</div>
-    <div class="pulse-ring-wrap">
-      <div class="pulse-ring" id="pulseRing">
-        <div class="pulse-ring-inner"></div>
-      </div>
-    </div>
-    <div class="auscult-beat-count">Beats counted: <span id="beatCount">0</span></div>
-    <div class="auscult-instruction">Listen and count each heartbeat…</div>
-  </div>
-
-  <!-- STEP 3: Count entry -->
-  <div class="hr-count-section" id="hrCountSection">
-    <div class="hr-multiply-hint" id="hrMultiplyHint">You heard <strong id="heardBeats">—</strong> beats in 6 seconds</div>
-    <div class="hr-count-label">How many beats did you count?</div>
-    <div class="hr-count-grid" id="hrCountGrid"></div>
-    <button class="hr-count-none" onclick="submitHRCount(0)">I could not detect a heartbeat</button>
-  </div>
-
-  <div id="hrResponseArea"></div>
-</div>
-
-<!-- ═══ DEBRIEF ═══ -->
-<div class="debrief-overlay hidden" id="debriefOverlay">
-  <div class="debrief-inner">
-    <div class="debrief-title">Scenario Complete</div>
-    <div class="debrief-subtitle" id="debriefSub">—</div>
-    <div class="stat-row">
-      <div class="stat-box"><span class="stat-val" id="statA">-</span><span class="stat-label" id="statALabel">Correct</span></div>
-      <div class="stat-box"><span class="stat-val" id="statB">-</span><span class="stat-label" id="statBLabel">Actions</span></div>
-      <div class="stat-box"><span class="stat-val" id="statC">-</span><span class="stat-label" id="statCLabel">Checks</span></div>
-    </div>
-    <div class="hollie-note"><div class="hollie-note-header">💬 Hollie's Summary</div><div class="hollie-note-text" id="hollieSummary">—</div></div>
-    <div class="debrief-section"><div class="debrief-sec-title good">✓ What You Did Well</div><div id="debriefGood"></div></div>
-    <div class="debrief-section"><div class="debrief-sec-title warn">⚠ Areas to Review</div><div id="debriefWarn"></div></div>
-    <div class="debrief-section"><div class="debrief-sec-title info">📋 Decision Timeline</div><div id="debriefTimeline"></div></div>
-    <div class="bottom-btns">
-      <button class="btn btn-primary" style="flex:2" onclick="location.reload()">Try Again</button>
-      <button class="btn btn-secondary" style="flex:1">📄 CPD Certificate</button>
-    </div>
-  </div>
-</div>
-
-<!-- DEMO BAR -->
-<div class="demo-bar">
-  <span class="demo-label">🔶 Demo</span>
-  <button class="demo-btn" onclick="openActionModal()">Actions</button>
-  <button class="demo-btn" onclick="showDebrief()">Debrief</button>
-</div>
-
 </div>
 
 <!-- ==================== SCRIPTS ==================== -->
@@ -758,38 +771,110 @@ const firebaseConfig = {
 if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 const auth = firebase.auth();
 const db   = firebase.firestore();
+auth.onAuthStateChanged((user) => { if (!user) window.location.href = 'login.html'; });
 
-// ==================== AUTH ====================
-auth.onAuthStateChanged((user) => {
-    if (!user) { window.location.href = 'login.html'; }
-});
-
-// ==================== SHELL MANAGEMENT ====================
-function activateScenarioShell() {
-    document.getElementById('scenarioShell').classList.add('active');
-    document.querySelector('nav.member-navbar').style.display = 'none';
-    document.querySelector('.main-container').style.display = 'none';
-    document.querySelector('footer.member-footer').style.display = 'none';
-    const mc = document.getElementById('menuContainer');
-    if (mc) mc.style.display = 'none';
-    document.body.style.overflow = 'hidden';
+// ==================== VIEW MANAGEMENT ====================
+function showView(id) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
 }
 
-function deactivateScenarioShell() {
-    document.getElementById('scenarioShell').classList.remove('active');
-    document.querySelector('nav.member-navbar').style.display = '';
-    document.querySelector('.main-container').style.display = '';
-    document.querySelector('footer.member-footer').style.display = '';
-    const mc = document.getElementById('menuContainer');
-    if (mc) mc.style.display = '';
-    document.body.style.overflow = '';
+// ==================== TRACK SELECTION ====================
+function selectTrack(btn, track) {
+    document.querySelectorAll('.scenario-select-card').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    S.track = track;
 }
 
-// ==================== SCENARIO ENGINE ====================
+// ==================== TRIGGER WARNING ====================
+function openTriggerWarning() {
+    new bootstrap.Modal(document.getElementById('triggerModal')).show();
+}
+
+function confirmStart() {
+    bootstrap.Modal.getInstance(document.getElementById('triggerModal')).hide();
+    if (S.track === 'newborn') {
+        const variants = ['standard','slow','compression','airway'];
+        S.nbVariant = variants[Math.floor(Math.random() * variants.length)];
+    }
+    showView('runningView');
+    startScenario();
+}
+
+// ==================== ACTION MODAL ====================
+function openActionModal() {
+    if (!S.running) return;
+    document.getElementById('responsePanel').style.display = 'none';
+    document.getElementById('actionGroups').style.display = 'block';
+    new bootstrap.Modal(document.getElementById('arrestActionModal')).show();
+}
+
+function closeActionModal() {
+    const m = bootstrap.Modal.getInstance(document.getElementById('arrestActionModal'));
+    if (m) m.hide();
+}
+
+// ==================== RHYTHM / HR OVERLAY ====================
+function openRhythmOverlay() {
+    document.getElementById('rhythmOverlay').classList.add('active');
+}
+function closeRhythmOverlay() {
+    document.getElementById('rhythmOverlay').classList.remove('active');
+    document.getElementById('rhythmCard').innerHTML = '';
+}
+
+// ==================== GO BACK / TRY AGAIN ====================
+function goBack() { showView('selectionView'); }
+function tryAgain() { location.reload(); }
+
+</script>
 
 // ═══════════════════════════════════
 // STATE
 // ═══════════════════════════════════
+const S = {
+  track: 'adult',
+  running: false,
+  elapsed: 0,
+  nextCheckIn: 120,
+  checkCycle: 0,
+  clockInterval: null,
+  actionsLog: [],
+  actionsCount: 0,
+  done: {},          // completed non-repeatable actions
+  // adult
+  accessEstablished: null,
+  adrenalineGiven: false,
+  adrenalineTime: null,          // elapsed seconds when first given
+  adrenalineAfterShocks: null,   // how many shocks had been delivered when given
+  shocksDelivered: 0,
+  shockDecisions: [],            // [{cycle, rhythm, shocked, correct}]
+  amiodaroneGiven: false,
+  defibPadsOn: false,
+  igelIn: false,
+  correctRhythms: 0,
+  rhythmCycle: 0,
+  rhythmStarted: false,
+  currentDisplayRhythm: 'vf',
+  rhythmCorrect: null,
+  // newborn
+  nbDried: false,
+  nbAirwayOpened: false,
+  nbInflationsDone: false,
+  nbChestMoving: false,
+  nbVariant: null,
+  nbLastHRCheckAt: undefined,
+  nbSpO2On: false,
+  nbEcgOn: false,
+  nbCompressions: false,
+  nbCurrentHR: 'undetectable',
+  nbAlgoPhase: 0,
+  // 0=initial 1=inflation 2=reassess-chest 3=ventilation 4=compressions 5=post-rosc
+  nbHrChecks: 0,
+  nbCorrectHrCalls: 0,
+  goldenInterval: null,
+  goldenRemaining: 60
+};
 
 const NB_ALGO_PHASES = [
   'Start clock · Dry, wrap and stimulate · Keep warm · Assess colour, tone, breathing and heart rate',
@@ -804,7 +889,7 @@ const NB_ALGO_PHASES = [
 // INTRO / TRACK
 // ═══════════════════════════════════
 function showTriggerWarning() {
-  document.getElementById('triggerOverlay').classList.remove('hidden');
+  // handled by Bootstrap modal in page
 }
 
 function confirmReady() {
@@ -817,13 +902,10 @@ function confirmReady() {
 }
 
 function dismissTrigger() {
-  document.getElementById('triggerOverlay').classList.add('hidden');
-  deactivateScenarioShell();
+  // handled by Bootstrap modal in page
 }
 
-function selectTrack(btn, track) {
-  document.querySelectorAll('.scenario-select-card').forEach(b=>b.classList.remove('selected'));
-  btn.classList.add('selected');
+function selectTrackEngine(btn, track) {
   S.track = track;
 }
 
@@ -930,7 +1012,7 @@ function formatTime(s) {
 function updateClockDisplay() {
   const el = document.getElementById('mainClock');
   el.textContent = formatTime(S.elapsed);
-  el.className = 'clock ' + (S.elapsed < 360 ? 'neutral' : S.elapsed < 600 ? 'amber' : 'red');
+  el.className = 'arrest-clock ' + (S.elapsed < 360 ? '' : S.elapsed < 600 ? 'amber' : 'red');
 }
 
 function updateProgress() {
@@ -1001,14 +1083,8 @@ function drawECG() {
 // ═══════════════════════════════════
 // ACTION MODAL
 // ═══════════════════════════════════
-function openActionModal() {
-  if (!S.running) return;
-  document.getElementById('responsePanel').style.display = 'none';
-  document.getElementById('actionGroups').style.display = 'block';
-  document.getElementById('actionModalBackdrop').classList.remove('hidden');
-}
-function closeModal() { document.getElementById('actionModalBackdrop').classList.add('hidden'); }
-function closeActionModal(e) { if(e.target===document.getElementById('actionModalBackdrop'))closeModal(); }
+function closeModal() { closeActionModal(); }
+
 
 function rebuildActionGroups() {
   document.getElementById('actionGroups').innerHTML = S.track === 'newborn'
@@ -1021,66 +1097,66 @@ function rebuildActionGroups() {
 // ═══════════════════════════════════
 function buildNewbornActions() {
   return `
-  <div class="action-group">
-    <div class="action-group-title">Initial Assessment</div>
-    <div class="action-grid">
-      <button class="action-option" data-action="nb_tone" onclick="doAction(this)"><i class="bi bi-person-check"></i><span>Assess Tone</span></button>
-      <button class="action-option" data-action="nb_breathing" onclick="doAction(this)"><i class="bi bi-lungs"></i><span>Assess Breathing / Cry</span></button>
-      <button class="action-option" data-action="nb_hr_initial" onclick="doAction(this)"><i class="bi bi-heart-pulse"></i><span>Assess Heart Rate</span></button>
-      <button class="action-option" data-action="nb_colour" onclick="doAction(this)"><i class="bi bi-droplet"></i><span>Assess Colour</span></button>
-      <button class="action-option" data-action="nb_gestation" onclick="doAction(this)"><i class="bi bi-calendar-check"></i><span>Confirm Gestational Age</span></button>
-      <button class="action-option" data-action="nb_meconium" onclick="doAction(this)"><i class="bi bi-search"></i><span>Check for Meconium</span></button>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">Initial Assessment</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="nb_tone" onclick="doAction(this)"><i class="bi bi-person-check"></i><span>Assess Tone</span></button>
+      <button class="arrest-action-option" data-action="nb_breathing" onclick="doAction(this)"><i class="bi bi-lungs"></i><span>Assess Breathing / Cry</span></button>
+      <button class="arrest-action-option" data-action="nb_hr_initial" onclick="doAction(this)"><i class="bi bi-heart-pulse"></i><span>Assess Heart Rate</span></button>
+      <button class="arrest-action-option" data-action="nb_colour" onclick="doAction(this)"><i class="bi bi-droplet"></i><span>Assess Colour</span></button>
+      <button class="arrest-action-option" data-action="nb_gestation" onclick="doAction(this)"><i class="bi bi-calendar-check"></i><span>Confirm Gestational Age</span></button>
+      <button class="arrest-action-option" data-action="nb_meconium" onclick="doAction(this)"><i class="bi bi-search"></i><span>Check for Meconium</span></button>
     </div>
   </div>
-  <div class="action-group">
-    <div class="action-group-title">Airway & Warmth</div>
-    <div class="action-grid">
-      <button class="action-option" data-action="nb_dry" onclick="doAction(this)"><i class="bi bi-thermometer-sun"></i><span>Dry &amp; Stimulate</span></button>
-      <button class="action-option" data-action="nb_warm" onclick="doAction(this)"><i class="bi bi-box"></i><span>Wrap &amp; Keep Warm</span></button>
-      <button class="action-option" data-action="nb_airway" onclick="doAction(this)"><i class="bi bi-wind"></i><span>Neutral Airway Position</span></button>
-      <button class="action-option" data-action="nb_suction" onclick="doAction(this)"><i class="bi bi-droplet-half"></i><span>Suction (meconium / secretions)</span></button>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">Airway & Warmth</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="nb_dry" onclick="doAction(this)"><i class="bi bi-thermometer-sun"></i><span>Dry &amp; Stimulate</span></button>
+      <button class="arrest-action-option" data-action="nb_warm" onclick="doAction(this)"><i class="bi bi-box"></i><span>Wrap &amp; Keep Warm</span></button>
+      <button class="arrest-action-option" data-action="nb_airway" onclick="doAction(this)"><i class="bi bi-wind"></i><span>Neutral Airway Position</span></button>
+      <button class="arrest-action-option" data-action="nb_suction" onclick="doAction(this)"><i class="bi bi-droplet-half"></i><span>Suction (meconium / secretions)</span></button>
     </div>
   </div>
-  <div class="action-group">
-    <div class="action-group-title">Breathing Support</div>
-    <div class="action-grid">
-      <button class="action-option" data-action="nb_inflations" onclick="doAction(this)"><i class="bi bi-arrow-up-circle"></i><span>5 Inflation Breaths</span></button>
-      <button class="action-option" data-action="nb_chest_check" onclick="doAction(this)"><i class="bi bi-eye"></i><span>Check Chest Movement</span></button>
-      <button class="action-option" data-action="nb_reposition" onclick="doAction(this)"><i class="bi bi-arrow-repeat"></i><span>Reposition — Mask / Head / Jaw</span></button>
-      <button class="action-option" data-action="nb_2person" onclick="doAction(this)"><i class="bi bi-people"></i><span>2-Person Mask Technique</span></button>
-      <button class="action-option" data-action="nb_lma" onclick="doAction(this)"><i class="bi bi-capsule"></i><span>Consider LMA / iGel</span></button>
-      <button class="action-option" data-action="nb_ventilation" onclick="doAction(this)"><i class="bi bi-lungs-fill"></i><span>Ventilation Breaths (ongoing)</span></button>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">Breathing Support</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="nb_inflations" onclick="doAction(this)"><i class="bi bi-arrow-up-circle"></i><span>5 Inflation Breaths</span></button>
+      <button class="arrest-action-option" data-action="nb_chest_check" onclick="doAction(this)"><i class="bi bi-eye"></i><span>Check Chest Movement</span></button>
+      <button class="arrest-action-option" data-action="nb_reposition" onclick="doAction(this)"><i class="bi bi-arrow-repeat"></i><span>Reposition — Mask / Head / Jaw</span></button>
+      <button class="arrest-action-option" data-action="nb_2person" onclick="doAction(this)"><i class="bi bi-people"></i><span>2-Person Mask Technique</span></button>
+      <button class="arrest-action-option" data-action="nb_lma" onclick="doAction(this)"><i class="bi bi-capsule"></i><span>Consider LMA / iGel</span></button>
+      <button class="arrest-action-option" data-action="nb_ventilation" onclick="doAction(this)"><i class="bi bi-lungs-fill"></i><span>Ventilation Breaths (ongoing)</span></button>
     </div>
   </div>
-  <div class="action-group">
-    <div class="action-group-title">Monitoring</div>
-    <div class="action-grid">
-      <button class="action-option" data-action="nb_spo2" onclick="doAction(this)"><i class="bi bi-activity"></i><span>Attach SpO₂ Probe</span></button>
-      <button class="action-option" data-action="nb_ecg" onclick="doAction(this)"><i class="bi bi-heart-pulse"></i><span>Attach ECG (term only)</span></button>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">Monitoring</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="nb_spo2" onclick="doAction(this)"><i class="bi bi-activity"></i><span>Attach SpO₂ Probe</span></button>
+      <button class="arrest-action-option" data-action="nb_ecg" onclick="doAction(this)"><i class="bi bi-heart-pulse"></i><span>Attach ECG (term only)</span></button>
     </div>
   </div>
-  <div class="action-group">
-    <div class="action-group-title">Circulation</div>
-    <div class="action-grid">
-      <button class="action-option" data-action="nb_compressions" onclick="doAction(this)"><i class="bi bi-hand-index-thumb"></i><span>Commence 3:1 Compressions</span></button>
-      <button class="action-option" data-action="nb_o2_100" onclick="doAction(this)"><i class="bi bi-droplet-fill"></i><span>Increase O₂ to 100%</span></button>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">Circulation</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="nb_compressions" onclick="doAction(this)"><i class="bi bi-hand-index-thumb"></i><span>Commence 3:1 Compressions</span></button>
+      <button class="arrest-action-option" data-action="nb_o2_100" onclick="doAction(this)"><i class="bi bi-droplet-fill"></i><span>Increase O₂ to 100%</span></button>
     </div>
   </div>
-  <div class="action-group">
-    <div class="action-group-title">Maternal History</div>
-    <div class="action-grid">
-      <button class="action-option" data-action="nb_antenatal" onclick="doAction(this)"><i class="bi bi-card-list"></i><span>Antenatal History</span></button>
-      <button class="action-option" data-action="nb_birth_hx" onclick="doAction(this)"><i class="bi bi-clock-history"></i><span>Birth Mechanism / Duration</span></button>
-      <button class="action-option" data-action="nb_mat_meds" onclick="doAction(this)"><i class="bi bi-capsule-pill"></i><span>Maternal Medications</span></button>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">Maternal History</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="nb_antenatal" onclick="doAction(this)"><i class="bi bi-card-list"></i><span>Antenatal History</span></button>
+      <button class="arrest-action-option" data-action="nb_birth_hx" onclick="doAction(this)"><i class="bi bi-clock-history"></i><span>Birth Mechanism / Duration</span></button>
+      <button class="arrest-action-option" data-action="nb_mat_meds" onclick="doAction(this)"><i class="bi bi-capsule-pill"></i><span>Maternal Medications</span></button>
     </div>
   </div>
-  <div class="action-group">
-    <div class="action-group-title">Team & Communication</div>
-    <div class="action-grid">
-      <button class="action-option" data-action="nb_help" onclick="doAction(this)"><i class="bi bi-broadcast"></i><span>Is Help Needed? (Pre-alert)</span></button>
-      <button class="action-option" data-action="nb_parents" onclick="doAction(this)"><i class="bi bi-heart"></i><span>Update Parents</span></button>
-      <button class="action-option" data-action="nb_transport" onclick="doAction(this)"><i class="bi bi-truck"></i><span>Transport Decision</span></button>
-      <button class="action-option" data-action="nb_records" onclick="doAction(this)"><i class="bi bi-file-text"></i><span>Complete Records</span></button>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">Team & Communication</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="nb_help" onclick="doAction(this)"><i class="bi bi-broadcast"></i><span>Is Help Needed? (Pre-alert)</span></button>
+      <button class="arrest-action-option" data-action="nb_parents" onclick="doAction(this)"><i class="bi bi-heart"></i><span>Update Parents</span></button>
+      <button class="arrest-action-option" data-action="nb_transport" onclick="doAction(this)"><i class="bi bi-truck"></i><span>Transport Decision</span></button>
+      <button class="arrest-action-option" data-action="nb_records" onclick="doAction(this)"><i class="bi bi-file-text"></i><span>Complete Records</span></button>
     </div>
   </div>`;
 }
@@ -1090,57 +1166,57 @@ function buildNewbornActions() {
 // ═══════════════════════════════════
 function buildAdultActions() {
   return `
-  <div class="action-group">
-    <div class="action-group-title">Airway & Breathing</div>
-    <div class="action-grid">
-      <button class="action-option" data-action="airway" onclick="doAction(this)"><i class="bi bi-wind"></i><span>Airway Assessment</span></button>
-      <button class="action-option" data-action="bvm" onclick="doAction(this)"><i class="bi bi-lungs"></i><span>BVM / OPA</span></button>
-      <button class="action-option" data-action="igel" onclick="doAction(this)"><i class="bi bi-capsule"></i><span>Attempt i-gel</span></button>
-      <button class="action-option" data-action="etco2" onclick="doAction(this)"><i class="bi bi-activity"></i><span>Attach EtCO₂</span></button>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">Airway & Breathing</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="airway" onclick="doAction(this)"><i class="bi bi-wind"></i><span>Airway Assessment</span></button>
+      <button class="arrest-action-option" data-action="bvm" onclick="doAction(this)"><i class="bi bi-lungs"></i><span>BVM / OPA</span></button>
+      <button class="arrest-action-option" data-action="igel" onclick="doAction(this)"><i class="bi bi-capsule"></i><span>Attempt i-gel</span></button>
+      <button class="arrest-action-option" data-action="etco2" onclick="doAction(this)"><i class="bi bi-activity"></i><span>Attach EtCO₂</span></button>
     </div>
   </div>
-  <div class="action-group">
-    <div class="action-group-title">Circulation & Access</div>
-    <div class="action-grid">
-      <button class="action-option" data-action="rhythm_check" onclick="doAction(this)"><i class="bi bi-activity"></i><span>Rhythm Check</span></button>
-      <button class="action-option" data-action="defib_pads" onclick="doAction(this)"><i class="bi bi-zap"></i><span>Apply Defib Pads</span></button>
-      <button class="action-option" data-action="iv" onclick="doAction(this)"><i class="bi bi-droplet-half"></i><span>Attempt IV Access</span></button>
-      <button class="action-option" data-action="io" onclick="doAction(this)"><i class="bi bi-bullseye"></i><span>Intraosseous (IO) Access</span></button>
-      <button class="action-option" data-action="cpr_quality" onclick="doAction(this)"><i class="bi bi-heart-pulse"></i><span>Check CPR Quality</span></button>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">Circulation & Access</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="rhythm_check" onclick="doAction(this)"><i class="bi bi-activity"></i><span>Rhythm Check</span></button>
+      <button class="arrest-action-option" data-action="defib_pads" onclick="doAction(this)"><i class="bi bi-zap"></i><span>Apply Defib Pads</span></button>
+      <button class="arrest-action-option" data-action="iv" onclick="doAction(this)"><i class="bi bi-droplet-half"></i><span>Attempt IV Access</span></button>
+      <button class="arrest-action-option" data-action="io" onclick="doAction(this)"><i class="bi bi-bullseye"></i><span>Intraosseous (IO) Access</span></button>
+      <button class="arrest-action-option" data-action="cpr_quality" onclick="doAction(this)"><i class="bi bi-heart-pulse"></i><span>Check CPR Quality</span></button>
     </div>
   </div>
-  <div class="action-group">
-    <div class="action-group-title">Drugs (Intra-arrest)</div>
-    <div class="action-grid">
-      <button class="action-option" data-action="adrenaline" onclick="doAction(this)"><i class="bi bi-syringe"></i><span>Administer Adrenaline</span></button>
-      <button class="action-option" data-action="amiodarone" onclick="doAction(this)"><i class="bi bi-syringe"></i><span>Consider Amiodarone</span></button>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">Drugs (Intra-arrest)</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="adrenaline" onclick="doAction(this)"><i class="bi bi-syringe"></i><span>Administer Adrenaline</span></button>
+      <button class="arrest-action-option" data-action="amiodarone" onclick="doAction(this)"><i class="bi bi-syringe"></i><span>Consider Amiodarone</span></button>
     </div>
   </div>
-  <div class="action-group">
-    <div class="action-group-title">History & Information</div>
-    <div class="action-grid">
-      <button class="action-option" data-action="history_witness" onclick="doAction(this)"><i class="bi bi-person-raised-hand"></i><span>Speak to Witness</span></button>
-      <button class="action-option" data-action="history_events" onclick="doAction(this)"><i class="bi bi-clock-history"></i><span>Events Leading to Arrest</span></button>
-      <button class="action-option" data-action="history_pmh" onclick="doAction(this)"><i class="bi bi-card-list"></i><span>Past Medical History</span></button>
-      <button class="action-option" data-action="history_meds" onclick="doAction(this)"><i class="bi bi-capsule-pill"></i><span>Current Medications</span></button>
-      <button class="action-option" data-action="dnacpr" onclick="doAction(this)"><i class="bi bi-file-medical"></i><span>Search for DNACPR / ACP</span></button>
-      <button class="action-option" data-action="downtime" onclick="doAction(this)"><i class="bi bi-stopwatch"></i><span>Establish Downtime</span></button>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">History & Information</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="history_witness" onclick="doAction(this)"><i class="bi bi-person-raised-hand"></i><span>Speak to Witness</span></button>
+      <button class="arrest-action-option" data-action="history_events" onclick="doAction(this)"><i class="bi bi-clock-history"></i><span>Events Leading to Arrest</span></button>
+      <button class="arrest-action-option" data-action="history_pmh" onclick="doAction(this)"><i class="bi bi-card-list"></i><span>Past Medical History</span></button>
+      <button class="arrest-action-option" data-action="history_meds" onclick="doAction(this)"><i class="bi bi-capsule-pill"></i><span>Current Medications</span></button>
+      <button class="arrest-action-option" data-action="dnacpr" onclick="doAction(this)"><i class="bi bi-file-medical"></i><span>Search for DNACPR / ACP</span></button>
+      <button class="arrest-action-option" data-action="downtime" onclick="doAction(this)"><i class="bi bi-stopwatch"></i><span>Establish Downtime</span></button>
     </div>
   </div>
-  <div class="action-group">
-    <div class="action-group-title">Reversible Causes</div>
-    <div class="action-grid">
-      <button class="action-option" data-action="4h" onclick="doAction(this)"><i class="bi bi-h-circle"></i><span>Consider the 4 H's</span></button>
-      <button class="action-option" data-action="4t" onclick="doAction(this)"><i class="bi bi-t-circle"></i><span>Consider the 4 T's</span></button>
-      <button class="action-option" data-action="glucose" onclick="doAction(this)"><i class="bi bi-droplet"></i><span>Blood Glucose</span></button>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">Reversible Causes</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="4h" onclick="doAction(this)"><i class="bi bi-h-circle"></i><span>Consider the 4 H's</span></button>
+      <button class="arrest-action-option" data-action="4t" onclick="doAction(this)"><i class="bi bi-t-circle"></i><span>Consider the 4 T's</span></button>
+      <button class="arrest-action-option" data-action="glucose" onclick="doAction(this)"><i class="bi bi-droplet"></i><span>Blood Glucose</span></button>
     </div>
   </div>
-  <div class="action-group">
-    <div class="action-group-title">Team & Scene</div>
-    <div class="action-grid">
-      <button class="action-option" data-action="team_roles" onclick="doAction(this)"><i class="bi bi-people"></i><span>Assign Team Roles</span></button>
-      <button class="action-option" data-action="family" onclick="doAction(this)"><i class="bi bi-house-heart"></i><span>Manage Family on Scene</span></button>
-      <button class="action-option" data-action="terminate" onclick="doAction(this)"><i class="bi bi-x-circle"></i><span>Consider Termination</span></button>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">Team & Scene</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="team_roles" onclick="doAction(this)"><i class="bi bi-people"></i><span>Assign Team Roles</span></button>
+      <button class="arrest-action-option" data-action="family" onclick="doAction(this)"><i class="bi bi-house-heart"></i><span>Manage Family on Scene</span></button>
+      <button class="arrest-action-option" data-action="terminate" onclick="doAction(this)"><i class="bi bi-x-circle"></i><span>Consider Termination</span></button>
     </div>
   </div>`;
 }
@@ -1284,9 +1360,9 @@ function showResponsePanel(title, body, onConfirm) {
   const p = document.getElementById('responsePanel');
   p.style.display='block';
   const btnHtml = onConfirm
-    ? `<button class="response-close" id="rcBtn">Got it — Log this action</button>`
-    : `<button class="response-close" id="rcBtn">Back to Actions</button>`;
-  p.innerHTML=`<div class="response-panel"><div class="response-panel-title">${title}</div><div class="response-panel-body">${body}</div>${btnHtml}</div>`;
+    ? `<button class="arrest-response-confirm" id="rcBtn">Got it — Log this action</button>`
+    : `<button class="arrest-response-back" id="rcBtn">Back to Actions</button>`;
+  p.innerHTML=`<div class="arrest-response-panel"><div class="arrest-response-title">${title}</div><div class="arrest-response-body">${body}</div>${btnHtml}</div>`;
   document.getElementById('rcBtn').onclick = onConfirm
     ? ()=>{ onConfirm(); }
     : ()=>{ document.getElementById('responsePanel').style.display='none'; document.getElementById('actionGroups').style.display='block'; };
@@ -1396,11 +1472,11 @@ function triggerHRReassessment() {
   document.getElementById('auscultCountdown').textContent = '6';
   document.getElementById('auscultCountdown').className = 'auscult-countdown';
   document.getElementById('pulseRing').className = 'pulse-ring';
-  document.getElementById('hrOverlay').classList.remove('hidden');
+  openRhythmOverlay();
 }
 
 function skipHRCheck() {
-  document.getElementById('hrOverlay').classList.add('hidden');
+  closeRhythmOverlay();
   addLog(formatTime(S.elapsed), 'HR assessment skipped this cycle', 'warn');
   startClock();
 }
@@ -1555,7 +1631,7 @@ function submitHRCount(counted) {
 }
 
 function closeHROverlay() {
-  document.getElementById('hrOverlay').classList.add('hidden');
+  closeRhythmOverlay();
   document.getElementById('hrResponseArea').innerHTML = '';
   if (S.nbCurrentHR === '>100' && S.nbAlgoPhase >= 3) {
     showDebrief();
@@ -1620,7 +1696,7 @@ function triggerRhythmCheck() {
   document.getElementById('stageResult').innerHTML = '';
   document.querySelector('.pulse-check-btn.yes').onclick = () => answerPulseCheck(true);
   document.querySelector('.pulse-check-btn.no').onclick = () => answerPulseCheck(false);
-  document.getElementById('rhythmOverlay').classList.remove('hidden');
+  openRhythmOverlay();
 }
 
 function drawRhythmStrip(rhythm) {
@@ -1683,7 +1759,7 @@ function answerPulseCheck(userSaysYes) {
 function showRhythmIDStage() {
   const shuffled = [...RHYTHMS].sort(() => Math.random() - 0.5);
   document.getElementById('rhythmOptions').innerHTML = shuffled
-    .map(r => `<button class="rhythm-btn" onclick="checkRhythm(this,'${r.id}')">${r.label}</button>`)
+    .map(r => `<button class="arrest-rhythm-btn" onclick="checkRhythm(this,'${r.id}')">${r.label}</button>`)
     .join('');
   document.getElementById('stageRhythm').style.display = 'block';
   drawRhythmStrip(S.rhythmCorrect);
@@ -1791,20 +1867,7 @@ function shockDecision(userChoosesShock) {
 }
 
 function resetRhythmOverlay() {
-  const o = document.getElementById('rhythmOverlay');
-  o.classList.add('hidden');
-  // Reset all stages for next use
-  document.getElementById('stagePulse').style.display = 'block';
-  document.getElementById('stageRhythm').style.display = 'none';
-  document.getElementById('stageShock').style.display = 'none';
-  document.getElementById('stageShock').innerHTML = '';
-  document.getElementById('stageResult').style.display = 'none';
-  document.getElementById('stageResult').innerHTML = '';
-  document.querySelectorAll('.rhythm-btn').forEach(b => { b.className = 'rhythm-btn'; b.onclick = null; });
-  document.querySelectorAll('.pulse-check-btn').forEach(b => { b.onclick = null; });
-  // Rewire pulse check buttons
-  document.querySelector('.pulse-check-btn.yes').onclick = () => answerPulseCheck(true);
-  document.querySelector('.pulse-check-btn.no').onclick = () => answerPulseCheck(false);
+  closeRhythmOverlay();
 }
 
 // ═══════════════════════════════════
@@ -1946,7 +2009,7 @@ function showDebrief() {
     <div class="tl-dot ${e.type==='good'?'good':e.type==='warn'?'warn':'bad'}"></div>
     <span class="tl-text">${e.text}</span></div>`).join('');
 
-  document.getElementById('debriefOverlay').classList.remove('hidden');
+  showView('debriefView');
 }
 
 // ═══════════════════════════════════
@@ -1955,64 +2018,20 @@ function showDebrief() {
 function addLog(time,text,type) {
   const log=document.getElementById('eventLog');
   const e=document.createElement('div');
-  e.className='log-entry';
-  e.innerHTML=`<span class="log-time">${time}</span><span class="log-text ${type}">${text}</span>`;
+  e.className='arrest-log-entry';
+  e.innerHTML=`<span class="arrest-log-time">${time}</span><span class="arrest-log-text ${type}">${text}</span>`;
   log.appendChild(e);
   e.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 function showFeedback(msg,type) {
   const el=document.createElement('div');
-  el.className=`feedback-flash ${type}`;
+  el.className=`arrest-feedback ${type}`;
   el.textContent=msg;
   document.body.appendChild(el);
   setTimeout(()=>el.remove(),2300);
 }
 
-
-// ==================== WIRING ====================
-// selectTrack is already defined in JS above — handles .scenario-select-card
-
-// Override confirmReady to activate the shell first
-const _baseConfirmReady = confirmReady;
-confirmReady = function() {
-    _baseConfirmReady();
-};
-
-// Override showTriggerWarning to activate shell first (trigger overlay is inside shell)
-const _baseShowTriggerWarning = showTriggerWarning;
-showTriggerWarning = function() {
-    activateScenarioShell();
-    _baseShowTriggerWarning();
-};
-
-// Override dismissTrigger to deactivate shell (go back to intro)
-const _baseDismissTrigger = dismissTrigger;
-dismissTrigger = function() {
-    document.getElementById('triggerOverlay').classList.add('hidden');
-    deactivateScenarioShell();
-};
-
-// Override showDebrief to add Back button
-const _baseShowDebrief = showDebrief;
-showDebrief = function() {
-    _baseShowDebrief();
-    setTimeout(() => {
-        const btns = document.querySelector('.bottom-btns');
-        if (btns && !document.getElementById('backBtn')) {
-            const b = document.createElement('button');
-            b.id = 'backBtn';
-            b.setAttribute('style',
-                'width:100%;margin-top:8px;padding:11px;background:none;' +
-                'border:1px solid rgba(255,255,255,0.15);border-radius:8px;' +
-                'color:#6B7882;font-family:DM Sans,sans-serif;font-size:13px;' +
-                'font-weight:600;cursor:pointer;');
-            b.innerHTML = '<i class="bi bi-arrow-left me-2"></i>Back to Scenarios';
-            b.onclick = () => { deactivateScenarioShell(); location.reload(); };
-            btns.parentNode.insertBefore(b, btns.nextSibling);
-        }
-    }, 100);
-};
 </script>
 </body>
 </html>
