@@ -2094,7 +2094,8 @@ function addLog(time,text,type) {
   e.className='arrest-log-entry';
   e.innerHTML=`<span class="arrest-log-time">${time}</span><span class="arrest-log-text ${type}">${text}</span>`;
   log.appendChild(e);
-  e.scrollIntoView({behavior:'smooth',block:'nearest'});
+  const scrollEl=document.querySelector('.arrest-log-scroll');
+  if(scrollEl) scrollEl.scrollTop=scrollEl.scrollHeight;
 }
 
 function showFeedback(msg,type) {
