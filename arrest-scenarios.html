@@ -237,6 +237,50 @@
         .arrest-progress-fill.red { background: #dc3545; }
         .arrest-progress-time { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--color-teal); white-space: nowrap; }
 
+        /* Fixed top section — never scrolls */
+        .arrest-fixed-top {
+            flex-shrink: 0;
+            padding: 0.75rem 0.875rem 0.5rem;
+            background: var(--color-gray-50);
+            border-bottom: 1px solid var(--color-gray-200);
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        /* Scrollable log section */
+        .arrest-log-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.75rem 0.875rem 1rem;
+            background: var(--color-gray-50);
+        }
+
+        /* Combined CPR + progress row */
+        .arrest-cpr-progress-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-lg);
+            padding: 0.5rem 0.875rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .arrest-cpr-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex-shrink: 0;
+        }
+        .arrest-progress-inner {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            min-width: 0;
+        }
+
         /* Action button */
         .arrest-action-btn {
             width: 100%;
@@ -531,10 +575,10 @@
     </div>
 
     <!-- ── RUNNING VIEW ────────────────────────────────────── -->
-    <div class="view" id="runningView" style="flex-direction:column;">
+    <div class="view" id="runningView" style="flex-direction:column;overflow:hidden;">
 
-        <!-- Incident banner with clock -->
-        <div class="arrest-incident-banner">
+        <!-- Incident banner with clock (always visible) -->
+        <div class="arrest-incident-banner" style="flex-shrink:0;">
             <div>
                 <div class="arrest-track-label" id="trackBadge">Adult ALS</div>
                 <div class="arrest-patient-name" id="bannerPatientName">Male, approx. 58 years</div>
@@ -555,8 +599,8 @@
             </div>
         </div>
 
-        <!-- Scrollable content -->
-        <div class="arrest-content" id="arrestContent">
+        <!-- Fixed top section — always visible -->
+        <div class="arrest-fixed-top" id="arrestFixedTop">
 
             <!-- Golden minute (newborn only) -->
             <div class="arrest-golden" id="goldenBanner" style="display:none">
@@ -564,16 +608,6 @@
                 <div>
                     <div class="arrest-golden-title">⏱ Golden Minute</div>
                     <div class="arrest-golden-sub">Dry · Stimulate · Airway · Assess</div>
-                </div>
-            </div>
-
-            <!-- SpO2 targets (newborn only) -->
-            <div class="arrest-spo2-targets" id="spo2Targets" style="display:none">
-                <div class="arrest-spo2-title">Pre-ductal SpO₂ Targets</div>
-                <div class="arrest-spo2-row">
-                    <div class="arrest-spo2-target" id="spo2t2"><span class="arrest-spo2-time">2 min</span><span class="arrest-spo2-val">≥65%</span></div>
-                    <div class="arrest-spo2-target" id="spo2t5"><span class="arrest-spo2-time">5 min</span><span class="arrest-spo2-val">≥85%</span></div>
-                    <div class="arrest-spo2-target" id="spo2t10"><span class="arrest-spo2-time">10 min</span><span class="arrest-spo2-val">≥90%</span></div>
                 </div>
             </div>
 
@@ -594,7 +628,7 @@
                 <div class="arrest-nb-hr">
                     <div class="arrest-nb-hr-label">Heart Rate</div>
                     <div class="arrest-nb-hr-value" id="nbHrValue">---</div>
-                    <div style="font-family:'JetBrains Mono',monospace;font-size:0.55rem;color:#4a6a8a;margin-top:2px;">beats/min</div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:0.55rem;color:rgba(255,255,255,0.4);margin-top:2px;">beats/min</div>
                 </div>
                 <div class="arrest-nb-divider"></div>
                 <div>
@@ -603,25 +637,25 @@
                 </div>
             </div>
 
-            <!-- Algo step (newborn only) -->
-            <div class="arrest-algo-step" id="algoStep" style="display:none">
-                <div class="arrest-algo-label">Current Step</div>
-                <div class="arrest-algo-text" id="algoStepText">Start clock · <strong>Dry, wrap and stimulate</strong> · Keep warm · Assess colour, tone, breathing and heart rate</div>
+            <!-- CPR indicator + progress bar combined row -->
+            <div class="arrest-cpr-progress-row">
+                <div class="arrest-cpr-indicator" id="cprIndicator" style="display:none">
+                    <div class="arrest-cpr-dot" id="cprBeat"></div>
+                    <span class="arrest-cpr-text" id="cprText">CPR</span>
+                </div>
+                <div class="arrest-progress-inner">
+                    <span class="arrest-progress-label" id="checkLabel">Next check</span>
+                    <div class="arrest-progress-track"><div class="arrest-progress-fill" id="progressFill" style="width:0%"></div></div>
+                    <span class="arrest-progress-time" id="nextCheckTime">--:--</span>
+                </div>
             </div>
 
-            <!-- CPR indicator -->
-            <div class="arrest-cpr-bar" id="cprIndicator" style="display:none">
-                <div class="arrest-cpr-dot" id="cprBeat"></div>
-                <span class="arrest-cpr-text" id="cprText">CPR IN PROGRESS</span>
-                <span class="arrest-cpr-rate" id="cprRate">~110 bpm</span>
+            <!-- Hidden elements kept for JS compatibility -->
+            <div id="spo2Targets" style="display:none">
+                <div id="spo2t2"></div><div id="spo2t5"></div><div id="spo2t10"></div>
             </div>
-
-            <!-- Progress bar -->
-            <div class="arrest-progress-bar">
-                <span class="arrest-progress-label" id="checkLabel">Next rhythm check</span>
-                <div class="arrest-progress-track"><div class="arrest-progress-fill" id="progressFill" style="width:0%"></div></div>
-                <span class="arrest-progress-time" id="nextCheckTime">--:--</span>
-            </div>
+            <div id="algoStep" style="display:none"><div id="algoStepText"></div></div>
+            <span id="cprRate" style="display:none"></span>
 
             <!-- Action button -->
             <button class="arrest-action-btn" onclick="openActionModal()">
@@ -629,13 +663,14 @@
                 Perform Action / Assessment
             </button>
 
-            <!-- Event log -->
-            <div>
-                <div class="arrest-log-label">Event Log</div>
-                <div id="eventLog"></div>
-            </div>
-
         </div>
+
+        <!-- Scrollable event log -->
+        <div class="arrest-log-scroll">
+            <div class="arrest-log-label">Event Log</div>
+            <div id="eventLog"></div>
+        </div>
+
     </div>
 
     <!-- ── DEBRIEF VIEW ────────────────────────────────────── -->
