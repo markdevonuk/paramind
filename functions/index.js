@@ -501,7 +501,7 @@ if (session.total_details?.amount_discount > 0) {
     await userDoc.ref.update(updateData);
     
     if (subscription.cancel_at_period_end) {
-      console.log(`User ${userDoc.id} cancelled - access continues until ${new Date(subscription.current_period_end * 1000).toISOString()}`);
+      console.log(`User ${userDoc.id} cancelled - access continues until ${updateData.accessExpiresAt ? updateData.accessExpiresAt.toISOString() : 'unknown'}`);
     } else {
       console.log(`Subscription updated for user: ${userDoc.id}, status: ${updateData.subscriptionStatus}`);
     }
