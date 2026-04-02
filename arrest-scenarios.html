@@ -84,7 +84,7 @@
         .arrest-track-label { color: #00d9ff; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
         .arrest-patient-name { color: #ffffff; font-size: 0.82rem; font-weight: 600; margin-top: 2px; }
         .arrest-clock-wrap { text-align: center; }
-        .arrest-clock-label { font-size: 0.55rem; color: #4a6a8a; text-transform: uppercase; letter-spacing: 0.1em; }
+        .arrest-clock-label { font-size: 0.55rem; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 0.1em; }
         .arrest-clock {
             font-family: 'JetBrains Mono', monospace;
             font-size: 1.6rem;
@@ -98,7 +98,7 @@
         @keyframes clockPulse { 0%,100%{opacity:1}50%{opacity:0.6} }
         .arrest-vitals-mini { display: flex; gap: 0.75rem; font-family: 'JetBrains Mono', monospace; }
         .arrest-vital { text-align: center; }
-        .arrest-vital-label { font-size: 0.5rem; color: #4a6a8a; text-transform: uppercase; letter-spacing: 0.06em; display: block; }
+        .arrest-vital-label { font-size: 0.5rem; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 0.06em; display: block; }
         .arrest-vital-value { font-size: 0.85rem; font-weight: 700; }
         .arrest-vital-value.off { color: #dc3545; }
         .arrest-vital-value.ok { color: #00d9ff; }
@@ -267,7 +267,7 @@
             font-size: 0.8rem;
             align-items: flex-start;
         }
-        .arrest-log-time { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--color-gray-400); white-space: nowrap; flex-shrink: 0; margin-top: 1px; }
+        .arrest-log-time { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--color-gray-600); white-space: nowrap; flex-shrink: 0; margin-top: 1px; }
         .arrest-log-text { color: var(--color-gray-700); line-height: 1.4; }
         .arrest-log-text.good { color: #3d8b3d; }
         .arrest-log-text.warn { color: #b45309; }
@@ -1763,21 +1763,35 @@ function answerPulseCheck(userSaysYes) {
     addLog(formatTime(S.elapsed),'✗ Pulse check skipped — this rhythm requires a pulse check before assuming pulselessness','bad');
   }
 
-  // Show brief result then advance to rhythm ID
+  // Determine pulse result for this rhythm
+  const pulsePresent = (correct === 'sinus');  // sinus = ROSC; PEA/VT pulseless = no pulse
   const resultEl = document.getElementById('stageResult');
-  if(isCorrect){
-    resultEl.innerHTML = `<div class="stage-result correct">${userSaysYes ? '✓ Correct — pulse check is appropriate here. Check carotid for up to 10 seconds.' : '✓ Correct — no pulse check needed. This rhythm is clearly non-perfusing.'}</div>`;
-  } else {
-    const reason = userSaysYes
-      ? 'Pulse checks on VF or asystole are not indicated — these rhythms are always pulseless. Unnecessary interruptions reduce CPR quality.'
-      : 'An organised rhythm requires a pulse check — without checking you cannot diagnose PEA or confirm ROSC.';
-    resultEl.innerHTML = `<div class="stage-result incorrect">✗ ${reason}</div>`;
-  }
+  document.getElementById('stagePulse').style.display = 'none';
   resultEl.style.display = 'block';
 
-  // Hide stage 1, show stage 2 after brief pause
-  document.getElementById('stagePulse').style.display = 'none';
-  setTimeout(() => showRhythmIDStage(), 1200);
+  if(isCorrect && userSaysYes) {
+    // Correct to check — now show what they found
+    resultEl.innerHTML = `<div class="arrest-stage-result correct">
+      ✓ Correct — pulse check is appropriate here.<br><br>
+      <strong>You palpate the carotid for up to 10 seconds...</strong><br><br>
+      ${pulsePresent
+        ? '<span style="color:#5cb85c;font-size:1rem;">✓ PULSE PRESENT — ROSC confirmed.</span><br><small style="color:#8892b0;">Continue to identify the rhythm.</small>'
+        : '<span style="color:#dc3545;font-size:1rem;">✗ NO PULSE — organised but non-perfusing rhythm.</span><br><small style="color:#8892b0;">Continue to identify the rhythm.</small>'
+      }
+    </div>`;
+    // Store pulse result for scoring
+    S.pulseFoundAtROSC = pulsePresent;
+    setTimeout(() => showRhythmIDStage(), 2000);
+  } else if(isCorrect && !userSaysYes) {
+    resultEl.innerHTML = `<div class="arrest-stage-result correct">✓ Correct — no pulse check needed. This rhythm is clearly non-perfusing. Now identify it.</div>`;
+    setTimeout(() => showRhythmIDStage(), 1200);
+  } else if(!isCorrect && userSaysYes) {
+    resultEl.innerHTML = `<div class="arrest-stage-result incorrect">✗ Pulse checks on VF or asystole are not indicated — these are always pulseless. Unnecessary interruptions reduce CPR quality. Now identify the rhythm.</div>`;
+    setTimeout(() => showRhythmIDStage(), 1800);
+  } else {
+    resultEl.innerHTML = `<div class="arrest-stage-result incorrect">✗ An organised rhythm requires a pulse check — without checking you cannot diagnose PEA or confirm ROSC. Now identify the rhythm.</div>`;
+    setTimeout(() => showRhythmIDStage(), 1800);
+  }
 }
 
 function showRhythmIDStage() {
