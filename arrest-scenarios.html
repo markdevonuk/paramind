@@ -832,7 +832,7 @@ function confirmStart() {
         const variants = ['standard','slow','compression','airway'];
         S.nbVariant = variants[Math.floor(Math.random() * variants.length)];
     } else {
-        const variants = ['standard_rosc','refractory_vf','non_shockable','rosc_rearrest'];
+        const variants = ['standard_rosc','refractory_vf','non_shockable'];
         S.adultVariant = variants[Math.floor(Math.random() * variants.length)];
     }
     showView('runningView');
@@ -927,11 +927,6 @@ const ADULT_VARIANTS = {
     label: 'Non-Shockable Arrest',
     description: 'No shockable rhythms are present — the arrest is PEA/asystole throughout. This focuses entirely on CPR quality, systematic reversal of causes (4 H's & 4 T's), and recognising a non-survivable arrest.',
     seq: ['pea','asystole','pea','asystole','pea']
-  },
-  rosc_rearrest: {
-    label: 'ROSC then Re-Arrest',
-    description: 'The patient achieves early ROSC but deteriorates and re-arrests shortly after. This tests post-ROSC recognition, the decision to restart CPR, and ongoing resuscitation management.',
-    seq: ['vf','vf','sinus','vf','asystole']
   }
 };
 
