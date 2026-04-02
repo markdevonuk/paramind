@@ -831,6 +831,9 @@ function confirmStart() {
     if (S.track === 'newborn') {
         const variants = ['standard','slow','compression','airway'];
         S.nbVariant = variants[Math.floor(Math.random() * variants.length)];
+    } else {
+        const variants = ['standard_rosc','refractory_vf','non_shockable','rosc_rearrest'];
+        S.adultVariant = variants[Math.floor(Math.random() * variants.length)];
     }
     showView('runningView');
     startScenario();
@@ -909,6 +912,29 @@ const S = {
   goldenRemaining: 60
 };
 
+const ADULT_VARIANTS = {
+  standard_rosc: {
+    label: 'Standard ROSC',
+    description: 'Resuscitation follows a typical shockable arrest — VF is present initially and responds to defibrillation. ROSC is achievable if the algorithm is followed correctly.',
+    seq: ['vf','vf','vf','pea','sinus','sinus']
+  },
+  refractory_vf: {
+    label: 'Refractory VF',
+    description: 'The patient remains in VF throughout despite defibrillation. This tests persistence, correct adrenaline timing, amiodarone consideration, and ultimately the decision to consider termination of resuscitation.',
+    seq: ['vf','vf','vf','vf','vf','vf']
+  },
+  non_shockable: {
+    label: 'Non-Shockable Arrest',
+    description: 'No shockable rhythms are present — the arrest is PEA/asystole throughout. This focuses entirely on CPR quality, systematic reversal of causes (4 H's & 4 T's), and recognising a non-survivable arrest.',
+    seq: ['pea','asystole','pea','asystole','pea']
+  },
+  rosc_rearrest: {
+    label: 'ROSC then Re-Arrest',
+    description: 'The patient achieves early ROSC but deteriorates and re-arrests shortly after. This tests post-ROSC recognition, the decision to restart CPR, and ongoing resuscitation management.',
+    seq: ['vf','vf','sinus','vf','asystole']
+  }
+};
+
 const NB_ALGO_PHASES = [
   'Start clock · Dry, wrap and stimulate · Keep warm · Assess colour, tone, breathing and heart rate',
   'Infant gasping / not breathing — Give 5 inflation breaths, start in AIR · Apply SpO₂ ± ECG',
@@ -972,6 +998,8 @@ function setupTrack() {
   } else {
     document.getElementById('trackBadge').textContent = 'Adult ALS';
     document.getElementById('checkLabel').textContent = 'Next rhythm check';
+    const av = ADULT_VARIANTS[S.adultVariant] || ADULT_VARIANTS.standard_rosc;
+    rhythmSeq = av.seq;
     S.nextCheckIn = 9999; // auto-cycle starts only after first manual rhythm check
     document.getElementById('ecgContainer').style.display = 'none'; // hidden until pads applied
     addLog('00:00', 'Scenario commenced — CPR ongoing from bystander. Your team takes over compressions.', 'info');
@@ -1705,7 +1733,8 @@ function updateVitals(v, cls, val) {
 
 // ─── ADULT RHYTHM CHECK ───
 const RHYTHMS=[{id:'vf',label:'Ventricular Fibrillation',shockable:true},{id:'pea',label:'PEA',shockable:false},{id:'asystole',label:'Asystole',shockable:false},{id:'sinus',label:'Sinus Rhythm',shockable:false}];
-const rhythmSeq=['vf','vf','asystole','vf','sinus'];
+// rhythmSeq is set dynamically from S.adultVariant in setupTrack
+let rhythmSeq = ['vf','vf','vf','pea','sinus','sinus']; // default, overwritten
 
 function triggerRhythmCheck() {
   stopClock();
@@ -1978,6 +2007,15 @@ function showDebrief() {
     document.getElementById('debriefGood').innerHTML=good.map(t=>`<div class="debrief-item">${t}</div>`).join('');
     document.getElementById('debriefWarn').innerHTML=warn.map(t=>`<div class="debrief-item">${t}</div>`).join('');
   } else {
+    // Show variant reveal
+    const av = ADULT_VARIANTS[S.adultVariant] || ADULT_VARIANTS.standard_rosc;
+    document.getElementById('debriefVariant').innerHTML = `
+      <div class="debrief-variant">
+        <div class="debrief-variant-label">🎲 Your Scenario Variant</div>
+        <div class="debrief-variant-name">${av.label}</div>
+        <div class="debrief-variant-desc">${av.description}</div>
+      </div>`;
+
     document.getElementById('statA').textContent=`${S.correctRhythms}/${S.rhythmCycle}`;
     document.getElementById('statALabel').textContent='Correct Rhythms';
     document.getElementById('statB').textContent=S.shocksDelivered;
