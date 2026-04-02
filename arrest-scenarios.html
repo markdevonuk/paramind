@@ -19,69 +19,55 @@
     <link rel="stylesheet" href="css/styles.css">
 
     <style>
-/* ── Paramind intro shell ─────────────────────────────────────── */
-.arrest-page { min-height:100vh; display:flex; flex-direction:column; background:var(--color-gray-50); }
+        /* Intro page shell — matches other Paramind tool pages */
+        .arrest-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--color-gray-50);
+        }
+        .main-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .content-view { flex: 1; overflow-y: auto; padding: 1.25rem 1rem 2rem; }
 
-.arrest-intro { flex:1; padding:1.5rem 1rem 5rem; max-width:560px; margin:0 auto; width:100%; }
+        /* Scenario selection cards — uses existing Paramind card pattern */
+        .scenario-select-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            border: 2px solid var(--color-gray-200);
+            padding: 1rem 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+            text-align: left;
+            margin-bottom: 0.75rem;
+        }
+        .scenario-select-card:hover { border-color: var(--color-teal); box-shadow: var(--shadow-sm); }
+        .scenario-select-card.selected {
+            border-color: var(--color-teal);
+            background: rgba(43,138,156,0.05);
+            box-shadow: 0 0 0 3px rgba(43,138,156,0.1);
+        }
+        .scenario-card-icon {
+            width: 48px; height: 48px;
+            background: var(--color-gray-100);
+            border-radius: var(--radius-md);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; flex-shrink: 0;
+        }
+        .scenario-select-card.selected .scenario-card-icon { background: rgba(43,138,156,0.12); }
+        .scenario-card-name { font-weight: 600; font-size: 0.9rem; color: var(--color-gray-800); margin-bottom: 0.15rem; }
+        .scenario-card-meta { font-size: 0.78rem; color: var(--color-gray-500); }
 
-.arrest-intro-badge {
-    display:inline-block;
-    background:rgba(43,138,156,0.1);
-    border:1px solid rgba(43,138,156,0.3);
-    color:var(--color-teal);
-    font-size:0.72rem; font-weight:700; letter-spacing:1.5px;
-    text-transform:uppercase; padding:4px 12px; border-radius:20px;
-    margin-bottom:0.75rem;
-}
-.arrest-intro-title { font-size:1.6rem; font-weight:700; color:var(--color-gray-800); margin-bottom:0.5rem; line-height:1.2; }
-.arrest-intro-sub { font-size:0.875rem; color:var(--color-gray-600); line-height:1.6; margin-bottom:1.75rem; }
-
-.arrest-track-card {
-    width:100%; background:var(--color-white);
-    border:2px solid var(--color-gray-200); border-radius:var(--radius-lg);
-    padding:1rem; cursor:pointer; transition:all 0.2s ease;
-    display:flex; align-items:center; gap:0.875rem;
-    margin-bottom:0.75rem; text-align:left;
-}
-.arrest-track-card:hover, .arrest-track-card.selected {
-    border-color:var(--color-teal);
-    background:rgba(43,138,156,0.04);
-    box-shadow:0 0 0 3px rgba(43,138,156,0.1);
-}
-.arrest-track-icon {
-    width:44px; height:44px; border-radius:var(--radius-lg);
-    background:var(--color-gray-100);
-    display:flex; align-items:center; justify-content:center;
-    font-size:1.4rem; flex-shrink:0;
-}
-.arrest-track-card.selected .arrest-track-icon { background:rgba(43,138,156,0.12); }
-.arrest-track-name { font-weight:700; font-size:0.95rem; color:var(--color-gray-800); margin-bottom:0.1rem; }
-.arrest-track-meta { font-size:0.78rem; color:var(--color-gray-500); }
-
-.start-btn-main {
-    width:100%; background:var(--color-teal); color:white;
-    border:none; border-radius:var(--radius-lg);
-    padding:1rem; font-size:1rem; font-weight:700;
-    cursor:pointer; transition:all 0.15s ease; margin-bottom:1rem;
-}
-.start-btn-main:hover { background:var(--color-teal-dark); transform:translateY(-1px); box-shadow:var(--shadow-md); }
-
-.disclaimer-box {
-    font-size:0.75rem; color:var(--color-gray-500);
-    background:var(--color-gray-100); border-radius:var(--radius-lg);
-    padding:0.75rem 1rem; line-height:1.6; text-align:center;
-}
-
-/* ── Scenario full-screen shell ──────────────────────────────── */
-.scenario-shell {
-    position:fixed; inset:0; z-index:1050;
-    background:#0A0D0F;
-    display:none; flex-direction:column; overflow:hidden;
-}
-.scenario-shell.active { display:flex; }
-
-/* safe area bottom padding for scenario scroll areas */
-.main { padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px)); }
+        /* Full-screen scenario shell */
+        .scenario-shell {
+            position: fixed; inset: 0; z-index: 1050;
+            background: #0A0D0F;
+            display: none; flex-direction: column; overflow: hidden;
+        }
+        .scenario-shell.active { display: flex; }
 
 /* Dark scenario theme — scoped to .scenario-shell only */
 .scenario-shell {
@@ -398,22 +384,22 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 
 /* DEMO BAR */
     </style>
+    </style>
 </head>
 
 <body class="arrest-page">
 
-<!-- ── AUTH LOADING ───────────────────────────────────────────── -->
+<!-- Auth loading -->
 <div id="authLoading" style="position:fixed;inset:0;background:var(--color-gray-50);display:flex;align-items:center;justify-content:center;z-index:9999;">
     <div style="text-align:center">
         <div class="spinner-border" style="width:2rem;height:2rem;color:var(--color-teal);" role="status"></div>
-        <div style="margin-top:0.75rem;font-size:0.875rem;color:var(--color-gray-500)">Loading...</div>
+        <p style="margin-top:0.75rem;font-size:0.875rem;color:var(--color-gray-500);margin-bottom:0">Loading...</p>
     </div>
 </div>
 
-<!-- ── INTRO PAGE ─────────────────────────────────────────────── -->
+<!-- ══ INTRO PAGE ═══════════════════════════════════════════════ -->
 <div id="introPage" style="display:none;flex:1;flex-direction:column;">
 
-    <!-- Paramind navbar -->
     <nav class="member-navbar">
         <div class="container">
             <span class="brand-text">
@@ -427,46 +413,49 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
         </div>
     </nav>
 
-    <!-- Intro content -->
-    <div class="arrest-intro">
-        <div style="text-align:center;margin-bottom:1.75rem;">
-            <div class="arrest-intro-badge">⚡ Simulation</div>
-            <h1 class="arrest-intro-title">Cardiac Arrest<br>Scenarios</h1>
-            <p class="arrest-intro-sub">
-                Real-time resuscitation simulations from the moment CPR begins.
-                Every decision is timed, logged, and reviewed in a full clinical debrief.
-            </p>
-        </div>
+    <div class="main-container">
+        <div class="content-view">
+            <div style="max-width:600px;margin:0 auto;">
 
-        <div id="trackSelect">
-            <button class="arrest-track-card selected" onclick="selectTrack(this,'adult')">
-                <div class="arrest-track-icon">🫀</div>
-                <div>
-                    <div class="arrest-track-name">Adult ALS</div>
-                    <div class="arrest-track-meta">70kg male · Cardiac arrest · Bystander CPR in progress</div>
+                <!-- Page header — same pattern as scenarios.html section-header -->
+                <div class="section-header mb-4">
+                    <h1><i class="bi bi-heart-pulse me-2" style="color:var(--color-teal)"></i>Cardiac Arrest Scenarios</h1>
+                    <p>Real-time resuscitation simulations from the moment CPR begins. Every decision is timed, logged, and reviewed in a full clinical debrief.</p>
                 </div>
-            </button>
-            <button class="arrest-track-card" onclick="selectTrack(this,'newborn')">
-                <div class="arrest-track-icon">👶</div>
-                <div>
-                    <div class="arrest-track-name">Newborn Life Support</div>
-                    <div class="arrest-track-meta">Term infant · Poor tone · Not breathing at birth · Scenario varies each run</div>
+
+                <!-- Scenario selection -->
+                <button class="scenario-select-card selected" onclick="selectTrack(this,'adult')">
+                    <div class="scenario-card-icon">🫀</div>
+                    <div>
+                        <div class="scenario-card-name">Adult ALS</div>
+                        <div class="scenario-card-meta">70kg male &middot; Cardiac arrest &middot; Bystander CPR in progress</div>
+                    </div>
+                </button>
+
+                <button class="scenario-select-card" onclick="selectTrack(this,'newborn')">
+                    <div class="scenario-card-icon">👶</div>
+                    <div>
+                        <div class="scenario-card-name">Newborn Life Support</div>
+                        <div class="scenario-card-meta">Term infant &middot; Poor tone &middot; Not breathing at birth &middot; Scenario varies each run</div>
+                    </div>
+                </button>
+
+                <!-- Start button — uses existing Paramind btn-primary style -->
+                <button class="btn btn-primary w-100 py-3 mt-2" style="font-size:1rem;font-weight:600;" onclick="showTriggerWarning()">
+                    <i class="bi bi-play-fill me-2"></i>Start Scenario
+                </button>
+
+                <!-- Disclaimer — same welcome-disclaimer pattern used on other pages -->
+                <div class="welcome-disclaimer mt-3">
+                    <i class="bi bi-shield-check me-2"></i>
+                    <strong>Educational tool only.</strong> These are simulations for learning purposes.
+                    Always refer to your trust protocols and JRCalc for clinical guidance.
                 </div>
-            </button>
-        </div>
 
-        <button class="start-btn-main" onclick="showTriggerWarning()">
-            <i class="bi bi-play-fill me-2"></i>Start Scenario
-        </button>
-
-        <div class="disclaimer-box">
-            <i class="bi bi-shield-check me-1"></i>
-            <strong>Educational tool only.</strong> These are simulations for learning purposes.
-            Always refer to your trust protocols and JRCalc for clinical guidance.
+            </div>
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="member-footer">
         <div class="container">
             <div class="footer-brand">
@@ -486,7 +475,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
     </footer>
 </div>
 
-<!-- ── SCENARIO SHELL (dark, full-screen) ─────────────────────── -->
+<!-- ══ SCENARIO SHELL ════════════════════════════════════════════ -->
 <div class="scenario-shell" id="scenarioShell">
 <!-- HEADER -->
 <div class="header">
@@ -696,11 +685,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
     </div>
   </div>
 </div>
-
-
 </div>
 
-<!-- ── SCRIPTS ────────────────────────────────────────────────── -->
+<!-- Scripts -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -842,7 +829,7 @@ function selectTrackInternal(btn, track) {
 }
 
 function startScenario() {
-  document.getElementById('introOverlay').classList.add('hidden');
+  document.getElementById('introPage').style.display = 'none';
   S.running = true;
   setupTrack();
   startClock();
