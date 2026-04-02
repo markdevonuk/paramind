@@ -936,7 +936,7 @@ const ADULT_VARIANTS = {
   },
   non_shockable: {
     label: 'Non-Shockable Arrest',
-    description: 'No shockable rhythms are present — the arrest is PEA/asystole throughout. This focuses entirely on CPR quality, systematic reversal of causes (4 H's & 4 T's), and recognising a non-survivable arrest.',
+    description: 'No shockable rhythms are present — the arrest is PEA/asystole throughout. This focuses entirely on CPR quality, systematic reversal of causes (4 Hs & 4 Ts), and recognising a non-survivable arrest.',
     seq: ['pea','asystole','pea','asystole','pea']
   }
 };
@@ -1292,7 +1292,7 @@ function buildPaedsActions() {
       <button class="arrest-action-option" data-action="terminate" onclick="doAction(this)"><i class="bi bi-x-circle"></i><span>Consider Termination</span></button>
       <button class="arrest-action-option" data-action="finish_scenario" onclick="closeActionModal();showDebrief()"><i class="bi bi-flag-fill" style="color:#5cb85c"></i><span>Finish &amp; Go to Debrief</span></button>
     </div>
-  </div>\`;
+  </div>`;
 }
 
 // ═══════════════════════════════════
@@ -2161,8 +2161,8 @@ function showDebrief() {
     const got4s = S.done['4h'] && S.done['4t'];
     if(gotHistory) good.push('History obtained from parent/carer — useful for identifying aetiology');
     else warn.push('No history obtained from parent/carer — this can identify reversible causes and provide critical context');
-    if(got4s) good.push('Reversible causes systematically reviewed — 4 H's and 4 T's considered');
-    else if(S.done['4h'] || S.done['4t']) warn.push('Only one of the 4 H's / 4 T's reviewed — complete both frameworks systematically');
+    if(got4s) good.push('Reversible causes systematically reviewed — 4 Hs and 4 Ts considered');
+    else if(S.done['4h'] || S.done['4t']) warn.push('Only one of the 4 Hs / 4 Ts reviewed — complete both frameworks systematically');
     else warn.push('Reversible causes not considered — hypoxia, hypoglycaemia and other reversible causes are particularly important in paediatric arrest');
 
     const warnCount = warn.length;
@@ -2248,9 +2248,9 @@ function showDebrief() {
     const got4s = S.done['4h'] && S.done['4t'];
     if(gotHistory) good.push('History obtained from bystander — aetiology identified');
     else warn.push('No history taken — identifying the cause of arrest (e.g. ACS, PE, metabolic) guides post-ROSC management and transport decisions');
-    if(got4s) good.push('Reversible causes systematically considered — 4 H\'s and 4 T\'s reviewed');
-    else if(S.done['4h'] || S.done['4t']) warn.push('Only one of the 4 H\'s / 4 T\'s frameworks was reviewed — complete both for a systematic approach to reversible causes');
-    else warn.push('Reversible causes (4 H\'s and 4 T\'s) were not considered — in any prolonged arrest, systematic review of reversible causes is essential');
+    if(got4s) good.push('Reversible causes systematically considered — 4 Hs and 4 Ts reviewed');
+    else if(S.done['4h'] || S.done['4t']) warn.push('Only one of the 4 Hs / 4 Ts frameworks was reviewed — complete both for a systematic approach to reversible causes');
+    else warn.push('Reversible causes (4 Hs and 4 Ts) were not considered — in any prolonged arrest, systematic review of reversible causes is essential');
 
     // ── Hollie summary ──
     const warnCount = warn.length;
