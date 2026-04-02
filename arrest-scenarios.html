@@ -126,7 +126,7 @@
             border-radius: var(--radius-lg);
             padding: 0.75rem;
         }
-        .arrest-ecg-label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: #2a5c2a; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+        .arrest-ecg-label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: rgba(0,200,80,0.55); letter-spacing: 0.05em; margin-bottom: 0.5rem; }
         .arrest-ecg-canvas { width: 100%; height: 64px; display: block; }
 
         /* NB monitor panel */
@@ -855,12 +855,13 @@ function openActionModal() {
     if (!S.running) return;
     document.getElementById('responsePanel').style.display = 'none';
     document.getElementById('actionGroups').style.display = 'block';
-    new bootstrap.Modal(document.getElementById('arrestActionModal')).show();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('arrestActionModal')).show();
 }
 
 function closeActionModal() {
-    const m = bootstrap.Modal.getInstance(document.getElementById('arrestActionModal'));
-    if (m) m.hide();
+    const el = document.getElementById('arrestActionModal');
+    const m = bootstrap.Modal.getInstance(el);
+    if (m) { m.hide(); m.dispose(); }
 }
 
 // ==================== RHYTHM / HR OVERLAY ====================
@@ -1114,7 +1115,7 @@ function updateProgress() {
 // ═══════════════════════════════════
 function drawECG() {
   const canvas = document.getElementById('ecgCanvas');
-  if (!canvas || !S.running || S.track !== 'adult') return;
+  if (!canvas || !S.running || (S.track !== 'adult' && S.track !== 'paeds')) return;
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio || 1;
   canvas.width = canvas.offsetWidth * dpr; canvas.height = 64 * dpr;
@@ -1436,7 +1437,7 @@ const adultResponses = {
     directAction:()=>{ closeModal(); triggerRhythmCheck(); },
     once:false
   },
-  defib_pads:{title:'Apply Defib Pads',check:()=>!S.defibPadsOn,alreadyDone:'Pads already applied.',body:`<span class="good">Pads applied — right infraclavicular and left lateral chest wall (V5–V6 position).</span> Rhythm is now displaying on the monitor. <span class="warn">Check for pacemaker or implanted device — avoid placing pads directly over these.</span> Minimise hands-off time during pad application.`,log:'Defib pads applied — rhythm displaying on monitor',type:'good',once:true,onComplete:()=>{S.defibPadsOn=true; document.getElementById('ecgContainer').style.display='block'; drawECG();}},
+  defib_pads:{title:'Apply Defib Pads',check:()=>!S.defibPadsOn,alreadyDone:'Pads already applied.',body:`<span class="good">Pads applied — right infraclavicular and left lateral chest wall (V5–V6 position).</span> Rhythm is now displaying on the monitor. <span class="warn">Check for pacemaker or implanted device — avoid placing pads directly over these.</span> Minimise hands-off time during pad application.`,log:'Defib pads applied — rhythm displaying on monitor',type:'good',once:true,onComplete:()=>{S.defibPadsOn=true; S.currentDisplayRhythm=rhythmSeq[0]; document.getElementById('ecgContainer').style.display='block'; drawECG();}},
   cpr_quality:{title:'CPR Quality',body:`Rate ~108/min, depth adequate. <span class="good">Acceptable.</span> Rotate compressor every 2 minutes.`,log:'CPR quality checked — acceptable',type:'info',once:false},
   adrenaline:{title:'Adrenaline',check:()=>S.accessEstablished!==null,failBody:`<span class="bad">No access established.</span> Gain IV or IO access first.`,body:`Adrenaline is indicated. <span class="good">For non-shockable: give as soon as access available. For shockable: give after the 3rd shock.</span><div class="jrcalc-box"><div class="jrcalc-box-title">📖 Dosing — Refer to JRCalc</div><div class="jrcalc-box-text">Always refer to JRCalc for doses, concentration, and route. Paramind does not provide clinical dosing.</div></div>`,log:'Adrenaline administered — refer to JRCalc for dosing',type:'good',once:false,onComplete:()=>{ if(!S.adrenalineGiven){ S.adrenalineTime=S.elapsed; S.adrenalineAfterShocks=S.shocksDelivered; } S.adrenalineGiven=true; }},
   amiodarone:{title:'Amiodarone',check:()=>S.accessEstablished!==null,failBody:`<span class="bad">No access established.</span>`,body:`Indicated for <strong>refractory VF/pVT only</strong> — after 3rd shock. Not for non-shockable rhythms.<div class="jrcalc-box"><div class="jrcalc-box-title">📖 Dosing — Refer to JRCalc</div><div class="jrcalc-box-text">Refer to JRCalc for timing and dose.</div></div>`,log:'Amiodarone considered — JRCalc for dosing',type:'info',once:true},
