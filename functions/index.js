@@ -485,9 +485,12 @@ if (session.total_details?.amount_discount > 0) {
     // Track if they've cancelled (so we can show them when access expires)
     if (subscription.cancel_at_period_end) {
       updateData.cancelledAt = admin.firestore.FieldValue.serverTimestamp();
-      // Guard: current_period_end can be undefined in some Stripe events — avoid new Date(NaN)
-      if (subscription.current_period_end) {
-        updateData.accessExpiresAt = new Date(subscription.current_period_end * 1000);
+      // current_period_end moved to items in newer Stripe API versions — check both locations
+      const periodEnd = subscription.current_period_end
+        || subscription.items?.data?.[0]?.current_period_end
+        || null;
+      if (periodEnd) {
+        updateData.accessExpiresAt = new Date(periodEnd * 1000);
       }
     } else {
       // They might have re-subscribed or un-cancelled
