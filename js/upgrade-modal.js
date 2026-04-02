@@ -529,6 +529,7 @@
                         console.log('Calling verifyApplePurchase...');
                         fetch(baseUrl + '/verifyApplePurchase', {
                             method: 'POST',
+                            keepalive: true,
                             headers: {
                                 'Authorization': 'Bearer ' + token,
                                 'Content-Type': 'application/json'
@@ -609,6 +610,7 @@
                         console.log('Calling verifyGooglePurchase...');
                         fetch(baseUrl + '/verifyGooglePurchase', {
                             method: 'POST',
+                            keepalive: true,
                             headers: {
                                 'Authorization': 'Bearer ' + token,
                                 'Content-Type': 'application/json'
