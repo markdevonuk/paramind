@@ -406,6 +406,30 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 
 <body class="arrest-scenarios-page">
 
+<!-- ── TRIGGER WARNING (shown before scenario starts) ───────────── -->
+<div class="trigger-overlay hidden" id="triggerOverlay">
+  <div class="trigger-card">
+    <div class="trigger-header">
+      <div class="trigger-header-icon">⚠️</div>
+      <div>
+        <div class="trigger-header-title">Before You Begin</div>
+        <div class="trigger-header-sub">Simulated Cardiac Arrest Scenario</div>
+      </div>
+    </div>
+    <div class="trigger-body">
+      <div class="trigger-text">
+        You are about to enter a <strong>simulated cardiac arrest scenario</strong>. This is designed to put you under real pressure — because that's exactly the point.<br><br>
+        You may feel <strong>frightened, overwhelmed, or not ready</strong> to face this on the road. That feeling is completely normal. It means the simulation is doing its job.<br><br>
+        <em>Take a breath. Think about your training. Work through it steadily.</em><br><br>
+        These patients are not real. No one gets hurt here. Every mistake is a learning opportunity, not a consequence.
+      </div>
+      <div class="trigger-divider"></div>
+      <button class="trigger-ready-btn" onclick="confirmReady()">I'm ready — let's do this</button>
+      <button class="trigger-back-btn" onclick="dismissTrigger()">Go back and choose a different scenario</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── SCENARIO SHELL (hidden until started) ────────────────────── -->
 <div class="scenario-shell" id="scenarioShell">
 <!-- HEADER -->
