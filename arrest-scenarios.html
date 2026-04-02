@@ -912,6 +912,12 @@ function openActionModal() {
     bootstrap.Modal.getOrCreateInstance(document.getElementById('arrestActionModal')).show();
 }
 
+function finishAndDebrief() {
+    const el = document.getElementById('arrestActionModal');
+    el.addEventListener('hidden.bs.modal', () => { showDebrief(); }, { once: true });
+    closeActionModal();
+}
+
 function closeActionModal() {
     const el = document.getElementById('arrestActionModal');
     const m = bootstrap.Modal.getInstance(el);
@@ -1293,7 +1299,7 @@ function buildNewbornActions() {
       <button class="arrest-action-option" data-action="nb_parents" onclick="doAction(this)"><i class="bi bi-heart"></i><span>Update Parents</span></button>
       <button class="arrest-action-option" data-action="nb_transport" onclick="doAction(this)"><i class="bi bi-truck"></i><span>Transport Decision</span></button>
       <button class="arrest-action-option" data-action="nb_records" onclick="doAction(this)"><i class="bi bi-file-text"></i><span>Complete Records</span></button>
-      <button class="arrest-action-option" data-action="finish_scenario" onclick="closeActionModal();showDebrief()"><i class="bi bi-flag-fill" style="color:#5cb85c"></i><span>Finish &amp; Go to Debrief</span></button>
+      <button class="arrest-action-option" data-action="finish_scenario" onclick="finishAndDebrief()"><i class="bi bi-flag-fill" style="color:#5cb85c"></i><span>Finish &amp; Go to Debrief</span></button>
     </div>
   </div>`;
 }
@@ -1355,7 +1361,7 @@ function buildPaedsActions() {
       <button class="arrest-action-option" data-action="paeds_family" onclick="doAction(this)"><i class="bi bi-house-heart"></i><span>Manage Family on Scene</span></button>
       <button class="arrest-action-option" data-action="team_roles" onclick="doAction(this)"><i class="bi bi-people"></i><span>Assign Team Roles</span></button>
       <button class="arrest-action-option" data-action="terminate" onclick="doAction(this)"><i class="bi bi-x-circle"></i><span>Consider Termination</span></button>
-      <button class="arrest-action-option" data-action="finish_scenario" onclick="closeActionModal();showDebrief()"><i class="bi bi-flag-fill" style="color:#5cb85c"></i><span>Finish &amp; Go to Debrief</span></button>
+      <button class="arrest-action-option" data-action="finish_scenario" onclick="finishAndDebrief()"><i class="bi bi-flag-fill" style="color:#5cb85c"></i><span>Finish &amp; Go to Debrief</span></button>
     </div>
   </div>`;
 }
@@ -1416,7 +1422,7 @@ function buildAdultActions() {
       <button class="arrest-action-option" data-action="team_roles" onclick="doAction(this)"><i class="bi bi-people"></i><span>Assign Team Roles</span></button>
       <button class="arrest-action-option" data-action="family" onclick="doAction(this)"><i class="bi bi-house-heart"></i><span>Manage Family on Scene</span></button>
       <button class="arrest-action-option" data-action="terminate" onclick="doAction(this)"><i class="bi bi-x-circle"></i><span>Consider Termination</span></button>
-      <button class="arrest-action-option" data-action="finish_scenario" onclick="closeActionModal();showDebrief()"><i class="bi bi-flag-fill" style="color:#5cb85c"></i><span>Finish &amp; Go to Debrief</span></button>
+      <button class="arrest-action-option" data-action="finish_scenario" onclick="finishAndDebrief()"><i class="bi bi-flag-fill" style="color:#5cb85c"></i><span>Finish &amp; Go to Debrief</span></button>
     </div>
   </div>`;
 }
