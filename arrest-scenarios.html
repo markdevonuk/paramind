@@ -2218,7 +2218,7 @@ function showDebrief() {
       warn.push('No rhythm checks were performed — rhythm check drives all ALS decisions');
     }
 
-    const missedShocks = S.shockDecisions.filter(d=>!d.shocked);
+    const missedShocks = S.shockDecisions.filter(d=>!d.shocked && !d.correct);
     if(missedShocks.length === 0 && S.shocksDelivered > 0) good.push(`Defibrillation delivered correctly on all ${S.shocksDelivered} shockable rhythm${S.shocksDelivered>1?'s':''}`);
     if(missedShocks.length > 0) warn.push(`Defibrillation withheld ${missedShocks.length} time${missedShocks.length>1?'s':''} when a shockable rhythm was present — always refer to JRCalc for paediatric energy dose`);
 
@@ -2285,7 +2285,7 @@ function showDebrief() {
     }
 
     // ── Shock decisions ──
-    const missedShocks = S.shockDecisions.filter(d=>!d.shocked);
+    const missedShocks = S.shockDecisions.filter(d=>!d.shocked && !d.correct);
     if(missedShocks.length === 0 && S.shocksDelivered > 0) good.push(`Defibrillation delivered correctly on all ${S.shocksDelivered} shockable rhythm${S.shocksDelivered>1?'s':''}`);
     if(missedShocks.length > 0) warn.push(`Defibrillation withheld ${missedShocks.length} time${missedShocks.length>1?'s':''} when a shockable rhythm was present — VF/pVT must be treated with immediate defibrillation`);
 
@@ -2362,6 +2362,8 @@ function addLog(time,text,type) {
   log.appendChild(e);
   const scrollEl=document.querySelector('.arrest-log-scroll');
   if(scrollEl) scrollEl.scrollTop=scrollEl.scrollHeight;
+  // Also push to actionsLog so it appears in the debrief timeline
+  if(S && S.actionsLog) S.actionsLog.push({time,text,type});
 }
 
 function showFeedback(msg,type) {
