@@ -685,6 +685,8 @@
     <div class="view debrief-view" id="debriefView">
         <div style="max-width:600px;margin:0 auto;width:100%;">
 
+            <div id="cpdSaveNotice" style="display:none;margin-bottom:1rem;"></div>
+
             <div class="section-header mb-3">
                 <h1>Scenario Complete</h1>
                 <p id="debriefSub" style="color:var(--color-gray-600);font-size:0.875rem;"></p>
@@ -2128,6 +2130,93 @@ function resetRhythmOverlay() {
 }
 
 // ═══════════════════════════════════
+// CPD RECORD SAVE
+// ═══════════════════════════════════
+async function saveArrestCpdRecord(good, warn, hollieSummaryText) {
+  if (!pageIsPro) {
+    document.getElementById('cpdSaveNotice').innerHTML = `
+      <div class="welcome-disclaimer" style="border-left-color:#f59e0b;">
+        <i class="bi bi-star me-2" style="color:#f59e0b;"></i>
+        <strong>CPD records require Paramind Pro.</strong>
+        <a href="landing.html#pricing" style="color:var(--color-teal);font-weight:600;margin-left:0.4rem;">Upgrade to save this to your portfolio</a>
+      </div>`;
+    document.getElementById('cpdSaveNotice').style.display = 'block';
+    return;
+  }
+
+  const trackLabel = S.track === 'newborn' ? 'NLS' : S.track === 'paeds' ? 'Paeds ALS' : 'Adult ALS';
+  const variant = S.track === 'newborn'
+    ? (NB_VARIANTS[S.nbVariant] || NB_VARIANTS.standard).label
+    : (ADULT_VARIANTS[S.adultVariant || S.paedsVariant] || ADULT_VARIANTS.standard_rosc).label;
+
+  const dateStr = new Date().toISOString().slice(0,10).replace(/-/g,'');
+  const scenarioCode = `ARR-${dateStr}-${S.track.toUpperCase()}`;
+
+  const result = warn.length === 0 ? 'correct'
+               : warn.length <= 2  ? 'partially_correct'
+               : 'incorrect';
+
+  const patientMap = {
+    adult:   'Male, approx. 58 years',
+    paeds:   'Child, approx. 5 years (18kg)',
+    newborn: 'Term Infant, approx. 40 weeks gestation'
+  };
+
+  const cpdData = {
+    scenarioId:           `arrest-${S.track}`,
+    scenarioCode,
+    scenarioType:         `Cardiac Arrest Simulation: ${trackLabel} — ${variant}`,
+    scenarioCategory:     'cardiac',
+    patientName:          patientMap[S.track] || 'Unknown',
+    chiefComplaint:       'Cardiac Arrest',
+    correctDiagnosis:     variant,
+    userImpression:       hollieSummaryText || 'Resuscitation scenario completed.',
+    result,
+    questionsAsked:       0,
+    assessmentsPerformed: S.actionsCount,
+    difficultyLevel:      2,
+    debriefReport: JSON.stringify({
+      track: S.track,
+      variant,
+      elapsedTime: formatTime(S.elapsed),
+      correctRhythms: S.correctRhythms,
+      rhythmCycle:    S.rhythmCycle,
+      shocksDelivered: S.shocksDelivered,
+      actionsCount:   S.actionsCount,
+      good,
+      warn,
+      timeline: S.actionsLog.map(e => `[${e.time}] ${e.text}`)
+    })
+  };
+
+  try {
+    const user = auth.currentUser;
+    if (!user) throw new Error('Not authenticated');
+    const token = await user.getIdToken();
+    const response = await fetch('https://europe-west2-paramind-64b8e.cloudfunctions.net/saveEnhancedCpdRecord', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(cpdData)
+    });
+    if (!response.ok) throw new Error('Save failed');
+    document.getElementById('cpdSaveNotice').innerHTML = `
+      <div class="welcome-disclaimer" style="border-left-color:#3d8b3d;">
+        <i class="bi bi-check-circle-fill me-2" style="color:#3d8b3d;"></i>
+        <strong>CPD record saved.</strong>
+        <a href="cpd.html" style="color:var(--color-teal);font-weight:600;margin-left:0.4rem;">View in your portfolio <i class="bi bi-arrow-right"></i></a>
+      </div>`;
+    document.getElementById('cpdSaveNotice').style.display = 'block';
+  } catch(e) {
+    document.getElementById('cpdSaveNotice').innerHTML = `
+      <div class="welcome-disclaimer" style="border-left-color:#dc3545;">
+        <i class="bi bi-exclamation-triangle me-2" style="color:#dc3545;"></i>
+        <strong>CPD record could not be saved.</strong> Please check your connection and try again.
+      </div>`;
+    document.getElementById('cpdSaveNotice').style.display = 'block';
+  }
+}
+
+// ═══════════════════════════════════
 // DEBRIEF
 // ═══════════════════════════════════
 function showDebrief() {
@@ -2181,6 +2270,7 @@ function showDebrief() {
 
     document.getElementById('debriefGood').innerHTML=good.map(t=>`<div class="debrief-item">${t}</div>`).join('');
     document.getElementById('debriefWarn').innerHTML=warn.map(t=>`<div class="debrief-item">${t}</div>`).join('');
+    saveArrestCpdRecord(good, warn, hollie);
   } else if (S.track === 'paeds') {
     const pv = ADULT_VARIANTS[S.paedsVariant] || ADULT_VARIANTS.standard_rosc;
     document.getElementById('debriefVariant').innerHTML = `
@@ -2252,6 +2342,7 @@ function showDebrief() {
     document.getElementById('hollieSummary').textContent = hollie;
     document.getElementById('debriefGood').innerHTML=good.map(t=>`<div class="debrief-item">${t}</div>`).join('');
     document.getElementById('debriefWarn').innerHTML=warn.map(t=>`<div class="debrief-item">${t}</div>`).join('');
+    saveArrestCpdRecord(good, warn, hollie);
 
   } else {
     // Show variant reveal
@@ -2341,6 +2432,7 @@ function showDebrief() {
     document.getElementById('hollieSummary').textContent = hollie;
     document.getElementById('debriefGood').innerHTML = good.length ? good.map(t=>`<div class="debrief-item">${t}</div>`).join('') : '<div class="debrief-item">No standout positives to note this run — review the areas below</div>';
     document.getElementById('debriefWarn').innerHTML = warn.length ? warn.map(t=>`<div class="debrief-item">${t}</div>`).join('') : '<div class="debrief-item">No major omissions — excellent run</div>';
+    saveArrestCpdRecord(good, warn, hollie);
   }
 
   document.getElementById('debriefTimeline').innerHTML=S.actionsLog.map(e=>`
