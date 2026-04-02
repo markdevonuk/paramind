@@ -2075,9 +2075,9 @@ function showDebrief() {
   }
 
   document.getElementById('debriefTimeline').innerHTML=S.actionsLog.map(e=>`
-    <div class="tl-entry"><span class="tl-time">${e.time}</span>
-    <div class="tl-dot ${e.type==='good'?'good':e.type==='warn'?'warn':'bad'}"></div>
-    <span class="tl-text">${e.text}</span></div>`).join('');
+    <div class="debrief-tl-entry"><span class="debrief-tl-time">${e.time}</span>
+    <div class="debrief-tl-dot ${e.type==='good'?'good':e.type==='warn'?'warn':'bad'}"></div>
+    <span class="debrief-tl-text">${e.text}</span></div>`).join('');
 
   showView('debriefView');
 }
