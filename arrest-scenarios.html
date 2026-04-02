@@ -536,7 +536,7 @@
         <!-- Incident banner with clock -->
         <div class="arrest-incident-banner">
             <div>
-                <div class="arrest-track-label" id="trackLabel">Adult ALS</div>
+                <div class="arrest-track-label" id="trackBadge">Adult ALS</div>
                 <div class="arrest-patient-name" id="bannerPatientName">Male, approx. 58 years</div>
             </div>
             <div class="arrest-clock-wrap">
@@ -925,10 +925,10 @@ function setupTrack() {
     document.getElementById('v1').textContent = '---';
     document.getElementById('v2').textContent = '---';
     document.getElementById('ecgContainer').style.display = 'none';
-    document.getElementById('nbMonitor').classList.add('show');
-    document.getElementById('algoStep').classList.add('show');
-    document.getElementById('goldenBanner').classList.remove('hidden');
-    document.getElementById('spo2Targets').classList.add('show');
+    document.getElementById('nbMonitor').style.display = 'flex';
+    document.getElementById('algoStep').style.display = 'block';
+    document.getElementById('goldenBanner').style.display = 'flex';
+    document.getElementById('spo2Targets').style.display = 'block';
     document.getElementById('checkLabel').textContent = 'Since last HR check';
     document.getElementById('nextCheckTime').textContent = '00:00';
     S.nextCheckIn = 9999;
@@ -956,7 +956,7 @@ function startGoldenMinute() {
     document.getElementById('goldenCountdown').textContent = S.goldenRemaining;
     if (S.goldenRemaining <= 0) {
       clearInterval(S.goldenInterval);
-      document.getElementById('goldenBanner').classList.add('hidden');
+      document.getElementById('goldenBanner').style.display = 'none';
       addLog(formatTime(S.elapsed), 'Golden minute elapsed — intervention phase should now be underway', 'warn');
     }
   }, 1000);
@@ -968,17 +968,17 @@ function startGoldenMinute() {
 function updateSpo2Targets() {
   const mins = Math.floor(S.elapsed / 60);
   ['spo2t2','spo2t5','spo2t10'].forEach(id => {
-    document.getElementById(id).className = 'spo2-target';
+    document.getElementById(id).className = 'arrest-spo2-target';
   });
   if (mins >= 10) {
-    document.getElementById('spo2t2').className = 'spo2-target past';
-    document.getElementById('spo2t5').className = 'spo2-target past';
-    document.getElementById('spo2t10').className = 'spo2-target current';
+    document.getElementById('spo2t2').className = 'arrest-spo2-target past';
+    document.getElementById('spo2t5').className = 'arrest-spo2-target past';
+    document.getElementById('spo2t10').className = 'arrest-spo2-target current';
   } else if (mins >= 5) {
-    document.getElementById('spo2t2').className = 'spo2-target past';
-    document.getElementById('spo2t5').className = 'spo2-target current';
+    document.getElementById('spo2t2').className = 'arrest-spo2-target past';
+    document.getElementById('spo2t5').className = 'arrest-spo2-target current';
   } else if (mins >= 2) {
-    document.getElementById('spo2t2').className = 'spo2-target current';
+    document.getElementById('spo2t2').className = 'arrest-spo2-target current';
   }
 }
 
@@ -1643,25 +1643,25 @@ function updateNBMonitor(hr) {
   const title = document.getElementById('nbStatusTitle');
   const sub = document.getElementById('nbStatusSub');
   if (hr==='>100') {
-    val.textContent='>100'; val.className='nb-hr-value ok';
-    title.textContent='Good Response'; title.className='nb-status-title good';
+    val.textContent='>100'; val.className='arrest-nb-hr-value ok';
+    title.textContent='Good Response'; title.className='arrest-nb-status-title good';
     sub.textContent='HR above target — continue monitoring and prepare for transport';
-    document.getElementById('v2').textContent='>100'; document.getElementById('v2').className='vital-value ok';
+    document.getElementById('v2').textContent='>100'; document.getElementById('v2').className='arrest-vital-value ok';
   } else if (hr==='60-100') {
-    val.textContent='60-100'; val.className='nb-hr-value caution';
-    title.textContent='Partial Response'; title.className='nb-status-title warn';
+    val.textContent='60-100'; val.className='arrest-nb-hr-value caution';
+    title.textContent='Partial Response'; title.className='arrest-nb-status-title warn';
     sub.textContent='Improving — reassess chest movement and continue ventilation';
-    document.getElementById('v2').textContent='60-100'; document.getElementById('v2').className='vital-value warn';
+    document.getElementById('v2').textContent='60-100'; document.getElementById('v2').className='arrest-vital-value warn';
   } else if (hr==='<60') {
-    val.textContent='<60'; val.className='nb-hr-value critical';
-    title.textContent='Compressions Indicated'; title.className='nb-status-title bad';
+    val.textContent='<60'; val.className='arrest-nb-hr-value critical';
+    title.textContent='Compressions Indicated'; title.className='arrest-nb-status-title bad';
     sub.textContent='HR below 60 after effective ventilation — 3:1 compressions required';
-    document.getElementById('v2').textContent='<60'; document.getElementById('v2').className='vital-value off';
+    document.getElementById('v2').textContent='<60'; document.getElementById('v2').className='arrest-vital-value off';
   } else {
-    val.textContent='---'; val.className='nb-hr-value critical';
-    title.textContent='Not Detectable'; title.className='nb-status-title bad';
+    val.textContent='---'; val.className='arrest-nb-hr-value critical';
+    title.textContent='Not Detectable'; title.className='arrest-nb-status-title bad';
     sub.textContent='Immediate 3:1 compressions and urgent help required';
-    document.getElementById('v2').textContent='---'; document.getElementById('v2').className='vital-value off';
+    document.getElementById('v2').textContent='---'; document.getElementById('v2').className='arrest-vital-value off';
   }
 }
 
