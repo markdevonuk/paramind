@@ -1833,12 +1833,12 @@ function submitHRCount(counted) {
     updateNBMonitor('60-100');
   } else if (result === '<60') {
     title = 'HR <60 bpm — Reassess & Call for Help'; titleClass = 'bad';
-    body = accuracyHtml + `<span class="bad">HR below 60.</span><br><br><strong>Before escalating:</strong><br>• <span class="warn">Confirm the chest IS moving with each ventilation breath</span><br>• If chest is not moving — address the airway first (reposition, 2-person technique, suction)<br>• Increase oxygen to 100%<br>• <strong>Call for help urgently</strong> — request most experienced help available<br><br>Continue ventilation and reassess every 30 seconds.`;
+    body = accuracyHtml + `<span class="bad">HR below 60.</span><br><br><strong>Before escalating:</strong><br>• <span class="warn">Confirm the chest IS moving with each ventilation breath</span><br>• If chest is not moving — address the airway first (reposition, 2-person technique, suction)<br>• <strong>Call for help urgently</strong> — request most experienced help available<br><br>Continue ventilation and reassess every 30 seconds.`;
     addLog(formatTime(S.elapsed), `HR reassessment — ~${userBpm} bpm (${counted} beats/6s), compressions indicated`, 'bad');
     updateNBMonitor('<60');
   } else {
     title = 'HR Not Detectable'; titleClass = 'bad';
-    body = accuracyHtml + `<span class="bad">No detectable heart rate.</span><br><br>• <span class="warn">Confirm airway is open and chest IS moving with each ventilation</span><br>• If not moving — reposition and troubleshoot before escalating<br>• Increase oxygen to 100%<br>• <strong>Urgent pre-alert to neonatal unit</strong><br>• <strong>Call for the most experienced help available immediately</strong><br><br>Reassess every 30 seconds.`;
+    body = accuracyHtml + `<span class="bad">No detectable heart rate.</span><br><br>• <span class="warn">Confirm airway is open and chest IS moving with each ventilation</span><br>• If not moving — reposition and troubleshoot before escalating<br>• <strong>Urgent pre-alert to neonatal unit</strong><br>• <strong>Call for the most experienced help available immediately</strong><br><br>Reassess every 30 seconds.`;
     addLog(formatTime(S.elapsed), `HR not detectable — 3:1 compressions and urgent help required`, 'bad');
     updateNBMonitor('undetectable');
   }
