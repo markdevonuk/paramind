@@ -963,7 +963,6 @@ function setupTrack() {
     document.getElementById('nbMonitor').style.display = 'flex';
     document.getElementById('algoStep').style.display = 'block';
     document.getElementById('goldenBanner').style.display = 'flex';
-    document.getElementById('spo2Targets').style.display = 'block';
     document.getElementById('checkLabel').textContent = 'Since last HR check';
     document.getElementById('nextCheckTime').textContent = '00:00';
     S.nextCheckIn = 9999;
@@ -1000,22 +999,7 @@ function startGoldenMinute() {
 // ═══════════════════════════════════
 // SPO2 TARGETS (newborn)
 // ═══════════════════════════════════
-function updateSpo2Targets() {
-  const mins = Math.floor(S.elapsed / 60);
-  ['spo2t2','spo2t5','spo2t10'].forEach(id => {
-    document.getElementById(id).className = 'arrest-spo2-target';
-  });
-  if (mins >= 10) {
-    document.getElementById('spo2t2').className = 'arrest-spo2-target past';
-    document.getElementById('spo2t5').className = 'arrest-spo2-target past';
-    document.getElementById('spo2t10').className = 'arrest-spo2-target current';
-  } else if (mins >= 5) {
-    document.getElementById('spo2t2').className = 'arrest-spo2-target past';
-    document.getElementById('spo2t5').className = 'arrest-spo2-target current';
-  } else if (mins >= 2) {
-    document.getElementById('spo2t2').className = 'arrest-spo2-target current';
-  }
-}
+function updateSpo2Targets() { /* removed */ }
 
 // ═══════════════════════════════════
 // CLOCK
