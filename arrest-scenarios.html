@@ -551,6 +551,14 @@
                 </div>
             </button>
 
+            <button class="scenario-select-card" onclick="selectTrack(this,'paeds')">
+                <div class="scenario-card-icon">🧒</div>
+                <div>
+                    <div class="scenario-card-name">Paediatric ALS</div>
+                    <div class="scenario-card-meta">Child, approx. 5 years &middot; Cardiac arrest &middot; Bystander CPR in progress &middot; Scenario varies each run</div>
+                </div>
+            </button>
+
             <button class="scenario-select-card" onclick="selectTrack(this,'newborn')">
                 <div class="scenario-card-icon">👶</div>
                 <div>
@@ -831,6 +839,9 @@ function confirmStart() {
     if (S.track === 'newborn') {
         const variants = ['standard','slow','compression','airway'];
         S.nbVariant = variants[Math.floor(Math.random() * variants.length)];
+    } else if (S.track === 'paeds') {
+        const variants = ['standard_rosc','refractory_vf','non_shockable'];
+        S.paedsVariant = variants[Math.floor(Math.random() * variants.length)];
     } else {
         const variants = ['standard_rosc','refractory_vf','non_shockable'];
         S.adultVariant = variants[Math.floor(Math.random() * variants.length)];
@@ -967,7 +978,7 @@ function startScenario() {
   S.running = true;
   setupTrack();
   startClock();
-  if (S.track === 'adult') drawECG();
+  if (S.track === 'adult' || S.track === 'paeds') drawECG();
   rebuildActionGroups();
 }
 
@@ -990,13 +1001,32 @@ function setupTrack() {
     startGoldenMinute();
     addLog('00:00', 'NLS commenced — infant delivered, clock started', 'info');
     addLog('00:00', 'Cord clamping delayed where possible', 'info');
+  } else if (S.track === 'paeds') {
+    document.getElementById('trackBadge').textContent = 'Paeds ALS';
+    document.getElementById('patientName').textContent = 'Child — Approx. 5 years old';
+    document.getElementById('patientMeta').textContent = 'Approx. 18kg · Collapsed at home · Unwitnessed arrest · Bystander CPR commenced by parent · Unknown downtime';
+    document.getElementById('bannerPatientName').textContent = 'Child, approx. 5 years';
+    document.getElementById('v1label').textContent = 'SpO₂';
+    document.getElementById('v2label').textContent = 'HR';
+    document.getElementById('v1').textContent = '---';
+    document.getElementById('v2').textContent = '---';
+    document.getElementById('checkLabel').textContent = 'Next rhythm check';
+    const pv = ADULT_VARIANTS[S.paedsVariant] || ADULT_VARIANTS.standard_rosc;
+    rhythmSeq = pv.seq;
+    S.nextCheckIn = 9999;
+    document.getElementById('ecgContainer').style.display = 'none';
+    document.getElementById('algoStep').style.display = 'none';
+    document.getElementById('cprIndicator').style.display = 'flex';
+    document.getElementById('cprText').textContent = 'CPR IN PROGRESS';
+    addLog('00:00', 'Scenario commenced — 5-year-old in cardiac arrest. Parent CPR ongoing. Your team takes over.', 'info');
+    addLog('00:00', 'Remember: 5 rescue breaths, then 15:2 compressions to ventilations. Request Priority 1 Backup.', 'warn');
   } else {
     document.getElementById('trackBadge').textContent = 'Adult ALS';
     document.getElementById('checkLabel').textContent = 'Next rhythm check';
     const av = ADULT_VARIANTS[S.adultVariant] || ADULT_VARIANTS.standard_rosc;
     rhythmSeq = av.seq;
-    S.nextCheckIn = 9999; // auto-cycle starts only after first manual rhythm check
-    document.getElementById('ecgContainer').style.display = 'none'; // hidden until pads applied
+    S.nextCheckIn = 9999;
+    document.getElementById('ecgContainer').style.display = 'none';
     addLog('00:00', 'Scenario commenced — CPR ongoing from bystander. Your team takes over compressions.', 'info');
     document.getElementById('algoStep').style.display = 'none';
     document.getElementById('cprIndicator').style.display = 'flex';
@@ -1128,7 +1158,8 @@ function closeModal() { closeActionModal(); }
 
 function rebuildActionGroups() {
   document.getElementById('actionGroups').innerHTML = S.track === 'newborn'
-    ? buildNewbornActions()
+    S.track === 'newborn' ? buildNewbornActions()
+    : S.track === 'paeds'  ? buildPaedsActions()
     : buildAdultActions();
 }
 
@@ -1200,6 +1231,68 @@ function buildNewbornActions() {
       <button class="arrest-action-option" data-action="finish_scenario" onclick="closeActionModal();showDebrief()"><i class="bi bi-flag-fill" style="color:#5cb85c"></i><span>Finish &amp; Go to Debrief</span></button>
     </div>
   </div>`;
+}
+
+// ═══════════════════════════════════
+// PAEDS ACTIONS
+// ═══════════════════════════════════
+function buildPaedsActions() {
+  return `
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">Airway & Breathing</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="paeds_rescue_breaths" onclick="doAction(this)"><i class="bi bi-lungs-fill"></i><span>5 Rescue Breaths</span></button>
+      <button class="arrest-action-option" data-action="paeds_bvm" onclick="doAction(this)"><i class="bi bi-lungs"></i><span>BVM 100% O₂ (2-person)</span></button>
+      <button class="arrest-action-option" data-action="paeds_airway" onclick="doAction(this)"><i class="bi bi-wind"></i><span>Airway — Head Tilt / Chin Lift</span></button>
+      <button class="arrest-action-option" data-action="paeds_igel" onclick="doAction(this)"><i class="bi bi-capsule"></i><span>Consider Advanced Airway</span></button>
+      <button class="arrest-action-option" data-action="etco2" onclick="doAction(this)"><i class="bi bi-activity"></i><span>Attach EtCO₂</span></button>
+    </div>
+  </div>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">Circulation & Access</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="paeds_cpr" onclick="doAction(this)"><i class="bi bi-heart-pulse"></i><span>CPR — 15:2 Ratio</span></button>
+      <button class="arrest-action-option" data-action="rhythm_check" onclick="doAction(this)"><i class="bi bi-activity"></i><span>Rhythm Check</span></button>
+      <button class="arrest-action-option" data-action="defib_pads" onclick="doAction(this)"><i class="bi bi-zap"></i><span>Apply Defib Pads</span></button>
+      <button class="arrest-action-option" data-action="iv" onclick="doAction(this)"><i class="bi bi-droplet-half"></i><span>Attempt IV Access</span></button>
+      <button class="arrest-action-option" data-action="io" onclick="doAction(this)"><i class="bi bi-bullseye"></i><span>Intraosseous (IO) Access</span></button>
+      <button class="arrest-action-option" data-action="cpr_quality" onclick="doAction(this)"><i class="bi bi-heart-pulse"></i><span>Check CPR Quality</span></button>
+    </div>
+  </div>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">Drugs (Intra-arrest)</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="adrenaline" onclick="doAction(this)"><i class="bi bi-syringe"></i><span>Administer Adrenaline</span></button>
+      <button class="arrest-action-option" data-action="amiodarone" onclick="doAction(this)"><i class="bi bi-syringe"></i><span>Consider Amiodarone</span></button>
+      <button class="arrest-action-option" data-action="glucose" onclick="doAction(this)"><i class="bi bi-droplet"></i><span>Blood Glucose</span></button>
+    </div>
+  </div>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">History & Information</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="paeds_hx_witness" onclick="doAction(this)"><i class="bi bi-person-raised-hand"></i><span>Speak to Parent / Carer</span></button>
+      <button class="arrest-action-option" data-action="paeds_hx_pmh" onclick="doAction(this)"><i class="bi bi-card-list"></i><span>Past Medical History</span></button>
+      <button class="arrest-action-option" data-action="paeds_hx_meds" onclick="doAction(this)"><i class="bi bi-capsule-pill"></i><span>Current Medications</span></button>
+      <button class="arrest-action-option" data-action="downtime" onclick="doAction(this)"><i class="bi bi-stopwatch"></i><span>Establish Downtime</span></button>
+    </div>
+  </div>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">Reversible Causes</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="4h" onclick="doAction(this)"><i class="bi bi-h-circle"></i><span>Consider the 4 H's</span></button>
+      <button class="arrest-action-option" data-action="4t" onclick="doAction(this)"><i class="bi bi-t-circle"></i><span>Consider the 4 T's</span></button>
+    </div>
+  </div>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">Team & Scene</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="paeds_backup" onclick="doAction(this)"><i class="bi bi-broadcast"></i><span>Request Priority 1 Backup</span></button>
+      <button class="arrest-action-option" data-action="paeds_family" onclick="doAction(this)"><i class="bi bi-house-heart"></i><span>Manage Family on Scene</span></button>
+      <button class="arrest-action-option" data-action="team_roles" onclick="doAction(this)"><i class="bi bi-people"></i><span>Assign Team Roles</span></button>
+      <button class="arrest-action-option" data-action="terminate" onclick="doAction(this)"><i class="bi bi-x-circle"></i><span>Consider Termination</span></button>
+      <button class="arrest-action-option" data-action="finish_scenario" onclick="closeActionModal();showDebrief()"><i class="bi bi-flag-fill" style="color:#5cb85c"></i><span>Finish &amp; Go to Debrief</span></button>
+    </div>
+  </div>\`;
 }
 
 // ═══════════════════════════════════
@@ -1967,7 +2060,8 @@ function showDebrief() {
   if (S.goldenInterval) clearInterval(S.goldenInterval);
   S.running=false;
 
-  document.getElementById('debriefSub').textContent = (S.track==='newborn'?'Newborn Life Support':'Adult ALS') + ' · Total time: ' + formatTime(S.elapsed);
+  const trackLabel = S.track==='newborn'?'Newborn Life Support':S.track==='paeds'?'Paediatric ALS':'Adult ALS';
+  document.getElementById('debriefSub').textContent = trackLabel + ' · Total time: ' + formatTime(S.elapsed);
 
   if (S.track==='newborn') {
     const variant = NB_VARIANTS[S.nbVariant] || NB_VARIANTS.standard;
@@ -2012,6 +2106,78 @@ function showDebrief() {
 
     document.getElementById('debriefGood').innerHTML=good.map(t=>`<div class="debrief-item">${t}</div>`).join('');
     document.getElementById('debriefWarn').innerHTML=warn.map(t=>`<div class="debrief-item">${t}</div>`).join('');
+  } else if (S.track === 'paeds') {
+    const pv = ADULT_VARIANTS[S.paedsVariant] || ADULT_VARIANTS.standard_rosc;
+    document.getElementById('debriefVariant').innerHTML = `
+      <div class="debrief-variant">
+        <div class="debrief-variant-label">🎲 Your Scenario Variant</div>
+        <div class="debrief-variant-name">${pv.label}</div>
+        <div class="debrief-variant-desc">${pv.description}</div>
+      </div>`;
+
+    document.getElementById('statA').textContent=`${S.correctRhythms}/${S.rhythmCycle}`;
+    document.getElementById('statALabel').textContent='Correct Rhythms';
+    document.getElementById('statB').textContent=S.shocksDelivered;
+    document.getElementById('statBLabel').textContent='Shocks Delivered';
+    document.getElementById('statC').textContent=S.actionsCount;
+    document.getElementById('statCLabel').textContent='Actions Taken';
+
+    const good=[], warn=[];
+
+    if(S.done['paeds_rescue_breaths']) good.push('5 rescue breaths delivered before commencing chest compressions — correct paediatric protocol');
+    else warn.push('5 rescue breaths were not delivered — in paediatric arrest, rescue breaths precede chest compressions and are critical as many arrests are respiratory in origin');
+
+    if(S.done['paeds_cpr']) good.push('CPR commenced at 15:2 ratio — correct for paediatric arrest');
+    else warn.push('15:2 compression-to-ventilation ratio was not confirmed — ensure you know the correct paediatric ratio (15:2, not 30:2)');
+
+    if(S.done['paeds_backup']) good.push('Priority 1 backup requested — correct and important in any paediatric cardiac arrest');
+    else warn.push('Priority 1 backup was not requested — this should be one of the earliest actions in a paediatric arrest');
+
+    if(S.defibPadsOn) good.push('Defib pads applied — rhythm monitoring established');
+    else warn.push('Defib pads were never applied — rhythm cannot be assessed without monitoring. Apply early.');
+
+    if(S.rhythmCycle > 0){
+      if(S.correctRhythms === S.rhythmCycle) good.push(`All ${S.rhythmCycle} rhythm checks correctly identified`);
+      else warn.push(`${S.correctRhythms} of ${S.rhythmCycle} rhythms correctly identified — review the misidentified rhythms in the timeline`);
+    } else {
+      warn.push('No rhythm checks were performed — rhythm check drives all ALS decisions');
+    }
+
+    const missedShocks = S.shockDecisions.filter(d=>!d.shocked);
+    if(missedShocks.length === 0 && S.shocksDelivered > 0) good.push(`Defibrillation delivered correctly on all ${S.shocksDelivered} shockable rhythm${S.shocksDelivered>1?'s':''}`);
+    if(missedShocks.length > 0) warn.push(`Defibrillation withheld ${missedShocks.length} time${missedShocks.length>1?'s':''} when a shockable rhythm was present — always refer to JRCalc for paediatric energy dose`);
+
+    if(!S.adrenalineGiven) warn.push('Adrenaline was not given — refer to JRCalc for paediatric adrenaline dosing; give after 3rd shock for shockable rhythms, or as soon as access is available for non-shockable');
+    else good.push('Adrenaline administered — refer to JRCalc for correct weight-based dosing');
+
+    if(S.accessEstablished === 'io') good.push('IO access established — appropriate and often faster than IV in paediatric arrest');
+    else if(S.accessEstablished === 'iv') good.push('IV access established');
+    else warn.push('No vascular access established — IO is the preferred route in paediatric arrest if IV fails');
+
+    if(S.done['paeds_bvm'] || S.done['paeds_igel']) good.push('Airway and ventilation managed — 100% O₂ applied');
+    else warn.push('Airway management not documented — BMV with 100% O₂ and 2-person technique should be established early');
+
+    const gotHistory = S.done['paeds_hx_witness'] || S.done['paeds_hx_pmh'];
+    const got4s = S.done['4h'] && S.done['4t'];
+    if(gotHistory) good.push('History obtained from parent/carer — useful for identifying aetiology');
+    else warn.push('No history obtained from parent/carer — this can identify reversible causes and provide critical context');
+    if(got4s) good.push('Reversible causes systematically reviewed — 4 H's and 4 T's considered');
+    else if(S.done['4h'] || S.done['4t']) warn.push('Only one of the 4 H's / 4 T's reviewed — complete both frameworks systematically');
+    else warn.push('Reversible causes not considered — hypoxia, hypoglycaemia and other reversible causes are particularly important in paediatric arrest');
+
+    const warnCount = warn.length;
+    let hollie;
+    if(warnCount === 0){
+      hollie = 'Excellent paediatric run. You followed the algorithm correctly, remembered the 15:2 ratio, and managed the airway well. The key principle in paediatric arrest is that many are respiratory in origin — early rescue breaths and good ventilation are often the most impactful interventions.';
+    } else if(warnCount <= 2){
+      hollie = `Good overall run with a couple of areas to revisit. ${!S.done['paeds_rescue_breaths']?'Remember that 5 rescue breaths come first in paediatric arrest — the adult approach of starting compressions immediately does not apply here. ':''}${!S.done['paeds_backup']?'Always request Priority 1 backup early in any paediatric arrest. ':''}Review the areas below and have another run.`;
+    } else {
+      hollie = `There are several important areas to review. Paediatric ALS differs from adult ALS in key ways — 5 rescue breaths first, 15:2 ratio, weight-based drug dosing (refer to JRCalc), and early IO access if IV fails. Many paediatric arrests are respiratory in origin, so early effective ventilation with 100% O₂ is the priority. Review the checklist below carefully.`;
+    }
+    document.getElementById('hollieSummary').textContent = hollie;
+    document.getElementById('debriefGood').innerHTML=good.map(t=>`<div class="debrief-item">${t}</div>`).join('');
+    document.getElementById('debriefWarn').innerHTML=warn.map(t=>`<div class="debrief-item">${t}</div>`).join('');
+
   } else {
     // Show variant reveal
     const av = ADULT_VARIANTS[S.adultVariant] || ADULT_VARIANTS.standard_rosc;
