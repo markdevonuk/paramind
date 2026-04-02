@@ -1461,15 +1461,30 @@ function triggerHRReassessment() {
   stopClock();
   S.nbHrChecks++;
   S.nbLastHRCheckAt = S.elapsed;
-  // Reset overlay to step 1
-  document.getElementById('auscultCard').style.display = 'block';
-  document.getElementById('auscultActive').classList.remove('show');
-  document.getElementById('hrCountSection').classList.remove('show');
-  document.getElementById('hrResponseArea').innerHTML = '';
-  document.getElementById('beatCount').textContent = '0';
-  document.getElementById('auscultCountdown').textContent = '6';
-  document.getElementById('auscultCountdown').className = 'auscult-countdown';
-  document.getElementById('pulseRing').className = 'pulse-ring';
+  const card = document.getElementById('rhythmCard');
+  card.innerHTML = `
+    <div class="arrest-overlay-title"><i class="bi bi-heart-pulse me-2"></i>Reassess Heart Rate</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#8892b0;text-align:center;margin-bottom:1rem;text-transform:uppercase;letter-spacing:0.06em;">Auscultation over chest · 6-second count</div>
+    <div id="auscultCard">
+      <div style="font-size:0.78rem;color:#8892b0;line-height:1.6;margin-bottom:1rem;text-align:center;">
+        Place stethoscope over the <strong style="color:#ffc107;">left side of the chest</strong>.<br>Count beats for 6 seconds — multiply by 10.
+      </div>
+      <button class="arrest-auscult-btn" onclick="startListening()">🩺 Tap to Auscultate<br><span style="font-size:0.7rem;font-weight:400;color:#8892b0;">6-second count will begin</span></button>
+      <button class="arrest-skip-btn" onclick="skipHRCheck()">Skip this time</button>
+    </div>
+    <div id="auscultActive" style="display:none;text-align:center;">
+      <div class="arrest-countdown-label">Counting for</div>
+      <div class="arrest-countdown" id="auscultCountdown">6</div>
+      <div class="arrest-pulse-ring-wrap"><div class="arrest-pulse-ring" id="pulseRing"><div class="arrest-pulse-ring-inner"></div></div></div>
+      <div class="arrest-beat-count">Beats counted: <span id="beatCount">0</span></div>
+    </div>
+    <div id="hrCountSection" style="display:none">
+      <div class="arrest-multiply-hint" id="hrMultiplyHint">You heard <strong id="heardBeats">—</strong> beats in 6 seconds</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#8892b0;text-align:center;margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.06em;">How many beats did you count?</div>
+      <div class="arrest-count-grid" id="hrCountGrid"></div>
+      <button class="arrest-count-none" onclick="submitHRCount(0)">I could not detect a heartbeat</button>
+    </div>
+    <div id="hrResponseArea"></div>`;
   openRhythmOverlay();
 }
 
@@ -1488,7 +1503,7 @@ function startListening() {
   let audioCtx = null;
 
   document.getElementById('auscultCard').style.display = 'none';
-  document.getElementById('auscultActive').classList.add('show');
+  document.getElementById('auscultActive').style.display = 'block';
 
   // Web Audio API — synthetic heartbeat (lub-dub)
   try {
@@ -1676,24 +1691,33 @@ const rhythmSeq=['vf','vf','asystole','vf','sinus'];
 
 function triggerRhythmCheck() {
   stopClock();
-  if (!S.rhythmStarted) {
-    S.rhythmStarted = true;
-    S.nextCheckIn = 120;
-  }
+  if (!S.rhythmStarted) { S.rhythmStarted = true; S.nextCheckIn = 120; }
   S.rhythmCycle++;
-  document.getElementById('cycleNum').textContent = S.rhythmCycle;
   S.rhythmCorrect = rhythmSeq[Math.min(S.rhythmCycle - 1, rhythmSeq.length - 1)];
-  // Draw strip (stage 2 will redraw, but draw early so it's ready)
+  // Inject fresh HTML into rhythmCard each time
+  const card = document.getElementById('rhythmCard');
+  card.innerHTML = `
+    <div class="arrest-overlay-banner">HOLD CPR</div>
+    <div class="arrest-overlay-sub">Rhythm Check — Cycle ${S.rhythmCycle}</div>
+    <div class="arrest-ecg-strip">
+      <canvas id="rhythmCanvas" style="width:100%;height:76px;display:block;"></canvas>
+      <div class="arrest-ecg-strip-label">25mm/s · 10mm/mV · Lead II</div>
+    </div>
+    <div id="stageResult" style="display:none"></div>
+    <div id="stagePulse">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:#c0c0c0;margin-bottom:0.5rem;text-align:center;">Is a pulse check indicated for this rhythm?</div>
+      <div style="font-size:0.72rem;color:#8892b0;text-align:center;margin-bottom:0.875rem;">Check carotid for up to 10s — only when appropriate</div>
+      <div class="arrest-pulse-grid">
+        <button class="arrest-pulse-btn yes" onclick="answerPulseCheck(true)">✓ Yes — Check Pulse</button>
+        <button class="arrest-pulse-btn no" onclick="answerPulseCheck(false)">✗ No — Not Indicated</button>
+      </div>
+    </div>
+    <div id="stageRhythm" style="display:none">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:#c0c0c0;margin-bottom:0.75rem;text-align:center;">What rhythm is this?</div>
+      <div class="arrest-rhythm-grid" id="rhythmOptions"></div>
+    </div>
+    <div id="stageShock" style="display:none"></div>`;
   drawRhythmStrip(S.rhythmCorrect);
-  // Reset to stage 1
-  document.getElementById('stagePulse').style.display = 'block';
-  document.getElementById('stageRhythm').style.display = 'none';
-  document.getElementById('stageShock').style.display = 'none';
-  document.getElementById('stageShock').innerHTML = '';
-  document.getElementById('stageResult').style.display = 'none';
-  document.getElementById('stageResult').innerHTML = '';
-  document.querySelector('.pulse-check-btn.yes').onclick = () => answerPulseCheck(true);
-  document.querySelector('.pulse-check-btn.no').onclick = () => answerPulseCheck(false);
   openRhythmOverlay();
 }
 
