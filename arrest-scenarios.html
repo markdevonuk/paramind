@@ -1875,11 +1875,22 @@ function checkRhythm(btn, answer) {
     document.getElementById('stageRhythm').style.display = 'none';
 
     if(correct === 'sinus'){
-      // Sinus → ROSC — skip stage 3
-      document.getElementById('stageResult').innerHTML =
-        `<div class="stage-result correct">✓ Sinus rhythm confirmed. Pulse check indicated — if pulse present this is ROSC.</div>`;
-      document.getElementById('stageResult').style.display = 'block';
-      setTimeout(() => { resetRhythmOverlay(); showDebrief(); }, 1500);
+      // Check if the sequence continues after this cycle (e.g. rosc_rearrest variant)
+      const hasMore = S.rhythmCycle < rhythmSeq.length - 1;
+      if(hasMore){
+        // ROSC confirmed but scenario continues — re-arrest may follow
+        addLog(formatTime(S.elapsed), '✓ Sinus rhythm — ROSC confirmed. Monitor closely.', 'good');
+        document.getElementById('stageResult').innerHTML =
+          `<div class="arrest-stage-result correct">✓ Sinus rhythm — <strong>ROSC confirmed.</strong> Pulse present. Continue monitoring — be ready to restart CPR if the patient deteriorates.</div>`;
+        document.getElementById('stageResult').style.display = 'block';
+        setTimeout(() => { resetRhythmOverlay(); startClock(); }, 2000);
+      } else {
+        // Final sinus — end scenario
+        document.getElementById('stageResult').innerHTML =
+          `<div class="arrest-stage-result correct">✓ Sinus rhythm confirmed. Pulse check indicated — if pulse present this is ROSC.</div>`;
+        document.getElementById('stageResult').style.display = 'block';
+        setTimeout(() => { resetRhythmOverlay(); showDebrief(); }, 1500);
+      }
 
     } else {
       // All other rhythms → shock decision stage
