@@ -1587,7 +1587,7 @@ function startListening() {
     secondsLeft--;
     const el = document.getElementById('auscultCountdown');
     el.textContent = secondsLeft;
-    if (secondsLeft <= 2) el.className = 'auscult-countdown ending';
+    if (secondsLeft <= 2) el.className = 'arrest-countdown ending';
     if (secondsLeft <= 0) {
       clearInterval(countdownInterval);
       clearInterval(beatInterval);
@@ -1597,24 +1597,21 @@ function startListening() {
 }
 
 function showCountOptions(heard, actual, bpm) {
-  document.getElementById('auscultActive').classList.remove('show');
+  document.getElementById('auscultActive').style.display = 'none';
   document.getElementById('heardBeats').textContent = heard;
   document.getElementById('hrMultiplyHint').style.display = 'block';
 
-  // Generate count buttons: actual ± 2 range, shuffled, plus actual always present
+  // Generate count buttons: actual ± 2 range, plus actual always present
   const options = new Set([actual]);
   for (let i = Math.max(0, actual - 2); i <= actual + 2; i++) options.add(i);
   const sorted = [...options].sort((a,b)=>a-b);
 
   document.getElementById('hrCountGrid').innerHTML = sorted.map(n => {
     const hbpm = n * 10;
-    return `<button class="hr-count-btn" onclick="submitHRCount(${n})">
-      ${n}
-      <span class="count-label">= ${hbpm} bpm</span>
-    </button>`;
+    return `<button class="arrest-count-btn" onclick="submitHRCount(${n})">${n}<span class="count-sub">= ${hbpm} bpm</span></button>`;
   }).join('');
 
-  document.getElementById('hrCountSection').classList.add('show');
+  document.getElementById('hrCountSection').style.display = 'block';
 }
 
 function submitHRCount(counted) {
