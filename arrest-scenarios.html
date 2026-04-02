@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Cardiac Arrest Scenarios | Paramind</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -19,21 +20,24 @@
     <link rel="stylesheet" href="css/styles.css">
 
     <style>
-        /* Intro page shell — matches other Paramind tool pages */
-        .arrest-page {
+        /* Page shell — same pattern as cpd.html */
+        .arrest-scenarios-page {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             background: var(--color-gray-50);
         }
-        .main-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        .content-view { flex: 1; overflow-y: auto; padding: 1.25rem 1rem 2rem; }
+        .main-container {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+        }
 
-        /* Scenario selection cards — uses existing Paramind card pattern */
+        /* Scenario selection cards */
         .scenario-select-card {
             background: var(--color-white);
-            border-radius: var(--radius-lg);
             border: 2px solid var(--color-gray-200);
+            border-radius: var(--radius-lg);
             padding: 1rem 1.1rem;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -44,7 +48,10 @@
             text-align: left;
             margin-bottom: 0.75rem;
         }
-        .scenario-select-card:hover { border-color: var(--color-teal); box-shadow: var(--shadow-sm); }
+        .scenario-select-card:hover {
+            border-color: var(--color-teal);
+            box-shadow: var(--shadow-sm);
+        }
         .scenario-select-card.selected {
             border-color: var(--color-teal);
             background: rgba(43,138,156,0.05);
@@ -57,11 +64,21 @@
             display: flex; align-items: center; justify-content: center;
             font-size: 1.5rem; flex-shrink: 0;
         }
-        .scenario-select-card.selected .scenario-card-icon { background: rgba(43,138,156,0.12); }
-        .scenario-card-name { font-weight: 600; font-size: 0.9rem; color: var(--color-gray-800); margin-bottom: 0.15rem; }
-        .scenario-card-meta { font-size: 0.78rem; color: var(--color-gray-500); }
+        .scenario-select-card.selected .scenario-card-icon {
+            background: rgba(43,138,156,0.12);
+        }
+        .scenario-card-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--color-gray-800);
+            margin-bottom: 0.15rem;
+        }
+        .scenario-card-meta {
+            font-size: 0.78rem;
+            color: var(--color-gray-500);
+        }
 
-        /* Full-screen scenario shell */
+        /* Full-screen dark scenario shell */
         .scenario-shell {
             position: fixed; inset: 0; z-index: 1050;
             background: #0A0D0F;
@@ -387,95 +404,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
     </style>
 </head>
 
-<body class="arrest-page">
+<body class="arrest-scenarios-page">
 
-<!-- Auth loading -->
-<div id="authLoading" style="position:fixed;inset:0;background:var(--color-gray-50);display:flex;align-items:center;justify-content:center;z-index:9999;">
-    <div style="text-align:center">
-        <div class="spinner-border" style="width:2rem;height:2rem;color:var(--color-teal);" role="status"></div>
-        <p style="margin-top:0.75rem;font-size:0.875rem;color:var(--color-gray-500);margin-bottom:0">Loading...</p>
-    </div>
-</div>
-
-<!-- ══ INTRO PAGE ═══════════════════════════════════════════════ -->
-<div id="introPage" style="display:none;flex:1;flex-direction:column;">
-
-    <nav class="member-navbar">
-        <div class="container">
-            <span class="brand-text">
-                <a class="navbar-brand" href="index.html">
-                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
-                </a>
-            </span>
-            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
-                <span></span><span></span><span></span>
-            </button>
-        </div>
-    </nav>
-
-    <div class="main-container">
-        <div class="content-view">
-            <div style="max-width:600px;margin:0 auto;">
-
-                <!-- Page header — same pattern as scenarios.html section-header -->
-                <div class="section-header mb-4">
-                    <h1><i class="bi bi-heart-pulse me-2" style="color:var(--color-teal)"></i>Cardiac Arrest Scenarios</h1>
-                    <p>Real-time resuscitation simulations from the moment CPR begins. Every decision is timed, logged, and reviewed in a full clinical debrief.</p>
-                </div>
-
-                <!-- Scenario selection -->
-                <button class="scenario-select-card selected" onclick="selectTrack(this,'adult')">
-                    <div class="scenario-card-icon">🫀</div>
-                    <div>
-                        <div class="scenario-card-name">Adult ALS</div>
-                        <div class="scenario-card-meta">70kg male &middot; Cardiac arrest &middot; Bystander CPR in progress</div>
-                    </div>
-                </button>
-
-                <button class="scenario-select-card" onclick="selectTrack(this,'newborn')">
-                    <div class="scenario-card-icon">👶</div>
-                    <div>
-                        <div class="scenario-card-name">Newborn Life Support</div>
-                        <div class="scenario-card-meta">Term infant &middot; Poor tone &middot; Not breathing at birth &middot; Scenario varies each run</div>
-                    </div>
-                </button>
-
-                <!-- Start button — uses existing Paramind btn-primary style -->
-                <button class="btn btn-primary w-100 py-3 mt-2" style="font-size:1rem;font-weight:600;" onclick="showTriggerWarning()">
-                    <i class="bi bi-play-fill me-2"></i>Start Scenario
-                </button>
-
-                <!-- Disclaimer — same welcome-disclaimer pattern used on other pages -->
-                <div class="welcome-disclaimer mt-3">
-                    <i class="bi bi-shield-check me-2"></i>
-                    <strong>Educational tool only.</strong> These are simulations for learning purposes.
-                    Always refer to your trust protocols and JRCalc for clinical guidance.
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    <footer class="member-footer">
-        <div class="container">
-            <div class="footer-brand">
-                <span class="brand-text">
-                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
-                </span>
-            </div>
-            <div class="footer-links">
-                <a href="terms.html">Terms of Service</a>
-                <a href="privacy.html">Privacy Policy</a>
-                <a href="purpose.html">Intended Purpose</a>
-                <a href="sources.html">Sources &amp; Citations</a>
-                <a href="contact.html">Contact</a>
-            </div>
-            <p class="footer-copyright">&copy; 2026 Paramind. All rights reserved.</p>
-        </div>
-    </footer>
-</div>
-
-<!-- ══ SCENARIO SHELL ════════════════════════════════════════════ -->
+<!-- ── SCENARIO SHELL (hidden until started) ────────────────────── -->
 <div class="scenario-shell" id="scenarioShell">
 <!-- HEADER -->
 <div class="header">
@@ -687,7 +618,79 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 </div>
 </div>
 
-<!-- Scripts -->
+<!-- ── NAVIGATION ───────────────────────────────────────────────── -->
+<nav class="member-navbar">
+    <div class="container">
+        <span class="brand-text">
+            <a class="navbar-brand" href="index.html">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </a>
+        </span>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</nav>
+
+<!-- ── MAIN CONTENT ──────────────────────────────────────────────── -->
+<div class="main-container">
+
+    <div class="page-header" style="background:var(--color-white);padding:1.5rem;border-bottom:1px solid var(--color-gray-200);text-align:center;">
+        <h2><i class="bi bi-heart-pulse me-2" style="color:var(--color-teal)"></i>Cardiac Arrest Scenarios</h2>
+        <p style="color:var(--color-gray-600);margin:0;font-size:0.875rem;">Real-time resuscitation simulations. Every decision is timed, logged, and debriefed.</p>
+    </div>
+
+    <div class="container" style="max-width:600px;padding:1.5rem 1rem 3rem;">
+
+        <button class="scenario-select-card selected" onclick="selectTrack(this,'adult')">
+            <div class="scenario-card-icon">🫀</div>
+            <div>
+                <div class="scenario-card-name">Adult ALS</div>
+                <div class="scenario-card-meta">70kg male &middot; Cardiac arrest &middot; Bystander CPR in progress</div>
+            </div>
+        </button>
+
+        <button class="scenario-select-card" onclick="selectTrack(this,'newborn')">
+            <div class="scenario-card-icon">👶</div>
+            <div>
+                <div class="scenario-card-name">Newborn Life Support</div>
+                <div class="scenario-card-meta">Term infant &middot; Poor tone &middot; Not breathing at birth &middot; Scenario varies each run</div>
+            </div>
+        </button>
+
+        <button class="btn btn-primary w-100 py-3 mt-1" style="font-size:1rem;font-weight:600;" onclick="showTriggerWarning()">
+            <i class="bi bi-play-fill me-2"></i>Start Scenario
+        </button>
+
+        <div class="welcome-disclaimer mt-3">
+            <i class="bi bi-shield-check me-2"></i>
+            <strong>Educational tool only.</strong> These are simulations for learning purposes.
+            Always refer to your trust protocols and JRCalc for clinical guidance.
+        </div>
+
+    </div>
+</div>
+
+<!-- ── FOOTER ────────────────────────────────────────────────────── -->
+<footer class="member-footer">
+    <div class="container">
+        <div class="footer-brand">
+            <span class="brand-text">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </span>
+        </div>
+        <div class="footer-links">
+            <a href="terms.html">Terms of Service</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="purpose.html">Intended Purpose</a>
+            <a href="sources.html">Sources &amp; Citations</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <p class="footer-copyright">&copy; 2026 Paramind. All rights reserved.</p>
+    </div>
+</footer>
+
+<!-- ── SCRIPTS ───────────────────────────────────────────────────── -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -712,12 +715,7 @@ const db   = firebase.firestore();
 // ==================== AUTH CHECK ====================
 // Free tool — any logged-in user can access
 auth.onAuthStateChanged(async (user) => {
-    document.getElementById('authLoading').style.display = 'none';
-    if (user) {
-        const intro = document.getElementById('introPage');
-        intro.style.display = 'flex';
-        intro.style.flexDirection = 'column';
-    } else {
+    if (!user) {
         window.location.href = 'login.html';
     }
 });
@@ -725,17 +723,20 @@ auth.onAuthStateChanged(async (user) => {
 // ==================== SHELL MANAGEMENT ====================
 function activateScenarioShell() {
     document.getElementById('scenarioShell').classList.add('active');
-    document.getElementById('introPage').style.display = 'none';
-    // Hide Paramind menu container while scenario is running
+    // Hide the page content while scenario runs
+    document.querySelector('.member-navbar').style.display = 'none';
+    document.querySelector('.main-container').style.display = 'none';
+    document.querySelector('.member-footer').style.display = 'none';
     const mc = document.getElementById('menuContainer');
     if (mc) mc.style.display = 'none';
-    // Prevent body scroll
     document.body.style.overflow = 'hidden';
 }
 
 function deactivateScenarioShell() {
     document.getElementById('scenarioShell').classList.remove('active');
-    document.getElementById('introPage').style.display = 'flex';
+    document.querySelector('.member-navbar').style.display = '';
+    document.querySelector('.main-container').style.display = '';
+    document.querySelector('.member-footer').style.display = '';
     const mc = document.getElementById('menuContainer');
     if (mc) mc.style.display = '';
     document.body.style.overflow = '';
@@ -803,7 +804,6 @@ const NB_ALGO_PHASES = [
 // INTRO / TRACK
 // ═══════════════════════════════════
 function showTriggerWarning() {
-  document.getElementById('introPage').style.display = 'none';
   document.getElementById('triggerOverlay').classList.remove('hidden');
 }
 
@@ -818,8 +818,6 @@ function confirmReady() {
 
 function dismissTrigger() {
   document.getElementById('triggerOverlay').classList.add('hidden');
-  const ip = document.getElementById('introPage');
-  ip.style.display = 'flex'; ip.style.flexDirection = 'column';
 }
 
 function selectTrackInternal(btn, track) {
@@ -829,13 +827,16 @@ function selectTrackInternal(btn, track) {
 }
 
 function startScenario() {
-  document.getElementById('introPage').style.display = 'none';
+  activateScenarioShell();
   S.running = true;
   setupTrack();
   startClock();
   if (S.track === 'adult') drawECG();
   rebuildActionGroups();
 }
+
+
+
 
 function setupTrack() {
   if (S.track === 'newborn') {
@@ -1974,17 +1975,12 @@ function showFeedback(msg,type) {
 
 // ── Wire intro track cards ──────────────────────────────────────
 function selectTrack(btn, track) {
-    document.querySelectorAll('.arrest-track-card').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.scenario-select-card').forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
     S.track = track;
 }
 
-// ── Override confirmReady to activate shell before starting ────
-const _origConfirmReady = confirmReady;
-confirmReady = function() {
-    activateScenarioShell();
-    _origConfirmReady();
-};
+// confirmReady already calls startScenario which calls activateScenarioShell
 
 // ── Override showDebrief to add "Back to Scenarios" button ─────
 const _origShowDebrief = showDebrief;
