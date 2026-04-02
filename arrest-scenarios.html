@@ -1181,6 +1181,7 @@ function drawECG() {
   ctx.strokeStyle='#00C853'; ctx.lineWidth=1.5; ctx.shadowColor='#00C853'; ctx.shadowBlur=3;
   ctx.beginPath();
   const r = S.currentDisplayRhythm;
+  const scrollOffset = Math.floor(Date.now() / 20) % 200; // scroll speed for organised rhythms
   for(let x=0;x<w;x++){
     let y = h/2;
     if(r==='vf'){
@@ -1188,9 +1189,9 @@ function drawECG() {
     } else if(r==='asystole'){
       y=h/2+(Math.random()-0.5)*2;
     } else if(r==='pea'){
-      const p=x%80; if(p>35&&p<55) y=h/2-Math.sin((p-35)/20*Math.PI)*18; y+=(Math.random()-0.5)*1.5;
+      const p=(x+scrollOffset)%80; if(p>35&&p<55) y=h/2-Math.sin((p-35)/20*Math.PI)*18; y+=(Math.random()-0.5)*1.5;
     } else if(r==='sinus'){
-      const p=x%100;
+      const p=(x+scrollOffset)%100;
       if(p>10&&p<15) y=h/2-4;
       else if(p>40&&p<43) y=h/2-26;
       else if(p>43&&p<46) y=h/2+8;
