@@ -1721,6 +1721,7 @@ function startListening() {
   // Web Audio API — synthetic heartbeat (lub-dub)
   try {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
   } catch(e) { audioCtx = null; }
 
   function playHeartbeat() {
@@ -1831,25 +1832,24 @@ function submitHRCount(counted) {
     addLog(formatTime(S.elapsed), `HR reassessment — ~${userBpm} bpm (${counted} beats/6s), improving`, 'warn');
     updateNBMonitor('60-100');
   } else if (result === '<60') {
-    title = 'HR <60 bpm — Compressions Indicated'; titleClass = 'bad';
-    body = accuracyHtml + `<span class="bad">HR below 60 after effective ventilation with chest movement.</span><br><br>• <strong>3 compressions synchronised to 1 ventilation</strong><br>• Two-thumb encircling technique<br>• Increase oxygen to 100%<br>• Call for help urgently<br><br><span class="warn">Confirm the chest WAS moving with ventilation — if not, address the airway before compressions.</span>`;
+    title = 'HR <60 bpm — Reassess & Call for Help'; titleClass = 'bad';
+    body = accuracyHtml + `<span class="bad">HR below 60.</span><br><br><strong>Before escalating:</strong><br>• <span class="warn">Confirm the chest IS moving with each ventilation breath</span><br>• If chest is not moving — address the airway first (reposition, 2-person technique, suction)<br>• Increase oxygen to 100%<br>• <strong>Call for help urgently</strong> — request most experienced help available<br><br>Continue ventilation and reassess every 30 seconds.`;
     addLog(formatTime(S.elapsed), `HR reassessment — ~${userBpm} bpm (${counted} beats/6s), compressions indicated`, 'bad');
     updateNBMonitor('<60');
   } else {
     title = 'HR Not Detectable'; titleClass = 'bad';
-    body = accuracyHtml + `<span class="bad">No detectable heart rate.</span><br><br>• <strong>3:1 compressions immediately</strong><br>• 100% oxygen<br>• Urgent pre-alert to neonatal unit<br>• Confirm airway and ventilation effective<br><br><span class="warn">Reassess every 30 seconds. Call for the most experienced help available.</span>`;
+    body = accuracyHtml + `<span class="bad">No detectable heart rate.</span><br><br>• <span class="warn">Confirm airway is open and chest IS moving with each ventilation</span><br>• If not moving — reposition and troubleshoot before escalating<br>• Increase oxygen to 100%<br>• <strong>Urgent pre-alert to neonatal unit</strong><br>• <strong>Call for the most experienced help available immediately</strong><br><br>Reassess every 30 seconds.`;
     addLog(formatTime(S.elapsed), `HR not detectable — 3:1 compressions and urgent help required`, 'bad');
     updateNBMonitor('undetectable');
   }
 
-  document.getElementById('hrCountSection').classList.remove('show');
+  document.getElementById('hrCountSection').style.display = 'none';
+  document.getElementById('hrResponseArea').style.display = 'block';
   document.getElementById('hrResponseArea').innerHTML = `
-    <div class="hr-response">
-      <div class="hr-response-title ${titleClass}">${title}</div>
-      <div class="hr-response-body">${body}</div>
-      <div class="hr-response-actions">
-        <button class="btn btn-primary" onclick="closeHROverlay()">Understood — Continue</button>
-      </div>
+    <div class="arrest-hr-response">
+      <div class="arrest-hr-response-title ${titleClass}">${title}</div>
+      <div class="arrest-hr-response-body">${body}</div>
+      <button class="arrest-overlay-btn primary" onclick="closeHROverlay()">Understood — Continue</button>
     </div>`;
 }
 
