@@ -1190,6 +1190,15 @@ function drawECG() {
       y=h/2+(Math.random()-0.5)*2;
     } else if(r==='pea'){
       const p=(x+scrollOffset)%80; if(p>35&&p<55) y=h/2-Math.sin((p-35)/20*Math.PI)*18; y+=(Math.random()-0.5)*1.5;
+    } else if(r==='vt'){
+      // Monomorphic VT — wide complex, regular, ~180bpm (~60px period)
+      const p=(x+scrollOffset)%60;
+      if(p<8) y=h/2-(p/8)*22;                                    // upstroke
+      else if(p<18) y=h/2-22+(Math.sin((p-8)/10*Math.PI)*3);    // broad peak
+      else if(p<28) y=h/2-22+((p-18)/10)*30;                    // downstroke through baseline
+      else if(p<36) y=h/2+8-((p-28)/8)*8;                       // return to baseline
+      else y=h/2;                                                 // flat
+      y+=(Math.random()-0.5)*1.2;
     } else if(r==='sinus'){
       const p=(x+scrollOffset)%100;
       if(p>10&&p<15) y=h/2-4;
@@ -1938,6 +1947,7 @@ function drawRhythmStrip(rhythm) {
   if(rhythm==='vf'){for(let x=0;x<w;x++){const y=h/2+Math.sin(x*0.2)*14+Math.sin(x*0.35)*8+Math.sin(x*0.08)*17+(Math.random()-0.5)*4;x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}}
   else if(rhythm==='asystole'){for(let x=0;x<w;x++){const y=h/2+(Math.random()-0.5)*2;x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}}
   else if(rhythm==='pea'){for(let x=0;x<w;x++){let y=h/2;const p=x%80;if(p>35&&p<55)y=h/2-Math.sin((p-35)/20*Math.PI)*20;y+=(Math.random()-0.5)*1.5;x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}}
+  else if(rhythm==='vt'){for(let x=0;x<w;x++){let y=h/2;const p=x%60;if(p<8)y=h/2-(p/8)*22;else if(p<18)y=h/2-22+(Math.sin((p-8)/10*Math.PI)*3);else if(p<28)y=h/2-22+((p-18)/10)*30;else if(p<36)y=h/2+8-((p-28)/8)*8;else y=h/2;y+=(Math.random()-0.5)*1.2;x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}}
   else{for(let x=0;x<w;x++){let y=h/2;const p=x%100;if(p>10&&p<15)y=h/2-4;if(p>40&&p<43)y=h/2-28;else if(p>43&&p<46)y=h/2+8;else if(p>60&&p<75)y=h/2-Math.sin((p-60)/15*Math.PI)*6;y+=(Math.random()-0.5)*1;x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}}
   ctx.stroke();ctx.shadowBlur=0;
 }
