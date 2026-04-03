@@ -855,7 +855,7 @@
             doc.text(impressionLabel, m + 5, y);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(...navy);
-            const impressionText = record.userImpression || 'Not recorded';
+            const impressionText = (record.userImpression || 'Not recorded').replace(/₂/g,'2').replace(/[^\x00-\xFF]/g,'');
             const impressionLines = doc.splitTextToSize(impressionText, iw - 44);
             doc.text(impressionLines, m + 42, y);
             y += Math.max(0, (impressionLines.length - 1) * 4.5);
@@ -879,12 +879,15 @@
             y = sectionHead('KEY LEARNING POINTS', y);
 
             const learningPoints = extractLearningPoints(record.debriefReport);
+            const sanitise = str => str
+                .replace(/₂/g, '2').replace(/₁/g, '1').replace(/₃/g, '3')
+                .replace(/[^\x00-\xFF]/g, ''); // strip any remaining non-latin-1 chars
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(7.8);
             doc.setTextColor(...gray);
             learningPoints.forEach((pt, i) => {
                 if (y > ph - 60) return;
-                const lines = doc.splitTextToSize((i + 1) + '.  ' + pt, iw - 8);
+                const lines = doc.splitTextToSize((i + 1) + '.  ' + sanitise(pt), iw - 8);
                 doc.text(lines, m + 5, y);
                 y += lines.length * 4.5 + 2;
             });
