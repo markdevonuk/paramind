@@ -530,7 +530,7 @@
                                 <i class="bi bi-calendar3"></i>
                                 ${formattedDate}
                             </span>
-                            <span class="cpd-record-result ${resultClass}">${resultText}</span>
+                            ${!(record.scenarioId || '').startsWith('arrest-') ? `<span class="cpd-record-result ${resultClass}">${resultText}</span>` : ''}
                         </div>
                         <div class="cpd-record-title">${escapeHtml(record.scenarioType || 'Clinical Scenario')}</div>
                         <div class="cpd-record-code">
@@ -541,19 +541,13 @@
                                 <span class="detail-label">Your impression:</span>
                                 <span class="detail-value">${escapeHtml(record.userImpression || 'N/A')}</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Actual diagnosis:</span>
-                                <span class="detail-value">${escapeHtml(record.correctDiagnosis || 'N/A')}</span>
-                            </div>
+                            ${!(record.scenarioId || '').startsWith('arrest-') ? `<div class="detail-row"><span class="detail-label">Actual diagnosis:</span><span class="detail-value">${escapeHtml(record.correctDiagnosis || 'N/A')}</span></div>` : ''}
                         </div>
                         <div class="cpd-record-stats">
-                            <span class="cpd-record-stat">
-                                <i class="bi bi-chat-dots"></i>
-                                ${record.questionsAsked || 0} questions
-                            </span>
+                            ${!(record.scenarioId || '').startsWith('arrest-') ? `<span class="cpd-record-stat"><i class="bi bi-chat-dots"></i>${record.questionsAsked || 0} questions</span>` : ''}
                             <span class="cpd-record-stat">
                                 <i class="bi bi-clipboard2-pulse"></i>
-                                ${record.assessmentsPerformed || 0} assessments
+                                ${(record.scenarioId || '').startsWith('arrest-') ? 'Actions: ' : ''}${record.assessmentsPerformed || 0} ${(record.scenarioId || '').startsWith('arrest-') ? '' : 'assessments'}
                             </span>
                             ${record.difficultyLevel ? `<span class="cpd-record-stat">
                                 <i class="bi bi-bar-chart"></i>
@@ -868,11 +862,15 @@
             y += 5;
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(...gray);
-            doc.text('Correct Diagnosis:', m + 5, y);
-            doc.setFont('helvetica', 'bold');
-            doc.setTextColor(...navy);
-            doc.text(record.correctDiagnosis || 'N/A', m + 42, y);
-            y += 8;
+            if (!isArrestRecord) {
+                doc.text('Correct Diagnosis:', m + 5, y);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(...navy);
+                doc.text(record.correctDiagnosis || 'N/A', m + 42, y);
+                y += 8;
+            } else {
+                y += 3;
+            }
 
             // ── KEY LEARNING POINTS ──
             doc.setDrawColor(...lgray);
@@ -916,7 +914,10 @@
             doc.setFontSize(8);
             doc.setTextColor(...gray);
             doc.text('Completed: ' + completedDate, m + 5, y);
-            doc.text('Questions: ' + (record.questionsAsked || 0) + '   |   Assessments: ' + (record.assessmentsPerformed || 0), pw - m, y, { align: 'right' });
+            const statsStr = isArrestRecord
+                ? 'Actions Taken: ' + (record.assessmentsPerformed || 0)
+                : 'Questions: ' + (record.questionsAsked || 0) + '   |   Assessments: ' + (record.assessmentsPerformed || 0);
+            doc.text(statsStr, pw - m, y, { align: 'right' });
 
             // ── FOOTER BAND ──
             doc.setFillColor(...navy);
