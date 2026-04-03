@@ -567,6 +567,14 @@
                 </div>
             </button>
 
+            <button class="scenario-select-card pro-locked" id="traumaCard" onclick="selectTrack(this,'trauma')">
+                <div class="scenario-card-icon">🚗</div>
+                <div>
+                    <div class="scenario-card-name">Traumatic Cardiac Arrest <span class="pro-lock-badge" id="traumaBadge"><i class="bi bi-star-fill"></i> Pro</span></div>
+                    <div class="scenario-card-meta">25-year-old male &middot; RTC, ejected from vehicle &middot; HOTT protocol &middot; Scenario varies each run</div>
+                </div>
+            </button>
+
             <button class="btn btn-primary w-100 py-3 mt-1 mb-3"
                     style="font-size:0.95rem;font-weight:600;"
                     onclick="openTriggerWarning()">
@@ -861,11 +869,11 @@ auth.onAuthStateChanged(async (user) => {
         }
     } catch(e) { pageIsPro = false; }
     if (pageIsPro) {
-        ['paedsCard','newbornCard'].forEach(id => {
+        ['paedsCard','newbornCard','traumaCard'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.classList.remove('pro-locked');
         });
-        ['paedsBadge','newbornBadge'].forEach(id => {
+        ['paedsBadge','newbornBadge','traumaBadge'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.style.display = 'none';
         });
@@ -895,7 +903,7 @@ function openTriggerWarning() {
 }
 
 function confirmStart() {
-    if ((S.track === 'paeds' || S.track === 'newborn') && !pageIsPro) {
+    if ((S.track === 'paeds' || S.track === 'newborn' || S.track === 'trauma') && !pageIsPro) {
         bootstrap.Modal.getInstance(document.getElementById('triggerModal')).hide();
         bootstrap.Modal.getOrCreateInstance(document.getElementById('proModal')).show();
         return;
@@ -907,6 +915,9 @@ function confirmStart() {
     } else if (S.track === 'paeds') {
         const variants = ['standard_rosc','refractory_vf','non_shockable'];
         S.paedsVariant = variants[Math.floor(Math.random() * variants.length)];
+    } else if (S.track === 'trauma') {
+        const variants = ['hypovolaemia','tension_ptx','mixed'];
+        S.traumaVariant = variants[Math.floor(Math.random() * variants.length)];
     } else {
         const variants = ['standard_rosc','refractory_vf','non_shockable'];
         S.adultVariant = variants[Math.floor(Math.random() * variants.length)];
@@ -977,6 +988,9 @@ const S = {
   currentDisplayRhythm: 'vf',
   rhythmCorrect: null,
   terminationAppropriate: false, // true when termination was correctly decided
+  // trauma
+  traumaVariant: null,
+  traumaMedicalCauseAssessed: false,
   // newborn
   nbDried: false,
   nbAirwayOpened: false,
@@ -1011,6 +1025,24 @@ const ADULT_VARIANTS = {
     label: 'Non-Shockable Arrest',
     description: 'No shockable rhythms are present — the arrest is PEA/asystole throughout. This focuses entirely on CPR quality, systematic reversal of causes (4 Hs & 4 Ts), and recognising a non-survivable arrest.',
     seq: ['pea','asystole','pea','asystole','pea']
+  }
+};
+
+const TRAUMA_VARIANTS = {
+  hypovolaemia: {
+    label: 'Hypovolaemia',
+    description: 'Dominant cause is haemorrhage — external bleeding, long bone and pelvic fractures. Tests haemorrhage control, pelvic splinting, IV/IO access, and fluid resuscitation.',
+    hint: 'Significant external haemorrhage visible from femoral wound. Suspected pelvic fracture — instability on assessment. No obvious chest injury.'
+  },
+  tension_ptx: {
+    label: 'Tension Pneumothorax',
+    description: 'Dominant cause is thoracic. Tests recognition of tension pneumothorax and decision to perform bilateral finger thoracostomies alongside airway management and oxygenation.',
+    hint: 'No significant external haemorrhage. Mechanism consistent with chest injury — restrained driver, airbag deployed, significant chest wall bruising visible.'
+  },
+  mixed: {
+    label: 'Mixed — Hypovolaemia, Tension & Tamponade',
+    description: 'Multiple simultaneous HOTT causes present. Tests systematic approach under pressure — haemorrhage control, thoracostomy, and recognition of tamponade requiring Critical Care support.',
+    hint: 'External haemorrhage from leg wound. Suspected chest injury. High-energy mechanism — ejected at speed.'
   }
 };
 
@@ -1051,7 +1083,7 @@ function startScenario() {
   S.running = true;
   setupTrack();
   startClock();
-  if (S.track === 'adult' || S.track === 'paeds') drawECG();
+  if (S.track === 'adult' || S.track === 'paeds' || S.track === 'trauma') drawECG();
   rebuildActionGroups();
 }
 
@@ -1094,6 +1126,27 @@ function setupTrack() {
     document.getElementById('cprText').textContent = 'CPR IN PROGRESS';
     addLog('00:00', 'Scenario commenced — 5-year-old in cardiac arrest. Parent CPR ongoing. Your team takes over.', 'info');
     addLog('00:00', 'Remember: 5 rescue breaths, then 15:2 compressions to ventilations. Request Priority 1 Backup.', 'warn');
+  } else if (S.track === 'trauma') {
+    const tv = TRAUMA_VARIANTS[S.traumaVariant] || TRAUMA_VARIANTS.hypovolaemia;
+    document.getElementById('trackBadge').textContent = 'Trauma Arrest';
+    document.getElementById('bannerPatientName').textContent = 'Male, approx. 25 years';
+    document.getElementById('patientName').textContent = 'Male — Approx. 25 years';
+    document.getElementById('patientMeta').textContent = 'High-speed RTC · Ejected from vehicle · Unwitnessed · Found in cardiac arrest · Bystander CPR commenced';
+    document.getElementById('v1label').textContent = 'SpO2';
+    document.getElementById('v2label').textContent = 'HR';
+    document.getElementById('v1').textContent = '---';
+    document.getElementById('v2').textContent = '---';
+    document.getElementById('checkLabel').textContent = 'Next rhythm check';
+    rhythmSeq = ['pea','asystole','pea','asystole','pea'];
+    S.nextCheckIn = 9999;
+    S.currentDisplayRhythm = 'pea';
+    document.getElementById('ecgContainer').style.display = 'none';
+    document.getElementById('algoStep').style.display = 'none';
+    document.getElementById('cprIndicator').style.display = 'flex';
+    document.getElementById('cprText').textContent = 'CPR IN PROGRESS';
+    addLog('00:00', 'Traumatic cardiac arrest — high-energy RTC, patient ejected. CPR in progress.', 'bad');
+    addLog('00:00', 'HOTT protocol: address Hypovolaemia, Oxygenation, Tension pneumothorax, Tamponade simultaneously.', 'warn');
+    addLog('00:00', 'Scene assessment: ' + tv.hint, 'info');
   } else {
     document.getElementById('trackBadge').textContent = 'Adult ALS';
     document.getElementById('checkLabel').textContent = 'Next rhythm check';
@@ -1188,7 +1241,7 @@ function updateProgress() {
 // ═══════════════════════════════════
 function drawECG() {
   const canvas = document.getElementById('ecgCanvas');
-  if (!canvas || !S.running || (S.track !== 'adult' && S.track !== 'paeds')) return;
+  if (!canvas || !S.running || (S.track !== 'adult' && S.track !== 'paeds' && S.track !== 'trauma')) return;
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio || 1;
   canvas.width = canvas.offsetWidth * dpr; canvas.height = 64 * dpr;
@@ -1244,6 +1297,7 @@ function rebuildActionGroups() {
   document.getElementById('actionGroups').innerHTML =
     S.track === 'newborn' ? buildNewbornActions()
     : S.track === 'paeds'  ? buildPaedsActions()
+    : S.track === 'trauma' ? buildTraumaActions()
     : buildAdultActions();
 }
 
@@ -1382,6 +1436,73 @@ function buildPaedsActions() {
 // ═══════════════════════════════════
 // ADULT ACTIONS
 // ═══════════════════════════════════
+// ===========================================
+// TRAUMA ACTIONS
+// ===========================================
+function buildTraumaActions() {
+  return `
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">Scene & Mechanism</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="trauma_mechanism" onclick="doAction(this)"><i class="bi bi-car-front"></i><span>Assess Mechanism</span></button>
+      <button class="arrest-action-option" data-action="trauma_medical_cause" onclick="doAction(this)"><i class="bi bi-question-circle"></i><span>Likely Medical Cause?</span></button>
+      <button class="arrest-action-option" data-action="downtime" onclick="doAction(this)"><i class="bi bi-stopwatch"></i><span>Establish Downtime</span></button>
+    </div>
+  </div>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">H &mdash; Hypovolaemia</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="trauma_bleeding_control" onclick="doAction(this)"><i class="bi bi-bandaid"></i><span>Control External Bleeding</span></button>
+      <button class="arrest-action-option" data-action="trauma_pelvis_splint" onclick="doAction(this)"><i class="bi bi-person-standing"></i><span>Splint Pelvis</span></button>
+      <button class="arrest-action-option" data-action="trauma_long_bones" onclick="doAction(this)"><i class="bi bi-bandaid-fill"></i><span>Splint Long Bone Fractures</span></button>
+      <button class="arrest-action-option" data-action="io" onclick="doAction(this)"><i class="bi bi-bullseye"></i><span>Intraosseous (IO) Access</span></button>
+      <button class="arrest-action-option" data-action="iv" onclick="doAction(this)"><i class="bi bi-droplet-half"></i><span>IV Access</span></button>
+      <button class="arrest-action-option" data-action="trauma_fluids" onclick="doAction(this)"><i class="bi bi-droplet-fill"></i><span>IV/IO Fluid / Blood</span></button>
+    </div>
+  </div>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">O &mdash; Oxygenation</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="trauma_airway" onclick="doAction(this)"><i class="bi bi-wind"></i><span>Airway Management</span></button>
+      <button class="arrest-action-option" data-action="trauma_oxygen" onclick="doAction(this)"><i class="bi bi-lungs-fill"></i><span>100% Oxygen</span></button>
+      <button class="arrest-action-option" data-action="trauma_igel" onclick="doAction(this)"><i class="bi bi-capsule"></i><span>Advanced Airway</span></button>
+      <button class="arrest-action-option" data-action="etco2" onclick="doAction(this)"><i class="bi bi-activity"></i><span>Attach EtCO2</span></button>
+    </div>
+  </div>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">T &mdash; Tension Pneumothorax</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="trauma_chest_assess" onclick="doAction(this)"><i class="bi bi-search"></i><span>Assess Chest</span></button>
+      <button class="arrest-action-option" data-action="trauma_thoracostomy_l" onclick="doAction(this)"><i class="bi bi-scissors"></i><span>Left Finger Thoracostomy</span></button>
+      <button class="arrest-action-option" data-action="trauma_thoracostomy_r" onclick="doAction(this)"><i class="bi bi-scissors"></i><span>Right Finger Thoracostomy</span></button>
+    </div>
+  </div>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">T &mdash; Tamponade</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="trauma_tamponade_assess" onclick="doAction(this)"><i class="bi bi-heart-pulse"></i><span>Assess for Tamponade</span></button>
+      <button class="arrest-action-option" data-action="trauma_cc_support" onclick="doAction(this)"><i class="bi bi-broadcast"></i><span>Call for Critical Care Support</span></button>
+    </div>
+  </div>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">Monitoring & Drugs</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="rhythm_check" onclick="doAction(this)"><i class="bi bi-activity"></i><span>Rhythm Check</span></button>
+      <button class="arrest-action-option" data-action="defib_pads" onclick="doAction(this)"><i class="bi bi-zap"></i><span>Apply Defib Pads</span></button>
+      <button class="arrest-action-option" data-action="adrenaline" onclick="doAction(this)"><i class="bi bi-syringe"></i><span>Administer Adrenaline</span></button>
+      <button class="arrest-action-option" data-action="glucose" onclick="doAction(this)"><i class="bi bi-droplet"></i><span>Blood Glucose</span></button>
+    </div>
+  </div>
+  <div class="arrest-action-group">
+    <div class="arrest-action-group-title">Team & Scene</div>
+    <div class="arrest-action-grid">
+      <button class="arrest-action-option" data-action="team_roles" onclick="doAction(this)"><i class="bi bi-people"></i><span>Assign Team Roles</span></button>
+      <button class="arrest-action-option" data-action="terminate" onclick="doAction(this)"><i class="bi bi-x-circle"></i><span>Consider Termination</span></button>
+      <button class="arrest-action-option" data-action="finish_scenario" onclick="finishAndDebrief()"><i class="bi bi-flag-fill" style="color:#5cb85c"></i><span>Finish &amp; Go to Debrief</span></button>
+    </div>
+  </div>`;
+}
+
 function buildAdultActions() {
   return `
   <div class="arrest-action-group">
@@ -1443,6 +1564,129 @@ function buildAdultActions() {
 // ═══════════════════════════════════
 // NEWBORN ACTION RESPONSES
 // ═══════════════════════════════════
+// ===========================================
+// TRAUMA RESPONSES
+// ===========================================
+const traumaResponses = {
+  trauma_mechanism:{
+    title:'Trauma Mechanism',
+    body:`<strong>High-energy RTC</strong> — estimated speed >60 mph. Patient ejected. Vehicle significantly deformed. <span class="warn">Clearly traumatic in origin. Proceed with HOTT protocol.</span>`,
+    log:'Mechanism assessed — high-energy RTC, ejected, clearly traumatic',
+    type:'warn',once:true,onComplete:()=>{S.traumaMedicalCauseAssessed=true;}
+  },
+  trauma_medical_cause:{
+    title:'Likely Medical Cause?',
+    body:`<span class="good">No evidence of a likely medical cause.</span> Clear traumatic mechanism. No history of collapse before impact. <strong>Proceed with HOTT protocol.</strong>`,
+    log:'Medical cause excluded — clearly traumatic, HOTT confirmed',
+    type:'good',once:true,onComplete:()=>{S.traumaMedicalCauseAssessed=true;}
+  },
+  trauma_bleeding_control:{
+    title:'External Haemorrhage Control',
+    body:()=>{
+      const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;
+      if(tv.label==='Tension Pneumothorax')
+        return '<span class="good">No significant external haemorrhage identified.</span> Correct to assess. Focus on oxygenation and thoracostomy.';
+      return '<strong class="bad">Significant external haemorrhage from femoral wound.</strong> Direct pressure applied — partially controlled. <span class="warn">Consider tourniquet if available. H in HOTT — priority.</span>';
+    },
+    log:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Tension Pneumothorax'?'External haemorrhage — none significant':'Haemorrhage control — femoral wound, direct pressure';},
+    type:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Tension Pneumothorax'?'good':'bad';},
+    once:true,onComplete:()=>{S.done['trauma_bleeding_control']=true;}
+  },
+  trauma_pelvis_splint:{
+    title:'Pelvic Splint',
+    body:()=>{
+      const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;
+      if(tv.label==='Tension Pneumothorax')
+        return '<span class="good">No clinical evidence of pelvic fracture.</span> Correct to assess given mechanism.';
+      return '<strong class="warn">Pelvic instability — suspected pelvic ring fracture.</strong> <span class="good">Pelvic binder applied at greater trochanters.</span> Reduces pelvic haemorrhage.';
+    },
+    log:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Tension Pneumothorax'?'Pelvis assessed — no fracture':'Pelvic fracture — binder applied at greater trochanters';},
+    type:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Tension Pneumothorax'?'good':'warn';},
+    once:true
+  },
+  trauma_long_bones:{
+    title:'Long Bone Splinting',
+    body:`Long bone fractures splinted — traction applied. <span class="warn">Early splinting reduces haemorrhage.</span>`,
+    log:'Long bone fractures splinted — traction applied',type:'warn',once:true
+  },
+  trauma_fluids:{
+    title:'IV/IO Fluid and Blood',
+    failCheck:()=>!S.accessEstablished,
+    failBody:`<span class="bad">No vascular access established.</span> Obtain IO or IV access first.`,
+    body:`<strong>Refer to JRCalc for fluid resuscitation in traumatic cardiac arrest.</strong> <span class="warn">Blood products are preferred over large volumes of crystalloid in haemorrhagic arrest. Follow your trust protocol.</span>`,
+    log:'IV/IO fluid/blood commenced — refer to JRCalc',type:'info',once:false
+  },
+  trauma_airway:{
+    title:'Airway Management',
+    body:`Airway opened — jaw thrust applied. <span class="warn">Jaw thrust preferred if C-spine injury suspected, but airway always takes priority over C-spine protection in cardiac arrest.</span>`,
+    log:'Airway opened — jaw thrust applied, C-spine considered',type:'good',once:true
+  },
+  trauma_oxygen:{
+    title:'100% Oxygen',
+    body:`<span class="good">100% oxygen via BVM applied.</span> O in HOTT. <strong>Once advanced airway in place, ventilate at 10/min — avoid hyperventilation which reduces venous return.</strong>`,
+    log:'100% O2 via BVM — oxygenation addressed',type:'good',once:true,onComplete:()=>{S.done['trauma_oxygen']=true;}
+  },
+  trauma_igel:{
+    title:'Advanced Airway',
+    body:`<span class="good">i-gel inserted and confirmed. Asynchronous ventilation at 10 bpm.</span> <span class="warn">10 breaths/min only — avoid hyperventilation. Refer to JRCalc.</span>`,
+    log:'Advanced airway — i-gel, 10 bpm, avoiding hyperventilation',type:'good',once:true,
+    onComplete:()=>{S.igelIn=true;S.done['trauma_oxygen']=true;}
+  },
+  trauma_chest_assess:{
+    title:'Chest Assessment',
+    body:()=>{
+      const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;
+      if(tv.label==='Hypovolaemia')
+        return '<span class="good">Bilateral air entry present. Trachea midline. No tension pneumothorax.</span> Haemorrhage is the dominant cause. Still perform bilateral thoracostomy — standard in traumatic arrest.';
+      return '<strong class="bad">Absent air entry on left. Tracheal deviation to the right.</strong> <span class="bad">Tension pneumothorax — bilateral finger thoracostomies required immediately.</span>';
+    },
+    log:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Hypovolaemia'?'Chest assessed — bilateral air entry, no tension':'Chest assessed — absent left air entry, tracheal deviation, tension PTX';},
+    type:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Hypovolaemia'?'good':'bad';},
+    once:true,onComplete:()=>{S.done['trauma_chest_assess']=true;}
+  },
+  trauma_thoracostomy_l:{
+    title:'Left Finger Thoracostomy',
+    body:()=>{
+      const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;
+      if(tv.label==='Hypovolaemia')
+        return '<span class="warn">Left thoracostomy — no tension confirmed. Correct to perform bilaterally in traumatic arrest to exclude bilateral tension.</span>';
+      return '<span class="good">Left finger thoracostomy — immediate rush of air. Tension decompressed. Left lung re-expanding.</span> Proceed to right side immediately.';
+    },
+    log:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Hypovolaemia'?'Left thoracostomy — no tension, prophylactic':'Left thoracostomy — rush of air, tension decompressed';},
+    type:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Hypovolaemia'?'info':'good';},
+    once:true,onComplete:()=>{S.done['trauma_thoracostomy_l']=true;}
+  },
+  trauma_thoracostomy_r:{
+    title:'Right Finger Thoracostomy',
+    body:()=>{
+      const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;
+      if(tv.label==='Hypovolaemia')
+        return '<span class="warn">Right thoracostomy — no tension. Bilateral decompression complete. Standard practice in all traumatic arrests.</span>';
+      return '<span class="good">Right thoracostomy — clear. Bilateral decompression complete. Always decompress both sides in traumatic arrest.</span>';
+    },
+    log:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Hypovolaemia'?'Right thoracostomy — no tension, bilateral complete':'Right thoracostomy — clear, bilateral decompression done';},
+    type:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Hypovolaemia'?'info':'good';},
+    once:true,onComplete:()=>{S.done['trauma_thoracostomy_r']=true;}
+  },
+  trauma_tamponade_assess:{
+    title:'Assess for Cardiac Tamponade',
+    body:()=>{
+      const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;
+      if(tv.label==='Mixed')
+        return '<strong class="bad">Clinical signs consistent with cardiac tamponade</strong> — muffled heart sounds, distended neck veins. <span class="warn">Requires Critical Care support — call immediately. Do not attempt aspiration without CC.</span>';
+      return '<span class="good">No clinical signs of tamponade.</span> Mechanism does not strongly suggest tamponade. Correct to assess as part of HOTT.';
+    },
+    log:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Mixed'?'Tamponade — clinical signs present, CC required':'Tamponade assessed — no clinical signs';},
+    type:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Mixed'?'bad':'good';},
+    once:true,onComplete:()=>{S.done['trauma_tamponade_assess']=true;}
+  },
+  trauma_cc_support:{
+    title:'Critical Care Support Called',
+    body:`<span class="good">Critical Care pre-alert made.</span> For suspected cardiac tamponade, Critical Care or physician support is required for further intervention. <strong>Early activation gives the best chance of definitive treatment before hospital arrival.</strong>`,
+    log:'Critical Care support requested — tamponade suspected',type:'good',once:true,onComplete:()=>{S.done['trauma_cc_support']=true;}
+  }
+};
+
 const nbResponses = {
   nb_tone:{title:'Tone Assessment',body:`Infant has <strong class="warn">markedly reduced tone</strong> — floppy, limbs extended, no flexion posture. This is consistent with significant compromise at birth. <span class="warn">Reduced tone is a key indicator for commencing NLS interventions.</span>`,log:'Tone assessed — markedly reduced, floppy',type:'warn',once:true},
   nb_breathing:{title:'Breathing Assessment',
@@ -1609,7 +1853,7 @@ Ensure all reversible causes have been systematically excluded, access is establ
 
 function doAction(btn) {
   const id = btn.dataset.action;
-  const def = S.track === 'newborn' ? nbResponses[id] : adultResponses[id];
+  const def = S.track === 'newborn' ? nbResponses[id] : S.track === 'trauma' ? (traumaResponses[id] || adultResponses[id]) : adultResponses[id];
   if (!def) return;
 
   if (def.failCheck && def.failCheck()) {
@@ -2399,7 +2643,7 @@ function showDebrief() {
   if (S.goldenInterval) clearInterval(S.goldenInterval);
   S.running=false;
 
-  const trackLabel = S.track==='newborn'?'Newborn Life Support':S.track==='paeds'?'Paediatric ALS':'Adult ALS';
+  const trackLabel = S.track==='newborn'?'Newborn Life Support':S.track==='paeds'?'Paediatric ALS':S.track==='trauma'?'Traumatic Cardiac Arrest':'Adult ALS';
   document.getElementById('debriefSub').textContent = trackLabel + ' · Total time: ' + formatTime(S.elapsed);
 
   if (S.track==='newborn') {
@@ -2521,6 +2765,94 @@ function showDebrief() {
     document.getElementById('hollieSummary').textContent = hollie;
     document.getElementById('debriefGood').innerHTML=good.map(t=>`<div class="debrief-item">${t}</div>`).join('');
     document.getElementById('debriefWarn').innerHTML=warn.map(t=>`<div class="debrief-item">${t}</div>`).join('');
+    saveArrestCpdRecord(good, warn, hollie);
+
+  } else if (S.track === 'trauma') {
+    const tv = TRAUMA_VARIANTS[S.traumaVariant] || TRAUMA_VARIANTS.hypovolaemia;
+    document.getElementById('debriefVariant').innerHTML = `
+      <div class="debrief-variant">
+        <div class="debrief-variant-label">Your Scenario Variant</div>
+        <div class="debrief-variant-name">${tv.label}</div>
+        <div class="debrief-variant-desc">${tv.description}</div>
+      </div>`;
+
+    document.getElementById('statA').textContent = S.actionsCount;
+    document.getElementById('statALabel').textContent = 'Actions Taken';
+    document.getElementById('statB').textContent = S.rhythmCycle;
+    document.getElementById('statBLabel').textContent = 'Rhythm Checks';
+    document.getElementById('statC').textContent = formatTime(S.elapsed);
+    document.getElementById('statCLabel').textContent = 'Total Time';
+
+    const good=[], warn=[];
+
+    // Medical cause assessed
+    if(S.traumaMedicalCauseAssessed)
+      good.push('Medical cause correctly excluded — HOTT protocol confirmed as appropriate');
+    else
+      warn.push('The "Likely medical cause?" assessment was not performed — the algorithm requires this step to confirm the correct pathway before commencing HOTT');
+
+    // H — Hypovolaemia
+    if(S.done['trauma_bleeding_control'])
+      good.push('External haemorrhage control addressed — H (Hypovolaemia) in HOTT considered');
+    else
+      warn.push('External haemorrhage was not controlled — uncontrolled haemorrhage is the most common reversible cause of traumatic cardiac arrest and must be addressed simultaneously with CPR');
+
+    if(tv.label !== 'Tension Pneumothorax') {
+      if(S.done['trauma_pelvis_splint'])
+        good.push('Pelvis assessed and splinted where indicated — reduces pelvic haemorrhage');
+      else
+        warn.push('Pelvic assessment was not performed — pelvic fracture is a major source of hidden haemorrhage in high-energy RTC and should be assessed and splinted early');
+    }
+
+    if(S.accessEstablished)
+      good.push('Vascular access established — IV/IO available for fluid and drug administration');
+    else
+      warn.push('No vascular access established — IO is the preferred route in traumatic cardiac arrest; without access, fluid and drug delivery is not possible');
+
+    // O — Oxygenation
+    if(S.done['trauma_oxygen'])
+      good.push('Oxygenation addressed — O (Oxygenation) in HOTT managed with 100% O2');
+    else
+      warn.push('Oxygenation was not addressed — hypoxia is a key contributor to traumatic cardiac arrest and must be corrected with 100% oxygen and effective airway management');
+
+    if(S.igelIn) good.push('Advanced airway established — asynchronous ventilation at 10 bpm achieved');
+
+    // T — Tension Pneumothorax
+    const bothSides = S.done['trauma_thoracostomy_l'] && S.done['trauma_thoracostomy_r'];
+    const oneSide = S.done['trauma_thoracostomy_l'] || S.done['trauma_thoracostomy_r'];
+    if(bothSides)
+      good.push('Bilateral finger thoracostomies performed — T (Tension pneumothorax) correctly addressed; bilateral decompression is standard in all traumatic arrests');
+    else if(oneSide)
+      warn.push('Only one thoracostomy performed — bilateral decompression is required in traumatic cardiac arrest regardless of which side is suspected; always decompress both');
+    else
+      warn.push('Bilateral finger thoracostomies were not performed — tension pneumothorax must be excluded in all traumatic arrests; bilateral thoracostomy should be performed as standard');
+
+    // T — Tamponade
+    if(S.done['trauma_tamponade_assess'])
+      good.push('Cardiac tamponade assessed — second T (Tamponade) in HOTT systematically considered');
+    else
+      warn.push('Cardiac tamponade was not assessed — it is the second T in HOTT and must be considered, particularly in high-energy or penetrating thoracic trauma');
+
+    if(tv.label === 'Mixed') {
+      if(S.done['trauma_cc_support'])
+        good.push('Critical Care support called for suspected tamponade — correct; this is a Critical Care intervention in the prehospital setting');
+      else
+        warn.push('Critical Care support was not called for the suspected tamponade — tamponade in the prehospital setting requires Critical Care or physician support; do not attempt aspiration without CC');
+    }
+
+    // Termination
+    if(S.terminationAppropriate)
+      good.push('Termination of resuscitation recognised as appropriate after systematic HOTT assessment — refer to JRCalc for traumatic arrest termination criteria');
+
+    const hollie = warn.length === 0
+      ? 'Excellent traumatic arrest run. You applied the HOTT protocol systematically — addressing Hypovolaemia, Oxygenation, Tension pneumothorax, and Tamponade alongside CPR. This is the correct approach in traumatic cardiac arrest: standard compressions alone are ineffective until the reversible cause is corrected. Strong clinical reasoning throughout.'
+      : warn.length <= 2
+      ? 'Good overall run with a couple of areas to revisit. The core principle is that HOTT causes must be identified and treated simultaneously alongside CPR. ' + (!S.done['trauma_bleeding_control']?'Haemorrhage control is the most common correctable cause and is the priority H in HOTT. ':'' ) + (!bothSides?'Bilateral thoracostomy should be performed in all traumatic arrests — do not wait for clinical confirmation of tension before decompressing. ':'') + 'Review the areas below and consider another run.'
+      : 'There are several important areas to review. Traumatic cardiac arrest requires the HOTT framework rather than standard ALS — compressions continue but the priority is simultaneously identifying and treating Hypovolaemia, Oxygenation failure, Tension pneumothorax, and Tamponade. Work through each HOTT cause systematically on your next run.';
+
+    document.getElementById('hollieSummary').textContent = hollie;
+    document.getElementById('debriefGood').innerHTML = good.length ? good.map(t=>`<div class="debrief-item">${t}</div>`).join('') : '<div class="debrief-item">No standout positives this run — review the areas below</div>';
+    document.getElementById('debriefWarn').innerHTML = warn.length ? warn.map(t=>`<div class="debrief-item">${t}</div>`).join('') : '<div class="debrief-item">No major omissions — excellent run</div>';
     saveArrestCpdRecord(good, warn, hollie);
 
   } else {
