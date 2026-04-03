@@ -731,42 +731,135 @@
         </div>
         
         <!-- ==================== LAUNCH COUNTDOWN ==================== -->
-        <div id="launch-countdown-banner" style="margin-bottom: 24px;">
-            <div style="background: linear-gradient(135deg, #1a3a4a 0%, #0d2233 100%); border: 1px solid rgba(43,138,156,0.4); border-radius: 16px; padding: 20px 24px; position: relative; overflow: hidden;">
-                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at 50% 0%, rgba(43,138,156,0.15) 0%, transparent 70%); pointer-events: none;"></div>
-                <div style="position: relative; z-index: 1;">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                        <span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: rgba(43,138,156,0.2); border-radius: 8px; flex-shrink: 0;">
-                            <i class="bi bi-heart-pulse-fill" style="color: #2B8A9C; font-size: 14px;"></i>
-                        </span>
-                        <p style="margin: 0; color: #e0f0f4; font-size: 13px; font-weight: 500; line-height: 1.4;">
-                            Countdown to the launch of our brand new cardiac arrest tool. Adult (all members), paediatric, and newborn life support scenarios for PRO members.
-                        </p>
+        <style>
+            #launch-countdown-banner {
+                margin-bottom: 28px;
+                animation: cdFadeIn 0.6s ease both;
+            }
+            @keyframes cdFadeIn {
+                from { opacity: 0; transform: translateY(-8px); }
+                to   { opacity: 1; transform: translateY(0); }
+            }
+            .cd-outer {
+                background: linear-gradient(135deg, #c0392b 0%, #8B0000 60%, #6b0000 100%);
+                border-radius: 18px;
+                padding: 22px 20px 20px;
+                position: relative;
+                overflow: hidden;
+                box-shadow: 0 8px 32px rgba(192,57,43,0.45), 0 2px 8px rgba(0,0,0,0.3);
+            }
+            .cd-outer::before {
+                content: '';
+                position: absolute;
+                top: -40px; left: -40px; right: -40px;
+                height: 120px;
+                background: radial-gradient(ellipse at 50% 0%, rgba(255,120,80,0.35) 0%, transparent 70%);
+                pointer-events: none;
+            }
+            .cd-outer::after {
+                content: '';
+                position: absolute;
+                bottom: 0; left: 0; right: 0; top: 0;
+                background: repeating-linear-gradient(
+                    -45deg,
+                    rgba(255,255,255,0.02) 0px,
+                    rgba(255,255,255,0.02) 1px,
+                    transparent 1px,
+                    transparent 12px
+                );
+                pointer-events: none;
+            }
+            .cd-inner { position: relative; z-index: 1; }
+            .cd-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                background: rgba(255,255,255,0.15);
+                border: 1px solid rgba(255,255,255,0.25);
+                border-radius: 20px;
+                padding: 4px 12px;
+                margin-bottom: 10px;
+                font-size: 11px;
+                font-weight: 700;
+                color: #fff;
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+            }
+            .cd-badge i { font-size: 12px; color: #ffcc00; }
+            .cd-heading {
+                font-size: 18px;
+                font-weight: 800;
+                color: #ffffff;
+                margin: 0 0 4px;
+                line-height: 1.2;
+                text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+            }
+            .cd-heading span { color: #ffcc00; }
+            .cd-subtext {
+                font-size: 13px;
+                color: rgba(255,255,255,0.85);
+                margin: 0 0 16px;
+                line-height: 1.4;
+            }
+            .cd-tiles {
+                display: flex;
+                gap: 8px;
+                justify-content: center;
+            }
+            .cd-tile {
+                flex: 1;
+                text-align: center;
+                background: rgba(0,0,0,0.25);
+                border: 1px solid rgba(255,255,255,0.15);
+                border-radius: 12px;
+                padding: 10px 6px 8px;
+            }
+            .cd-tile-num {
+                font-size: 28px;
+                font-weight: 800;
+                color: #ffffff;
+                font-variant-numeric: tabular-nums;
+                display: block;
+                line-height: 1;
+                text-shadow: 0 0 20px rgba(255,200,0,0.4);
+            }
+            .cd-tile-secs .cd-tile-num {
+                color: #ffcc00;
+                text-shadow: 0 0 20px rgba(255,200,0,0.7);
+            }
+            .cd-tile-label {
+                font-size: 9px;
+                color: rgba(255,255,255,0.6);
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+                margin-top: 2px;
+                display: block;
+            }
+        </style>
+        <div id="launch-countdown-banner">
+            <div class="cd-outer">
+                <div class="cd-inner">
+                    <div class="cd-badge">
+                        <i class="bi bi-lightning-charge-fill"></i> Coming Wednesday 8th April
                     </div>
-                    <div id="countdown-display" style="display: flex; gap: 10px; justify-content: center; margin-top: 14px;">
-                        <div style="text-align: center;">
-                            <div id="cd-days" style="background: rgba(255,255,255,0.07); border: 1px solid rgba(43,138,156,0.3); border-radius: 10px; padding: 8px 14px; min-width: 52px;">
-                                <span style="font-size: 22px; font-weight: 700; color: #ffffff; font-variant-numeric: tabular-nums; display: block; line-height: 1;">00</span>
-                                <span style="font-size: 10px; color: #7aafbc; text-transform: uppercase; letter-spacing: 0.08em;">Days</span>
-                            </div>
+                    <p class="cd-heading">🫀 Brand New <span>Cardiac Arrest Tool</span></p>
+                    <p class="cd-subtext">Adult resus for all members · Paediatric &amp; newborn life support for PRO</p>
+                    <div class="cd-tiles">
+                        <div class="cd-tile">
+                            <span id="cd-days" class="cd-tile-num">00</span>
+                            <span class="cd-tile-label">Days</span>
                         </div>
-                        <div style="text-align: center;">
-                            <div id="cd-hours" style="background: rgba(255,255,255,0.07); border: 1px solid rgba(43,138,156,0.3); border-radius: 10px; padding: 8px 14px; min-width: 52px;">
-                                <span style="font-size: 22px; font-weight: 700; color: #ffffff; font-variant-numeric: tabular-nums; display: block; line-height: 1;">00</span>
-                                <span style="font-size: 10px; color: #7aafbc; text-transform: uppercase; letter-spacing: 0.08em;">Hours</span>
-                            </div>
+                        <div class="cd-tile">
+                            <span id="cd-hours" class="cd-tile-num">00</span>
+                            <span class="cd-tile-label">Hours</span>
                         </div>
-                        <div style="text-align: center;">
-                            <div id="cd-minutes" style="background: rgba(255,255,255,0.07); border: 1px solid rgba(43,138,156,0.3); border-radius: 10px; padding: 8px 14px; min-width: 52px;">
-                                <span style="font-size: 22px; font-weight: 700; color: #ffffff; font-variant-numeric: tabular-nums; display: block; line-height: 1;">00</span>
-                                <span style="font-size: 10px; color: #7aafbc; text-transform: uppercase; letter-spacing: 0.08em;">Mins</span>
-                            </div>
+                        <div class="cd-tile">
+                            <span id="cd-minutes" class="cd-tile-num">00</span>
+                            <span class="cd-tile-label">Mins</span>
                         </div>
-                        <div style="text-align: center;">
-                            <div id="cd-seconds" style="background: rgba(255,255,255,0.07); border: 1px solid rgba(43,138,156,0.3); border-radius: 10px; padding: 8px 14px; min-width: 52px;">
-                                <span style="font-size: 22px; font-weight: 700; color: #2B8A9C; font-variant-numeric: tabular-nums; display: block; line-height: 1;">00</span>
-                                <span style="font-size: 10px; color: #7aafbc; text-transform: uppercase; letter-spacing: 0.08em;">Secs</span>
-                            </div>
+                        <div class="cd-tile cd-tile-secs">
+                            <span id="cd-seconds" class="cd-tile-num">00</span>
+                            <span class="cd-tile-label">Secs</span>
                         </div>
                     </div>
                 </div>
@@ -780,18 +873,15 @@
             function tick() {
                 var now = new Date();
                 var diff = target - now;
-                if (diff <= 0) {
-                    banner.style.display = 'none';
-                    return;
-                }
+                if (diff <= 0) { banner.style.display = 'none'; return; }
                 var days    = Math.floor(diff / 86400000);
                 var hours   = Math.floor((diff % 86400000) / 3600000);
                 var minutes = Math.floor((diff % 3600000) / 60000);
                 var seconds = Math.floor((diff % 60000) / 1000);
-                document.querySelector('#cd-days span:first-child').textContent    = pad(days);
-                document.querySelector('#cd-hours span:first-child').textContent   = pad(hours);
-                document.querySelector('#cd-minutes span:first-child').textContent = pad(minutes);
-                document.querySelector('#cd-seconds span:first-child').textContent = pad(seconds);
+                document.getElementById('cd-days').textContent    = pad(days);
+                document.getElementById('cd-hours').textContent   = pad(hours);
+                document.getElementById('cd-minutes').textContent = pad(minutes);
+                document.getElementById('cd-seconds').textContent = pad(seconds);
             }
             tick();
             setInterval(tick, 1000);
