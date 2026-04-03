@@ -1433,14 +1433,32 @@ function buildAdultActions() {
 // ═══════════════════════════════════
 const nbResponses = {
   nb_tone:{title:'Tone Assessment',body:`Infant has <strong class="warn">markedly reduced tone</strong> — floppy, limbs extended, no flexion posture. This is consistent with significant compromise at birth. <span class="warn">Reduced tone is a key indicator for commencing NLS interventions.</span>`,log:'Tone assessed — markedly reduced, floppy',type:'warn',once:true},
-  nb_breathing:{title:'Breathing Assessment',body:`Infant is making occasional <strong class="warn">gasping respirations</strong> only — not effective breathing. No sustained cry. <span class="bad">Gasping / not breathing = inflation breaths are indicated as the next priority intervention.</span>`,log:'Breathing assessed — gasping only, no effective respirations',type:'bad',once:true},
+  nb_breathing:{title:'Breathing Assessment',
+    body:()=>{
+      if (S.nbAlgoPhase >= 3) {
+        return `Infant has <strong class="good">improved respiratory effort</strong> following ventilation breaths. Breathing is now present but may not yet be fully effective. Continue to monitor closely — count respiratory rate and assess chest movement with each breath. If >30 breaths/min with good chest rise, support may be reduced.`;
+      }
+      return `Infant is making occasional <strong class="warn">gasping respirations</strong> only — not effective breathing. No sustained cry. <span class="bad">Gasping / not breathing = inflation breaths are indicated as the next priority intervention.</span>`;
+    },
+    log:()=> S.nbAlgoPhase >= 3 ? 'Breathing reassessed — improved effort following ventilation' : 'Breathing assessed — gasping only, no effective respirations',
+    type:()=> S.nbAlgoPhase >= 3 ? 'good' : 'bad',
+    once:false},
   nb_hr_initial:{title:'Heart Rate Assessment',
     directAction:()=>{
       closeModal();
       triggerHRReassessment();
     },
     once:false},
-  nb_colour:{title:'Colour Assessment',body:`Infant is <strong class="warn">centrally pale/blue (cyanosed)</strong>. Peripheral cyanosis alone is normal at birth — central cyanosis indicates hypoxia. <span class="warn">SpO₂ probe should be applied to the right hand or wrist (pre-ductal) to monitor oxygen saturation against target values.</span>`,log:'Colour assessed — centrally cyanosed',type:'warn',once:true},
+  nb_colour:{title:'Colour Assessment',
+    body:()=>{
+      if (S.nbAlgoPhase >= 3) {
+        return `Infant's colour is <strong class="warn">improving</strong> — less central cyanosis. Continue monitoring SpO₂ against pre-ductal targets and titrate oxygen accordingly.`;
+      }
+      return `Infant is <strong class="warn">centrally pale/blue (cyanosed)</strong>. Peripheral cyanosis alone is normal at birth — central cyanosis indicates hypoxia. <span class="warn">SpO₂ probe should be applied to the right hand or wrist (pre-ductal) to monitor oxygen saturation against target values.</span>`;
+    },
+    log:()=> S.nbAlgoPhase >= 3 ? 'Colour reassessed — improving, less central cyanosis' : 'Colour assessed — centrally cyanosed',
+    type:()=> S.nbAlgoPhase >= 3 ? 'warn' : 'warn',
+    once:false},
   nb_gestation:{title:'Gestational Age',body:`Mother and notes confirm: <span class="good"><strong>40 weeks gestation — term infant.</strong></span><br><br>Management follows standard NLS pathway. <span class="info">If this were a preterm infant under 32 weeks: place undried in a plastic bag, use radiant heat, and do NOT apply ECG electrodes (risk of tissue damage).</span>`,log:'Gestational age confirmed — 40 weeks, term infant, standard NLS applies',type:'good',once:true},
   nb_meconium:{title:'Meconium Check',body:`Liquor and birth canal assessment: <span class="good"><strong>No meconium staining present.</strong></span> Airway is clear of obvious debris. Routine suction is not required prior to inflation breaths. <span class="info">If meconium were present and the infant were not vigorous, suction under direct vision prior to inflation breaths would be considered.</span>`,log:'Meconium check — none present, no pre-inflation suction required',type:'good',once:true},
   nb_dry:{title:'Dry & Stimulate',body:`<span class="good">Infant dried vigorously with a warm towel — wet towel discarded and replaced with a dry warm one.</span> Drying provides thermal protection and tactile stimulation. A response to stimulation (movement, grimace, improved tone) is a positive sign. <span class="warn">For preterm under 32 weeks: do NOT dry — place directly into a plastic bag to preserve heat.</span>`,log:'Dried and stimulated — wet towel discarded, dry warm towel applied',type:'good',once:true,onComplete:()=>{S.nbDried=true;}},
