@@ -2255,12 +2255,12 @@ function showDebrief() {
   if (S.track==='newborn') {
     const variant = NB_VARIANTS[S.nbVariant] || NB_VARIANTS.standard;
     // Insert variant reveal panel before the stat row
-    const variantHtml = `<div style="background:rgba(0,194,178,0.08);border:1px solid rgba(0,194,178,0.25);border-radius:8px;padding:13px 15px;margin-bottom:16px;">
-      <div style="font-family:var(--cond);font-weight:700;font-size:10px;letter-spacing:2px;color:var(--teal);text-transform:uppercase;margin-bottom:5px;">🎲 Your Scenario Variant</div>
-      <div style="font-family:var(--cond);font-weight:700;font-size:15px;color:var(--text);margin-bottom:6px;">${variant.label}</div>
-      <div style="font-size:12px;color:var(--text-dim);line-height:1.6;">${variant.description}</div>
-    </div>`;
-    document.querySelector('.stat-row').insertAdjacentHTML('beforebegin', variantHtml);
+    document.getElementById('debriefVariant').innerHTML = `
+      <div class="debrief-variant">
+        <div class="debrief-variant-label">🎲 Your Scenario Variant</div>
+        <div class="debrief-variant-name">${variant.label}</div>
+        <div class="debrief-variant-desc">${variant.description}</div>
+      </div>`;
 
     document.getElementById('statA').textContent=S.nbHrChecks;
     document.getElementById('statALabel').textContent='HR Checks';
@@ -2289,9 +2289,10 @@ function showDebrief() {
     else if(S.nbHrChecks === 1)warn.push('Heart rate was only assessed once — the algorithm requires reassessment every 30 seconds once ventilation is established');
     if(warn.length===0)warn.push('No major omissions — excellent run');
 
-    document.getElementById('hollieSummary').textContent = warn.length <= 1
+    const hollie = warn.length <= 1
       ? 'Good NLS run — you followed the algorithm correctly. The key priority in newborn resuscitation is effective airway management and inflation breaths. Compressions are rarely needed if the airway is well managed. Review the SpO₂ targets on your next run and practise titrating oxygen.'
       : `There are some important steps to revisit. ${!S.nbInflationsDone?'Inflation breaths are the single most important intervention in newborn resuscitation — most newborns who need help respond to effective ventilation alone. ':''}${!S.nbAirwayOpened?'The neutral airway position is critical before any ventilation attempt. ':''}Have another run and focus on the algorithm sequence.`;
+    document.getElementById('hollieSummary').textContent = hollie;
 
     document.getElementById('debriefGood').innerHTML=good.map(t=>`<div class="debrief-item">${t}</div>`).join('');
     document.getElementById('debriefWarn').innerHTML=warn.map(t=>`<div class="debrief-item">${t}</div>`).join('');
