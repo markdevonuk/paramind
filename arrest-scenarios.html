@@ -976,6 +976,7 @@ const S = {
   rhythmStarted: false,
   currentDisplayRhythm: 'vf',
   rhythmCorrect: null,
+  terminationAppropriate: false, // true when termination was correctly decided
   // newborn
   nbDried: false,
   nbAirwayOpened: false,
@@ -1552,7 +1553,47 @@ const adultResponses = {
   glucose:{title:'Blood Glucose',body:`<span class="good">BM: 6.4 mmol/L — normoglycaemic.</span>`,log:'BM — 6.4 mmol/L, normal',type:'good',once:true},
   team_roles:{title:'Team Roles',body:`<span class="good">Leader (you), compressor, airway delegated.</span> Closed-loop communication.`,log:'Team roles assigned',type:'good',once:true},
   family:{title:'Family',body:`Wife distressed — support assigned. <span class="warn">If termination considered, ensure she is not alone.</span>`,log:'Family managed — support assigned',type:'info',once:true},
-  terminate:{title:'Termination',body:`<span class="warn">Too early — reversible causes not all excluded. Continue active resuscitation.</span>`,log:'Termination considered — premature at this stage',type:'warn',once:true},
+  terminate:{
+    title:'Consider Termination of Resuscitation',
+    once:false,
+    body:()=>{
+      const has4s = S.done['4h'] && S.done['4t'];
+      const hasAccess = S.accessEstablished !== null;
+      const hasAdrenaline = S.adrenalineGiven;
+      const prereqsMet = has4s && hasAccess && hasAdrenaline;
+      if(prereqsMet){
+        return `<span class="good">The reversible causes have been systematically addressed, vascular access is established, and adrenaline has been given.</span><br><br>
+Based on the clinical picture and your assessment of this resuscitation, termination of resuscitation may be clinically appropriate.<br><br>
+<strong>Subject to the appropriate elapsed ALS time having passed — always refer to your JRCalc guidelines for termination criteria and your trust's specific protocols before making this decision.</strong><br><br>
+<span class="warn">Ensure the family are supported and not alone. Document your decision-making clearly.</span>`;
+      } else {
+        const missing = [];
+        if(!has4s) missing.push('reversible causes (4 Hs & 4 Ts not both reviewed)');
+        if(!hasAccess) missing.push('vascular access not yet established');
+        if(!hasAdrenaline) missing.push('adrenaline not yet given');
+        return `<span class="warn">Too early to consider termination — the following have not yet been addressed:</span><br><br>
+${missing.map(m=>`• ${m}`).join('<br>')}.<br><br>
+Ensure all reversible causes have been systematically excluded, access is established, and drugs given before considering termination of resuscitation.`;
+      }
+    },
+    log:()=>{
+      const prereqsMet = S.done['4h'] && S.done['4t'] && S.accessEstablished !== null && S.adrenalineGiven;
+      return prereqsMet
+        ? 'Termination of resuscitation considered — reversible causes addressed, access established, adrenaline given. Refer to JRCalc for termination criteria.'
+        : 'Termination considered — premature, reversible causes not fully addressed';
+    },
+    type:()=>{
+      return (S.done['4h'] && S.done['4t'] && S.accessEstablished !== null && S.adrenalineGiven) ? 'good' : 'warn';
+    },
+    onComplete:()=>{
+      const prereqsMet = S.done['4h'] && S.done['4t'] && S.accessEstablished !== null && S.adrenalineGiven;
+      if(prereqsMet){
+        S.terminationAppropriate = true;
+        // Close modal and go to debrief after a short delay so the response is read first
+        setTimeout(()=>{ finishAndDebrief(); }, 3500);
+      }
+    }
+  },
   // ── Paeds-specific responses ──────────────────────────────────────
   paeds_rescue_breaths:{title:'5 Rescue Breaths',body:`Deliver <strong class="warn">5 rescue breaths</strong> before commencing chest compressions. Each breath approximately 1 second, enough to see chest rise. Use pocket mask or BVM with 100% O₂.`,log:'5 rescue breaths delivered before commencing CPR',type:'good',once:true},
   paeds_bvm:{title:'BVM — 100% O₂',body:`Apply BVM with <strong class="good">100% oxygen</strong>. A <strong class="warn">2-person technique</strong> is recommended — one maintains the mask seal, the other squeezes the bag. Ventilate at <strong class="warn">20 breaths/min</strong> (1–8 years) once CPR is established.`,log:'BVM applied — 100% O₂, 2-person technique',type:'good',once:false},
@@ -2465,6 +2506,9 @@ function showDebrief() {
     else if(S.done['4h'] || S.done['4t']) warn.push('Only one of the 4 Hs / 4 Ts reviewed — complete both frameworks systematically');
     else warn.push('Reversible causes not considered — hypoxia, hypoglycaemia and other reversible causes are particularly important in paediatric arrest');
 
+    // ── Termination ──
+    if(S.terminationAppropriate) good.push('Termination of resuscitation recognised as appropriate — reversible causes addressed, access established, adrenaline given. Refer to JRCalc for paediatric-specific termination criteria and your trust protocols');
+
     const warnCount = warn.length;
     let hollie;
     if(warnCount === 0){
@@ -2552,6 +2596,9 @@ function showDebrief() {
     if(got4s) good.push('Reversible causes systematically considered — 4 Hs and 4 Ts reviewed');
     else if(S.done['4h'] || S.done['4t']) warn.push('Only one of the 4 Hs / 4 Ts frameworks was reviewed — complete both for a systematic approach to reversible causes');
     else warn.push('Reversible causes (4 Hs and 4 Ts) were not considered — in any prolonged arrest, systematic review of reversible causes is essential');
+
+    // ── Termination ──
+    if(S.terminationAppropriate) good.push('Termination of resuscitation recognised as appropriate — reversible causes addressed, access established, adrenaline given. Clinical decision-making consistent with ALS guidelines (refer to JRCalc for specific criteria)');
 
     // ── Hollie summary ──
     const warnCount = warn.length;
