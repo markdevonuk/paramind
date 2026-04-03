@@ -701,9 +701,21 @@
             </div>
 
             <div class="debrief-hollie">
-                <div class="debrief-hollie-header">💬 Hollie's Summary</div>
+                <div class="debrief-hollie-header">📋 Summary</div>
                 <div class="debrief-hollie-text" id="hollieSummary">—</div>
             </div>
+
+            <div class="debrief-hollie" id="hollieDebriefCard" style="display:none;">
+                <div class="debrief-hollie-header" style="display:flex;align-items:center;justify-content:space-between;">
+                    <span>💬 Hollie's Debrief</span>
+                    <span id="hollieDebriefStatus" style="font-size:0.7rem;font-weight:400;color:var(--color-gray-500);text-transform:none;letter-spacing:0;font-style:italic;"></span>
+                </div>
+                <div class="debrief-hollie-text" id="hollieDebriefText" style="font-style:normal;white-space:pre-wrap;"></div>
+            </div>
+
+            <button class="btn btn-outline-secondary w-100 mb-3" id="hollieDebriefBtn" onclick="requestHollieDebrief()" style="font-size:0.875rem;">
+                <i class="bi bi-chat-dots me-2"></i>Get a full clinical debrief from Hollie
+            </button>
 
             <div class="debrief-section-card">
                 <div class="debrief-section-title good"><i class="bi bi-check-circle"></i> What You Did Well</div>
@@ -2153,6 +2165,103 @@ function shockDecision(userChoosesShock) {
 
 function resetRhythmOverlay() {
   closeRhythmOverlay();
+}
+
+
+// ═══════════════════════════════════
+// HOLLIE AI DEBRIEF
+// ═══════════════════════════════════
+async function requestHollieDebrief() {
+  const btn = document.getElementById('hollieDebriefBtn');
+  const card = document.getElementById('hollieDebriefCard');
+  const textEl = document.getElementById('hollieDebriefText');
+  const statusEl = document.getElementById('hollieDebriefStatus');
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Hollie is reviewing your performance...';
+  card.style.display = 'block';
+  textEl.textContent = '';
+  statusEl.textContent = 'thinking...';
+
+  const trackLabel = S.track === 'newborn' ? 'Newborn Life Support (NLS)'
+                   : S.track === 'paeds'   ? 'Paediatric ALS'
+                   : 'Adult ALS';
+
+  const variantLabel = S.track === 'newborn'
+    ? (NB_VARIANTS[S.nbVariant] || NB_VARIANTS.standard).label
+    : (ADULT_VARIANTS[S.adultVariant || S.paedsVariant] || ADULT_VARIANTS.standard_rosc).label;
+
+  const goodItems = Array.from(document.getElementById('debriefGood').querySelectorAll('.debrief-item')).map(el => el.textContent).join('\n');
+  const warnItems = Array.from(document.getElementById('debriefWarn').querySelectorAll('.debrief-item')).map(el => el.textContent).join('\n');
+  const timeline = S.actionsLog.slice(0, 30).map(e => `[${e.time}] ${e.text}`).join('\n');
+
+  const prompt = `You are Hollie, a friendly, expert paramedic educator for Paramind, a UK pre-hospital education platform. A student has just completed a simulated cardiac arrest resuscitation scenario. Write a conversational, reflective clinical debrief in your voice — warm but clinically rigorous. Do not use bullet points or headers. Write in flowing paragraphs, like a clinical educator talking directly to the student after a simulation. Reference specific things they did and specific timestamps from the timeline. Ask at least one reflective question for them to consider. Address the student directly as "you". Keep it to 3-4 paragraphs.
+
+SCENARIO: ${trackLabel} — ${variantLabel}
+ELAPSED TIME: ${formatTime(S.elapsed)}
+CORRECT RHYTHMS: ${S.correctRhythms || 0}/${S.rhythmCycle || 0}
+SHOCKS DELIVERED: ${S.shocksDelivered || 0}
+ACTIONS TAKEN: ${S.actionsCount}
+
+WHAT WENT WELL:
+${goodItems || 'Nothing recorded.'}
+
+AREAS TO REVIEW:
+${warnItems || 'None.'}
+
+DECISION TIMELINE:
+${timeline || 'No timeline recorded.'}
+
+Write your debrief now, speaking directly to the student.`;
+
+  try {
+    const user = auth.currentUser;
+    if (!user) throw new Error('Not authenticated');
+    const token = await user.getIdToken();
+
+    const response = await fetch('https://europe-west2-paramind-64b8e.cloudfunctions.net/chat', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: prompt,
+        conversationHistory: [],
+        scenarioId: null,
+        scenarioPrompt: null
+      })
+    });
+
+    if (!response.ok) throw new Error('API error');
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let fullText = '';
+    statusEl.textContent = 'writing...';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      for (const line of decoder.decode(value, { stream: true }).split('\n')) {
+        if (line.startsWith('data: ')) {
+          try {
+            const data = JSON.parse(line.slice(6));
+            if (data.type === 'chunk') {
+              fullText += data.content;
+              textEl.textContent = fullText;
+            }
+          } catch(e) { /* skip */ }
+        }
+      }
+    }
+
+    statusEl.textContent = '';
+    btn.style.display = 'none';
+
+  } catch(e) {
+    statusEl.textContent = '';
+    textEl.textContent = 'Sorry — Hollie couldn't generate a debrief right now. Please check your connection and try again.';
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-chat-dots me-2"></i>Get a full clinical debrief from Hollie';
+  }
 }
 
 // ═══════════════════════════════════
