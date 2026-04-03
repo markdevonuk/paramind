@@ -1474,8 +1474,8 @@ function buildTraumaActions() {
     <div class="arrest-action-group-title">T &mdash; Tension Pneumothorax</div>
     <div class="arrest-action-grid">
       <button class="arrest-action-option" data-action="trauma_chest_assess" onclick="doAction(this)"><i class="bi bi-search"></i><span>Assess Chest</span></button>
-      <button class="arrest-action-option" data-action="trauma_needle decompression_l" onclick="doAction(this)"><i class="bi bi-scissors"></i><span>Left Needle Chest Decompression</span></button>
-      <button class="arrest-action-option" data-action="trauma_needle decompression_r" onclick="doAction(this)"><i class="bi bi-scissors"></i><span>Right Needle Chest Decompression</span></button>
+      <button class="arrest-action-option" data-action="trauma_thoracostomy_l" onclick="doAction(this)"><i class="bi bi-scissors"></i><span>Left Needle Chest Decompression</span></button>
+      <button class="arrest-action-option" data-action="trauma_thoracostomy_r" onclick="doAction(this)"><i class="bi bi-scissors"></i><span>Right Needle Chest Decompression</span></button>
     </div>
   </div>
   <div class="arrest-action-group">
@@ -1645,7 +1645,7 @@ const traumaResponses = {
     type:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Hypovolaemia'?'good':'bad';},
     once:true,onComplete:()=>{S.done['trauma_chest_assess']=true;}
   },
-  trauma_needle decompression_l:{
+  trauma_thoracostomy_l:{
     title:'Left Needle Chest Decompression',
     body:()=>{
       const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;
@@ -1655,9 +1655,9 @@ const traumaResponses = {
     },
     log:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Hypovolaemia'?'Left needle decompression — no tension, prophylactic':'Left needle decompression — rush of air, tension decompressed';},
     type:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Hypovolaemia'?'info':'good';},
-    once:true,onComplete:()=>{S.done['trauma_needle decompression_l']=true;}
+    once:true,onComplete:()=>{S.done['trauma_thoracostomy_l']=true;}
   },
-  trauma_needle decompression_r:{
+  trauma_thoracostomy_r:{
     title:'Right Needle Chest Decompression',
     body:()=>{
       const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;
@@ -1667,7 +1667,7 @@ const traumaResponses = {
     },
     log:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Hypovolaemia'?'Right needle decompression — no tension, bilateral complete':'Right needle decompression — clear, bilateral decompression done';},
     type:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Hypovolaemia'?'info':'good';},
-    once:true,onComplete:()=>{S.done['trauma_needle decompression_r']=true;}
+    once:true,onComplete:()=>{S.done['trauma_thoracostomy_r']=true;}
   },
   trauma_tamponade_assess:{
     title:'Assess for Cardiac Tamponade',
@@ -2879,8 +2879,8 @@ function showDebrief() {
     if(S.igelIn) good.push('Advanced airway established — asynchronous ventilation at 10 bpm achieved');
 
     // T — Tension Pneumothorax
-    const bothSides = S.done['trauma_needle decompression_l'] && S.done['trauma_needle decompression_r'];
-    const oneSide = S.done['trauma_needle decompression_l'] || S.done['trauma_needle decompression_r'];
+    const bothSides = S.done['trauma_thoracostomy_l'] && S.done['trauma_thoracostomy_r'];
+    const oneSide = S.done['trauma_thoracostomy_l'] || S.done['trauma_thoracostomy_r'];
     if(bothSides)
       good.push('Bilateral needle chest decompressions performed — T (Tension pneumothorax) correctly addressed; bilateral decompression is standard in all traumatic arrests');
     else if(oneSide)
