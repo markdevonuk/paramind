@@ -804,10 +804,14 @@
                 doc.text(value, bx + (boxW - 1) / 2, y + 13, { align: 'center' });
             };
 
-            drawStatBox(0, 'DIFFICULTY', diff, teal);
-            drawStatBox(1, 'GRADE', gradeMedal + gradeVal, gradeColor);
-            drawStatBox(2, 'OUTCOME', resultLabel, resultColor);
-            y += boxH + 8;
+            // Only show stat boxes for regular scenarios, not arrest simulations
+            const isArrestRecord = (record.scenarioId || '').startsWith('arrest-');
+            if (!isArrestRecord) {
+                drawStatBox(0, 'DIFFICULTY', diff, teal);
+                drawStatBox(1, 'GRADE', gradeMedal + gradeVal, gradeColor);
+                drawStatBox(2, 'OUTCOME', resultLabel, resultColor);
+                y += boxH + 8;
+            }
 
             // ── SECTION helper ──
             const sectionHead = (title, yy) => {
@@ -853,10 +857,14 @@
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(8);
             doc.setTextColor(...gray);
-            doc.text('Working Impression:', m + 5, y);
+            const impressionLabel = isArrestRecord ? 'Hollie Summary:' : 'Working Impression:';
+            doc.text(impressionLabel, m + 5, y);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(...navy);
-            doc.text(record.userImpression || 'Not recorded', m + 42, y);
+            const impressionText = record.userImpression || 'Not recorded';
+            const impressionLines = doc.splitTextToSize(impressionText, iw - 44);
+            doc.text(impressionLines, m + 42, y);
+            y += Math.max(0, (impressionLines.length - 1) * 4.5);
             y += 5;
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(...gray);
@@ -940,6 +948,21 @@
         // Extract 2-3 learning points from debrief report text
         function extractLearningPoints(report) {
             if (!report) return ['Completed clinical scenario assessment.'];
+
+            // Arrest scenarios store debriefReport as JSON
+            try {
+                const data = JSON.parse(report);
+                if (data && Array.isArray(data.warn)) {
+                    // Return warn items as learning points, good items as positives
+                    const points = [];
+                    data.warn.slice(0, 3).forEach(w => points.push(w));
+                    if (points.length === 0 && Array.isArray(data.good)) {
+                        data.good.slice(0, 2).forEach(g => points.push(g));
+                    }
+                    return points.length ? points : ['Cardiac arrest simulation completed.'];
+                }
+            } catch(e) { /* not JSON, fall through to markdown parser */ }
+
             const points = [];
 
             // Try to extract from Section 3 (Assessment Gaps) — these are most useful
