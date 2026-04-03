@@ -1879,8 +1879,9 @@ function submitHRCount(counted) {
 }
 
 function closeHROverlay() {
+  const rArea = document.getElementById('hrResponseArea');
+  if (rArea) rArea.innerHTML = '';
   closeRhythmOverlay();
-  document.getElementById('hrResponseArea').innerHTML = '';
   if (S.nbCurrentHR === '>100' && S.nbAlgoPhase >= 3) {
     showDebrief();
   } else {
