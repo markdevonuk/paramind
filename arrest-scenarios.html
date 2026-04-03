@@ -991,6 +991,7 @@ const S = {
   // trauma
   traumaVariant: null,
   traumaMedicalCauseAssessed: false,
+  traumaCprPaused: false,
   // newborn
   nbDried: false,
   nbAirwayOpened: false,
@@ -1036,12 +1037,12 @@ const TRAUMA_VARIANTS = {
   },
   tension_ptx: {
     label: 'Tension Pneumothorax',
-    description: 'Dominant cause is thoracic. Tests recognition of tension pneumothorax and decision to perform bilateral finger thoracostomies alongside airway management and oxygenation.',
+    description: 'Dominant cause is thoracic. Tests recognition of tension pneumothorax and decision to perform bilateral needle chest decompressions alongside airway management and oxygenation.',
     hint: 'No significant external haemorrhage. Mechanism consistent with chest injury — restrained driver, airbag deployed, significant chest wall bruising visible.'
   },
   mixed: {
     label: 'Mixed — Hypovolaemia, Tension & Tamponade',
-    description: 'Multiple simultaneous HOTT causes present. Tests systematic approach under pressure — haemorrhage control, thoracostomy, and recognition of tamponade requiring Critical Care support.',
+    description: 'Multiple simultaneous HOTT causes present. Tests systematic approach under pressure — haemorrhage control, needle decompression, and recognition of tamponade requiring Critical Care support.',
     hint: 'External haemorrhage from leg wound. Suspected chest injury. High-energy mechanism — ejected at speed.'
   }
 };
@@ -1473,8 +1474,8 @@ function buildTraumaActions() {
     <div class="arrest-action-group-title">T &mdash; Tension Pneumothorax</div>
     <div class="arrest-action-grid">
       <button class="arrest-action-option" data-action="trauma_chest_assess" onclick="doAction(this)"><i class="bi bi-search"></i><span>Assess Chest</span></button>
-      <button class="arrest-action-option" data-action="trauma_thoracostomy_l" onclick="doAction(this)"><i class="bi bi-scissors"></i><span>Left Finger Thoracostomy</span></button>
-      <button class="arrest-action-option" data-action="trauma_thoracostomy_r" onclick="doAction(this)"><i class="bi bi-scissors"></i><span>Right Finger Thoracostomy</span></button>
+      <button class="arrest-action-option" data-action="trauma_needle decompression_l" onclick="doAction(this)"><i class="bi bi-scissors"></i><span>Left Needle Chest Decompression</span></button>
+      <button class="arrest-action-option" data-action="trauma_needle decompression_r" onclick="doAction(this)"><i class="bi bi-scissors"></i><span>Right Needle Chest Decompression</span></button>
     </div>
   </div>
   <div class="arrest-action-group">
@@ -1585,7 +1586,7 @@ const traumaResponses = {
     body:()=>{
       const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;
       if(tv.label==='Tension Pneumothorax')
-        return '<span class="good">No significant external haemorrhage identified.</span> Correct to assess. Focus on oxygenation and thoracostomy.';
+        return '<span class="good">No significant external haemorrhage identified.</span> Correct to assess. Focus on oxygenation and needle decompression.';
       return '<strong class="bad">Significant external haemorrhage from femoral wound.</strong> Direct pressure applied — partially controlled. <span class="warn">Consider tourniquet if available. H in HOTT — priority.</span>';
     },
     log:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Tension Pneumothorax'?'External haemorrhage — none significant':'Haemorrhage control — femoral wound, direct pressure';},
@@ -1637,36 +1638,36 @@ const traumaResponses = {
     body:()=>{
       const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;
       if(tv.label==='Hypovolaemia')
-        return '<span class="good">Bilateral air entry present. Trachea midline. No tension pneumothorax.</span> Haemorrhage is the dominant cause. Still perform bilateral thoracostomy — standard in traumatic arrest.';
-      return '<strong class="bad">Absent air entry on left. Tracheal deviation to the right.</strong> <span class="bad">Tension pneumothorax — bilateral finger thoracostomies required immediately.</span>';
+        return '<span class="good">Bilateral air entry present. Trachea midline. No tension pneumothorax.</span> Haemorrhage is the dominant cause. Still perform bilateral needle decompression — standard in traumatic arrest.';
+      return '<strong class="bad">Absent air entry on left. Tracheal deviation to the right.</strong> <span class="bad">Tension pneumothorax — bilateral needle chest decompressions required immediately.</span>';
     },
     log:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Hypovolaemia'?'Chest assessed — bilateral air entry, no tension':'Chest assessed — absent left air entry, tracheal deviation, tension PTX';},
     type:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Hypovolaemia'?'good':'bad';},
     once:true,onComplete:()=>{S.done['trauma_chest_assess']=true;}
   },
-  trauma_thoracostomy_l:{
-    title:'Left Finger Thoracostomy',
+  trauma_needle decompression_l:{
+    title:'Left Needle Chest Decompression',
     body:()=>{
       const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;
       if(tv.label==='Hypovolaemia')
-        return '<span class="warn">Left thoracostomy — no tension confirmed. Correct to perform bilaterally in traumatic arrest to exclude bilateral tension.</span>';
-      return '<span class="good">Left finger thoracostomy — immediate rush of air. Tension decompressed. Left lung re-expanding.</span> Proceed to right side immediately.';
+        return '<span class="warn">Left needle decompression — no tension confirmed. Correct to perform bilaterally in traumatic arrest to exclude bilateral tension.</span>';
+      return '<span class="good">Left needle chest decompression — immediate rush of air. Tension decompressed. Left lung re-expanding.</span> Proceed to right side immediately.';
     },
-    log:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Hypovolaemia'?'Left thoracostomy — no tension, prophylactic':'Left thoracostomy — rush of air, tension decompressed';},
+    log:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Hypovolaemia'?'Left needle decompression — no tension, prophylactic':'Left needle decompression — rush of air, tension decompressed';},
     type:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Hypovolaemia'?'info':'good';},
-    once:true,onComplete:()=>{S.done['trauma_thoracostomy_l']=true;}
+    once:true,onComplete:()=>{S.done['trauma_needle decompression_l']=true;}
   },
-  trauma_thoracostomy_r:{
-    title:'Right Finger Thoracostomy',
+  trauma_needle decompression_r:{
+    title:'Right Needle Chest Decompression',
     body:()=>{
       const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;
       if(tv.label==='Hypovolaemia')
-        return '<span class="warn">Right thoracostomy — no tension. Bilateral decompression complete. Standard practice in all traumatic arrests.</span>';
-      return '<span class="good">Right thoracostomy — clear. Bilateral decompression complete. Always decompress both sides in traumatic arrest.</span>';
+        return '<span class="warn">Right needle decompression — no tension. Bilateral decompression complete. Standard practice in all traumatic arrests.</span>';
+      return '<span class="good">Right needle decompression — clear. Bilateral decompression complete. Always decompress both sides in traumatic arrest.</span>';
     },
-    log:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Hypovolaemia'?'Right thoracostomy — no tension, bilateral complete':'Right thoracostomy — clear, bilateral decompression done';},
+    log:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Hypovolaemia'?'Right needle decompression — no tension, bilateral complete':'Right needle decompression — clear, bilateral decompression done';},
     type:()=>{const tv=TRAUMA_VARIANTS[S.traumaVariant]||TRAUMA_VARIANTS.hypovolaemia;return tv.label==='Hypovolaemia'?'info':'good';},
-    once:true,onComplete:()=>{S.done['trauma_thoracostomy_r']=true;}
+    once:true,onComplete:()=>{S.done['trauma_needle decompression_r']=true;}
   },
   trauma_tamponade_assess:{
     title:'Assess for Cardiac Tamponade',
@@ -1684,6 +1685,40 @@ const traumaResponses = {
     title:'Critical Care Support Called',
     body:`<span class="good">Critical Care pre-alert made.</span> For suspected cardiac tamponade, Critical Care or physician support is required for further intervention. <strong>Early activation gives the best chance of definitive treatment before hospital arrival.</strong>`,
     log:'Critical Care support requested — tamponade suspected',type:'good',once:true,onComplete:()=>{S.done['trauma_cc_support']=true;}
+  },
+  trauma_pause_cpr:{
+    title:'CPR Paused for HOTT Assessment',
+    body:`<span class="warn">CPR paused to assess and treat HOTT causes.</span><br><br>In traumatic cardiac arrest, continuing CPR while significant haemorrhage is uncontrolled or tension pneumothorax is present may be counterproductive — you are circulating blood through a compromised system.<br><br><strong>Work through all HOTT causes now:</strong><br>• H — Control external bleeding, splint pelvis, gain access<br>• O — Airway, 100% oxygen<br>• T — Bilateral needle chest decompressions<br>• T — Assess for tamponade, call CC if suspected<br><br><span class="warn">Resume CPR once HOTT causes have been addressed.</span>`,
+    log:'CPR paused — HOTT assessment and treatment in progress',type:'warn',once:false,
+    onComplete:()=>{
+      document.getElementById('cprIndicator').style.display='none';
+      S.traumaCprPaused=true;
+    }
+  },
+  trauma_resume_cpr:{
+    title:'CPR Resumed',
+    body:()=>{
+      const tv = TRAUMA_VARIANTS[S.traumaVariant] || TRAUMA_VARIANTS.hypovolaemia;
+      const bothDecomps = S.done['trauma_thoracostomy_l'] && S.done['trauma_thoracostomy_r'];
+      const hasO2 = S.done['trauma_oxygen'];
+      if(tv.label === 'Tension Pneumothorax' && bothDecomps && hasO2) {
+        return '<span class="good">CPR resumed — reversible causes addressed.</span><br><br>Both tensions decompressed and oxygenation established. With the primary cause treated, CPR now has an excellent chance of achieving ROSC. Assess rhythm at the next cycle.';
+      }
+      return '<span class="good">CPR resumed following HOTT assessment.</span><br><br>With reversible causes addressed, CPR now has the best chance of achieving ROSC. Maintain high-quality compressions and re-assess rhythm at the appropriate interval.';
+    },
+    log:'CPR resumed — HOTT causes addressed',type:'good',once:false,
+    onComplete:()=>{
+      document.getElementById('cprIndicator').style.display='flex';
+      S.traumaCprPaused=false;
+      S.done['trauma_resume_cpr']=true;
+      // Tension PTX variant: if both decompressions and O2 done, next rhythm = sinus (ROSC)
+      const tv = TRAUMA_VARIANTS[S.traumaVariant] || TRAUMA_VARIANTS.hypovolaemia;
+      if(tv.label === 'Tension Pneumothorax' && S.done['trauma_thoracostomy_l'] && S.done['trauma_thoracostomy_r'] && S.done['trauma_oxygen']) {
+        rhythmSeq = ['pea','sinus'];
+        S.rhythmCycle = 0; // reset so next check hits sinus
+        addLog(formatTime(S.elapsed), 'Reversible cause treated — tension decompressed bilaterally. Assess rhythm.', 'good');
+      }
+    }
   }
 };
 
@@ -1801,39 +1836,65 @@ const adultResponses = {
     title:'Consider Termination of Resuscitation',
     once:false,
     body:()=>{
-      const has4s = S.done['4h'] && S.done['4t'];
-      const hasAccess = S.accessEstablished !== null;
-      const hasAdrenaline = S.adrenalineGiven;
-      const prereqsMet = has4s && hasAccess && hasAdrenaline;
-      if(prereqsMet){
-        return `<span class="good">The reversible causes have been systematically addressed, vascular access is established, and adrenaline has been given.</span><br><br>
-Based on the clinical picture and your assessment of this resuscitation, termination of resuscitation may be clinically appropriate.<br><br>
-<strong>Subject to the appropriate elapsed ALS time having passed — always refer to your JRCalc guidelines for termination criteria and your trust's specific protocols before making this decision.</strong><br><br>
-<span class="warn">Ensure the family are supported and not alone. Document your decision-making clearly.</span>`;
+      // Trauma uses HOTT prereqs; medical uses 4Hs & 4Ts
+      if(S.track === 'trauma') {
+        const hottH = S.done['trauma_bleeding_control'] || S.done['trauma_pelvis_splint'];
+        const hottO = S.done['trauma_oxygen'];
+        const hottT1 = S.done['trauma_thoracostomy_l'] || S.done['trauma_thoracostomy_r'] || S.done['trauma_chest_assess'];
+        const hottT2 = S.done['trauma_tamponade_assess'];
+        const hasAccess = S.accessEstablished !== null;
+        const prereqsMet = hottH && hottO && hottT1 && hottT2 && hasAccess;
+        if(prereqsMet){
+          return '<span class="good">All four HOTT causes have been systematically assessed and treated, and vascular access is established.</span><br><br>Based on the clinical picture, termination of resuscitation may be clinically appropriate.<br><br><strong>Subject to the appropriate elapsed time — always refer to your JRCalc guidelines for traumatic arrest termination criteria and your trust protocols.</strong><br><br><span class="warn">Ensure the family are supported. Document your decision-making clearly.</span>';
+        } else {
+          const missing = [];
+          if(!hottH) missing.push('H — haemorrhage not yet controlled or pelvis assessed');
+          if(!hottO) missing.push('O — oxygenation not yet addressed');
+          if(!hottT1) missing.push('T — tension pneumothorax not yet assessed or treated');
+          if(!hottT2) missing.push('T — tamponade not yet assessed');
+          if(!hasAccess) missing.push('vascular access not yet established');
+          return '<span class="warn">Too early to consider termination — the following HOTT causes have not yet been addressed:</span><br><br>' + missing.map(m=>'• ' + m).join('<br>') + '<br><br>Work through all HOTT causes before considering termination.';
+        }
       } else {
-        const missing = [];
-        if(!has4s) missing.push('reversible causes (4 Hs & 4 Ts not both reviewed)');
-        if(!hasAccess) missing.push('vascular access not yet established');
-        if(!hasAdrenaline) missing.push('adrenaline not yet given');
-        return `<span class="warn">Too early to consider termination — the following have not yet been addressed:</span><br><br>
-${missing.map(m=>`• ${m}`).join('<br>')}.<br><br>
-Ensure all reversible causes have been systematically excluded, access is established, and drugs given before considering termination of resuscitation.`;
+        // Medical arrest — 4Hs & 4Ts
+        const has4s = S.done['4h'] && S.done['4t'];
+        const hasAccess = S.accessEstablished !== null;
+        const hasAdrenaline = S.adrenalineGiven;
+        const prereqsMet = has4s && hasAccess && hasAdrenaline;
+        if(prereqsMet){
+          return '<span class="good">Reversible causes systematically addressed, vascular access established, and adrenaline given.</span><br><br>Termination of resuscitation may be clinically appropriate.<br><br><strong>Subject to the appropriate elapsed ALS time — always refer to your JRCalc guidelines and trust protocols.</strong><br><br><span class="warn">Ensure the family are supported. Document your decision-making clearly.</span>';
+        } else {
+          const missing = [];
+          if(!has4s) missing.push('reversible causes (4 Hs & 4 Ts not both reviewed)');
+          if(!hasAccess) missing.push('vascular access not yet established');
+          if(!hasAdrenaline) missing.push('adrenaline not yet given');
+          return '<span class="warn">Too early to consider termination — the following have not yet been addressed:</span><br><br>' + missing.map(m=>'• ' + m).join('<br>') + '<br><br>Ensure all reversible causes excluded, access established, and drugs given before considering termination.';
+        }
       }
     },
     log:()=>{
+      if(S.track === 'trauma') {
+        const hottMet = S.done['trauma_bleeding_control'] && S.done['trauma_oxygen'] && (S.done['trauma_thoracostomy_l'] || S.done['trauma_chest_assess']) && S.done['trauma_tamponade_assess'] && S.accessEstablished !== null;
+        return hottMet ? 'Termination considered — all HOTT causes addressed. Refer to JRCalc.' : 'Termination considered — HOTT causes not fully addressed';
+      }
       const prereqsMet = S.done['4h'] && S.done['4t'] && S.accessEstablished !== null && S.adrenalineGiven;
-      return prereqsMet
-        ? 'Termination of resuscitation considered — reversible causes addressed, access established, adrenaline given. Refer to JRCalc for termination criteria.'
-        : 'Termination considered — premature, reversible causes not fully addressed';
+      return prereqsMet ? 'Termination considered — reversible causes addressed, access and adrenaline given. Refer to JRCalc.' : 'Termination considered — premature';
     },
     type:()=>{
+      if(S.track === 'trauma') {
+        return (S.done['trauma_bleeding_control'] && S.done['trauma_oxygen'] && S.done['trauma_tamponade_assess'] && S.accessEstablished !== null) ? 'good' : 'warn';
+      }
       return (S.done['4h'] && S.done['4t'] && S.accessEstablished !== null && S.adrenalineGiven) ? 'good' : 'warn';
     },
     onComplete:()=>{
-      const prereqsMet = S.done['4h'] && S.done['4t'] && S.accessEstablished !== null && S.adrenalineGiven;
+      let prereqsMet;
+      if(S.track === 'trauma') {
+        prereqsMet = S.done['trauma_bleeding_control'] && S.done['trauma_oxygen'] && (S.done['trauma_thoracostomy_l'] || S.done['trauma_chest_assess']) && S.done['trauma_tamponade_assess'] && S.accessEstablished !== null;
+      } else {
+        prereqsMet = S.done['4h'] && S.done['4t'] && S.accessEstablished !== null && S.adrenalineGiven;
+      }
       if(prereqsMet){
         S.terminationAppropriate = true;
-        // Close modal and go to debrief after a short delay so the response is read first
         setTimeout(()=>{ finishAndDebrief(); }, 3500);
       }
     }
@@ -2818,14 +2879,14 @@ function showDebrief() {
     if(S.igelIn) good.push('Advanced airway established — asynchronous ventilation at 10 bpm achieved');
 
     // T — Tension Pneumothorax
-    const bothSides = S.done['trauma_thoracostomy_l'] && S.done['trauma_thoracostomy_r'];
-    const oneSide = S.done['trauma_thoracostomy_l'] || S.done['trauma_thoracostomy_r'];
+    const bothSides = S.done['trauma_needle decompression_l'] && S.done['trauma_needle decompression_r'];
+    const oneSide = S.done['trauma_needle decompression_l'] || S.done['trauma_needle decompression_r'];
     if(bothSides)
-      good.push('Bilateral finger thoracostomies performed — T (Tension pneumothorax) correctly addressed; bilateral decompression is standard in all traumatic arrests');
+      good.push('Bilateral needle chest decompressions performed — T (Tension pneumothorax) correctly addressed; bilateral decompression is standard in all traumatic arrests');
     else if(oneSide)
-      warn.push('Only one thoracostomy performed — bilateral decompression is required in traumatic cardiac arrest regardless of which side is suspected; always decompress both');
+      warn.push('Only one needle decompression performed — bilateral decompression is required in traumatic cardiac arrest regardless of which side is suspected; always decompress both');
     else
-      warn.push('Bilateral finger thoracostomies were not performed — tension pneumothorax must be excluded in all traumatic arrests; bilateral thoracostomy should be performed as standard');
+      warn.push('Bilateral needle chest decompressions were not performed — tension pneumothorax must be excluded in all traumatic arrests; bilateral needle decompression should be performed as standard');
 
     // T — Tamponade
     if(S.done['trauma_tamponade_assess'])
@@ -2847,7 +2908,7 @@ function showDebrief() {
     const hollie = warn.length === 0
       ? 'Excellent traumatic arrest run. You applied the HOTT protocol systematically — addressing Hypovolaemia, Oxygenation, Tension pneumothorax, and Tamponade alongside CPR. This is the correct approach in traumatic cardiac arrest: standard compressions alone are ineffective until the reversible cause is corrected. Strong clinical reasoning throughout.'
       : warn.length <= 2
-      ? 'Good overall run with a couple of areas to revisit. The core principle is that HOTT causes must be identified and treated simultaneously alongside CPR. ' + (!S.done['trauma_bleeding_control']?'Haemorrhage control is the most common correctable cause and is the priority H in HOTT. ':'' ) + (!bothSides?'Bilateral thoracostomy should be performed in all traumatic arrests — do not wait for clinical confirmation of tension before decompressing. ':'') + 'Review the areas below and consider another run.'
+      ? 'Good overall run with a couple of areas to revisit. The core principle is that HOTT causes must be identified and treated simultaneously alongside CPR. ' + (!S.done['trauma_bleeding_control']?'Haemorrhage control is the most common correctable cause and is the priority H in HOTT. ':'' ) + (!bothSides?'Bilateral needle decompression should be performed in all traumatic arrests — do not wait for clinical confirmation of tension before decompressing. ':'') + 'Review the areas below and consider another run.'
       : 'There are several important areas to review. Traumatic cardiac arrest requires the HOTT framework rather than standard ALS — compressions continue but the priority is simultaneously identifying and treating Hypovolaemia, Oxygenation failure, Tension pneumothorax, and Tamponade. Work through each HOTT cause systematically on your next run.';
 
     document.getElementById('hollieSummary').textContent = hollie;
