@@ -34,29 +34,6 @@
         }
         
         
-        /* Message Limit Banner */
-        .message-limit-banner {
-            background: linear-gradient(135deg, rgba(43, 138, 156, 0.1) 0%, rgba(92, 184, 92, 0.1) 100%);
-            padding: 0.5rem 1rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
-            font-size: 0.85rem;
-            flex-shrink: 0;
-        }
-        
-        .message-limit-banner .count {
-            font-weight: 700;
-            color: var(--color-teal);
-        }
-        
-        .message-limit-banner .upgrade-link {
-            color: var(--color-teal);
-            font-weight: 600;
-            text-decoration: none;
-        }
-        
         /* Main Container - Single scrolling column */
         .main-container {
             flex: 1;
@@ -423,13 +400,7 @@
     </div>
 </nav>
 
-    <!-- Message Limit Banner (Free Users) -->
-    <div class="message-limit-banner" id="messageLimitBanner">
-        <span>Daily messages: <span class="count"><span id="messagesUsed">0</span>/20</span></span>
-        <a href="#" class="upgrade-link" onclick="handleUpgrade(); return false;">
-            <i class="bi bi-star-fill me-1"></i>Upgrade for unlimited
-        </a>
-    </div>
+
 
     <!-- ==================== MAIN CONTAINER ==================== -->
     <div class="main-container">
@@ -627,7 +598,6 @@
         // ==================== STATE ====================
         const pageState = {
             isPro: false,
-            messagesRemaining: 20,
             isLoading: false
         };
 
@@ -640,8 +610,6 @@
             responseArea: document.getElementById('responseArea'),
             responseContent: document.getElementById('responseContent'),
             responsePanel: document.getElementById('responsePanel'),
-            messageLimitBanner: document.getElementById('messageLimitBanner'),
-            messagesUsed: document.getElementById('messagesUsed'),
             
             // Form fields
             patientAge: document.getElementById('patientAge'),
@@ -674,8 +642,6 @@
                         if (!pageState.isPro) {
                             const today = new Date().toDateString();
                             const lastDate = userData.lastMessageDate?.toDate?.()?.toDateString?.();
-                            const count = (lastDate === today) ? (userData.dailyMessageCount || 0) : 0;
-                            pageState.messagesRemaining = Math.max(0, 20 - count);
                         }
                         
                         updateUIForUser();
@@ -691,17 +657,12 @@
         // ==================== UI UPDATES ====================
         function updateUIForUser() {
             if (pageState.isPro) {
-                elements.messageLimitBanner.style.display = 'none';
+
             } else {
-                elements.messageLimitBanner.style.display = 'flex';
-                updateMessageCounter();
+
             }
         }
 
-        function updateMessageCounter() {
-            const used = Math.max(0, 20 - pageState.messagesRemaining);
-            elements.messagesUsed.textContent = used;
-        }
 
         // ==================== MESSAGE FORMATTING ====================
         function formatMessage(content) {
@@ -812,9 +773,6 @@
                         try {
                             const data = JSON.parse(line.slice(6));
                            if (data.type === 'meta' && data.remaining !== undefined) {
-                                pageState.messagesRemaining = data.remaining;
-                                if (pageState.userData) pageState.userData.dailyMessageCount = 20 - data.remaining;
-                                updateMessageCounter();
                             } else if (data.type === 'chunk') {
                                 fullMessage += data.content;
                                 if (onChunk) onChunk(fullMessage);
@@ -841,10 +799,6 @@
             
             if (pageState.isLoading) return;
             
-            if (!pageState.isPro && pageState.messagesRemaining <= 0) {
-                showLimitReached();
-                return;
-            }
             
             // Gather form data
             const patientData = {
@@ -909,11 +863,11 @@
                 
             } catch (error) {
                 if (error.message === 'LIMIT_REACHED') {
-                    showLimitReached();
+
                     elements.responseArea.innerHTML = `
                         ${buildPatientSummary(patientData)}
                         <div class="response-message">
-                            <p><strong>Daily message limit reached</strong></p>
+
                             <p>You've used all 20 free messages for today. Your limit resets at midnight.</p>
                             <button class="submit-btn" onclick="handleUpgrade()" style="margin-top: 1rem;">
                                 <i class="bi bi-star"></i> Upgrade to Pro - £4.99/month
@@ -946,11 +900,6 @@
             
             // Scroll back to top
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // ==================== LIMIT REACHED ====================
-        function showLimitReached() {
-            // Already handled in the submit function
         }
 
         // ==================== UPGRADE ====================

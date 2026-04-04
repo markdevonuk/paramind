@@ -723,10 +723,6 @@
                 <div class="info-chip pro-chip" id="proBadge" style="display: none;">
                     <i class="bi bi-star-fill"></i> Pro user
                 </div>
-                <div class="info-chip messages-chip" id="messageCounter" style="display: none;">
-                    <i class="bi bi-chat-dots"></i>
-                    <span><span class="count" id="messagesUsed">0</span>/5 today</span>
-                </div>
             </div>
         </div>
         
@@ -1245,8 +1241,6 @@
         const userTrustEl = document.getElementById('userTrust');
         const proBadgeEl = document.getElementById('proBadge');
         const upgradeBannerEl = document.getElementById('upgradeBanner');
-        const messageCounterEl = document.getElementById('messageCounter');
-        const messagesUsedEl = document.getElementById('messagesUsed');
 
         // Pro badge elements on cards
         const connectionsProBadge = document.getElementById('connectionsProBadge');
@@ -1402,7 +1396,6 @@
             } else {
                 proBadgeEl.style.display = 'none';
                 upgradeBannerEl.style.display = 'block';
-                messageCounterEl.style.display = 'inline-flex';
                 
                 document.getElementById('connectionsCard')?.classList.add('locked');
                 document.getElementById('drugsCard')?.classList.add('locked');
@@ -1480,20 +1473,6 @@ function updateMessageCount() {
     try {
         if (!userData) return;
         
-        // Check if lastMessageDate is today
-        const today = new Date().toDateString();
-        const lastMessageDate = userData.lastMessageDate?.toDate?.()?.toDateString?.();
-        
-        if (lastMessageDate === today) {
-            messagesUsedEl.textContent = userData.dailyMessageCount || 0;
-        } else {
-            // It's a new day, so count resets to 0
-            messagesUsedEl.textContent = '0';
-        }
-    } catch (error) {
-        console.error('Error calculating message count:', error);
-        messagesUsedEl.textContent = '0';
-    }
 }
 
         // ==================== UPGRADE HANDLER ====================

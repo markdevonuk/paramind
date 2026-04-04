@@ -14,7 +14,6 @@ const chatState = {
     isLoading: false,
     currentScenario: null,
     currentDifficultyLevel: 1,
-    messagesRemaining: 5,
     isPro: false,
     userTrust: 'SWAST',
     currentView: 'chatView',
@@ -104,10 +103,6 @@ const elements = {
     
     // Navigation
     navItems: document.querySelectorAll('.nav-item'),
-    
-    // Message counter
-    messagesUsed: document.getElementById('messagesUsed'),
-    messageLimitBanner: document.getElementById('messageLimitBanner'),
     
     // User info
     userTrust: document.getElementById('userTrust'),
@@ -241,8 +236,7 @@ async function fetchUserProfile() {
         
         chatState.userTrust = data.trust;
         chatState.isPro = data.isPro;
-        chatState.messagesRemaining = data.messagesRemaining;
-        
+            
         if (elements.userTrust) {
     elements.userTrust.textContent = data.trust;
 }
@@ -288,12 +282,9 @@ if (document.getElementById('disclaimerTrust')) {
     document.getElementById('disclaimerTrust').textContent = data.trust;
 }
 
-updateMessageCounter();
         updateCpdProLock();
         
-       if (chatState.isPro && elements.messageLimitBanner) {
-            elements.messageLimitBanner.style.display = 'none';
-        }
+
         
         // Hide the loading overlay now we know the subscription status
         const loadingOverlay = document.getElementById('subscriptionLoadingOverlay');
@@ -387,13 +378,7 @@ async function sendMessageToAPI(message, onChunk) {
                 try {
                     const data = JSON.parse(line.slice(6));
                     
-                    if (data.type === 'meta') {
-                        // Update message counter
-                        if (data.remaining !== undefined && data.remaining >= 0) {
-                            chatState.messagesRemaining = data.remaining;
-                            updateMessageCounter();
-                        }
-                    } else if (data.type === 'chunk') {
+                    if (data.type === 'chunk') {
                         // Add chunk to full message
                         fullMessage += data.content;
                         // Call the callback to update UI
@@ -1172,12 +1157,6 @@ async function handleAssessment(assessmentType) {
     
     if (chatState.isLoading) return;
     
-    // Check message limit for free users
-    if (!chatState.isPro && chatState.messagesRemaining <= 0) {
-        showLimitReached();
-        return;
-    }
-    
     // Track that an assessment was performed
     incrementAssessmentsPerformed();
     
@@ -1227,11 +1206,6 @@ async function handleHint() {
     }
     
     if (chatState.isLoading) return;
-    
-    if (!chatState.isPro && chatState.messagesRemaining <= 0) {
-        showLimitReached();
-        return;
-    }
     
     if (elements.hintBtn) {
         elements.hintBtn.disabled = true;
@@ -1393,11 +1367,6 @@ async function handleSendMessage(e) {
     const message = elements.messageInput.value.trim();
     if (!message || chatState.isLoading) return;
     
-    if (!chatState.isPro && chatState.messagesRemaining <= 0) {
-        showLimitReached();
-        return;
-    }
-    
     elements.messageInput.value = '';
     elements.messageInput.style.height = 'auto';
     
@@ -1435,12 +1404,8 @@ async function handleSendMessage(e) {
 }
 
 function handleChatError(error) {
-    if (error.message === 'LIMIT_REACHED') {
-        showLimitReached();
-    } else {
-        addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
-        console.error('Chat error:', error);
-    }
+    addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+    console.error('Chat error:', error);
 }
 
 function addMessage(role, content) {
@@ -1586,44 +1551,6 @@ function hideLoading() {
     if (loadingMsg) {
         loadingMsg.remove();
     }
-}
-
-function updateMessageCounter() {
-    if (elements.messagesUsed) {
-        const used = Math.max(0, 5 - chatState.messagesRemaining);
-        elements.messagesUsed.textContent = used;
-    }
-    
-    if (elements.messageLimitBanner && !chatState.isPro) {
-        if (chatState.messagesRemaining <= 0) {
-            elements.messageLimitBanner.style.background = 'rgba(220, 53, 69, 0.1)';
-        }
-    }
-}
-
-function showLimitReached() {
-    if (elements.welcomeMessage) {
-        elements.welcomeMessage.style.display = 'none';
-    }
-    
-    const limitDiv = document.createElement('div');
-    limitDiv.className = 'message assistant';
-    
-    limitDiv.innerHTML = `
-        <div class="message-avatar">
-            <i class="bi bi-robot"></i>
-        </div>
-        <div class="message-content">
-            <strong>Daily message limit reached</strong><br><br>
-            You've used all 5 free messages for today. Your limit resets at midnight.<br><br>
-            <button class="btn btn-primary btn-sm" onclick="createCheckoutSession()">
-                <i class="bi bi-star me-1"></i>Upgrade to Pro - £4.99/month
-            </button>
-        </div>
-    `;
-    
-    elements.chatMessages.appendChild(limitDiv);
-    scrollToBottom();
 }
 
 function clearChat() {

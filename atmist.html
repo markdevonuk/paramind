@@ -1952,11 +1952,7 @@
             } catch (error) {
                 console.error('Error generating handover:', error);
                 
-                if (error.message === 'LIMIT_REACHED') {
-                    alert('You\'ve reached your daily message limit. Upgrade to Pro for unlimited access!');
-                } else {
-                    alert('Error generating handover. Please try again.');
-                }
+                alert('Error generating handover. Please try again.');
             } finally {
                 // Reset button
                 generateBtn.disabled = false;

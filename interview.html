@@ -697,24 +697,6 @@
             40% { transform: translateY(-6px); }
         }
 
-        /* ==================== MESSAGE COUNTER BANNER ==================== */
-        .message-limit-banner {
-            background: linear-gradient(135deg, rgba(43,138,156,0.1), rgba(92,184,92,0.1));
-            border: 1px solid rgba(43,138,156,0.2);
-            border-radius: 10px;
-            padding: 10px 14px;
-            margin: 12px 16px 0;
-            text-align: center;
-            font-size: 0.8rem;
-            color: var(--color-gray-700);
-        }
-        .message-limit-banner strong { color: var(--color-teal); }
-        .message-limit-banner.warning { 
-            border-color: rgba(220,53,69,0.3);
-            background: rgba(220,53,69,0.06);
-        }
-        .message-limit-banner.warning strong { color: var(--color-danger); }
-
         /* ==================== GUIDED TOUR ==================== */
         .tour-overlay {
             display: none;
@@ -1121,11 +1103,6 @@
             <span class="times-up" id="timesUp" style="display: none;">Time's up!</span>
         </div>
 
-        <!-- Message Limit Banner -->
-        <div class="message-limit-banner" id="messageLimitBanner" style="display: none;">
-            <strong id="msgRemaining">10</strong> free messages remaining today · <a href="register.html" style="color: var(--color-teal); font-weight: 600;">Upgrade for unlimited</a>
-        </div>
-
         <!-- Chat Messages -->
         <div class="chat-messages" id="chatMessages">
             <!-- Messages populated by JavaScript -->
@@ -1277,7 +1254,6 @@
             isLoading: false,
             questionCount: 0,
             isPro: true,  // pro-guard.js ensures only Pro users reach this page
-            messagesRemaining: 999,
             hotSeatMode: false,
             timerSeconds: 120,
             timerInterval: null,
@@ -1302,8 +1278,6 @@
             timerText: document.getElementById('timerText'),
             timerFill: document.getElementById('timerFill'),
             timesUp: document.getElementById('timesUp'),
-            messageLimitBanner: document.getElementById('messageLimitBanner'),
-            msgRemaining: document.getElementById('msgRemaining'),
             heroBadgeFree: document.getElementById('heroBadgeFree'),
             heroBadgePro: document.getElementById('heroBadgePro')
         };
@@ -1444,12 +1418,6 @@ CRITICAL RULES:
                 return;
             }
 
-            // Check message limit for free users
-            if (!state.isPro && state.messagesRemaining <= 0) {
-                alert('You\'ve used all your free messages for today. Upgrade to Pro for unlimited access!');
-                return;
-            }
-
             state.currentCategory = categoryId;
             const typeData = INTERVIEW_TYPES[state.currentType];
             const catData = categoryId ? typeData.categories.find(c => c.id === categoryId) : null;
@@ -1461,17 +1429,6 @@ CRITICAL RULES:
             state.conversationHistory = [];
             state.questionCount = 1;
             els.qBadge.textContent = 'Q1';
-
-            // Show message limit banner for free users
-            if (!state.isPro) {
-                els.messageLimitBanner.style.display = 'block';
-                els.msgRemaining.textContent = state.messagesRemaining;
-                if (state.messagesRemaining <= 2) {
-                    els.messageLimitBanner.classList.add('warning');
-                }
-            } else {
-                els.messageLimitBanner.style.display = 'none';
-            }
 
             switchView('chat');
 
@@ -1552,13 +1509,7 @@ CRITICAL RULES:
                         if (line.startsWith('data: ')) {
                             try {
                                 const data = JSON.parse(line.slice(6));
-                                if (data.type === 'meta' && data.remaining !== undefined && data.remaining >= 0) {
-                                    state.messagesRemaining = data.remaining;
-                                    els.msgRemaining.textContent = data.remaining;
-                                    if (data.remaining <= 2) {
-                                        els.messageLimitBanner.classList.add('warning');
-                                    }
-                                } else if (data.type === 'chunk') {
+                                if (data.type === 'chunk') {
                                     fullMessage += data.content;
                                     updateStreamingMessage(aiMsgId, fullMessage);
                                 } else if (data.type === 'error') {
@@ -1685,12 +1636,6 @@ CRITICAL RULES:
             e.preventDefault();
             const message = els.messageInput.value.trim();
             if (!message || state.isLoading) return;
-
-            // Check message limit
-            if (!state.isPro && state.messagesRemaining <= 0) {
-                addMessage('assistant', "You've used all your free messages for today! Upgrade to Pro for unlimited access, or come back tomorrow. 😊");
-                return;
-            }
 
             els.messageInput.value = '';
             els.messageInput.style.height = 'auto';

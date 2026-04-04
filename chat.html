@@ -564,14 +564,6 @@ html {
     </div>
 </nav>
 
-    <!-- Message Limit Banner (Free Users) -->
-    <div class="message-limit-banner" id="messageLimitBanner">
-        <span>Daily messages: <span class="count"><span id="messagesUsed">0</span>/20</span></span>
-        <a href="#" class="upgrade-link" onclick="handleUpgrade(); return false;">
-            <i class="bi bi-star-fill me-1"></i>Upgrade for unlimited
-        </a>
-    </div>
-
     <!-- ==================== CHAT CONTAINER ==================== -->
     <div class="chat-container">
         
@@ -722,7 +714,6 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
         // ==================== STATE ====================
         const chatState = {
             isPro: false,
-            messagesRemaining: 20,
             conversationHistory: [],
             isLoading: false,
             userData: null
@@ -741,8 +732,6 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
             welcomeMessage: document.getElementById('welcomeMessage'),
             chatToolbar: document.getElementById('chatToolbar'),
             clearChatBtn: document.getElementById('clearChatBtn'),
-            messageLimitBanner: document.getElementById('messageLimitBanner'),
-            messagesUsed: document.getElementById('messagesUsed'),
             proBadgeWelcome: document.getElementById('proBadgeWelcome')
         };
 
@@ -754,14 +743,6 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
             if (doc.exists) {
                 chatState.userData = doc.data();
                 chatState.isPro = chatState.userData.subscriptionStatus === 'active' || chatState.userData.isPro === true;
-                
-                // Calculate actual messages remaining from Firestore data
-                if (!chatState.isPro) {
-                    const today = new Date().toDateString();
-                    const lastDate = chatState.userData.lastMessageDate?.toDate?.()?.toDateString?.();
-                    const count = (lastDate === today) ? (chatState.userData.dailyMessageCount || 0) : 0;
-                    chatState.messagesRemaining = Math.max(0, 20 - count);
-                }
                 
                 updateUIForUser();
             }
@@ -776,28 +757,13 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
         // ==================== UPDATE UI ====================
         function updateUIForUser() {
             if (chatState.isPro) {
-                elements.messageLimitBanner.style.display = 'none';
                 elements.proBadgeWelcome.style.display = 'inline';
             } else {
-                elements.messageLimitBanner.style.display = 'flex';
                 elements.proBadgeWelcome.style.display = 'none';
-                updateMessageCounter();
             }
         }
 
-       function updateMessageCounter() {
-            const today = new Date().toDateString();
-            const lastDate = chatState.userData?.lastMessageDate?.toDate?.()?.toDateString?.();
-            const used = (lastDate === today) ? (chatState.userData?.dailyMessageCount || 0) : 0;
-            elements.messagesUsed.textContent = used;
-            
-            if (chatState.messagesRemaining <= 0) {
-                elements.messageLimitBanner.classList.add('limit-reached');
-            } else {
-                elements.messageLimitBanner.classList.remove('limit-reached');
-            }
-        }
-            
+        
     
 
         // ==================== MESSAGE FORMATTING ====================
@@ -820,12 +786,6 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
             
             const message = elements.messageInput.value.trim();
             if (!message || chatState.isLoading) return;
-            
-            // Check message limit for free users
-            if (!chatState.isPro && chatState.messagesRemaining <= 0) {
-                showLimitReached();
-                return;
-            }
             
             // Clear input
             elements.messageInput.value = '';
@@ -918,13 +878,7 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
                         try {
                             const data = JSON.parse(line.slice(6));
                             
-                           if (data.type === 'meta') {
-                                if (data.remaining !== undefined && data.remaining >= 0) {
-                                    chatState.messagesRemaining = data.remaining;
-                                    chatState.userData.dailyMessageCount = 20 - data.remaining;
-                                    updateMessageCounter();
-                                }
-                            } else if (data.type === 'chunk') {
+                            if (data.type === 'chunk') {
                                 fullMessage += data.content;
                                 if (onChunk) onChunk(fullMessage);
                             } else if (data.type === 'error') {
@@ -1063,12 +1017,6 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
         async function askHollieToSimplify() {
             if (!lastAssistantResponse || chatState.isLoading) return;
             
-            // Check message limit for free users
-            if (!chatState.isPro && chatState.messagesRemaining <= 0) {
-                showLimitReached();
-                return;
-            }
-            
             // Remove the simplify button
             if (lastSimplifyBtnId) {
                 const btn = document.getElementById(lastSimplifyBtnId);
@@ -1139,12 +1087,7 @@ IMPORTANT: The learner just asked you to simplify your previous explanation. You
                             try {
                                 const data = JSON.parse(line.slice(6));
                                 
-                                if (data.type === 'meta') {
-                                    if (data.remaining !== undefined && data.remaining >= 0) {
-                                        chatState.messagesRemaining = data.remaining;
-                                        updateMessageCounter();
-                                    }
-                                } else if (data.type === 'chunk') {
+                                if (data.type === 'chunk') {
                                     fullMessage += data.content;
                                     updateStreamingMessage(aiMessageId, fullMessage);
                                 } else if (data.type === 'error') {
@@ -1192,33 +1135,10 @@ IMPORTANT: The learner just asked you to simplify your previous explanation. You
 
         function handleChatError(error) {
             if (error.message === 'LIMIT_REACHED') {
-                showLimitReached();
-            } else {
                 addMessage('assistant', "Sorry, I'm having a bit of trouble right now. Give it another go in a moment! 🚑");
                 console.error('Chat error:', error);
-            }
         }
 
-        function showLimitReached() {
-            const limitDiv = document.createElement('div');
-            limitDiv.className = 'message assistant';
-            
-            limitDiv.innerHTML = `
-                <div class="message-avatar">
-                    <img src="images/hollie.png" alt="Hollie">
-                </div>
-                <div class="message-content">
-                    <strong>Ah, you've hit your daily limit!</strong><br><br>
-                    You've used all 20 free messages for today - your limit resets at midnight. If you'd like unlimited chats with me, you can upgrade to Pro! 💚<br><br>
-                    <button class="btn btn-primary btn-sm" onclick="handleUpgrade()">
-                        <i class="bi bi-star me-1"></i>Upgrade to Pro - £4.99/month
-                    </button>
-                </div>
-            `;
-            
-            elements.chatMessages.appendChild(limitDiv);
-            scrollToBottom();
-        }
 
         function clearChat() {
             chatState.conversationHistory = [];

@@ -16,10 +16,6 @@ const CONFIG = {
         transcribe: "/transcribe",
     	speak: "/speak"
     },
-    // Free tier limits
-    freeTier: {
-        dailyMessages: 5
-    }
 };
 
 // Trust lookup data
@@ -117,30 +113,6 @@ const storage = {
     // Clear user data (logout)
     clearUser: function() {
         localStorage.removeItem('paramind_user');
-    },
-    
-    // Get message count for today
-    getMessageCount: function() {
-        const today = new Date().toDateString();
-        const stored = localStorage.getItem('paramind_messages');
-        if (stored) {
-            const data = JSON.parse(stored);
-            if (data.date === today) {
-                return data.count;
-            }
-        }
-        return 0;
-    },
-    
-    // Increment message count
-    incrementMessageCount: function() {
-        const today = new Date().toDateString();
-        const count = this.getMessageCount() + 1;
-        localStorage.setItem('paramind_messages', JSON.stringify({
-            date: today,
-            count: count
-        }));
-        return count;
     }
 };
 

@@ -22,7 +22,6 @@ admin.initializeApp();
 const db = admin.firestore();
 
 // Constants
-const FREE_DAILY_MESSAGES = 20;
 const SUBSCRIPTION_PRICE = 499; // £4.99 in pence (kept for reference)
 
 // Stripe Price IDs
@@ -58,59 +57,6 @@ async function getUser(uid) {
     throw new Error("User not found");
   }
   return { id: userDoc.id, ...userDoc.data() };
-}
-
-/**
- * Check if user can send messages (under daily limit or paid)
- */
-async function checkMessageLimit(user) {
-  // Paid users have unlimited messages
-  if (user.subscriptionStatus === "active") {
-    return { allowed: true, remaining: -1 }; // -1 means unlimited
-  }
-
-  // Check daily limit for free users
-  const today = new Date().toDateString();
-  const lastMessageDate = user.lastMessageDate?.toDate?.()?.toDateString?.();
-
-  let messageCount = user.dailyMessageCount || 0;
-
-  // Reset count if it's a new day
-  if (lastMessageDate !== today) {
-    messageCount = 0;
-  }
-
-  if (messageCount >= FREE_DAILY_MESSAGES) {
-    return { allowed: false, remaining: 0 };
-  }
-
-  return { allowed: true, remaining: FREE_DAILY_MESSAGES - messageCount };
-}
-
-/**
- * Increment user's daily message count
- */
-async function incrementMessageCount(uid) {
-  const today = new Date().toDateString();
-  const userRef = db.collection("users").doc(uid);
-  const user = await userRef.get();
-  const userData = user.data();
-
-  const lastMessageDate = userData.lastMessageDate?.toDate?.()?.toDateString?.();
-
-  if (lastMessageDate !== today) {
-    // New day, reset counter
-    await userRef.update({
-      dailyMessageCount: 1,
-      lastMessageDate: admin.firestore.FieldValue.serverTimestamp(),
-    });
-  } else {
-    // Same day, increment
-    await userRef.update({
-      dailyMessageCount: admin.firestore.FieldValue.increment(1),
-      lastMessageDate: admin.firestore.FieldValue.serverTimestamp(),
-    });
-  }
 }
 
 /**
@@ -172,16 +118,6 @@ exports.chat = onRequest(
       const uid = await verifyAuth(req);
       const user = await getUser(uid);
 
-      // Check message limit
-      const limitCheck = await checkMessageLimit(user);
-      if (!limitCheck.allowed) {
-        return res.status(429).json({
-          error: "Daily message limit reached",
-          message: "You've used all 5 free messages for today. Upgrade to Pro for unlimited messages.",
-          upgrade: true,
-        });
-      }
-
       // Get message, conversation history, and scenario prompt from request
       const { message, conversationHistory = [], scenarioPrompt } = req.body;
 
@@ -208,10 +144,6 @@ exports.chat = onRequest(
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
 
-      // Send the remaining message count first
-      const remaining = user.subscriptionStatus === "active" ? -1 : limitCheck.remaining - 1;
-      res.write(`data: ${JSON.stringify({ type: 'meta', remaining: remaining })}\n\n`);
-
       // Call OpenAI API with streaming enabled
       const stream = await openai.chat.completions.create({
         model: "gpt-4o-mini",
@@ -233,10 +165,7 @@ exports.chat = onRequest(
       res.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`);
       res.end();
 
-      // Increment message count for free users (after successful response)
-      if (user.subscriptionStatus !== "active") {
-        await incrementMessageCount(uid);
-      }
+
 
     } catch (error) {
       console.error("Chat error:", error);
@@ -270,9 +199,6 @@ exports.user = onRequest({ cors: true }, async (req, res) => {
     const uid = await verifyAuth(req);
     const user = await getUser(uid);
 
-    // Check message limit status
-    const limitCheck = await checkMessageLimit(user);
-
     // Update last login time (runs in background, doesn't slow down response)
     db.collection("users").doc(uid).update({
       lastLogin: new Date().toISOString()
@@ -286,7 +212,6 @@ exports.user = onRequest({ cors: true }, async (req, res) => {
       trust: user.trust,
       trustFullName: user.trustFullName,
       subscriptionStatus: user.subscriptionStatus,
-      messagesRemaining: limitCheck.remaining,
       isPro: user.subscriptionStatus === "active",
     });
 
