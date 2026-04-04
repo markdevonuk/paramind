@@ -2538,10 +2538,13 @@ async function requestHollieDebrief() {
 
   const trackLabel = S.track === 'newborn' ? 'Newborn Life Support (NLS)'
                    : S.track === 'paeds'   ? 'Paediatric ALS'
+                   : S.track === 'trauma'  ? 'Traumatic Cardiac Arrest'
                    : 'Adult ALS';
 
   const variantLabel = S.track === 'newborn'
     ? (NB_VARIANTS[S.nbVariant] || NB_VARIANTS.standard).label
+    : S.track === 'trauma'
+    ? (TRAUMA_VARIANTS[S.traumaVariant] || TRAUMA_VARIANTS.hypovolaemia).label
     : (ADULT_VARIANTS[S.adultVariant || S.paedsVariant] || ADULT_VARIANTS.standard_rosc).label;
 
   const goodItems = Array.from(document.getElementById('debriefGood').querySelectorAll('.debrief-item')).map(el => el.textContent).join('\n');
@@ -2632,9 +2635,11 @@ async function saveArrestCpdRecord(good, warn, hollieSummaryText) {
     return;
   }
 
-  const trackLabel = S.track === 'newborn' ? 'NLS' : S.track === 'paeds' ? 'Paeds ALS' : 'Adult ALS';
+  const trackLabel = S.track === 'newborn' ? 'NLS' : S.track === 'paeds' ? 'Paeds ALS' : S.track === 'trauma' ? 'Traumatic Cardiac Arrest' : 'Adult ALS';
   const variant = S.track === 'newborn'
     ? (NB_VARIANTS[S.nbVariant] || NB_VARIANTS.standard).label
+    : S.track === 'trauma'
+    ? (TRAUMA_VARIANTS[S.traumaVariant] || TRAUMA_VARIANTS.hypovolaemia).label
     : (ADULT_VARIANTS[S.adultVariant || S.paedsVariant] || ADULT_VARIANTS.standard_rosc).label;
 
   const dateStr = new Date().toISOString().slice(0,10).replace(/-/g,'');
