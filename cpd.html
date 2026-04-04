@@ -550,7 +550,7 @@
                                 <i class="bi bi-clipboard2-pulse"></i>
                                 ${(record.scenarioId || '').startsWith('arrest-') ? 'Actions: ' : ''}${record.assessmentsPerformed || 0} ${(record.scenarioId || '').startsWith('arrest-') ? '' : 'assessments'}
                             </span>
-                            ${record.difficultyLevel ? `<span class="cpd-record-stat">
+                            ${(record.difficultyLevel && !(record.scenarioId || '').startsWith('arrest-')) ? `<span class="cpd-record-stat">
                                 <i class="bi bi-bar-chart"></i>
                                 ${['','Student','NQP','Paramedic'][record.difficultyLevel] || 'Student'}
                             </span>` : ''}
