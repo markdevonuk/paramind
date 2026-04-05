@@ -742,36 +742,89 @@
                 from { opacity: 0; transform: translateY(-8px); }
                 to   { opacity: 1; transform: translateY(0); }
             }
+
+            /* Outer shell — crimson, same as countdown */
             .nl-outer {
-                background: linear-gradient(135deg, #c0392b 0%, #8B0000 60%, #6b0000 100%);
+                background: linear-gradient(160deg, #c0392b 0%, #8B0000 55%, #5a0000 100%);
                 border-radius: 18px;
-                padding: 22px 20px 20px;
-                position: relative;
                 overflow: hidden;
-                box-shadow: 0 8px 32px rgba(192,57,43,0.45), 0 2px 8px rgba(0,0,0,0.3);
+                box-shadow: 0 8px 32px rgba(192,57,43,0.5), 0 2px 8px rgba(0,0,0,0.35);
+                position: relative;
             }
-            .nl-outer::before {
-                content: '';
+
+            /* ECG monitor strip */
+            .nl-ecg-strip {
+                width: 100%;
+                height: 86px;
+                background: #060c06;
+                position: relative;
+                border-bottom: 1px solid rgba(255,255,255,0.06);
+            }
+            #nl-ecg-canvas {
+                width: 100%;
+                height: 100%;
+                display: block;
+            }
+            .nl-lead-label {
                 position: absolute;
-                top: -40px; left: -40px; right: -40px;
-                height: 120px;
-                background: radial-gradient(ellipse at 50% 0%, rgba(255,120,80,0.35) 0%, transparent 70%);
+                bottom: 7px;
+                left: 10px;
+                font-family: "Courier New", monospace;
+                font-size: 10px;
+                font-weight: 700;
+                color: rgba(0,220,60,0.45);
+                letter-spacing: 1px;
                 pointer-events: none;
             }
-            .nl-outer::after {
-                content: '';
+            .nl-ecg-status {
                 position: absolute;
-                bottom: 0; left: 0; right: 0; top: 0;
+                top: 8px;
+                right: 10px;
+                font-family: "Courier New", monospace;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                pointer-events: none;
+                transition: color 0.2s;
+            }
+            .nl-ecg-status.st-vf    { color: #ff4444; animation: statusBlink 0.55s ease-in-out infinite; }
+            .nl-ecg-status.st-shock { color: #ffffff; animation: none; }
+            .nl-ecg-status.st-flat  { color: rgba(255,255,255,0.4); animation: none; }
+            .nl-ecg-status.st-rosc  { color: #00ff41; animation: none; }
+            @keyframes statusBlink {
+                0%, 100% { opacity: 1; }
+                50%       { opacity: 0.25; }
+            }
+            .nl-shock-flash {
+                position: absolute;
+                inset: 0;
+                background: #ffffff;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.04s ease;
+            }
+            .nl-shock-flash.active { opacity: 0.92; }
+
+            /* Content area below strip */
+            .nl-content {
+                padding: 16px 20px 20px;
+                position: relative;
+                z-index: 1;
+            }
+            .nl-content::before {
+                content: "";
+                position: absolute;
+                inset: 0;
                 background: repeating-linear-gradient(
                     -45deg,
-                    rgba(255,255,255,0.02) 0px,
-                    rgba(255,255,255,0.02) 1px,
+                    rgba(255,255,255,0.025) 0px,
+                    rgba(255,255,255,0.025) 1px,
                     transparent 1px,
                     transparent 12px
                 );
                 pointer-events: none;
+                border-radius: 0 0 18px 18px;
             }
-            .nl-inner { position: relative; z-index: 1; }
             .nl-badge {
                 display: inline-flex;
                 align-items: center;
@@ -786,18 +839,18 @@
                 color: #fff;
                 text-transform: uppercase;
                 letter-spacing: 0.1em;
+                position: relative;
+                z-index: 1;
             }
             .nl-live-dot {
-                width: 8px;
-                height: 8px;
+                width: 8px; height: 8px;
                 border-radius: 50%;
                 background: #ff4444;
                 flex-shrink: 0;
                 animation: nlDotPulse 1.4s ease-in-out infinite;
-                box-shadow: 0 0 0 0 rgba(255,68,68,0.7);
             }
             @keyframes nlDotPulse {
-                0%   { box-shadow: 0 0 0 0 rgba(255,68,68,0.7); }
+                0%   { box-shadow: 0 0 0 0 rgba(255,68,68,0.8); }
                 70%  { box-shadow: 0 0 0 7px rgba(255,68,68,0); }
                 100% { box-shadow: 0 0 0 0 rgba(255,68,68,0); }
             }
@@ -807,7 +860,8 @@
                 color: #ffffff;
                 margin: 0 0 4px;
                 line-height: 1.2;
-                text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+                text-shadow: 0 1px 4px rgba(0,0,0,0.35);
+                position: relative; z-index: 1;
             }
             .nl-heading span { color: #ffcc00; }
             .nl-subtext {
@@ -815,6 +869,7 @@
                 color: rgba(255,255,255,0.85);
                 margin: 0 0 18px;
                 line-height: 1.4;
+                position: relative; z-index: 1;
             }
             .nl-cta {
                 display: inline-flex;
@@ -828,18 +883,17 @@
                 border-radius: 12px;
                 text-decoration: none;
                 transition: transform 0.2s ease, box-shadow 0.2s ease;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-                position: relative;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                position: relative; z-index: 1;
                 overflow: hidden;
             }
             .nl-cta::after {
-                content: '';
+                content: "";
                 position: absolute;
                 top: 0; left: -100%;
-                width: 60%;
-                height: 100%;
-                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
-                animation: nlShimmer 2.8s ease-in-out infinite;
+                width: 60%; height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+                animation: nlShimmer 3s ease-in-out infinite;
             }
             @keyframes nlShimmer {
                 0%   { left: -100%; }
@@ -848,26 +902,204 @@
             }
             .nl-cta:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 8px 28px rgba(0,0,0,0.35);
+                box-shadow: 0 8px 28px rgba(0,0,0,0.4);
                 color: #8B0000;
                 text-decoration: none;
             }
             .nl-cta i { font-size: 16px; }
         </style>
+
         <div id="now-live-banner">
             <div class="nl-outer">
-                <div class="nl-inner">
+
+                <!-- ECG Monitor Strip -->
+                <div class="nl-ecg-strip">
+                    <canvas id="nl-ecg-canvas"></canvas>
+                    <div class="nl-lead-label">LEAD II</div>
+                    <div class="nl-ecg-status st-vf" id="nlEcgStatus">&#x26A1; VF</div>
+                    <div class="nl-shock-flash" id="nlShockFlash"></div>
+                </div>
+
+                <!-- Content -->
+                <div class="nl-content">
                     <div class="nl-badge">
                         <span class="nl-live-dot"></span> Now Live
                     </div>
-                    <p class="nl-heading">🫀 <span>Cardiac Arrest Simulator</span></p>
-                    <p class="nl-subtext">Adult ALS for all members · Paediatric, Newborn &amp; Traumatic Arrest for Pro</p>
+                    <p class="nl-heading">&#x1FAC0; <span>Cardiac Arrest Simulator</span></p>
+                    <p class="nl-subtext">Adult ALS for all members &middot; Paediatric, Newborn &amp; Traumatic Arrest for Pro</p>
                     <a href="arrest-scenarios.html" class="nl-cta">
                         <i class="bi bi-play-circle-fill"></i> Launch the Simulator
                     </a>
                 </div>
+
             </div>
         </div>
+
+        <script>
+        (function () {
+            'use strict';
+
+            var canvas   = document.getElementById('nl-ecg-canvas');
+            var statusEl = document.getElementById('nlEcgStatus');
+            var flashEl  = document.getElementById('nlShockFlash');
+            var ctx      = canvas.getContext('2d');
+
+            function setSize() {
+                var dpr = window.devicePixelRatio || 1;
+                canvas.width  = canvas.clientWidth  * dpr;
+                canvas.height = canvas.clientHeight * dpr;
+            }
+            setSize();
+            window.addEventListener('resize', setSize);
+
+            /* data buffer */
+            var SAMPLES = 520;
+            var buf = new Array(SAMPLES).fill(0.5);
+
+            /* phase durations in frames (~60fps) */
+            var PHASE_DUR = { vf: 210, shock: 14, flat: 55, sinus: 380 };
+            var phase      = 'vf';
+            var phaseFrame = 0;
+
+            /* VF generator */
+            var vfT = 0;
+            function nextVF() {
+                vfT += 0.13;
+                var v = Math.sin(vfT * 7.1)        * 0.36 +
+                        Math.sin(vfT * 12.3 + 1.3)  * 0.27 +
+                        Math.sin(vfT * 18.7 + 0.6)  * 0.16 +
+                        Math.cos(vfT * 5.9  + 2.4)  * 0.21 +
+                        Math.sin(vfT * 24.1 + 3.0)  * 0.09 +
+                        (Math.random() - 0.5)        * 0.04;
+                return Math.max(0.05, Math.min(0.95, 0.5 + v * 0.42));
+            }
+
+            /* Sinus rhythm generator */
+            var sinusPos = 0;
+            var BEAT_LEN = 108;
+            function nextSinus() {
+                sinusPos++;
+                var t = (sinusPos % BEAT_LEN) / BEAT_LEN;
+                var y = 0.5;
+                if (t < 0.07) {
+                    y = 0.5 - Math.sin(t / 0.07 * Math.PI) * 0.11;
+                } else if (t < 0.20) {
+                    y = 0.5;
+                } else if (t < 0.245) {
+                    y = 0.5 + (t - 0.20) / 0.045 * 0.09;
+                } else if (t < 0.30) {
+                    var r = (t - 0.245) / 0.055;
+                    y = 0.5 + 0.09 - Math.sin(r * Math.PI) * 0.70;
+                } else if (t < 0.36) {
+                    var s = (t - 0.30) / 0.06;
+                    y = 0.5 - 0.20 * (1 - s);
+                } else if (t < 0.46) {
+                    y = 0.5;
+                } else if (t < 0.67) {
+                    y = 0.5 - Math.sin((t - 0.46) / 0.21 * Math.PI) * 0.22;
+                } else {
+                    y = 0.5;
+                }
+                return y;
+            }
+
+            function nextSample() {
+                if (phase === 'vf')    return nextVF();
+                if (phase === 'shock') return 0.5;
+                if (phase === 'flat')  return 0.5;
+                return nextSinus();
+            }
+
+            function advancePhase() {
+                phaseFrame++;
+                if (phase === 'vf' && phaseFrame >= PHASE_DUR.vf) {
+                    phase = 'shock'; phaseFrame = 0;
+                    flashEl.classList.add('active');
+                    statusEl.textContent = '⚡ SHOCK';
+                    statusEl.className   = 'nl-ecg-status st-shock';
+                } else if (phase === 'shock' && phaseFrame >= PHASE_DUR.shock) {
+                    phase = 'flat'; phaseFrame = 0;
+                    flashEl.classList.remove('active');
+                    statusEl.textContent = '-- --';
+                    statusEl.className   = 'nl-ecg-status st-flat';
+                } else if (phase === 'flat' && phaseFrame >= PHASE_DUR.flat) {
+                    phase = 'sinus'; phaseFrame = 0;
+                    statusEl.textContent = 'ROSC \u2713';
+                    statusEl.className   = 'nl-ecg-status st-rosc';
+                } else if (phase === 'sinus' && phaseFrame >= PHASE_DUR.sinus) {
+                    phase = 'vf'; phaseFrame = 0; vfT = 0; sinusPos = 0;
+                    statusEl.textContent = '⚡ VF';
+                    statusEl.className   = 'nl-ecg-status st-vf';
+                }
+            }
+
+            function render() {
+                var W   = canvas.width;
+                var H   = canvas.height;
+                var dpr = window.devicePixelRatio || 1;
+
+                ctx.fillStyle = '#060c06';
+                ctx.fillRect(0, 0, W, H);
+
+                ctx.strokeStyle = 'rgba(0,180,50,0.07)';
+                ctx.lineWidth   = 1;
+                var gs = 22 * dpr;
+                for (var gx = 0; gx < W; gx += gs) {
+                    ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke();
+                }
+                for (var gy = 0; gy < H; gy += gs) {
+                    ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke();
+                }
+
+                var lineCol, glowCol;
+                if (phase === 'vf') {
+                    lineCol = '#ff5050'; glowCol = 'rgba(255,80,80,0.65)';
+                } else if (phase === 'shock') {
+                    lineCol = '#ffffff'; glowCol = 'rgba(255,255,255,0.9)';
+                } else if (phase === 'flat') {
+                    lineCol = '#55aa66'; glowCol = 'rgba(85,170,102,0.5)';
+                } else {
+                    lineCol = '#00ff41'; glowCol = 'rgba(0,255,65,0.65)';
+                }
+
+                ctx.beginPath();
+                ctx.lineWidth   = 2.2 * dpr;
+                ctx.lineJoin    = 'round';
+                ctx.lineCap     = 'round';
+                ctx.strokeStyle = lineCol;
+                ctx.shadowColor = glowCol;
+                ctx.shadowBlur  = 10 * dpr;
+
+                for (var i = 0; i < buf.length; i++) {
+                    var px = (i / (buf.length - 1)) * W;
+                    var py = buf[i] * H;
+                    if (i === 0) ctx.moveTo(px, py);
+                    else         ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+
+                var lastY = buf[buf.length - 1] * H;
+                ctx.fillStyle   = lineCol;
+                ctx.shadowColor = lineCol;
+                ctx.shadowBlur  = 18 * dpr;
+                ctx.beginPath();
+                ctx.arc(W - 1, lastY, 3.5 * dpr, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+
+            function tick() {
+                advancePhase();
+                buf.shift();
+                buf.push(nextSample());
+                render();
+                requestAnimationFrame(tick);
+            }
+
+            requestAnimationFrame(tick);
+        })();
+        </script>
 
         <!-- ==================== FREE TOOLS ==================== -->
         <div class="tools-section">
