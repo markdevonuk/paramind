@@ -811,7 +811,7 @@
                 align-items: center;
                 justify-content: center;
                 font-family: 'Courier New', monospace;
-                font-size: 15px;
+                font-size: 17px;
                 font-weight: 700;
                 letter-spacing: 2px;
                 color: #ffcc00;
@@ -976,7 +976,7 @@
             var buf = new Array(SAMPLES).fill(0.5);
 
             /* phase durations in frames (~60fps) */
-            var PHASE_DUR = { vf: 210, shock: 14, flat: 55, sinus: 380 };
+            var PHASE_DUR = { vf: 210, shock: 14, flat: 150, sinus: 380 };
             var phase      = 'vf';
             var phaseFrame = 0;
 
@@ -1034,12 +1034,12 @@
                 if (phase === 'vf' && phaseFrame >= PHASE_DUR.vf) {
                     phase = 'shock'; phaseFrame = 0;
                     flashEl.classList.add('active');
+                    shockDeliveredEl.classList.add('active');
                     statusEl.textContent = '⚡ SHOCK';
                     statusEl.className   = 'nl-ecg-status st-shock';
                 } else if (phase === 'shock' && phaseFrame >= PHASE_DUR.shock) {
                     phase = 'flat'; phaseFrame = 0;
                     flashEl.classList.remove('active');
-                    shockDeliveredEl.classList.add('active');
                     statusEl.textContent = '-- --';
                     statusEl.className   = 'nl-ecg-status st-flat';
                 } else if (phase === 'flat' && phaseFrame >= PHASE_DUR.flat) {
