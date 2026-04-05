@@ -804,6 +804,23 @@
                 transition: opacity 0.04s ease;
             }
             .nl-shock-flash.active { opacity: 0.92; }
+            .nl-shock-delivered {
+                position: absolute;
+                inset: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: 'Courier New', monospace;
+                font-size: 15px;
+                font-weight: 700;
+                letter-spacing: 2px;
+                color: #ffcc00;
+                text-shadow: 0 0 16px rgba(255,204,0,0.9), 0 0 40px rgba(255,204,0,0.4);
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.25s ease;
+            }
+            .nl-shock-delivered.active { opacity: 1; }
 
             /* Content area below strip */
             .nl-content {
@@ -918,6 +935,7 @@
                     <div class="nl-lead-label">LEAD II</div>
                     <div class="nl-ecg-status st-vf" id="nlEcgStatus">&#x26A1; VF</div>
                     <div class="nl-shock-flash" id="nlShockFlash"></div>
+                    <div class="nl-shock-delivered" id="nlShockDelivered">⚡ SHOCK DELIVERED</div>
                 </div>
 
                 <!-- Content -->
@@ -942,6 +960,7 @@
             var canvas   = document.getElementById('nl-ecg-canvas');
             var statusEl = document.getElementById('nlEcgStatus');
             var flashEl  = document.getElementById('nlShockFlash');
+            var shockDeliveredEl = document.getElementById('nlShockDelivered');
             var ctx      = canvas.getContext('2d');
 
             function setSize() {
@@ -1020,10 +1039,12 @@
                 } else if (phase === 'shock' && phaseFrame >= PHASE_DUR.shock) {
                     phase = 'flat'; phaseFrame = 0;
                     flashEl.classList.remove('active');
+                    shockDeliveredEl.classList.add('active');
                     statusEl.textContent = '-- --';
                     statusEl.className   = 'nl-ecg-status st-flat';
                 } else if (phase === 'flat' && phaseFrame >= PHASE_DUR.flat) {
                     phase = 'sinus'; phaseFrame = 0;
+                    shockDeliveredEl.classList.remove('active');
                     statusEl.textContent = 'ROSC \u2713';
                     statusEl.className   = 'nl-ecg-status st-rosc';
                 } else if (phase === 'sinus' && phaseFrame >= PHASE_DUR.sinus) {
