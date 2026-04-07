@@ -512,6 +512,115 @@
         .arrest-response-body .bad  { color: #dc3545; }
         .arrest-response-confirm { width: 100%; margin-top: 0.75rem; padding: 0.75rem; background: linear-gradient(135deg, #2B8A9C, #237282); border: none; border-radius: 8px; color: white; font-weight: 700; font-size: 0.82rem; cursor: pointer; }
         .arrest-response-back { width: 100%; margin-top: 0.5rem; padding: 0.625rem; background: transparent; border: 1px solid #1a2a4a; border-radius: 8px; color: #8892b0; font-size: 0.78rem; cursor: pointer; }
+
+        /* ==================== GUIDED TOUR ==================== */
+        .tour-howto-link {
+            display: flex; align-items: center; gap: 0.75rem;
+            background: linear-gradient(135deg, rgba(43,138,156,0.07), rgba(43,138,156,0.12));
+            border: 1.5px solid rgba(43,138,156,0.25);
+            border-radius: var(--radius-lg);
+            padding: 0.875rem 1.1rem;
+            margin-bottom: 0.75rem;
+            text-decoration: none;
+            color: var(--color-teal);
+            font-weight: 600; font-size: 0.88rem;
+            transition: all 0.2s ease;
+        }
+        .tour-howto-link:hover {
+            background: linear-gradient(135deg, rgba(43,138,156,0.12), rgba(43,138,156,0.18));
+            border-color: rgba(43,138,156,0.45);
+            color: var(--color-teal);
+            text-decoration: none;
+            transform: translateY(-1px);
+        }
+        .tour-howto-link i.tour-icon-left { font-size: 1.15rem; flex-shrink: 0; }
+        .tour-howto-link i.tour-icon-right { font-size: 0.9rem; margin-left: auto; opacity: 0.6; }
+        .tour-overlay {
+            position: fixed; inset: 0; z-index: 9500;
+            pointer-events: all; display: none;
+        }
+        .tour-overlay.active { display: block; }
+        .tour-spotlight {
+            position: fixed; border-radius: 12px;
+            box-shadow: 0 0 0 9999px rgba(0,0,0,0.78);
+            z-index: 9501; pointer-events: none;
+            transition: left 0.32s cubic-bezier(0.4,0,0.2,1),
+                        top  0.32s cubic-bezier(0.4,0,0.2,1),
+                        width 0.32s cubic-bezier(0.4,0,0.2,1),
+                        height 0.32s cubic-bezier(0.4,0,0.2,1);
+            display: none;
+        }
+        .tour-spotlight.active { display: block; }
+        .tour-tooltip {
+            position: fixed; z-index: 9502;
+            background: #ffffff; border-radius: 18px;
+            padding: 1.25rem 1.25rem 1rem;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.15);
+            display: none;
+        }
+        .tour-tooltip.active { display: block; animation: tourTipIn 0.25s ease; }
+        @keyframes tourTipIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .tour-step-label {
+            font-size: 0.62rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--color-teal); margin-bottom: 0.5rem;
+        }
+        .tour-title {
+            font-size: 1rem; font-weight: 800;
+            color: var(--color-gray-800);
+            margin-bottom: 0.45rem; line-height: 1.3;
+        }
+        .tour-body {
+            font-size: 0.84rem; color: var(--color-gray-600);
+            line-height: 1.6; margin-bottom: 1rem;
+        }
+        .tour-btns {
+            display: flex; gap: 0.5rem;
+            justify-content: flex-end; align-items: center;
+        }
+        .tour-btn-skip {
+            background: none; border: none;
+            font-size: 0.75rem; color: var(--color-gray-400);
+            cursor: pointer; padding: 0.4rem 0.25rem;
+            transition: color 0.2s; flex: 1; text-align: left;
+        }
+        .tour-btn-skip:hover { color: var(--color-gray-600); }
+        .tour-btn-back {
+            background: none; border: 1px solid var(--color-gray-200);
+            border-radius: 10px; padding: 0.55rem 1rem;
+            font-size: 0.8rem; color: var(--color-gray-500);
+            cursor: pointer; transition: all 0.2s;
+        }
+        .tour-btn-back:hover { background: var(--color-gray-50); border-color: var(--color-gray-300); }
+        .tour-btn-next {
+            background: linear-gradient(135deg, var(--color-teal), #237282);
+            color: white; border: none; border-radius: 10px;
+            padding: 0.6rem 1.25rem;
+            font-weight: 700; font-size: 0.85rem; cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(43,138,156,0.3);
+        }
+        .tour-btn-next:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(43,138,156,0.4); }
+        .tour-end-btns { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; }
+        .tour-btn-start-real {
+            width: 100%; padding: 0.8rem;
+            background: linear-gradient(135deg, var(--color-teal), #237282);
+            color: white; border: none; border-radius: 12px;
+            font-weight: 700; font-size: 0.9rem; cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(43,138,156,0.3);
+        }
+        .tour-btn-start-real:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(43,138,156,0.4); }
+        .tour-btn-back-select {
+            width: 100%; padding: 0.65rem;
+            background: none; border: 1px solid var(--color-gray-200);
+            border-radius: 12px; color: var(--color-gray-500);
+            font-size: 0.82rem; cursor: pointer; transition: all 0.2s;
+        }
+        .tour-btn-back-select:hover { background: var(--color-gray-50); }
     </style>
 </head>
 
@@ -542,6 +651,13 @@
                 <h1><i class="bi bi-heart-pulse me-2" style="color:var(--color-teal)"></i>Cardiac Arrest Scenarios</h1>
                 <p>Real-time resuscitation simulations. Every decision is timed, logged, and reviewed in a full clinical debrief. The scenarios can have different trajectories so think carefully.</p>
             </div>
+
+            <!-- Show me how to use this -->
+            <a href="arrest-scenarios.html?tour=true" class="tour-howto-link">
+                <i class="bi bi-info-circle-fill tour-icon-left"></i>
+                <span>Show me how to use this</span>
+                <i class="bi bi-chevron-right tour-icon-right"></i>
+            </a>
 
             <button class="scenario-select-card selected" onclick="selectTrack(this,'adult')">
                 <div class="scenario-card-icon">🫀</div>
@@ -3055,5 +3171,291 @@ function showFeedback(msg,type) {
 }
 
 </script>
+
+<!-- ==================== GUIDED TOUR ==================== -->
+<div class="tour-overlay"  id="tourOverlay"></div>
+<div class="tour-spotlight" id="tourSpotlight"></div>
+<div class="tour-tooltip"   id="tourTooltip">
+    <div class="tour-step-label" id="tourStepLabel"></div>
+    <div class="tour-title"      id="tourTitle"></div>
+    <div class="tour-body"       id="tourBody"></div>
+    <div class="tour-btns"       id="tourBtns"></div>
+</div>
+
+
+    <!-- ==================== GUIDED TOUR JS ==================== -->
+    <script>
+    (function () {
+        'use strict';
+
+        var STEPS = [
+            {
+                title: 'Welcome to the Cardiac Arrest Simulator',
+                body: 'This quick tour walks you through the key features before you start for real. Tap <strong>Next</strong> to get started.',
+                elFn: null,
+                next: "Let’s go →"
+            },
+            {
+                title: 'Choose your scenario track',
+                body: '<strong>Adult ALS</strong> is free for all members. Paediatric ALS, Newborn Life Support, and Traumatic Cardiac Arrest require a Pro subscription. Each track presents different clinical challenges.',
+                elFn: function () { return document.querySelectorAll('.scenario-select-card'); },
+                multi: true,
+                next: 'Next'
+            },
+            {
+                title: 'Start the scenario',
+                body: 'When you’re ready, tap <strong>Start Scenario</strong>. Every run can follow a different clinical pathway — the outcome depends on your decisions and timing.',
+                elFn: function () { return document.querySelector('.btn.btn-primary.w-100'); },
+                next: 'Preview the simulator →'
+            },
+            {
+                title: 'Incident banner',
+                body: 'The banner shows your <strong>track</strong>, patient details, and the <strong>elapsed timer</strong>. The clock starts the moment the scenario begins — just like arriving at a real cardiac arrest.',
+                elFn: function () { return document.querySelector('.arrest-incident-banner'); },
+                switchToRunning: true,
+                next: 'Next'
+            },
+            {
+                title: 'Cardiac monitor',
+                body: 'Your <strong>live ECG strip</strong> is displayed here once defib pads are applied. At each 2-minute rhythm check you’ll be asked to interpret what you see — choose carefully, there’s no going back.',
+                elFn: function () { return document.getElementById('ecgContainer'); },
+                next: 'Next'
+            },
+            {
+                title: '2-minute CPR cycle',
+                body: 'This bar counts down your <strong>2-minute CPR cycle</strong>. When it completes you’ll be prompted to pause compressions and perform a rhythm check — exactly as the ALS algorithm requires.',
+                elFn: function () { return document.querySelector('.arrest-cpr-progress-row'); },
+                next: 'Next'
+            },
+            {
+                title: 'Actions & interventions',
+                body: 'Tap this button to open the <strong>action menu</strong>. Perform assessments, request backup, and manage the resuscitation. Every action is timestamped and reviewed in your debrief.',
+                elFn: function () { return document.querySelector('.arrest-action-btn'); },
+                next: 'Next'
+            },
+            {
+                title: 'Event log',
+                body: 'Everything you do is <strong>logged here in real time</strong>. This timeline feeds directly into your personalised AI debrief at the end of the scenario.',
+                elFn: function () { return document.querySelector('.arrest-log-scroll'); },
+                next: 'Next'
+            },
+            {
+                title: "You’re ready to go!",
+                body: "That’s everything you need to know. Head back to the selection screen and start your first scenario when you’re ready. Good luck.",
+                elFn: null,
+                isEnd: true
+            }
+        ];
+
+        var current        = 0;
+        var previewStarted = false;
+
+        var overlay    = document.getElementById('tourOverlay');
+        var spotlight  = document.getElementById('tourSpotlight');
+        var tooltip    = document.getElementById('tourTooltip');
+        var stepLabelEl = document.getElementById('tourStepLabel');
+        var titleEl    = document.getElementById('tourTitle');
+        var bodyEl     = document.getElementById('tourBody');
+        var btnsEl     = document.getElementById('tourBtns');
+
+        /* ── Tour preview: populate running view without starting the clock ── */
+        function setupTourPreview() {
+            if (previewStarted) return;
+            previewStarted = true;
+            S.track        = 'adult';
+            S.adultVariant = 'standard_rosc';
+            var av = ADULT_VARIANTS[S.adultVariant];
+            rhythmSeq              = av.seq.slice();
+            S.currentDisplayRhythm = 'vf';
+            S.running              = true;   // required for drawECG
+            showView('runningView');
+            setupTrack();
+            // Show ECG even though pads are not applied in the tour
+            var ecg = document.getElementById('ecgContainer');
+            if (ecg) ecg.style.display = 'block';
+            drawECG();
+        }
+
+        /* ── Compute bounding rect (single el or NodeList) ── */
+        function getRect(step) {
+            if (!step.elFn) return null;
+            var res = step.elFn();
+            if (!res) return null;
+            var els = (res.length !== undefined && !(res instanceof Element))
+                        ? Array.from(res)
+                        : [res];
+            els = els.filter(function (e) { return e; });
+            if (!els.length) return null;
+            var mL = Infinity, mT = Infinity, mR = -Infinity, mB = -Infinity;
+            els.forEach(function (el) {
+                var r = el.getBoundingClientRect();
+                mL = Math.min(mL, r.left);
+                mT = Math.min(mT, r.top);
+                mR = Math.max(mR, r.right);
+                mB = Math.max(mB, r.bottom);
+            });
+            return { left: mL, top: mT, width: mR - mL, height: mB - mT };
+        }
+
+        function placeSpotlight(rect) {
+            var pad = 10;
+            spotlight.style.left   = (rect.left   - pad) + 'px';
+            spotlight.style.top    = (rect.top    - pad) + 'px';
+            spotlight.style.width  = (rect.width  + pad * 2) + 'px';
+            spotlight.style.height = (rect.height + pad * 2) + 'px';
+            spotlight.classList.add('active');
+        }
+
+        function placeTooltip(rect) {
+            var vw = window.innerWidth;
+            var vh = window.innerHeight;
+            var tw = Math.min(340, vw - 32);
+            var th = 240;   // generous estimated height
+            var margin = 14;
+            /* horizontal: centred, clamped to screen */
+            var left = Math.max(16, Math.min(vw - tw - 16, vw / 2 - tw / 2));
+            var top;
+            if (rect === null) {
+                top = Math.max(60, vh / 2 - th / 2);
+            } else {
+                var below = rect.top + rect.height + 10 + margin;
+                var above = rect.top - 10 - margin - th;
+                if (below + th < vh - 20) {
+                    top = below;
+                } else if (above > 60) {
+                    top = above;
+                } else {
+                    top = vh - th - 90;   // pin near bottom
+                }
+            }
+            tooltip.style.left  = left + 'px';
+            tooltip.style.top   = Math.max(60, top) + 'px';
+            tooltip.style.width = tw + 'px';
+        }
+
+        /* ── Render a step ── */
+        function renderStep(n) {
+            var step  = STEPS[n];
+            var total = STEPS.length;
+
+            stepLabelEl.textContent = 'Step ' + (n + 1) + ' of ' + total;
+            titleEl.textContent     = step.title;
+            bodyEl.innerHTML        = step.body || '';
+
+            var rect = getRect(step);
+
+            if (rect) {
+                placeSpotlight(rect);
+            } else {
+                spotlight.classList.remove('active');
+            }
+
+            placeTooltip(rect);
+            tooltip.classList.remove('active');
+            /* force reflow so animation re-triggers */
+            void tooltip.offsetWidth;
+            tooltip.classList.add('active');
+
+            /* ── Buttons ── */
+            btnsEl.innerHTML = '';
+
+            if (step.isEnd) {
+                var wrap = document.createElement('div');
+                wrap.className = 'tour-end-btns';
+
+                var startBtn = document.createElement('button');
+                startBtn.className   = 'tour-btn-start-real';
+                startBtn.innerHTML   = '<i class="bi bi-play-fill me-1"></i> Start for Real';
+                startBtn.onclick     = function () { endTour(true); };
+
+                var backBtn2 = document.createElement('button');
+                backBtn2.className   = 'tour-btn-back-select';
+                backBtn2.textContent = '← Back to selection screen';
+                backBtn2.onclick     = function () { endTour(false); };
+
+                wrap.appendChild(startBtn);
+                wrap.appendChild(backBtn2);
+                btnsEl.appendChild(wrap);
+            } else {
+                var skipBtn = document.createElement('button');
+                skipBtn.className   = 'tour-btn-skip';
+                skipBtn.textContent = 'End tour';
+                skipBtn.onclick     = function () { endTour(false); };
+
+                if (n > 0) {
+                    var backBtn3 = document.createElement('button');
+                    backBtn3.className   = 'tour-btn-back';
+                    backBtn3.textContent = '← Back';
+                    backBtn3.onclick     = function () { goToStep(current - 1); };
+                    btnsEl.appendChild(skipBtn);
+                    btnsEl.appendChild(backBtn3);
+                } else {
+                    btnsEl.appendChild(skipBtn);
+                }
+
+                var nextBtn = document.createElement('button');
+                nextBtn.className   = 'tour-btn-next';
+                nextBtn.textContent = step.next || 'Next';
+                nextBtn.onclick     = function () { goToStep(current + 1); };
+                btnsEl.appendChild(nextBtn);
+            }
+        }
+
+        /* ── Navigate to a step ── */
+        function goToStep(n) {
+            current = n;
+            var step = STEPS[n];
+
+            if (n < 3) {
+                /* back to selection view */
+                showView('selectionView');
+                renderStep(n);
+            } else if (!previewStarted) {
+                /* first time entering running view steps */
+                setupTourPreview();
+                setTimeout(function () { renderStep(n); }, 150);
+            } else {
+                renderStep(n);
+            }
+        }
+
+        /* ── End the tour ── */
+        function endTour(goStart) {
+            overlay.classList.remove('active');
+            spotlight.classList.remove('active');
+            tooltip.classList.remove('active');
+            if (goStart) {
+                /* Clean reload then open trigger warning */
+                location.href = 'arrest-scenarios.html?autostart=true';
+            } else {
+                location.href = 'arrest-scenarios.html';
+            }
+        }
+
+        /* ── Public start ── */
+        window.startTour = function () {
+            overlay.classList.add('active');
+            goToStep(0);
+        };
+
+        /* ── Auto-start if ?tour=true ── */
+        if (new URLSearchParams(window.location.search).get('tour') === 'true') {
+            window.addEventListener('load', function () {
+                setTimeout(window.startTour, 500);
+            });
+        }
+
+        /* ── Auto-start scenario if ?autostart=true ── */
+        if (new URLSearchParams(window.location.search).get('autostart') === 'true') {
+            window.addEventListener('load', function () {
+                setTimeout(function () {
+                    history.replaceState({}, '', 'arrest-scenarios.html');
+                    openTriggerWarning();
+                }, 600);
+            });
+        }
+
+    })();
+    </script>
 </body>
 </html>
