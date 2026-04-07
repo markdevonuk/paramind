@@ -3231,7 +3231,16 @@ function showFeedback(msg,type) {
                 title: 'Actions & interventions',
                 body: 'Tap this button to open the <strong>action menu</strong>. Perform assessments, request backup, and manage the resuscitation. Every action is timestamped and reviewed in your debrief.',
                 elFn: function () { return document.querySelector('.arrest-action-btn'); },
-                next: 'Next'
+                next: 'Open it →',
+                openModal: true
+            },
+            {
+                title: 'The action menu',
+                body: 'This bottom sheet is your <strong>intervention panel</strong>. Tap any option to perform an action and see an immediate clinical response. Completed actions are greyed out with a ✓. Every tap is logged with a timestamp for your debrief.',
+                elFn: function () { return document.querySelector('#arrestActionModal .modal-content'); },
+                isModal: true,
+                next: 'Next',
+                closeModal: true
             },
             {
                 title: 'Event log',
@@ -3273,6 +3282,7 @@ function showFeedback(msg,type) {
             // Show ECG even though pads are not applied in the tour
             var ecg = document.getElementById('ecgContainer');
             if (ecg) ecg.style.display = 'block';
+            rebuildActionGroups();
             drawECG();
         }
 
@@ -3402,9 +3412,42 @@ function showFeedback(msg,type) {
         }
 
         /* ── Navigate to a step ── */
+        var tourModalOpen = false;
+
+        function closeTourModal(cb) {
+            if (!tourModalOpen) { if (cb) cb(); return; }
+            var el = document.getElementById('arrestActionModal');
+            var m  = bootstrap.Modal.getInstance(el);
+            if (m) {
+                el.addEventListener('hidden.bs.modal', function () {
+                    tourModalOpen = false;
+                    if (cb) cb();
+                }, { once: true });
+                m.hide();
+            } else {
+                tourModalOpen = false;
+                if (cb) cb();
+            }
+        }
+
+        function openTourModal(cb) {
+            var el = document.getElementById('arrestActionModal');
+            el.addEventListener('shown.bs.modal', function () {
+                tourModalOpen = true;
+                if (cb) cb();
+            }, { once: true });
+            bootstrap.Modal.getOrCreateInstance(el).show();
+        }
+
         function goToStep(n) {
             current = n;
             var step = STEPS[n];
+
+            /* If leaving the modal step, close the modal first then proceed */
+            if (tourModalOpen && !step.isModal) {
+                closeTourModal(function () { goToStep(n); });
+                return;
+            }
 
             if (n < 3) {
                 /* back to selection view */
@@ -3413,7 +3456,12 @@ function showFeedback(msg,type) {
             } else if (!previewStarted) {
                 /* first time entering running view steps */
                 setupTourPreview();
-                setTimeout(function () { renderStep(n); }, 150);
+                setTimeout(function () { goToStep(n); }, 150);
+            } else if (step.isModal) {
+                /* open the modal, wait for it to animate in, then render */
+                openTourModal(function () {
+                    setTimeout(function () { renderStep(n); }, 80);
+                });
             } else {
                 renderStep(n);
             }
