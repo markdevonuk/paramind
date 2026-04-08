@@ -40,6 +40,7 @@
             { id: 'home', href: 'landing.html', icon: 'bi-house', label: 'Home' },
             { id: 'chat', href: 'chat.html', icon: 'bi-chat-dots', label: 'Chat' },
             { id: 'scenarios', href: 'scenarios.html', icon: 'bi-mortarboard', label: 'Scenarios' },
+            { id: 'arrest', href: 'arrest-scenarios.html', icon: 'bi-lightning-charge', label: 'Cardiac Arrest Sim' },
             { id: 'differentials', href: 'differentials.html', icon: 'bi-clipboard2-pulse', label: 'Differentials' },
             { id: 'podcast', href: 'podcast.html', icon: 'bi-headphones', label: 'Podcast' }
         ],
@@ -67,6 +68,7 @@
         
         if (path.includes('landing')) return 'home';
         if (path.includes('chat')) return 'chat';
+        if (path.includes('arrest-scenarios')) return 'arrest';
         if (path.includes('scenarios')) return 'scenarios';
         if (path.includes('differentials')) return 'differentials';
         if (path.includes('podcast')) return 'podcast';
