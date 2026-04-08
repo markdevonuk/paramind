@@ -312,7 +312,6 @@
         .card-bonelab .card-glow       { background: rgba(20,184,166,0.1); }
         .card-bloodlab .card-glow      { background: rgba(220,53,69,0.1); }
         .card-readiness .card-glow     { background: rgba(101,163,13,0.12); }
-        .card-arrest .card-glow        { background: rgba(192,57,43,0.12); }
         
         /* Top gradient accent line */
         .tool-card .card-line {
@@ -342,7 +341,6 @@
         .card-bonelab       { --card-gradient: linear-gradient(135deg, #14b8a6, #2dd4bf); }
         .card-bloodlab      { --card-gradient: linear-gradient(135deg, #DC3545, #ef4444); }
         .card-readiness     { --card-gradient: linear-gradient(135deg, #65a30d, #84cc16); }
-        .card-arrest        { --card-gradient: linear-gradient(135deg, #c0392b, #8B0000); }
         
         .tool-card-header {
             display: flex; align-items: flex-start; gap: 1rem;
@@ -368,7 +366,6 @@
         .card-bonelab .tool-card-icon       { background: rgba(20,184,166,0.12); color: #14b8a6; }
         .card-bloodlab .tool-card-icon      { background: rgba(220,53,69,0.12); color: #DC3545; }
         .card-readiness .tool-card-icon    { background: rgba(101,163,13,0.12); color: #65a30d; }
-        .card-arrest .tool-card-icon       { background: rgba(192,57,43,0.12); color: #c0392b; }
         
         .tool-card-title { font-weight: 700; font-size: 1.05rem; color: var(--color-gray-800); margin-bottom: 0.1rem; display: flex; align-items: center; gap: 0.5rem; }
         .tool-card-subtitle { font-size: 0.72rem; color: var(--color-gray-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -732,136 +729,50 @@
             </div>
         </div>
         
-        <!-- ==================== NOW LIVE BANNER ==================== -->
+        <!-- ==================== LAUNCH COUNTDOWN ==================== -->
         <style>
-            #now-live-banner {
+            #launch-countdown-banner {
                 margin-bottom: 28px;
-                animation: nlFadeIn 0.6s ease both;
+                animation: cdFadeIn 0.6s ease both;
             }
-            @keyframes nlFadeIn {
+            @keyframes cdFadeIn {
                 from { opacity: 0; transform: translateY(-8px); }
                 to   { opacity: 1; transform: translateY(0); }
             }
-
-            /* Outer shell — crimson, same as countdown */
-            .nl-outer {
-                background: linear-gradient(160deg, #c0392b 0%, #8B0000 55%, #5a0000 100%);
+            .cd-outer {
+                background: linear-gradient(135deg, #c0392b 0%, #8B0000 60%, #6b0000 100%);
                 border-radius: 18px;
+                padding: 22px 20px 20px;
+                position: relative;
                 overflow: hidden;
-                box-shadow: 0 8px 32px rgba(192,57,43,0.5), 0 2px 8px rgba(0,0,0,0.35);
-                position: relative;
+                box-shadow: 0 8px 32px rgba(192,57,43,0.45), 0 2px 8px rgba(0,0,0,0.3);
             }
-
-            /* ECG monitor strip */
-            .nl-ecg-strip {
-                width: 100%;
-                height: 86px;
-                background: #060c06;
-                position: relative;
-                border-bottom: 1px solid rgba(255,255,255,0.06);
-            }
-            #nl-ecg-canvas {
-                width: 100%;
-                height: 100%;
-                display: block;
-            }
-            .nl-lead-label {
+            .cd-outer::before {
+                content: '';
                 position: absolute;
-                bottom: 7px;
-                left: 10px;
-                font-family: "Courier New", monospace;
-                font-size: 10px;
-                font-weight: 700;
-                color: rgba(0,220,60,0.45);
-                letter-spacing: 1px;
+                top: -40px; left: -40px; right: -40px;
+                height: 120px;
+                background: radial-gradient(ellipse at 50% 0%, rgba(255,120,80,0.35) 0%, transparent 70%);
                 pointer-events: none;
             }
-            .nl-ecg-status {
+            .cd-outer::after {
+                content: '';
                 position: absolute;
-                top: 8px;
-                right: 10px;
-                font-family: "Courier New", monospace;
-                font-size: 11px;
-                font-weight: 700;
-                letter-spacing: 1px;
-                pointer-events: none;
-                transition: color 0.2s;
-            }
-            .nl-ecg-status.st-vf    { color: #ff4444; animation: statusBlink 0.55s ease-in-out infinite; }
-            .nl-ecg-status.st-shock { color: #ffffff; animation: none; }
-            .nl-ecg-status.st-flat  { color: rgba(255,255,255,0.4); animation: none; }
-            .nl-ecg-status.st-rosc  { color: #00ff41; animation: none; }
-            @keyframes statusBlink {
-                0%, 100% { opacity: 1; }
-                50%       { opacity: 0.25; }
-            }
-            .nl-shock-flash {
-                position: absolute;
-                inset: 0;
-                background: #ffffff;
-                opacity: 0;
-                pointer-events: none;
-                transition: opacity 0.04s ease;
-            }
-            .nl-shock-flash.active { opacity: 0.92; }
-            .nl-shock-delivered {
-                position: absolute;
-                inset: 0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-family: 'Courier New', monospace;
-                font-size: 22px;
-                font-weight: 900;
-                letter-spacing: 4px;
-                text-transform: uppercase;
-                color: #ffffff;
-                background: rgba(0,0,0,0.55);
-                text-shadow:
-                    0 0 8px  #ffcc00,
-                    0 0 20px #ffcc00,
-                    0 0 50px rgba(255,204,0,0.7),
-                    0 2px 4px rgba(0,0,0,0.9);
-                opacity: 0;
-                pointer-events: none;
-                transition: opacity 0.15s ease;
-                animation: none;
-            }
-            .nl-shock-delivered.active {
-                opacity: 1;
-                animation: shockPulse 0.6s ease-out;
-            }
-            @keyframes shockPulse {
-                0%   { transform: scale(1.18); letter-spacing: 8px; }
-                60%  { transform: scale(1.03); letter-spacing: 5px; }
-                100% { transform: scale(1);    letter-spacing: 4px; }
-            }
-
-            /* Content area below strip */
-            .nl-content {
-                padding: 16px 20px 20px;
-                position: relative;
-                z-index: 1;
-                text-align: center;
-            }
-            .nl-content::before {
-                content: "";
-                position: absolute;
-                inset: 0;
+                bottom: 0; left: 0; right: 0; top: 0;
                 background: repeating-linear-gradient(
                     -45deg,
-                    rgba(255,255,255,0.025) 0px,
-                    rgba(255,255,255,0.025) 1px,
+                    rgba(255,255,255,0.02) 0px,
+                    rgba(255,255,255,0.02) 1px,
                     transparent 1px,
                     transparent 12px
                 );
                 pointer-events: none;
-                border-radius: 0 0 18px 18px;
             }
-            .nl-badge {
+            .cd-inner { position: relative; z-index: 1; }
+            .cd-badge {
                 display: inline-flex;
                 align-items: center;
-                gap: 7px;
+                gap: 6px;
                 background: rgba(255,255,255,0.15);
                 border: 1px solid rgba(255,255,255,0.25);
                 border-radius: 20px;
@@ -872,269 +783,107 @@
                 color: #fff;
                 text-transform: uppercase;
                 letter-spacing: 0.1em;
-                position: relative;
-                z-index: 1;
             }
-            .nl-live-dot {
-                width: 8px; height: 8px;
-                border-radius: 50%;
-                background: #ff4444;
-                flex-shrink: 0;
-                animation: nlDotPulse 1.4s ease-in-out infinite;
-            }
-            @keyframes nlDotPulse {
-                0%   { box-shadow: 0 0 0 0 rgba(255,68,68,0.8); }
-                70%  { box-shadow: 0 0 0 7px rgba(255,68,68,0); }
-                100% { box-shadow: 0 0 0 0 rgba(255,68,68,0); }
-            }
-            .nl-heading {
+            .cd-badge i { font-size: 12px; color: #ffcc00; }
+            .cd-heading {
                 font-size: 18px;
                 font-weight: 800;
                 color: #ffffff;
                 margin: 0 0 4px;
                 line-height: 1.2;
-                text-shadow: 0 1px 4px rgba(0,0,0,0.35);
-                position: relative; z-index: 1;
+                text-shadow: 0 1px 4px rgba(0,0,0,0.3);
             }
-            .nl-heading span { color: #ffcc00; }
-            .nl-subtext {
+            .cd-heading span { color: #ffcc00; }
+            .cd-subtext {
                 font-size: 13px;
                 color: rgba(255,255,255,0.85);
-                margin: 0 0 18px;
+                margin: 0 0 16px;
                 line-height: 1.4;
-                position: relative; z-index: 1;
             }
-            .nl-cta {
-                display: inline-flex;
-                align-items: center;
+            .cd-tiles {
+                display: flex;
                 gap: 8px;
-                background: #ffffff;
-                color: #8B0000;
-                font-size: 14px;
-                font-weight: 800;
-                padding: 11px 22px;
+                justify-content: center;
+            }
+            .cd-tile {
+                flex: 1;
+                text-align: center;
+                background: rgba(0,0,0,0.25);
+                border: 1px solid rgba(255,255,255,0.15);
                 border-radius: 12px;
-                text-decoration: none;
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-                position: relative; z-index: 1;
-                overflow: hidden;
+                padding: 10px 6px 8px;
             }
-            .nl-cta::after {
-                content: "";
-                position: absolute;
-                top: 0; left: -100%;
-                width: 60%; height: 100%;
-                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
-                animation: nlShimmer 3s ease-in-out infinite;
+            .cd-tile-num {
+                font-size: 28px;
+                font-weight: 800;
+                color: #ffffff;
+                font-variant-numeric: tabular-nums;
+                display: block;
+                line-height: 1;
+                text-shadow: 0 0 20px rgba(255,200,0,0.4);
             }
-            @keyframes nlShimmer {
-                0%   { left: -100%; }
-                40%  { left: 130%; }
-                100% { left: 130%; }
+            .cd-tile-secs .cd-tile-num {
+                color: #ffcc00;
+                text-shadow: 0 0 20px rgba(255,200,0,0.7);
             }
-            .nl-cta:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 28px rgba(0,0,0,0.4);
-                color: #8B0000;
-                text-decoration: none;
+            .cd-tile-label {
+                font-size: 9px;
+                color: rgba(255,255,255,0.6);
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+                margin-top: 2px;
+                display: block;
             }
-            .nl-cta i { font-size: 16px; }
         </style>
-
-        <div id="now-live-banner">
-            <div class="nl-outer">
-
-                <!-- ECG Monitor Strip -->
-                <div class="nl-ecg-strip">
-                    <canvas id="nl-ecg-canvas"></canvas>
-                    <div class="nl-lead-label">LEAD II</div>
-                    <div class="nl-ecg-status st-vf" id="nlEcgStatus">&#x26A1; VF</div>
-                    <div class="nl-shock-flash" id="nlShockFlash"></div>
-                    <div class="nl-shock-delivered" id="nlShockDelivered">⚡ SHOCK DELIVERED</div>
-                </div>
-
-                <!-- Content -->
-                <div class="nl-content">
-                    <div class="nl-badge">
-                        <span class="nl-live-dot"></span> Now Live
+        <div id="launch-countdown-banner">
+            <div class="cd-outer">
+                <div class="cd-inner">
+                    <div class="cd-badge">
+                        <i class="bi bi-lightning-charge-fill"></i> Coming Wednesday 8th April at 11:00
                     </div>
-                    <p class="nl-heading">&#x1FAC0; <span>Cardiac Arrest Simulator</span></p>
-                    <p class="nl-subtext">Adult ALS for all members &middot; Paediatric, Newborn &amp; Traumatic Arrest for Pro</p>
-                    <a href="arrest-scenarios.html" class="nl-cta">
-                        <i class="bi bi-play-circle-fill"></i> Launch the Simulator
-                    </a>
+                    <p class="cd-heading">🫀 Brand New <span>Cardiac Arrest Tool</span></p>
+                    <p class="cd-subtext">Adult resus for all members · Paediatric &amp; newborn life support for PRO</p>
+                    <div class="cd-tiles">
+                        <div class="cd-tile">
+                            <span id="cd-days" class="cd-tile-num">00</span>
+                            <span class="cd-tile-label">Days</span>
+                        </div>
+                        <div class="cd-tile">
+                            <span id="cd-hours" class="cd-tile-num">00</span>
+                            <span class="cd-tile-label">Hours</span>
+                        </div>
+                        <div class="cd-tile">
+                            <span id="cd-minutes" class="cd-tile-num">00</span>
+                            <span class="cd-tile-label">Mins</span>
+                        </div>
+                        <div class="cd-tile cd-tile-secs">
+                            <span id="cd-seconds" class="cd-tile-num">00</span>
+                            <span class="cd-tile-label">Secs</span>
+                        </div>
+                    </div>
                 </div>
-
             </div>
         </div>
-
         <script>
-        (function () {
-            'use strict';
-
-            var canvas   = document.getElementById('nl-ecg-canvas');
-            var statusEl = document.getElementById('nlEcgStatus');
-            var flashEl  = document.getElementById('nlShockFlash');
-            var shockDeliveredEl = document.getElementById('nlShockDelivered');
-            var ctx      = canvas.getContext('2d');
-
-            function setSize() {
-                var dpr = window.devicePixelRatio || 1;
-                canvas.width  = canvas.clientWidth  * dpr;
-                canvas.height = canvas.clientHeight * dpr;
-            }
-            setSize();
-            window.addEventListener('resize', setSize);
-
-            /* data buffer */
-            var SAMPLES = 520;
-            var buf = new Array(SAMPLES).fill(0.5);
-
-            /* phase durations in frames (~60fps) */
-            var PHASE_DUR = { vf: 210, shock: 14, flat: 150, sinus: 380 };
-            var phase      = 'vf';
-            var phaseFrame = 0;
-
-            /* VF generator */
-            var vfT = 0;
-            function nextVF() {
-                vfT += 0.13;
-                var v = Math.sin(vfT * 7.1)        * 0.36 +
-                        Math.sin(vfT * 12.3 + 1.3)  * 0.27 +
-                        Math.sin(vfT * 18.7 + 0.6)  * 0.16 +
-                        Math.cos(vfT * 5.9  + 2.4)  * 0.21 +
-                        Math.sin(vfT * 24.1 + 3.0)  * 0.09 +
-                        (Math.random() - 0.5)        * 0.04;
-                return Math.max(0.05, Math.min(0.95, 0.5 + v * 0.42));
-            }
-
-            /* Sinus rhythm generator */
-            var sinusPos = 0;
-            var BEAT_LEN = 108;
-            function nextSinus() {
-                sinusPos++;
-                var t = (sinusPos % BEAT_LEN) / BEAT_LEN;
-                var y = 0.5;
-                if (t < 0.07) {
-                    y = 0.5 - Math.sin(t / 0.07 * Math.PI) * 0.11;
-                } else if (t < 0.20) {
-                    y = 0.5;
-                } else if (t < 0.245) {
-                    y = 0.5 + (t - 0.20) / 0.045 * 0.09;
-                } else if (t < 0.30) {
-                    var r = (t - 0.245) / 0.055;
-                    y = 0.5 + 0.09 - Math.sin(r * Math.PI) * 0.70;
-                } else if (t < 0.36) {
-                    var s = (t - 0.30) / 0.06;
-                    y = 0.5 - 0.20 * (1 - s);
-                } else if (t < 0.46) {
-                    y = 0.5;
-                } else if (t < 0.67) {
-                    y = 0.5 - Math.sin((t - 0.46) / 0.21 * Math.PI) * 0.22;
-                } else {
-                    y = 0.5;
-                }
-                return y;
-            }
-
-            function nextSample() {
-                if (phase === 'vf')    return nextVF();
-                if (phase === 'shock') return 0.5;
-                if (phase === 'flat')  return 0.5;
-                return nextSinus();
-            }
-
-            function advancePhase() {
-                phaseFrame++;
-                if (phase === 'vf' && phaseFrame >= PHASE_DUR.vf) {
-                    phase = 'shock'; phaseFrame = 0;
-                    flashEl.classList.add('active');
-                    shockDeliveredEl.classList.add('active');
-                    statusEl.textContent = '⚡ SHOCK';
-                    statusEl.className   = 'nl-ecg-status st-shock';
-                } else if (phase === 'shock' && phaseFrame >= PHASE_DUR.shock) {
-                    phase = 'flat'; phaseFrame = 0;
-                    flashEl.classList.remove('active');
-                    statusEl.textContent = '-- --';
-                    statusEl.className   = 'nl-ecg-status st-flat';
-                } else if (phase === 'flat' && phaseFrame >= PHASE_DUR.flat) {
-                    phase = 'sinus'; phaseFrame = 0;
-                    shockDeliveredEl.classList.remove('active');
-                    statusEl.textContent = 'ROSC \u2713';
-                    statusEl.className   = 'nl-ecg-status st-rosc';
-                } else if (phase === 'sinus' && phaseFrame >= PHASE_DUR.sinus) {
-                    phase = 'vf'; phaseFrame = 0; vfT = 0; sinusPos = 0;
-                    statusEl.textContent = '⚡ VF';
-                    statusEl.className   = 'nl-ecg-status st-vf';
-                }
-            }
-
-            function render() {
-                var W   = canvas.width;
-                var H   = canvas.height;
-                var dpr = window.devicePixelRatio || 1;
-
-                ctx.fillStyle = '#060c06';
-                ctx.fillRect(0, 0, W, H);
-
-                ctx.strokeStyle = 'rgba(0,180,50,0.07)';
-                ctx.lineWidth   = 1;
-                var gs = 22 * dpr;
-                for (var gx = 0; gx < W; gx += gs) {
-                    ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke();
-                }
-                for (var gy = 0; gy < H; gy += gs) {
-                    ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke();
-                }
-
-                var lineCol, glowCol;
-                if (phase === 'vf') {
-                    lineCol = '#ff5050'; glowCol = 'rgba(255,80,80,0.65)';
-                } else if (phase === 'shock') {
-                    lineCol = '#ffffff'; glowCol = 'rgba(255,255,255,0.9)';
-                } else if (phase === 'flat') {
-                    lineCol = '#55aa66'; glowCol = 'rgba(85,170,102,0.5)';
-                } else {
-                    lineCol = '#00ff41'; glowCol = 'rgba(0,255,65,0.65)';
-                }
-
-                ctx.beginPath();
-                ctx.lineWidth   = 2.2 * dpr;
-                ctx.lineJoin    = 'round';
-                ctx.lineCap     = 'round';
-                ctx.strokeStyle = lineCol;
-                ctx.shadowColor = glowCol;
-                ctx.shadowBlur  = 10 * dpr;
-
-                for (var i = 0; i < buf.length; i++) {
-                    var px = (i / (buf.length - 1)) * W;
-                    var py = buf[i] * H;
-                    if (i === 0) ctx.moveTo(px, py);
-                    else         ctx.lineTo(px, py);
-                }
-                ctx.stroke();
-                ctx.shadowBlur = 0;
-
-                var lastY = buf[buf.length - 1] * H;
-                ctx.fillStyle   = lineCol;
-                ctx.shadowColor = lineCol;
-                ctx.shadowBlur  = 18 * dpr;
-                ctx.beginPath();
-                ctx.arc(W - 1, lastY, 3.5 * dpr, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
-            }
-
+        (function() {
+            var target = new Date('2026-04-08T11:00:00');
+            var banner = document.getElementById('launch-countdown-banner');
+            function pad(n) { return n < 10 ? '0' + n : '' + n; }
             function tick() {
-                advancePhase();
-                buf.shift();
-                buf.push(nextSample());
-                render();
-                requestAnimationFrame(tick);
+                var now = new Date();
+                var diff = target - now;
+                if (diff <= 0) { banner.style.display = 'none'; return; }
+                var days    = Math.floor(diff / 86400000);
+                var hours   = Math.floor((diff % 86400000) / 3600000);
+                var minutes = Math.floor((diff % 3600000) / 60000);
+                var seconds = Math.floor((diff % 60000) / 1000);
+                document.getElementById('cd-days').textContent    = pad(days);
+                document.getElementById('cd-hours').textContent   = pad(hours);
+                document.getElementById('cd-minutes').textContent = pad(minutes);
+                document.getElementById('cd-seconds').textContent = pad(seconds);
             }
-
-            requestAnimationFrame(tick);
+            tick();
+            setInterval(tick, 1000);
         })();
         </script>
 
@@ -1217,21 +966,6 @@
                         </div>
                     </div>
                     <p class="tool-card-desc">Monthly clinical episodes with Matt & Ellie. Listen to the latest Paramind Podcast!</p>
-                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
-                </a>
-                
-                <!-- Cardiac Arrest Simulator -->
-                <a href="arrest-scenarios.html" class="tool-card card-arrest reveal-element">
-                    <div class="card-glow"></div>
-                    <div class="card-line"></div>
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-heartbreak"></i></div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">Cardiac Arrest Simulator</div>
-                            <div class="tool-card-subtitle">Resuscitation Training</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Simulate cardiac arrest scenarios from first rhythm to ROSC. Adult ALS free for all members.</p>
                     <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
                 </a>
                 
