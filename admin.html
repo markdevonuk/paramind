@@ -466,6 +466,23 @@
                     </div><!-- end tab-content -->
                 </div><!-- end card-body -->
             </div><!-- end news manager card -->
+
+            <!-- Cardiac Arrest Simulator — Track Click Counts -->
+            <div class="card mt-4 mb-4" id="arrestClicksCard">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-heart-pulse me-2"></i>Cardiac Arrest Simulator — Track Clicks</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3" style="font-size:0.85rem;">Number of times each scenario track card has been clicked (includes clicks that showed the Pro upgrade prompt).</p>
+                    <div class="row g-3" id="arrestClicksRow">
+                        <div class="col-6 col-md-3"><div class="stats-card total text-center"><p class="mb-1" style="font-size:0.8rem;color:#6c757d;">Adult ALS</p><h3 id="clickAdult">—</h3></div></div>
+                        <div class="stats-card paid" style="display:none"></div>
+                        <div class="col-6 col-md-3"><div class="stats-card total text-center"><p class="mb-1" style="font-size:0.8rem;color:#6c757d;">Paediatric ALS</p><h3 id="clickPaeds">—</h3></div></div>
+                        <div class="col-6 col-md-3"><div class="stats-card total text-center"><p class="mb-1" style="font-size:0.8rem;color:#6c757d;">Newborn Life Support</p><h3 id="clickNewborn">—</h3></div></div>
+                        <div class="col-6 col-md-3"><div class="stats-card total text-center"><p class="mb-1" style="font-size:0.8rem;color:#6c757d;">Traumatic Arrest</p><h3 id="clickTrauma">—</h3></div></div>
+                    </div>
+                </div>
+            </div>
             
             
             
@@ -486,7 +503,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, query, where, orderBy, increment } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
         import { firebaseConfig } from './js/firebase-config.js';
 
         // Initialize Firebase
@@ -525,6 +542,8 @@
                     await loadAllUsers();
                     // Load news manager
 					initNewsManager();
+                    // Load arrest simulator click counts
+                    loadArrestClicks();
                 } else {
                     // Not an admin
                     document.getElementById('loadingScreen').style.display = 'none';
@@ -1043,6 +1062,19 @@
 
         // Call initNewsManager after auth confirms admin
        
+        async function loadArrestClicks() {
+            try {
+                const snap = await getDoc(doc(db, 'analytics', 'arrestScenarioClicks'));
+                const d = snap.exists() ? snap.data() : {};
+                document.getElementById('clickAdult').textContent   = d.adult   ?? 0;
+                document.getElementById('clickPaeds').textContent   = d.paeds   ?? 0;
+                document.getElementById('clickNewborn').textContent = d.newborn ?? 0;
+                document.getElementById('clickTrauma').textContent  = d.trauma  ?? 0;
+            } catch(e) {
+                console.warn('Could not load arrest click stats', e);
+            }
+        }
+
     </script>
 </body>
 </html>
