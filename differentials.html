@@ -855,11 +855,19 @@
                         .replace(/>/g, '&gt;')
                         .replace(/\n/g, '<br>');
                     streamingText.innerHTML = escaped;
-                    elements.responseContent.scrollTop = elements.responseContent.scrollHeight;
+                    // Scroll window to keep bottom of streaming text visible
+                    const bottom = responseMessage.getBoundingClientRect().bottom;
+                    if (bottom > window.innerHeight - 20) {
+                        window.scrollBy({ top: bottom - window.innerHeight + 20 });
+                    }
                 });
                 
                 // Finalize with formatted markdown
                 responseMessage.innerHTML = formatMessage(response);
+                
+                // Scroll back to top of response so user can read from the start
+                const msgRect = responseMessage.getBoundingClientRect();
+                window.scrollTo({ top: window.scrollY + msgRect.top - 80, behavior: 'smooth' });
                 
             } catch (error) {
                 if (error.message === 'LIMIT_REACHED') {
