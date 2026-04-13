@@ -19,8 +19,6 @@
 (function () {
     'use strict';
 
-    console.log('[ActivityLogger] Script running. pathname:', window.location.pathname);
-
     // ==================== PAGE → TOOL NAME MAP ====================
     var PAGE_TOOLS = {
         'chat.html':             'Chat with Hollie',
@@ -45,22 +43,16 @@
     var toolName = PAGE_TOOLS[pageName];
 
     // Not a tracked page — exit silently
-    if (!toolName) {
-        console.log('[ActivityLogger] Page not in tracked list — exiting. pageName was:', pageName);
-        return;
-    }
-
-    console.log('[ActivityLogger] Tracking page:', pageName, '→', toolName);
+    if (!toolName) { return; }
 
     // ==================== SESSION STATE ====================
     var sessionId    = null;
     var startTime    = null;
-    var sessionEnded = true;   // Treated as "ended" until first session starts
+    var sessionEnded = true;
     var currentUser  = null;
     var db           = null;
 
     // ==================== WAIT FOR FIREBASE ====================
-    // menu-v2.js loads Firebase dynamically — poll until it is fully ready
     function waitForFirebase(callback) {
         var start = Date.now();
         function check() {
@@ -73,7 +65,6 @@
                 return;
             }
             if (Date.now() - start > 12000) {
-                // Firebase didn't load in time — give up gracefully
                 callback(false);
                 return;
             }
@@ -95,9 +86,7 @@
         startTime    = new Date();
         sessionEnded = false;
 
-        var dateStr = startTime.toISOString().split('T')[0]; // YYYY-MM-DD
-
-        console.log('[ActivityLogger] Starting session for:', toolName, '| User:', currentUser.uid, '| Session:', sessionId);
+        var dateStr = startTime.toISOString().split('T')[0];
 
         db.collection('users')
           .doc(currentUser.uid)
@@ -112,9 +101,6 @@
               durationMinutes: 0,
               complete:        false
           })
-          .then(function () {
-              console.log('[ActivityLogger] Session start written to Firestore OK');
-          })
           .catch(function (e) {
               console.warn('[ActivityLogger] Could not write session start:', e);
           });
@@ -128,11 +114,8 @@
         var endTime         = new Date();
         var durationSeconds = Math.round((endTime - startTime) / 1000);
 
-        console.log('[ActivityLogger] Ending session | Duration:', durationSeconds, 'seconds');
-
-        // Discard sessions under 30 seconds — too brief to be meaningful CPD
+        // Discard sessions under 30 seconds
         if (durationSeconds < 30) {
-            console.log('[ActivityLogger] Session discarded — under 30 seconds');
             db.collection('users')
               .doc(currentUser.uid)
               .collection('activityLog')
@@ -162,28 +145,21 @@
     // ==================== VISIBILITY CHANGE HANDLER ====================
     function onVisibilityChange() {
         if (document.visibilityState === 'hidden') {
-            // Tab hidden / mobile app backgrounded — close the session
             endSession();
         } else if (document.visibilityState === 'visible' && sessionEnded) {
-            // Returned to the tab — start a fresh session
             startSession();
         }
     }
 
     // ==================== INITIALISE ====================
     waitForFirebase(function (ready) {
-        if (!ready) {
-            console.warn('[ActivityLogger] Firebase did not load in time — giving up');
-            return;
-        }
-        console.log('[ActivityLogger] Firebase ready, setting up auth listener for page:', pageName);
+        if (!ready) { return; }
 
         db = firebase.firestore();
 
         firebase.auth().onAuthStateChanged(function (user) {
             if (!user) { return; }
 
-            // Read the user's Firestore doc to confirm Pro status
             db.collection('users').doc(user.uid).get()
               .then(function (doc) {
                   if (!doc.exists) { return; }
@@ -191,18 +167,12 @@
                   var data  = doc.data();
                   var isPro = data.subscriptionStatus === 'active' || data.isPro === true;
 
-                  console.log('[ActivityLogger] User Pro status:', isPro, '| subscriptionStatus:', data.subscriptionStatus, '| isPro field:', data.isPro);
+                  if (!isPro) { return; }
 
-                  if (!isPro) { return; } // Free user — do nothing
-
-                  // Pro user confirmed — begin tracking
                   currentUser = user;
                   startSession();
 
-                  // End session when tab is hidden or mobile is backgrounded
                   document.addEventListener('visibilitychange', onVisibilityChange);
-
-                  // End session on page close / navigation (desktop browsers)
                   window.addEventListener('beforeunload', endSession);
               })
               .catch(function (e) {
