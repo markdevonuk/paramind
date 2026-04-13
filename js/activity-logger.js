@@ -19,6 +19,8 @@
 (function () {
     'use strict';
 
+    console.log('[ActivityLogger] Script running. pathname:', window.location.pathname);
+
     // ==================== PAGE → TOOL NAME MAP ====================
     var PAGE_TOOLS = {
         'chat.html':             'Chat with Hollie',
@@ -43,7 +45,12 @@
     var toolName = PAGE_TOOLS[pageName];
 
     // Not a tracked page — exit silently
-    if (!toolName) { return; }
+    if (!toolName) {
+        console.log('[ActivityLogger] Page not in tracked list — exiting. pageName was:', pageName);
+        return;
+    }
+
+    console.log('[ActivityLogger] Tracking page:', pageName, '→', toolName);
 
     // ==================== SESSION STATE ====================
     var sessionId    = null;
