@@ -1406,8 +1406,12 @@ Remember: This is for EDUCATION only - never give treatment advice. If treatment
                     { role: 'assistant', content: fullMessage }
                 ];
                 
-                // Scroll to top of Hollie's response
-                hollieBubble.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Scroll chatMessages so Hollie's message is just visible below the user question
+                const hollieMsg = hollieBubble.closest('.hollie-message');
+                const containerRect = chatMessages.getBoundingClientRect();
+                const msgRect = hollieMsg.getBoundingClientRect();
+                const targetScroll = msgRect.top - containerRect.top + chatMessages.scrollTop - 40;
+                chatMessages.scrollTo({ top: targetScroll, behavior: 'smooth' });
                 
             } catch (error) {
                 console.error('Error:', error);
@@ -1550,8 +1554,12 @@ Use UK spelling and terminology.`;
                 simplifyBtn.style.display = 'none';
                 chatActions.style.display = 'flex';
                 
-                // Scroll to top of simplified response
-                simplifyBubble.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Scroll chatMessages so simplified response is just visible below the user question
+                const simplifyMsg = simplifyBubble.closest('.hollie-message');
+                const containerRect2 = chatMessages.getBoundingClientRect();
+                const msgRect2 = simplifyMsg.getBoundingClientRect();
+                const targetScroll2 = msgRect2.top - containerRect2.top + chatMessages.scrollTop - 40;
+                chatMessages.scrollTo({ top: targetScroll2, behavior: 'smooth' });
                 
             } catch (error) {
                 console.error('Error:', error);
