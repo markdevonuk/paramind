@@ -90,6 +90,8 @@
 
         var dateStr = startTime.toISOString().split('T')[0]; // YYYY-MM-DD
 
+        console.log('[ActivityLogger] Starting session for:', toolName, '| User:', currentUser.uid, '| Session:', sessionId);
+
         db.collection('users')
           .doc(currentUser.uid)
           .collection('activityLog')
@@ -102,6 +104,9 @@
               durationSeconds: 0,
               durationMinutes: 0,
               complete:        false
+          })
+          .then(function () {
+              console.log('[ActivityLogger] Session start written to Firestore OK');
           })
           .catch(function (e) {
               console.warn('[ActivityLogger] Could not write session start:', e);
@@ -116,8 +121,11 @@
         var endTime         = new Date();
         var durationSeconds = Math.round((endTime - startTime) / 1000);
 
+        console.log('[ActivityLogger] Ending session | Duration:', durationSeconds, 'seconds');
+
         // Discard sessions under 30 seconds — too brief to be meaningful CPD
         if (durationSeconds < 30) {
+            console.log('[ActivityLogger] Session discarded — under 30 seconds');
             db.collection('users')
               .doc(currentUser.uid)
               .collection('activityLog')
@@ -157,7 +165,11 @@
 
     // ==================== INITIALISE ====================
     waitForFirebase(function (ready) {
-        if (!ready) { return; }
+        if (!ready) {
+            console.warn('[ActivityLogger] Firebase did not load in time — giving up');
+            return;
+        }
+        console.log('[ActivityLogger] Firebase ready, setting up auth listener for page:', pageName);
 
         db = firebase.firestore();
 
@@ -171,6 +183,8 @@
 
                   var data  = doc.data();
                   var isPro = data.subscriptionStatus === 'active' || data.isPro === true;
+
+                  console.log('[ActivityLogger] User Pro status:', isPro, '| subscriptionStatus:', data.subscriptionStatus, '| isPro field:', data.isPro);
 
                   if (!isPro) { return; } // Free user — do nothing
 
