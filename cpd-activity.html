@@ -1163,13 +1163,16 @@ waitForFirebase(function(ready) {
         firebase.firestore()
           .collection('users').doc(user.uid)
           .collection('activityLog')
-          .where('complete', '==', true)
           .orderBy('startTime', 'desc')
           .get()
           .then(function(snapshot) {
               allSessions = [];
               snapshot.forEach(function(doc) {
-                  allSessions.push(doc.data());
+                  var d = doc.data();
+                  // Only include sessions with meaningful duration (end event fired)
+                  if (d.durationSeconds && d.durationSeconds >= 30) {
+                      allSessions.push(d);
+                  }
               });
 
               document.getElementById('loadingState').style.display = 'none';

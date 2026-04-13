@@ -46,11 +46,12 @@
     if (!toolName) { return; }
 
     // ==================== SESSION STATE ====================
-    var sessionId    = null;
-    var startTime    = null;
-    var sessionEnded = true;
-    var currentUser  = null;
-    var db           = null;
+    var sessionId       = null;
+    var startTime       = null;
+    var sessionEnded    = true;
+    var currentUser     = null;
+    var db              = null;
+    var heartbeatTimer  = null;
 
     // ==================== WAIT FOR FIREBASE ====================
     function waitForFirebase(callback) {
@@ -76,6 +77,35 @@
     // ==================== GENERATE SESSION ID ====================
     function generateSessionId() {
         return Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 9);
+    }
+
+    // ==================== HEARTBEAT ====================
+    // Writes current duration every 60s — ensures data is saved even if
+    // the page closes before endSession() can complete its async write.
+    function startHeartbeat() {
+        stopHeartbeat();
+        heartbeatTimer = setInterval(function () {
+            if (sessionEnded || !currentUser || !sessionId) { return; }
+            var now             = new Date();
+            var durationSeconds = Math.round((now - startTime) / 1000);
+            if (durationSeconds < 30) { return; }
+            db.collection('users')
+              .doc(currentUser.uid)
+              .collection('activityLog')
+              .doc(sessionId)
+              .update({
+                  durationSeconds: durationSeconds,
+                  durationMinutes: parseFloat((durationSeconds / 60).toFixed(2))
+              })
+              .catch(function () {});
+        }, 60000);
+    }
+
+    function stopHeartbeat() {
+        if (heartbeatTimer) {
+            clearInterval(heartbeatTimer);
+            heartbeatTimer = null;
+        }
     }
 
     // ==================== START SESSION ====================
@@ -104,12 +134,15 @@
           .catch(function (e) {
               console.warn('[ActivityLogger] Could not write session start:', e);
           });
+
+        startHeartbeat();
     }
 
     // ==================== END SESSION ====================
     function endSession() {
         if (!currentUser || !db || sessionEnded || !sessionId) { return; }
         sessionEnded = true;
+        stopHeartbeat();
 
         var endTime         = new Date();
         var durationSeconds = Math.round((endTime - startTime) / 1000);
@@ -150,6 +183,9 @@
             startSession();
         }
     }
+
+    // ==================== PAGE HIDE (mobile-reliable close event) ====================
+    window.addEventListener('pagehide', endSession);
 
     // ==================== INITIALISE ====================
     waitForFirebase(function (ready) {
