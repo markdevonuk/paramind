@@ -919,7 +919,10 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
             if (role === 'user') {
                 scrollToBottom();
             } else {
-                messageDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                const containerRect = elements.chatMessages.getBoundingClientRect();
+                const msgRect = messageDiv.getBoundingClientRect();
+                const targetScroll = msgRect.top - containerRect.top + elements.chatMessages.scrollTop - 40;
+                elements.chatMessages.scrollTo({ top: targetScroll, behavior: 'smooth' });
             }
         }
 
@@ -977,6 +980,12 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
                 if (contentDiv) {
                     contentDiv.innerHTML = formatMessage(content);
                 }
+                
+                // Scroll to top of Hollie's message so user can read from the start
+                const containerRect = elements.chatMessages.getBoundingClientRect();
+                const msgRect = messageDiv.getBoundingClientRect();
+                const targetScroll = msgRect.top - containerRect.top + elements.chatMessages.scrollTop - 40;
+                elements.chatMessages.scrollTo({ top: targetScroll, behavior: 'smooth' });
                 
                 // Always add simplify button after Hollie's response
                 addSimplifyButton(messageId, content);
