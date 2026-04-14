@@ -173,6 +173,31 @@
           .catch(function (e) {
               console.warn('[ActivityLogger] Could not write session end:', e);
           });
+
+        // ── UPDATE PLATFORM SUMMARY (analytics/activitySummary) ──
+        // Increments running totals used by the admin dashboard.
+        var today   = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+        var weekKey = (function() {
+            var d = new Date(), day = d.getDay();
+            var diff = d.getDate() - day + (day === 0 ? -6 : 1);
+            return new Date(d.setDate(diff)).toISOString().split('T')[0];
+        })();
+
+        var inc = firebase.firestore.FieldValue.increment;
+        db.collection('analytics')
+          .doc('activitySummary')
+          .set({
+              totalSessions:             inc(1),
+              totalSeconds:              inc(durationSeconds),
+              sessionsByTool:            { [toolName]: inc(1) },
+              secondsByTool:             { [toolName]: inc(durationSeconds) },
+              sessionsByDay:             { [today]:    inc(1) },
+              secondsByDay:              { [today]:    inc(durationSeconds) },
+              sessionsByWeek:            { [weekKey]:  inc(1) },
+              secondsByWeek:             { [weekKey]:  inc(durationSeconds) },
+              lastUpdated:               firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true })
+          .catch(function () {}); // Silent fail — never block session write
     }
 
     // ==================== VISIBILITY CHANGE HANDLER ====================

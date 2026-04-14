@@ -193,6 +193,63 @@
                 </div>
             </div>
 
+            <!-- Platform Activity Metrics -->
+            <div class="card mt-0 mb-4" id="platformActivityCard">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Platform Activity — Pro User Engagement</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3" style="font-size:0.85rem;">Aggregated from Pro user activity logs. Updates each time a session ends.</p>
+
+                    <!-- Top-level totals -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-6 col-md-3">
+                            <div class="stats-card total text-center">
+                                <p class="mb-1" style="font-size:0.8rem;color:#6c757d;">Total Sessions</p>
+                                <h3 id="actTotalSessions">—</h3>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="stats-card paid text-center">
+                                <p class="mb-1" style="font-size:0.8rem;color:#6c757d;">Total Hours</p>
+                                <h3 id="actTotalHours">—</h3>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="stats-card total text-center">
+                                <p class="mb-1" style="font-size:0.8rem;color:#6c757d;">Sessions This Week</p>
+                                <h3 id="actWeekSessions">—</h3>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="stats-card total text-center">
+                                <p class="mb-1" style="font-size:0.8rem;color:#6c757d;">Sessions Today</p>
+                                <h3 id="actTodaySessions">—</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tool breakdown table -->
+                    <h6 class="mb-2" style="font-size:0.85rem;font-weight:600;color:#495057;">Sessions &amp; Time by Tool</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0" style="font-size:0.85rem;">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tool</th>
+                                    <th class="text-end">Sessions</th>
+                                    <th class="text-end">Total Time</th>
+                                    <th class="text-end">Avg Session</th>
+                                </tr>
+                            </thead>
+                            <tbody id="actToolTableBody">
+                                <tr><td colspan="4" class="text-muted text-center py-3">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="text-muted mt-2 mb-0" style="font-size:0.75rem;" id="actLastUpdated"></p>
+                </div>
+            </div>
+
             <!-- User Tables -->
             <div class="user-table">
                 <div class="p-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -543,6 +600,8 @@
 					initNewsManager();
                     // Load arrest simulator click counts
                     loadArrestClicks();
+                    // Load platform activity metrics
+                    loadPlatformActivity();
                 } else {
                     // Not an admin
                     document.getElementById('loadingScreen').style.display = 'none';
@@ -1071,6 +1130,80 @@
                 document.getElementById('clickTrauma').textContent  = d.trauma  ?? 0;
             } catch(e) {
                 console.warn('Could not load arrest click stats', e);
+            }
+        }
+
+
+        async function loadPlatformActivity() {
+            try {
+                const snap = await getDoc(doc(db, 'analytics', 'activitySummary'));
+                if (!snap.exists()) {
+                    document.getElementById('actToolTableBody').innerHTML =
+                        '<tr><td colspan="4" class="text-muted text-center py-3">No data yet — data will appear as Pro users complete sessions.</td></tr>';
+                    return;
+                }
+                const d = snap.data();
+
+                // ── Top stats ──
+                const totalSessions = d.totalSessions || 0;
+                const totalHours    = ((d.totalSeconds || 0) / 3600).toFixed(1);
+
+                // This week key (Monday-based)
+                const now = new Date(), day = now.getDay();
+                const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+                const weekKey = new Date(new Date().setDate(diff)).toISOString().split('T')[0];
+                const todayKey = new Date().toISOString().split('T')[0];
+
+                const weekSessions  = (d.sessionsByWeek && d.sessionsByWeek[weekKey])  || 0;
+                const todaySessions = (d.sessionsByDay  && d.sessionsByDay[todayKey])   || 0;
+
+                document.getElementById('actTotalSessions').textContent = totalSessions;
+                document.getElementById('actTotalHours').textContent    = totalHours + 'h';
+                document.getElementById('actWeekSessions').textContent  = weekSessions;
+                document.getElementById('actTodaySessions').textContent = todaySessions;
+
+                // ── Tool breakdown ──
+                const sessionsByTool = d.sessionsByTool || {};
+                const secondsByTool  = d.secondsByTool  || {};
+                const tools = Object.keys(sessionsByTool).sort(function(a, b) {
+                    return (sessionsByTool[b] || 0) - (sessionsByTool[a] || 0);
+                });
+
+                function fmtDuration(secs) {
+                    if (secs < 60)   return secs + 's';
+                    if (secs < 3600) return Math.floor(secs / 60) + 'm';
+                    return (secs / 3600).toFixed(1) + 'h';
+                }
+
+                if (!tools.length) {
+                    document.getElementById('actToolTableBody').innerHTML =
+                        '<tr><td colspan="4" class="text-muted text-center py-3">No sessions recorded yet.</td></tr>';
+                } else {
+                    document.getElementById('actToolTableBody').innerHTML = tools.map(function(tool) {
+                        const sessions = sessionsByTool[tool] || 0;
+                        const seconds  = secondsByTool[tool]  || 0;
+                        const avg      = sessions > 0 ? Math.round(seconds / sessions) : 0;
+                        return '<tr>' +
+                            '<td>' + tool + '</td>' +
+                            '<td class="text-end">' + sessions + '</td>' +
+                            '<td class="text-end">' + fmtDuration(seconds) + '</td>' +
+                            '<td class="text-end">' + fmtDuration(avg) + '</td>' +
+                            '</tr>';
+                    }).join('');
+                }
+
+                // ── Last updated ──
+                if (d.lastUpdated) {
+                    const lu = d.lastUpdated.toDate();
+                    document.getElementById('actLastUpdated').textContent =
+                        'Last updated: ' + lu.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) +
+                        ' at ' + lu.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+                }
+
+            } catch(e) {
+                console.warn('Could not load platform activity stats', e);
+                document.getElementById('actToolTableBody').innerHTML =
+                    '<tr><td colspan="4" class="text-danger text-center py-3">Failed to load — check Firestore rules are deployed.</td></tr>';
             }
         }
 
