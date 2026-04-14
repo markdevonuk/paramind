@@ -98,7 +98,7 @@
                   durationMinutes: parseFloat((durationSeconds / 60).toFixed(2))
               })
               .catch(function () {});
-        }, 60000);
+        }, 30000);
     }
 
     function stopHeartbeat() {

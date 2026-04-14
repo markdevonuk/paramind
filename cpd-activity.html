@@ -1170,7 +1170,7 @@ waitForFirebase(function(ready) {
               snapshot.forEach(function(doc) {
                   var d = doc.data();
                   // Only include sessions with meaningful duration (end event fired)
-                  if (d.durationSeconds && d.durationSeconds >= 30) {
+                  if (d.durationSeconds && d.durationSeconds > 0) {
                       allSessions.push(d);
                   }
               });
