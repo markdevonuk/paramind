@@ -197,7 +197,7 @@
               secondsByWeek:             { [weekKey]:  inc(durationSeconds) },
               lastUpdated:               firebase.firestore.FieldValue.serverTimestamp()
           }, { merge: true })
-          .catch(function () {}); // Silent fail — never block session write
+          .catch(function (e) { console.warn('[ActivityLogger] Analytics write failed:', e); });
     }
 
     // ==================== VISIBILITY CHANGE HANDLER ====================
