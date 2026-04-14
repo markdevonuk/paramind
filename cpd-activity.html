@@ -235,7 +235,7 @@
 
         .chart-wrapper {
             position: relative;
-            height: 220px;
+            height: 220px; /* overridden by JS for tool chart */
         }
 
         /* ==================== SESSIONS TABLE ==================== */
@@ -678,6 +678,12 @@ function renderToolChart(sessions) {
     var sorted = Object.entries(toolTotals).sort(function(a, b) { return b[1] - a[1]; });
     var labels  = sorted.map(function(x) { return x[0]; });
     var values  = sorted.map(function(x) { return parseFloat((x[1] / 60).toFixed(1)); });
+
+    // Set chart height dynamically based on number of tools
+    var toolChartWrapper = document.getElementById('toolChart').parentElement;
+    var barHeight = 32;
+    var chartHeight = Math.max(220, labels.length * barHeight + 60);
+    toolChartWrapper.style.height = chartHeight + 'px';
 
     var ctx = document.getElementById('toolChart').getContext('2d');
     if (toolChartInst) { toolChartInst.destroy(); }
