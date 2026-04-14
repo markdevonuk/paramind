@@ -21,20 +21,20 @@
 
     // ==================== PAGE → TOOL NAME MAP ====================
     var PAGE_TOOLS = {
-        'chat.html':             'Chat with Hollie',
-        'scenarios.html':        'Patient Scenarios',
+        'chat.html':             'Paramedic Q&A',
+        'scenarios.html':        'Clinical Patient Simulations',
         'arrest-scenarios.html': 'Cardiac Arrest Simulator',
-        'differentials.html':    'Differentials Tool',
+        'differentials.html':    'Exploring Differentials',
         'readiness.html':        'Readiness Score',
-        'podcast.html':          'Podcast',
+        'podcast.html':          'Paramind Podcasts',
         'connections.html':      'A&P Connections',
-        'ecg.html':              'ECG Tool',
+        'ecg.html':              'Understanding ECGs',
         'atmist.html':           'ATMIST Handover',
         'bone-lab.html':         'Understanding Bones',
         'blood-lab.html':        'Understanding Bloods',
         'drugs.html':            'Understanding Drugs',
         'interview.html':        'Interview Prep',
-        'cpd.html':              'CPD Portfolio'
+        'cpd.html':              null
     };
 
     // ==================== DETECT CURRENT PAGE ====================

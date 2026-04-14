@@ -1172,13 +1172,26 @@ waitForFirebase(function(ready) {
           .orderBy('startTime', 'desc')
           .get()
           .then(function(snapshot) {
+              // Map old tool names to new display names for legacy sessions
+              var TOOL_NAME_MAP = {
+                  'Chat with Hollie':  'Paramedic Q&A',
+                  'Patient Scenarios': 'Clinical Patient Simulations',
+                  'Differentials Tool':'Exploring Differentials',
+                  'Podcast':           'Paramind Podcasts',
+                  'ECG Tool':          'Understanding ECGs'
+              };
+
+              // Tools excluded from CPD reporting
+              var EXCLUDED_TOOLS = ['CPD Portfolio'];
+
               allSessions = [];
               snapshot.forEach(function(doc) {
                   var d = doc.data();
-                  // Only include sessions with meaningful duration (end event fired)
-                  if (d.durationSeconds && d.durationSeconds > 0) {
-                      allSessions.push(d);
-                  }
+                  if (!d.durationSeconds || d.durationSeconds <= 0) { return; }
+                  if (EXCLUDED_TOOLS.indexOf(d.tool) !== -1) { return; }
+                  // Remap legacy name if needed
+                  if (TOOL_NAME_MAP[d.tool]) { d.tool = TOOL_NAME_MAP[d.tool]; }
+                  allSessions.push(d);
               });
 
               document.getElementById('loadingState').style.display = 'none';
