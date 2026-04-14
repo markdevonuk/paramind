@@ -184,20 +184,38 @@
         })();
 
         var inc = firebase.firestore.FieldValue.increment;
-        db.collection('analytics')
-          .doc('activitySummary')
-          .set({
-              totalSessions:             inc(1),
-              totalSeconds:              inc(durationSeconds),
-              sessionsByTool:            { [toolName]: inc(1) },
-              secondsByTool:             { [toolName]: inc(durationSeconds) },
-              sessionsByDay:             { [today]:    inc(1) },
-              secondsByDay:              { [today]:    inc(durationSeconds) },
-              sessionsByWeek:            { [weekKey]:  inc(1) },
-              secondsByWeek:             { [weekKey]:  inc(durationSeconds) },
-              lastUpdated:               firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true })
-          .catch(function (e) { console.warn('[ActivityLogger] Analytics write failed:', e); });
+        var summaryRef = db.collection('analytics').doc('activitySummary');
+
+        // Build update object using dot-notation paths — reliable with FieldValue.increment
+        var updates = {};
+        updates['totalSessions']                        = inc(1);
+        updates['totalSeconds']                         = inc(durationSeconds);
+        updates['sessionsByTool.' + toolName]           = inc(1);
+        updates['secondsByTool.'  + toolName]           = inc(durationSeconds);
+        updates['sessionsByDay.'  + today]              = inc(1);
+        updates['secondsByDay.'   + today]              = inc(durationSeconds);
+        updates['sessionsByWeek.' + weekKey]            = inc(1);
+        updates['secondsByWeek.'  + weekKey]            = inc(durationSeconds);
+        updates['lastUpdated']                          = firebase.firestore.FieldValue.serverTimestamp();
+
+        summaryRef.update(updates).catch(function(e) {
+            if (e.code === 'not-found') {
+                // Document doesn't exist yet — create it then apply increments
+                summaryRef.set({
+                    totalSessions: 0, totalSeconds: 0,
+                    sessionsByTool: {}, secondsByTool: {},
+                    sessionsByDay:  {}, secondsByDay:  {},
+                    sessionsByWeek: {}, secondsByWeek: {},
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(function() {
+                    return summaryRef.update(updates);
+                }).catch(function(e2) {
+                    console.warn('[ActivityLogger] Analytics init failed:', e2);
+                });
+            } else {
+                console.warn('[ActivityLogger] Analytics write failed:', e);
+            }
+        });
     }
 
     // ==================== VISIBILITY CHANGE HANDLER ====================
