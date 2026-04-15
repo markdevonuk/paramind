@@ -160,6 +160,20 @@
 
         var durationMinutes = parseFloat((durationSeconds / 60).toFixed(2));
 
+        // ── UPDATE LANDING PAGE STREAK ──
+        // Keeps the localStorage streak (read by landing.html) in sync with
+        // real learning activity rather than just page visits.
+        try {
+            var streakKey  = 'paramind_streak_days';
+            var todayStr   = new Date().toDateString();
+            var streakDays = JSON.parse(localStorage.getItem(streakKey) || '[]');
+            if (!streakDays.includes(todayStr)) {
+                streakDays.push(todayStr);
+                if (streakDays.length > 365) { streakDays = streakDays.slice(-365); }
+                localStorage.setItem(streakKey, JSON.stringify(streakDays));
+            }
+        } catch (e) { /* localStorage unavailable — ignore */ }
+
         db.collection('users')
           .doc(currentUser.uid)
           .collection('activityLog')
