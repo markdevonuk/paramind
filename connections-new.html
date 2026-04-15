@@ -1387,15 +1387,9 @@
                 document.getElementById('chatActions').style.display = 'flex';
                 document.getElementById('simplifyBtn').style.display = 'flex';
 
-                // Scroll into view
+                // Scroll to top so the user question is visible
                 const chatMessages = document.getElementById('chatMessages');
-                const hollieMsg = hollieBubble.closest('.hollie-message');
-                if (hollieMsg) {
-                    const containerRect = chatMessages.getBoundingClientRect();
-                    const msgRect = hollieMsg.getBoundingClientRect();
-                    const targetScroll = msgRect.top - containerRect.top + chatMessages.scrollTop - 40;
-                    chatMessages.scrollTo({ top: targetScroll, behavior: 'smooth' });
-                }
+                chatMessages.scrollTo({ top: 0, behavior: 'smooth' });
 
             } catch (error) {
                 console.error('Cache load error:', error);
@@ -1434,8 +1428,11 @@
             `;
             chatMessages.appendChild(hollieResponse);
 
-            // Scroll to show new content
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            // Scroll so the "Make it simpler" user bubble is at the top of the chat area
+            const containerRect = chatMessages.getBoundingClientRect();
+            const requestRect = userRequest.getBoundingClientRect();
+            const targetScroll = requestRect.top - containerRect.top + chatMessages.scrollTop;
+            chatMessages.scrollTo({ top: targetScroll, behavior: 'smooth' });
         }
 
         // ==================== GUIDED TOUR ====================
