@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Connections Cache — Admin</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            max-width: 600px;
+            margin: 60px auto;
+            padding: 0 20px;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+        h1 { font-size: 1.4rem; margin-bottom: 0.25rem; }
+        p { color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem; }
+        #status {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 1.25rem;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            min-height: 60px;
+            white-space: pre-wrap;
+        }
+        button {
+            background: #2B8A9C;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .ok   { color: #16a34a; }
+        .err  { color: #dc2626; }
+        .info { color: #2B8A9C; }
+    </style>
+</head>
+<body>
+
+<h1>🔧 Generate A&P Connections Cache</h1>
+<p>Admin only. This calls the Cloud Function to pre-generate all Hollie explanations and store them in Firestore. Only needs running once (and again when new questions are added).</p>
+
+<button id="runBtn" disabled>Checking login...</button>
+
+<div id="status">Waiting for Firebase to initialise...</div>
+
+<!-- Firebase compat SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<script>
+    const FIREBASE_CONFIG = {
+        apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
+        authDomain: "paramind-64b8e.firebaseapp.com",
+        projectId: "paramind-64b8e",
+        storageBucket: "paramind-64b8e.firebasestorage.app",
+        messagingSenderId: "452173393964",
+        appId: "1:452173393964:web:8599c0fe1983a6f441e189"
+    };
+
+    const FUNCTION_URL = "https://europe-west2-paramind-64b8e.cloudfunctions.net/generateConnectionsCache";
+    const ADMIN_EMAIL  = "markdevon@gmail.com";
+
+    firebase.initializeApp(FIREBASE_CONFIG);
+
+    const statusEl = document.getElementById('status');
+    const runBtn   = document.getElementById('runBtn');
+
+    function log(msg, cls) {
+        const span = document.createElement('span');
+        span.className = cls || '';
+        span.textContent = msg + '\n';
+        statusEl.appendChild(span);
+        statusEl.scrollTop = statusEl.scrollHeight;
+    }
+
+    firebase.auth().onAuthStateChanged(async (user) => {
+        statusEl.textContent = '';
+        if (!user) {
+            log('Not logged in. Please log into paramind.co.uk first, then return to this page.', 'err');
+            runBtn.textContent = 'Not logged in';
+            return;
+        }
+        if (user.email !== ADMIN_EMAIL) {
+            log(`Logged in as ${user.email} — admin account required.`, 'err');
+            runBtn.textContent = 'Wrong account';
+            return;
+        }
+        log(`Logged in as ${user.email} ✓`, 'ok');
+        runBtn.textContent = 'Generate Cache Now';
+        runBtn.disabled = false;
+    });
+
+    runBtn.addEventListener('click', async () => {
+        runBtn.disabled = true;
+        runBtn.textContent = 'Running...';
+        log('Starting — this will take a few minutes. Keep this tab open.', 'info');
+
+        try {
+            const user = firebase.auth().currentUser;
+            const token = await user.getIdToken(true);
+
+            const response = await fetch(FUNCTION_URL, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                log(`\n✅ Done! ${data.generated} responses generated, ${data.skipped} already existed.`, 'ok');
+                log('\nYou can now test connections-new.html', 'info');
+            } else {
+                log(`\n❌ Error: ${data.error}`, 'err');
+            }
+        } catch (err) {
+            log(`\n❌ Request failed: ${err.message}`, 'err');
+            log('Check the Firebase logs for details.', 'err');
+        }
+
+        runBtn.textContent = 'Done';
+    });
+</script>
+
+</body>
+</html>
