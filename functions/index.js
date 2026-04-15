@@ -2640,3 +2640,297 @@ exports.saveEnhancedCpdRecord = onRequest({ cors: true }, async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
+
+// ============================================
+// GENERATE CONNECTIONS CACHE
+// One-off admin function to pre-generate all A&P Connections
+// responses and store them in Firestore.
+// Trigger by visiting the URL while logged in as admin.
+// Re-run whenever new questions are added.
+// ============================================
+
+exports.generateConnectionsCache = onRequest(
+  {
+    cors: true,
+    secrets: ["OPENAI_API_KEY"],
+    timeoutSeconds: 540,
+    memory: "512MiB"
+  },
+  async (req, res) => {
+    try {
+      // Admin check
+      const uid = await verifyAuth(req);
+      const decodedToken = await admin.auth().verifyIdToken(
+        req.headers.authorization.split("Bearer ")[1]
+      );
+      const adminEmail = "markdevon@gmail.com";
+      if (decodedToken.email !== adminEmail) {
+        return res.status(403).json({ error: "Forbidden: admin only" });
+      }
+
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+      const HOLLIE_AP_PROMPT = `You are Hollie, a friendly and experienced UK paramedic who loves teaching anatomy and physiology to fellow paramedics and students. You explain things in a warm, conversational way - like you're chatting to a colleague over a cuppa.
+
+Your personality:
+- Friendly and approachable - use "you" and speak directly to the learner
+- Enthusiastic about A&P - you find it genuinely fascinating
+- Practical - always link theory to what we see on the road
+- Encouraging - make learners feel confident
+- Use phrases like "So basically...", "The cool thing is...", "You'll often see...", "Think of it like..."
+
+When explaining:
+1. Start with a friendly opener (e.g., "Great question!", "Ah, this is a really important one!", "Ooh I love this topic!")
+2. Give a simple overview first
+3. Explain the anatomy involved in plain terms
+4. Walk through the physiology step-by-step
+5. Link it to clinical signs we observe as paramedics
+6. End with an encouraging note or practical tip
+
+Keep it conversational - no formal headers or bullet points. Write in flowing paragraphs like you're actually talking. Use UK spelling and terminology.
+
+Keep responses around 250-350 words - detailed enough to be useful but not overwhelming.
+
+Remember: This is for EDUCATION only - never give treatment advice. If treatment comes up, remind them to check JRCalc.`;
+
+      const HOLLIE_SIMPLIFY_PROMPT = `You are Hollie, a friendly and experienced UK paramedic who loves teaching anatomy and physiology.
+
+IMPORTANT: The learner asked you to simplify your previous explanation. You MUST:
+- Re-explain the SAME topic you just discussed
+- Use simpler language and shorter sentences
+- Use more analogies and everyday comparisons (like "think of it like...")
+- Avoid medical jargon or explain terms simply
+- Start with "No worries!" or "Of course!" or similar
+- Keep it friendly and encouraging
+- Do NOT introduce new topics - simplify what you already explained
+
+Use UK spelling and terminology.`;
+
+      // All questions mirroring connections.html
+      const BODY_SYSTEMS = [
+        {
+          id: "cardiovascular",
+          questions: [
+            "Why does a PE cause tachycardia?",
+            "How does heart failure cause peripheral oedema?",
+            "Why do we see JVP elevation in right heart failure?",
+            "Explain why MI can cause referred pain to the arm and jaw",
+            "Why does aortic stenosis cause syncope on exertion?",
+            "How does atrial fibrillation increase stroke risk?",
+            "Why do patients with heart failure get breathless when lying flat?",
+            "Explain the pathophysiology of cardiogenic shock",
+            "Why does severe bradycardia cause hypotension?",
+            "How does cardiac tamponade affect blood pressure?"
+          ]
+        },
+        {
+          id: "respiratory",
+          questions: [
+            "Explain the pathophysiology of anaphylaxis and airway compromise",
+            "Why does COPD cause a barrel chest?",
+            "How does asthma cause wheeze?",
+            "Why do we see pursed lip breathing in COPD patients?",
+            "Explain why tension pneumothorax causes tracheal deviation",
+            "Why does pulmonary oedema cause pink frothy sputum?",
+            "How does hyperventilation cause tingling in the hands?",
+            "Why do asthmatics have a prolonged expiratory phase?",
+            "Explain why oxygen can be dangerous in some COPD patients",
+            "How does a flail chest affect ventilation?"
+          ]
+        },
+        {
+          id: "nervous",
+          questions: [
+            "Why does a stroke cause one-sided weakness?",
+            "Explain the pathophysiology of a seizure",
+            "How does raised intracranial pressure cause Cushing's triad?",
+            "Why do patients become unconscious with hypoglycaemia?",
+            "Explain why pupil changes occur in head injuries",
+            "How does meningitis cause neck stiffness?",
+            "Why does a subarachnoid haemorrhage cause sudden severe headache?",
+            "Explain the difference between upper and lower motor neuron lesions",
+            "Why does spinal cord injury cause neurogenic shock?",
+            "How does the autonomic nervous system affect heart rate?"
+          ]
+        },
+        {
+          id: "gastrointestinal",
+          questions: [
+            "Why does GI bleeding cause melaena vs fresh blood?",
+            "Explain the pathophysiology of acute pancreatitis pain",
+            "How does bowel obstruction cause vomiting?",
+            "Why does liver failure cause confusion?",
+            "Explain why appendicitis pain moves from umbilicus to RIF",
+            "How does dehydration from D&V affect the cardiovascular system?",
+            "Why does cholecystitis cause referred shoulder pain?",
+            "Explain the pathophysiology of peritonitis",
+            "How does a AAA cause back pain?",
+            "Why do patients with GI bleeds become tachycardic before hypotensive?"
+          ]
+        },
+        {
+          id: "renal",
+          questions: [
+            "How does acute kidney injury cause hyperkalaemia?",
+            "Why does kidney failure cause fluid overload?",
+            "Explain the pathophysiology of renal colic pain",
+            "How does chronic kidney disease cause anaemia?",
+            "Why do dialysis patients get breathless between treatments?",
+            "Explain how UTIs can cause confusion in elderly patients",
+            "Why does urinary retention cause lower abdominal pain?",
+            "How does rhabdomyolysis affect the kidneys?",
+            "Explain why kidney patients are prone to arrhythmias",
+            "How does dehydration affect kidney function?"
+          ]
+        },
+        {
+          id: "endocrine",
+          questions: [
+            "Explain the pathophysiology of diabetic ketoacidosis",
+            "Why does hypoglycaemia cause sweating and tremor?",
+            "How does Addison's disease cause hypotension?",
+            "Why do diabetics get fruity-smelling breath in DKA?",
+            "Explain how HHS differs from DKA",
+            "Why does hyperthyroidism cause tachycardia and tremor?",
+            "How does hypothyroidism affect the body?",
+            "Explain why stress causes blood glucose to rise",
+            "Why do Type 1 and Type 2 diabetes present differently?",
+            "How does insulin work at a cellular level?"
+          ]
+        },
+        {
+          id: "musculoskeletal",
+          questions: [
+            "Why do fractures cause fat embolism syndrome?",
+            "Explain compartment syndrome pathophysiology",
+            "How does a femoral fracture cause significant blood loss?",
+            "Why does a hip fracture cause leg shortening and rotation?",
+            "Explain the pathophysiology of crush syndrome",
+            "How do long bone fractures affect clotting?",
+            "Why is pelvic fracture so dangerous?",
+            "Explain why open fractures are high risk for infection",
+            "How does muscle damage release potassium?",
+            "Why do elderly patients fracture more easily?"
+          ]
+        },
+        {
+          id: "immune",
+          questions: [
+            "Explain the pathophysiology of sepsis",
+            "Why does anaphylaxis cause widespread vasodilation?",
+            "How does the body's immune response cause fever?",
+            "Why does sepsis cause mottled skin?",
+            "Explain why immunocompromised patients present atypically",
+            "How do mast cells cause allergic reactions?",
+            "Why does severe infection cause low blood pressure?",
+            "Explain the difference between sepsis and septic shock",
+            "How does the inflammatory response cause redness and swelling?",
+            "Why do some infections cause rigors?"
+          ]
+        },
+        {
+          id: "obstetrics",
+          questions: [
+            "Why does pregnancy cause a physiological increase in heart rate and cardiac output?",
+            "How does a growing uterus cause aortocaval compression in late pregnancy?",
+            "Why does pre-eclampsia cause headache and visual disturbances?",
+            "Explain why placental abruption causes a hard, 'woody' uterus",
+            "Why does postpartum haemorrhage cause cardiovascular collapse so rapidly?",
+            "How does eclampsia cause seizures?",
+            "Why does a cord prolapse compromise fetal oxygen delivery?",
+            "Explain why pregnancy shifts the apex beat and makes ECG interpretation different",
+            "Why do pregnant patients compensate for blood loss differently to non-pregnant patients?",
+            "How does shoulder dystocia cause brachial plexus injury?"
+          ]
+        },
+        {
+          id: "gynaecology",
+          questions: [
+            "Why does an ectopic pregnancy cause referred shoulder tip pain?",
+            "How does ovarian torsion cause sudden severe pain?",
+            "Explain why a ruptured ectopic pregnancy causes haemodynamic compromise so rapidly",
+            "Why does endometriosis cause cyclical pain?",
+            "Why does a ruptured ovarian cyst cause peritoneal irritation and guarding?",
+            "Why does pelvic inflammatory disease cause rebound tenderness?",
+            "Explain how the menstrual cycle is hormonally regulated",
+            "Why does ovarian hyperstimulation syndrome cause fluid shifts?",
+            "How does menorrhagia lead to iron deficiency anaemia?",
+            "Why can ovarian cysts cause referred pain to the thigh or back?"
+          ]
+        }
+      ];
+
+      const results = [];
+      let generated = 0;
+      let skipped = 0;
+
+      for (const system of BODY_SYSTEMS) {
+        for (let i = 0; i < system.questions.length; i++) {
+          const question = system.questions[i];
+          const docId = `${system.id}_${i}`;
+          const docRef = db.collection("connectionsCache").doc(docId);
+
+          // Skip if already cached (allows safe re-runs for new questions only)
+          const existing = await docRef.get();
+          if (existing.exists) {
+            skipped++;
+            continue;
+          }
+
+          // Generate standard explanation
+          const standardResponse = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+              { role: "system", content: HOLLIE_AP_PROMPT },
+              { role: "user", content: question }
+            ],
+            max_tokens: 600,
+            temperature: 0.7
+          });
+          const standard = standardResponse.choices[0].message.content;
+
+          // Generate simplified explanation using the standard as context
+          const simplifiedResponse = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+              { role: "system", content: HOLLIE_SIMPLIFY_PROMPT },
+              { role: "user", content: question },
+              { role: "assistant", content: standard },
+              { role: "user", content: "Can you explain that again but in a simpler, easier-to-understand way please? Use simpler language, more analogies, and less medical jargon." }
+            ],
+            max_tokens: 600,
+            temperature: 0.7
+          });
+          const simplified = simplifiedResponse.choices[0].message.content;
+
+          // Store in Firestore
+          await docRef.set({
+            question,
+            systemId: system.id,
+            standard,
+            simplified,
+            generatedAt: admin.firestore.FieldValue.serverTimestamp()
+          });
+
+          generated++;
+          results.push({ docId, status: "generated" });
+          console.log(`Generated: ${docId} (${generated} done)`);
+        }
+      }
+
+      return res.status(200).json({
+        success: true,
+        generated,
+        skipped,
+        message: `Done. ${generated} new responses generated, ${skipped} already existed.`
+      });
+
+    } catch (error) {
+      console.error("generateConnectionsCache error:", error);
+      if (error.message.includes("Unauthorized") || error.message.includes("Forbidden")) {
+        return res.status(403).json({ error: error.message });
+      }
+      return res.status(500).json({ error: error.message });
+    }
+  }
+);

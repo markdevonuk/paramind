@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Clinical Connections - A&P Learning | Paramind</title>
+    <!-- connections-new.html: reads pre-generated responses from Firestore cache -->
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/menu-v2.css">
+    
+    <style>
+        /* Clinical Connections Page Styles */
+        .clinical-page {
+            min-height: 100vh;
+            background: var(--color-gray-50);
+        }
+        
+        .clinical-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1rem;
+            padding-bottom: 2rem;
+        }
+        
+        .clinical-header {
+            text-align: center;
+            padding: 1.5rem 0;
+        }
+        
+        .clinical-header h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .clinical-header p {
+            color: var(--color-gray-600);
+            margin: 0;
+        }
+        
+        /* Hollie Introduction Card */
+        .hollie-intro {
+            background: var(--color-white);
+            border-radius: var(--radius-xl);
+            padding: 1.25rem;
+            border: 2px solid rgba(43, 138, 156, 0.2);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .hollie-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 3px solid var(--color-teal);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        .hollie-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .hollie-intro-text h3 {
+            font-size: 1.1rem;
+            margin: 0 0 0.25rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .hollie-badge {
+            font-size: 0.7rem;
+            background: rgba(43, 138, 156, 0.1);
+            color: var(--color-teal);
+            padding: 0.2rem 0.5rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+        }
+        
+        .hollie-intro-text p {
+            margin: 0;
+            color: var(--color-gray-600);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        /* Body Systems Grid */
+        .systems-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        @media (min-width: 576px) {
+            .systems-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        .system-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem 1rem;
+            text-align: center;
+            border: 2px solid var(--color-gray-200);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .system-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .system-card.cardiovascular { border-color: #fee2e2; background: #fef2f2; }
+        .system-card.cardiovascular:hover { border-color: #ef4444; }
+        .system-card.cardiovascular .system-icon { background: #ef4444; }
+        .system-card.cardiovascular .system-name { color: #dc2626; }
+        
+        .system-card.respiratory { border-color: #e0f2fe; background: #f0f9ff; }
+        .system-card.respiratory:hover { border-color: #0ea5e9; }
+        .system-card.respiratory .system-icon { background: #0ea5e9; }
+        .system-card.respiratory .system-name { color: #0284c7; }
+        
+        .system-card.nervous { border-color: #f3e8ff; background: #faf5ff; }
+        .system-card.nervous:hover { border-color: #a855f7; }
+        .system-card.nervous .system-icon { background: #a855f7; }
+        .system-card.nervous .system-name { color: #9333ea; }
+        
+        .system-card.gastrointestinal { border-color: #fef3c7; background: #fffbeb; }
+        .system-card.gastrointestinal:hover { border-color: #f59e0b; }
+        .system-card.gastrointestinal .system-icon { background: #f59e0b; }
+        .system-card.gastrointestinal .system-name { color: #d97706; }
+        
+        .system-card.renal { border-color: #fef9c3; background: #fefce8; }
+        .system-card.renal:hover { border-color: #eab308; }
+        .system-card.renal .system-icon { background: #eab308; }
+        .system-card.renal .system-name { color: #ca8a04; }
+        
+        .system-card.endocrine { border-color: #d1fae5; background: #ecfdf5; }
+        .system-card.endocrine:hover { border-color: #10b981; }
+        .system-card.endocrine .system-icon { background: #10b981; }
+        .system-card.endocrine .system-name { color: #059669; }
+        
+        .system-card.musculoskeletal { border-color: #ffedd5; background: #fff7ed; }
+        .system-card.musculoskeletal:hover { border-color: #f97316; }
+        .system-card.musculoskeletal .system-icon { background: #f97316; }
+        .system-card.musculoskeletal .system-name { color: #ea580c; }
+        
+        .system-card.immune { border-color: #fce7f3; background: #fdf2f8; }
+        .system-card.immune:hover { border-color: #ec4899; }
+        .system-card.immune .system-icon { background: #ec4899; }
+        .system-card.immune .system-name { color: #db2777; }
+        
+        .system-card.obstetrics { border-color: #ffe4e6; background: #fff1f2; }
+        .system-card.obstetrics:hover { border-color: #fb7185; }
+        .system-card.obstetrics .system-icon { background: #fb7185; }
+        .system-card.obstetrics .system-name { color: #e11d48; }
+        
+        .system-card.gynaecology { border-color: #ede9fe; background: #f5f3ff; }
+        .system-card.gynaecology:hover { border-color: #a78bfa; }
+        .system-card.gynaecology .system-icon { background: #a78bfa; }
+        .system-card.gynaecology .system-name { color: #7c3aed; }
+        
+        .system-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.75rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .system-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .system-count {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+        }
+        
+        /* Questions View */
+        .questions-header {
+            background: var(--color-white);
+            border-radius: var(--radius-xl);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border: 2px solid var(--color-gray-200);
+        }
+        
+        .questions-header.cardiovascular { border-color: #fee2e2; background: #fef2f2; }
+        .questions-header.cardiovascular .system-icon { background: #ef4444; }
+        .questions-header.respiratory { border-color: #e0f2fe; background: #f0f9ff; }
+        .questions-header.respiratory .system-icon { background: #0ea5e9; }
+        .questions-header.nervous { border-color: #f3e8ff; background: #faf5ff; }
+        .questions-header.nervous .system-icon { background: #a855f7; }
+        .questions-header.gastrointestinal { border-color: #fef3c7; background: #fffbeb; }
+        .questions-header.gastrointestinal .system-icon { background: #f59e0b; }
+        .questions-header.renal { border-color: #fef9c3; background: #fefce8; }
+        .questions-header.renal .system-icon { background: #eab308; }
+        .questions-header.endocrine { border-color: #d1fae5; background: #ecfdf5; }
+        .questions-header.endocrine .system-icon { background: #10b981; }
+        .questions-header.musculoskeletal { border-color: #ffedd5; background: #fff7ed; }
+        .questions-header.musculoskeletal .system-icon { background: #f97316; }
+        .questions-header.immune { border-color: #fce7f3; background: #fdf2f8; }
+        .questions-header.immune .system-icon { background: #ec4899; }
+        .questions-header.obstetrics { border-color: #ffe4e6; background: #fff1f2; }
+        .questions-header.obstetrics .system-icon { background: #fb7185; }
+        .questions-header.gynaecology { border-color: #ede9fe; background: #f5f3ff; }
+        .questions-header.gynaecology .system-icon { background: #a78bfa; }
+        
+        .questions-header .system-icon {
+            margin: 0;
+            width: 55px;
+            height: 55px;
+            font-size: 1.75rem;
+        }
+        
+        .questions-header-text h2 {
+            font-size: 1.25rem;
+            margin: 0 0 0.25rem 0;
+        }
+        
+        .questions-header-text p {
+            margin: 0;
+            color: var(--color-gray-600);
+            font-size: 0.9rem;
+        }
+        
+        .questions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .question-btn {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .question-btn:hover {
+            border-color: var(--color-teal);
+            box-shadow: var(--shadow-sm);
+            transform: translateX(4px);
+        }
+        
+        .question-number {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            background: var(--color-gray-100);
+            color: var(--color-gray-600);
+        }
+        
+        .question-text {
+            flex: 1;
+            font-weight: 500;
+            color: var(--color-gray-800);
+        }
+        
+        .question-arrow {
+            color: var(--color-gray-400);
+            transition: all var(--transition-fast);
+        }
+        
+        .question-btn:hover .question-arrow {
+            color: var(--color-teal);
+            transform: translateX(3px);
+        }
+        
+        /* Chat View */
+        .chat-container {
+            background: var(--color-white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            background: linear-gradient(135deg, var(--color-teal) 0%, #228B9D 100%);
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .chat-header .hollie-avatar {
+            width: 45px;
+            height: 45px;
+            border-color: rgba(255,255,255,0.3);
+        }
+        
+        .chat-header-info h3 {
+            color: white;
+            font-size: 1rem;
+            margin: 0;
+        }
+        
+        .chat-header-info p {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.8rem;
+            margin: 0;
+        }
+        
+        .chat-system-badge {
+            margin-left: auto;
+            padding: 0.35rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .chat-messages {
+            padding: 1.25rem;
+            background: var(--color-gray-50);
+            min-height: 350px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        /* User message bubble */
+        .user-message {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1.25rem;
+        }
+        
+        .user-bubble {
+            background: linear-gradient(135deg, var(--color-teal) 0%, #228B9D 100%);
+            color: white;
+            padding: 0.875rem 1rem;
+            border-radius: 1.25rem 1.25rem 0.25rem 1.25rem;
+            max-width: 85%;
+            font-weight: 500;
+        }
+        
+        /* Hollie response */
+        .hollie-message {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        
+        .hollie-message .hollie-avatar {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .hollie-bubble {
+            background: var(--color-white);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-gray-200);
+            max-width: 90%;
+            box-shadow: var(--shadow-sm);
+            line-height: 1.6;
+        }
+        
+        .hollie-bubble p {
+            margin: 0 0 0.75rem 0;
+            color: var(--color-gray-700);
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+        
+        .hollie-bubble p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .hollie-bubble ul,
+        .hollie-bubble ol {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        .hollie-bubble li {
+            display: list-item;
+            margin-bottom: 0.35rem;
+        }
+        
+        .hollie-bubble h1, 
+        .hollie-bubble h2, 
+        .hollie-bubble h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 1rem 0 0.5rem 0;
+            color: var(--color-gray-800);
+        }
+        
+        .hollie-bubble h1:first-child,
+        .hollie-bubble h2:first-child,
+        .hollie-bubble h3:first-child {
+            margin-top: 0;
+        }
+        
+        .hollie-bubble strong {
+            color: var(--color-teal);
+        }
+        
+        /* Streaming cursor */
+        .streaming-cursor {
+            display: inline-block;
+            animation: cursorBlink 0.7s infinite;
+            color: var(--color-teal);
+            font-weight: bold;
+        }
+        
+        @keyframes cursorBlink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .streaming-text {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: inherit;
+            line-height: 1.6;
+        }
+        
+        /* Typing indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            background: var(--color-teal);
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dots span:nth-child(1) { animation-delay: 0s; }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-6px); }
+        }
+        
+        .typing-text {
+            color: var(--color-gray-500);
+            font-size: 0.85rem;
+        }
+        
+        /* Disclaimer */
+        .chat-disclaimer {
+            padding: 0.875rem 1.25rem;
+            background: #fffbeb;
+            border-top: 1px solid #fef3c7;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        
+        .chat-disclaimer i {
+            color: #f59e0b;
+            font-size: 1rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .chat-disclaimer p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #92400e;
+        }
+        
+        /* Action buttons */
+        .chat-actions {
+            padding: 1.5rem 1.25rem;
+            background: var(--color-white);
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .simplify-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+        
+        .simplify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+        }
+        
+        .simplify-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .another-question-btn {
+            background: linear-gradient(135deg, var(--color-teal) 0%, #228B9D 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .another-question-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        /* Back button */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--color-teal);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            transition: all var(--transition-fast);
+            background: none;
+            border: none;
+            padding: 0;
+        }
+        
+        .back-btn:hover {
+            color: var(--color-teal-dark);
+        }
+        
+        /* View states */
+        .view-systems,
+        .view-questions,
+        .view-chat {
+            display: none;
+        }
+        
+        .view-systems.active,
+        .view-questions.active,
+        .view-chat.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==================== GUIDED TOUR ==================== */
+        .tour-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 9000;
+        }
+        .tour-overlay.active { display: block; }
+
+        .tour-spotlight {
+            position: absolute;
+            border-radius: 12px;
+            box-shadow: 0 0 0 4000px rgba(0,0,0,0.55);
+            transition: all 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+            pointer-events: none;
+        }
+
+        .tour-tooltip {
+            position: absolute;
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 16px 18px 14px;
+            width: min(320px, calc(100vw - 32px));
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+            z-index: 9001;
+            animation: tourFadeIn 0.3s ease;
+        }
+        .tour-tooltip-arrow {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: #FFFFFF;
+            transform: rotate(45deg);
+            box-shadow: -2px -2px 4px rgba(0,0,0,0.05);
+        }
+        .tour-tooltip-arrow.arrow-top { top: -7px; left: 28px; }
+        .tour-tooltip-arrow.arrow-bottom { bottom: -7px; left: 28px; }
+
+        .tour-tooltip-step {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+        .tour-step-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-teal), #1a7a8a);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .tour-step-label {
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--color-gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .tour-tooltip h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--color-gray-900);
+            margin: 0 0 4px;
+        }
+        .tour-tooltip p {
+            font-size: 0.82rem;
+            line-height: 1.5;
+            color: var(--color-gray-600);
+            margin: 0 0 12px;
+        }
+        .tour-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .tour-skip-btn {
+            background: none;
+            border: none;
+            color: var(--color-gray-500);
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 4px 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: color 0.2s;
+        }
+        .tour-skip-btn:hover { color: var(--color-gray-700); }
+        .tour-next-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--color-teal), #1a7a8a);
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.2s ease;
+        }
+        .tour-next-btn:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .tour-next-btn:active { transform: scale(0.97); }
+
+        .tour-dots { display: flex; gap: 5px; align-items: center; }
+        .tour-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-gray-300);
+            transition: all 0.2s ease;
+        }
+        .tour-dot.active {
+            background: var(--color-teal);
+            width: 18px;
+            border-radius: 3px;
+        }
+        .tour-dot.done { background: var(--color-teal); }
+
+        @keyframes tourFadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Welcome splash */
+        .tour-welcome {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 9002;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .tour-welcome.active { display: flex; }
+        .tour-welcome-card {
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 28px 24px 22px;
+            max-width: 340px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: tourFadeIn 0.35s ease;
+        }
+        .tour-welcome-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(43,138,156,0.12), rgba(92,184,92,0.1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin: 0 auto 12px;
+        }
+        .tour-welcome-card h3 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--color-gray-900);
+            margin: 0 0 6px;
+        }
+        .tour-welcome-card p {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: var(--color-gray-600);
+            margin: 0 0 18px;
+        }
+        .tour-welcome-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .tour-start-btn {
+            width: 100%;
+            padding: 11px 20px;
+            background: linear-gradient(135deg, var(--color-teal), #1a7a8a);
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .tour-start-btn:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .tour-dismiss-btn {
+            background: none;
+            border: none;
+            color: var(--color-gray-500);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 8px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: color 0.2s;
+        }
+        .tour-dismiss-btn:hover { color: var(--color-gray-700); }
+        
+    </style>
+</head>
+<body class="clinical-page">
+   <!-- ==================== NAVIGATION ==================== -->
+<nav class="member-navbar">
+    <div class="container">
+        <span class="brand-text">
+            <a class="navbar-brand" href="landing.html">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </a>
+        </span>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</nav>
+
+    <div class="clinical-container">
+        <!-- VIEW 1: Body Systems Selection -->
+        <div class="view-systems active" id="viewSystems">
+            <div class="clinical-header">
+                <h1>
+                    <i class="bi bi-heart-pulse text-teal"></i>
+                    Clinical Connections
+                </h1>
+                <p>Understand the A&P behind clinical presentations</p>
+            </div>
+            
+            <!-- Hollie Introduction -->
+            <div class="hollie-intro">
+                <div class="hollie-avatar">
+                    <img src="images/hollie.png" alt="Hollie" id="hollieImg">
+                </div>
+                <div class="hollie-intro-text">
+                    <h3>Hollie <span class="hollie-badge">Paramedic Tutor</span></h3>
+                    <p>"Hey! 👋 I'm Hollie, and I'm here to help you understand the A&P behind what we see on the road. Pick a body system below and I'll explain how it all connects to clinical practice!"</p>
+                </div>
+            </div>
+            
+            <!-- Body Systems Grid -->
+            <div class="systems-grid" id="systemsGrid">
+                <!-- Systems will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- VIEW 2: Questions List -->
+        <div class="view-questions" id="viewQuestions">
+            <button class="back-btn" id="backToSystems">
+                <i class="bi bi-arrow-left"></i> Back to body systems
+            </button>
+            
+            <div class="questions-header" id="questionsHeader">
+                <!-- Populated by JavaScript -->
+            </div>
+            
+            <div class="questions-list" id="questionsList">
+                <!-- Questions populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- VIEW 3: Chat with Hollie -->
+        <div class="view-chat" id="viewChat">
+            <button class="back-btn" id="backToQuestions">
+                <i class="bi bi-arrow-left"></i> Back to questions
+            </button>
+            
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="hollie-avatar">
+                        <img src="images/hollie.png" alt="Hollie">
+                    </div>
+                    <div class="chat-header-info">
+                        <h3>Hollie</h3>
+                        <p>Paramedic Tutor</p>
+                    </div>
+                    <div class="chat-system-badge" id="chatSystemBadge">
+                        <!-- System badge populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <!-- User question and Hollie's response -->
+                </div>
+                
+                <div class="chat-actions" id="chatActions" style="display: none;">
+                    <button class="simplify-btn" id="simplifyBtn">
+                        <i class="bi bi-emoji-smile"></i>
+                        Make it simpler, Hollie!
+                    </button>
+                    <button class="another-question-btn" id="anotherQuestionBtn">
+                        Ask another question
+                    </button>
+                </div>
+                
+                <div class="chat-disclaimer">
+                    <i class="bi bi-lightbulb"></i>
+                    <p><strong>Educational content only.</strong> Always refer to JRCalc and your clinical guidelines for treatment decisions.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="text-center mt-4">
+            <small class="text-muted">
+                <i class="bi bi-shield-lock me-1"></i>
+                This is a learning tool for educational purposes only.
+            </small>
+        </div>
+    </div>
+
+    <!-- ==================== GUIDED TOUR ==================== -->
+
+    <!-- Welcome splash -->
+    <div class="tour-welcome" id="tourWelcome">
+        <div class="tour-welcome-card">
+            <div class="tour-welcome-icon">🔬</div>
+            <h3>Welcome to Clinical Connections</h3>
+            <p>Learn the anatomy and physiology behind what you see on the road. Hollie will explain how it all connects to clinical practice.</p>
+            <div class="tour-welcome-btns">
+                <button class="tour-start-btn" id="tourStartBtn">
+                    Show me around <i class="bi bi-arrow-right"></i>
+                </button>
+                <button class="tour-dismiss-btn" id="tourDismissBtn">
+                    I'll explore on my own
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step-by-step overlay -->
+    <div class="tour-overlay" id="tourOverlay">
+        <div class="tour-spotlight" id="tourSpotlight"></div>
+        <div class="tour-tooltip" id="tourTooltip">
+            <div class="tour-tooltip-arrow arrow-top" id="tourArrow"></div>
+            <div class="tour-tooltip-step">
+                <div class="tour-step-num" id="tourStepNum">1</div>
+                <div class="tour-step-label" id="tourStepLabel">Step 1 of 5</div>
+            </div>
+            <h4 id="tourTitle"></h4>
+            <p id="tourDesc"></p>
+            <div class="tour-actions">
+                <button class="tour-skip-btn" id="tourSkipBtn">Skip tour</button>
+                <div class="tour-dots" id="tourDots"></div>
+                <button class="tour-next-btn" id="tourNextBtn">
+                    Next <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    
+    
+    
+    <!-- ==================== FOOTER ==================== -->
+<footer class="member-footer">
+    <div class="container">
+        <div class="footer-brand">
+            <span class="brand-text">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </span>
+        </div>
+        <div class="footer-links">
+            <a href="terms.html">Terms of Service</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="purpose.html">Intended Purpose</a>
+            <a href="sources.html">Sources &amp; Citations</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <p class="footer-copyright">&copy; 2026 Paramind. All rights reserved.</p>
+        <p class="footer-trademark" style="font-size: 0.85rem; color: var(--color-gray-500);">Paramind&#174; is a registered UK trade mark (UK00004321918).</p>
+    </div>
+</footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Marked.js for Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <script type="module">
+        // ==================== BODY SYSTEMS DATA ====================
+        const BODY_SYSTEMS = [
+            {
+                id: 'cardiovascular',
+                name: 'Cardiovascular',
+                icon: 'bi-heart-pulse',
+                questions: [
+                    "Why does a PE cause tachycardia?",
+                    "How does heart failure cause peripheral oedema?",
+                    "Why do we see JVP elevation in right heart failure?",
+                    "Explain why MI can cause referred pain to the arm and jaw",
+                    "Why does aortic stenosis cause syncope on exertion?",
+                    "How does atrial fibrillation increase stroke risk?",
+                    "Why do patients with heart failure get breathless when lying flat?",
+                    "Explain the pathophysiology of cardiogenic shock",
+                    "Why does severe bradycardia cause hypotension?",
+                    "How does cardiac tamponade affect blood pressure?"
+                ]
+            },
+            {
+                id: 'respiratory',
+                name: 'Respiratory',
+                icon: 'bi-wind',
+                questions: [
+                    "Explain the pathophysiology of anaphylaxis and airway compromise",
+                    "Why does COPD cause a barrel chest?",
+                    "How does asthma cause wheeze?",
+                    "Why do we see pursed lip breathing in COPD patients?",
+                    "Explain why tension pneumothorax causes tracheal deviation",
+                    "Why does pulmonary oedema cause pink frothy sputum?",
+                    "How does hyperventilation cause tingling in the hands?",
+                    "Why do asthmatics have a prolonged expiratory phase?",
+                    "Explain why oxygen can be dangerous in some COPD patients",
+                    "How does a flail chest affect ventilation?"
+                ]
+            },
+            {
+                id: 'nervous',
+                name: 'Nervous System',
+                icon: 'bi-lightning',
+                questions: [
+                    "Why does a stroke cause one-sided weakness?",
+                    "Explain the pathophysiology of a seizure",
+                    "How does raised intracranial pressure cause Cushing's triad?",
+                    "Why do patients become unconscious with hypoglycaemia?",
+                    "Explain why pupil changes occur in head injuries",
+                    "How does meningitis cause neck stiffness?",
+                    "Why does a subarachnoid haemorrhage cause sudden severe headache?",
+                    "Explain the difference between upper and lower motor neuron lesions",
+                    "Why does spinal cord injury cause neurogenic shock?",
+                    "How does the autonomic nervous system affect heart rate?"
+                ]
+            },
+            {
+                id: 'gastrointestinal',
+                name: 'Gastrointestinal',
+                icon: 'bi-droplet-half',
+                questions: [
+                    "Why does GI bleeding cause melaena vs fresh blood?",
+                    "Explain the pathophysiology of acute pancreatitis pain",
+                    "How does bowel obstruction cause vomiting?",
+                    "Why does liver failure cause confusion?",
+                    "Explain why appendicitis pain moves from umbilicus to RIF",
+                    "How does dehydration from D&V affect the cardiovascular system?",
+                    "Why does cholecystitis cause referred shoulder pain?",
+                    "Explain the pathophysiology of peritonitis",
+                    "How does a AAA cause back pain?",
+                    "Why do patients with GI bleeds become tachycardic before hypotensive?"
+                ]
+            },
+            {
+                id: 'renal',
+                name: 'Renal & Urinary',
+                icon: 'bi-droplet',
+                questions: [
+                    "How does acute kidney injury cause hyperkalaemia?",
+                    "Why does kidney failure cause fluid overload?",
+                    "Explain the pathophysiology of renal colic pain",
+                    "How does chronic kidney disease cause anaemia?",
+                    "Why do dialysis patients get breathless between treatments?",
+                    "Explain how UTIs can cause confusion in elderly patients",
+                    "Why does urinary retention cause lower abdominal pain?",
+                    "How does rhabdomyolysis affect the kidneys?",
+                    "Explain why kidney patients are prone to arrhythmias",
+                    "How does dehydration affect kidney function?"
+                ]
+            },
+            {
+                id: 'endocrine',
+                name: 'Endocrine',
+                icon: 'bi-lightning-charge',
+                questions: [
+                    "Explain the pathophysiology of diabetic ketoacidosis",
+                    "Why does hypoglycaemia cause sweating and tremor?",
+                    "How does Addison's disease cause hypotension?",
+                    "Why do diabetics get fruity-smelling breath in DKA?",
+                    "Explain how HHS differs from DKA",
+                    "Why does hyperthyroidism cause tachycardia and tremor?",
+                    "How does hypothyroidism affect the body?",
+                    "Explain why stress causes blood glucose to rise",
+                    "Why do Type 1 and Type 2 diabetes present differently?",
+                    "How does insulin work at a cellular level?"
+                ]
+            },
+            {
+                id: 'musculoskeletal',
+                name: 'Musculoskeletal',
+                icon: 'bi-bandaid',
+                questions: [
+                    "Why do fractures cause fat embolism syndrome?",
+                    "Explain compartment syndrome pathophysiology",
+                    "How does a femoral fracture cause significant blood loss?",
+                    "Why does a hip fracture cause leg shortening and rotation?",
+                    "Explain the pathophysiology of crush syndrome",
+                    "How do long bone fractures affect clotting?",
+                    "Why is pelvic fracture so dangerous?",
+                    "Explain why open fractures are high risk for infection",
+                    "How does muscle damage release potassium?",
+                    "Why do elderly patients fracture more easily?"
+                ]
+            },
+            {
+                id: 'immune',
+                name: 'Immune & Infection',
+                icon: 'bi-shield-plus',
+                questions: [
+                    "Explain the pathophysiology of sepsis",
+                    "Why does anaphylaxis cause widespread vasodilation?",
+                    "How does the body's immune response cause fever?",
+                    "Why does sepsis cause mottled skin?",
+                    "Explain why immunocompromised patients present atypically",
+                    "How do mast cells cause allergic reactions?",
+                    "Why does severe infection cause low blood pressure?",
+                    "Explain the difference between sepsis and septic shock",
+                    "How does the inflammatory response cause redness and swelling?",
+                    "Why do some infections cause rigors?"
+                ]
+            },
+            {
+                id: 'obstetrics',
+                name: 'Obstetrics & Maternity',
+                icon: 'bi-heart',
+                questions: [
+                    "Why does pregnancy cause a physiological increase in heart rate and cardiac output?",
+                    "How does a growing uterus cause aortocaval compression in late pregnancy?",
+                    "Why does pre-eclampsia cause headache and visual disturbances?",
+                    "Explain why placental abruption causes a hard, 'woody' uterus",
+                    "Why does postpartum haemorrhage cause cardiovascular collapse so rapidly?",
+                    "How does eclampsia cause seizures?",
+                    "Why does a cord prolapse compromise fetal oxygen delivery?",
+                    "Explain why pregnancy shifts the apex beat and makes ECG interpretation different",
+                    "Why do pregnant patients compensate for blood loss differently to non-pregnant patients?",
+                    "How does shoulder dystocia cause brachial plexus injury?"
+                ]
+            },
+            {
+                id: 'gynaecology',
+                name: 'Gynaecology & Women\'s Health',
+                icon: 'bi-gender-female',
+                questions: [
+                    "Why does an ectopic pregnancy cause referred shoulder tip pain?",
+                    "How does ovarian torsion cause sudden severe pain?",
+                    "Explain why a ruptured ectopic pregnancy causes haemodynamic compromise so rapidly",
+                    "Why does endometriosis cause cyclical pain?",
+                    "Why does a ruptured ovarian cyst cause peritoneal irritation and guarding?",
+                    "Why does pelvic inflammatory disease cause rebound tenderness?",
+                    "Explain how the menstrual cycle is hormonally regulated",
+                    "Why does ovarian hyperstimulation syndrome cause fluid shifts?",
+                    "How does menorrhagia lead to iron deficiency anaemia?",
+                    "Why can ovarian cysts cause referred pain to the thigh or back?"
+                ]
+            }
+        ];
+
+        // ==================== STATE ====================
+        let currentSystem = null;
+        let currentQuestion = null;
+
+        // ==================== AUTH TOKEN HELPER ====================
+        // Firebase is loaded by menu-v2.js — this gets the token for API calls
+        async function getAuthToken() {
+            const user = firebase.auth().currentUser;
+            if (user) {
+                return await user.getIdToken(true);
+            }
+            throw new Error('Not authenticated');
+        }
+
+        // ==================== INITIALIZATION ====================
+        function initClinicalConnections() {
+            renderBodySystems();
+            setupEventListeners();
+        }
+
+        // ==================== RENDER FUNCTIONS ====================
+        function renderBodySystems() {
+            const grid = document.getElementById('systemsGrid');
+            grid.innerHTML = BODY_SYSTEMS.map(system => `
+                <div class="system-card ${system.id}" data-system="${system.id}">
+                    <div class="system-icon">
+                        <i class="bi ${system.icon}"></i>
+                    </div>
+                    <div class="system-name">${system.name}</div>
+                    <div class="system-count">${system.questions.length} questions</div>
+                </div>
+            `).join('');
+        }
+        
+        function renderQuestions(system) {
+            const header = document.getElementById('questionsHeader');
+            const list = document.getElementById('questionsList');
+            
+            header.innerHTML = `
+                <div class="system-icon">
+                    <i class="bi ${system.icon}"></i>
+                </div>
+                <div class="questions-header-text">
+                    <h2>${system.name}</h2>
+                    <p>Select a question to ask Hollie</p>
+                </div>
+            `;
+            header.className = `questions-header ${system.id}`;
+            
+            list.innerHTML = system.questions.map((question, index) => `
+                <button class="question-btn" data-question="${index}">
+                    <div class="question-number">${index + 1}</div>
+                    <span class="question-text">${question}</span>
+                    <i class="bi bi-chevron-right question-arrow"></i>
+                </button>
+            `).join('');
+        }
+        
+        function renderChat(question, systemId) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const badge = document.getElementById('chatSystemBadge');
+            const system = BODY_SYSTEMS.find(s => s.id === systemId);
+            const simplifyBtn = document.getElementById('simplifyBtn');
+            
+            // Set system badge
+            badge.innerHTML = `<i class="bi ${system.icon}"></i> ${system.name}`;
+            
+            // Reset simplify button visibility
+            if (simplifyBtn) {
+                simplifyBtn.style.display = 'flex';
+            }
+            
+            // Render user question and typing indicator
+            messagesDiv.innerHTML = `
+                <div class="user-message">
+                    <div class="user-bubble">${question}</div>
+                </div>
+                <div class="hollie-message">
+                    <div class="hollie-avatar">
+                        <img src="images/hollie.png" alt="Hollie">
+                    </div>
+                    <div class="hollie-bubble" id="hollieBubble">
+                        <div class="typing-indicator">
+                            <div class="typing-dots">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                            <span class="typing-text">Hollie is typing...</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Hide action buttons while loading
+            document.getElementById('chatActions').style.display = 'none';
+        }
+
+        // ==================== VIEW SWITCHING ====================
+        function showView(viewName) {
+            document.querySelectorAll('[class^="view-"]').forEach(v => v.classList.remove('active'));
+            document.getElementById(`view${viewName.charAt(0).toUpperCase() + viewName.slice(1)}`).classList.add('active');
+        }
+
+        // ==================== EVENT LISTENERS ====================
+        function setupEventListeners() {
+            // System card clicks
+            document.getElementById('systemsGrid').addEventListener('click', (e) => {
+                const card = e.target.closest('.system-card');
+                if (card) {
+                    const systemId = card.dataset.system;
+                    currentSystem = BODY_SYSTEMS.find(s => s.id === systemId);
+                    renderQuestions(currentSystem);
+                    showView('questions');
+                }
+            });
+            
+            // Question clicks
+            document.getElementById('questionsList').addEventListener('click', (e) => {
+                const btn = e.target.closest('.question-btn');
+                if (btn) {
+                    const questionIndex = parseInt(btn.dataset.question);
+                    currentQuestion = currentSystem.questions[questionIndex];
+                    currentQuestionIndex = questionIndex;
+                    renderChat(currentQuestion, currentSystem.id);
+                    showView('chat');
+                    loadFromCache(currentSystem.id, questionIndex);
+                }
+            });
+            
+            // Back buttons
+            document.getElementById('backToSystems').addEventListener('click', () => {
+                showView('systems');
+            });
+            
+            document.getElementById('backToQuestions').addEventListener('click', () => {
+                showView('questions');
+            });
+            
+            // Another question button
+            document.getElementById('anotherQuestionBtn').addEventListener('click', () => {
+                showView('questions');
+            });
+            
+            // Simplify button
+            document.getElementById('simplifyBtn').addEventListener('click', () => {
+                showSimplified();
+            });
+        }
+
+        // ==================== MESSAGE FORMATTING ====================
+        function formatMessage(content) {
+            // Convert bullet characters (•) to markdown list syntax
+            let processed = content.replace(/^[ \t]*•[ \t]*/gm, '- ');
+            
+            if (typeof marked !== 'undefined') {
+                return marked.parse(processed);
+            }
+            return processed
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+        }
+
+        // ==================== FIRESTORE CACHE FUNCTIONS ====================
+        
+        // Stores the current question's cached responses
+        let currentCachedData = null;
+        let currentQuestionIndex = 0;
+        let simplifiedAlreadyShown = false;
+
+        async function loadFromCache(systemId, questionIndex) {
+            const hollieBubble = document.getElementById('hollieBubble');
+
+            try {
+                const docId = `${systemId}_${questionIndex}`;
+                const doc = await firebase.firestore()
+                    .collection('connectionsCache')
+                    .doc(docId)
+                    .get();
+
+                if (!doc.exists) {
+                    hollieBubble.innerHTML = `<p style="color: #dc2626;">Content not yet available. Please try again later.</p>`;
+                    document.getElementById('chatActions').style.display = 'flex';
+                    document.getElementById('simplifyBtn').style.display = 'none';
+                    return;
+                }
+
+                const data = doc.data();
+                currentCachedData = data;
+                simplifiedAlreadyShown = false;
+
+                // Display the standard explanation
+                hollieBubble.innerHTML = formatMessage(data.standard);
+
+                // Show action buttons
+                document.getElementById('chatActions').style.display = 'flex';
+                document.getElementById('simplifyBtn').style.display = 'flex';
+
+                // Scroll into view
+                const chatMessages = document.getElementById('chatMessages');
+                const hollieMsg = hollieBubble.closest('.hollie-message');
+                if (hollieMsg) {
+                    const containerRect = chatMessages.getBoundingClientRect();
+                    const msgRect = hollieMsg.getBoundingClientRect();
+                    const targetScroll = msgRect.top - containerRect.top + chatMessages.scrollTop - 40;
+                    chatMessages.scrollTo({ top: targetScroll, behavior: 'smooth' });
+                }
+
+            } catch (error) {
+                console.error('Cache load error:', error);
+                hollieBubble.innerHTML = `<p style="color: #dc2626;">Sorry, couldn't load this explanation. Please try again.</p>`;
+                document.getElementById('chatActions').style.display = 'flex';
+                document.getElementById('simplifyBtn').style.display = 'none';
+            }
+        }
+
+        async function showSimplified() {
+            if (!currentCachedData || simplifiedAlreadyShown) return;
+
+            simplifiedAlreadyShown = true;
+
+            const chatMessages = document.getElementById('chatMessages');
+            const simplifyBtn = document.getElementById('simplifyBtn');
+
+            // Disable simplify button
+            simplifyBtn.disabled = true;
+            simplifyBtn.style.display = 'none';
+
+            // Add user request bubble
+            const userRequest = document.createElement('div');
+            userRequest.className = 'user-message';
+            userRequest.innerHTML = `<div class="user-bubble">Make it simpler please, Hollie! 😊</div>`;
+            chatMessages.appendChild(userRequest);
+
+            // Add Hollie's simplified response
+            const hollieResponse = document.createElement('div');
+            hollieResponse.className = 'hollie-message';
+            hollieResponse.innerHTML = `
+                <div class="hollie-avatar">
+                    <img src="images/hollie.png" alt="Hollie">
+                </div>
+                <div class="hollie-bubble">${formatMessage(currentCachedData.simplified)}</div>
+            `;
+            chatMessages.appendChild(hollieResponse);
+
+            // Scroll to show new content
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // ==================== GUIDED TOUR ====================
+        const TOUR_STEPS = [
+            {
+                target: '.system-card',
+                title: 'Choose a Body System',
+                desc: 'Pick a system like Cardiovascular, Respiratory, or Nervous. Each one has clinical A&P questions linked to what you\'ll see on the road.'
+            },
+            {
+                target: '.question-btn',
+                title: 'Pick a Question',
+                desc: 'Choose a clinical question — like "Why does a PE cause tachycardia?" — and Hollie will explain the A&P behind it.',
+                action: () => {
+                    const firstSystem = BODY_SYSTEMS[0];
+                    renderQuestions(firstSystem);
+                    showView('questions');
+                }
+            },
+            {
+                target: '.chat-header',
+                title: 'Hollie Explains',
+                desc: 'Hollie breaks down the anatomy and physiology in a clear, paramedic-friendly way with clinical connections throughout.',
+                action: () => {
+                    const firstSystem = BODY_SYSTEMS[0];
+                    const badge = document.getElementById('chatSystemBadge');
+                    badge.innerHTML = `<i class="bi ${firstSystem.icon}"></i> ${firstSystem.name}`;
+                    document.getElementById('chatMessages').innerHTML = '';
+                    showView('chat');
+                }
+            },
+            {
+                target: '#anotherQuestionBtn',
+                title: 'Ask Another Question',
+                desc: 'Finished reading? Tap here to go back to the question list and pick another topic from the same body system.',
+                action: () => {
+                    document.getElementById('chatActions').style.display = 'flex';
+                    document.getElementById('simplifyBtn').style.display = 'flex';
+                }
+            },
+            {
+                target: '#simplifyBtn',
+                title: 'Make it Simpler',
+                desc: 'If the explanation is too complex, ask Hollie to simplify it — she\'ll re-explain using everyday language and analogies.'
+            }
+        ];
+
+        const tour = {
+            step: 0,
+            overlay: document.getElementById('tourOverlay'),
+            spotlight: document.getElementById('tourSpotlight'),
+            tooltip: document.getElementById('tourTooltip'),
+            arrow: document.getElementById('tourArrow'),
+            title: document.getElementById('tourTitle'),
+            desc: document.getElementById('tourDesc'),
+            stepNum: document.getElementById('tourStepNum'),
+            stepLabel: document.getElementById('tourStepLabel'),
+            dots: document.getElementById('tourDots'),
+            nextBtn: document.getElementById('tourNextBtn'),
+            skipBtn: document.getElementById('tourSkipBtn'),
+            welcome: document.getElementById('tourWelcome'),
+            startBtn: document.getElementById('tourStartBtn'),
+            dismissBtn: document.getElementById('tourDismissBtn')
+        };
+
+        function initTour() {
+            try {
+                if (localStorage.getItem('connections_tourDone')) return;
+            } catch (e) {}
+
+            if (!document.querySelector('.system-card')) {
+                setTimeout(initTour, 500);
+                return;
+            }
+
+            tour.welcome.classList.add('active');
+
+            tour.startBtn.addEventListener('click', () => {
+                tour.welcome.classList.remove('active');
+                startTour();
+            });
+
+            tour.dismissBtn.addEventListener('click', () => {
+                tour.welcome.classList.remove('active');
+                markTourDone();
+            });
+        }
+
+        function startTour() {
+            tour.step = 0;
+            tour.overlay.classList.add('active');
+
+            tour.dots.innerHTML = TOUR_STEPS.map((_, i) =>
+                `<div class="tour-dot ${i === 0 ? 'active' : ''}" data-dot="${i}"></div>`
+            ).join('');
+
+            tour.nextBtn.addEventListener('click', nextTourStep);
+            tour.skipBtn.addEventListener('click', endTour);
+
+            tour.overlay.addEventListener('click', (e) => {
+                if (e.target === tour.overlay || e.target === tour.spotlight) {
+                    e.stopPropagation();
+                }
+            });
+
+            showTourStep(0);
+        }
+
+        function showTourStep(idx) {
+            const step = TOUR_STEPS[idx];
+
+            if (step.action) {
+                step.action();
+            }
+
+            tour.spotlight.style.transition = 'none';
+            tour.spotlight.style.top = '-9999px';
+            tour.tooltip.style.visibility = 'hidden';
+
+            setTimeout(() => {
+                const targetEl = document.querySelector(step.target);
+                if (!targetEl) { nextTourStep(); return; }
+
+                const preRect = targetEl.getBoundingClientRect();
+                const inView = preRect.top >= 0 && preRect.bottom <= window.innerHeight;
+
+                if (!inView) {
+                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+
+                const delay = inView ? 60 : 550;
+
+                setTimeout(() => {
+                    tour.stepNum.textContent = idx + 1;
+                    tour.stepLabel.textContent = `Step ${idx + 1} of ${TOUR_STEPS.length}`;
+                    tour.title.textContent = step.title;
+                    tour.desc.textContent = step.desc;
+
+                    if (idx === TOUR_STEPS.length - 1) {
+                        tour.nextBtn.innerHTML = 'Get started <i class="bi bi-check-lg"></i>';
+                    } else {
+                        tour.nextBtn.innerHTML = 'Next <i class="bi bi-arrow-right"></i>';
+                    }
+
+                    tour.dots.querySelectorAll('.tour-dot').forEach((dot, i) => {
+                        dot.classList.remove('active', 'done');
+                        if (i < idx) dot.classList.add('done');
+                        if (i === idx) dot.classList.add('active');
+                    });
+
+                    const rect = targetEl.getBoundingClientRect();
+                    const pad = 6;
+                    tour.spotlight.style.top = (rect.top - pad) + 'px';
+                    tour.spotlight.style.left = (rect.left - pad) + 'px';
+                    tour.spotlight.style.width = (rect.width + pad * 2) + 'px';
+                    tour.spotlight.style.height = (rect.height + pad * 2) + 'px';
+                    void tour.spotlight.offsetWidth;
+                    tour.spotlight.style.transition = 'all 0.35s cubic-bezier(0.32, 0.72, 0, 1)';
+
+                    tour.tooltip.style.visibility = 'visible';
+                    tour.tooltip.style.animation = 'none';
+                    void tour.tooltip.offsetWidth;
+                    tour.tooltip.style.animation = 'tourFadeIn 0.3s ease';
+
+                    const spotBottom = rect.bottom + pad;
+                    const spaceBelow = window.innerHeight - spotBottom;
+                    const tooltipHeight = 200;
+
+                    if (spaceBelow > tooltipHeight + 20) {
+                        tour.tooltip.style.top = (spotBottom + 12) + 'px';
+                        tour.tooltip.style.bottom = 'auto';
+                        tour.arrow.className = 'tour-tooltip-arrow arrow-top';
+                    } else {
+                        tour.tooltip.style.top = 'auto';
+                        tour.tooltip.style.bottom = (window.innerHeight - rect.top + pad + 12) + 'px';
+                        tour.arrow.className = 'tour-tooltip-arrow arrow-bottom';
+                    }
+
+                    let tooltipLeft = rect.left + rect.width / 2 - 160;
+                    tooltipLeft = Math.max(16, Math.min(tooltipLeft, window.innerWidth - 336));
+                    tour.tooltip.style.left = tooltipLeft + 'px';
+
+                    const arrowLeft = Math.max(20, Math.min(rect.left + rect.width / 2 - tooltipLeft - 7, 280));
+                    tour.arrow.style.left = arrowLeft + 'px';
+                }, delay);
+            }, 150);
+        }
+
+        function nextTourStep() {
+            tour.step++;
+            if (tour.step >= TOUR_STEPS.length) {
+                endTour();
+            } else {
+                showTourStep(tour.step);
+            }
+        }
+
+        function endTour() {
+            tour.overlay.classList.remove('active');
+            markTourDone();
+            document.getElementById('chatActions').style.display = 'none';
+            showView('systems');
+        }
+
+        function markTourDone() {
+            try { localStorage.setItem('connections_tourDone', '1'); } catch (e) {}
+        }
+
+        // ==================== INITIALIZE ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            initClinicalConnections();
+            setTimeout(initTour, 600);
+        });
+    </script>
+    
+    <!-- Standardised script loading -->
+    <script src="js/app.js"></script>
+    <script src="js/menu-v2.js"></script>
+    <script src="js/pro-guard.js"></script>
+    <script src="js/activity-logger.js"></script>
+    <script src="js/upgrade-modal.js"></script>
+</body>
+</html>
