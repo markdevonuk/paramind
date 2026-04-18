@@ -1227,19 +1227,26 @@
                 again:     again
             };
 
-            console.log('[FlashCards] Writing to: users/' + state.currentUser.uid + '/flashcardSessions');
-            console.log('[FlashCards] Data:', JSON.stringify(sessionData));
+            // DIAGNOSTIC: write to user doc directly (uses existing proven write rule)
+            var testPath = 'users/' + state.currentUser.uid;
+            console.log('[FlashCards] TEST: Writing to user doc:', testPath);
 
             db.collection('users').doc(state.currentUser.uid)
-                .collection('flashcardSessions')
-                .add(sessionData)
+                .update({ _fcTest: sessionData.deckId + '_' + sessionData.pct })
+                .then(function () {
+                    console.log('[FlashCards] TEST PASSED: User doc write works — auth is fine');
+                    console.log('[FlashCards] Now trying subcollection write...');
+                    return db.collection('users').doc(state.currentUser.uid)
+                        .collection('flashcardSessions')
+                        .add(sessionData);
+                })
                 .then(function (docRef) {
-                    console.log('[FlashCards] Saved OK, doc ID:', docRef.id);
+                    console.log('[FlashCards] Subcollection write OK, doc ID:', docRef ? docRef.id : 'n/a');
                     note.innerHTML =
                         '<i class="bi bi-cloud-check-fill" style="color:var(--color-teal)"></i> Progress saved';
                 })
                 .catch(function (err) {
-                    console.error('[FlashCards] Save failed:', err.code, err.message);
+                    console.error('[FlashCards] Write failed at step:', err.code, err.message);
                     note.style.color = '#dc2626';
                     note.innerHTML =
                         '<i class="bi bi-exclamation-triangle-fill"></i> Save failed: ' + err.message;
