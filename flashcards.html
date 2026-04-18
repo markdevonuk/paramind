@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Flash Cards | Paramind</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/menu-v2.css">
+
+    <style>
+        /* ==================== AUTH LOADING OVERLAY ==================== */
+        #authOverlay {
+            position: fixed;
+            inset: 0;
+            background: var(--color-gray-50);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1rem;
+            font-family: var(--font-primary);
+            transition: opacity 0.3s ease;
+        }
+        #authOverlay .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--color-gray-200);
+            border-top-color: var(--color-teal);
+            border-radius: 50%;
+            animation: fcSpin 0.8s linear infinite;
+        }
+        #authOverlay span {
+            color: var(--color-gray-500);
+            font-size: 0.9rem;
+        }
+        @keyframes fcSpin { to { transform: rotate(360deg); } }
+
+        /* ==================== PAGE BASE ==================== */
+        .flashcards-page {
+            min-height: 100vh;
+            background: var(--color-gray-50);
+        }
+
+        .fc-container {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 1rem 1rem 6rem 1rem;
+        }
+
+        .page-header {
+            text-align: center;
+            padding: 1.5rem 0 1rem;
+        }
+        .page-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--color-gray-900);
+            margin-bottom: 0.35rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .page-header p {
+            color: var(--color-gray-600);
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        /* ==================== VIEWS ==================== */
+        .fc-view { display: none; }
+        .fc-view.active { display: block; }
+
+        /* ==================== DECK SELECTOR ==================== */
+        .decks-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .deck-card {
+            background: var(--color-white);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--color-gray-200);
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: border-color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-base);
+            box-shadow: var(--shadow-sm);
+            position: relative;
+        }
+        .deck-card:hover:not(.deck-locked) {
+            border-color: var(--color-teal);
+            box-shadow: 0 4px 16px rgba(43,138,156,0.18);
+            transform: translateY(-1px);
+        }
+        .deck-card.deck-locked {
+            opacity: 0.65;
+            cursor: default;
+        }
+
+        .deck-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .deck-info { flex: 1; min-width: 0; }
+        .deck-title {
+            font-size: 0.975rem;
+            font-weight: 700;
+            color: var(--color-gray-900);
+            margin-bottom: 0.2rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .deck-meta {
+            font-size: 0.78rem;
+            color: var(--color-gray-500);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .deck-meta-count {
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        .badge-free {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: var(--radius-full);
+            background: #d1fae5;
+            color: #065f46;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .badge-pro {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--color-teal), #237282);
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .deck-last-score {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--color-teal);
+            background: rgba(43,138,156,0.08);
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+        }
+
+        .deck-chevron { color: var(--color-gray-400); font-size: 1rem; flex-shrink: 0; }
+        .deck-lock    { color: var(--color-gray-400); font-size: 1rem; flex-shrink: 0; }
+
+        .upgrade-banner {
+            background: linear-gradient(135deg, var(--color-teal) 0%, #237282 100%);
+            border-radius: var(--radius-xl);
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            margin-top: 0.25rem;
+            cursor: pointer;
+            transition: opacity var(--transition-fast);
+        }
+        .upgrade-banner:hover { opacity: 0.92; }
+        .upgrade-banner i { font-size: 1.6rem; color: rgba(255,255,255,0.9); flex-shrink: 0; }
+        .upgrade-banner-text strong { font-size: 0.9rem; font-weight: 700; color: #fff; display: block; margin-bottom: 0.1rem; }
+        .upgrade-banner-text span   { font-size: 0.8rem; color: rgba(255,255,255,0.82); }
+
+        /* ==================== SESSION HEADER ==================== */
+        .session-header { padding: 1.25rem 0 0.5rem; }
+
+        .session-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .session-deck-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--color-teal);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .session-progress-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--color-gray-500);
+        }
+
+        .progress-track {
+            height: 4px;
+            background: var(--color-gray-200);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            margin-bottom: 0.875rem;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-teal), #3DA4B8);
+            border-radius: var(--radius-full);
+            transition: width 0.4s ease;
+        }
+
+        /* Running score chips */
+        .running-score {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 0.875rem;
+        }
+        .score-chip {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .chip-gotit { background: #d1fae5; color: #065f46; }
+        .chip-hard  { background: #fef3c7; color: #92400e; }
+        .chip-again { background: #fee2e2; color: #991b1b; }
+
+        /* ==================== FLASH CARD ==================== */
+        .flashcard-wrap {
+            perspective: 1600px;
+            height: 420px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+        }
+
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .flashcard-wrap.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+
+        .fc-face {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            padding: 1.75rem 1.5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--color-gray-200);
+            background: var(--color-white);
+        }
+        .fc-front {
+            background: linear-gradient(155deg, var(--color-white) 0%, #e8f5f7 100%);
+        }
+        .fc-back {
+            transform: rotateY(180deg);
+        }
+
+        .face-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        .fc-front .face-label { color: var(--color-gray-400); }
+        .fc-back  .face-label { color: var(--color-teal); }
+
+        .card-question {
+            font-size: 1.2rem;
+            font-weight: 600;
+            line-height: 1.45;
+            color: var(--color-gray-900);
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+        .card-answer {
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: var(--color-gray-900);
+            margin-bottom: 0.875rem;
+            line-height: 1.3;
+        }
+        .card-explanation {
+            font-size: 0.875rem;
+            line-height: 1.65;
+            color: var(--color-gray-600);
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .tap-hint {
+            position: absolute;
+            bottom: 14px;
+            right: 18px;
+            font-size: 0.68rem;
+            color: var(--color-gray-400);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-weight: 500;
+            pointer-events: none;
+        }
+
+        /* Hint */
+        .hint-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(255,255,255,0.8);
+            border: 1px solid var(--color-gray-300);
+            color: var(--color-gray-600);
+            font-size: 0.78rem;
+            font-weight: 600;
+            font-family: var(--font-primary);
+            padding: 6px 14px;
+            border-radius: var(--radius-full);
+            margin-top: 0.875rem;
+            align-self: flex-start;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        .hint-chip:hover {
+            background: rgba(43,138,156,0.08);
+            color: var(--color-teal);
+            border-color: var(--color-teal);
+        }
+
+        .hint-text {
+            display: none;
+            margin-top: 0.75rem;
+            font-size: 0.83rem;
+            color: var(--color-gray-600);
+            font-style: italic;
+            padding: 0.65rem 0.875rem;
+            background: rgba(255,255,255,0.7);
+            border-left: 3px solid var(--color-teal);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            line-height: 1.5;
+        }
+        .hint-text.visible { display: block; }
+
+        /* ==================== ASSESSMENT BUTTONS ==================== */
+        .assess-prompt {
+            font-size: 0.78rem;
+            color: var(--color-gray-400);
+            text-align: center;
+            margin-bottom: 0.6rem;
+            font-weight: 500;
+        }
+        .assess-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.6rem;
+        }
+        .assess-btn {
+            padding: 0.875rem 0.5rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-gray-200);
+            background: var(--color-white);
+            font-family: var(--font-primary);
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.35rem;
+            color: var(--color-gray-600);
+            box-shadow: var(--shadow-sm);
+        }
+        .assess-btn i { font-size: 1.25rem; }
+        .assess-btn:active { transform: scale(0.97); }
+        .btn-again:hover { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
+        .btn-hard:hover  { background: #fffbeb; border-color: #fde68a; color: #d97706; }
+        .btn-gotit:hover { background: rgba(43,138,156,0.08); border-color: var(--color-teal); color: var(--color-teal); }
+
+        /* ==================== RESULTS ==================== */
+        .results-header {
+            text-align: center;
+            padding: 2rem 0 1.25rem;
+        }
+        .results-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 5px solid var(--color-teal);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            background: var(--color-white);
+            box-shadow: var(--shadow-md);
+        }
+        .results-pct {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--color-gray-900);
+            line-height: 1;
+        }
+        .results-pct-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--color-gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .results-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--color-gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .improve-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.83rem;
+            font-weight: 600;
+            padding: 5px 14px;
+            border-radius: var(--radius-full);
+        }
+        .improve-up    { background: #d1fae5; color: #065f46; }
+        .improve-down  { background: #fee2e2; color: #991b1b; }
+        .improve-same  { background: var(--color-gray-100); color: var(--color-gray-600); }
+        .improve-first { background: rgba(43,138,156,0.1); color: var(--color-teal); }
+
+        .results-breakdown {
+            background: var(--color-white);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--color-gray-200);
+            padding: 1.25rem;
+            margin: 1rem 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.75rem;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+        .breakdown-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--color-gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 0.25rem;
+        }
+        .breakdown-count {
+            font-size: 1.75rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .count-gotit { color: #059669; }
+        .count-hard  { color: #d97706; }
+        .count-again { color: #dc2626; }
+
+        .saving-note {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--color-gray-400);
+            margin: 0.75rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem;
+            min-height: 1.5rem;
+        }
+
+        .results-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .btn-fc-primary {
+            background: linear-gradient(135deg, var(--color-teal) 0%, #237282 100%);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-lg);
+            padding: 0.9rem 1.5rem;
+            font-family: var(--font-primary);
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: opacity var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            box-shadow: var(--shadow-md);
+        }
+        .btn-fc-primary:hover { opacity: 0.9; }
+
+        .btn-fc-outline {
+            background: var(--color-white);
+            color: var(--color-teal);
+            border: 2px solid var(--color-teal);
+            border-radius: var(--radius-lg);
+            padding: 0.8rem 1.5rem;
+            font-family: var(--font-primary);
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+        }
+        .btn-fc-outline:hover { background: rgba(43,138,156,0.06); }
+    </style>
+</head>
+
+<body class="flashcards-page">
+
+    <!-- ==================== AUTH LOADING OVERLAY ==================== -->
+    <div id="authOverlay">
+        <div class="spinner"></div>
+        <span>Loading...</span>
+    </div>
+
+    <!-- ==================== NAV ==================== -->
+    <nav class="member-navbar">
+        <div class="container">
+            <span class="brand-text">
+                <a class="navbar-brand" href="landing.html">
+                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
+                </a>
+            </span>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="fc-container">
+
+        <!-- ==================== VIEW: DECK SELECTOR ==================== -->
+        <div class="fc-view active" id="viewDecks">
+            <div class="page-header">
+                <h1><i class="bi bi-lightning-charge-fill" style="color:var(--color-teal)"></i> Flash Cards</h1>
+                <p>Choose a deck to start revising</p>
+            </div>
+            <div class="decks-grid" id="decksGrid">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- ==================== VIEW: CARD SESSION ==================== -->
+        <div class="fc-view" id="viewSession">
+
+            <div class="session-header">
+                <div class="session-top-row">
+                    <div class="session-deck-label">
+                        <i class="bi bi-lightning-charge-fill"></i>
+                        <span id="sessionDeckLabel"></span>
+                    </div>
+                    <div class="session-progress-label" id="sessionProgressLabel">Card 1 of 20</div>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+                </div>
+                <div class="running-score">
+                    <div class="score-chip chip-gotit"><i class="bi bi-check-circle-fill"></i> <span id="chipGotIt">0</span></div>
+                    <div class="score-chip chip-hard"><i class="bi bi-clock-fill"></i> <span id="chipHard">0</span></div>
+                    <div class="score-chip chip-again"><i class="bi bi-x-circle-fill"></i> <span id="chipAgain">0</span></div>
+                </div>
+            </div>
+
+            <!-- Flash Card -->
+            <div class="flashcard-wrap" id="flashcard">
+                <div class="flashcard-inner">
+
+                    <!-- Front -->
+                    <div class="fc-face fc-front">
+                        <div class="face-label">Question</div>
+                        <div class="card-question" id="cardQuestion"></div>
+                        <button class="hint-chip" id="hintChip">
+                            <i class="bi bi-lightbulb"></i> Show hint
+                        </button>
+                        <div class="hint-text" id="hintText"></div>
+                        <div class="tap-hint"><i class="bi bi-hand-index"></i> Tap to reveal</div>
+                    </div>
+
+                    <!-- Back -->
+                    <div class="fc-face fc-back">
+                        <div class="face-label">Answer</div>
+                        <div class="card-answer" id="cardAnswer"></div>
+                        <div class="card-explanation" id="cardExplanation"></div>
+                        <div class="tap-hint"><i class="bi bi-arrow-counterclockwise"></i> Tap to flip back</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="assess-prompt">How well did you know this?</div>
+            <div class="assess-row">
+                <button class="assess-btn btn-again" id="btnAgain">
+                    <i class="bi bi-x-circle"></i>Again
+                </button>
+                <button class="assess-btn btn-hard" id="btnHard">
+                    <i class="bi bi-clock-history"></i>Hard
+                </button>
+                <button class="assess-btn btn-gotit" id="btnGotIt">
+                    <i class="bi bi-check-circle"></i>Got it
+                </button>
+            </div>
+
+        </div>
+
+        <!-- ==================== VIEW: RESULTS ==================== -->
+        <div class="fc-view" id="viewResults">
+
+            <div class="results-header">
+                <div class="results-circle">
+                    <div class="results-pct" id="resultsPct">0%</div>
+                    <div class="results-pct-label">Score</div>
+                </div>
+                <div class="results-title" id="resultsTitle">Session Complete!</div>
+                <div id="improveBadge"></div>
+            </div>
+
+            <div class="results-breakdown">
+                <div>
+                    <div class="breakdown-label">Got it</div>
+                    <div class="breakdown-count count-gotit" id="resGotIt">0</div>
+                </div>
+                <div>
+                    <div class="breakdown-label">Hard</div>
+                    <div class="breakdown-count count-hard" id="resHard">0</div>
+                </div>
+                <div>
+                    <div class="breakdown-label">Again</div>
+                    <div class="breakdown-count count-again" id="resAgain">0</div>
+                </div>
+            </div>
+
+            <div class="saving-note" id="savingNote">
+                <i class="bi bi-cloud-arrow-up"></i> Saving your progress&hellip;
+            </div>
+
+            <div class="results-actions">
+                <button class="btn-fc-primary" id="btnPlayAgain">
+                    <i class="bi bi-arrow-clockwise"></i> Play Again
+                </button>
+                <button class="btn-fc-outline" id="btnBackToDecks">
+                    <i class="bi bi-grid-3x3-gap"></i> Back to Decks
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ==================== SCRIPTS ==================== -->
+    <script src="js/app.js"></script>
+    <script src="js/menu-v2.js"></script>
+
+    <script>
+    /* ============================================================
+       PARAMIND — FLASH CARDS
+       flashcards.html  |  v1.0
+       Deck: Cardiovascular A&P (free)
+       Firestore: users/{uid}/flashcardSessions
+    ============================================================ */
+
+    (function () {
+        'use strict';
+
+        // ==================== DECK DATA ====================
+        var DECKS = [
+            {
+                id: 'cardiovascular',
+                name: 'Cardiovascular A&P',
+                icon: 'bi-heart-pulse',
+                iconColour: '#ef4444',
+                iconBg: '#fef2f2',
+                pro: false,
+                cards: [
+                    {
+                        id: 'cv-01',
+                        front: 'Which chamber of the heart receives deoxygenated blood returning from the body?',
+                        answer: 'Right atrium',
+                        explanation: 'Deoxygenated blood returns from the body via the superior and inferior vena cavae into the right atrium. It then flows through the tricuspid valve into the right ventricle, which pumps it to the lungs via the pulmonary artery.',
+                        hint: 'Think about the first chamber blood enters after its journey around the body.'
+                    },
+                    {
+                        id: 'cv-02',
+                        front: 'What is the function of the mitral (bicuspid) valve?',
+                        answer: 'It prevents backflow of blood from the left ventricle into the left atrium',
+                        explanation: 'During ventricular contraction (systole), the mitral valve closes to stop blood flowing backwards. Its two leaflets are anchored by chordae tendineae and papillary muscles, which stop the valve inverting under pressure.',
+                        hint: 'It sits on the left side of the heart, between two chambers.'
+                    },
+                    {
+                        id: 'cv-03',
+                        front: 'What is the role of the sinoatrial (SA) node?',
+                        answer: 'It is the heart\'s natural pacemaker, generating the electrical impulse that initiates each heartbeat',
+                        explanation: 'Located in the right atrial wall, the SA node fires spontaneously at 60\u2013100 times per minute. The impulse spreads across both atria causing them to contract, before reaching the atrioventricular (AV) node.',
+                        hint: 'Think about where the electrical signal that drives the heart originates.'
+                    },
+                    {
+                        id: 'cv-04',
+                        front: 'What is cardiac output, and how is it calculated?',
+                        answer: 'The volume of blood pumped per minute \u2014 calculated as heart rate \u00d7 stroke volume',
+                        explanation: 'A typical resting adult has a heart rate of around 70 bpm and a stroke volume of around 70 ml, giving a cardiac output of approximately 4.9 litres per minute. Cardiac output increases significantly during exercise.',
+                        hint: 'It is the product of how fast the heart beats and how much it ejects per beat.'
+                    },
+                    {
+                        id: 'cv-05',
+                        front: 'What is the normal resting heart rate range for an adult?',
+                        answer: '60\u2013100 beats per minute',
+                        explanation: 'Below 60 bpm is defined as bradycardia; above 100 bpm is tachycardia. In well-conditioned athletes, a resting rate below 60 bpm may be entirely normal due to a higher stroke volume.',
+                        hint: 'This is the range measured at rest at the radial pulse or on ECG monitoring.'
+                    },
+                    {
+                        id: 'cv-06',
+                        front: 'What does the QRS complex represent on an ECG?',
+                        answer: 'Ventricular depolarisation \u2014 the electrical activation that triggers ventricular contraction',
+                        explanation: 'The QRS complex follows the P wave (atrial depolarisation) and precedes the T wave (ventricular repolarisation). A normal QRS duration is less than 120 milliseconds \u2014 three small squares on standard ECG paper.',
+                        hint: 'It is the tallest, sharpest waveform on a normal ECG trace.'
+                    },
+                    {
+                        id: 'cv-07',
+                        front: 'What is the pericardium?',
+                        answer: 'A double-layered fibrous sac that surrounds and protects the heart',
+                        explanation: 'The outer fibrous layer anchors the heart within the mediastinum. The inner serous layer has two sub-layers (parietal and visceral) with a small amount of pericardial fluid between them, reducing friction during cardiac movement.',
+                        hint: 'Think of it as the heart\'s outer protective casing.'
+                    },
+                    {
+                        id: 'cv-08',
+                        front: 'What is stroke volume?',
+                        answer: 'The volume of blood ejected from the left ventricle with each heartbeat (approximately 70 ml at rest)',
+                        explanation: 'Stroke volume is influenced by three factors: preload (how full the ventricle is), afterload (the resistance to ejection), and myocardial contractility (the intrinsic strength of the heart muscle).',
+                        hint: 'It is measured in millilitres and represents one heartbeat\'s worth of output.'
+                    },
+                    {
+                        id: 'cv-09',
+                        front: 'What is preload?',
+                        answer: 'The degree of stretch in the ventricular wall at end-diastole, determined by the volume of blood filling the ventricle',
+                        explanation: 'Greater ventricular filling produces greater stretch of the myocardial fibres. According to the Frank\u2013Starling mechanism, this results in a more forceful subsequent contraction, up to a physiological limit.',
+                        hint: 'Think of it as how full the ventricle is just before it contracts.'
+                    },
+                    {
+                        id: 'cv-10',
+                        front: 'What is afterload?',
+                        answer: 'The resistance the ventricle must overcome in order to eject blood into the circulation',
+                        explanation: 'In the left ventricle, afterload is primarily determined by systemic vascular resistance. When afterload is high (for example in chronic hypertension), the heart must generate greater pressure to eject blood, increasing its workload.',
+                        hint: 'Think of it as the pressure the heart has to pump against.'
+                    },
+                    {
+                        id: 'cv-11',
+                        front: 'What is the role of the AV node?',
+                        answer: 'It receives the impulse from the SA node and introduces a short delay before passing it to the ventricles',
+                        explanation: 'This delay of approximately 0.1 seconds allows the atria to complete contraction and fully empty into the ventricles before ventricular contraction begins. Without it, the atria and ventricles would contract simultaneously, reducing filling efficiency.',
+                        hint: 'It acts as a gatekeeper between the atria and the ventricles.'
+                    },
+                    {
+                        id: 'cv-12',
+                        front: 'What is the aorta?',
+                        answer: 'The largest artery in the body \u2014 it receives oxygenated blood from the left ventricle and distributes it to the systemic circulation',
+                        explanation: 'The aorta ascends from the left ventricle, arches to give branches supplying the head and upper limbs, then descends through the thorax and abdomen before dividing into the common iliac arteries at the level of L4.',
+                        hint: 'It is the main arterial highway leading out of the left ventricle.'
+                    },
+                    {
+                        id: 'cv-13',
+                        front: 'What is systole?',
+                        answer: 'The phase of the cardiac cycle during which the ventricles contract and eject blood',
+                        explanation: 'During systole, the mitral and tricuspid valves close (producing the first heart sound, S1), and the aortic and pulmonary valves open. Blood is ejected into the aorta and pulmonary artery. Systolic blood pressure reflects peak arterial pressure during this phase.',
+                        hint: 'It is the active squeezing phase of the cardiac cycle.'
+                    },
+                    {
+                        id: 'cv-14',
+                        front: 'What is diastole?',
+                        answer: 'The relaxation and filling phase of the cardiac cycle, during which the ventricles refill with blood',
+                        explanation: 'During diastole, the aortic and pulmonary valves close (producing the second heart sound, S2), and the mitral and tricuspid valves open. Diastolic blood pressure reflects arterial pressure during this resting phase.',
+                        hint: 'It is the resting, filling phase between contractions.'
+                    },
+                    {
+                        id: 'cv-15',
+                        front: 'What do the pulmonary veins carry, and where do they drain?',
+                        answer: 'They carry oxygenated blood from the lungs and drain into the left atrium',
+                        explanation: 'The four pulmonary veins (two from each lung) are the only veins in the body that carry oxygenated blood \u2014 the opposite of what the usual \u201cvein = deoxygenated\u201d rule suggests. This is a common exam catch.',
+                        hint: 'This is the one set of veins that breaks the usual rule about veins carrying deoxygenated blood.'
+                    },
+                    {
+                        id: 'cv-16',
+                        front: 'What does the P wave represent on an ECG?',
+                        answer: 'Atrial depolarisation \u2014 the electrical activation spreading across both atria',
+                        explanation: 'The P wave is the first small, rounded deflection on a normal ECG. A normal P wave duration is less than 120 ms. Absent P waves with an irregular rhythm may indicate atrial fibrillation.',
+                        hint: 'It is the small, rounded bump that appears just before the QRS complex.'
+                    },
+                    {
+                        id: 'cv-17',
+                        front: 'What is the Frank\u2013Starling mechanism?',
+                        answer: 'Greater stretch of the myocardial fibres at end-diastole produces a greater force of the subsequent ventricular contraction',
+                        explanation: 'This intrinsic property allows the heart to automatically match output to venous return. If more blood fills the ventricle, the heart contracts more forcefully to expel it, preventing abnormal blood accumulation under normal conditions.',
+                        hint: 'The heart\u2019s ability to automatically pump out what it receives.'
+                    },
+                    {
+                        id: 'cv-18',
+                        front: 'What is the role of the coronary arteries?',
+                        answer: 'They supply oxygenated blood to the myocardium \u2014 the heart muscle itself',
+                        explanation: 'The two main coronary arteries arise from the aortic root just above the aortic valve. The left coronary artery divides into the left anterior descending (LAD) and circumflex branches. Coronary perfusion occurs predominantly during diastole.',
+                        hint: 'The heart needs its own dedicated blood supply, separate from the blood it pumps.'
+                    },
+                    {
+                        id: 'cv-19',
+                        front: 'What is the Bundle of His?',
+                        answer: 'Specialised conduction fibres that carry the electrical impulse from the AV node to the right and left bundle branches',
+                        explanation: 'After passing through the AV node, the impulse travels down the Bundle of His through the interventricular septum, then divides into the right and left bundle branches before spreading via the Purkinje fibres to depolarise the ventricular myocardium.',
+                        hint: 'It is the electrical cable connecting the AV node to the ventricular conduction system.'
+                    },
+                    {
+                        id: 'cv-20',
+                        front: 'What are Purkinje fibres, and what is their function?',
+                        answer: 'Specialised cardiac conduction fibres that rapidly spread the electrical impulse throughout the ventricular myocardium, ensuring a coordinated contraction',
+                        explanation: 'Purkinje fibres branch from the right and left bundle branches and spread through the inner walls of both ventricles. Their high conduction velocity means the entire ventricular myocardium depolarises almost simultaneously, producing an effective pumping action.',
+                        hint: 'They are the final step in the heart\u2019s electrical conduction pathway.'
+                    }
+                ]
+            }
+            // Future decks added here
+        ];
+
+        // ==================== STATE ====================
+        var state = {
+            userIsPro:    false,
+            currentUser:  null,
+            currentDeck:  null,
+            cards:        [],
+            cardIndex:    0,
+            scores:       { gotit: 0, hard: 0, again: 0 },
+            hintVisible:  false,
+            lastSession:  null
+        };
+
+        var db;
+
+        // ==================== HELPERS ====================
+        function shuffle(arr) {
+            var a = arr.slice();
+            for (var i = a.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var t = a[i]; a[i] = a[j]; a[j] = t;
+            }
+            return a;
+        }
+
+        function showView(name) {
+            document.querySelectorAll('.fc-view').forEach(function (el) {
+                el.classList.remove('active');
+            });
+            var el = document.getElementById('view' + name.charAt(0).toUpperCase() + name.slice(1));
+            if (el) el.classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function removeOverlay() {
+            var overlay = document.getElementById('authOverlay');
+            if (!overlay) return;
+            overlay.style.opacity = '0';
+            setTimeout(function () { overlay.remove(); }, 320);
+        }
+
+        // ==================== FIREBASE READY ====================
+        function waitForFirebase(cb) {
+            var attempts = 0;
+            function check() {
+                if (typeof firebase !== 'undefined' &&
+                    firebase.auth && firebase.firestore &&
+                    firebase.apps && firebase.apps.length > 0) {
+                    db = firebase.firestore();
+                    cb(true);
+                    return;
+                }
+                if (++attempts > 70) { cb(false); return; }
+                setTimeout(check, 200);
+            }
+            check();
+        }
+
+        // ==================== AUTH + INIT ====================
+        function initPage() {
+            waitForFirebase(function (ready) {
+                if (!ready) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                var resolved = false;
+
+                var safariTimeout = setTimeout(function () {
+                    if (resolved) return;
+                    var current = firebase.auth().currentUser;
+                    if (current) {
+                        resolved = true;
+                        handleUser(current);
+                    } else {
+                        resolved = true;
+                        window.location.href = 'login.html';
+                    }
+                }, 3000);
+
+                firebase.auth().onAuthStateChanged(function (user) {
+                    if (resolved) return;
+                    if (user) {
+                        resolved = true;
+                        clearTimeout(safariTimeout);
+                        handleUser(user);
+                    }
+                    // null — wait for Safari timeout
+                });
+            });
+        }
+
+        function handleUser(user) {
+            state.currentUser = user;
+            db.collection('users').doc(user.uid).get()
+                .then(function (doc) {
+                    if (doc.exists) {
+                        var d = doc.data();
+                        state.userIsPro = d.subscriptionStatus === 'active' ||
+                                          d.subscriptionStatus === 'pro'    ||
+                                          d.isPro === true;
+                    }
+                    renderDecks();
+                    removeOverlay();
+                    showView('decks');
+                })
+                .catch(function () {
+                    renderDecks();
+                    removeOverlay();
+                    showView('decks');
+                });
+        }
+
+        // ==================== DECK SELECTOR ====================
+        function renderDecks() {
+            var grid = document.getElementById('decksGrid');
+            var html = '';
+
+            DECKS.forEach(function (deck) {
+                var locked = deck.pro && !state.userIsPro;
+                html +=
+                    '<div class="deck-card' + (locked ? ' deck-locked' : '') + '"' +
+                    (locked ? '' : ' onclick="FC.startDeck(\'' + deck.id + '\')"') + '>' +
+                    '<div class="deck-icon" style="background:' + deck.iconBg + ';color:' + deck.iconColour + '">' +
+                        '<i class="bi ' + deck.icon + '"></i>' +
+                    '</div>' +
+                    '<div class="deck-info">' +
+                        '<div class="deck-title">' + deck.name + '</div>' +
+                        '<div class="deck-meta">' +
+                            '<span class="deck-meta-count"><i class="bi bi-card-list"></i> ' + deck.cards.length + ' cards</span>' +
+                            '<span class="' + (deck.pro ? 'badge-pro' : 'badge-free') + '">' + (deck.pro ? 'PRO' : 'FREE') + '</span>' +
+                            '<span class="deck-last-score" id="ls_' + deck.id + '" style="display:none"></span>' +
+                        '</div>' +
+                    '</div>' +
+                    (locked
+                        ? '<i class="bi bi-lock-fill deck-lock"></i>'
+                        : '<i class="bi bi-chevron-right deck-chevron"></i>') +
+                    '</div>';
+            });
+
+            if (!state.userIsPro) {
+                html +=
+                    '<div class="upgrade-banner" onclick="window.location.href=\'upgrade.html\'">' +
+                    '<i class="bi bi-stars"></i>' +
+                    '<div class="upgrade-banner-text">' +
+                        '<strong>Unlock all 10 decks with Pro</strong>' +
+                        '<span>ECG, Pathophysiology, Clinical Signs &amp; more</span>' +
+                    '</div>' +
+                    '</div>';
+            }
+
+            grid.innerHTML = html;
+
+            // Load last scores asynchronously
+            loadLastScores();
+        }
+
+        function loadLastScores() {
+            if (!state.currentUser) return;
+            db.collection('users').doc(state.currentUser.uid)
+                .collection('flashcardSessions')
+                .orderBy('timestamp', 'desc')
+                .limit(50)
+                .get()
+                .then(function (snap) {
+                    var seen = {};
+                    snap.docs.forEach(function (doc) {
+                        var d = doc.data();
+                        if (!seen[d.deckId]) {
+                            seen[d.deckId] = d.pct;
+                        }
+                    });
+                    Object.keys(seen).forEach(function (deckId) {
+                        var chip = document.getElementById('ls_' + deckId);
+                        if (chip) {
+                            chip.textContent = 'Last: ' + seen[deckId] + '%';
+                            chip.style.display = 'inline-flex';
+                        }
+                    });
+                })
+                .catch(function () {});
+        }
+
+        // ==================== START DECK ====================
+        function startDeck(deckId) {
+            var deck = DECKS.find(function (d) { return d.id === deckId; });
+            if (!deck) return;
+            if (deck.pro && !state.userIsPro) {
+                window.location.href = 'upgrade.html';
+                return;
+            }
+
+            state.currentDeck  = deck;
+            state.cards        = shuffle(deck.cards);
+            state.cardIndex    = 0;
+            state.scores       = { gotit: 0, hard: 0, again: 0 };
+            state.lastSession  = null;
+
+            // Pre-fetch last session for comparison (quiet, non-blocking)
+            if (state.currentUser) {
+                db.collection('users').doc(state.currentUser.uid)
+                    .collection('flashcardSessions')
+                    .orderBy('timestamp', 'desc')
+                    .limit(20)
+                    .get()
+                    .then(function (snap) {
+                        var match = snap.docs.find(function (doc) {
+                            return doc.data().deckId === deckId;
+                        });
+                        if (match) state.lastSession = match.data();
+                    })
+                    .catch(function () {});
+            }
+
+            document.getElementById('sessionDeckLabel').textContent = deck.name;
+            updateChips();
+            loadCard(0);
+            showView('session');
+        }
+
+        // ==================== CARD DISPLAY ====================
+        function loadCard(index) {
+            var card  = state.cards[index];
+            var total = state.cards.length;
+
+            document.getElementById('sessionProgressLabel').textContent =
+                'Card ' + (index + 1) + ' of ' + total;
+            document.getElementById('progressFill').style.width =
+                (index / total * 100) + '%';
+
+            document.getElementById('cardQuestion').textContent   = card.front;
+            document.getElementById('cardAnswer').textContent     = card.answer;
+            document.getElementById('cardExplanation').textContent = card.explanation;
+            document.getElementById('hintText').textContent       = card.hint;
+
+            // Reset flip
+            document.getElementById('flashcard').classList.remove('flipped');
+
+            // Reset hint
+            document.getElementById('hintText').classList.remove('visible');
+            document.getElementById('hintChip').innerHTML =
+                '<i class="bi bi-lightbulb"></i> Show hint';
+            state.hintVisible = false;
+        }
+
+        function toggleHint() {
+            state.hintVisible = !state.hintVisible;
+            document.getElementById('hintText').classList.toggle('visible', state.hintVisible);
+            document.getElementById('hintChip').innerHTML = state.hintVisible
+                ? '<i class="bi bi-lightbulb-fill"></i> Hide hint'
+                : '<i class="bi bi-lightbulb"></i> Show hint';
+        }
+
+        // ==================== RECORD ANSWER ====================
+        function recordAnswer(result) {
+            state.scores[result]++;
+            updateChips();
+            var next = state.cardIndex + 1;
+            if (next >= state.cards.length) {
+                showResults();
+            } else {
+                state.cardIndex = next;
+                loadCard(next);
+            }
+        }
+
+        function updateChips() {
+            document.getElementById('chipGotIt').textContent = state.scores.gotit;
+            document.getElementById('chipHard').textContent  = state.scores.hard;
+            document.getElementById('chipAgain').textContent = state.scores.again;
+        }
+
+        // ==================== RESULTS ====================
+        function showResults() {
+            var total = state.cards.length;
+            var gotit = state.scores.gotit;
+            var hard  = state.scores.hard;
+            var again = state.scores.again;
+            var pct   = Math.round(gotit / total * 100);
+
+            document.getElementById('resultsPct').textContent  = pct + '%';
+            document.getElementById('resGotIt').textContent    = gotit;
+            document.getElementById('resHard').textContent     = hard;
+            document.getElementById('resAgain').textContent    = again;
+
+            var title =
+                pct >= 80 ? 'Excellent work! \uD83C\uDF1F'
+              : pct >= 60 ? 'Good effort \u2014 keep it up!'
+              : pct >= 40 ? 'Getting there \u2014 keep revising'
+              :             'Keep practising \u2014 you\'ve got this!';
+            document.getElementById('resultsTitle').textContent = title;
+
+            // Improvement badge — lastSession may not be loaded yet, that's fine
+            var badge = document.getElementById('improveBadge');
+            if (state.lastSession) {
+                var diff = pct - state.lastSession.pct;
+                if (diff > 0) {
+                    badge.innerHTML = '<span class="improve-badge improve-up"><i class="bi bi-arrow-up-circle-fill"></i> Up ' + diff + '% from last time</span>';
+                } else if (diff < 0) {
+                    badge.innerHTML = '<span class="improve-badge improve-down"><i class="bi bi-arrow-down-circle"></i> Down ' + Math.abs(diff) + '% from last time</span>';
+                } else {
+                    badge.innerHTML = '<span class="improve-badge improve-same"><i class="bi bi-dash-circle"></i> Same as last time</span>';
+                }
+            } else {
+                badge.innerHTML = '<span class="improve-badge improve-first"><i class="bi bi-bookmark-star"></i> First attempt \u2014 saved!</span>';
+            }
+
+            showView('results');
+            saveSession(pct, total, gotit, hard, again);
+        }
+
+        // ==================== SAVE TO FIRESTORE ====================
+        function saveSession(pct, total, gotit, hard, again) {
+            if (!state.currentUser || !state.currentDeck) return;
+            var note = document.getElementById('savingNote');
+
+            db.collection('users').doc(state.currentUser.uid)
+                .collection('flashcardSessions')
+                .add({
+                    deckId:    state.currentDeck.id,
+                    deckName:  state.currentDeck.name,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    score:     gotit,
+                    total:     total,
+                    pct:       pct,
+                    gotIt:     gotit,
+                    hard:      hard,
+                    again:     again
+                })
+                .then(function () {
+                    note.innerHTML =
+                        '<i class="bi bi-cloud-check-fill" style="color:var(--color-teal)"></i> Progress saved';
+                })
+                .catch(function (err) {
+                    console.error('Flash cards: save failed', err);
+                    note.innerHTML =
+                        '<i class="bi bi-exclamation-circle" style="color:#dc2626"></i> Could not save \u2014 check your connection';
+                });
+        }
+
+        // ==================== PLAY AGAIN ====================
+        function playAgain() {
+            if (state.currentDeck) startDeck(state.currentDeck.id);
+        }
+
+        // ==================== EVENT LISTENERS ====================
+        document.addEventListener('DOMContentLoaded', function () {
+            // Card flip
+            document.getElementById('flashcard').addEventListener('click', function () {
+                this.classList.toggle('flipped');
+            });
+
+            // Hint button — must stop propagation so it doesn't flip the card
+            document.getElementById('hintChip').addEventListener('click', function (e) {
+                e.stopPropagation();
+                toggleHint();
+            });
+
+            // Assessment buttons
+            document.getElementById('btnAgain').addEventListener('click', function () { recordAnswer('again'); });
+            document.getElementById('btnHard').addEventListener('click',  function () { recordAnswer('hard');  });
+            document.getElementById('btnGotIt').addEventListener('click', function () { recordAnswer('gotit'); });
+
+            // Results buttons
+            document.getElementById('btnPlayAgain').addEventListener('click', playAgain);
+            document.getElementById('btnBackToDecks').addEventListener('click', function () { showView('decks'); });
+
+            // Auth init
+            initPage();
+        });
+
+        // Expose startDeck to deck card onclick attributes
+        window.FC = { startDeck: startDeck };
+
+    }());
+    </script>
+
+    <script src="js/activity-logger.js"></script>
+
+</body>
+</html>
