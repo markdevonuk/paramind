@@ -386,11 +386,11 @@
 
         /* ==================== ASSESSMENT BUTTONS ==================== */
         .assess-prompt {
-            font-size: 0.78rem;
-            color: var(--color-gray-400);
+            font-size: 0.85rem;
+            color: var(--color-teal);
+            font-weight: 700;
             text-align: center;
             margin-bottom: 0.6rem;
-            font-weight: 500;
         }
         .assess-row {
             display: grid;
@@ -420,7 +420,43 @@
         .btn-hard:hover  { background: #fffbeb; border-color: #fde68a; color: #d97706; }
         .btn-gotit:hover { background: rgba(43,138,156,0.08); border-color: var(--color-teal); color: var(--color-teal); }
 
-        /* ==================== RESULTS ==================== */
+        /* ==================== CARD COLOUR PICKER ==================== */
+        .colour-picker-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+            padding: 0.875rem 1rem;
+            background: var(--color-white);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--color-gray-200);
+            box-shadow: var(--shadow-sm);
+        }
+        .colour-picker-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--color-gray-600);
+            white-space: nowrap;
+        }
+        .colour-swatches {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .colour-swatch {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: transform var(--transition-fast), border-color var(--transition-fast);
+        }
+        .colour-swatch:hover { transform: scale(1.15); }
+        .colour-swatch.active {
+            border-color: var(--color-teal);
+            transform: scale(1.15);
+            box-shadow: 0 0 0 2px rgba(43,138,156,0.25);
+        }
         .results-header {
             text-align: center;
             padding: 2rem 0 1.25rem;
@@ -596,6 +632,13 @@
             <div class="decks-grid" id="decksGrid">
                 <!-- Populated by JS -->
             </div>
+
+            <div class="colour-picker-row">
+                <span class="colour-picker-label"><i class="bi bi-palette"></i> Card colour</span>
+                <div class="colour-swatches" id="colourSwatches">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
         </div>
 
         <!-- ==================== VIEW: CARD SESSION ==================== -->
@@ -648,10 +691,10 @@
             <div class="assess-prompt">How well did you know this?</div>
             <div class="assess-row">
                 <button class="assess-btn btn-again" id="btnAgain">
-                    <i class="bi bi-x-circle"></i>Again
+                    <i class="bi bi-x-circle"></i>No idea
                 </button>
                 <button class="assess-btn btn-hard" id="btnHard">
-                    <i class="bi bi-clock-history"></i>Hard
+                    <i class="bi bi-clock-history"></i>Kind of
                 </button>
                 <button class="assess-btn btn-gotit" id="btnGotIt">
                     <i class="bi bi-check-circle"></i>Got it
@@ -678,11 +721,11 @@
                     <div class="breakdown-count count-gotit" id="resGotIt">0</div>
                 </div>
                 <div>
-                    <div class="breakdown-label">Hard</div>
+                    <div class="breakdown-label">Kind of</div>
                     <div class="breakdown-count count-hard" id="resHard">0</div>
                 </div>
                 <div>
-                    <div class="breakdown-label">Again</div>
+                    <div class="breakdown-label">No idea</div>
                     <div class="breakdown-count count-again" id="resAgain">0</div>
                 </div>
             </div>
@@ -718,6 +761,44 @@
 
     (function () {
         'use strict';
+
+        // ==================== CARD COLOUR THEMES ====================
+        var CARD_THEMES = [
+            { id: 'teal',     label: 'Teal',     swatch: '#b2dde5', gradient: 'linear-gradient(155deg, #ffffff 0%, #e8f5f7 100%)' },
+            { id: 'lavender', label: 'Lavender', swatch: '#c4b5fd', gradient: 'linear-gradient(155deg, #ffffff 0%, #ede9fe 100%)' },
+            { id: 'mint',     label: 'Mint',     swatch: '#6ee7b7', gradient: 'linear-gradient(155deg, #ffffff 0%, #d1fae5 100%)' },
+            { id: 'peach',    label: 'Peach',    swatch: '#fca5a5', gradient: 'linear-gradient(155deg, #ffffff 0%, #fee2e2 100%)' },
+            { id: 'gold',     label: 'Gold',     swatch: '#fcd34d', gradient: 'linear-gradient(155deg, #ffffff 0%, #fef3c7 100%)' },
+            { id: 'white',    label: 'White',    swatch: '#f1f5f9', gradient: 'linear-gradient(155deg, #ffffff 0%, #f8fafc 100%)' }
+        ];
+
+        var activeThemeId = localStorage.getItem('fc_theme') || 'teal';
+
+        function applyTheme(themeId) {
+            var theme = CARD_THEMES.find(function (t) { return t.id === themeId; });
+            if (!theme) return;
+            activeThemeId = themeId;
+            localStorage.setItem('fc_theme', themeId);
+            var front = document.querySelector('.fc-front');
+            if (front) front.style.background = theme.gradient;
+            document.querySelectorAll('.colour-swatch').forEach(function (el) {
+                el.classList.toggle('active', el.dataset.theme === themeId);
+            });
+        }
+
+        function renderColourPicker() {
+            var container = document.getElementById('colourSwatches');
+            if (!container) return;
+            var html = '';
+            CARD_THEMES.forEach(function (theme) {
+                html += '<div class="colour-swatch' + (theme.id === activeThemeId ? ' active' : '') + '" ' +
+                    'data-theme="' + theme.id + '" ' +
+                    'style="background:' + theme.swatch + '" ' +
+                    'title="' + theme.label + '" ' +
+                    'onclick="FC.setTheme(\'' + theme.id + '\')"></div>';
+            });
+            container.innerHTML = html;
+        }
 
         // ==================== DECK DATA ====================
         var DECKS = [
@@ -976,11 +1057,15 @@
                                           d.isPro === true;
                     }
                     renderDecks();
+                    renderColourPicker();
+                    applyTheme(activeThemeId);
                     removeOverlay();
                     showView('decks');
                 })
                 .catch(function () {
                     renderDecks();
+                    renderColourPicker();
+                    applyTheme(activeThemeId);
                     removeOverlay();
                     showView('decks');
                 });
@@ -1088,6 +1173,7 @@
             document.getElementById('sessionDeckLabel').textContent = deck.name;
             updateChips();
             loadCard(0);
+            applyTheme(activeThemeId);
             showView('session');
         }
 
@@ -1250,8 +1336,8 @@
             initPage();
         });
 
-        // Expose startDeck to deck card onclick attributes
-        window.FC = { startDeck: startDeck };
+        // Expose to deck card onclick attributes and colour swatches
+        window.FC = { startDeck: startDeck, setTheme: applyTheme };
 
     }());
     </script>
