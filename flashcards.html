@@ -1032,18 +1032,22 @@
 
         function loadLastScores() {
             if (!state.currentUser) return;
-            db.collection('users').doc(state.currentUser.uid).get()
-                .then(function (doc) {
-                    if (!doc.exists) return;
-                    var data = doc.data();
-                    DECKS.forEach(function (deck) {
-                        var fieldKey = 'fcLast_' + deck.id;
-                        if (data[fieldKey]) {
-                            var chip = document.getElementById('ls_' + deck.id);
-                            if (chip) {
-                                chip.textContent = 'Last: ' + data[fieldKey].pct + '%';
-                                chip.style.display = 'inline-flex';
-                            }
+            db.collection('users').doc(state.currentUser.uid)
+                .collection('flashcardSessions')
+                .orderBy('timestamp', 'desc')
+                .limit(50)
+                .get()
+                .then(function (snap) {
+                    var seen = {};
+                    snap.docs.forEach(function (doc) {
+                        var d = doc.data();
+                        if (!seen[d.deckId]) seen[d.deckId] = d.pct;
+                    });
+                    Object.keys(seen).forEach(function (deckId) {
+                        var chip = document.getElementById('ls_' + deckId);
+                        if (chip) {
+                            chip.textContent = 'Last: ' + seen[deckId] + '%';
+                            chip.style.display = 'inline-flex';
                         }
                     });
                 })
@@ -1065,14 +1069,18 @@
             state.scores       = { gotit: 0, hard: 0, again: 0 };
             state.lastSession  = null;
 
-            // Read last session from user doc (field: fcLast_{deckId})
+            // Read last session for improvement comparison
             if (state.currentUser) {
-                db.collection('users').doc(state.currentUser.uid).get()
-                    .then(function (doc) {
-                        if (doc.exists) {
-                            var fieldKey = 'fcLast_' + deckId;
-                            state.lastSession = doc.data()[fieldKey] || null;
-                        }
+                db.collection('users').doc(state.currentUser.uid)
+                    .collection('flashcardSessions')
+                    .orderBy('timestamp', 'desc')
+                    .limit(20)
+                    .get()
+                    .then(function (snap) {
+                        var match = snap.docs.find(function (doc) {
+                            return doc.data().deckId === deckId;
+                        });
+                        if (match) state.lastSession = match.data();
                     })
                     .catch(function () {});
             }
@@ -1183,30 +1191,23 @@
                 note.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Not signed in \u2014 progress not saved';
                 return;
             }
-            if (!state.currentDeck) {
-                note.style.color = '#dc2626';
-                note.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Deck error \u2014 progress not saved';
-                return;
-            }
+            if (!state.currentDeck) return;
 
             var sessionData = {
-                deckId:   state.currentDeck.id,
-                deckName: state.currentDeck.name,
-                date:     new Date().toISOString(),
-                score:    gotit,
-                total:    total,
-                pct:      pct,
-                gotIt:    gotit,
-                hard:     hard,
-                again:    again
+                deckId:    state.currentDeck.id,
+                deckName:  state.currentDeck.name,
+                timestamp: new Date(),
+                score:     gotit,
+                total:     total,
+                pct:       pct,
+                gotIt:     gotit,
+                hard:      hard,
+                again:     again
             };
 
-            // Store as fcLast_{deckId} on the user document — uses existing proven write rule
-            var update = {};
-            update['fcLast_' + state.currentDeck.id] = sessionData;
-
             db.collection('users').doc(state.currentUser.uid)
-                .update(update)
+                .collection('flashcardSessions')
+                .add(sessionData)
                 .then(function () {
                     note.innerHTML =
                         '<i class="bi bi-cloud-check-fill" style="color:var(--color-teal)"></i> Progress saved';
