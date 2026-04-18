@@ -420,6 +420,54 @@
         .btn-hard:hover  { background: #fffbeb; border-color: #fde68a; color: #d97706; }
         .btn-gotit:hover { background: rgba(43,138,156,0.08); border-color: var(--color-teal); color: var(--color-teal); }
 
+        /* ==================== SR EXPLAINER ==================== */
+        .sr-explainer {
+            background: var(--color-white);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--color-gray-200);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            margin-bottom: 0.75rem;
+        }
+        .sr-explainer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.875rem 1rem;
+            cursor: pointer;
+            user-select: none;
+        }
+        .sr-explainer-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--color-teal);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        #srChevron {
+            color: var(--color-gray-400);
+            font-size: 0.875rem;
+            transition: transform var(--transition-base);
+        }
+        #srChevron.open { transform: rotate(180deg); }
+        .sr-explainer-body {
+            display: none;
+            padding: 0 1rem 1rem;
+            border-top: 1px solid var(--color-gray-100);
+        }
+        .sr-explainer-body.open { display: block; }
+        .sr-explainer-body p {
+            font-size: 0.85rem;
+            line-height: 1.65;
+            color: var(--color-gray-600);
+            margin: 0.75rem 0 0;
+        }
+        .sr-explainer-body a {
+            color: var(--color-teal);
+            text-decoration: underline;
+        }
+
         /* ==================== CARD COLOUR PICKER ==================== */
         .colour-picker-row {
             display: flex;
@@ -629,6 +677,21 @@
                 <h1><i class="bi bi-lightning-charge-fill" style="color:var(--color-teal)"></i> Flash Cards</h1>
                 <p>Choose a deck to start revising</p>
             </div>
+            <div class="sr-explainer">
+                <div class="sr-explainer-header" onclick="FC.toggleExplainer()">
+                    <div class="sr-explainer-title">
+                        <i class="bi bi-lightning-charge-fill"></i>
+                        Smart revision, not just repetition
+                    </div>
+                    <i class="bi bi-chevron-down" id="srChevron"></i>
+                </div>
+                <div class="sr-explainer-body" id="srExplainerBody">
+                    <p>Paramind uses a <a href="https://en.wikipedia.org/wiki/Spaced_repetition" target="_blank" rel="noopener">spaced repetition</a> algorithm to make your revision as efficient as possible. Every card you see is scored based on how well you knew it \u2014 <strong>Got it</strong>, <strong>Kind of</strong>, or <strong>No idea</strong>. The app uses that score to decide when you need to see that card again.</p>
+                    <p>Cards you know well get spaced further and further apart. Cards you struggle with come back sooner. Over time, you spend your revision time exactly where it\'s needed \u2014 not going over things you already know.</p>
+                    <p>This is the same method used by Anki, trusted by medical students worldwide.</p>
+                </div>
+            </div>
+
             <div class="colour-picker-row">
                 <span class="colour-picker-label"><i class="bi bi-palette"></i> Card colour</span>
                 <div class="colour-swatches" id="colourSwatches">
@@ -748,6 +811,7 @@
     </div>
 
     <!-- ==================== SCRIPTS ==================== -->
+    <script src="js/flashcard-data.js"></script>
     <script src="js/app.js"></script>
     <script src="js/menu-v2.js"></script>
 
@@ -801,160 +865,84 @@
         }
 
         // ==================== DECK DATA ====================
-        var DECKS = [
-            {
-                id: 'cardiovascular',
-                name: 'Cardiovascular A&P',
-                icon: 'bi-heart-pulse',
-                iconColour: '#ef4444',
-                iconBg: '#fef2f2',
-                pro: false,
-                cards: [
-                    {
-                        id: 'cv-01',
-                        front: 'Which chamber of the heart receives deoxygenated blood returning from the body?',
-                        answer: 'Right atrium',
-                        explanation: 'Deoxygenated blood returns from the body via the superior and inferior vena cavae into the right atrium. It then flows through the tricuspid valve into the right ventricle, which pumps it to the lungs via the pulmonary artery.',
-                        hint: 'Think about the first chamber blood enters after its journey around the body.'
-                    },
-                    {
-                        id: 'cv-02',
-                        front: 'What is the function of the mitral (bicuspid) valve?',
-                        answer: 'It prevents backflow of blood from the left ventricle into the left atrium',
-                        explanation: 'During ventricular contraction (systole), the mitral valve closes to stop blood flowing backwards. Its two leaflets are anchored by chordae tendineae and papillary muscles, which stop the valve inverting under pressure.',
-                        hint: 'It sits on the left side of the heart, between two chambers.'
-                    },
-                    {
-                        id: 'cv-03',
-                        front: 'What is the role of the sinoatrial (SA) node?',
-                        answer: 'It is the heart\'s natural pacemaker, generating the electrical impulse that initiates each heartbeat',
-                        explanation: 'Located in the right atrial wall, the SA node fires spontaneously at 60\u2013100 times per minute. The impulse spreads across both atria causing them to contract, before reaching the atrioventricular (AV) node.',
-                        hint: 'Think about where the electrical signal that drives the heart originates.'
-                    },
-                    {
-                        id: 'cv-04',
-                        front: 'What is cardiac output, and how is it calculated?',
-                        answer: 'The volume of blood pumped per minute \u2014 calculated as heart rate \u00d7 stroke volume',
-                        explanation: 'A typical resting adult has a heart rate of around 70 bpm and a stroke volume of around 70 ml, giving a cardiac output of approximately 4.9 litres per minute. Cardiac output increases significantly during exercise.',
-                        hint: 'It is the product of how fast the heart beats and how much it ejects per beat.'
-                    },
-                    {
-                        id: 'cv-05',
-                        front: 'What is the normal resting heart rate range for an adult?',
-                        answer: '60\u2013100 beats per minute',
-                        explanation: 'Below 60 bpm is defined as bradycardia; above 100 bpm is tachycardia. In well-conditioned athletes, a resting rate below 60 bpm may be entirely normal due to a higher stroke volume.',
-                        hint: 'This is the range measured at rest at the radial pulse or on ECG monitoring.'
-                    },
-                    {
-                        id: 'cv-06',
-                        front: 'What does the QRS complex represent on an ECG?',
-                        answer: 'Ventricular depolarisation \u2014 the electrical activation that triggers ventricular contraction',
-                        explanation: 'The QRS complex follows the P wave (atrial depolarisation) and precedes the T wave (ventricular repolarisation). A normal QRS duration is less than 120 milliseconds \u2014 three small squares on standard ECG paper.',
-                        hint: 'It is the tallest, sharpest waveform on a normal ECG trace.'
-                    },
-                    {
-                        id: 'cv-07',
-                        front: 'What is the pericardium?',
-                        answer: 'A double-layered fibrous sac that surrounds and protects the heart',
-                        explanation: 'The outer fibrous layer anchors the heart within the mediastinum. The inner serous layer has two sub-layers (parietal and visceral) with a small amount of pericardial fluid between them, reducing friction during cardiac movement.',
-                        hint: 'Think of it as the heart\'s outer protective casing.'
-                    },
-                    {
-                        id: 'cv-08',
-                        front: 'What is stroke volume?',
-                        answer: 'The volume of blood ejected from the left ventricle with each heartbeat (approximately 70 ml at rest)',
-                        explanation: 'Stroke volume is influenced by three factors: preload (how full the ventricle is), afterload (the resistance to ejection), and myocardial contractility (the intrinsic strength of the heart muscle).',
-                        hint: 'It is measured in millilitres and represents one heartbeat\'s worth of output.'
-                    },
-                    {
-                        id: 'cv-09',
-                        front: 'What is preload?',
-                        answer: 'The degree of stretch in the ventricular wall at end-diastole, determined by the volume of blood filling the ventricle',
-                        explanation: 'Greater ventricular filling produces greater stretch of the myocardial fibres. According to the Frank\u2013Starling mechanism, this results in a more forceful subsequent contraction, up to a physiological limit.',
-                        hint: 'Think of it as how full the ventricle is just before it contracts.'
-                    },
-                    {
-                        id: 'cv-10',
-                        front: 'What is afterload?',
-                        answer: 'The resistance the ventricle must overcome in order to eject blood into the circulation',
-                        explanation: 'In the left ventricle, afterload is primarily determined by systemic vascular resistance. When afterload is high (for example in chronic hypertension), the heart must generate greater pressure to eject blood, increasing its workload.',
-                        hint: 'Think of it as the pressure the heart has to pump against.'
-                    },
-                    {
-                        id: 'cv-11',
-                        front: 'What is the role of the AV node?',
-                        answer: 'It receives the impulse from the SA node and introduces a short delay before passing it to the ventricles',
-                        explanation: 'This delay of approximately 0.1 seconds allows the atria to complete contraction and fully empty into the ventricles before ventricular contraction begins. Without it, the atria and ventricles would contract simultaneously, reducing filling efficiency.',
-                        hint: 'It acts as a gatekeeper between the atria and the ventricles.'
-                    },
-                    {
-                        id: 'cv-12',
-                        front: 'What is the aorta?',
-                        answer: 'The largest artery in the body \u2014 it receives oxygenated blood from the left ventricle and distributes it to the systemic circulation',
-                        explanation: 'The aorta ascends from the left ventricle, arches to give branches supplying the head and upper limbs, then descends through the thorax and abdomen before dividing into the common iliac arteries at the level of L4.',
-                        hint: 'It is the main arterial highway leading out of the left ventricle.'
-                    },
-                    {
-                        id: 'cv-13',
-                        front: 'What is systole?',
-                        answer: 'The phase of the cardiac cycle during which the ventricles contract and eject blood',
-                        explanation: 'During systole, the mitral and tricuspid valves close (producing the first heart sound, S1), and the aortic and pulmonary valves open. Blood is ejected into the aorta and pulmonary artery. Systolic blood pressure reflects peak arterial pressure during this phase.',
-                        hint: 'It is the active squeezing phase of the cardiac cycle.'
-                    },
-                    {
-                        id: 'cv-14',
-                        front: 'What is diastole?',
-                        answer: 'The relaxation and filling phase of the cardiac cycle, during which the ventricles refill with blood',
-                        explanation: 'During diastole, the aortic and pulmonary valves close (producing the second heart sound, S2), and the mitral and tricuspid valves open. Diastolic blood pressure reflects arterial pressure during this resting phase.',
-                        hint: 'It is the resting, filling phase between contractions.'
-                    },
-                    {
-                        id: 'cv-15',
-                        front: 'What do the pulmonary veins carry, and where do they drain?',
-                        answer: 'They carry oxygenated blood from the lungs and drain into the left atrium',
-                        explanation: 'The four pulmonary veins (two from each lung) are the only veins in the body that carry oxygenated blood \u2014 the opposite of what the usual \u201cvein = deoxygenated\u201d rule suggests. This is a common exam catch.',
-                        hint: 'This is the one set of veins that breaks the usual rule about veins carrying deoxygenated blood.'
-                    },
-                    {
-                        id: 'cv-16',
-                        front: 'What does the P wave represent on an ECG?',
-                        answer: 'Atrial depolarisation \u2014 the electrical activation spreading across both atria',
-                        explanation: 'The P wave is the first small, rounded deflection on a normal ECG. A normal P wave duration is less than 120 ms. Absent P waves with an irregular rhythm may indicate atrial fibrillation.',
-                        hint: 'It is the small, rounded bump that appears just before the QRS complex.'
-                    },
-                    {
-                        id: 'cv-17',
-                        front: 'What is the Frank\u2013Starling mechanism?',
-                        answer: 'Greater stretch of the myocardial fibres at end-diastole produces a greater force of the subsequent ventricular contraction',
-                        explanation: 'This intrinsic property allows the heart to automatically match output to venous return. If more blood fills the ventricle, the heart contracts more forcefully to expel it, preventing abnormal blood accumulation under normal conditions.',
-                        hint: 'The heart\u2019s ability to automatically pump out what it receives.'
-                    },
-                    {
-                        id: 'cv-18',
-                        front: 'What is the role of the coronary arteries?',
-                        answer: 'They supply oxygenated blood to the myocardium \u2014 the heart muscle itself',
-                        explanation: 'The two main coronary arteries arise from the aortic root just above the aortic valve. The left coronary artery divides into the left anterior descending (LAD) and circumflex branches. Coronary perfusion occurs predominantly during diastole.',
-                        hint: 'The heart needs its own dedicated blood supply, separate from the blood it pumps.'
-                    },
-                    {
-                        id: 'cv-19',
-                        front: 'What is the Bundle of His?',
-                        answer: 'Specialised conduction fibres that carry the electrical impulse from the AV node to the right and left bundle branches',
-                        explanation: 'After passing through the AV node, the impulse travels down the Bundle of His through the interventricular septum, then divides into the right and left bundle branches before spreading via the Purkinje fibres to depolarise the ventricular myocardium.',
-                        hint: 'It is the electrical cable connecting the AV node to the ventricular conduction system.'
-                    },
-                    {
-                        id: 'cv-20',
-                        front: 'What are Purkinje fibres, and what is their function?',
-                        answer: 'Specialised cardiac conduction fibres that rapidly spread the electrical impulse throughout the ventricular myocardium, ensuring a coordinated contraction',
-                        explanation: 'Purkinje fibres branch from the right and left bundle branches and spread through the inner walls of both ventricles. Their high conduction velocity means the entire ventricular myocardium depolarises almost simultaneously, producing an effective pumping action.',
-                        hint: 'They are the final step in the heart\u2019s electrical conduction pathway.'
-                    }
-                ]
-            }
-            // Future decks added here
-        ];
+        // ==================== DECKS (loaded from js/flashcard-data.js) ====================
+        var DECKS = (typeof FLASHCARD_DECKS !== 'undefined') ? FLASHCARD_DECKS : [];
 
+        // ==================== SM-2 ALGORITHM ====================
+        // Quality: Got it = 5, Kind of = 3, No idea = 1
+        function sm2Update(quality, cardState) {
+            var ef          = cardState ? cardState.ef          : 2.5;
+            var interval    = cardState ? cardState.interval    : 0;
+            var repetitions = cardState ? cardState.repetitions : 0;
+
+            // Update ease factor (minimum 1.3)
+            var newEF = Math.max(1.3,
+                ef + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))
+            );
+            newEF = Math.round(newEF * 100) / 100;
+
+            var newInterval, newRepetitions;
+
+            if (quality < 3) {
+                // No idea — reset to start
+                newInterval    = 1;
+                newRepetitions = 0;
+            } else {
+                // Got it or Kind of — advance
+                if (repetitions === 0)      { newInterval = 1; }
+                else if (repetitions === 1) { newInterval = 6; }
+                else { newInterval = Math.max(1, Math.round(interval * newEF)); }
+                newRepetitions = repetitions + 1;
+            }
+
+            var today   = new Date();
+            var nextDue = new Date(today);
+            nextDue.setDate(today.getDate() + newInterval);
+
+            return {
+                ef:          newEF,
+                interval:    newInterval,
+                repetitions: newRepetitions,
+                nextDue:     nextDue.toISOString().split('T')[0],
+                lastReview:  today.toISOString().split('T')[0]
+            };
+        }
+
+        // Select the 20 highest-priority cards from the full deck pool
+        function selectCards(allCards, cardStates, count) {
+            count = count || 20;
+            var today = new Date().toISOString().split('T')[0];
+
+            var newCards      = [];
+            var overdueCards  = [];
+            var futureCards   = [];
+
+            allCards.forEach(function (card) {
+                var s = cardStates[card.id];
+                if (!s || !s.lastReview) {
+                    newCards.push({ card: card, sort: 0 });
+                } else if (s.nextDue <= today) {
+                    var daysOver = Math.floor(
+                        (new Date(today) - new Date(s.nextDue)) / 86400000
+                    );
+                    overdueCards.push({ card: card, sort: daysOver });
+                } else {
+                    var daysTil = Math.floor(
+                        (new Date(s.nextDue) - new Date(today)) / 86400000
+                    );
+                    futureCards.push({ card: card, sort: -daysTil });
+                }
+            });
+
+            overdueCards.sort(function (a, b) { return b.sort - a.sort; });
+            futureCards.sort(function  (a, b) { return b.sort - a.sort; });
+
+            var ordered = newCards.concat(overdueCards).concat(futureCards);
+            var selected = ordered.slice(0, count).map(function (o) { return o.card; });
+
+            // Shuffle selected cards so order is unpredictable
+            return shuffle(selected);
+        }
         // ==================== STATE ====================
         var state = {
             userIsPro:    false,
@@ -963,6 +951,8 @@
             cards:        [],
             cardIndex:    0,
             scores:       { gotit: 0, hard: 0, again: 0 },
+            cardAnswers:  {},   // { cardId: quality } for SM-2 updates
+            cardStates:   {},   // SM-2 state per card, loaded at session start
             hintVisible:  false,
             lastSession:  null
         };
@@ -1117,22 +1107,18 @@
 
         function loadLastScores() {
             if (!state.currentUser) return;
-            db.collection('users').doc(state.currentUser.uid)
-                .collection('flashcardSessions')
-                .orderBy('timestamp', 'desc')
-                .limit(50)
-                .get()
-                .then(function (snap) {
-                    var seen = {};
-                    snap.docs.forEach(function (doc) {
-                        var d = doc.data();
-                        if (!seen[d.deckId]) seen[d.deckId] = d.pct;
-                    });
-                    Object.keys(seen).forEach(function (deckId) {
-                        var chip = document.getElementById('ls_' + deckId);
-                        if (chip) {
-                            chip.textContent = 'Last: ' + seen[deckId] + '%';
-                            chip.style.display = 'inline-flex';
+            db.collection('users').doc(state.currentUser.uid).get()
+                .then(function (doc) {
+                    if (!doc.exists) return;
+                    var data = doc.data();
+                    DECKS.forEach(function (deck) {
+                        var last = data['fcLast_' + deck.id];
+                        if (last) {
+                            var chip = document.getElementById('ls_' + deck.id);
+                            if (chip) {
+                                chip.textContent = 'Last: ' + last.pct + '%';
+                                chip.style.display = 'inline-flex';
+                            }
                         }
                     });
                 })
@@ -1149,32 +1135,44 @@
             }
 
             state.currentDeck  = deck;
-            state.cards        = shuffle(deck.cards);
             state.cardIndex    = 0;
             state.scores       = { gotit: 0, hard: 0, again: 0 };
+            state.cardAnswers  = {};
+            state.cardStates   = {};
             state.lastSession  = null;
 
-            // Read last session for improvement comparison
+            // Load SM-2 card states and last session, then start
             if (state.currentUser) {
-                db.collection('users').doc(state.currentUser.uid)
-                    .collection('flashcardSessions')
-                    .orderBy('timestamp', 'desc')
-                    .limit(20)
-                    .get()
-                    .then(function (snap) {
-                        var match = snap.docs.find(function (doc) {
-                            return doc.data().deckId === deckId;
-                        });
-                        if (match) state.lastSession = match.data();
+                db.collection('users').doc(state.currentUser.uid).get()
+                    .then(function (doc) {
+                        if (doc.exists) {
+                            var data = doc.data();
+                            state.cardStates  = data.fcCardState  || {};
+                            state.lastSession = data['fcLast_' + deckId] || null;
+                        }
+                        state.cards = selectCards(deck.cards, state.cardStates, 20);
+                        document.getElementById('sessionDeckLabel').textContent = deck.name;
+                        updateChips();
+                        loadCard(0);
+                        applyTheme(activeThemeId);
+                        showView('session');
                     })
-                    .catch(function () {});
+                    .catch(function () {
+                        state.cards = selectCards(deck.cards, {}, 20);
+                        document.getElementById('sessionDeckLabel').textContent = deck.name;
+                        updateChips();
+                        loadCard(0);
+                        applyTheme(activeThemeId);
+                        showView('session');
+                    });
+            } else {
+                state.cards = selectCards(deck.cards, {}, 20);
+                document.getElementById('sessionDeckLabel').textContent = deck.name;
+                updateChips();
+                loadCard(0);
+                applyTheme(activeThemeId);
+                showView('session');
             }
-
-            document.getElementById('sessionDeckLabel').textContent = deck.name;
-            updateChips();
-            loadCard(0);
-            applyTheme(activeThemeId);
-            showView('session');
         }
 
         // ==================== CARD DISPLAY ====================
@@ -1212,6 +1210,9 @@
 
         // ==================== RECORD ANSWER ====================
         function recordAnswer(result) {
+            var quality = result === 'gotit' ? 5 : result === 'hard' ? 3 : 1;
+            var card = state.cards[state.cardIndex];
+            state.cardAnswers[card.id] = quality;
             state.scores[result]++;
             updateChips();
             var next = state.cardIndex + 1;
@@ -1271,29 +1272,32 @@
         // ==================== SAVE TO FIRESTORE ====================
         function saveSession(pct, total, gotit, hard, again) {
             var note = document.getElementById('savingNote');
+            if (!state.currentUser || !state.currentDeck) return;
 
-            if (!state.currentUser) {
-                note.style.color = '#dc2626';
-                note.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Not signed in \u2014 progress not saved';
-                return;
-            }
-            if (!state.currentDeck) return;
+            // Build SM-2 updates using dot-notation — updates individual card fields
+            // without overwriting the entire fcCardState map
+            var update = {};
+            Object.keys(state.cardAnswers).forEach(function (cardId) {
+                var quality      = state.cardAnswers[cardId];
+                var currentState = state.cardStates[cardId] || null;
+                update['fcCardState.' + cardId] = sm2Update(quality, currentState);
+            });
 
-            var sessionData = {
-                deckId:    state.currentDeck.id,
-                deckName:  state.currentDeck.name,
-                timestamp: new Date(),
-                score:     gotit,
-                total:     total,
-                pct:       pct,
-                gotIt:     gotit,
-                hard:      hard,
-                again:     again
+            // Store last session summary for improvement comparison
+            update['fcLast_' + state.currentDeck.id] = {
+                deckId:   state.currentDeck.id,
+                deckName: state.currentDeck.name,
+                date:     new Date().toISOString(),
+                score:    gotit,
+                total:    total,
+                pct:      pct,
+                gotIt:    gotit,
+                hard:     hard,
+                again:    again
             };
 
             db.collection('users').doc(state.currentUser.uid)
-                .collection('flashcardSessions')
-                .add(sessionData)
+                .update(update)
                 .then(function () {
                     note.innerHTML =
                         '<i class="bi bi-cloud-check-fill" style="color:var(--color-teal)"></i> Progress saved';
@@ -1336,8 +1340,17 @@
             initPage();
         });
 
-        // Expose to deck card onclick attributes and colour swatches
-        window.FC = { startDeck: startDeck, setTheme: applyTheme };
+        // ==================== EXPLAINER TOGGLE ====================
+        function toggleExplainer() {
+            var body    = document.getElementById('srExplainerBody');
+            var chevron = document.getElementById('srChevron');
+            if (!body) return;
+            body.classList.toggle('open');
+            chevron.classList.toggle('open');
+        }
+
+        // Expose to onclick attributes
+        window.FC = { startDeck: startDeck, setTheme: applyTheme, toggleExplainer: toggleExplainer };
 
     }());
     </script>
