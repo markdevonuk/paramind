@@ -1032,24 +1032,18 @@
 
         function loadLastScores() {
             if (!state.currentUser) return;
-            db.collection('users').doc(state.currentUser.uid)
-                .collection('flashcardSessions')
-                .orderBy('timestamp', 'desc')
-                .limit(50)
-                .get()
-                .then(function (snap) {
-                    var seen = {};
-                    snap.docs.forEach(function (doc) {
-                        var d = doc.data();
-                        if (!seen[d.deckId]) {
-                            seen[d.deckId] = d.pct;
-                        }
-                    });
-                    Object.keys(seen).forEach(function (deckId) {
-                        var chip = document.getElementById('ls_' + deckId);
-                        if (chip) {
-                            chip.textContent = 'Last: ' + seen[deckId] + '%';
-                            chip.style.display = 'inline-flex';
+            db.collection('users').doc(state.currentUser.uid).get()
+                .then(function (doc) {
+                    if (!doc.exists) return;
+                    var data = doc.data();
+                    DECKS.forEach(function (deck) {
+                        var fieldKey = 'fcLast_' + deck.id;
+                        if (data[fieldKey]) {
+                            var chip = document.getElementById('ls_' + deck.id);
+                            if (chip) {
+                                chip.textContent = 'Last: ' + data[fieldKey].pct + '%';
+                                chip.style.display = 'inline-flex';
+                            }
                         }
                     });
                 })
@@ -1071,18 +1065,14 @@
             state.scores       = { gotit: 0, hard: 0, again: 0 };
             state.lastSession  = null;
 
-            // Pre-fetch last session for comparison (quiet, non-blocking)
+            // Read last session from user doc (field: fcLast_{deckId})
             if (state.currentUser) {
-                db.collection('users').doc(state.currentUser.uid)
-                    .collection('flashcardSessions')
-                    .orderBy('timestamp', 'desc')
-                    .limit(20)
-                    .get()
-                    .then(function (snap) {
-                        var match = snap.docs.find(function (doc) {
-                            return doc.data().deckId === deckId;
-                        });
-                        if (match) state.lastSession = match.data();
+                db.collection('users').doc(state.currentUser.uid).get()
+                    .then(function (doc) {
+                        if (doc.exists) {
+                            var fieldKey = 'fcLast_' + deckId;
+                            state.lastSession = doc.data()[fieldKey] || null;
+                        }
                     })
                     .catch(function () {});
             }
@@ -1188,65 +1178,48 @@
         function saveSession(pct, total, gotit, hard, again) {
             var note = document.getElementById('savingNote');
 
-            // Diagnostic: log state at save time
             console.log('[FlashCards] saveSession called');
             console.log('[FlashCards] currentUser:', state.currentUser ? state.currentUser.uid : 'NULL');
             console.log('[FlashCards] currentDeck:', state.currentDeck ? state.currentDeck.id : 'NULL');
-            console.log('[FlashCards] db:', db ? 'ready' : 'NULL');
 
-            // Guard — make failure visible rather than silent
             if (!state.currentUser) {
-                console.error('[FlashCards] Save aborted: no currentUser');
                 note.style.color = '#dc2626';
                 note.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Not signed in \u2014 progress not saved';
                 return;
             }
             if (!state.currentDeck) {
-                console.error('[FlashCards] Save aborted: no currentDeck');
                 note.style.color = '#dc2626';
                 note.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Deck error \u2014 progress not saved';
                 return;
             }
-            if (!db) {
-                console.error('[FlashCards] Save aborted: db not initialised');
-                note.style.color = '#dc2626';
-                note.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Database not ready \u2014 progress not saved';
-                return;
-            }
 
-            // Use new Date() instead of serverTimestamp to avoid any FieldValue issues
             var sessionData = {
-                deckId:    state.currentDeck.id,
-                deckName:  state.currentDeck.name,
-                timestamp: new Date(),
-                score:     gotit,
-                total:     total,
-                pct:       pct,
-                gotIt:     gotit,
-                hard:      hard,
-                again:     again
+                deckId:   state.currentDeck.id,
+                deckName: state.currentDeck.name,
+                date:     new Date().toISOString(),
+                score:    gotit,
+                total:    total,
+                pct:      pct,
+                gotIt:    gotit,
+                hard:     hard,
+                again:    again
             };
 
-            // DIAGNOSTIC: write to user doc directly (uses existing proven write rule)
-            var testPath = 'users/' + state.currentUser.uid;
-            console.log('[FlashCards] TEST: Writing to user doc:', testPath);
+            // Store as fcLast_{deckId} on the user document — uses existing proven write rule
+            var update = {};
+            update['fcLast_' + state.currentDeck.id] = sessionData;
+
+            console.log('[FlashCards] Saving to user doc field: fcLast_' + state.currentDeck.id);
 
             db.collection('users').doc(state.currentUser.uid)
-                .update({ _fcTest: sessionData.deckId + '_' + sessionData.pct })
+                .update(update)
                 .then(function () {
-                    console.log('[FlashCards] TEST PASSED: User doc write works — auth is fine');
-                    console.log('[FlashCards] Now trying subcollection write...');
-                    return db.collection('users').doc(state.currentUser.uid)
-                        .collection('flashcardSessions')
-                        .add(sessionData);
-                })
-                .then(function (docRef) {
-                    console.log('[FlashCards] Subcollection write OK, doc ID:', docRef ? docRef.id : 'n/a');
+                    console.log('[FlashCards] Saved OK');
                     note.innerHTML =
                         '<i class="bi bi-cloud-check-fill" style="color:var(--color-teal)"></i> Progress saved';
                 })
                 .catch(function (err) {
-                    console.error('[FlashCards] Write failed at step:', err.code, err.message);
+                    console.error('[FlashCards] Save failed:', err.code, err.message);
                     note.style.color = '#dc2626';
                     note.innerHTML =
                         '<i class="bi bi-exclamation-triangle-fill"></i> Save failed: ' + err.message;
