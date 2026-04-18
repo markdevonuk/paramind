@@ -1178,10 +1178,6 @@
         function saveSession(pct, total, gotit, hard, again) {
             var note = document.getElementById('savingNote');
 
-            console.log('[FlashCards] saveSession called');
-            console.log('[FlashCards] currentUser:', state.currentUser ? state.currentUser.uid : 'NULL');
-            console.log('[FlashCards] currentDeck:', state.currentDeck ? state.currentDeck.id : 'NULL');
-
             if (!state.currentUser) {
                 note.style.color = '#dc2626';
                 note.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Not signed in \u2014 progress not saved';
@@ -1209,17 +1205,13 @@
             var update = {};
             update['fcLast_' + state.currentDeck.id] = sessionData;
 
-            console.log('[FlashCards] Saving to user doc field: fcLast_' + state.currentDeck.id);
-
             db.collection('users').doc(state.currentUser.uid)
                 .update(update)
                 .then(function () {
-                    console.log('[FlashCards] Saved OK');
                     note.innerHTML =
                         '<i class="bi bi-cloud-check-fill" style="color:var(--color-teal)"></i> Progress saved';
                 })
                 .catch(function (err) {
-                    console.error('[FlashCards] Save failed:', err.code, err.message);
                     note.style.color = '#dc2626';
                     note.innerHTML =
                         '<i class="bi bi-exclamation-triangle-fill"></i> Save failed: ' + err.message;
