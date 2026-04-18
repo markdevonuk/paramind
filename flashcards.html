@@ -1186,30 +1186,63 @@
 
         // ==================== SAVE TO FIRESTORE ====================
         function saveSession(pct, total, gotit, hard, again) {
-            if (!state.currentUser || !state.currentDeck) return;
             var note = document.getElementById('savingNote');
+
+            // Diagnostic: log state at save time
+            console.log('[FlashCards] saveSession called');
+            console.log('[FlashCards] currentUser:', state.currentUser ? state.currentUser.uid : 'NULL');
+            console.log('[FlashCards] currentDeck:', state.currentDeck ? state.currentDeck.id : 'NULL');
+            console.log('[FlashCards] db:', db ? 'ready' : 'NULL');
+
+            // Guard — make failure visible rather than silent
+            if (!state.currentUser) {
+                console.error('[FlashCards] Save aborted: no currentUser');
+                note.style.color = '#dc2626';
+                note.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Not signed in \u2014 progress not saved';
+                return;
+            }
+            if (!state.currentDeck) {
+                console.error('[FlashCards] Save aborted: no currentDeck');
+                note.style.color = '#dc2626';
+                note.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Deck error \u2014 progress not saved';
+                return;
+            }
+            if (!db) {
+                console.error('[FlashCards] Save aborted: db not initialised');
+                note.style.color = '#dc2626';
+                note.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Database not ready \u2014 progress not saved';
+                return;
+            }
+
+            // Use new Date() instead of serverTimestamp to avoid any FieldValue issues
+            var sessionData = {
+                deckId:    state.currentDeck.id,
+                deckName:  state.currentDeck.name,
+                timestamp: new Date(),
+                score:     gotit,
+                total:     total,
+                pct:       pct,
+                gotIt:     gotit,
+                hard:      hard,
+                again:     again
+            };
+
+            console.log('[FlashCards] Writing to: users/' + state.currentUser.uid + '/flashcardSessions');
+            console.log('[FlashCards] Data:', JSON.stringify(sessionData));
 
             db.collection('users').doc(state.currentUser.uid)
                 .collection('flashcardSessions')
-                .add({
-                    deckId:    state.currentDeck.id,
-                    deckName:  state.currentDeck.name,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    score:     gotit,
-                    total:     total,
-                    pct:       pct,
-                    gotIt:     gotit,
-                    hard:      hard,
-                    again:     again
-                })
-                .then(function () {
+                .add(sessionData)
+                .then(function (docRef) {
+                    console.log('[FlashCards] Saved OK, doc ID:', docRef.id);
                     note.innerHTML =
                         '<i class="bi bi-cloud-check-fill" style="color:var(--color-teal)"></i> Progress saved';
                 })
                 .catch(function (err) {
-                    console.error('Flash cards: save failed', err);
+                    console.error('[FlashCards] Save failed:', err.code, err.message);
+                    note.style.color = '#dc2626';
                     note.innerHTML =
-                        '<i class="bi bi-exclamation-circle" style="color:#dc2626"></i> Could not save \u2014 check your connection';
+                        '<i class="bi bi-exclamation-triangle-fill"></i> Save failed: ' + err.message;
                 });
         }
 
