@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Flash Cards | Paramind</title>
@@ -261,7 +264,7 @@
         /* ==================== FLASH CARD ==================== */
         .flashcard-wrap {
             perspective: 1600px;
-            height: 420px;
+            height: 560px;
             margin-bottom: 1rem;
             cursor: pointer;
         }
@@ -308,20 +311,53 @@
         .fc-back  .face-label { color: var(--color-teal); }
 
         .card-question {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
             line-height: 1.45;
             color: var(--color-gray-900);
-            flex: 1;
-            display: flex;
-            align-items: center;
+            margin-bottom: 0.75rem;
         }
-        .card-answer {
-            font-size: 1.45rem;
+        /* MCQ options on front */
+        .card-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+            flex: 1;
+        }
+        .card-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            padding: 0.5rem 0.65rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-gray-200);
+            background: rgba(255,255,255,0.7);
+            font-size: 0.82rem;
+            line-height: 1.4;
+            color: var(--color-gray-700);
+        }
+        .option-label {
             font-weight: 700;
-            color: var(--color-gray-900);
+            color: var(--color-teal);
+            min-width: 16px;
+            font-size: 0.78rem;
+            flex-shrink: 0;
+        }
+        /* Correct answer on back */
+        .card-correct-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            padding: 0.75rem;
+            border-radius: var(--radius-md);
+            background: #d1fae5;
+            border: 1px solid #6ee7b7;
             margin-bottom: 0.875rem;
-            line-height: 1.3;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #065f46;
+            line-height: 1.4;
+            flex-shrink: 0;
         }
         .card-explanation {
             font-size: 0.875rem;
@@ -344,43 +380,7 @@
             pointer-events: none;
         }
 
-        /* Hint */
-        .hint-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            background: rgba(255,255,255,0.8);
-            border: 1px solid var(--color-gray-300);
-            color: var(--color-gray-600);
-            font-size: 0.78rem;
-            font-weight: 600;
-            font-family: var(--font-primary);
-            padding: 6px 14px;
-            border-radius: var(--radius-full);
-            margin-top: 0.875rem;
-            align-self: flex-start;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-        }
-        .hint-chip:hover {
-            background: rgba(43,138,156,0.08);
-            color: var(--color-teal);
-            border-color: var(--color-teal);
-        }
 
-        .hint-text {
-            display: none;
-            margin-top: 0.75rem;
-            font-size: 0.83rem;
-            color: var(--color-gray-600);
-            font-style: italic;
-            padding: 0.65rem 0.875rem;
-            background: rgba(255,255,255,0.7);
-            border-left: 3px solid var(--color-teal);
-            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-            line-height: 1.5;
-        }
-        .hint-text.visible { display: block; }
 
         /* ==================== ASSESSMENT BUTTONS ==================== */
         .assess-prompt {
@@ -740,17 +740,14 @@
                     <div class="fc-face fc-front">
                         <div class="face-label">Question</div>
                         <div class="card-question" id="cardQuestion"></div>
-                        <button class="hint-chip" id="hintChip">
-                            <i class="bi bi-lightbulb"></i> Show hint
-                        </button>
-                        <div class="hint-text" id="hintText"></div>
+                        <div class="card-options" id="cardOptions"></div>
                         <div class="tap-hint"><i class="bi bi-hand-index"></i> Tap to reveal</div>
                     </div>
 
                     <!-- Back -->
                     <div class="fc-face fc-back">
                         <div class="face-label">Answer</div>
-                        <div class="card-answer" id="cardAnswer"></div>
+                        <div class="card-correct-option" id="cardCorrectOption"></div>
                         <div class="card-explanation" id="cardExplanation"></div>
                         <div class="tap-hint"><i class="bi bi-arrow-counterclockwise"></i> Tap to flip back</div>
                     </div>
@@ -960,7 +957,6 @@
             scores:       { gotit: 0, hard: 0, again: 0 },
             cardAnswers:  {},   // { cardId: quality } for SM-2 updates
             cardStates:   {},   // SM-2 state per card, loaded at session start
-            hintVisible:  false,
             lastSession:  null
         };
 
@@ -1183,6 +1179,8 @@
         }
 
         // ==================== CARD DISPLAY ====================
+        var OPTION_LABELS = ['A', 'B', 'C', 'D'];
+
         function loadCard(index) {
             var card  = state.cards[index];
             var total = state.cards.length;
@@ -1192,27 +1190,37 @@
             document.getElementById('progressFill').style.width =
                 (index / total * 100) + '%';
 
-            document.getElementById('cardQuestion').textContent   = card.front;
-            document.getElementById('cardAnswer').textContent     = card.answer;
+            // Question
+            document.getElementById('cardQuestion').textContent = card.front;
+
+            // Options on front face
+            var optHtml = '';
+            if (card.options) {
+                card.options.forEach(function (opt, i) {
+                    optHtml += '<div class="card-option">' +
+                        '<span class="option-label">' + OPTION_LABELS[i] + '</span>' +
+                        '<span>' + opt + '</span>' +
+                        '</div>';
+                });
+            }
+            document.getElementById('cardOptions').innerHTML = optHtml;
+
+            // Correct answer on back face
+            var correctEl = document.getElementById('cardCorrectOption');
+            if (card.options && typeof card.correct === 'number') {
+                correctEl.innerHTML =
+                    '<span style="font-size:1rem;flex-shrink:0">✅</span>' +
+                    '<span><strong>' + OPTION_LABELS[card.correct] + '</strong> — ' +
+                    card.options[card.correct] + '</span>';
+            } else {
+                correctEl.textContent = card.answer || '';
+            }
+
+            // Explanation
             document.getElementById('cardExplanation').textContent = card.explanation;
-            document.getElementById('hintText').textContent       = card.hint;
 
             // Reset flip
             document.getElementById('flashcard').classList.remove('flipped');
-
-            // Reset hint
-            document.getElementById('hintText').classList.remove('visible');
-            document.getElementById('hintChip').innerHTML =
-                '<i class="bi bi-lightbulb"></i> Show hint';
-            state.hintVisible = false;
-        }
-
-        function toggleHint() {
-            state.hintVisible = !state.hintVisible;
-            document.getElementById('hintText').classList.toggle('visible', state.hintVisible);
-            document.getElementById('hintChip').innerHTML = state.hintVisible
-                ? '<i class="bi bi-lightbulb-fill"></i> Hide hint'
-                : '<i class="bi bi-lightbulb"></i> Show hint';
         }
 
         // ==================== RECORD ANSWER ====================
@@ -1326,12 +1334,6 @@
             // Card flip
             document.getElementById('flashcard').addEventListener('click', function () {
                 this.classList.toggle('flipped');
-            });
-
-            // Hint button — must stop propagation so it doesn't flip the card
-            document.getElementById('hintChip').addEventListener('click', function (e) {
-                e.stopPropagation();
-                toggleHint();
             });
 
             // Assessment buttons
