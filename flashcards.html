@@ -1343,7 +1343,10 @@
 
             // Results buttons
             document.getElementById('btnPlayAgain').addEventListener('click', playAgain);
-            document.getElementById('btnBackToDecks').addEventListener('click', function () { showView('decks'); });
+            document.getElementById('btnBackToDecks').addEventListener('click', function () {
+                loadLastScores();
+                showView('decks');
+            });
 
             // Auth init
             initPage();
