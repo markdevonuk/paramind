@@ -1086,9 +1086,7 @@
                     '<div class="deck-info">' +
                         '<div class="deck-title">' + deck.name + '</div>' +
                         '<div class="deck-meta">' +
-                            '<span class="deck-meta-count"><i class="bi bi-card-list"></i> ' + deck.cards.length + ' cards in total, batches of 20</span>' +
-                            '<span class="' + (deck.pro ? 'badge-pro' : 'badge-free') + '">' + (deck.pro ? 'PRO' : 'FREE') + '</span>' +
-                            '<span class="deck-last-score" id="ls_' + deck.id + '" style="display:none"></span>' +
+                            '<span class="deck-meta-count"><i class="bi bi-card-list"></i> ' + deck.cards.length + ' cards in total, revision in batches of 20</span>' +
                         '</div>' +
                     '</div>' +
                     (locked
@@ -1115,23 +1113,7 @@
         }
 
         function loadLastScores() {
-            if (!state.currentUser) return;
-            db.collection('users').doc(state.currentUser.uid).get()
-                .then(function (doc) {
-                    if (!doc.exists) return;
-                    var data = doc.data();
-                    DECKS.forEach(function (deck) {
-                        var last = data['fcLast_' + deck.id];
-                        if (last) {
-                            var chip = document.getElementById('ls_' + deck.id);
-                            if (chip) {
-                                chip.textContent = 'Last time: ' + last.pct + '% confident';
-                                chip.style.display = 'inline-flex';
-                            }
-                        }
-                    });
-                })
-                .catch(function () {});
+            // Last score display removed from deck cards — no-op kept for safety
         }
 
         // ==================== START DECK ====================
