@@ -53,7 +53,8 @@
             { id: 'bloodlab', href: 'blood-lab.html', icon: 'bi-droplet-half', label: 'Understanding Bloods', isPro: true },
             { id: 'drugs', href: 'drugs.html', icon: 'bi-capsule', label: 'Understanding Drugs', isPro: true },
             { id: 'interview', href: 'interview.html', icon: 'bi-mic', label: 'Interview Prep', isPro: true },
-            { id: 'cpd', href: 'cpd.html', icon: 'bi-award', label: 'CPD Portfolio', isPro: true }
+            { id: 'cpd', href: 'cpd.html', icon: 'bi-award', label: 'CPD Portfolio', isPro: true },
+            { id: 'flashcards', href: 'flashcards.html', icon: 'bi-layers', label: 'Flash Cards', isPro: true }
         ],
         // Bottom items (Contact, Sign Out)
         bottomNav: [
@@ -80,6 +81,7 @@
         if (path.includes('ecg')) return 'ecg';
         if (path.includes('blood-lab')) return 'bloodlab';
         if (path.includes('cpd')) return 'cpd';
+        if (path.includes('flashcards')) return 'flashcards';
         if (path.includes('contact')) return 'contact';
         if (path.includes('account')) return 'account';
         
