@@ -446,11 +446,20 @@
             gap: 0.5rem;
         }
         #srChevron {
-            color: var(--color-gray-400);
-            font-size: 0.875rem;
+            font-size: 0.75rem;
             transition: transform var(--transition-base);
         }
         #srChevron.open { transform: rotate(180deg); }
+        .sr-read-why {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--color-gray-400);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
         .sr-explainer-body {
             display: none;
             padding: 0 1rem 1rem;
@@ -683,11 +692,11 @@
                         <i class="bi bi-lightning-charge-fill"></i>
                         Smart revision, not just repetition
                     </div>
-                    <i class="bi bi-chevron-down" id="srChevron"></i>
+                    <div class="sr-read-why" id="srReadWhy">read why <i class="bi bi-chevron-down" id="srChevron"></i></div>
                 </div>
                 <div class="sr-explainer-body" id="srExplainerBody">
-                    <p>Paramind uses a <a href="https://en.wikipedia.org/wiki/Spaced_repetition" target="_blank" rel="noopener">spaced repetition</a> algorithm to make your revision as efficient as possible. Every card you see is scored based on how well you knew it \u2014 <strong>Got it</strong>, <strong>Kind of</strong>, or <strong>No idea</strong>. The app uses that score to decide when you need to see that card again.</p>
-                    <p>Cards you know well get spaced further and further apart. Cards you struggle with come back sooner. Over time, you spend your revision time exactly where it\'s needed \u2014 not going over things you already know.</p>
+                    <p>Paramind uses a <a href="https://en.wikipedia.org/wiki/Spaced_repetition" target="_blank" rel="noopener">spaced repetition</a> algorithm to make your revision as efficient as possible. Every card you see is scored based on how well you knew it &mdash; <strong>Got it</strong>, <strong>Kind of</strong>, or <strong>No idea</strong>. The app uses that score to decide when you need to see that card again.</p>
+                    <p>Cards you know well get spaced further and further apart. Cards you struggle with come back sooner. Over time, you spend your revision time exactly where it's needed &mdash; not going over things you already know.</p>
                     <p>This is the same method used by Anki, trusted by medical students worldwide.</p>
                 </div>
             </div>
@@ -1077,7 +1086,7 @@
                     '<div class="deck-info">' +
                         '<div class="deck-title">' + deck.name + '</div>' +
                         '<div class="deck-meta">' +
-                            '<span class="deck-meta-count"><i class="bi bi-card-list"></i> ' + deck.cards.length + ' cards</span>' +
+                            '<span class="deck-meta-count"><i class="bi bi-card-list"></i> ' + deck.cards.length + ' cards in total, batches of 20</span>' +
                             '<span class="' + (deck.pro ? 'badge-pro' : 'badge-free') + '">' + (deck.pro ? 'PRO' : 'FREE') + '</span>' +
                             '<span class="deck-last-score" id="ls_' + deck.id + '" style="display:none"></span>' +
                         '</div>' +
@@ -1116,7 +1125,7 @@
                         if (last) {
                             var chip = document.getElementById('ls_' + deck.id);
                             if (chip) {
-                                chip.textContent = 'Last: ' + last.pct + '%';
+                                chip.textContent = 'Last time: ' + last.pct + '% confident';
                                 chip.style.display = 'inline-flex';
                             }
                         }
