@@ -34,6 +34,7 @@
         'blood-lab.html':        'Understanding Bloods',
         'drugs.html':            'Understanding Drugs',
         'interview.html':        'Interview Prep',
+        'flashcards.html':       'Flash Cards',
         'cpd.html':              null
     };
 
