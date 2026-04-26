@@ -1015,6 +1015,42 @@
         .mute-btn:hover { border-color: rgba(43,138,156,0.3); color: var(--atc-text); }
         .mute-btn.muted { color: var(--atc-dim); }
 
+
+        /* ── Inline voice prompt — appears under Hollie's message ── */
+        .inline-voice-prompt {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 4px;
+            margin-top: 6px;
+            animation: atcFadeUp 0.3s ease both;
+        }
+
+        .inline-voice-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 16px;
+            background: var(--atc-bg-card);
+            border: 1px solid var(--atc-border);
+            border-radius: 20px;
+            color: var(--atc-muted);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.18s;
+        }
+
+        .inline-voice-btn:hover {
+            border-color: rgba(43,138,156,0.3);
+            color: var(--atc-teal);
+        }
+
+        .inline-voice-btn i {
+            font-size: 15px;
+        }
+
     </style>
 </head>
 <body>
@@ -1241,9 +1277,6 @@
 
     <div class="debrief-bar">
         <div class="debrief-bar-inner">
-            <button class="debrief-mic-btn" id="debriefMicBtn" onclick="openVoiceOverlay()" title="Record voice reply">
-                <i class="bi bi-mic"></i>
-            </button>
             <textarea class="debrief-input" id="debriefInput" rows="1"
                 placeholder="Reply to Hollie..."
                 onkeydown="handleDebriefKey(event)"></textarea>
@@ -1773,6 +1806,11 @@ async function sendToAPI(userMessage, isFirstMessage) {
             speakHollie(visibleForSpeech);
         }
 
+        // Show inline voice prompt under Hollie's message (voice mode, no reflection)
+        if (ATC.voiceEnabled && visibleForSpeech && !reflectionMatch) {
+            appendInlineVoicePrompt();
+        }
+
     } catch (e) {
         console.error('Debrief API error:', e);
         removeTyping();
@@ -1804,6 +1842,9 @@ function sendDebriefMessage() {
 
     input.value = '';
     input.style.height = 'auto';
+
+    // Remove any inline voice prompts
+    document.querySelectorAll('.inline-voice-prompt').forEach(el => el.remove());
 
     appendMessage('user', text);
     sendToAPI(text, false);
@@ -2163,6 +2204,29 @@ const debriefMic = {
     transcribed:   ''
 };
 
+/* ── Inline voice prompt under Hollie messages ── */
+function appendInlineVoicePrompt() {
+    // Remove any previous prompt so only the latest shows
+    document.querySelectorAll('.inline-voice-prompt').forEach(el => el.remove());
+
+    const list = document.getElementById('messagesList');
+
+    const wrap = document.createElement('div');
+    wrap.className = 'inline-voice-prompt';
+
+    const btn = document.createElement('button');
+    btn.className = 'inline-voice-btn';
+    btn.innerHTML = '<i class="bi bi-mic"></i> Reply by voice';
+    btn.onclick = function() {
+        wrap.remove();
+        openVoiceOverlay();
+    };
+
+    wrap.appendChild(btn);
+    list.appendChild(wrap);
+    list.scrollTop = list.scrollHeight;
+}
+
 function openVoiceOverlay() {
     // Stop Hollie if she's speaking
     if (ATC.currentAudio) {
@@ -2295,10 +2359,10 @@ function sendVoiceReply() {
     const text = debriefMic.transcribed.trim();
     if (!text || ATC.isLoading) return;
 
-    // Close overlay
+    // Close overlay and remove any inline prompts
     document.getElementById('voiceOverlay').classList.remove('active');
+    document.querySelectorAll('.inline-voice-prompt').forEach(el => el.remove());
 
-    // Send as normal message
     appendMessage('user', text);
     sendToAPI(text, false);
 }
