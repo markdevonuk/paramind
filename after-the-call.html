@@ -850,138 +850,7 @@
             display: none;
         }
 
-        /* ── Voice overlay (in-page mic for debrief replies) ── */
-        .voice-overlay {
-            position: fixed;
-            top: 62px; left: 0; right: 0; bottom: 0;
-            background: var(--atc-bg);
-            z-index: 60;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 32px 24px;
-            text-align: center;
-        }
-        .voice-overlay.active { display: flex; }
-
-        .vo-hollie-label {
-            font-size: 11px; font-weight: 700;
-            letter-spacing: 1px; text-transform: uppercase;
-            color: var(--atc-teal); opacity: 0.7;
-            margin-bottom: 28px;
-        }
-
-        .vo-rings {
-            position: relative;
-            width: 130px; height: 130px;
-            display: flex; align-items: center; justify-content: center;
-            margin-bottom: 16px;
-        }
-
-        .vo-rings::before, .vo-rings::after {
-            content: '';
-            position: absolute; border-radius: 50%;
-            border: 1px solid rgba(220,53,69,0.2);
-        }
-
-        .vo-rings.active::before {
-            width: 100%; height: 100%;
-            animation: voRipple 2s ease-out infinite;
-        }
-        .vo-rings.active::after {
-            width: 145%; height: 145%;
-            animation: voRipple 2s 0.55s ease-out infinite;
-            border-color: rgba(220,53,69,0.1);
-        }
-
-        @keyframes voRipple {
-            0%   { transform: scale(0.9); opacity: 0.7; }
-            100% { transform: scale(1.1); opacity: 0; }
-        }
-
-        .vo-mic-btn {
-            width: 84px; height: 84px; border-radius: 50%;
-            background: linear-gradient(135deg, #c0392b, #96281b);
-            border: none; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 30px; color: white;
-            z-index: 1; position: relative;
-            box-shadow: 0 4px 24px rgba(220,53,69,0.25);
-            transition: transform 0.15s, box-shadow 0.15s;
-        }
-        .vo-mic-btn:hover { transform: scale(1.05); box-shadow: 0 6px 32px rgba(220,53,69,0.35); }
-
-        .vo-waveform {
-            display: flex; align-items: center; gap: 3px;
-            height: 28px; margin: 12px 0;
-        }
-        .vo-waveform span {
-            display: block; width: 3px; border-radius: 3px;
-            background: #c0392b; opacity: 0.35;
-        }
-        .vo-waveform.active span { animation: atcWave 1.2s ease-in-out infinite; opacity: 0.6; }
-        .vo-waveform span:nth-child(1){height:8px;animation-delay:0s}
-        .vo-waveform span:nth-child(2){height:16px;animation-delay:.1s}
-        .vo-waveform span:nth-child(3){height:22px;animation-delay:.2s}
-        .vo-waveform span:nth-child(4){height:16px;animation-delay:.3s}
-        .vo-waveform span:nth-child(5){height:10px;animation-delay:.4s}
-        .vo-waveform span:nth-child(6){height:20px;animation-delay:.15s}
-        .vo-waveform span:nth-child(7){height:14px;animation-delay:.25s}
-        .vo-waveform span:nth-child(8){height:24px;animation-delay:.05s}
-        .vo-waveform span:nth-child(9){height:12px;animation-delay:.35s}
-
-        .vo-status {
-            font-family: 'Lora', serif;
-            font-size: 16px; font-style: italic;
-            color: var(--atc-muted); margin-bottom: 20px;
-        }
-
-        .vo-transcript {
-            background: var(--atc-bg-card);
-            border: 1px solid var(--atc-border);
-            border-radius: 12px;
-            padding: 14px 16px;
-            min-height: 56px;
-            max-width: 520px; width: 100%;
-            font-family: 'Lora', serif;
-            font-size: 14px; font-style: italic;
-            line-height: 1.65; color: var(--atc-muted);
-            margin-bottom: 20px;
-            white-space: pre-wrap;
-            text-align: left;
-            display: none;
-        }
-        .vo-transcript.visible { display: block; }
-
-        .vo-actions {
-            display: flex; gap: 10px;
-            max-width: 520px; width: 100%;
-            justify-content: center;
-        }
-
-        .vo-send-btn {
-            flex: 1; padding: 13px 0;
-            background: var(--atc-teal); color: #fff;
-            border: none; border-radius: 12px;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 14px; font-weight: 600;
-            cursor: pointer; transition: all 0.18s;
-            display: none;
-        }
-        .vo-send-btn.visible { display: block; }
-        .vo-send-btn:hover { filter: brightness(1.1); }
-
-        .vo-cancel-btn {
-            padding: 13px 24px;
-            background: transparent; color: var(--atc-muted);
-            border: 1px solid var(--atc-border); border-radius: 12px;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 14px; cursor: pointer; transition: all 0.18s;
-        }
-        .vo-cancel-btn:hover { color: var(--atc-text); }
-
-        /* Hollie speaking indicator */
+        /* ── Hollie speaking indicator ── */
         .hollie-speaking { display: inline-flex; align-items: center; gap: 4px; margin-left: 6px; }
         .hollie-speaking-dot {
             width: 5px; height: 5px; border-radius: 50%;
@@ -1016,21 +885,19 @@
         .mute-btn.muted { color: var(--atc-dim); }
 
 
-        /* ── Inline voice prompt — appears under Hollie's message ── */
-        .inline-voice-prompt {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        /* ── Inline voice widget — appears under Hollie's message ── */
+        .ivw {
             padding: 0 4px;
-            margin-top: 6px;
+            margin-top: 8px;
             animation: atcFadeUp 0.3s ease both;
         }
 
-        .inline-voice-btn {
-            display: flex;
+        /* Prompt state — the initial "Reply by voice" button */
+        .ivw-start-btn {
+            display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 9px 16px;
+            padding: 9px 18px;
             background: var(--atc-bg-card);
             border: 1px solid var(--atc-border);
             border-radius: 20px;
@@ -1041,15 +908,104 @@
             cursor: pointer;
             transition: all 0.18s;
         }
+        .ivw-start-btn:hover { border-color: var(--atc-teal-border); color: var(--atc-teal); }
+        .ivw-start-btn i { font-size: 14px; }
 
-        .inline-voice-btn:hover {
-            border-color: rgba(43,138,156,0.3);
-            color: var(--atc-teal);
+        /* Recording state */
+        .ivw-recording {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
         }
 
-        .inline-voice-btn i {
-            font-size: 15px;
+        .ivw-rings {
+            position: relative;
+            width: 80px; height: 80px;
+            display: flex; align-items: center; justify-content: center;
         }
+
+        .ivw-rings::before, .ivw-rings::after {
+            content: '';
+            position: absolute; border-radius: 50%;
+            border: 1px solid var(--atc-teal-border);
+        }
+        .ivw-rings::before { width: 100%; height: 100%; animation: ivwRipple 2s ease-out infinite; }
+        .ivw-rings::after  { width: 140%; height: 140%; animation: ivwRipple 2s 0.5s ease-out infinite; border-color: rgba(43,138,156,0.08); }
+
+        @keyframes ivwRipple {
+            0%   { transform: scale(0.9); opacity: 0.7; }
+            100% { transform: scale(1.1); opacity: 0; }
+        }
+
+        .ivw-mic-btn {
+            width: 54px; height: 54px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--atc-teal), #1d6a7a);
+            border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; color: white;
+            z-index: 1; position: relative;
+            box-shadow: 0 4px 16px rgba(43,138,156,0.3);
+            transition: transform 0.15s;
+        }
+        .ivw-mic-btn:hover { transform: scale(1.05); }
+
+        .ivw-waveform {
+            display: flex; align-items: center; gap: 3px; height: 22px;
+        }
+        .ivw-waveform span {
+            display: block; width: 3px; border-radius: 3px;
+            background: var(--atc-teal); opacity: 0.5;
+            animation: atcWave 1.2s ease-in-out infinite;
+        }
+        .ivw-waveform span:nth-child(1){height:6px;animation-delay:0s}
+        .ivw-waveform span:nth-child(2){height:14px;animation-delay:.1s}
+        .ivw-waveform span:nth-child(3){height:20px;animation-delay:.2s}
+        .ivw-waveform span:nth-child(4){height:14px;animation-delay:.3s}
+        .ivw-waveform span:nth-child(5){height:8px;animation-delay:.4s}
+        .ivw-waveform span:nth-child(6){height:18px;animation-delay:.15s}
+        .ivw-waveform span:nth-child(7){height:12px;animation-delay:.25s}
+
+        .ivw-status {
+            font-family: 'Lora', serif;
+            font-size: 14px; font-style: italic;
+            color: var(--atc-muted);
+        }
+
+        /* Review state */
+        .ivw-transcript-text {
+            font-family: 'Lora', serif;
+            font-size: 14px; font-style: italic;
+            color: var(--atc-text);
+            line-height: 1.6;
+            padding: 10px 14px;
+            background: var(--atc-bg-card);
+            border: 1px solid var(--atc-border);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            max-width: 380px;
+        }
+
+        .ivw-actions { display: flex; gap: 8px; }
+
+        .ivw-send-btn {
+            padding: 9px 20px;
+            background: var(--atc-teal); color: #fff;
+            border: none; border-radius: 10px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 13px; font-weight: 600;
+            cursor: pointer; transition: all 0.18s;
+        }
+        .ivw-send-btn:hover { filter: brightness(1.1); }
+
+        .ivw-retry-btn {
+            padding: 9px 16px;
+            background: transparent; color: var(--atc-muted);
+            border: 1px solid var(--atc-border); border-radius: 10px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 13px; cursor: pointer; transition: all 0.18s;
+        }
+        .ivw-retry-btn:hover { color: var(--atc-text); }
 
     </style>
 </head>
@@ -1251,26 +1207,6 @@
         <div class="debrief-dot"></div>
         <span class="debrief-topbar-title" id="debriefTopTitle">Debrief in progress</span>
         <button class="debrief-end-btn" onclick="endDebrief()">End debrief</button>
-    </div>
-
-    <!-- Voice reply overlay — shown when user taps mic during debrief -->
-    <div class="voice-overlay" id="voiceOverlay">
-        <p class="vo-hollie-label">Voice reply</p>
-        <div class="vo-rings" id="voRings">
-            <button class="vo-mic-btn" id="voMicBtn" onclick="toggleDebriefMic()">
-                <i class="bi bi-mic-fill" id="voMicIcon"></i>
-            </button>
-        </div>
-        <div class="vo-waveform" id="voWaveform">
-            <span></span><span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span>
-        </div>
-        <p class="vo-status" id="voStatus">Tap the mic to start speaking</p>
-        <div class="vo-transcript" id="voTranscript"></div>
-        <div class="vo-actions">
-            <button class="vo-send-btn" id="voSendBtn" onclick="sendVoiceReply()">Send reply</button>
-            <button class="vo-cancel-btn" onclick="cancelVoiceOverlay()">Cancel</button>
-        </div>
     </div>
 
     <div class="messages-list" id="messagesList"></div>
@@ -2196,121 +2132,84 @@ function showMuteBtn(show) {
 /* ══════════════════════════════════════
    VOICE OVERLAY — in-page mic for replies
    ══════════════════════════════════════ */
+/* ══════════════════════════════════════
+   INLINE VOICE WIDGET — no modal, all in conversation flow
+   ══════════════════════════════════════ */
 const debriefMic = {
     mediaRecorder: null,
     audioChunks:   [],
     isRecording:   false,
-    mimeType:      '',
-    transcribed:   ''
+    mimeType:      ''
 };
 
-/* ── Inline voice prompt under Hollie messages ── */
 function appendInlineVoicePrompt() {
-    // Remove any previous prompt so only the latest shows
-    document.querySelectorAll('.inline-voice-prompt').forEach(el => el.remove());
-
-    const list = document.getElementById('messagesList');
-
-    const wrap = document.createElement('div');
-    wrap.className = 'inline-voice-prompt';
-
+    document.querySelectorAll('.ivw').forEach(el => el.remove());
+    const list   = document.getElementById('messagesList');
+    const widget = document.createElement('div');
+    widget.className = 'ivw';
+    widget.id = 'ivw';
     const btn = document.createElement('button');
-    btn.className = 'inline-voice-btn';
-    btn.innerHTML = '<i class="bi bi-mic"></i> Reply by voice';
-    btn.onclick = function() {
-        wrap.remove();
-        openVoiceOverlay();
-    };
-
-    wrap.appendChild(btn);
-    list.appendChild(wrap);
+    btn.className = 'ivw-start-btn';
+    btn.innerHTML = '<i class="bi bi-mic-fill"></i> Reply by voice';
+    btn.onclick = () => startInlineRecording(widget);
+    widget.appendChild(btn);
+    list.appendChild(widget);
     list.scrollTop = list.scrollHeight;
 }
 
-function openVoiceOverlay() {
-    // Stop Hollie if she's speaking
-    if (ATC.currentAudio) {
-        ATC.currentAudio.pause();
-        ATC.currentAudio = null;
-        document.getElementById('debriefTopTitle').textContent =
-            document.getElementById('debriefTopTitle').textContent.replace(/\s*▶.*$/, '').trim();
-    }
-
-    debriefMic.transcribed = '';
-    document.getElementById('voTranscript').textContent = '';
-    document.getElementById('voTranscript').classList.remove('visible');
-    document.getElementById('voSendBtn').classList.remove('visible');
-    document.getElementById('voStatus').textContent = 'Tap the mic to start speaking';
-    document.getElementById('voRings').classList.remove('active');
-    document.getElementById('voWaveform').classList.remove('active');
-    document.getElementById('voMicIcon').className = 'bi bi-mic-fill';
-    document.getElementById('voiceOverlay').classList.add('active');
-}
-
-function cancelVoiceOverlay() {
-    if (debriefMic.isRecording) {
-        debriefMic.mediaRecorder.stop();
-        debriefMic.isRecording = false;
-    }
-    document.getElementById('voiceOverlay').classList.remove('active');
-    document.getElementById('voRings').classList.remove('active');
-    document.getElementById('voWaveform').classList.remove('active');
-}
-
-async function toggleDebriefMic() {
-    if (debriefMic.isRecording) {
-        stopDebriefMicOverlay();
-    } else {
-        await startDebriefMicOverlay();
-    }
-}
-
-async function startDebriefMicOverlay() {
+async function startInlineRecording(widget) {
+    if (ATC.currentAudio) { ATC.currentAudio.pause(); ATC.currentAudio = null; }
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         debriefMic.audioChunks = [];
         debriefMic.mimeType    = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
         debriefMic.mediaRecorder = new MediaRecorder(stream, { mimeType: debriefMic.mimeType });
+        debriefMic.isRecording   = true;
 
-        debriefMic.mediaRecorder.ondataavailable = (e) => {
+        debriefMic.mediaRecorder.ondataavailable = e => {
             if (e.data.size > 0) debriefMic.audioChunks.push(e.data);
         };
-
         debriefMic.mediaRecorder.onstop = async () => {
             stream.getTracks().forEach(t => t.stop());
-            await transcribeVoiceReply();
+            await transcribeInlineReply(widget);
         };
-
         debriefMic.mediaRecorder.start();
-        debriefMic.isRecording = true;
 
-        document.getElementById('voRings').classList.add('active');
-        document.getElementById('voWaveform').classList.add('active');
-        document.getElementById('voMicIcon').className = 'bi bi-stop-fill';
-        document.getElementById('voStatus').textContent = 'Recording — tap to stop';
+        widget.innerHTML = `
+            <div class="ivw-recording">
+                <div class="ivw-rings">
+                    <button class="ivw-mic-btn" id="ivwMicBtn" onclick="stopInlineRecording()">
+                        <i class="bi bi-stop-fill"></i>
+                    </button>
+                </div>
+                <div class="ivw-waveform">
+                    <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                </div>
+                <p class="ivw-status">Recording — tap to stop</p>
+            </div>`;
+        document.getElementById('messagesList').scrollTop = document.getElementById('messagesList').scrollHeight;
 
     } catch (e) {
-        console.error('Overlay mic error:', e);
-        document.getElementById('voStatus').textContent = 'Microphone access denied — please type your reply instead';
+        console.error('Inline mic error:', e);
+        widget.innerHTML = '<p style="font-size:13px;color:#f08090;padding:4px 0">Microphone access denied — please type your reply.</p>';
     }
 }
 
-function stopDebriefMicOverlay() {
+function stopInlineRecording() {
     if (debriefMic.mediaRecorder && debriefMic.isRecording) {
         debriefMic.mediaRecorder.stop();
         debriefMic.isRecording = false;
-        document.getElementById('voRings').classList.remove('active');
-        document.getElementById('voWaveform').classList.remove('active');
-        document.getElementById('voMicIcon').className = 'bi bi-hourglass-split';
-        document.getElementById('voStatus').textContent = 'Transcribing…';
+        const btn = document.getElementById('ivwMicBtn');
+        if (btn) { btn.innerHTML = '<i class="bi bi-hourglass-split"></i>'; btn.disabled = true; }
+        const status = document.querySelector('.ivw-status');
+        if (status) status.textContent = 'Transcribing…';
     }
 }
 
-async function transcribeVoiceReply() {
+async function transcribeInlineReply(widget) {
     try {
-        const token  = await getToken();
-        const blob   = new Blob(debriefMic.audioChunks, { type: debriefMic.mimeType });
-
+        const token = await getToken();
+        const blob  = new Blob(debriefMic.audioChunks, { type: debriefMic.mimeType });
         const base64 = await new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload  = () => resolve(reader.result.split(',')[1]);
@@ -2320,52 +2219,57 @@ async function transcribeVoiceReply() {
 
         const resp = await fetch(ATC.API_BASE + '/transcribe', {
             method: 'POST',
-            headers: {
-                'Authorization': 'Bearer ' + token,
-                'Content-Type':  'application/json'
-            },
+            headers: { 'Authorization': 'Bearer ' + (await getToken()), 'Content-Type': 'application/json' },
             body: JSON.stringify({ audio: base64, mimeType: debriefMic.mimeType })
         });
 
         if (!resp.ok) throw new Error('Transcription failed');
-
         const data = await resp.json();
         const text = (data.text || '').trim();
 
-        debriefMic.transcribed = text;
-
-        const transcriptEl = document.getElementById('voTranscript');
-        const sendBtn      = document.getElementById('voSendBtn');
-
         if (text) {
-            transcriptEl.textContent = text;
-            transcriptEl.classList.add('visible');
-            sendBtn.classList.add('visible');
-            document.getElementById('voStatus').textContent = 'Tap the mic to record more, or send your reply';
+            widget.innerHTML = `
+                <div class="ivw-transcript-text">${escHtml(text)}</div>
+                <div class="ivw-actions">
+                    <button class="ivw-send-btn" onclick="sendInlineVoiceReply(this)">Send reply</button>
+                    <button class="ivw-retry-btn" onclick="retryInlineVoice()">Try again</button>
+                </div>`;
+            widget.dataset.transcribed = text;
         } else {
-            document.getElementById('voStatus').textContent = 'Nothing captured — tap the mic to try again';
+            widget.innerHTML = `
+                <p class="ivw-status" style="margin-bottom:8px">Nothing captured —</p>
+                <button class="ivw-start-btn" onclick="retryInlineVoice()"><i class="bi bi-mic-fill"></i> Try again</button>`;
         }
-
-        document.getElementById('voMicIcon').className = 'bi bi-mic-fill';
+        document.getElementById('messagesList').scrollTop = document.getElementById('messagesList').scrollHeight;
 
     } catch (e) {
-        console.error('Voice reply transcribe error:', e);
-        document.getElementById('voStatus').textContent = 'Transcription failed — tap to try again';
-        document.getElementById('voMicIcon').className = 'bi bi-mic-fill';
+        console.error('Inline transcribe error:', e);
+        widget.innerHTML = `
+            <p class="ivw-status" style="margin-bottom:8px;color:#f08090">Transcription failed —</p>
+            <button class="ivw-start-btn" onclick="retryInlineVoice()"><i class="bi bi-mic-fill"></i> Try again</button>`;
     }
 }
 
-function sendVoiceReply() {
-    const text = debriefMic.transcribed.trim();
+function sendInlineVoiceReply(btn) {
+    const widget = document.getElementById('ivw');
+    const text   = widget ? widget.dataset.transcribed : '';
     if (!text || ATC.isLoading) return;
-
-    // Close overlay and remove any inline prompts
-    document.getElementById('voiceOverlay').classList.remove('active');
-    document.querySelectorAll('.inline-voice-prompt').forEach(el => el.remove());
-
+    document.querySelectorAll('.ivw').forEach(el => el.remove());
     appendMessage('user', text);
     sendToAPI(text, false);
 }
+
+function retryInlineVoice() {
+    const widget = document.getElementById('ivw');
+    if (!widget) return;
+    widget.innerHTML = '';
+    const btn = document.createElement('button');
+    btn.className = 'ivw-start-btn';
+    btn.innerHTML = '<i class="bi bi-mic-fill"></i> Reply by voice';
+    btn.onclick = () => startInlineRecording(widget);
+    widget.appendChild(btn);
+}
+
 
 function endDebrief() {
     if (ATC.conversationHistory.length > 0) {
@@ -2402,12 +2306,10 @@ function resetDebrief() {
     if (debriefMic.isRecording && debriefMic.mediaRecorder) debriefMic.mediaRecorder.stop();
     debriefMic.audioChunks = [];
     debriefMic.isRecording = false;
-    debriefMic.transcribed = '';
     if (ATC.currentAudio) { ATC.currentAudio.pause(); ATC.currentAudio = null; }
 
-    // Reset voice overlay
-    const vo = document.getElementById('voiceOverlay');
-    if (vo) vo.classList.remove('active');
+    // Remove any inline voice widgets
+    document.querySelectorAll('.ivw').forEach(el => el.remove());
 
     // Hide mute button
     showMuteBtn(false);
