@@ -2083,22 +2083,23 @@ async function speakHollie(text) {
         const audio = new Audio(url);
         ATC.currentAudio = audio;
 
-        // Wait for audio to finish before resolving
-        await new Promise((resolve) => {
-            audio.onended = () => {
-                URL.revokeObjectURL(url);
-                ATC.currentAudio = null;
-                titleEl.textContent = origTitle;
-                resolve();
-            };
-            audio.onerror = () => {
-                URL.revokeObjectURL(url);
-                ATC.currentAudio = null;
-                titleEl.textContent = origTitle;
-                resolve();
-            };
-            audio.play().catch(() => resolve());
-        });
+        try {
+            // Start playback — throws if autoplay blocked
+            await audio.play();
+
+            // Play started — now wait for it to finish
+            await new Promise(resolve => {
+                audio.addEventListener('ended', resolve, { once: true });
+                audio.addEventListener('error', resolve, { once: true });
+            });
+        } catch (playErr) {
+            // Autoplay blocked or decode error — log and continue
+            console.warn('Hollie audio playback error:', playErr);
+        }
+
+        URL.revokeObjectURL(url);
+        ATC.currentAudio = null;
+        titleEl.textContent = origTitle;
 
     } catch (e) {
         console.error('Hollie speak error:', e);
