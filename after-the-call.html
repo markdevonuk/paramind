@@ -1736,14 +1736,13 @@ async function sendToAPI(userMessage, isFirstMessage) {
             renderReflectionCard(reflectionMatch[1].trim());
         }
 
-        // Speak Hollie's response if voice mode is active
+        // Speak Hollie's response if voice mode, then show mic
         const visibleForSpeech = fullMessage.replace(/REFLECTION_START[\s\S]*?REFLECTION_END/g, '').trim();
-        if (ATC.voiceEnabled && !ATC.muted && visibleForSpeech) {
-            speakHollie(visibleForSpeech);
-        }
-
-        // Show inline voice prompt under Hollie's message (voice mode, no reflection)
         if (ATC.voiceEnabled && visibleForSpeech && !reflectionMatch) {
+            if (!ATC.muted) {
+                await speakHollie(visibleForSpeech);
+            }
+            // Only show mic after Hollie has finished speaking
             appendInlineVoicePrompt();
         }
 
@@ -2084,19 +2083,22 @@ async function speakHollie(text) {
         const audio = new Audio(url);
         ATC.currentAudio = audio;
 
-        audio.onended = () => {
-            URL.revokeObjectURL(url);
-            ATC.currentAudio = null;
-            titleEl.textContent = origTitle;
-        };
-
-        audio.onerror = () => {
-            URL.revokeObjectURL(url);
-            ATC.currentAudio = null;
-            titleEl.textContent = origTitle;
-        };
-
-        await audio.play();
+        // Wait for audio to finish before resolving
+        await new Promise((resolve) => {
+            audio.onended = () => {
+                URL.revokeObjectURL(url);
+                ATC.currentAudio = null;
+                titleEl.textContent = origTitle;
+                resolve();
+            };
+            audio.onerror = () => {
+                URL.revokeObjectURL(url);
+                ATC.currentAudio = null;
+                titleEl.textContent = origTitle;
+                resolve();
+            };
+            audio.play().catch(() => resolve());
+        });
 
     } catch (e) {
         console.error('Hollie speak error:', e);
