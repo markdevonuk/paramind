@@ -2148,13 +2148,10 @@ function appendInlineVoicePrompt() {
     const widget = document.createElement('div');
     widget.className = 'ivw';
     widget.id = 'ivw';
-    const btn = document.createElement('button');
-    btn.className = 'ivw-start-btn';
-    btn.innerHTML = '<i class="bi bi-mic-fill"></i> Reply by voice';
-    btn.onclick = () => startInlineRecording(widget);
-    widget.appendChild(btn);
     list.appendChild(widget);
     list.scrollTop = list.scrollHeight;
+    // Start recording immediately — no button needed in voice mode
+    startInlineRecording(widget);
 }
 
 async function startInlineRecording(widget) {
