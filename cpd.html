@@ -1341,6 +1341,7 @@ function displayCpdRecords(records) {
                 '<span class="cpd-record-stat"><i class="bi bi-chat-dots"></i>' + (record.questionsAsked || 0) + ' exchanges</span>' +
                 '</div>' +
                 '<div class="cpd-record-actions">' +
+                '<button class="btn btn-certificate" onclick="downloadCertificate(\'' + record.id + '\')"><i class="bi bi-download me-1"></i>Download Certificate</button>' +
                 '<button class="btn btn-delete" onclick="deleteRecord(\'' + record.id + '\')"><i class="bi bi-trash"></i></button>' +
                 '</div></div>';
             return;
@@ -1401,8 +1402,103 @@ async function downloadCertificate(recordId) {
 }
 
 function generateCertificatePdf(record, userName) {
-    if (record.debriefReport) { generateEnhancedCertificatePdf(record, userName); }
+    if (record.type === 'after-the-call') { generateDebriefCertificatePdf(record, userName); }
+    else if (record.debriefReport) { generateEnhancedCertificatePdf(record, userName); }
     else { generateLegacyCertificatePdf(record, userName); }
+}
+
+function generateDebriefCertificatePdf(record, userName) {
+    var jsPDFLib = window.jspdf;
+    var doc = new jsPDFLib.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    var pw=210, ph=297, cx=pw/2, m=18, iw=pw-m*2;
+    var teal=[43,138,156], green=[92,184,92], navy=[26,26,46], white=[255,255,255], gray=[108,117,125], lgray=[200,206,212];
+
+    // Border
+    doc.setDrawColor(...teal); doc.setLineWidth(2.2); doc.rect(6,6,pw-12,ph-12);
+    doc.setDrawColor(...green); doc.setLineWidth(0.5); doc.rect(9,9,pw-18,ph-18);
+
+    // Header bar
+    doc.setFillColor(...navy); doc.rect(9,9,pw-18,32,'F');
+
+    // Brand
+    doc.setFontSize(11); doc.setFont('helvetica','bold');
+    doc.setTextColor(...teal); var paraW = doc.getTextWidth('para');
+    doc.text('para', m, 22);
+    doc.setTextColor(...green); doc.text('mind', m+paraW, 22);
+    doc.setFontSize(6.5); doc.setFont('helvetica','normal');
+    doc.setTextColor(...lgray); doc.text('AI-Powered Paramedic Learning', m, 27);
+
+    // Title
+    doc.setFontSize(15); doc.setFont('helvetica','bold'); doc.setTextColor(...white);
+    doc.text('CERTIFICATE OF REFLECTION', cx, 21, { align:'center' });
+    doc.setFontSize(7.5); doc.setFont('helvetica','normal'); doc.setTextColor(...teal);
+    doc.text('AFTER THE CALL — CONTINUING PROFESSIONAL DEVELOPMENT', cx, 28, { align:'center' });
+
+    var y = 52;
+
+    // This certifies
+    doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(...gray);
+    doc.text('This certifies that', cx, y, { align:'center' }); y += 9;
+    doc.setFontSize(20); doc.setFont('helvetica','bold'); doc.setTextColor(...navy);
+    doc.text(userName || 'Paramind User', cx, y, { align:'center' }); y += 8;
+    doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(...gray);
+    doc.text('has completed a structured post-shift clinical debrief:', cx, y, { align:'center' }); y += 12;
+
+    // Call type
+    doc.setFontSize(15); doc.setFont('helvetica','bold'); doc.setTextColor(...navy);
+    var callLines = doc.splitTextToSize(record.scenarioType || 'Shift Debrief', iw);
+    doc.text(callLines, cx, y, { align:'center' }); y += callLines.length * 7 + 6;
+
+    // Divider
+    doc.setDrawColor(...lgray); doc.setLineWidth(0.3);
+    doc.line(m, y, pw-m, y); y += 10;
+
+    // Section helper
+    var sectionHead = function(title, yy) {
+        doc.setFillColor(...teal); doc.rect(m, yy, 3, 5, 'F');
+        doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...teal);
+        doc.text(title.toUpperCase(), m+6, yy+3.8);
+        return yy + 10;
+    };
+
+    var bodyText = function(text, yy) {
+        doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...navy);
+        var lines = doc.splitTextToSize(text || '', iw - 6);
+        doc.text(lines, m+6, yy);
+        return yy + lines.length * 5.5 + 4;
+    };
+
+    y = sectionHead('Learning Identified', y);
+    y = bodyText(record.learning || 'See full reflection', y);
+    y += 2;
+
+    y = sectionHead('Reflection', y);
+    y = bodyText(record.reflection || record.userImpression || '', y);
+    y += 6;
+
+    // Stats
+    doc.setDrawColor(...lgray); doc.setLineWidth(0.3); doc.line(m, y, pw-m, y); y += 8;
+    var ts = record.completedAt;
+    var completedDate = ts
+        ? new Date(ts._seconds ? ts._seconds*1000 : ts).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})
+        : new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+    doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(...gray);
+    doc.text('Completed: ' + completedDate, m, y);
+    doc.text('Exchanges: ' + (record.questionsAsked || 0), pw-m, y, { align:'right' });
+    y += 8;
+
+    // HCPC note
+    doc.setFontSize(7.5); doc.setFont('helvetica','italic'); doc.setTextColor(...lgray);
+    var note = 'This reflection was generated following a structured debrief with Hollie on Paramind. Suitable for inclusion in HCPC CPD portfolios.';
+    var noteLines = doc.splitTextToSize(note, iw);
+    doc.text(noteLines, m, y);
+
+    // Footer
+    doc.setFillColor(...lgray); doc.rect(0, ph-14, pw, 14, 'F');
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...gray);
+    doc.text('paramind.co.uk  ·  AI-Powered Learning for UK Paramedics  ·  Certificate ID: ' + (record.id || ''), cx, ph-6, { align:'center' });
+
+    savePdf(doc, 'Paramind_AfterTheCall_' + completedDate.replace(/\s/g,'_').replace(/,/g,'') + '.pdf');
 }
 
 function generateEnhancedCertificatePdf(record, userName) {
