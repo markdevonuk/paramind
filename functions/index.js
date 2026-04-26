@@ -1032,6 +1032,94 @@ exports.speak = onRequest(
 );
 
 /**
+ * POST /speakHollie
+ * Converts Hollie's text responses to speech using ElevenLabs TTS
+ * Uses Charlotte voice — British English female
+ * Pro users only
+ */
+exports.speakHollie = onRequest(
+  {
+    cors: true,
+    secrets: ["ELEVENLABS_API_KEY"],
+    timeoutSeconds: 60
+  },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+      const uid = await verifyAuth(req);
+      const user = await getUser(uid);
+
+      if (user.subscriptionStatus !== "active") {
+        return res.status(403).json({
+          error: "Pro subscription required",
+          upgrade: true
+        });
+      }
+
+      const { text } = req.body;
+
+      if (!text || typeof text !== "string") {
+        return res.status(400).json({ error: "text is required" });
+      }
+
+      // Charlotte voice ID — warm British English female
+      const CHARLOTTE_VOICE_ID = "XB0fDUnXU5powFXDhCwa";
+
+      const response = await fetch(
+        `https://api.elevenlabs.io/v1/text-to-speech/${CHARLOTTE_VOICE_ID}`,
+        {
+          method: "POST",
+          headers: {
+            "xi-api-key": process.env.ELEVENLABS_API_KEY,
+            "Content-Type": "application/json",
+            "Accept": "audio/mpeg"
+          },
+          body: JSON.stringify({
+            text: text.slice(0, 5000),
+            model_id: "eleven_turbo_v2_5",
+            voice_settings: {
+              stability: 0.5,
+              similarity_boost: 0.75,
+              style: 0.3,
+              use_speaker_boost: true
+            }
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const err = await response.text();
+        console.error("ElevenLabs error:", err);
+        throw new Error(`ElevenLabs API error: ${response.status}`);
+      }
+
+      const audioBuffer = await response.arrayBuffer();
+      const base64Audio = Buffer.from(audioBuffer).toString("base64");
+
+      console.log(`speakHollie: ${text.length} chars for user ${uid}`);
+
+      return res.status(200).json({ audio: base64Audio });
+
+    } catch (error) {
+      console.error("speakHollie error:", error);
+
+      if (error.message.includes("Unauthorized")) {
+        return res.status(401).json({ error: error.message });
+      }
+
+      return res.status(500).json({
+        error: "Failed to generate speech",
+        details: error.message
+      });
+    }
+  }
+);
+
+
+/**
  * POST /verifyApplePurchase
  * Verify an Apple In-App Purchase and activate Pro subscription
  * Called by the iOS app after a successful StoreKit purchase

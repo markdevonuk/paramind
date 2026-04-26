@@ -2043,7 +2043,7 @@ async function speakHollie(text) {
         ATC.currentAudio = null;
     }
 
-    // Show speaking indicator on topbar title
+    // Show speaking indicator
     const titleEl = document.getElementById('debriefTopTitle');
     const origTitle = titleEl.textContent.replace(/\s*▶.*$/, '').trim();
     titleEl.innerHTML = origTitle + ' <span class="hollie-speaking"><span class="hollie-speaking-dot"></span><span class="hollie-speaking-dot"></span><span class="hollie-speaking-dot"></span></span>';
@@ -2051,49 +2051,38 @@ async function speakHollie(text) {
     try {
         const token = await getToken();
 
-        const resp = await fetch(ATC.API_BASE + '/speak', {
+        // Call ElevenLabs via Cloud Function
+        const resp = await fetch(ATC.API_BASE + '/speakHollie', {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + token,
                 'Content-Type':  'application/json'
             },
-            body: JSON.stringify({
-                segments: [{
-                    text:         text.slice(0, 4096), // safety cap
-                    voice:        'fable',
-                    character:    'HOLLIE',
-                    instructions: 'Speak with a warm, natural British English accent — similar to a calm, educated voice from the south of England. You are a knowledgeable paramedic educator. Unhurried, collegiate, and friendly. Pronounce words in British English: "loo-tenant" not "loo-tenant", "shedule" not "skedule". Never sound American.'
-                }]
-            })
+            body: JSON.stringify({ text: text })
         });
 
-        if (!resp.ok) throw new Error('Speak API error');
+        if (!resp.ok) throw new Error('speakHollie API error ' + resp.status);
 
         const data = await resp.json();
-        const seg  = data.audioSegments && data.audioSegments[0];
-        if (!seg || !seg.audio) throw new Error('No audio returned');
+        if (!data.audio) throw new Error('No audio returned');
 
         // Decode base64 MP3 and play
-        const binary = atob(seg.audio);
+        const binary = atob(data.audio);
         const bytes  = new Uint8Array(binary.length);
         for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-        const blob   = new Blob([bytes], { type: 'audio/mpeg' });
-        const url    = URL.createObjectURL(blob);
+        const blob = new Blob([bytes], { type: 'audio/mpeg' });
+        const url  = URL.createObjectURL(blob);
 
         const audio = new Audio(url);
         ATC.currentAudio = audio;
 
         try {
-            // Start playback — throws if autoplay blocked
             await audio.play();
-
-            // Play started — now wait for it to finish
             await new Promise(resolve => {
                 audio.addEventListener('ended', resolve, { once: true });
                 audio.addEventListener('error', resolve, { once: true });
             });
         } catch (playErr) {
-            // Autoplay blocked or decode error — log and continue
             console.warn('Hollie audio playback error:', playErr);
         }
 
