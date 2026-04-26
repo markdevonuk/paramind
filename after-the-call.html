@@ -1504,6 +1504,8 @@ async function sendToAPI(userMessage, isFirstMessage) {
                             .trim();
 
                         hollieBubble.textContent = visibleText;
+                        // Hide bubble entirely if only a reflection block was returned
+                        hollieBubble.parentElement.style.display = visibleText ? '' : 'none';
                         document.getElementById('messagesList').scrollTop = document.getElementById('messagesList').scrollHeight;
 
                     } else if (data.type === 'error') {
