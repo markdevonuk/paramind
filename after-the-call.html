@@ -1374,8 +1374,8 @@ async function initPage() {
                 headers: { 'Authorization': 'Bearer ' + token }
             });
             if (resp.ok) {
-                const records = await resp.json();
-                const atcRecords = (records || []).filter(r => r.type === 'after-the-call');
+                const data = await resp.json();
+                const atcRecords = (data.records || []).filter(r => r.type === 'after-the-call');
                 const countEl = document.getElementById('debriefCount');
                 if (countEl) {
                     countEl.textContent = atcRecords.length === 0
@@ -1860,7 +1860,7 @@ async function saveCPDRecord(btn) {
     try {
         await getToken();
         const db = firebase.firestore();
-        await db.collection('users').doc(ATC.userUid).collection('cpdRecords').add({
+        const ref = await db.collection('users').doc(ATC.userUid).collection('cpdRecords').add({
             type:             'after-the-call',
             scenarioId:       'after-the-call',
             scenarioCode:     'ATC',
@@ -1873,8 +1873,9 @@ async function saveCPDRecord(btn) {
             result:           'correct',
             questionsAsked:   Math.floor(ATC.conversationHistory.length / 2),
             assessmentsPerformed: 0,
-            completedAt:      firebase.firestore.FieldValue.serverTimestamp()
+            completedAt:      new Date()
         });
+        console.log('CPD record saved:', ref.id);
         btn.textContent = 'Saved \u2713';
     } catch (e) {
         console.error('CPD save error:', e);
