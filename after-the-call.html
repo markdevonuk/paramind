@@ -1036,6 +1036,9 @@
 
 </div>
 
+<!-- jsPDF for reflection PDF export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <!-- Scripts — identical order to all Pro pages -->
 <script src="js/app.js"></script>
 <script src="js/menu-v2.js"></script>
@@ -1577,6 +1580,10 @@ function parseReflection(raw) {
 
 function renderReflectionCard(raw) {
     const parsed = parseReflection(raw);
+
+    // Store on ATC so buttons can access without fragile HTML encoding
+    ATC.lastReflection = parsed;
+
     const list = document.getElementById('messagesList');
 
     const wrap = document.createElement('div');
@@ -1603,15 +1610,10 @@ function renderReflectionCard(raw) {
             <div class="rc-field-val">${escHtml(parsed.reflection)}</div>
         </div>
         <div class="rc-actions">
-            <button class="atc-btn-sm teal" onclick="saveCPDRecord(${JSON.stringify(parsed).replace(/"/g, '&quot;')})">
-                Save to portfolio
-            </button>
-            <button class="atc-btn-sm ghost" onclick="copyReflection(${JSON.stringify(parsed).replace(/"/g, '&quot;')})">
-                Copy text
-            </button>
-            <button class="atc-btn-sm ghost" onclick="showScreen('screen-entry'); resetDebrief()">
-                New debrief
-            </button>
+            <button class="atc-btn-sm teal"  id="saveCpdBtn"     onclick="saveCPDRecord(this)">Save to portfolio</button>
+            <button class="atc-btn-sm ghost" id="downloadPdfBtn" onclick="downloadReflectionPDF(this)"><i class="bi bi-file-earmark-pdf"></i> Download PDF</button>
+            <button class="atc-btn-sm ghost"                     onclick="copyReflection(this)">Copy text</button>
+            <button class="atc-btn-sm ghost"                     onclick="showScreen('screen-entry'); resetDebrief()">New debrief</button>
         </div>
     `;
 
@@ -1629,51 +1631,186 @@ function escHtml(str) {
         .replace(/"/g, '&quot;');
 }
 
-async function saveCPDRecord(parsed) {
+/* ── Save to Firestore directly (bypasses Cloud Function validation) ── */
+async function saveCPDRecord(btn) {
+    const parsed = ATC.lastReflection;
+    if (!parsed) return;
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
     try {
-        const token = await getToken();
-
-        const body = {
-            type: 'after-the-call',
-            title: 'After the Call: ' + (parsed.callType || 'Shift debrief'),
-            scenarioId: 'after-the-call',
-            scenarioTitle: parsed.callType || 'Shift debrief',
-            completedAt: new Date().toISOString(),
-            duration: Math.round(ATC.conversationHistory.length / 2),
-            learningPoints: [parsed.learning],
-            reflection: parsed.reflection,
-            result: 'completed'
-        };
-
-        const resp = await fetch(ATC.API_BASE + '/saveCpdRecord', {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Bearer ' + token,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(body)
+        await getToken();
+        const db = firebase.firestore();
+        await db.collection('users').doc(ATC.userUid).collection('cpdRecords').add({
+            type:             'after-the-call',
+            scenarioId:       'after-the-call',
+            scenarioCode:     'ATC',
+            scenarioType:     parsed.callType || 'After the Call',
+            scenarioCategory: 'debrief',
+            userImpression:   parsed.reflection || '',
+            correctDiagnosis: parsed.callType || 'Shift debrief',
+            learning:         parsed.learning || '',
+            reflection:       parsed.reflection || '',
+            result:           'correct',
+            questionsAsked:   Math.floor(ATC.conversationHistory.length / 2),
+            assessmentsPerformed: 0,
+            completedAt:      firebase.firestore.FieldValue.serverTimestamp()
         });
-
-        if (resp.ok) {
-            // Update button to show saved
-            event.target.textContent = 'Saved ✓';
-            event.target.disabled = true;
-        }
+        btn.textContent = 'Saved \u2713';
     } catch (e) {
         console.error('CPD save error:', e);
+        btn.disabled = false;
+        btn.textContent = 'Save failed — try again';
     }
 }
 
-function copyReflection(parsed) {
+/* ── Copy plain text ── */
+function copyReflection(btn) {
+    const parsed = ATC.lastReflection;
+    if (!parsed) return;
     const text =
-        'Call type: ' + parsed.callType + '\n\n' +
-        'Learning identified: ' + parsed.learning + '\n\n' +
-        'Reflection: ' + parsed.reflection;
-
+        'Call type: ' + (parsed.callType || '') + '\n\n' +
+        'Learning identified: ' + (parsed.learning || '') + '\n\n' +
+        'Reflection: ' + (parsed.reflection || '');
     navigator.clipboard.writeText(text).then(() => {
-        event.target.textContent = 'Copied ✓';
-        setTimeout(() => { event.target.textContent = 'Copy text'; }, 2000);
+        btn.textContent = 'Copied \u2713';
+        setTimeout(() => { btn.textContent = 'Copy text'; }, 2000);
+    }).catch(() => {
+        btn.textContent = 'Copy failed';
     });
+}
+
+/* ── PDF download ── */
+async function downloadReflectionPDF(btn) {
+    const parsed = ATC.lastReflection;
+    if (!parsed) return;
+
+    const jsPDFLib = window.jspdf;
+    if (!jsPDFLib) {
+        btn.textContent = 'PDF unavailable';
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generating...';
+
+    try {
+        const doc = new jsPDFLib.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const pw = 210, ph = 297;
+        const m = 20; // margin
+        const iw = pw - m * 2;
+        const teal = [43, 138, 156];
+        const green = [92, 184, 92];
+        const dark = [26, 26, 46];
+        const grey = [108, 117, 125];
+        const lightgrey = [233, 236, 239];
+
+        let y = 0;
+
+        // ── Header bar ──
+        doc.setFillColor(...teal);
+        doc.rect(0, 0, pw, 24, 'F');
+
+        // Brand
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(18);
+        doc.setTextColor(255, 255, 255);
+        doc.text('para', m, 15);
+        const paraW = doc.getTextWidth('para');
+        doc.setTextColor(...green);
+        doc.text('mind', m + paraW, 15);
+
+        // Page label right-aligned
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(255, 255, 255);
+        doc.text('After the Call \u2014 CPD Reflection', pw - m, 15, { align: 'right' });
+
+        y = 36;
+
+        // ── Date & role ──
+        const dateStr = new Date().toLocaleDateString('en-GB', {
+            day: 'numeric', month: 'long', year: 'numeric'
+        });
+        const roleLabels = { student: 'Student Paramedic', nqp: 'Newly Qualified Paramedic (NQP)', registered: 'Registered Paramedic' };
+        const roleLabel = roleLabels[ATC.userRole] || 'Paramedic';
+
+        doc.setFontSize(9);
+        doc.setTextColor(...grey);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Date: ' + dateStr, m, y);
+        doc.text('Role: ' + roleLabel, pw - m, y, { align: 'right' });
+        y += 10;
+
+        // Divider
+        doc.setDrawColor(...lightgrey);
+        doc.setLineWidth(0.3);
+        doc.line(m, y, pw - m, y);
+        y += 10;
+
+        // ── Section: Call Type ──
+        const sectionHead = (title, yy) => {
+            doc.setFillColor(...teal);
+            doc.rect(m, yy, 3, 5, 'F');
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9);
+            doc.setTextColor(...teal);
+            doc.text(title.toUpperCase(), m + 6, yy + 3.8);
+            return yy + 10;
+        };
+
+        const bodyText = (text, yy) => {
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(11);
+            doc.setTextColor(...dark);
+            const lines = doc.splitTextToSize(text || '', iw);
+            doc.text(lines, m, yy);
+            return yy + lines.length * 6 + 4;
+        };
+
+        y = sectionHead('Call Type', y);
+        y = bodyText(parsed.callType || 'Shift debrief', y);
+        y += 4;
+
+        y = sectionHead('Learning Identified', y);
+        y = bodyText(parsed.learning || '', y);
+        y += 4;
+
+        y = sectionHead('Reflection', y);
+        y = bodyText(parsed.reflection || '', y);
+        y += 8;
+
+        // ── HCPC note ──
+        doc.setDrawColor(...lightgrey);
+        doc.line(m, y, pw - m, y);
+        y += 6;
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(8);
+        doc.setTextColor(...grey);
+        const hcpcNote = 'This reflection was generated following a structured post-shift debrief with Hollie, the AI clinical educator on Paramind (paramind.co.uk). It is intended as supporting evidence for HCPC CPD requirements and should be reviewed in the context of your professional practice.';
+        const hcpcLines = doc.splitTextToSize(hcpcNote, iw);
+        doc.text(hcpcLines, m, y);
+        y += hcpcLines.length * 4.5 + 6;
+
+        // ── Footer ──
+        doc.setFillColor(...lightgrey);
+        doc.rect(0, ph - 14, pw, 14, 'F');
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(...grey);
+        doc.text('paramind.co.uk  \u00b7  AI-Powered Learning for UK Paramedics', pw / 2, ph - 6, { align: 'center' });
+
+        // Save
+        const filename = 'Paramind_AfterTheCall_' + new Date().toISOString().slice(0, 10) + '.pdf';
+        doc.save(filename);
+
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-file-earmark-pdf"></i> Download PDF';
+
+    } catch (e) {
+        console.error('PDF error:', e);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-file-earmark-pdf"></i> Download PDF';
+    }
 }
 
 function endDebrief() {
