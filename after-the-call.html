@@ -2147,7 +2147,7 @@ function appendInlineVoicePrompt() {
     widget.className = 'ivw';
     widget.id = 'ivw';
     widget.innerHTML = `
-        <div class="mic-stage" style="align-items:flex-start;margin-bottom:12px">
+        <div class="mic-stage" style="align-items:flex-start;margin-bottom:8px">
             <div class="mic-rings" id="ivwRings">
                 <button class="mic-btn" id="ivwBtn" onclick="toggleInlineMic()">
                     <i class="bi bi-mic-fill" id="ivwIcon"></i>
@@ -2159,13 +2159,6 @@ function appendInlineVoicePrompt() {
             </div>
             <p class="mic-status" id="ivwStatus">Tap the mic to reply</p>
         </div>
-        <div class="transcript-box" id="ivwTranscriptBox" style="margin-bottom:12px">
-            <span class="transcript-placeholder" id="ivwPlaceholder">Your reply will appear here...</span>
-            <span id="ivwText" style="display:none"></span>
-        </div>
-        <button class="atc-btn" id="ivwSendBtn" onclick="sendInlineVoiceReply()" disabled style="margin-bottom:0">
-            Send reply
-        </button>
     `;
 
     list.appendChild(widget);
@@ -2249,25 +2242,17 @@ async function transcribeInlineMic() {
         const data = await resp.json();
         const text = (data.text || '').trim();
 
-        // Append to any existing transcript (user may record multiple times)
-        debriefMic.transcribed = debriefMic.transcribed
-            ? debriefMic.transcribed + ' ' + text
-            : text;
-
-        // Show transcript — same as entry screen
-        document.getElementById('ivwPlaceholder').style.display = 'none';
-        const txtEl = document.getElementById('ivwText');
-        txtEl.style.display  = 'block';
-        txtEl.textContent    = debriefMic.transcribed;
-
-        document.getElementById('ivwStatus').textContent  = 'Tap the mic to add more, or send';
-        document.getElementById('ivwBtn').disabled         = false;
-
-        if (debriefMic.transcribed.trim().length > 0) {
-            document.getElementById('ivwSendBtn').disabled = false;
+        if (text) {
+            // Auto-send immediately — no button needed
+            debriefMic.transcribed = '';
+            document.querySelectorAll('.ivw').forEach(el => el.remove());
+            appendMessage('user', text);
+            sendToAPI(text, false);
+        } else {
+            // Nothing captured — let them try again
+            document.getElementById('ivwStatus').textContent = 'Nothing captured — tap to try again';
+            document.getElementById('ivwBtn').disabled = false;
         }
-
-        document.getElementById('messagesList').scrollTop = document.getElementById('messagesList').scrollHeight;
 
     } catch (e) {
         console.error('Inline transcribe error:', e);
