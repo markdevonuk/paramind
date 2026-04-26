@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>After the Call | Paramind</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Paramind shared CSS (nav, brand, menu) -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/menu-v2.css">
+
+    <style>
+        /* ── Page-level dark override ── */
+        body {
+            background: #0c0e14 !important;
+            color: #e4e2dc;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* ── Navbar: dark version ── */
+        .member-navbar {
+            background: rgba(12,14,20,0.95) !important;
+            border-bottom: 1px solid rgba(255,255,255,0.07) !important;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        .hamburger-btn span {
+            background-color: #e4e2dc !important;
+        }
+
+        /* ── CSS variables ── */
+        :root {
+            --atc-bg:           #0c0e14;
+            --atc-bg-card:      #181c28;
+            --atc-bg-card2:     #1e2232;
+            --atc-border:       rgba(255,255,255,0.07);
+            --atc-border-soft:  rgba(255,255,255,0.04);
+            --atc-text:         #e4e2dc;
+            --atc-muted:        #7a8294;
+            --atc-dim:          #3e4456;
+            --atc-teal:         #2B8A9C;
+            --atc-teal-soft:    rgba(43,138,156,0.10);
+            --atc-teal-border:  rgba(43,138,156,0.20);
+            --atc-hollie-bg:    rgba(43,138,156,0.07);
+            --atc-hollie-border:rgba(43,138,156,0.15);
+        }
+
+        /* ── Grain overlay ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── Ambient glow ── */
+        .atc-ambient {
+            position: fixed;
+            width: 700px; height: 500px;
+            top: -120px; left: 50%;
+            transform: translateX(-50%);
+            background: radial-gradient(ellipse at center, rgba(43,138,156,0.05) 0%, transparent 65%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── SCREENS ── */
+        .atc-screen {
+            display: none;
+            position: relative;
+            z-index: 1;
+            min-height: calc(100vh - 62px);
+        }
+
+        .atc-screen.active { display: block; }
+
+        #screen-debrief.atc-screen.active {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 62px);
+            min-height: unset;
+        }
+
+        /* ── Shared inner wrapper ── */
+        .atc-inner {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 48px 20px 60px;
+        }
+
+        /* ── Animations ── */
+        @keyframes atcFadeUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .atc-fade { animation: atcFadeUp 0.5s ease both; }
+        .atc-fade-2 { animation: atcFadeUp 0.5s 0.08s ease both; }
+        .atc-fade-3 { animation: atcFadeUp 0.5s 0.16s ease both; }
+        .atc-fade-4 { animation: atcFadeUp 0.5s 0.24s ease both; }
+
+        /* ── ROLE SELECTION SCREEN ── */
+        .role-intro {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .role-hollie-dot {
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--atc-teal), #1d6a7a);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            margin: 0 auto 20px;
+            box-shadow: 0 0 0 1px rgba(43,138,156,0.25), 0 0 20px rgba(43,138,156,0.1);
+        }
+
+        .role-title {
+            font-family: 'Lora', serif;
+            font-size: 24px;
+            font-weight: 500;
+            color: var(--atc-text);
+            margin-bottom: 8px;
+            letter-spacing: -0.3px;
+        }
+
+        .role-subtitle {
+            font-size: 14px;
+            color: var(--atc-muted);
+            line-height: 1.6;
+        }
+
+        .role-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .role-option {
+            background: var(--atc-bg-card);
+            border: 1px solid var(--atc-border);
+            border-radius: 14px;
+            padding: 18px 20px;
+            cursor: pointer;
+            transition: all 0.18s;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            text-align: left;
+            color: var(--atc-text);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            width: 100%;
+        }
+
+        .role-option:hover {
+            border-color: var(--atc-teal-border);
+            background: var(--atc-teal-soft);
+        }
+
+        .role-option-icon {
+            font-size: 22px;
+            flex-shrink: 0;
+            width: 36px;
+            text-align: center;
+        }
+
+        .role-option-label {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--atc-text);
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .role-option-desc {
+            font-size: 12px;
+            color: var(--atc-muted);
+            font-weight: 300;
+        }
+
+        .role-note {
+            font-size: 12px;
+            color: var(--atc-dim);
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        /* ── ENTRY SCREEN ── */
+        .atc-eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .atc-eyebrow-line {
+            height: 1px; flex: 1;
+            background: linear-gradient(to right, var(--atc-teal), transparent);
+            opacity: 0.25;
+        }
+
+        .atc-eyebrow-line.right {
+            background: linear-gradient(to left, var(--atc-teal), transparent);
+        }
+
+        .atc-eyebrow-text {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--atc-teal);
+            opacity: 0.8;
+            white-space: nowrap;
+        }
+
+        .atc-title {
+            font-family: 'Lora', serif;
+            font-size: clamp(40px, 9vw, 68px);
+            font-weight: 500;
+            line-height: 1.05;
+            letter-spacing: -1.5px;
+            color: var(--atc-text);
+            margin-bottom: 0;
+        }
+
+        .atc-title em {
+            font-style: italic;
+            color: var(--atc-muted);
+            font-weight: 400;
+        }
+
+        .atc-rule {
+            height: 1px;
+            background: var(--atc-border);
+            margin: 24px 0;
+        }
+
+        /* Hollie aside */
+        .hollie-aside {
+            border-left: 2px solid var(--atc-teal);
+            padding: 4px 0 4px 16px;
+            margin-bottom: 28px;
+            opacity: 0.85;
+        }
+
+        .hollie-aside-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--atc-teal);
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .hollie-aside p {
+            font-family: 'Lora', serif;
+            font-size: 15px;
+            font-style: italic;
+            line-height: 1.65;
+            color: var(--atc-text);
+            margin: 0;
+        }
+
+        /* Shift context */
+        .shift-context {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px 16px;
+            background: var(--atc-bg-card);
+            border: 1px solid var(--atc-border-soft);
+            border-radius: 10px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .shift-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--atc-muted);
+        }
+
+        .shift-item i { color: var(--atc-dim); font-size: 13px; }
+        .shift-div { width: 1px; height: 14px; background: var(--atc-border); }
+
+        /* Input choice cards */
+        .input-choice {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            border: 1px solid var(--atc-border);
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--atc-bg-card);
+            margin-bottom: 16px;
+        }
+
+        .choice-card {
+            padding: 26px 22px;
+            cursor: pointer;
+            transition: background 0.18s;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border: none;
+            background: none;
+            text-align: left;
+            color: inherit;
+            font-family: inherit;
+        }
+
+        .choice-card:first-child { border-right: 1px solid var(--atc-border); }
+        .choice-card:hover { background: rgba(255,255,255,0.03); }
+        .choice-card:hover .choice-arrow { transform: translateX(4px); opacity: 0.8; }
+
+        .choice-type {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--atc-dim);
+        }
+
+        .choice-icon {
+            font-size: 26px;
+            color: var(--atc-teal);
+            line-height: 1;
+            margin: 4px 0;
+        }
+
+        .choice-title {
+            font-family: 'Lora', serif;
+            font-size: 19px;
+            font-weight: 500;
+            color: var(--atc-text);
+            letter-spacing: -0.3px;
+        }
+
+        .choice-desc {
+            font-size: 12px;
+            color: var(--atc-muted);
+            line-height: 1.5;
+            font-weight: 300;
+        }
+
+        .choice-arrow {
+            font-size: 14px;
+            color: var(--atc-dim);
+            transition: all 0.18s;
+            opacity: 0.4;
+            margin-top: 2px;
+        }
+
+        .prev-link {
+            font-size: 12px;
+            color: var(--atc-dim);
+            text-align: center;
+        }
+
+        .prev-link a {
+            color: var(--atc-muted);
+            text-decoration: underline dotted;
+            text-underline-offset: 3px;
+            cursor: pointer;
+        }
+
+        /* ── VOICE SCREEN ── */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--atc-muted);
+            cursor: pointer;
+            margin-bottom: 32px;
+            transition: color 0.18s;
+            background: none; border: none;
+            font-family: inherit; padding: 0;
+        }
+
+        .back-link:hover { color: var(--atc-text); }
+
+        .mic-stage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .mic-rings {
+            position: relative;
+            width: 120px; height: 120px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .mic-rings::before, .mic-rings::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(43,138,156,0.2);
+        }
+
+        .mic-rings.listening::before {
+            width: 100%; height: 100%;
+            animation: atcRipple 2s ease-out infinite;
+        }
+
+        .mic-rings.listening::after {
+            width: 140%; height: 140%;
+            animation: atcRipple 2s 0.5s ease-out infinite;
+            border-color: rgba(43,138,156,0.1);
+        }
+
+        @keyframes atcRipple {
+            0%   { transform: scale(0.9); opacity: 0.7; }
+            100% { transform: scale(1.1); opacity: 0; }
+        }
+
+        .mic-btn {
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--atc-teal), #1d6a7a);
+            border: none;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 24px rgba(43,138,156,0.25);
+            z-index: 1;
+            transition: transform 0.15s, box-shadow 0.15s;
+            color: white;
+        }
+
+        .mic-btn:hover { transform: scale(1.05); box-shadow: 0 6px 32px rgba(43,138,156,0.35); }
+
+        .waveform {
+            display: flex; align-items: center; gap: 3px;
+            height: 28px; margin: 12px 0;
+        }
+
+        .waveform span {
+            display: block; width: 3px;
+            border-radius: 3px;
+            background: var(--atc-teal);
+            opacity: 0.4;
+        }
+
+        .waveform.active span { animation: atcWave 1.2s ease-in-out infinite; opacity: 0.6; }
+
+        .waveform span:nth-child(1) { height: 8px;  animation-delay: 0s; }
+        .waveform span:nth-child(2) { height: 16px; animation-delay: 0.1s; }
+        .waveform span:nth-child(3) { height: 22px; animation-delay: 0.2s; }
+        .waveform span:nth-child(4) { height: 16px; animation-delay: 0.3s; }
+        .waveform span:nth-child(5) { height: 10px; animation-delay: 0.4s; }
+        .waveform span:nth-child(6) { height: 20px; animation-delay: 0.15s; }
+        .waveform span:nth-child(7) { height: 14px; animation-delay: 0.25s; }
+        .waveform span:nth-child(8) { height: 24px; animation-delay: 0.05s; }
+        .waveform span:nth-child(9) { height: 12px; animation-delay: 0.35s; }
+
+        @keyframes atcWave {
+            0%, 100% { transform: scaleY(0.5); opacity: 0.3; }
+            50%       { transform: scaleY(1.3); opacity: 0.9; }
+        }
+
+        .mic-status {
+            font-family: 'Lora', serif;
+            font-size: 16px;
+            font-style: italic;
+            color: var(--atc-muted);
+            text-align: center;
+        }
+
+        .transcript-box {
+            background: var(--atc-bg-card);
+            border: 1px solid var(--atc-border);
+            border-radius: 14px;
+            padding: 16px 18px;
+            min-height: 100px;
+            font-family: 'Lora', serif;
+            font-size: 15px;
+            font-style: italic;
+            line-height: 1.7;
+            color: var(--atc-muted);
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+        }
+
+        .transcript-placeholder {
+            color: var(--atc-dim);
+        }
+
+        /* ── TEXT SCREEN ── */
+        .atc-textarea {
+            width: 100%;
+            min-height: 220px;
+            background: var(--atc-bg-card);
+            border: 1px solid var(--atc-border);
+            border-radius: 14px;
+            padding: 16px 18px;
+            color: var(--atc-text);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 300;
+            line-height: 1.75;
+            resize: vertical;
+            transition: border-color 0.2s;
+            outline: none;
+            margin-bottom: 16px;
+        }
+
+        .atc-textarea::placeholder { color: var(--atc-dim); }
+        .atc-textarea:focus {
+            border-color: rgba(43,138,156,0.35);
+            box-shadow: 0 0 0 3px rgba(43,138,156,0.06);
+        }
+
+        /* ── DEBRIEF SCREEN ── */
+        .debrief-topbar {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--atc-border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+            background: rgba(12,14,20,0.8);
+        }
+
+        .debrief-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--atc-teal);
+            flex-shrink: 0;
+            animation: atcBreathe 3s ease-in-out infinite;
+        }
+
+        @keyframes atcBreathe {
+            0%, 100% { opacity: 0.4; }
+            50%       { opacity: 1; }
+        }
+
+        .debrief-topbar-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--atc-muted);
+        }
+
+        .debrief-end-btn {
+            margin-left: auto;
+            font-size: 12px;
+            color: var(--atc-dim);
+            cursor: pointer;
+            background: none; border: none;
+            font-family: inherit; padding: 0;
+            transition: color 0.18s;
+        }
+
+        .debrief-end-btn:hover { color: var(--atc-muted); }
+
+        .messages-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 20px 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-width: 700px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .messages-list::-webkit-scrollbar { width: 3px; }
+        .messages-list::-webkit-scrollbar-track { background: transparent; }
+        .messages-list::-webkit-scrollbar-thumb { background: var(--atc-border); border-radius: 2px; }
+
+        .msg { display: flex; flex-direction: column; gap: 3px; animation: atcFadeUp 0.3s ease both; }
+        .msg.user   { align-items: flex-end; }
+        .msg.hollie { align-items: flex-start; }
+
+        .msg-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: var(--atc-dim);
+            padding: 0 4px;
+        }
+
+        .msg-bubble {
+            max-width: 84%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .msg.user .msg-bubble {
+            background: var(--atc-bg-card2);
+            border: 1px solid var(--atc-border);
+            color: var(--atc-text);
+            border-bottom-right-radius: 4px;
+        }
+
+        .msg.hollie .msg-bubble {
+            background: var(--atc-hollie-bg);
+            border: 1px solid var(--atc-hollie-border);
+            color: var(--atc-text);
+            border-bottom-left-radius: 4px;
+            font-family: 'Lora', serif;
+            font-style: italic;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        /* Typing indicator */
+        .typing-dots {
+            display: flex; gap: 4px; align-items: center;
+            padding: 14px 16px;
+            background: var(--atc-hollie-bg);
+            border: 1px solid var(--atc-hollie-border);
+            border-radius: 16px;
+            border-bottom-left-radius: 4px;
+            width: fit-content;
+        }
+
+        .typing-dots span {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--atc-teal);
+            animation: atcTyping 1.2s ease-in-out infinite;
+            opacity: 0.4;
+        }
+
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes atcTyping {
+            0%, 100% { opacity: 0.4; transform: translateY(0); }
+            50%       { opacity: 1;   transform: translateY(-3px); }
+        }
+
+        /* CPD Reflection card */
+        .reflection-card {
+            background: var(--atc-bg-card);
+            border: 1px solid var(--atc-border);
+            border-top: 2px solid var(--atc-teal);
+            border-radius: 14px;
+            padding: 20px;
+            max-width: 84%;
+            animation: atcFadeUp 0.4s ease both;
+        }
+
+        .rc-tag {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--atc-teal);
+            margin-bottom: 14px;
+            display: block;
+        }
+
+        .rc-field { margin-bottom: 12px; }
+
+        .rc-field-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: var(--atc-dim);
+            margin-bottom: 3px;
+        }
+
+        .rc-field-val {
+            font-size: 13px;
+            color: var(--atc-muted);
+            line-height: 1.6;
+        }
+
+        .rc-actions {
+            display: flex; gap: 8px;
+            margin-top: 14px; flex-wrap: wrap;
+        }
+
+        /* ── Input bar ── */
+        .debrief-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(12,14,20,0.96);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid var(--atc-border);
+            padding: 12px 20px;
+            z-index: 50;
+        }
+
+        .debrief-bar-inner {
+            max-width: 700px;
+            margin: 0 auto;
+            display: flex; gap: 10px; align-items: flex-end;
+        }
+
+        .debrief-input {
+            flex: 1;
+            background: var(--atc-bg-card);
+            border: 1px solid var(--atc-border);
+            border-radius: 12px;
+            padding: 11px 14px;
+            color: var(--atc-text);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 300;
+            resize: none;
+            outline: none;
+            line-height: 1.5;
+            max-height: 120px;
+            transition: border-color 0.2s;
+        }
+
+        .debrief-input:focus { border-color: rgba(43,138,156,0.35); }
+        .debrief-input::placeholder { color: var(--atc-dim); }
+
+        /* ── Shared buttons ── */
+        .atc-btn {
+            width: 100%;
+            padding: 14px 24px;
+            background: var(--atc-teal);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 10px;
+            display: block;
+            text-align: center;
+        }
+
+        .atc-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .atc-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .atc-btn-ghost {
+            width: 100%;
+            padding: 12px 24px;
+            background: transparent;
+            color: var(--atc-muted);
+            border: 1px solid var(--atc-border);
+            border-radius: 12px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 10px;
+            display: block;
+            text-align: center;
+        }
+
+        .atc-btn-ghost:hover { border-color: rgba(255,255,255,0.15); color: var(--atc-text); }
+
+        .atc-btn-sm {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.18s;
+            border: none;
+        }
+
+        .atc-btn-sm.teal { background: var(--atc-teal); color: #fff; }
+        .atc-btn-sm.teal:hover { filter: brightness(1.1); }
+        .atc-btn-sm.ghost { background: var(--atc-bg-card2); color: var(--atc-muted); }
+        .atc-btn-sm.ghost:hover { color: var(--atc-text); }
+
+        .send-btn {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            background: var(--atc-teal);
+            border: none;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; color: #fff;
+            flex-shrink: 0;
+            transition: all 0.18s;
+        }
+
+        .send-btn:hover { filter: brightness(1.1); transform: scale(1.05); }
+        .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+        /* Error toast */
+        .atc-error {
+            background: rgba(220,53,69,0.1);
+            border: 1px solid rgba(220,53,69,0.2);
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #f08090;
+            margin-bottom: 16px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="atc-ambient"></div>
+
+<!-- ══════════════════════════════
+     NAV — identical to all pages
+     ══════════════════════════════ -->
+<nav class="member-navbar">
+    <div class="container">
+        <span class="brand-text">
+            <a class="navbar-brand" href="landing.html">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </a>
+        </span>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════
+     SCREEN: ROLE SELECTION (first visit only)
+     ══════════════════════════════════════════════════ -->
+<div class="atc-screen" id="screen-role">
+    <div class="atc-inner">
+        <div class="role-intro atc-fade">
+            <div class="role-hollie-dot">🎧</div>
+            <h2 class="role-title">One quick question</h2>
+            <p class="role-subtitle">Help Hollie pitch your debriefs at the right level.<br>You only need to answer this once.</p>
+        </div>
+
+        <div class="role-options atc-fade-2">
+            <button class="role-option" onclick="saveRole('student')">
+                <span class="role-option-icon">📚</span>
+                <span>
+                    <span class="role-option-label">Student Paramedic</span>
+                    <span class="role-option-desc">Currently on a paramedic degree or pre-registration programme</span>
+                </span>
+            </button>
+            <button class="role-option" onclick="saveRole('nqp')">
+                <span class="role-option-icon">🚑</span>
+                <span>
+                    <span class="role-option-label">Newly Qualified Paramedic (NQP)</span>
+                    <span class="role-option-desc">Registered and in your first year or two of practice</span>
+                </span>
+            </button>
+            <button class="role-option" onclick="saveRole('registered')">
+                <span class="role-option-icon">⭐</span>
+                <span>
+                    <span class="role-option-label">Registered Paramedic</span>
+                    <span class="role-option-desc">Experienced and registered with the HCPC</span>
+                </span>
+            </button>
+        </div>
+
+        <p class="role-note atc-fade-3">You can change this later in your profile settings.</p>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SCREEN: ENTRY
+     ══════════════════════════════════════════════════ -->
+<div class="atc-screen" id="screen-entry">
+    <div class="atc-inner">
+
+        <div class="atc-eyebrow atc-fade">
+            <div class="atc-eyebrow-line"></div>
+            <span class="atc-eyebrow-text">Shift debrief &middot; Pro</span>
+            <div class="atc-eyebrow-line right"></div>
+        </div>
+
+        <h1 class="atc-title atc-fade">After<br><em>the Call</em></h1>
+
+        <div class="atc-rule"></div>
+
+        <div class="hollie-aside atc-fade-2">
+            <div class="hollie-aside-label">Hollie</div>
+            <p>"Tell me about a call from your shift. Don't worry about where to start — just talk me through it in your own words."</p>
+        </div>
+
+        <div class="shift-context atc-fade-2" id="shiftContext">
+            <div class="shift-item">
+                <i class="bi bi-clock"></i>
+                <span id="shiftTime">—</span>
+            </div>
+            <div class="shift-div"></div>
+            <div class="shift-item">
+                <i class="bi bi-journal-text"></i>
+                <span id="debriefCount">Loading...</span>
+            </div>
+        </div>
+
+        <div class="input-choice atc-fade-3">
+            <button class="choice-card" onclick="showScreen('screen-voice')">
+                <span class="choice-type">Option 01</span>
+                <span class="choice-icon"><i class="bi bi-mic-fill"></i></span>
+                <span class="choice-title">Speak it</span>
+                <span class="choice-desc">Talk through the call. Hollie listens and transcribes as you go.</span>
+                <span class="choice-arrow">→</span>
+            </button>
+            <button class="choice-card" onclick="showScreen('screen-text')">
+                <span class="choice-type">Option 02</span>
+                <span class="choice-icon"><i class="bi bi-pencil"></i></span>
+                <span class="choice-title">Write it</span>
+                <span class="choice-desc">Type it out. Messy is fine — Hollie will work with whatever you give her.</span>
+                <span class="choice-arrow">→</span>
+            </button>
+        </div>
+
+        <div class="prev-link atc-fade-4">
+            <a href="cpd.html">View your previous debriefs and CPD records →</a>
+        </div>
+
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SCREEN: VOICE INPUT
+     ══════════════════════════════════════════════════ -->
+<div class="atc-screen" id="screen-voice">
+    <div class="atc-inner">
+
+        <button class="back-link atc-fade" onclick="showScreen('screen-entry')">
+            <i class="bi bi-arrow-left"></i> Choose differently
+        </button>
+
+        <div class="hollie-aside atc-fade" style="margin-bottom:28px">
+            <div class="hollie-aside-label">Hollie</div>
+            <p>"I'm listening. Just talk — describe the call however it comes out."</p>
+        </div>
+
+        <div class="mic-stage atc-fade-2">
+            <div class="mic-rings" id="micRings">
+                <button class="mic-btn" id="micBtn" onclick="toggleRecording()">
+                    <i class="bi bi-mic-fill" id="micIcon"></i>
+                </button>
+            </div>
+            <div class="waveform" id="waveform">
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span>
+            </div>
+            <p class="mic-status" id="micStatus">Tap the mic to start</p>
+        </div>
+
+        <div class="atc-error" id="voiceError"></div>
+
+        <div class="transcript-box" id="transcriptBox">
+            <span class="transcript-placeholder" id="transcriptPlaceholder">Your words will appear here as Hollie listens...</span>
+            <span id="transcriptText" style="display:none"></span>
+        </div>
+
+        <button class="atc-btn" id="voiceSubmitBtn" onclick="submitVoice()" disabled>
+            That's everything — begin the debrief
+        </button>
+        <button class="atc-btn-ghost" onclick="showScreen('screen-entry')">← Back</button>
+
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SCREEN: TEXT INPUT
+     ══════════════════════════════════════════════════ -->
+<div class="atc-screen" id="screen-text">
+    <div class="atc-inner">
+
+        <button class="back-link atc-fade" onclick="showScreen('screen-entry')">
+            <i class="bi bi-arrow-left"></i> Choose differently
+        </button>
+
+        <div class="hollie-aside atc-fade" style="margin-bottom:20px">
+            <div class="hollie-aside-label">Hollie</div>
+            <p>"Just write it how you'd tell a colleague. The messy version is fine — I'll work with whatever you give me."</p>
+        </div>
+
+        <div class="atc-error" id="textError"></div>
+
+        <textarea class="atc-textarea atc-fade-2" id="textInput"
+            placeholder="We got a call to a 58-year-old male with chest pain at around 0300. Wife had called it in. When we arrived he was at the kitchen table, pale and sweaty..."></textarea>
+
+        <button class="atc-btn atc-fade-3" onclick="submitText()">
+            Done — begin the debrief
+        </button>
+        <button class="atc-btn-ghost atc-fade-3" onclick="showScreen('screen-entry')">← Back</button>
+
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SCREEN: DEBRIEF CONVERSATION
+     ══════════════════════════════════════════════════ -->
+<div class="atc-screen" id="screen-debrief">
+
+    <div class="debrief-topbar">
+        <div class="debrief-dot"></div>
+        <span class="debrief-topbar-title" id="debriefTopTitle">Debrief in progress</span>
+        <button class="debrief-end-btn" onclick="endDebrief()">End debrief</button>
+    </div>
+
+    <div class="messages-list" id="messagesList"></div>
+
+    <div class="debrief-bar">
+        <div class="debrief-bar-inner">
+            <textarea class="debrief-input" id="debriefInput" rows="1"
+                placeholder="Reply to Hollie..."
+                onkeydown="handleDebriefKey(event)"></textarea>
+            <button class="send-btn" id="sendBtn" onclick="sendDebriefMessage()">
+                <i class="bi bi-arrow-up"></i>
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<!-- Scripts — identical order to all Pro pages -->
+<script src="js/app.js"></script>
+<script src="js/menu-v2.js"></script>
+<script src="js/pro-guard.js"></script>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   AFTER THE CALL — Page Logic
+   ══════════════════════════════════════════════════════ */
+
+const ATC = {
+    // State
+    userRole: null,         // 'student' | 'nqp' | 'registered'
+    userUid: null,
+    authToken: null,
+    conversationHistory: [],
+    isLoading: false,
+    mediaRecorder: null,
+    audioChunks: [],
+    isRecording: false,
+    transcribedText: '',
+    currentCallDescription: '',
+    debriefTopicLabel: 'Debrief in progress',
+
+    // API base (matches app.js)
+    API_BASE: 'https://europe-west2-paramind-64b8e.cloudfunctions.net',
+
+    // Role descriptions for system prompt
+    ROLE_PROMPTS: {
+        student: {
+            desc: 'a student paramedic on clinical placement',
+            challenge: 'If their reasoning is uncertain or incomplete, probe gently and encouragingly. Do not assume deep pathophysiology knowledge — explain clearly when needed.'
+        },
+        nqp: {
+            desc: 'a newly qualified paramedic (NQP) in their first year or two of practice',
+            challenge: 'Probe their reasoning directly and expect them to explain physiological processes. Challenge constructively: "I want to push back on that slightly — what else could explain that sign?"'
+        },
+        registered: {
+            desc: 'a registered, experienced paramedic',
+            challenge: 'Treat them as a clinical peer. Challenge robustly when reasoning is incomplete: "I\'d push back on that — can you walk me through the physiology?" Expect well-reasoned answers.'
+        }
+    }
+};
+
+/* ── Screen management ── */
+function showScreen(id) {
+    document.querySelectorAll('.atc-screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+}
+
+/* ── Build Hollie system prompt ── */
+function buildSystemPrompt(role, callDescription) {
+    const rp = ATC.ROLE_PROMPTS[role] || ATC.ROLE_PROMPTS['student'];
+    return `You are Hollie, the AI clinical educator for Paramind, a UK pre-hospital paramedic education platform. You are conducting a structured post-shift clinical debrief with ${rp.desc}.
+
+Your role in this debrief is not to lecture — it is to help the user think more deeply about a real call they attended. You are a thoughtful, warm clinical colleague asking the right questions, not a tutor delivering a lesson.
+
+ABSOLUTE RULES — never break these under any circumstances:
+- Never mention treatments, drug names, drug doses, drug calculations, or clinical interventions of any kind. If physiology leads toward treatment territory, stop at the clinical picture and do not go further.
+- You are an educational tool only. Never give clinical advice.
+- Never use bullet points or numbered lists. Always respond in natural conversational prose.
+- Always use British English spelling and phrasing.
+- Keep responses concise — the user may be tired after a long shift.
+
+YOUR DEBRIEF FOLLOWS FOUR STAGES. Move through them naturally — do not announce the stages to the user.
+
+STAGE 1 — ACKNOWLEDGE (your very first response):
+Reflect back in one warm sentence that you have understood the call. Then immediately ask your first focused question. Do not summarise at length.
+
+STAGE 2 — EXPLORE REASONING (2–3 exchanges):
+Ask focused questions about WHY the user thought what they thought — not what they did procedurally. Good questions include: "What made you think X rather than Y at that point?", "What was the clinical picture telling you?", "Was there a moment your thinking shifted?".
+${rp.challenge}
+Never make the user feel foolish. Always acknowledge what they got right before probing further.
+
+STAGE 3 — DEEPEN THE A&P (1–2 exchanges):
+Identify one gap or assumption in their reasoning and explore the underlying anatomy, physiology, or pathophysiology. One concept done well is far better than a broad overview. Frame it naturally — "You mentioned X — can I ask what you think is actually happening physiologically there?" If they explain it well, affirm and build. If uncertain, explain clearly then check understanding.
+
+STAGE 4 — CLOSE AND GENERATE REFLECTION (after 4–6 exchanges total):
+Bring the debrief to a warm close. Name one specific strength in their clinical thinking. Summarise the key A&P concept explored. Then say exactly: "Shall I put together your CPD reflection now?" and wait for their confirmation.
+
+WHEN THE USER CONFIRMS THEY WANT THE REFLECTION:
+Produce the reflection using EXACTLY this format and nothing else outside these tags:
+
+REFLECTION_START
+CALL_TYPE: [brief description of the call type]
+LEARNING: [the key learning point or A&P concept — 1–2 sentences]
+REFLECTION: [2–3 sentences in first person as the paramedic — what went well, what gap was identified, what understanding developed]
+REFLECTION_END`;
+}
+
+/* ── Get auth token ── */
+async function getToken() {
+    const waitForFirebase = () => new Promise((resolve, reject) => {
+        const t = Date.now();
+        const check = () => {
+            if (typeof firebase !== 'undefined' && firebase.auth && firebase.apps && firebase.apps.length > 0) {
+                return resolve();
+            }
+            if (Date.now() - t > 8000) return reject(new Error('Firebase not ready'));
+            setTimeout(check, 150);
+        };
+        check();
+    });
+
+    await waitForFirebase();
+    const user = firebase.auth().currentUser;
+    if (!user) throw new Error('Not authenticated');
+    ATC.userUid = user.uid;
+    ATC.authToken = await user.getIdToken();
+    return ATC.authToken;
+}
+
+/* ── Initialise page ── */
+async function initPage() {
+    try {
+        const token = await getToken();
+
+        // Read user doc from Firestore
+        const doc = await firebase.firestore().collection('users').doc(ATC.userUid).get();
+        const data = doc.exists ? doc.data() : {};
+
+        ATC.userRole = data.paramedicRole || null;
+
+        // Update shift context
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        const dayStr = now.toLocaleDateString('en-GB', { weekday: 'long' });
+        const el = document.getElementById('shiftTime');
+        if (el) el.textContent = dayStr + ' \u00b7 ' + timeStr;
+
+        // Count previous debriefs from CPD records
+        try {
+            const resp = await fetch(ATC.API_BASE + '/getCpdRecords', {
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            if (resp.ok) {
+                const records = await resp.json();
+                const atcRecords = (records || []).filter(r => r.type === 'after-the-call');
+                const countEl = document.getElementById('debriefCount');
+                if (countEl) {
+                    countEl.textContent = atcRecords.length === 0
+                        ? 'First debrief'
+                        : atcRecords.length + ' previous debrief' + (atcRecords.length === 1 ? '' : 's');
+                }
+            }
+        } catch (e) {
+            const countEl = document.getElementById('debriefCount');
+            if (countEl) countEl.textContent = 'First debrief';
+        }
+
+        // Show correct first screen
+        if (!ATC.userRole) {
+            showScreen('screen-role');
+        } else {
+            showScreen('screen-entry');
+        }
+
+    } catch (e) {
+        console.error('ATC init error:', e);
+        showScreen('screen-entry');
+    }
+}
+
+/* ── Save role to Firestore ── */
+async function saveRole(role) {
+    try {
+        await getToken();
+        await firebase.firestore().collection('users').doc(ATC.userUid).update({
+            paramedicRole: role
+        });
+        ATC.userRole = role;
+        showScreen('screen-entry');
+    } catch (e) {
+        console.error('Error saving role:', e);
+        // Still proceed even if save fails
+        ATC.userRole = role;
+        showScreen('screen-entry');
+    }
+}
+
+/* ══════════════════════════════════════
+   VOICE RECORDING
+   ══════════════════════════════════════ */
+async function toggleRecording() {
+    if (ATC.isRecording) {
+        stopRecording();
+    } else {
+        await startRecording();
+    }
+}
+
+async function startRecording() {
+    const errEl = document.getElementById('voiceError');
+    errEl.style.display = 'none';
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        ATC.audioChunks = [];
+
+        const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
+        ATC.mediaRecorder = new MediaRecorder(stream, { mimeType });
+
+        ATC.mediaRecorder.ondataavailable = (e) => {
+            if (e.data.size > 0) ATC.audioChunks.push(e.data);
+        };
+
+        ATC.mediaRecorder.onstop = async () => {
+            stream.getTracks().forEach(t => t.stop());
+            await transcribeAudio(mimeType);
+        };
+
+        ATC.mediaRecorder.start();
+        ATC.isRecording = true;
+
+        document.getElementById('micRings').classList.add('listening');
+        document.getElementById('waveform').classList.add('active');
+        document.getElementById('micIcon').className = 'bi bi-stop-fill';
+        document.getElementById('micStatus').textContent = 'Recording — tap to stop';
+
+    } catch (e) {
+        const errEl = document.getElementById('voiceError');
+        errEl.textContent = 'Microphone access is needed for voice input. Please allow access and try again.';
+        errEl.style.display = 'block';
+    }
+}
+
+function stopRecording() {
+    if (ATC.mediaRecorder && ATC.isRecording) {
+        ATC.mediaRecorder.stop();
+        ATC.isRecording = false;
+
+        document.getElementById('micRings').classList.remove('listening');
+        document.getElementById('waveform').classList.remove('active');
+        document.getElementById('micIcon').className = 'bi bi-mic-fill';
+        document.getElementById('micStatus').textContent = 'Transcribing...';
+        document.getElementById('micBtn').disabled = true;
+    }
+}
+
+async function transcribeAudio(mimeType) {
+    try {
+        const token = await getToken();
+        const blob = new Blob(ATC.audioChunks, { type: mimeType });
+
+        // Convert blob to base64
+        const base64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+
+        const resp = await fetch(ATC.API_BASE + '/transcribe', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ audio: base64, mimeType: mimeType })
+        });
+
+        if (!resp.ok) throw new Error('Transcription failed');
+
+        const data = await resp.json();
+        const text = data.text || '';
+
+        ATC.transcribedText = ATC.transcribedText
+            ? ATC.transcribedText + ' ' + text
+            : text;
+
+        document.getElementById('transcriptPlaceholder').style.display = 'none';
+        const txtEl = document.getElementById('transcriptText');
+        txtEl.style.display = 'block';
+        txtEl.textContent = ATC.transcribedText;
+
+        document.getElementById('micStatus').textContent = 'Tap the mic to continue recording';
+        document.getElementById('micBtn').disabled = false;
+
+        if (ATC.transcribedText.trim().length > 20) {
+            document.getElementById('voiceSubmitBtn').disabled = false;
+        }
+
+    } catch (e) {
+        console.error('Transcription error:', e);
+        document.getElementById('micStatus').textContent = 'Transcription failed — please try again';
+        document.getElementById('micBtn').disabled = false;
+        const errEl = document.getElementById('voiceError');
+        errEl.textContent = 'Could not transcribe the audio. Please try again or use the text option.';
+        errEl.style.display = 'block';
+    }
+}
+
+function submitVoice() {
+    const text = ATC.transcribedText.trim();
+    if (!text || text.length < 10) return;
+    startDebrief(text);
+}
+
+/* ══════════════════════════════════════
+   TEXT INPUT
+   ══════════════════════════════════════ */
+function submitText() {
+    const text = document.getElementById('textInput').value.trim();
+    const errEl = document.getElementById('textError');
+    errEl.style.display = 'none';
+
+    if (!text || text.length < 20) {
+        errEl.textContent = 'Please describe the call in a little more detail before starting the debrief.';
+        errEl.style.display = 'block';
+        return;
+    }
+
+    startDebrief(text);
+}
+
+/* ══════════════════════════════════════
+   DEBRIEF — CORE
+   ══════════════════════════════════════ */
+function startDebrief(callDescription) {
+    ATC.currentCallDescription = callDescription;
+    ATC.conversationHistory = [];
+
+    // Build label for top bar
+    const words = callDescription.trim().split(/\s+/);
+    ATC.debriefTopicLabel = 'Debrief in progress';
+
+    document.getElementById('debriefTopTitle').textContent = ATC.debriefTopicLabel;
+    document.getElementById('messagesList').innerHTML = '';
+
+    showScreen('screen-debrief');
+
+    // Add user's opening message
+    appendMessage('user', callDescription);
+
+    // Send to Hollie
+    sendToAPI(callDescription, true);
+}
+
+function appendMessage(role, content) {
+    const list = document.getElementById('messagesList');
+
+    const msg = document.createElement('div');
+    msg.className = 'msg ' + role;
+
+    const label = document.createElement('div');
+    label.className = 'msg-label';
+    label.textContent = role === 'user' ? 'You' : 'Hollie';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.textContent = content;
+
+    msg.appendChild(label);
+    msg.appendChild(bubble);
+    list.appendChild(msg);
+    list.scrollTop = list.scrollHeight;
+
+    return bubble;
+}
+
+function showTyping() {
+    const list = document.getElementById('messagesList');
+    const wrap = document.createElement('div');
+    wrap.className = 'msg hollie';
+    wrap.id = 'typingIndicator';
+
+    const label = document.createElement('div');
+    label.className = 'msg-label';
+    label.textContent = 'Hollie';
+
+    const dots = document.createElement('div');
+    dots.className = 'typing-dots';
+    dots.innerHTML = '<span></span><span></span><span></span>';
+
+    wrap.appendChild(label);
+    wrap.appendChild(dots);
+    list.appendChild(wrap);
+    list.scrollTop = list.scrollHeight;
+}
+
+function removeTyping() {
+    const el = document.getElementById('typingIndicator');
+    if (el) el.remove();
+}
+
+async function sendToAPI(userMessage, isFirstMessage) {
+    if (ATC.isLoading) return;
+    ATC.isLoading = true;
+
+    const sendBtn = document.getElementById('sendBtn');
+    const inputEl = document.getElementById('debriefInput');
+    if (sendBtn) sendBtn.disabled = true;
+    if (inputEl) inputEl.disabled = true;
+
+    showTyping();
+
+    try {
+        const token = await getToken();
+
+        // Add user message to history
+        ATC.conversationHistory.push({ role: 'user', content: userMessage });
+
+        const systemPrompt = buildSystemPrompt(ATC.userRole || 'student', ATC.currentCallDescription);
+
+        const body = {
+            message: userMessage,
+            conversationHistory: ATC.conversationHistory.slice(-12).filter(m => m.role !== 'system'),
+            scenarioPrompt: systemPrompt
+        };
+
+        const resp = await fetch(ATC.API_BASE + '/chat', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (!resp.ok) throw new Error('API error ' + resp.status);
+
+        // Stream the response
+        const reader = resp.body.getReader();
+        const decoder = new TextDecoder();
+        let fullMessage = '';
+        let hollieLabel = null;
+        let hollieBubble = null;
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const text = decoder.decode(value, { stream: true });
+            const lines = text.split('\n');
+
+            for (const line of lines) {
+                if (!line.startsWith('data: ')) continue;
+                try {
+                    const data = JSON.parse(line.slice(6));
+                    if (data.type === 'chunk') {
+                        fullMessage += data.content;
+
+                        // Remove typing indicator on first chunk
+                        if (!hollieBubble) {
+                            removeTyping();
+                            const list = document.getElementById('messagesList');
+                            const msg = document.createElement('div');
+                            msg.className = 'msg hollie';
+
+                            hollieLabel = document.createElement('div');
+                            hollieLabel.className = 'msg-label';
+                            hollieLabel.textContent = 'Hollie';
+
+                            hollieBubble = document.createElement('div');
+                            hollieBubble.className = 'msg-bubble';
+
+                            msg.appendChild(hollieLabel);
+                            msg.appendChild(hollieBubble);
+                            list.appendChild(msg);
+                        }
+
+                        // Check if reflection is embedded
+                        const visibleText = fullMessage
+                            .replace(/REFLECTION_START[\s\S]*?REFLECTION_END/g, '')
+                            .trim();
+
+                        hollieBubble.textContent = visibleText;
+                        document.getElementById('messagesList').scrollTop = document.getElementById('messagesList').scrollHeight;
+
+                    } else if (data.type === 'error') {
+                        throw new Error(data.error);
+                    }
+                } catch (parseErr) {
+                    // Skip malformed lines
+                }
+            }
+        }
+
+        // Add to conversation history
+        ATC.conversationHistory.push({ role: 'assistant', content: fullMessage });
+
+        // Check for CPD reflection in response
+        const reflectionMatch = fullMessage.match(/REFLECTION_START([\s\S]*?)REFLECTION_END/);
+        if (reflectionMatch) {
+            renderReflectionCard(reflectionMatch[1].trim());
+        }
+
+    } catch (e) {
+        console.error('Debrief API error:', e);
+        removeTyping();
+        const errMsg = document.createElement('div');
+        errMsg.style.cssText = 'font-size:13px;color:#f08090;padding:8px;text-align:center;';
+        errMsg.textContent = 'Something went wrong. Please try sending again.';
+        document.getElementById('messagesList').appendChild(errMsg);
+    } finally {
+        ATC.isLoading = false;
+        if (sendBtn) sendBtn.disabled = false;
+        if (inputEl) {
+            inputEl.disabled = false;
+            inputEl.focus();
+        }
+    }
+}
+
+function handleDebriefKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendDebriefMessage();
+    }
+}
+
+function sendDebriefMessage() {
+    const input = document.getElementById('debriefInput');
+    const text = input.value.trim();
+    if (!text || ATC.isLoading) return;
+
+    input.value = '';
+    input.style.height = 'auto';
+
+    appendMessage('user', text);
+    sendToAPI(text, false);
+}
+
+/* ── CPD Reflection card ── */
+function parseReflection(raw) {
+    const get = (key) => {
+        const match = raw.match(new RegExp(key + ':\\s*([^\n]+(?:\n(?![A-Z_]+:)[^\n]+)*)'));
+        return match ? match[1].trim() : '';
+    };
+    return {
+        callType:   get('CALL_TYPE'),
+        learning:   get('LEARNING'),
+        reflection: get('REFLECTION')
+    };
+}
+
+function renderReflectionCard(raw) {
+    const parsed = parseReflection(raw);
+    const list = document.getElementById('messagesList');
+
+    const wrap = document.createElement('div');
+    wrap.className = 'msg hollie';
+
+    const label = document.createElement('div');
+    label.className = 'msg-label';
+    label.textContent = 'Hollie \u00b7 Reflection ready';
+
+    const card = document.createElement('div');
+    card.className = 'reflection-card';
+    card.innerHTML = `
+        <span class="rc-tag">CPD Reflection</span>
+        <div class="rc-field">
+            <div class="rc-field-label">Call type</div>
+            <div class="rc-field-val">${escHtml(parsed.callType)}</div>
+        </div>
+        <div class="rc-field">
+            <div class="rc-field-label">Learning identified</div>
+            <div class="rc-field-val">${escHtml(parsed.learning)}</div>
+        </div>
+        <div class="rc-field">
+            <div class="rc-field-label">Reflection</div>
+            <div class="rc-field-val">${escHtml(parsed.reflection)}</div>
+        </div>
+        <div class="rc-actions">
+            <button class="atc-btn-sm teal" onclick="saveCPDRecord(${JSON.stringify(parsed).replace(/"/g, '&quot;')})">
+                Save to portfolio
+            </button>
+            <button class="atc-btn-sm ghost" onclick="copyReflection(${JSON.stringify(parsed).replace(/"/g, '&quot;')})">
+                Copy text
+            </button>
+            <button class="atc-btn-sm ghost" onclick="showScreen('screen-entry'); resetDebrief()">
+                New debrief
+            </button>
+        </div>
+    `;
+
+    wrap.appendChild(label);
+    wrap.appendChild(card);
+    list.appendChild(wrap);
+    list.scrollTop = list.scrollHeight;
+}
+
+function escHtml(str) {
+    return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+async function saveCPDRecord(parsed) {
+    try {
+        const token = await getToken();
+
+        const body = {
+            type: 'after-the-call',
+            title: 'After the Call: ' + (parsed.callType || 'Shift debrief'),
+            scenarioId: 'after-the-call',
+            scenarioTitle: parsed.callType || 'Shift debrief',
+            completedAt: new Date().toISOString(),
+            duration: Math.round(ATC.conversationHistory.length / 2),
+            learningPoints: [parsed.learning],
+            reflection: parsed.reflection,
+            result: 'completed'
+        };
+
+        const resp = await fetch(ATC.API_BASE + '/saveCpdRecord', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (resp.ok) {
+            // Update button to show saved
+            event.target.textContent = 'Saved ✓';
+            event.target.disabled = true;
+        }
+    } catch (e) {
+        console.error('CPD save error:', e);
+    }
+}
+
+function copyReflection(parsed) {
+    const text =
+        'Call type: ' + parsed.callType + '\n\n' +
+        'Learning identified: ' + parsed.learning + '\n\n' +
+        'Reflection: ' + parsed.reflection;
+
+    navigator.clipboard.writeText(text).then(() => {
+        event.target.textContent = 'Copied ✓';
+        setTimeout(() => { event.target.textContent = 'Copy text'; }, 2000);
+    });
+}
+
+function endDebrief() {
+    if (ATC.conversationHistory.length > 0) {
+        if (!confirm('End this debrief and return to the start?')) return;
+    }
+    resetDebrief();
+    showScreen('screen-entry');
+}
+
+function resetDebrief() {
+    ATC.conversationHistory = [];
+    ATC.currentCallDescription = '';
+    ATC.transcribedText = '';
+    ATC.audioChunks = [];
+
+    // Reset voice screen
+    const tp = document.getElementById('transcriptPlaceholder');
+    const tt = document.getElementById('transcriptText');
+    if (tp) { tp.style.display = ''; }
+    if (tt) { tt.style.display = 'none'; tt.textContent = ''; }
+    const vsb = document.getElementById('voiceSubmitBtn');
+    if (vsb) vsb.disabled = true;
+    const ms = document.getElementById('micStatus');
+    if (ms) ms.textContent = 'Tap the mic to start';
+
+    // Reset text screen
+    const ti = document.getElementById('textInput');
+    if (ti) ti.value = '';
+
+    // Reset debrief input
+    const di = document.getElementById('debriefInput');
+    if (di) di.value = '';
+}
+
+/* ── Auto-resize debrief textarea ── */
+document.addEventListener('DOMContentLoaded', function() {
+    const di = document.getElementById('debriefInput');
+    if (di) {
+        di.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+    }
+});
+
+/* ── Initialise after Pro Guard clears ── */
+(function waitForGuard() {
+    const overlay = document.getElementById('proGuardOverlay');
+    if (!overlay) {
+        // Guard already cleared — init now
+        initPage();
+        return;
+    }
+    // Wait for guard overlay to be removed
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            mutation.removedNodes.forEach(function(node) {
+                if (node.id === 'proGuardOverlay') {
+                    observer.disconnect();
+                    initPage();
+                }
+            });
+        });
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+})();
+</script>
+
+</body>
+</html>
