@@ -2133,80 +2133,108 @@ function showMuteBtn(show) {
    VOICE OVERLAY — in-page mic for replies
    ══════════════════════════════════════ */
 /* ══════════════════════════════════════
-   INLINE VOICE WIDGET — no modal, all in conversation flow
+   INLINE VOICE WIDGET — mirrors entry screen exactly
    ══════════════════════════════════════ */
 const debriefMic = {
     mediaRecorder: null,
     audioChunks:   [],
     isRecording:   false,
-    mimeType:      ''
+    mimeType:      '',
+    transcribed:   ''
 };
 
 function appendInlineVoicePrompt() {
+    // Remove any previous widget
     document.querySelectorAll('.ivw').forEach(el => el.remove());
-    const list   = document.getElementById('messagesList');
+
+    const list = document.getElementById('messagesList');
+
+    // Build the widget — identical structure to the entry voice screen
     const widget = document.createElement('div');
     widget.className = 'ivw';
     widget.id = 'ivw';
+    widget.innerHTML = `
+        <div class="mic-stage" style="align-items:flex-start;margin-bottom:12px">
+            <div class="mic-rings" id="ivwRings">
+                <button class="mic-btn" id="ivwBtn" onclick="toggleInlineMic()">
+                    <i class="bi bi-mic-fill" id="ivwIcon"></i>
+                </button>
+            </div>
+            <div class="waveform" id="ivwWaveform">
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span>
+            </div>
+            <p class="mic-status" id="ivwStatus">Tap the mic to reply</p>
+        </div>
+        <div class="transcript-box" id="ivwTranscriptBox" style="margin-bottom:12px">
+            <span class="transcript-placeholder" id="ivwPlaceholder">Your reply will appear here...</span>
+            <span id="ivwText" style="display:none"></span>
+        </div>
+        <button class="atc-btn" id="ivwSendBtn" onclick="sendInlineVoiceReply()" disabled style="margin-bottom:0">
+            Send reply
+        </button>
+    `;
+
     list.appendChild(widget);
     list.scrollTop = list.scrollHeight;
-    // Start recording immediately — no button needed in voice mode
-    startInlineRecording(widget);
 }
 
-async function startInlineRecording(widget) {
-    if (ATC.currentAudio) { ATC.currentAudio.pause(); ATC.currentAudio = null; }
+async function toggleInlineMic() {
+    if (debriefMic.isRecording) {
+        stopInlineMic();
+    } else {
+        await startInlineMic();
+    }
+}
+
+async function startInlineMic() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         debriefMic.audioChunks = [];
         debriefMic.mimeType    = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
         debriefMic.mediaRecorder = new MediaRecorder(stream, { mimeType: debriefMic.mimeType });
-        debriefMic.isRecording   = true;
 
         debriefMic.mediaRecorder.ondataavailable = e => {
             if (e.data.size > 0) debriefMic.audioChunks.push(e.data);
         };
+
         debriefMic.mediaRecorder.onstop = async () => {
             stream.getTracks().forEach(t => t.stop());
-            await transcribeInlineReply(widget);
+            await transcribeInlineMic();
         };
-        debriefMic.mediaRecorder.start();
 
-        widget.innerHTML = `
-            <div class="ivw-recording">
-                <div class="ivw-rings">
-                    <button class="ivw-mic-btn" id="ivwMicBtn" onclick="stopInlineRecording()">
-                        <i class="bi bi-stop-fill"></i>
-                    </button>
-                </div>
-                <div class="ivw-waveform">
-                    <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-                </div>
-                <p class="ivw-status">Recording — tap to stop</p>
-            </div>`;
-        document.getElementById('messagesList').scrollTop = document.getElementById('messagesList').scrollHeight;
+        debriefMic.mediaRecorder.start();
+        debriefMic.isRecording = true;
+
+        document.getElementById('ivwRings').classList.add('listening');
+        document.getElementById('ivwWaveform').classList.add('active');
+        document.getElementById('ivwIcon').className   = 'bi bi-stop-fill';
+        document.getElementById('ivwStatus').textContent = 'Recording — tap to stop';
 
     } catch (e) {
         console.error('Inline mic error:', e);
-        widget.innerHTML = '<p style="font-size:13px;color:#f08090;padding:4px 0">Microphone access denied — please type your reply.</p>';
+        const status = document.getElementById('ivwStatus');
+        if (status) status.textContent = 'Microphone access denied — please type below';
     }
 }
 
-function stopInlineRecording() {
+function stopInlineMic() {
     if (debriefMic.mediaRecorder && debriefMic.isRecording) {
         debriefMic.mediaRecorder.stop();
         debriefMic.isRecording = false;
-        const btn = document.getElementById('ivwMicBtn');
-        if (btn) { btn.innerHTML = '<i class="bi bi-hourglass-split"></i>'; btn.disabled = true; }
-        const status = document.querySelector('.ivw-status');
-        if (status) status.textContent = 'Transcribing…';
+
+        document.getElementById('ivwRings').classList.remove('listening');
+        document.getElementById('ivwWaveform').classList.remove('active');
+        document.getElementById('ivwIcon').className    = 'bi bi-mic-fill';
+        document.getElementById('ivwStatus').textContent = 'Transcribing…';
+        document.getElementById('ivwBtn').disabled       = true;
     }
 }
 
-async function transcribeInlineReply(widget) {
+async function transcribeInlineMic() {
     try {
-        const token = await getToken();
-        const blob  = new Blob(debriefMic.audioChunks, { type: debriefMic.mimeType });
+        const token  = await getToken();
+        const blob   = new Blob(debriefMic.audioChunks, { type: debriefMic.mimeType });
         const base64 = await new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload  = () => resolve(reader.result.split(',')[1]);
@@ -2216,55 +2244,55 @@ async function transcribeInlineReply(widget) {
 
         const resp = await fetch(ATC.API_BASE + '/transcribe', {
             method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + (await getToken()), 'Content-Type': 'application/json' },
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type':  'application/json'
+            },
             body: JSON.stringify({ audio: base64, mimeType: debriefMic.mimeType })
         });
 
         if (!resp.ok) throw new Error('Transcription failed');
+
         const data = await resp.json();
         const text = (data.text || '').trim();
 
-        if (text) {
-            widget.innerHTML = `
-                <div class="ivw-transcript-text">${escHtml(text)}</div>
-                <div class="ivw-actions">
-                    <button class="ivw-send-btn" onclick="sendInlineVoiceReply(this)">Send reply</button>
-                    <button class="ivw-retry-btn" onclick="retryInlineVoice()">Try again</button>
-                </div>`;
-            widget.dataset.transcribed = text;
-        } else {
-            widget.innerHTML = `
-                <p class="ivw-status" style="margin-bottom:8px">Nothing captured —</p>
-                <button class="ivw-start-btn" onclick="retryInlineVoice()"><i class="bi bi-mic-fill"></i> Try again</button>`;
+        // Append to any existing transcript (user may record multiple times)
+        debriefMic.transcribed = debriefMic.transcribed
+            ? debriefMic.transcribed + ' ' + text
+            : text;
+
+        // Show transcript — same as entry screen
+        document.getElementById('ivwPlaceholder').style.display = 'none';
+        const txtEl = document.getElementById('ivwText');
+        txtEl.style.display  = 'block';
+        txtEl.textContent    = debriefMic.transcribed;
+
+        document.getElementById('ivwStatus').textContent  = 'Tap the mic to add more, or send';
+        document.getElementById('ivwBtn').disabled         = false;
+
+        if (debriefMic.transcribed.trim().length > 0) {
+            document.getElementById('ivwSendBtn').disabled = false;
         }
+
         document.getElementById('messagesList').scrollTop = document.getElementById('messagesList').scrollHeight;
 
     } catch (e) {
         console.error('Inline transcribe error:', e);
-        widget.innerHTML = `
-            <p class="ivw-status" style="margin-bottom:8px;color:#f08090">Transcription failed —</p>
-            <button class="ivw-start-btn" onclick="retryInlineVoice()"><i class="bi bi-mic-fill"></i> Try again</button>`;
+        document.getElementById('ivwStatus').textContent  = 'Transcription failed — tap to try again';
+        document.getElementById('ivwBtn').disabled         = false;
     }
 }
 
-function sendInlineVoiceReply(btn) {
-    const widget = document.getElementById('ivw');
-    const text   = widget ? widget.dataset.transcribed : '';
+function sendInlineVoiceReply() {
+    const text = (debriefMic.transcribed || '').trim();
     if (!text || ATC.isLoading) return;
+
+    // Reset for next round
+    debriefMic.transcribed = '';
+
     document.querySelectorAll('.ivw').forEach(el => el.remove());
     appendMessage('user', text);
     sendToAPI(text, false);
-}
-
-function retryInlineVoice() {
-    const widget = document.getElementById('ivw');
-    if (!widget) return;
-    widget.innerHTML = '';
-    const btn = document.createElement('button');
-    btn.className = 'ivw-start-btn';
-    btn.innerHTML = '<i class="bi bi-mic-fill"></i> Reply by voice';
-    btn.onclick = () => startInlineRecording(widget);
-    widget.appendChild(btn);
 }
 
 
