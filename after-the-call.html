@@ -852,10 +852,10 @@
 
         /* ── Voice overlay (in-page mic for debrief replies) ── */
         .voice-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
+            position: fixed;
+            top: 62px; left: 0; right: 0; bottom: 0;
             background: var(--atc-bg);
-            z-index: 20;
+            z-index: 60;
             display: none;
             flex-direction: column;
             align-items: center;
@@ -990,6 +990,30 @@
         }
         .hollie-speaking-dot:nth-child(2){animation-delay:.15s}
         .hollie-speaking-dot:nth-child(3){animation-delay:.3s}
+
+
+        /* ── Mute toggle in bottom bar ── */
+        .mute-btn {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--atc-muted);
+            background: var(--atc-bg-card);
+            border: 1px solid var(--atc-border);
+            border-radius: 10px;
+            padding: 0 12px;
+            height: 38px;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.18s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .mute-btn.visible { display: flex; }
+        .mute-btn:hover { border-color: rgba(43,138,156,0.3); color: var(--atc-text); }
+        .mute-btn.muted { color: var(--atc-dim); }
 
     </style>
 </head>
@@ -1190,10 +1214,6 @@
     <div class="debrief-topbar">
         <div class="debrief-dot"></div>
         <span class="debrief-topbar-title" id="debriefTopTitle">Debrief in progress</span>
-        <button class="mute-btn" id="muteBtn" onclick="toggleMute()">
-            <i class="bi bi-volume-up" id="muteIcon"></i>
-            <span id="muteLabel">Mute Hollie</span>
-        </button>
         <button class="debrief-end-btn" onclick="endDebrief()">End debrief</button>
     </div>
 
@@ -1229,6 +1249,10 @@
                 onkeydown="handleDebriefKey(event)"></textarea>
             <button class="send-btn" id="sendBtn" onclick="sendDebriefMessage()">
                 <i class="bi bi-arrow-up"></i>
+            </button>
+            <button class="mute-btn" id="muteBtn" onclick="toggleMute()">
+                <i class="bi bi-volume-up" id="muteIcon"></i>
+                <span id="muteLabel">Mute</span>
             </button>
         </div>
     </div>
