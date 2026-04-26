@@ -738,6 +738,34 @@
         .debrief-input:focus { border-color: rgba(43,138,156,0.35); }
         .debrief-input::placeholder { color: var(--atc-dim); }
 
+        .debrief-mic-btn {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            background: var(--atc-bg-card);
+            border: 1px solid var(--atc-border);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; color: var(--atc-muted);
+            flex-shrink: 0;
+            transition: all 0.18s;
+        }
+
+        .debrief-mic-btn:hover { border-color: var(--atc-teal-border); color: var(--atc-teal); }
+
+        .debrief-mic-btn.recording {
+            background: rgba(220,53,69,0.12);
+            border-color: rgba(220,53,69,0.3);
+            color: #e05568;
+            animation: atcMicPulse 1.2s ease-in-out infinite;
+        }
+
+        @keyframes atcMicPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220,53,69,0.2); }
+            50%       { box-shadow: 0 0 0 6px rgba(220,53,69,0.05); }
+        }
+
+        .debrief-mic-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
         /* ── Shared buttons ── */
         .atc-btn {
             width: 100%;
@@ -1025,6 +1053,9 @@
 
     <div class="debrief-bar">
         <div class="debrief-bar-inner">
+            <button class="debrief-mic-btn" id="debriefMicBtn" onclick="toggleDebriefMic()" title="Record voice reply">
+                <i class="bi bi-mic" id="debriefMicIcon"></i>
+            </button>
             <textarea class="debrief-input" id="debriefInput" rows="1"
                 placeholder="Reply to Hollie..."
                 onkeydown="handleDebriefKey(event)"></textarea>
@@ -1813,6 +1844,123 @@ async function downloadReflectionPDF(btn) {
     }
 }
 
+/* ══════════════════════════════════════
+   DEBRIEF MIC — voice replies
+   ══════════════════════════════════════ */
+const debriefMic = {
+    mediaRecorder: null,
+    audioChunks:   [],
+    isRecording:   false,
+    mimeType:      ''
+};
+
+async function toggleDebriefMic() {
+    if (debriefMic.isRecording) {
+        stopDebriefMic();
+    } else {
+        await startDebriefMic();
+    }
+}
+
+async function startDebriefMic() {
+    const btn  = document.getElementById('debriefMicBtn');
+    const icon = document.getElementById('debriefMicIcon');
+    const input = document.getElementById('debriefInput');
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        debriefMic.audioChunks = [];
+        debriefMic.mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
+        debriefMic.mediaRecorder = new MediaRecorder(stream, { mimeType: debriefMic.mimeType });
+
+        debriefMic.mediaRecorder.ondataavailable = (e) => {
+            if (e.data.size > 0) debriefMic.audioChunks.push(e.data);
+        };
+
+        debriefMic.mediaRecorder.onstop = async () => {
+            stream.getTracks().forEach(t => t.stop());
+            await transcribeDebriefReply();
+        };
+
+        debriefMic.mediaRecorder.start();
+        debriefMic.isRecording = true;
+
+        btn.classList.add('recording');
+        icon.className = 'bi bi-stop-fill';
+        input.placeholder = 'Recording... tap mic to stop';
+
+    } catch (e) {
+        console.error('Debrief mic error:', e);
+        input.placeholder = 'Microphone access denied — type your reply';
+    }
+}
+
+function stopDebriefMic() {
+    if (debriefMic.mediaRecorder && debriefMic.isRecording) {
+        debriefMic.mediaRecorder.stop();
+        debriefMic.isRecording = false;
+
+        const btn  = document.getElementById('debriefMicBtn');
+        const icon = document.getElementById('debriefMicIcon');
+        const input = document.getElementById('debriefInput');
+
+        btn.classList.remove('recording');
+        btn.disabled = true;
+        icon.className = 'bi bi-hourglass-split';
+        input.placeholder = 'Transcribing...';
+    }
+}
+
+async function transcribeDebriefReply() {
+    const btn   = document.getElementById('debriefMicBtn');
+    const icon  = document.getElementById('debriefMicIcon');
+    const input = document.getElementById('debriefInput');
+
+    try {
+        const token = await getToken();
+        const blob   = new Blob(debriefMic.audioChunks, { type: debriefMic.mimeType });
+
+        const base64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload  = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+
+        const resp = await fetch(ATC.API_BASE + '/transcribe', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type':  'application/json'
+            },
+            body: JSON.stringify({ audio: base64, mimeType: debriefMic.mimeType })
+        });
+
+        if (!resp.ok) throw new Error('Transcription failed');
+
+        const data = await resp.json();
+        const text = (data.text || '').trim();
+
+        if (text) {
+            // Fill the input — user reviews then sends manually
+            input.value = text;
+            input.style.height = 'auto';
+            input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+            input.focus();
+            input.placeholder = 'Reply to Hollie...';
+        } else {
+            input.placeholder = 'Nothing captured — try again';
+        }
+
+    } catch (e) {
+        console.error('Debrief transcribe error:', e);
+        input.placeholder = 'Transcription failed — please type your reply';
+    } finally {
+        btn.disabled = false;
+        icon.className = 'bi bi-mic';
+    }
+}
+
 function endDebrief() {
     if (ATC.conversationHistory.length > 0) {
         if (!confirm('End this debrief and return to the start?')) return;
@@ -1841,9 +1989,16 @@ function resetDebrief() {
     const ti = document.getElementById('textInput');
     if (ti) ti.value = '';
 
-    // Reset debrief input
+    // Reset debrief input and mic
     const di = document.getElementById('debriefInput');
-    if (di) di.value = '';
+    if (di) { di.value = ''; di.placeholder = 'Reply to Hollie...'; }
+    if (debriefMic.isRecording) stopDebriefMic();
+    debriefMic.audioChunks = [];
+    debriefMic.isRecording = false;
+    const dmb = document.getElementById('debriefMicBtn');
+    const dmi = document.getElementById('debriefMicIcon');
+    if (dmb) { dmb.disabled = false; dmb.classList.remove('recording'); }
+    if (dmi) { dmi.className = 'bi bi-mic'; }
 }
 
 /* ── Auto-resize debrief textarea ── */
