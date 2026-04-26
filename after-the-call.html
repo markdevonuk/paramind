@@ -1046,15 +1046,39 @@
     <div class="debrief-topbar">
         <div class="debrief-dot"></div>
         <span class="debrief-topbar-title" id="debriefTopTitle">Debrief in progress</span>
+        <button class="mute-btn" id="muteBtn" onclick="toggleMute()">
+            <i class="bi bi-volume-up" id="muteIcon"></i>
+            <span id="muteLabel">Mute Hollie</span>
+        </button>
         <button class="debrief-end-btn" onclick="endDebrief()">End debrief</button>
+    </div>
+
+    <!-- Voice reply overlay — shown when user taps mic during debrief -->
+    <div class="voice-overlay" id="voiceOverlay">
+        <p class="vo-hollie-label">Voice reply</p>
+        <div class="vo-rings" id="voRings">
+            <button class="vo-mic-btn" id="voMicBtn" onclick="toggleDebriefMic()">
+                <i class="bi bi-mic-fill" id="voMicIcon"></i>
+            </button>
+        </div>
+        <div class="vo-waveform" id="voWaveform">
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span>
+        </div>
+        <p class="vo-status" id="voStatus">Tap the mic to start speaking</p>
+        <div class="vo-transcript" id="voTranscript"></div>
+        <div class="vo-actions">
+            <button class="vo-send-btn" id="voSendBtn" onclick="sendVoiceReply()">Send reply</button>
+            <button class="vo-cancel-btn" onclick="cancelVoiceOverlay()">Cancel</button>
+        </div>
     </div>
 
     <div class="messages-list" id="messagesList"></div>
 
     <div class="debrief-bar">
         <div class="debrief-bar-inner">
-            <button class="debrief-mic-btn" id="debriefMicBtn" onclick="toggleDebriefMic()" title="Record voice reply">
-                <i class="bi bi-mic" id="debriefMicIcon"></i>
+            <button class="debrief-mic-btn" id="debriefMicBtn" onclick="openVoiceOverlay()" title="Record voice reply">
+                <i class="bi bi-mic"></i>
             </button>
             <textarea class="debrief-input" id="debriefInput" rows="1"
                 placeholder="Reply to Hollie..."
@@ -1093,6 +1117,12 @@ const ATC = {
     transcribedText: '',
     currentCallDescription: '',
     debriefTopicLabel: 'Debrief in progress',
+
+    // Voice / input mode
+    inputMode:    null,   // 'voice' | 'text'
+    voiceEnabled: false,  // true when user entered via voice
+    muted:        false,  // user toggled mute
+    currentAudio: null,   // current Audio object for Hollie TTS
 
     // API base (matches app.js)
     API_BASE: 'https://europe-west2-paramind-64b8e.cloudfunctions.net',
@@ -1366,6 +1396,9 @@ async function transcribeAudio(mimeType) {
 function submitVoice() {
     const text = ATC.transcribedText.trim();
     if (!text || text.length < 10) return;
+    ATC.inputMode    = 'voice';
+    ATC.voiceEnabled = true;
+    ATC.muted        = false;
     startDebrief(text);
 }
 
@@ -1383,6 +1416,9 @@ function submitText() {
         return;
     }
 
+    ATC.inputMode    = 'text';
+    ATC.voiceEnabled = false;
+    ATC.muted        = false;
     startDebrief(text);
 }
 
@@ -1401,6 +1437,9 @@ function startDebrief(callDescription) {
     document.getElementById('messagesList').innerHTML = '';
 
     showScreen('screen-debrief');
+
+    // Show mute button only for voice users
+    showMuteBtn(ATC.voiceEnabled);
 
     // Add user's opening message
     appendMessage('user', callDescription);
@@ -1558,6 +1597,12 @@ async function sendToAPI(userMessage, isFirstMessage) {
         const reflectionMatch = fullMessage.match(/REFLECTION_START([\s\S]*?)REFLECTION_END/);
         if (reflectionMatch) {
             renderReflectionCard(reflectionMatch[1].trim());
+        }
+
+        // Speak Hollie's response if voice mode is active
+        const visibleForSpeech = fullMessage.replace(/REFLECTION_START[\s\S]*?REFLECTION_END/g, '').trim();
+        if (ATC.voiceEnabled && !ATC.muted && visibleForSpeech) {
+            speakHollie(visibleForSpeech);
         }
 
     } catch (e) {
@@ -1845,32 +1890,154 @@ async function downloadReflectionPDF(btn) {
 }
 
 /* ══════════════════════════════════════
-   DEBRIEF MIC — voice replies
+   HOLLIE VOICE — TTS playback
+   ══════════════════════════════════════ */
+async function speakHollie(text) {
+    // Stop any current audio
+    if (ATC.currentAudio) {
+        ATC.currentAudio.pause();
+        ATC.currentAudio = null;
+    }
+
+    // Show speaking indicator on topbar title
+    const titleEl = document.getElementById('debriefTopTitle');
+    const origTitle = titleEl.textContent.replace(/\s*▶.*$/, '').trim();
+    titleEl.innerHTML = origTitle + ' <span class="hollie-speaking"><span class="hollie-speaking-dot"></span><span class="hollie-speaking-dot"></span><span class="hollie-speaking-dot"></span></span>';
+
+    try {
+        const token = await getToken();
+
+        const resp = await fetch(ATC.API_BASE + '/speak', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type':  'application/json'
+            },
+            body: JSON.stringify({
+                segments: [{
+                    text:         text.slice(0, 4096), // safety cap
+                    voice:        'shimmer',
+                    character:    'HOLLIE',
+                    instructions: 'You are Hollie, a warm and knowledgeable UK paramedic educator. Speak in a calm, clear British English accent. Conversational and collegiate in tone — like a trusted senior colleague. Never rushed.'
+                }]
+            })
+        });
+
+        if (!resp.ok) throw new Error('Speak API error');
+
+        const data = await resp.json();
+        const seg  = data.audioSegments && data.audioSegments[0];
+        if (!seg || !seg.audio) throw new Error('No audio returned');
+
+        // Decode base64 MP3 and play
+        const binary = atob(seg.audio);
+        const bytes  = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        const blob   = new Blob([bytes], { type: 'audio/mpeg' });
+        const url    = URL.createObjectURL(blob);
+
+        const audio = new Audio(url);
+        ATC.currentAudio = audio;
+
+        audio.onended = () => {
+            URL.revokeObjectURL(url);
+            ATC.currentAudio = null;
+            titleEl.textContent = origTitle;
+        };
+
+        audio.onerror = () => {
+            URL.revokeObjectURL(url);
+            ATC.currentAudio = null;
+            titleEl.textContent = origTitle;
+        };
+
+        await audio.play();
+
+    } catch (e) {
+        console.error('Hollie speak error:', e);
+        titleEl.textContent = origTitle;
+    }
+}
+
+function toggleMute() {
+    ATC.muted = !ATC.muted;
+
+    // Stop current audio if muting
+    if (ATC.muted && ATC.currentAudio) {
+        ATC.currentAudio.pause();
+        ATC.currentAudio = null;
+    }
+
+    const icon  = document.getElementById('muteIcon');
+    const label = document.getElementById('muteLabel');
+    if (ATC.muted) {
+        icon.className  = 'bi bi-volume-mute';
+        label.textContent = 'Unmute Hollie';
+    } else {
+        icon.className  = 'bi bi-volume-up';
+        label.textContent = 'Mute Hollie';
+    }
+}
+
+function showMuteBtn(show) {
+    const btn = document.getElementById('muteBtn');
+    if (btn) btn.classList.toggle('visible', show);
+}
+
+/* ══════════════════════════════════════
+   VOICE OVERLAY — in-page mic for replies
    ══════════════════════════════════════ */
 const debriefMic = {
     mediaRecorder: null,
     audioChunks:   [],
     isRecording:   false,
-    mimeType:      ''
+    mimeType:      '',
+    transcribed:   ''
 };
+
+function openVoiceOverlay() {
+    // Stop Hollie if she's speaking
+    if (ATC.currentAudio) {
+        ATC.currentAudio.pause();
+        ATC.currentAudio = null;
+        document.getElementById('debriefTopTitle').textContent =
+            document.getElementById('debriefTopTitle').textContent.replace(/\s*▶.*$/, '').trim();
+    }
+
+    debriefMic.transcribed = '';
+    document.getElementById('voTranscript').textContent = '';
+    document.getElementById('voTranscript').classList.remove('visible');
+    document.getElementById('voSendBtn').classList.remove('visible');
+    document.getElementById('voStatus').textContent = 'Tap the mic to start speaking';
+    document.getElementById('voRings').classList.remove('active');
+    document.getElementById('voWaveform').classList.remove('active');
+    document.getElementById('voMicIcon').className = 'bi bi-mic-fill';
+    document.getElementById('voiceOverlay').classList.add('active');
+}
+
+function cancelVoiceOverlay() {
+    if (debriefMic.isRecording) {
+        debriefMic.mediaRecorder.stop();
+        debriefMic.isRecording = false;
+    }
+    document.getElementById('voiceOverlay').classList.remove('active');
+    document.getElementById('voRings').classList.remove('active');
+    document.getElementById('voWaveform').classList.remove('active');
+}
 
 async function toggleDebriefMic() {
     if (debriefMic.isRecording) {
-        stopDebriefMic();
+        stopDebriefMicOverlay();
     } else {
-        await startDebriefMic();
+        await startDebriefMicOverlay();
     }
 }
 
-async function startDebriefMic() {
-    const btn  = document.getElementById('debriefMicBtn');
-    const icon = document.getElementById('debriefMicIcon');
-    const input = document.getElementById('debriefInput');
-
+async function startDebriefMicOverlay() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         debriefMic.audioChunks = [];
-        debriefMic.mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
+        debriefMic.mimeType    = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
         debriefMic.mediaRecorder = new MediaRecorder(stream, { mimeType: debriefMic.mimeType });
 
         debriefMic.mediaRecorder.ondataavailable = (e) => {
@@ -1879,45 +2046,37 @@ async function startDebriefMic() {
 
         debriefMic.mediaRecorder.onstop = async () => {
             stream.getTracks().forEach(t => t.stop());
-            await transcribeDebriefReply();
+            await transcribeVoiceReply();
         };
 
         debriefMic.mediaRecorder.start();
         debriefMic.isRecording = true;
 
-        btn.classList.add('recording');
-        icon.className = 'bi bi-stop-fill';
-        input.placeholder = 'Recording... tap mic to stop';
+        document.getElementById('voRings').classList.add('active');
+        document.getElementById('voWaveform').classList.add('active');
+        document.getElementById('voMicIcon').className = 'bi bi-stop-fill';
+        document.getElementById('voStatus').textContent = 'Recording — tap to stop';
 
     } catch (e) {
-        console.error('Debrief mic error:', e);
-        input.placeholder = 'Microphone access denied — type your reply';
+        console.error('Overlay mic error:', e);
+        document.getElementById('voStatus').textContent = 'Microphone access denied — please type your reply instead';
     }
 }
 
-function stopDebriefMic() {
+function stopDebriefMicOverlay() {
     if (debriefMic.mediaRecorder && debriefMic.isRecording) {
         debriefMic.mediaRecorder.stop();
         debriefMic.isRecording = false;
-
-        const btn  = document.getElementById('debriefMicBtn');
-        const icon = document.getElementById('debriefMicIcon');
-        const input = document.getElementById('debriefInput');
-
-        btn.classList.remove('recording');
-        btn.disabled = true;
-        icon.className = 'bi bi-hourglass-split';
-        input.placeholder = 'Transcribing...';
+        document.getElementById('voRings').classList.remove('active');
+        document.getElementById('voWaveform').classList.remove('active');
+        document.getElementById('voMicIcon').className = 'bi bi-hourglass-split';
+        document.getElementById('voStatus').textContent = 'Transcribing…';
     }
 }
 
-async function transcribeDebriefReply() {
-    const btn   = document.getElementById('debriefMicBtn');
-    const icon  = document.getElementById('debriefMicIcon');
-    const input = document.getElementById('debriefInput');
-
+async function transcribeVoiceReply() {
     try {
-        const token = await getToken();
+        const token  = await getToken();
         const blob   = new Blob(debriefMic.audioChunks, { type: debriefMic.mimeType });
 
         const base64 = await new Promise((resolve, reject) => {
@@ -1941,24 +2100,39 @@ async function transcribeDebriefReply() {
         const data = await resp.json();
         const text = (data.text || '').trim();
 
+        debriefMic.transcribed = text;
+
+        const transcriptEl = document.getElementById('voTranscript');
+        const sendBtn      = document.getElementById('voSendBtn');
+
         if (text) {
-            // Fill the input — user reviews then sends manually
-            input.value = text;
-            input.style.height = 'auto';
-            input.style.height = Math.min(input.scrollHeight, 120) + 'px';
-            input.focus();
-            input.placeholder = 'Reply to Hollie...';
+            transcriptEl.textContent = text;
+            transcriptEl.classList.add('visible');
+            sendBtn.classList.add('visible');
+            document.getElementById('voStatus').textContent = 'Tap the mic to record more, or send your reply';
         } else {
-            input.placeholder = 'Nothing captured — try again';
+            document.getElementById('voStatus').textContent = 'Nothing captured — tap the mic to try again';
         }
 
+        document.getElementById('voMicIcon').className = 'bi bi-mic-fill';
+
     } catch (e) {
-        console.error('Debrief transcribe error:', e);
-        input.placeholder = 'Transcription failed — please type your reply';
-    } finally {
-        btn.disabled = false;
-        icon.className = 'bi bi-mic';
+        console.error('Voice reply transcribe error:', e);
+        document.getElementById('voStatus').textContent = 'Transcription failed — tap to try again';
+        document.getElementById('voMicIcon').className = 'bi bi-mic-fill';
     }
+}
+
+function sendVoiceReply() {
+    const text = debriefMic.transcribed.trim();
+    if (!text || ATC.isLoading) return;
+
+    // Close overlay
+    document.getElementById('voiceOverlay').classList.remove('active');
+
+    // Send as normal message
+    appendMessage('user', text);
+    sendToAPI(text, false);
 }
 
 function endDebrief() {
@@ -1992,13 +2166,19 @@ function resetDebrief() {
     // Reset debrief input and mic
     const di = document.getElementById('debriefInput');
     if (di) { di.value = ''; di.placeholder = 'Reply to Hollie...'; }
-    if (debriefMic.isRecording) stopDebriefMic();
+    // Stop any ongoing recording or playback
+    if (debriefMic.isRecording && debriefMic.mediaRecorder) debriefMic.mediaRecorder.stop();
     debriefMic.audioChunks = [];
     debriefMic.isRecording = false;
-    const dmb = document.getElementById('debriefMicBtn');
-    const dmi = document.getElementById('debriefMicIcon');
-    if (dmb) { dmb.disabled = false; dmb.classList.remove('recording'); }
-    if (dmi) { dmi.className = 'bi bi-mic'; }
+    debriefMic.transcribed = '';
+    if (ATC.currentAudio) { ATC.currentAudio.pause(); ATC.currentAudio = null; }
+
+    // Reset voice overlay
+    const vo = document.getElementById('voiceOverlay');
+    if (vo) vo.classList.remove('active');
+
+    // Hide mute button
+    showMuteBtn(false);
 }
 
 /* ── Auto-resize debrief textarea ── */
