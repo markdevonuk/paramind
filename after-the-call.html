@@ -2059,6 +2059,11 @@ async function downloadReflectionPDF(btn) {
     document.addEventListener('click',      unlockOnce, true);
 })();
 
+function showMuteBtn(show) {
+    const btn = document.getElementById('muteBtn');
+    if (btn) btn.classList.toggle('visible', show);
+}
+
 async function speakHollie(text) {
     if (ATC.muted) return;
 
