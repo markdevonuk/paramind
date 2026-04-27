@@ -376,7 +376,7 @@
                 <span class="account-info-label">Email</span>
                 <span class="account-info-value" id="accountEmail">Loading...</span>
             </div>
-            <div class="account-info-row">
+            <div class="account-info-row" style="display:none">
                 <span class="account-info-label">Trust</span>
                 <span class="account-info-value" id="accountTrust">Loading...</span>
             </div>
@@ -399,10 +399,26 @@
                 </select>
             </div>
             <div class="edit-field-group">
-                <label class="edit-field-label" for="profileTrust">Ambulance Trust / University</label>
-                <input class="edit-field-input" id="profileTrust" type="text"
-                    placeholder="e.g. London Ambulance Service"
-                    maxlength="100">
+                <label class="edit-field-label" for="profileTrust">Ambulance Trust</label>
+                <select class="edit-field-select" id="profileTrust">
+                    <option value="">— Select your trust —</option>
+                    <option value="NONE">None</option>
+                    <option value="BHL">Bristow Group</option>
+                    <option value="EEAST">East of England Ambulance Service NHS Trust</option>
+                    <option value="EMAS">East Midlands Ambulance Service NHS Trust</option>
+                    <option value="JAS">States of Jersey Ambulance Service</option>
+                    <option value="NEAS">North East Ambulance Service NHS Foundation Trust</option>
+                    <option value="NIAS">Northern Ireland Ambulance Service</option>
+                    <option value="NWAS">North West Ambulance Service NHS Trust</option>
+                    <option value="SAS">Scottish Ambulance Service</option>
+                    <option value="SCAS">South Central Ambulance Service NHS Foundation Trust</option>
+                    <option value="SECAmb">South East Coast Ambulance Service NHS Foundation Trust</option>
+                    <option value="SJA">St John Ambulance</option>
+                    <option value="SWAST">South Western Ambulance Service NHS Foundation Trust</option>
+                    <option value="WAST">Welsh Ambulance Services NHS Trust</option>
+                    <option value="WMAS">West Midlands Ambulance Service NHS Foundation Trust</option>
+                    <option value="YAS">Yorkshire Ambulance Service NHS Trust</option>
+                </select>
             </div>
             <button class="btn-save-profile" id="saveProfileBtn" onclick="saveProfile()">Save changes</button>
             <p class="save-feedback" id="saveFeedback"></p>
@@ -504,7 +520,7 @@
                     }
                     const trustEl = document.getElementById('profileTrust');
                     if (trustEl) {
-                        trustEl.value = currentUserData.trust || currentUserData.trustFullName || '';
+                        trustEl.value = currentUserData.trust || '';
                     }
                     
                     const isActive = currentUserData.subscriptionStatus === 'active';
@@ -644,7 +660,7 @@
                     feedback.style.color = 'var(--color-teal)';
                     feedback.textContent = 'Saved ✓';
                     setTimeout(function() { feedback.textContent = ''; }, 3000);
-                    if (trust) document.getElementById('accountTrust').textContent = trust;
+                    // accountTrust display is hidden — no update needed
                 })
                 .catch(function(err) {
                     console.error('Save profile error:', err);
