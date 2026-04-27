@@ -94,6 +94,68 @@
             word-break: break-all;
         }
         
+        .edit-field-group {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+
+        .edit-field-group:last-of-type {
+            border-bottom: none;
+        }
+
+        .edit-field-label {
+            font-size: 0.9rem;
+            color: var(--color-gray-500);
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+            display: block;
+        }
+
+        .edit-field-select,
+        .edit-field-input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-md, 8px);
+            font-size: 0.9rem;
+            color: var(--color-gray-800);
+            font-family: inherit;
+            background: var(--color-white);
+            transition: border-color 0.15s;
+        }
+
+        .edit-field-select:focus,
+        .edit-field-input:focus {
+            outline: none;
+            border-color: var(--color-teal);
+        }
+
+        .btn-save-profile {
+            width: 100%;
+            margin-top: 1rem;
+            padding: 0.7rem;
+            background: var(--color-teal);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md, 8px);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: filter 0.15s;
+        }
+
+        .btn-save-profile:hover { filter: brightness(1.08); }
+        .btn-save-profile:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .save-feedback {
+            font-size: 0.85rem;
+            text-align: center;
+            margin-top: 0.5rem;
+            min-height: 1.2em;
+            color: var(--color-teal);
+        }
+
         .status-badge {
             display: inline-block;
             padding: 0.25rem 0.75rem;
@@ -324,6 +386,28 @@
             </div>
         </div>
 
+        <!-- Clinical Profile -->
+        <div class="account-card">
+            <h3><i class="bi bi-person-badge"></i> Clinical Profile</h3>
+            <div class="edit-field-group">
+                <label class="edit-field-label" for="profileRole">Your role</label>
+                <select class="edit-field-select" id="profileRole">
+                    <option value="">— Select your role —</option>
+                    <option value="student">Student Paramedic</option>
+                    <option value="nqp">Newly Qualified Paramedic (NQP)</option>
+                    <option value="registered">Registered Paramedic</option>
+                </select>
+            </div>
+            <div class="edit-field-group">
+                <label class="edit-field-label" for="profileTrust">Ambulance Trust / University</label>
+                <input class="edit-field-input" id="profileTrust" type="text"
+                    placeholder="e.g. London Ambulance Service"
+                    maxlength="100">
+            </div>
+            <button class="btn-save-profile" id="saveProfileBtn" onclick="saveProfile()">Save changes</button>
+            <p class="save-feedback" id="saveFeedback"></p>
+        </div>
+
         <!-- Legal -->
         <div class="account-card">
             <h3><i class="bi bi-file-earmark-text"></i> Legal</h3>
@@ -412,6 +496,16 @@
                     document.getElementById('accountName').textContent = name || 'Not set';
                     document.getElementById('accountEmail').textContent = user.email || 'Not set';
                     document.getElementById('accountTrust').textContent = currentUserData.trust || currentUserData.trustFullName || 'Not set';
+
+                    // Populate Clinical Profile fields
+                    const roleEl = document.getElementById('profileRole');
+                    if (roleEl && currentUserData.paramedicRole) {
+                        roleEl.value = currentUserData.paramedicRole;
+                    }
+                    const trustEl = document.getElementById('profileTrust');
+                    if (trustEl) {
+                        trustEl.value = currentUserData.trust || currentUserData.trustFullName || '';
+                    }
                     
                     const isActive = currentUserData.subscriptionStatus === 'active';
                     const subEl = document.getElementById('accountSubscription');
@@ -509,5 +603,57 @@
     
     <!-- Menu JS -->
     <script src="js/menu-v2.js"></script>
+
+    <script>
+        function saveProfile() {
+            const btn      = document.getElementById('saveProfileBtn');
+            const feedback = document.getElementById('saveFeedback');
+            const role     = document.getElementById('profileRole').value;
+            const trust    = document.getElementById('profileTrust').value.trim();
+
+            btn.disabled    = true;
+            btn.textContent = 'Saving…';
+            feedback.textContent = '';
+
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                feedback.style.color = '#dc3545';
+                feedback.textContent = 'Not signed in. Please refresh and try again.';
+                btn.disabled = false;
+                btn.textContent = 'Save changes';
+                return;
+            }
+
+            const updates = {};
+            if (role)  updates.paramedicRole = role;
+            if (trust) updates.trust = trust;
+
+            if (!role && !trust) {
+                feedback.style.color = '#dc3545';
+                feedback.textContent = 'Please enter a role or trust before saving.';
+                btn.disabled = false;
+                btn.textContent = 'Save changes';
+                return;
+            }
+
+            firebase.firestore().collection('users').doc(user.uid)
+                .update(updates)
+                .then(function() {
+                    btn.disabled = false;
+                    btn.textContent = 'Save changes';
+                    feedback.style.color = 'var(--color-teal)';
+                    feedback.textContent = 'Saved ✓';
+                    setTimeout(function() { feedback.textContent = ''; }, 3000);
+                    if (trust) document.getElementById('accountTrust').textContent = trust;
+                })
+                .catch(function(err) {
+                    console.error('Save profile error:', err);
+                    btn.disabled = false;
+                    btn.textContent = 'Save changes';
+                    feedback.style.color = '#dc3545';
+                    feedback.textContent = 'Save failed. Please try again.';
+                });
+        }
+    </script>
 </body>
 </html>
