@@ -885,27 +885,6 @@
         .mute-btn.muted { color: var(--atc-dim); }
 
 
-        /* ── Tap to hear Hollie button ── */
-        .hollie-speak-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 8px;
-            padding: 6px 14px;
-            background: transparent;
-            border: 1px solid var(--atc-teal-border);
-            border-radius: 20px;
-            color: var(--atc-teal);
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.18s;
-            opacity: 0.8;
-        }
-        .hollie-speak-btn:hover { opacity: 1; background: var(--atc-teal-soft); }
-        .hollie-speak-btn.playing { opacity: 0.5; cursor: default; }
-
         /* ── Inline voice widget — appears under Hollie's message ── */
         .ivw {
             padding: 0 4px;
@@ -1759,14 +1738,13 @@ async function sendToAPI(userMessage, isFirstMessage) {
             renderReflectionCard(reflectionMatch[1].trim());
         }
 
-        // Voice mode — show speaker button then mic
+        // Voice mode — speak then show mic
         const visibleForSpeech = fullMessage.replace(/REFLECTION_START[\s\S]*?REFLECTION_END/g, '').trim();
         if (ATC.voiceEnabled && visibleForSpeech && !reflectionMatch) {
             if (!ATC.muted) {
-                appendSpeakButton(visibleForSpeech);
-            } else {
-                appendInlineVoicePrompt();
+                await speakHollie(visibleForSpeech);
             }
+            appendInlineVoicePrompt();
         }
 
     } catch (e) {
@@ -2060,98 +2038,66 @@ async function downloadReflectionPDF(btn) {
 /* ══════════════════════════════════════
    HOLLIE VOICE — TTS playback
    ══════════════════════════════════════ */
-/* ── Tap-to-hear button — appended under Hollie's bubble ── */
-function appendSpeakButton(text) {
-    // Append button to the last Hollie bubble
-    const list  = document.getElementById('messagesList');
-    const bubbles = list.querySelectorAll('.msg.hollie .msg-bubble');
-    const lastBubble = bubbles[bubbles.length - 1];
-    if (!lastBubble) {
-        appendInlineVoicePrompt();
-        return;
+/* ── Hollie TTS — persistent Audio element for iOS reliability ── */
+(function() {
+    // Create one Audio element at page load and unlock it on first user tap.
+    // Once unlocked, iOS allows programmatic src + play() on the same element.
+    ATC._hollieAudio = new Audio();
+    ATC._hollieAudio.preload = 'auto';
+    ATC._hollieUnlocked = false;
+
+    function unlockOnce() {
+        if (ATC._hollieUnlocked) return;
+        ATC._hollieUnlocked = true;
+        ATC._hollieAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+        ATC._hollieAudio.play().catch(() => {});
+        document.removeEventListener('touchstart', unlockOnce, true);
+        document.removeEventListener('click', unlockOnce, true);
     }
 
-    const btn = document.createElement('button');
-    btn.className = 'hollie-speak-btn';
-    btn.innerHTML = '<i class="bi bi-volume-up"></i> Tap to hear Hollie';
-
-    btn.onclick = async function() {
-        if (btn.classList.contains('playing')) return;
-        btn.classList.add('playing');
-        btn.innerHTML = '<i class="bi bi-volume-up"></i> Playing…';
-
-        // audio.play() called synchronously inside this tap handler
-        // — this is what iOS Safari requires
-        const titleEl = document.getElementById('debriefTopTitle');
-        const origTitle = titleEl ? titleEl.textContent : '';
-
-        try {
-            const token = await getToken();
-            const resp  = await fetch(ATC.API_BASE + '/speakHollie', {
-                method: 'POST',
-                headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: text })
-            });
-            if (!resp.ok) throw new Error('speakHollie error');
-            const data = await resp.json();
-            if (!data.audio) throw new Error('No audio');
-
-            const binary = atob(data.audio);
-            const bytes  = new Uint8Array(binary.length);
-            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-            const blob  = new Blob([bytes], { type: 'audio/mpeg' });
-            const url   = URL.createObjectURL(blob);
-
-            const audio = new Audio(url);
-            ATC.currentAudio = audio;
-
-            await audio.play();
-
-            await new Promise(resolve => {
-                audio.addEventListener('ended', resolve, { once: true });
-                audio.addEventListener('error', resolve, { once: true });
-            });
-
-            URL.revokeObjectURL(url);
-            ATC.currentAudio = null;
-
-        } catch(e) {
-            console.error('Tap-to-hear error:', e);
-        }
-
-        btn.remove();
-        appendInlineVoicePrompt();
-    };
-
-    lastBubble.parentElement.appendChild(btn);
-    list.scrollTop = list.scrollHeight;
-}
+    document.addEventListener('touchstart', unlockOnce, true);
+    document.addEventListener('click',      unlockOnce, true);
+})();
 
 async function speakHollie(text) {
-    // Desktop-only auto-play path (kept for reference — not used on mobile)
-    const titleEl = document.getElementById('debriefTopTitle');
-    const origTitle = titleEl ? titleEl.textContent : '';
+    if (ATC.muted) return;
+
+    // Stop any current playback
+    const audio = ATC._hollieAudio;
+    audio.pause();
+    audio.currentTime = 0;
+    ATC.currentAudio = null;
+
+    // Speaking indicator
+    const titleEl  = document.getElementById('debriefTopTitle');
+    const origTitle = titleEl ? titleEl.textContent.replace(/\s*▶.*$/, '').trim() : '';
+    if (titleEl) titleEl.innerHTML = origTitle + ' <span class="hollie-speaking"><span class="hollie-speaking-dot"></span><span class="hollie-speaking-dot"></span><span class="hollie-speaking-dot"></span></span>';
+
     try {
         const token = await getToken();
         const resp  = await fetch(ATC.API_BASE + '/speakHollie', {
-            method: 'POST',
+            method:  'POST',
             headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: text })
+            body:    JSON.stringify({ text: text })
         });
-        if (!resp.ok) throw new Error('speakHollie error');
-        const data = await resp.json();
-        if (!data.audio) throw new Error('No audio');
 
+        if (!resp.ok) throw new Error('speakHollie error ' + resp.status);
+
+        const data = await resp.json();
+        if (!data.audio) throw new Error('No audio returned');
+
+        // Decode base64 and set as blob URL on the persistent element
         const binary = atob(data.audio);
         const bytes  = new Uint8Array(binary.length);
         for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-        const blob  = new Blob([bytes], { type: 'audio/mpeg' });
-        const url   = URL.createObjectURL(blob);
+        const blob = new Blob([bytes], { type: 'audio/mpeg' });
+        const url  = URL.createObjectURL(blob);
 
-        const audio = new Audio(url);
+        audio.src = url;
         ATC.currentAudio = audio;
 
         await audio.play();
+
         await new Promise(resolve => {
             audio.addEventListener('ended', resolve, { once: true });
             audio.addEventListener('error', resolve, { once: true });
@@ -2159,101 +2105,14 @@ async function speakHollie(text) {
 
         URL.revokeObjectURL(url);
         ATC.currentAudio = null;
-        if (titleEl) titleEl.textContent = origTitle;
+
     } catch(e) {
         console.error('speakHollie error:', e);
-        if (titleEl) titleEl.textContent = origTitle;
     }
+
+    if (titleEl) titleEl.textContent = origTitle;
 }
 
-async function speakHollie(text) {
-    // Stop any current audio
-    if (ATC.currentAudio) {
-        ATC.currentAudio.pause();
-        ATC.currentAudio = null;
-    }
-
-    // Show speaking indicator
-    const titleEl = document.getElementById('debriefTopTitle');
-    const origTitle = titleEl.textContent.replace(/\s*▶.*$/, '').trim();
-    titleEl.innerHTML = origTitle + ' <span class="hollie-speaking"><span class="hollie-speaking-dot"></span><span class="hollie-speaking-dot"></span><span class="hollie-speaking-dot"></span></span>';
-
-    try {
-        const token = await getToken();
-
-        // Call ElevenLabs via Cloud Function
-        const resp = await fetch(ATC.API_BASE + '/speakHollie', {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Bearer ' + token,
-                'Content-Type':  'application/json'
-            },
-            body: JSON.stringify({ text: text })
-        });
-
-        if (!resp.ok) throw new Error('speakHollie API error ' + resp.status);
-
-        const data = await resp.json();
-        if (!data.audio) throw new Error('No audio returned');
-
-        // Decode base64 MP3 and play
-        const binary = atob(data.audio);
-        const bytes  = new Uint8Array(binary.length);
-        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-        const blob = new Blob([bytes], { type: 'audio/mpeg' });
-        const url  = URL.createObjectURL(blob);
-
-        const audio = new Audio(url);
-        ATC.currentAudio = audio;
-
-        try {
-            await audio.play();
-            await new Promise(resolve => {
-                audio.addEventListener('ended', resolve, { once: true });
-                audio.addEventListener('error', resolve, { once: true });
-            });
-        } catch (playErr) {
-            console.warn('Hollie audio playback error:', playErr);
-        }
-
-        URL.revokeObjectURL(url);
-        ATC.currentAudio = null;
-        titleEl.textContent = origTitle;
-
-    } catch (e) {
-        console.error('Hollie speak error:', e);
-        titleEl.textContent = origTitle;
-    }
-}
-
-function toggleMute() {
-    ATC.muted = !ATC.muted;
-
-    // Stop current audio if muting
-    if (ATC.muted && ATC.currentAudio) {
-        ATC.currentAudio.pause();
-        ATC.currentAudio = null;
-    }
-
-    const icon  = document.getElementById('muteIcon');
-    const label = document.getElementById('muteLabel');
-    if (ATC.muted) {
-        icon.className  = 'bi bi-volume-mute';
-        label.textContent = 'Unmute Hollie';
-    } else {
-        icon.className  = 'bi bi-volume-up';
-        label.textContent = 'Mute Hollie';
-    }
-}
-
-function showMuteBtn(show) {
-    const btn = document.getElementById('muteBtn');
-    if (btn) btn.classList.toggle('visible', show);
-}
-
-/* ══════════════════════════════════════
-   VOICE OVERLAY — in-page mic for replies
-   ══════════════════════════════════════ */
 /* ══════════════════════════════════════
    INLINE VOICE WIDGET — mirrors entry screen exactly
    ══════════════════════════════════════ */
