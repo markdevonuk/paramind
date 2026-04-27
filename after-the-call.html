@@ -1261,6 +1261,7 @@ const ATC = {
     voiceEnabled: false,  // true when user entered via voice
     muted:        false,  // user toggled mute
     currentAudio: null,   // current Audio object for Hollie TTS
+    audioUnlocked: false,  // iOS Safari audio context unlocked
 
     // API base (matches app.js)
     API_BASE: 'https://europe-west2-paramind-64b8e.cloudfunctions.net',
@@ -1772,6 +1773,7 @@ function handleDebriefKey(e) {
 }
 
 function sendDebriefMessage() {
+    unlockAudio(); // Must be called synchronously on user tap
     const input = document.getElementById('debriefInput');
     const text = input.value.trim();
     if (!text || ATC.isLoading) return;
@@ -2038,6 +2040,20 @@ async function downloadReflectionPDF(btn) {
 /* ══════════════════════════════════════
    HOLLIE VOICE — TTS playback
    ══════════════════════════════════════ */
+/* ── Unlock iOS audio on user gesture ── */
+function unlockAudio() {
+    if (ATC.audioUnlocked) return;
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const buf = ctx.createBuffer(1, 1, 22050);
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        src.connect(ctx.destination);
+        src.start(0);
+        ctx.resume().then(() => { ATC.audioUnlocked = true; });
+    } catch(e) { /* ignore */ }
+}
+
 async function speakHollie(text) {
     // Stop any current audio
     if (ATC.currentAudio) {
@@ -2167,6 +2183,7 @@ function appendInlineVoicePrompt() {
 }
 
 async function toggleInlineMic() {
+    unlockAudio(); // Must be called synchronously on user tap
     if (debriefMic.isRecording) {
         stopInlineMic();
     } else {
@@ -2206,6 +2223,7 @@ async function startInlineMic() {
 }
 
 function stopInlineMic() {
+    unlockAudio(); // Must be called synchronously on user tap
     if (debriefMic.mediaRecorder && debriefMic.isRecording) {
         debriefMic.mediaRecorder.stop();
         debriefMic.isRecording = false;
