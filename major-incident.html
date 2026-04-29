@@ -542,7 +542,7 @@
       <div class="tool-card mitt" onclick="selectTool('mitt')">
         <div class="tool-card-label">Secondary Triage</div>
         <div class="tool-card-name">MITT</div>
-        <div class="tool-card-desc">Major Incident Triage Tool — seven-step physiological triage. Higher complexity. Same unforgiving clock.</div>
+        <div class="tool-card-desc">Major Incident Triage Tool — seven-step physiological triage. Higher complexity. 30 seconds per casualty.</div>
         <div class="tool-card-steps">
           <span class="tool-card-step">Catastrophic Bleed</span>
           <span class="tool-card-step">Walking</span>
@@ -556,7 +556,7 @@
     </div>
 
     <p class="home-warning">
-      <strong>⚠ HARD CUTOFF</strong> — 10 seconds per casualty.<br>
+      <strong>⚠ HARD CUTOFF</strong> — TST: 10 seconds · MITT: 30 seconds.<br>
       Time expires = missed triage. No replay.
     </p>
   </div>
@@ -1021,11 +1021,14 @@ function renderProgressDots() {
 // TIMER
 // ═══════════════════════════════════════════════════════
 const TIMER_CIRCUMFERENCE = 2 * Math.PI * 30; // r=30
+const TOOL_TIMERS = { tst: 10, mitt: 30 };
 
 function startTimer() {
   clearTimer();
-  state.timerSeconds = 10;
-  updateTimerDisplay(10);
+  const max = TOOL_TIMERS[state.tool] || 10;
+  state.timerMax = max;
+  state.timerSeconds = max;
+  updateTimerDisplay(max);
 
   state.timerInterval = setInterval(() => {
     state.timerSeconds -= 0.1;
@@ -1046,7 +1049,7 @@ function clearTimer() {
 function updateTimerDisplay(secs) {
   const display = document.getElementById('timer-display');
   const ring = document.getElementById('timer-ring');
-  const frac = Math.max(0, state.timerSeconds / 10);
+  const frac = Math.max(0, state.timerSeconds / (state.timerMax || 10));
   const offset = TIMER_CIRCUMFERENCE * (1 - frac);
 
   ring.style.strokeDashoffset = offset;
@@ -1098,12 +1101,9 @@ function handleAnswer(userAnswer) {
       recordResult(true, false, timeTaken);
       showResultFlash(false);
     } else {
-      // Move to next question in the algorithm
+      // Move to next question in the algorithm — timer continues, no reset
       state.currentQuestionIndex++;
       loadQuestion(state.currentQuestionIndex);
-      // Restart the timer from current remaining time
-      // For flow, we keep the same timer running — don't reset
-      startTimer();
     }
   } else {
     // Wrong answer — wrong branch taken
