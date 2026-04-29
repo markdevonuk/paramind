@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Major Incident Trainer — Paramind</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;700&family=DM+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #08090c;
+      --surface:   #0f1117;
+      --surface2:  #161920;
+      --border:    #1e2530;
+      --border2:   #2a3040;
+      --text:      #e8ecf0;
+      --muted:     #5a6370;
+      --p1:        #ff2d55;
+      --p1-dim:    rgba(255,45,85,0.15);
+      --p2:        #ffcc00;
+      --p2-dim:    rgba(255,204,0,0.12);
+      --p3:        #30d158;
+      --p3-dim:    rgba(48,209,88,0.12);
+      --dead:      #3a3f4a;
+      --dead-text: #8899aa;
+      --accent:    #0a84ff;
+      --font-display: 'Rajdhani', sans-serif;
+      --font-mono:    'IBM Plex Mono', monospace;
+      --font-body:    'DM Sans', sans-serif;
+    }
+
+    html, body {
+      height: 100%; background: var(--bg); color: var(--text);
+      font-family: var(--font-body); overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 999;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      background-size: 200px 200px; opacity: 0.5;
+    }
+
+    /* ── SCREENS ── */
+    .screen {
+      position: fixed; inset: 0; display: flex; flex-direction: column;
+      opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+    }
+    .screen.active { opacity: 1; pointer-events: all; }
+
+    /* ─────────────────────────────────────────
+       SCREEN 0 — HOME
+    ───────────────────────────────────────── */
+    #screen-home {
+      justify-content: center; align-items: center; padding: 2rem;
+      background: radial-gradient(ellipse at 50% 0%, #0d1520 0%, var(--bg) 70%);
+    }
+
+    .home-inner { width: 100%; max-width: 440px; text-align: center; }
+
+    .home-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid var(--border2); border-radius: 4px;
+      padding: 5px 12px; margin-bottom: 2rem;
+      font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.12em;
+      color: var(--muted); text-transform: uppercase;
+    }
+    .home-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--p1); animation: pulse-dot 2s infinite; }
+
+    .home-title {
+      font-family: var(--font-display); font-size: clamp(2.2rem, 8vw, 3.2rem);
+      font-weight: 700; line-height: 1; letter-spacing: -0.01em;
+      margin-bottom: 0.5rem;
+    }
+    .home-title span { color: var(--p1); }
+
+    .home-sub {
+      color: var(--muted); font-size: 0.9rem; margin-bottom: 2.5rem; line-height: 1.5;
+    }
+
+    .tool-cards { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+
+    .tool-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 1.25rem 1.5rem; cursor: pointer;
+      text-align: left; transition: border-color 0.2s, background 0.2s, transform 0.1s;
+      position: relative; overflow: hidden;
+    }
+    .tool-card::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px; background: var(--accent); transition: background 0.2s;
+    }
+    .tool-card.tst::before { background: var(--p2); }
+    .tool-card.mitt::before { background: var(--p1); }
+    .tool-card:active { transform: scale(0.98); }
+    .tool-card:hover { border-color: var(--border2); background: var(--surface2); }
+
+    .tool-card-label {
+      font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem;
+    }
+    .tool-card-name {
+      font-family: var(--font-display); font-size: 1.4rem; font-weight: 700;
+      line-height: 1; margin-bottom: 0.4rem;
+    }
+    .tool-card.tst .tool-card-name { color: var(--p2); }
+    .tool-card.mitt .tool-card-name { color: var(--p1); }
+    .tool-card-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.4; }
+    .tool-card-steps {
+      margin-top: 0.75rem; display: flex; gap: 0.4rem; flex-wrap: wrap;
+    }
+    .tool-card-step {
+      font-family: var(--font-mono); font-size: 0.6rem; padding: 2px 7px;
+      border-radius: 3px; border: 1px solid var(--border2); color: var(--muted);
+    }
+
+    .home-warning {
+      font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted);
+      letter-spacing: 0.05em; line-height: 1.6;
+    }
+    .home-warning strong { color: var(--p1); }
+
+    /* ─────────────────────────────────────────
+       SCREEN 1 — METHANE BRIEFING
+    ───────────────────────────────────────── */
+    #screen-methane {
+      background: var(--bg); padding: 0;
+    }
+
+    .methane-header {
+      background: var(--p1); padding: 1rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .methane-header-text {
+      font-family: var(--font-display); font-size: 1rem; font-weight: 700;
+      letter-spacing: 0.05em; color: #fff;
+    }
+    .methane-header-badge {
+      font-family: var(--font-mono); font-size: 0.65rem; background: rgba(0,0,0,0.3);
+      padding: 3px 8px; border-radius: 3px; color: rgba(255,255,255,0.8);
+      letter-spacing: 0.1em;
+    }
+
+    .methane-body { flex: 1; overflow-y: auto; padding: 1.5rem; }
+
+    .methane-incident-name {
+      font-family: var(--font-display); font-size: clamp(1.4rem, 5vw, 2rem);
+      font-weight: 700; margin-bottom: 0.25rem; line-height: 1.1;
+    }
+    .methane-incident-sub {
+      font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted);
+      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1.5rem;
+    }
+
+    .methane-grid {
+      display: flex; flex-direction: column; gap: 0; margin-bottom: 1.5rem;
+      border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
+    }
+    .methane-row {
+      display: flex; align-items: flex-start;
+      border-bottom: 1px solid var(--border); padding: 0.75rem 1rem;
+    }
+    .methane-row:last-child { border-bottom: none; }
+    .methane-letter {
+      font-family: var(--font-display); font-weight: 700; font-size: 1.3rem;
+      color: var(--p1); width: 1.5rem; flex-shrink: 0; line-height: 1.2;
+    }
+    .methane-key {
+      font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.08em; min-width: 80px;
+      flex-shrink: 0; padding-top: 2px;
+    }
+    .methane-value { font-size: 0.88rem; line-height: 1.4; color: var(--text); }
+
+    .methane-casualties {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 1rem; margin-bottom: 1.5rem;
+    }
+    .methane-cas-label {
+      font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted);
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem;
+    }
+    .methane-cas-count {
+      font-family: var(--font-display); font-size: 3rem; font-weight: 700;
+      color: var(--p2); line-height: 1;
+    }
+    .methane-cas-sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }
+
+    .methane-tool-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 4px; padding: 6px 12px; margin-bottom: 1.5rem;
+      font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    .methane-start-btn {
+      width: 100%; background: var(--p1); color: white; border: none;
+      border-radius: 8px; padding: 1rem; cursor: pointer;
+      font-family: var(--font-display); font-size: 1.2rem; font-weight: 700;
+      letter-spacing: 0.05em; transition: opacity 0.15s, transform 0.1s;
+    }
+    .methane-start-btn:active { transform: scale(0.98); opacity: 0.9; }
+
+    /* ─────────────────────────────────────────
+       SCREEN 2 — ACTIVE TRIAGE
+    ───────────────────────────────────────── */
+    #screen-triage { background: var(--bg); justify-content: space-between; }
+
+    /* Top bar */
+    .triage-topbar {
+      padding: 0.75rem 1rem;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .triage-progress {
+      font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+    .triage-progress strong { color: var(--text); font-size: 0.85rem; }
+    .triage-tool-tag {
+      font-family: var(--font-mono); font-size: 0.65rem; padding: 3px 8px;
+      border: 1px solid var(--border2); border-radius: 3px; color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    /* Timer */
+    .timer-container {
+      flex-shrink: 0; padding: 1rem 1.5rem 0.5rem;
+      display: flex; align-items: center; justify-content: center; gap: 1rem;
+    }
+    .timer-ring-wrap {
+      position: relative; width: 72px; height: 72px; flex-shrink: 0;
+    }
+    .timer-ring-wrap svg { transform: rotate(-90deg); }
+    .timer-ring-bg { fill: none; stroke: var(--border); stroke-width: 4; }
+    .timer-ring-fill {
+      fill: none; stroke: var(--p3); stroke-width: 4;
+      stroke-dasharray: 188.5; stroke-dashoffset: 0;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.1s linear, stroke 0.3s;
+    }
+    .timer-number {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700;
+      transition: color 0.3s;
+    }
+
+    .timer-meta { flex: 1; }
+    .timer-meta-label {
+      font-family: var(--font-mono); font-size: 0.6rem; color: var(--muted);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .timer-casualty-num {
+      font-family: var(--font-display); font-size: 1.4rem; font-weight: 700;
+    }
+
+    /* Casualty description */
+    .casualty-description {
+      flex: 1; overflow-y: auto; padding: 1rem 1.5rem;
+    }
+    .casualty-scene-tag {
+      font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 0.75rem;
+    }
+    .casualty-text {
+      font-size: 1rem; line-height: 1.65; color: var(--text); font-weight: 400;
+    }
+
+    /* Question area */
+    .question-area {
+      flex-shrink: 0; padding: 1rem 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .question-context {
+      font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted);
+      letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.5rem;
+      min-height: 1.1em;
+    }
+    .question-text {
+      font-family: var(--font-display); font-size: 1.35rem; font-weight: 600;
+      margin-bottom: 1rem; line-height: 1.2;
+    }
+    .question-hint {
+      font-size: 0.78rem; color: var(--p2); font-style: italic;
+      margin-bottom: 0.75rem; min-height: 1.2em;
+    }
+
+    .answer-buttons { display: flex; gap: 0.75rem; }
+    .answer-btn {
+      flex: 1; padding: 1rem; border: 1px solid var(--border2); border-radius: 8px;
+      background: var(--surface); color: var(--text); cursor: pointer;
+      font-family: var(--font-display); font-size: 1.2rem; font-weight: 700;
+      letter-spacing: 0.04em; transition: all 0.12s;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .answer-btn:active { transform: scale(0.96); }
+    .answer-btn.yes:hover, .answer-btn.yes:focus { background: var(--p3-dim); border-color: var(--p3); color: var(--p3); }
+    .answer-btn.no:hover, .answer-btn.no:focus { background: var(--p1-dim); border-color: var(--p1); color: var(--p1); }
+    .answer-btn span { font-size: 0.6rem; font-family: var(--font-mono); font-weight: 400; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+    /* ─────────────────────────────────────────
+       SCREEN 3 — RESULT FLASH
+    ───────────────────────────────────────── */
+    #screen-flash {
+      justify-content: center; align-items: center;
+      background: var(--bg);
+    }
+    .flash-inner {
+      text-align: center; padding: 2rem; max-width: 360px; width: 100%;
+    }
+    .flash-icon {
+      font-size: 3.5rem; margin-bottom: 1rem; line-height: 1;
+    }
+    .flash-result {
+      font-family: var(--font-display); font-size: 1.8rem; font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .flash-priority-badge {
+      display: inline-block; font-family: var(--font-mono); font-size: 1rem;
+      font-weight: 700; padding: 6px 18px; border-radius: 4px;
+      margin-bottom: 1rem; letter-spacing: 0.08em;
+    }
+    .flash-explanation {
+      font-size: 0.85rem; color: var(--muted); line-height: 1.6; margin-bottom: 1.5rem;
+    }
+    .flash-action-note {
+      font-family: var(--font-mono); font-size: 0.7rem; color: var(--p2);
+      letter-spacing: 0.06em; padding: 8px 12px; border: 1px solid rgba(255,204,0,0.2);
+      border-radius: 4px; margin-bottom: 1.5rem; min-height: 2.5rem;
+    }
+    .flash-next-btn {
+      width: 100%; background: var(--surface); border: 1px solid var(--border2);
+      color: var(--text); border-radius: 8px; padding: 0.9rem;
+      font-family: var(--font-display); font-size: 1rem; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .flash-next-btn:active { transform: scale(0.98); }
+
+    /* Priority color helpers */
+    .pri-p1 { color: var(--p1); }
+    .pri-p2 { color: var(--p2); }
+    .pri-p3 { color: var(--p3); }
+    .pri-dead { color: var(--dead-text); }
+
+    .badge-p1  { background: var(--p1-dim); color: var(--p1); border: 1px solid rgba(255,45,85,0.3); }
+    .badge-p2  { background: var(--p2-dim); color: var(--p2); border: 1px solid rgba(255,204,0,0.3); }
+    .badge-p3  { background: var(--p3-dim); color: var(--p3); border: 1px solid rgba(48,209,88,0.3); }
+    .badge-dead{ background: rgba(58,63,74,0.4); color: var(--dead-text); border: 1px solid var(--dead); }
+
+    /* ─────────────────────────────────────────
+       SCREEN 4 — DEBRIEF
+    ───────────────────────────────────────── */
+    #screen-debrief {
+      background: var(--bg); flex-direction: column;
+    }
+    .debrief-header {
+      padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .debrief-header-title {
+      font-family: var(--font-display); font-size: 1.1rem; font-weight: 700;
+    }
+    .debrief-score-pill {
+      font-family: var(--font-mono); font-size: 0.8rem; padding: 4px 12px;
+      border-radius: 4px; font-weight: 700;
+    }
+
+    .debrief-body { flex: 1; overflow-y: auto; padding: 1rem 1.5rem; }
+
+    .debrief-stats {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 1.5rem;
+    }
+    .debrief-stat {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 0.75rem; text-align: center;
+    }
+    .debrief-stat-val {
+      font-family: var(--font-display); font-size: 1.6rem; font-weight: 700;
+      line-height: 1;
+    }
+    .debrief-stat-label {
+      font-family: var(--font-mono); font-size: 0.55rem; color: var(--muted);
+      letter-spacing: 0.08em; text-transform: uppercase; margin-top: 0.3rem;
+    }
+
+    .debrief-section-label {
+      font-family: var(--font-mono); font-size: 0.62rem; color: var(--muted);
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.6rem;
+    }
+
+    /* Casualty log table */
+    .cas-log { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; }
+    .cas-log-row {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 0.75rem 1rem;
+      display: grid; grid-template-columns: 1.5rem 1fr auto auto; gap: 0.75rem;
+      align-items: center;
+    }
+    .cas-log-num {
+      font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted);
+    }
+    .cas-log-desc { font-size: 0.78rem; color: var(--text); line-height: 1.3; }
+    .cas-log-time {
+      font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted);
+    }
+    .cas-log-badge {
+      font-family: var(--font-mono); font-size: 0.6rem; font-weight: 700;
+      padding: 2px 7px; border-radius: 3px; white-space: nowrap;
+    }
+    .cas-log-row.correct { border-left: 3px solid var(--p3); }
+    .cas-log-row.wrong   { border-left: 3px solid var(--p1); }
+    .cas-log-row.timeout { border-left: 3px solid var(--muted); }
+
+    /* AI Debrief */
+    .ai-debrief-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;
+    }
+    .ai-debrief-header {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 0.75rem;
+    }
+    .ai-debrief-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse-dot 2s infinite;
+    }
+    .ai-debrief-label {
+      font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .ai-debrief-text {
+      font-size: 0.88rem; line-height: 1.65; color: var(--text);
+    }
+    .ai-debrief-loading {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted);
+    }
+    .loading-dots { display: flex; gap: 4px; }
+    .loading-dots span {
+      width: 5px; height: 5px; border-radius: 50%; background: var(--muted);
+      animation: loading-bounce 1.2s infinite;
+    }
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    .debrief-again-btn {
+      width: 100%; background: var(--surface); border: 1px solid var(--border2);
+      color: var(--text); border-radius: 8px; padding: 1rem;
+      font-family: var(--font-display); font-size: 1.1rem; font-weight: 700;
+      cursor: pointer; margin-bottom: 0.75rem; transition: all 0.15s;
+    }
+    .debrief-home-btn {
+      width: 100%; background: transparent; border: 1px solid var(--border);
+      color: var(--muted); border-radius: 8px; padding: 0.85rem;
+      font-family: var(--font-body); font-size: 0.9rem;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .debrief-again-btn:active, .debrief-home-btn:active { transform: scale(0.98); }
+
+    /* ── TIMEOUT OVERLAY ── */
+    #timeout-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(255,45,85,0.95);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.15s;
+    }
+    #timeout-overlay.show { opacity: 1; pointer-events: all; }
+    .timeout-label {
+      font-family: var(--font-display); font-size: 3rem; font-weight: 700;
+      color: white; letter-spacing: 0.05em; text-align: center;
+    }
+    .timeout-sub {
+      font-family: var(--font-mono); font-size: 0.8rem; color: rgba(255,255,255,0.7);
+      letter-spacing: 0.1em; text-align: center; margin-top: 0.5rem;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+    @keyframes loading-bounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+      40% { transform: translateY(-6px); opacity: 1; }
+    }
+    @keyframes timer-critical {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+    .timer-critical { animation: timer-critical 0.4s ease infinite; }
+
+    @keyframes screen-in {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .screen.active { animation: screen-in 0.25s ease forwards; }
+
+    /* Progress dots */
+    .progress-dots {
+      display: flex; gap: 4px; align-items: center;
+    }
+    .progress-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--border2); transition: all 0.2s;
+    }
+    .progress-dot.done.correct { background: var(--p3); }
+    .progress-dot.done.wrong   { background: var(--p1); }
+    .progress-dot.done.timeout { background: var(--muted); }
+    .progress-dot.current { background: var(--p2); width: 14px; border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 0 — HOME
+════════════════════════════════════════════ -->
+<div id="screen-home" class="screen active">
+  <div class="home-inner">
+    <div class="home-badge">
+      <span class="dot"></span>
+      Major Incident Training
+    </div>
+
+    <h1 class="home-title">Incident<br><span>Ground</span></h1>
+    <p class="home-sub">Train under real pressure. Hard cutoff. No second chances.</p>
+
+    <div class="tool-cards">
+      <div class="tool-card tst" onclick="selectTool('tst')">
+        <div class="tool-card-label">Primary Triage</div>
+        <div class="tool-card-name">TST</div>
+        <div class="tool-card-desc">Ten Second Triage — rapid visual triage from a distance. Four decision branches. Ten seconds per casualty. Hard cutoff.</div>
+        <div class="tool-card-steps">
+          <span class="tool-card-step">Walking</span>
+          <span class="tool-card-step">Severe Bleeding</span>
+          <span class="tool-card-step">Talking</span>
+          <span class="tool-card-step">Breathing</span>
+        </div>
+      </div>
+
+      <div class="tool-card mitt" onclick="selectTool('mitt')">
+        <div class="tool-card-label">Secondary Triage</div>
+        <div class="tool-card-name">MITT</div>
+        <div class="tool-card-desc">Major Incident Triage Tool — seven-step physiological triage. Higher complexity. Same unforgiving clock.</div>
+        <div class="tool-card-steps">
+          <span class="tool-card-step">Catastrophic Bleed</span>
+          <span class="tool-card-step">Walking</span>
+          <span class="tool-card-step">Breathing</span>
+          <span class="tool-card-step">Voice Response</span>
+          <span class="tool-card-step">Age</span>
+          <span class="tool-card-step">RR</span>
+          <span class="tool-card-step">HR</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="home-warning">
+      <strong>⚠ HARD CUTOFF</strong> — 10 seconds per casualty.<br>
+      Time expires = missed triage. No replay.
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 1 — METHANE BRIEFING
+════════════════════════════════════════════ -->
+<div id="screen-methane" class="screen">
+  <div class="methane-header">
+    <div class="methane-header-text">⚠ MAJOR INCIDENT DECLARED</div>
+    <div class="methane-header-badge" id="methane-tool-tag">TST</div>
+  </div>
+  <div class="methane-body">
+    <div class="methane-incident-name" id="methane-title"></div>
+    <div class="methane-incident-sub" id="methane-subtitle"></div>
+
+    <div class="methane-casualties">
+      <div class="methane-cas-label">Estimated Casualties</div>
+      <div class="methane-cas-count" id="methane-cas-count"></div>
+      <div class="methane-cas-sub" id="methane-cas-sub"></div>
+    </div>
+
+    <div class="methane-grid" id="methane-grid"></div>
+
+    <div class="methane-tool-pill" id="methane-tool-pill"></div>
+
+    <button class="methane-start-btn" onclick="startTriage()">
+      BEGIN TRIAGE
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 2 — ACTIVE TRIAGE
+════════════════════════════════════════════ -->
+<div id="screen-triage" class="screen">
+  <div class="triage-topbar">
+    <div>
+      <div class="triage-progress">
+        Casualty <strong id="triage-current-num">1</strong> of <span id="triage-total">6</span>
+      </div>
+      <div class="progress-dots" id="progress-dots" style="margin-top:4px;"></div>
+    </div>
+    <div class="triage-tool-tag" id="triage-tool-tag">TST</div>
+  </div>
+
+  <div class="timer-container">
+    <div class="timer-ring-wrap">
+      <svg width="72" height="72" viewBox="0 0 72 72">
+        <circle class="timer-ring-bg" cx="36" cy="36" r="30"/>
+        <circle class="timer-ring-fill" id="timer-ring" cx="36" cy="36" r="30"/>
+      </svg>
+      <div class="timer-number" id="timer-display">10</div>
+    </div>
+    <div class="timer-meta">
+      <div class="timer-meta-label">On scene</div>
+      <div class="timer-casualty-num" id="timer-casualty-label">Casualty 1</div>
+    </div>
+  </div>
+
+  <div class="casualty-description">
+    <div class="casualty-scene-tag" id="casualty-scene-tag">Scene</div>
+    <div class="casualty-text" id="casualty-text"></div>
+  </div>
+
+  <div class="question-area">
+    <div class="question-context" id="question-context"></div>
+    <div class="question-text" id="question-text"></div>
+    <div class="question-hint" id="question-hint"></div>
+    <div class="answer-buttons">
+      <button class="answer-btn yes" onclick="handleAnswer(true)">
+        YES
+        <span>confirms</span>
+      </button>
+      <button class="answer-btn no" onclick="handleAnswer(false)">
+        NO
+        <span>rules out</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 3 — RESULT FLASH
+════════════════════════════════════════════ -->
+<div id="screen-flash" class="screen">
+  <div class="flash-inner">
+    <div class="flash-icon" id="flash-icon"></div>
+    <div class="flash-result" id="flash-result"></div>
+    <div class="flash-priority-badge" id="flash-priority-badge"></div>
+    <div class="flash-action-note" id="flash-action-note"></div>
+    <div class="flash-explanation" id="flash-explanation"></div>
+    <button class="flash-next-btn" id="flash-next-btn" onclick="nextCasualty()">
+      Next Casualty →
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 4 — DEBRIEF
+════════════════════════════════════════════ -->
+<div id="screen-debrief" class="screen">
+  <div class="debrief-header">
+    <div class="debrief-header-title">Incident Debrief</div>
+    <div class="debrief-score-pill" id="debrief-score-pill"></div>
+  </div>
+  <div class="debrief-body">
+    <div class="debrief-stats">
+      <div class="debrief-stat">
+        <div class="debrief-stat-val pri-p3" id="stat-correct">0</div>
+        <div class="debrief-stat-label">Correct</div>
+      </div>
+      <div class="debrief-stat">
+        <div class="debrief-stat-val pri-p1" id="stat-wrong">0</div>
+        <div class="debrief-stat-label">Wrong</div>
+      </div>
+      <div class="debrief-stat">
+        <div class="debrief-stat-val" style="color:var(--muted)" id="stat-timeout">0</div>
+        <div class="debrief-stat-label">Timed Out</div>
+      </div>
+    </div>
+
+    <div class="debrief-section-label">Casualty Log</div>
+    <div class="cas-log" id="cas-log"></div>
+
+    <div class="debrief-section-label">Clinical Debrief</div>
+    <div class="ai-debrief-box">
+      <div class="ai-debrief-header">
+        <div class="ai-debrief-dot"></div>
+        <div class="ai-debrief-label">AI Analysis</div>
+      </div>
+      <div id="ai-debrief-content">
+        <div class="ai-debrief-loading">
+          <div class="loading-dots">
+            <span></span><span></span><span></span>
+          </div>
+          Generating debrief...
+        </div>
+      </div>
+    </div>
+
+    <button class="debrief-again-btn" onclick="runAgain()">Run Same Scenario Again</button>
+    <button class="debrief-home-btn" onclick="goHome()">← Choose Tool</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     TIMEOUT OVERLAY
+════════════════════════════════════════════ -->
+<div id="timeout-overlay">
+  <div class="timeout-label">TIME EXPIRED</div>
+  <div class="timeout-sub">CASUALTY MISSED</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// SCENARIO DATA
+// ═══════════════════════════════════════════════════════
+
+const SCENES = {
+  tst: {
+    title: "RTC — M62 Westbound",
+    subtitle: "Multi-vehicle collision · Motorway · Dual carriageway",
+    tool: "Ten Second Triage (TST)",
+    casualties: 9,
+    cas_sub: "Approximate — confirmed on scene",
+    methane: [
+      { letter: 'M', key: 'Major Incident', value: 'Declared. Multiple agencies responding.' },
+      { letter: 'E', key: 'Exact Location', value: 'M62 Westbound, between J27 and J28. Near Gildersome flyover.' },
+      { letter: 'T', key: 'Type', value: 'RTC. Articulated lorry rear-ended stationary traffic. 6 vehicles involved.' },
+      { letter: 'H', key: 'Hazards', value: 'Diesel spill across two lanes. Unstable HGV cab. Live carriageway on opposite side.' },
+      { letter: 'A', key: 'Access', value: 'Approach via J27 westbound slip road. Rendezvous Point at Tesco Extra car park.' },
+      { letter: 'N', key: 'Number', value: 'Approximately 9 casualties. Mix of ambulant and non-ambulant.' },
+      { letter: 'E', key: 'Emergency Services', value: 'Police on scene. 2 ambulance crews. Fire ETA 4 min.' }
+    ]
+  },
+  mitt: {
+    title: "Building Collapse — Bradford",
+    subtitle: "Structural failure · Urban · Confined space",
+    tool: "Major Incident Triage Tool (MITT)",
+    casualties: 11,
+    cas_sub: "Working estimate — search ongoing",
+    methane: [
+      { letter: 'M', key: 'Major Incident', value: 'Declared. HART and urban search & rescue requested.' },
+      { letter: 'E', key: 'Exact Location', value: 'Former mill conversion, Thornton Road, Bradford BD1. Rear section collapsed.' },
+      { letter: 'T', key: 'Type', value: 'Partial building collapse. Residential upper floors. Ground floor commercial.' },
+      { letter: 'H', key: 'Hazards', value: 'Secondary collapse risk. Gas leak suspected. Asbestos possible in older structure.' },
+      { letter: 'A', key: 'Access', value: 'Thornton Road from north only. Inner cordon at 30m. RVP at Morrison\'s car park.' },
+      { letter: 'N', key: 'Number', value: 'Estimated 11 casualties. Mix of walking wounded and trapped.' },
+      { letter: 'E', key: 'Emergency Services', value: 'Police cordoned. 3 ambulance crews. HART 8 min. Fire on scene.' }
+    ]
+  }
+};
+
+// ── TST QUESTIONS (algorithm nodes) ──
+const TST_QUESTIONS = [
+  { id: 'Q1', text: 'Are they walking?', hint: '', context: 'Step 1 of 4 — Mobility' },
+  { id: 'Q2', text: 'Severe bleeding?', hint: '', context: 'Step 2 of 4 — Haemorrhage' },
+  { id: 'Q3', text: 'Are they talking?', hint: '', context: 'Step 3 of 4 — Consciousness' },
+  { id: 'Q4', text: 'Penetrating injury?', hint: 'Check front and back', context: 'Step 4a — Mechanism' },
+  { id: 'Q5', text: 'Breathing?', hint: 'Open airway if able', context: 'Step 4b — Airway' }
+];
+
+// ── MITT QUESTIONS (algorithm nodes) ──
+const MITT_QUESTIONS = [
+  { id: 'Q1', text: 'Catastrophic bleeding?', hint: '', context: 'Step 1 of 7 — Haemorrhage' },
+  { id: 'Q2', text: 'Are they walking?', hint: '', context: 'Step 2 of 7 — Mobility' },
+  { id: 'Q3', text: 'Are they breathing?', hint: 'Open airway if required', context: 'Step 3 of 7 — Airway' },
+  { id: 'Q4', text: 'Do they respond to voice?', hint: '', context: 'Step 4 of 7 — Consciousness' },
+  { id: 'Q5', text: 'Aged over 2 years?', hint: '', context: 'Step 5 of 7 — Age' },
+  { id: 'Q6', text: 'Breathing rate 12–23?', hint: 'Count respiratory rate', context: 'Step 6 of 7 — Respiratory Rate' },
+  { id: 'Q7', text: 'Heart rate normal?', hint: 'Radial pulse', context: 'Step 7 of 7 — Perfusion' }
+];
+
+// ── TST CASUALTIES ──
+// correct_path: array of 'Qn:YES' or 'Qn:NO' to reach correct outcome
+const TST_CASUALTIES = [
+  {
+    id: 'tst_01',
+    scene_tag: 'Vehicle 1 — Saloon car',
+    description: "A man in his 50s is walking toward you from the wreckage. He's cradling his right arm. He makes eye contact. No obvious blood.",
+    correct_path: [{ q: 'Q1', ans: true }],
+    correct_priority: 'P3',
+    correct_action: null,
+    explanation: "He walked to you — TST ends at step one. P3. Regardless of the arm injury, any casualty who can walk is triaged P3. Direct him to the Casualty Clearing Point and move on immediately.",
+    common_mistake: "Stopping to assess the arm and assigning P1 or P2."
+  },
+  {
+    id: 'tst_02',
+    scene_tag: 'Vehicle 2 — Behind the HGV',
+    description: "A woman in her 30s is on the ground, unresponsive. There is bright red, pulsatile bleeding from her left thigh. Her trousers are soaked.",
+    correct_path: [{ q: 'Q1', ans: false }, { q: 'Q2', ans: true }],
+    correct_priority: 'P1',
+    correct_action: 'Apply pressure / tourniquet / packing',
+    explanation: "Not walking. Severe arterial haemorrhage identified at step two — P1. Haemorrhage control is the priority action: direct pressure or tourniquet above the wound. Do not proceed further down the algorithm.",
+    common_mistake: "Continuing the algorithm before treating the bleed."
+  },
+  {
+    id: 'tst_03',
+    scene_tag: 'Vehicle 3 — Left lane',
+    description: "A teenager, perhaps 16, is sitting on the central barrier. Crying. Talking loudly on her phone. No visible wounds. No blood.",
+    correct_path: [{ q: 'Q1', ans: false }, { q: 'Q2', ans: false }, { q: 'Q3', ans: true }, { q: 'Q4', ans: false }],
+    correct_priority: 'P2',
+    correct_action: null,
+    explanation: "Not walking. No severe bleeding. Talking — so conscious and airway clear. No penetrating injury visible or reported. P2 Urgent. She's stable but non-ambulant and needs secondary assessment.",
+    common_mistake: "Assigning P3 because she appears distressed but otherwise well."
+  },
+  {
+    id: 'tst_04',
+    scene_tag: 'Vehicle 4 — HGV cab',
+    description: "A male driver, late 40s, conscious and talking. He's telling you he can't move his legs. There is a steering column fragment embedded in his left chest.",
+    correct_path: [{ q: 'Q1', ans: false }, { q: 'Q2', ans: false }, { q: 'Q3', ans: true }, { q: 'Q4', ans: true }],
+    correct_priority: 'P1',
+    correct_action: null,
+    explanation: "Not walking. No severe external bleeding. Talking — conscious. Penetrating injury to the chest — P1 Immediate. Penetrating torso trauma is P1 regardless of current stability. Do not remove the impaled object.",
+    common_mistake: "Assigning P2 because he is conscious and talking."
+  },
+  {
+    id: 'tst_05',
+    scene_tag: 'Motorway verge — ejected passenger',
+    description: "A woman in her 40s is lying on the verge, eyes closed, not responding to your voice. No obvious bleeding. She's not breathing. You open her airway — she takes a breath.",
+    correct_path: [{ q: 'Q1', ans: false }, { q: 'Q2', ans: false }, { q: 'Q3', ans: false }, { q: 'Q5', ans: true }],
+    correct_priority: 'P1',
+    correct_action: 'Place in recovery position',
+    explanation: "Not walking. No severe bleeding. Not talking. Not breathing initially — but airway opening restores breathing. P1 Immediate. Place her in the recovery position to maintain the airway and move on.",
+    common_mistake: "Declaring dead without opening the airway first."
+  },
+  {
+    id: 'tst_06',
+    scene_tag: 'Central reservation — ejected driver',
+    description: "A male passenger, 60s, lying supine on the tarmac. Eyes closed, not responding to shouting. No visible haemorrhage. You open his airway — no breathing. No movement.",
+    correct_path: [{ q: 'Q1', ans: false }, { q: 'Q2', ans: false }, { q: 'Q3', ans: false }, { q: 'Q5', ans: false }],
+    correct_priority: 'DEAD',
+    correct_action: 'CPR if resources allow',
+    explanation: "Not walking. No severe bleeding. Not talking. Airway opened — still not breathing. Dead. In a mass casualty context CPR is only commenced if resources allow after all living casualties are triaged. Label and move on.",
+    common_mistake: "Starting CPR immediately, taking you away from living casualties."
+  }
+];
+
+// ── MITT CASUALTIES ──
+const MITT_CASUALTIES = [
+  {
+    id: 'mitt_01',
+    scene_tag: 'Ground floor — rear entrance',
+    description: "A man in his 30s is conscious and calling for help. There is an avulsion injury to his left forearm — tissue and muscle exposed, bleeding heavily and continuously.",
+    correct_path: [{ q: 'Q1', ans: true }],
+    correct_priority: 'P1',
+    correct_action: 'Pressure dressing, tourniquet, haemostatic packing',
+    explanation: "Catastrophic bleeding — MITT ends immediately. P1. Haemostatic intervention is required: tourniquet, pressure dressing, or haemostatic packing. His consciousness level doesn't change this. Step 1 is always catastrophic haemorrhage.",
+    common_mistake: "Proceeding to step 2 (walking) without addressing the bleed."
+  },
+  {
+    id: 'mitt_02',
+    scene_tag: 'Car park — self-evacuated',
+    description: "An older woman, perhaps 70s, walking slowly toward you holding her head. She's confused but mobile. A small laceration on her forehead, bleeding minimally.",
+    correct_path: [{ q: 'Q1', ans: false }, { q: 'Q2', ans: true }],
+    correct_priority: 'P3',
+    correct_action: null,
+    explanation: "No catastrophic bleeding. Walking — P3. Despite her confusion and age, she is ambulant. MITT step 2: walking = P3. Direct her to the Casualty Clearing Point. The head injury will be assessed secondarily.",
+    common_mistake: "Assigning P1 due to age, confusion, or the head laceration."
+  },
+  {
+    id: 'mitt_03',
+    scene_tag: 'Stairwell — first floor',
+    description: "A male, mid-30s, found by firefighters in a stairwell. He is prone, unresponsive. No obvious external bleeding. You open his airway — no respiratory effort. No chest rise.",
+    correct_path: [{ q: 'Q1', ans: false }, { q: 'Q2', ans: false }, { q: 'Q3', ans: false }],
+    correct_priority: 'DEAD',
+    correct_action: 'Consider 5 rescue breaths if: submersion, smoke inhalation, or paediatric',
+    explanation: "No catastrophic bleeding. Not walking. Airway opened — not breathing. Dead under MITT. In adults without a relevant mechanism (drowning, smoke), CPR is not indicated during active mass casualty triage. Label and continue.",
+    common_mistake: "Beginning CPR immediately without considering resource implications."
+  },
+  {
+    id: 'mitt_04',
+    scene_tag: 'Ground floor — retail area',
+    description: "A woman in her 50s is breathing — you can see chest rise. She is lying still. You call her name clearly — no response. No eye opening. No movement.",
+    correct_path: [{ q: 'Q1', ans: false }, { q: 'Q2', ans: false }, { q: 'Q3', ans: true }, { q: 'Q4', ans: false }],
+    correct_priority: 'P1',
+    correct_action: 'Place in recovery position',
+    explanation: "No catastrophic bleeding. Not walking. Breathing — step 3 cleared. Unresponsive to voice — P1. Place in the recovery position to protect her airway and flag as immediate. Unresponsiveness with spontaneous breathing is a critical sign.",
+    common_mistake: "Assigning P2 because she is breathing independently."
+  },
+  {
+    id: 'mitt_05',
+    scene_tag: 'Courtyard — partial collapse',
+    description: "A small child, approximately 18 months old, is lying on rubble. Breathing — you can see chest movement. Opens eyes when you call loudly. Appears frightened but does not respond verbally.",
+    correct_path: [{ q: 'Q1', ans: false }, { q: 'Q2', ans: false }, { q: 'Q3', ans: true }, { q: 'Q4', ans: true }, { q: 'Q5', ans: false }],
+    correct_priority: 'P1',
+    correct_action: null,
+    explanation: "No catastrophic bleeding. Not walking. Breathing. Responds to voice — eyes open. But aged under 2 years — P1 immediately. All children under 2 are automatically P1 under MITT regardless of their apparent clinical status.",
+    common_mistake: "Assigning P2 because the child appears to be responding and breathing."
+  },
+  {
+    id: 'mitt_06',
+    scene_tag: 'Upper floor — residential flat',
+    description: "A man in his 40s, partially buried under plaster and timber. Responds to your voice — opens eyes, speaks a few words. He is over 2 years old. You count his respirations: 8 breaths per minute.",
+    correct_path: [{ q: 'Q1', ans: false }, { q: 'Q2', ans: false }, { q: 'Q3', ans: true }, { q: 'Q4', ans: true }, { q: 'Q5', ans: true }, { q: 'Q6', ans: false }],
+    correct_priority: 'P1',
+    correct_action: null,
+    explanation: "No catastrophic bleeding. Not walking. Breathing. Responds to voice. Adult. Breathing rate 8 — outside the 12–23 normal window. P1. A respiratory rate below 12 or above 23 indicates physiological compromise and is immediately P1 under MITT.",
+    common_mistake: "Assigning P2 because he is conscious and verbal."
+  },
+  {
+    id: 'mitt_07',
+    scene_tag: 'Ground floor — office area',
+    description: "A woman in her 30s, sitting against a wall. She responds to voice, speaks clearly. Adult. You count her respirations: 17 per minute. Her radial pulse is rapid and weak — rate approximately 120.",
+    correct_path: [{ q: 'Q1', ans: false }, { q: 'Q2', ans: false }, { q: 'Q3', ans: true }, { q: 'Q4', ans: true }, { q: 'Q5', ans: true }, { q: 'Q6', ans: true }, { q: 'Q7', ans: false }],
+    correct_priority: 'P2',
+    correct_action: null,
+    explanation: "Passes all P1 criteria. RR 17 — within range. But heart rate is elevated at ~120. Abnormal heart rate = P2 Urgent. She's non-ambulant with physiological compromise. Secondary assessment required urgently.",
+    common_mistake: "Assigning P3 because she is alert, talking, and has a normal RR."
+  }
+];
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+const state = {
+  tool: null,
+  casualties: [],
+  currentIndex: 0,
+  currentQuestionIndex: 0,
+  results: [],
+  timerInterval: null,
+  timerSeconds: 10,
+  startTime: null
+};
+
+// ═══════════════════════════════════════════════════════
+// SCREEN NAVIGATION
+// ═══════════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════
+// TOOL SELECTION & METHANE
+// ═══════════════════════════════════════════════════════
+function selectTool(tool) {
+  state.tool = tool;
+  state.casualties = tool === 'tst' ? [...TST_CASUALTIES] : [...MITT_CASUALTIES];
+  state.results = [];
+  state.currentIndex = 0;
+
+  const scene = SCENES[tool];
+  document.getElementById('methane-tool-tag').textContent = tool.toUpperCase();
+  document.getElementById('methane-title').textContent = scene.title;
+  document.getElementById('methane-subtitle').textContent = scene.subtitle;
+  document.getElementById('methane-cas-count').textContent = scene.casualties;
+  document.getElementById('methane-cas-sub').textContent = scene.cas_sub;
+
+  const grid = document.getElementById('methane-grid');
+  grid.innerHTML = scene.methane.map(row => `
+    <div class="methane-row">
+      <div class="methane-letter">${row.letter}</div>
+      <div class="methane-key">${row.key}</div>
+      <div class="methane-value">${row.value}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('methane-tool-pill').textContent = `▶ Using: ${scene.tool}`;
+
+  showScreen('screen-methane');
+}
+
+// ═══════════════════════════════════════════════════════
+// START TRIAGE
+// ═══════════════════════════════════════════════════════
+function startTriage() {
+  loadCasualty(0);
+  showScreen('screen-triage');
+}
+
+function loadCasualty(index) {
+  const cas = state.casualties[index];
+  const questions = state.tool === 'tst' ? TST_QUESTIONS : MITT_QUESTIONS;
+
+  state.currentIndex = index;
+  state.currentQuestionIndex = 0;
+  state.startTime = Date.now();
+
+  document.getElementById('triage-current-num').textContent = index + 1;
+  document.getElementById('triage-total').textContent = state.casualties.length;
+  document.getElementById('triage-tool-tag').textContent = state.tool.toUpperCase();
+  document.getElementById('timer-casualty-label').textContent = `Casualty ${index + 1}`;
+  document.getElementById('casualty-scene-tag').textContent = cas.scene_tag;
+  document.getElementById('casualty-text').textContent = cas.description;
+
+  renderProgressDots();
+  loadQuestion(0);
+  startTimer();
+}
+
+function loadQuestion(qIndex) {
+  const cas = state.casualties[state.currentIndex];
+  const questions = state.tool === 'tst' ? TST_QUESTIONS : MITT_QUESTIONS;
+  const qId = cas.correct_path[Math.min(qIndex, cas.correct_path.length - 1)].q;
+  const q = questions.find(q => q.id === qId);
+
+  document.getElementById('question-context').textContent = q.context;
+  document.getElementById('question-text').textContent = q.text;
+  document.getElementById('question-hint').textContent = q.hint || '';
+  state.currentQuestionIndex = qIndex;
+}
+
+function renderProgressDots() {
+  const dots = document.getElementById('progress-dots');
+  dots.innerHTML = state.casualties.map((_, i) => {
+    let cls = 'progress-dot';
+    if (i < state.currentIndex) {
+      const r = state.results[i];
+      cls += r ? (r.timeout ? ' done timeout' : r.correct ? ' done correct' : ' done wrong') : ' done wrong';
+    } else if (i === state.currentIndex) {
+      cls += ' current';
+    }
+    return `<div class="${cls}"></div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════════════════════
+const TIMER_CIRCUMFERENCE = 2 * Math.PI * 30; // r=30
+
+function startTimer() {
+  clearTimer();
+  state.timerSeconds = 10;
+  updateTimerDisplay(10);
+
+  state.timerInterval = setInterval(() => {
+    state.timerSeconds -= 0.1;
+    const secs = Math.ceil(state.timerSeconds);
+    updateTimerDisplay(secs);
+
+    if (state.timerSeconds <= 0) {
+      clearTimer();
+      handleTimeout();
+    }
+  }, 100);
+}
+
+function clearTimer() {
+  if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
+}
+
+function updateTimerDisplay(secs) {
+  const display = document.getElementById('timer-display');
+  const ring = document.getElementById('timer-ring');
+  const frac = Math.max(0, state.timerSeconds / 10);
+  const offset = TIMER_CIRCUMFERENCE * (1 - frac);
+
+  ring.style.strokeDashoffset = offset;
+
+  // Color transition: green → yellow → red
+  if (frac > 0.5) {
+    ring.style.stroke = 'var(--p3)';
+    display.style.color = 'var(--text)';
+    display.classList.remove('timer-critical');
+  } else if (frac > 0.25) {
+    ring.style.stroke = 'var(--p2)';
+    display.style.color = 'var(--p2)';
+    display.classList.remove('timer-critical');
+  } else {
+    ring.style.stroke = 'var(--p1)';
+    display.style.color = 'var(--p1)';
+    display.classList.add('timer-critical');
+  }
+
+  display.textContent = Math.max(0, Math.ceil(state.timerSeconds));
+}
+
+function handleTimeout() {
+  const overlay = document.getElementById('timeout-overlay');
+  overlay.classList.add('show');
+
+  setTimeout(() => {
+    overlay.classList.remove('show');
+    recordResult(false, true, null);
+    showResultFlash(true);
+  }, 900);
+}
+
+// ═══════════════════════════════════════════════════════
+// ANSWER HANDLING
+// ═══════════════════════════════════════════════════════
+function handleAnswer(userAnswer) {
+  clearTimer();
+  const cas = state.casualties[state.currentIndex];
+  const expectedStep = cas.correct_path[state.currentQuestionIndex];
+  const timeTaken = (Date.now() - state.startTime) / 1000;
+
+  if (expectedStep.ans === userAnswer) {
+    // Correct answer at this step
+    const isLastStep = state.currentQuestionIndex >= cas.correct_path.length - 1;
+
+    if (isLastStep) {
+      // Reached correct outcome
+      recordResult(true, false, timeTaken);
+      showResultFlash(false);
+    } else {
+      // Move to next question in the algorithm
+      state.currentQuestionIndex++;
+      loadQuestion(state.currentQuestionIndex);
+      // Restart the timer from current remaining time
+      // For flow, we keep the same timer running — don't reset
+      startTimer();
+    }
+  } else {
+    // Wrong answer — wrong branch taken
+    recordResult(false, false, timeTaken);
+    showResultFlash(false);
+  }
+}
+
+function recordResult(correct, timeout, timeTaken) {
+  const cas = state.casualties[state.currentIndex];
+  state.results[state.currentIndex] = {
+    cas,
+    correct,
+    timeout,
+    timeTaken: timeTaken ? timeTaken.toFixed(1) : null
+  };
+}
+
+// ═══════════════════════════════════════════════════════
+// RESULT FLASH
+// ═══════════════════════════════════════════════════════
+const PRIORITY_LABELS = {
+  P1: 'P1 — Immediate',
+  P2: 'P2 — Urgent',
+  P3: 'P3 — Delayed',
+  DEAD: 'Dead'
+};
+
+function showResultFlash(timeout) {
+  const cas = state.casualties[state.currentIndex];
+  const result = state.results[state.currentIndex];
+  const isLast = state.currentIndex >= state.casualties.length - 1;
+
+  const icon = document.getElementById('flash-icon');
+  const title = document.getElementById('flash-result');
+  const badge = document.getElementById('flash-priority-badge');
+  const explanation = document.getElementById('flash-explanation');
+  const actionNote = document.getElementById('flash-action-note');
+  const nextBtn = document.getElementById('flash-next-btn');
+
+  if (timeout) {
+    icon.textContent = '⏱';
+    title.textContent = 'Time Expired';
+    title.className = 'flash-result pri-p1';
+  } else if (result.correct) {
+    icon.textContent = '✓';
+    title.textContent = 'Correct';
+    title.className = 'flash-result pri-p3';
+  } else {
+    icon.textContent = '✕';
+    title.textContent = 'Incorrect';
+    title.className = 'flash-result pri-p1';
+  }
+
+  badge.textContent = PRIORITY_LABELS[cas.correct_priority] || cas.correct_priority;
+  badge.className = `flash-priority-badge badge-${cas.correct_priority.toLowerCase()}`;
+
+  if (cas.correct_action) {
+    actionNote.textContent = `⚡ Action required: ${cas.correct_action}`;
+    actionNote.style.display = 'block';
+  } else {
+    actionNote.style.display = 'none';
+  }
+
+  explanation.textContent = timeout
+    ? `Timed out. Correct priority was ${cas.correct_priority}. ${cas.explanation}`
+    : cas.explanation;
+
+  nextBtn.textContent = isLast ? 'View Debrief →' : 'Next Casualty →';
+
+  showScreen('screen-flash');
+}
+
+// ═══════════════════════════════════════════════════════
+// NEXT CASUALTY / DEBRIEF
+// ═══════════════════════════════════════════════════════
+function nextCasualty() {
+  const nextIndex = state.currentIndex + 1;
+
+  if (nextIndex >= state.casualties.length) {
+    showDebrief();
+  } else {
+    showScreen('screen-triage');
+    loadCasualty(nextIndex);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// DEBRIEF
+// ═══════════════════════════════════════════════════════
+function showDebrief() {
+  const results = state.results;
+  const correct = results.filter(r => r && r.correct).length;
+  const wrong = results.filter(r => r && !r.correct && !r.timeout).length;
+  const timeout = results.filter(r => r && r.timeout).length;
+  const total = results.length;
+  const pct = Math.round((correct / total) * 100);
+
+  document.getElementById('stat-correct').textContent = correct;
+  document.getElementById('stat-wrong').textContent = wrong;
+  document.getElementById('stat-timeout').textContent = timeout;
+
+  const scorePill = document.getElementById('debrief-score-pill');
+  scorePill.textContent = `${pct}%`;
+  scorePill.className = 'debrief-score-pill ' + (pct >= 80 ? 'badge-p3' : pct >= 50 ? 'badge-p2' : 'badge-p1');
+
+  // Casualty log
+  const log = document.getElementById('cas-log');
+  log.innerHTML = results.map((r, i) => {
+    if (!r) return '';
+    const cls = r.timeout ? 'timeout' : r.correct ? 'correct' : 'wrong';
+    const badgeCls = `badge-${r.cas.correct_priority.toLowerCase()}`;
+    const timeTxt = r.timeout ? 'TIMEOUT' : `${r.timeTaken}s`;
+    const shortDesc = r.cas.description.split('.')[0] + '.';
+    return `
+      <div class="cas-log-row ${cls}">
+        <div class="cas-log-num">${i + 1}</div>
+        <div class="cas-log-desc">${shortDesc}</div>
+        <div class="cas-log-time">${timeTxt}</div>
+        <div class="cas-log-badge ${badgeCls}">${r.cas.correct_priority}</div>
+      </div>
+    `;
+  }).join('');
+
+  showScreen('screen-debrief');
+  fetchAIDebrief(results, pct);
+}
+
+// ═══════════════════════════════════════════════════════
+// AI DEBRIEF
+// ═══════════════════════════════════════════════════════
+async function fetchAIDebrief(results, pct) {
+  const tool = state.tool === 'tst' ? 'Ten Second Triage (TST)' : 'Major Incident Triage Tool (MITT)';
+
+  const casDetails = results.map((r, i) => {
+    if (!r) return '';
+    const status = r.timeout ? 'TIMED OUT' : r.correct ? 'CORRECT' : 'INCORRECT';
+    return `Casualty ${i + 1}: ${r.cas.description.substring(0, 120)}...
+  Correct priority: ${r.cas.correct_priority} — ${r.cas.explanation.substring(0, 100)}
+  Student result: ${status} ${r.timeTaken ? `(${r.timeTaken}s)` : ''}`;
+  }).join('\n\n');
+
+  const prompt = `You are a major incident triage trainer giving a post-incident debrief.
+
+Tool: ${tool}
+Score: ${pct}% (${results.filter(r => r && r.correct).length}/${results.length} correct)
+
+Casualty results:
+${casDetails}
+
+Write a debrief in 3 short paragraphs (max 140 words total):
+1. Overall performance — be direct and clinical, no padding
+2. Specific error patterns — name the exact algorithm steps they struggled with
+3. One concrete priority for their next practice session
+
+Use second person ("You..."). Be honest. Do not congratulate for average or poor scores. Clinical tone only.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+    const text = data.content.find(b => b.type === 'text')?.text || 'Debrief unavailable.';
+
+    document.getElementById('ai-debrief-content').innerHTML =
+      `<div class="ai-debrief-text">${text.replace(/\n\n/g, '</p><p style="margin-top:0.75rem">').replace(/^/, '<p>').replace(/$/, '</p>')}</div>`;
+  } catch (err) {
+    document.getElementById('ai-debrief-content').innerHTML =
+      `<div class="ai-debrief-text" style="color:var(--muted)">Debrief unavailable — check connection.</div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// RESTART / HOME
+// ═══════════════════════════════════════════════════════
+function runAgain() {
+  state.results = [];
+  state.currentIndex = 0;
+  selectTool(state.tool);
+  // Skip METHANE, go straight in
+  startTriage();
+  showScreen('screen-triage');
+}
+
+function goHome() {
+  clearTimer();
+  showScreen('screen-home');
+}
+</script>
+</body>
+</html>
