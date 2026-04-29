@@ -1001,6 +1001,9 @@ function loadQuestion(qIndex) {
   document.getElementById('question-text').textContent = q.text;
   document.getElementById('question-hint').textContent = q.hint || '';
   state.currentQuestionIndex = qIndex;
+
+  // Reset button colour state from previous tap
+  if (document.activeElement) document.activeElement.blur();
 }
 
 function renderProgressDots() {
