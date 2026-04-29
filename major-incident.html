@@ -298,8 +298,8 @@
       display: flex; flex-direction: column; align-items: center; gap: 4px;
     }
     .answer-btn:active { transform: scale(0.96); }
-    .answer-btn.yes:hover, .answer-btn.yes:focus { background: var(--p3-dim); border-color: var(--p3); color: var(--p3); }
-    .answer-btn.no:hover, .answer-btn.no:focus { background: var(--p1-dim); border-color: var(--p1); color: var(--p1); }
+    .answer-btn.yes.selected { background: var(--p3-dim); border-color: var(--p3); color: var(--p3); }
+    .answer-btn.no.selected  { background: var(--p1-dim); border-color: var(--p1); color: var(--p1); }
     .answer-btn span { font-size: 0.6rem; font-family: var(--font-mono); font-weight: 400; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
 
     /* ─────────────────────────────────────────
@@ -1002,7 +1002,8 @@ function loadQuestion(qIndex) {
   document.getElementById('question-hint').textContent = q.hint || '';
   state.currentQuestionIndex = qIndex;
 
-  // Reset button colour state from previous tap
+  // Reset button state — remove selected class (iOS-safe)
+  document.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
   if (document.activeElement) document.activeElement.blur();
 }
 
@@ -1090,6 +1091,8 @@ function handleTimeout() {
 // ANSWER HANDLING
 // ═══════════════════════════════════════════════════════
 function handleAnswer(userAnswer) {
+  // Mark which button was tapped (visual feedback)
+  document.querySelector(`.answer-btn.${userAnswer ? 'yes' : 'no'}`).classList.add('selected');
   const cas = state.casualties[state.currentIndex];
   const expectedStep = cas.correct_path[state.currentQuestionIndex];
   const timeTaken = (Date.now() - state.startTime) / 1000;
