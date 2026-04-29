@@ -1087,26 +1087,26 @@ function handleTimeout() {
 // ANSWER HANDLING
 // ═══════════════════════════════════════════════════════
 function handleAnswer(userAnswer) {
-  clearTimer();
   const cas = state.casualties[state.currentIndex];
   const expectedStep = cas.correct_path[state.currentQuestionIndex];
   const timeTaken = (Date.now() - state.startTime) / 1000;
 
   if (expectedStep.ans === userAnswer) {
-    // Correct answer at this step
     const isLastStep = state.currentQuestionIndex >= cas.correct_path.length - 1;
 
     if (isLastStep) {
-      // Reached correct outcome
+      // Casualty resolved — stop the clock
+      clearTimer();
       recordResult(true, false, timeTaken);
       showResultFlash(false);
     } else {
-      // Move to next question in the algorithm — timer continues, no reset
+      // More questions — timer keeps running
       state.currentQuestionIndex++;
       loadQuestion(state.currentQuestionIndex);
     }
   } else {
-    // Wrong answer — wrong branch taken
+    // Wrong branch — stop the clock
+    clearTimer();
     recordResult(false, false, timeTaken);
     showResultFlash(false);
   }
