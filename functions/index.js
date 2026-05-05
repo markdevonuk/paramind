@@ -1066,7 +1066,7 @@ exports.speakHollie = onRequest(
       }
 
       // Charlotte voice ID — warm British English female
-      const CHARLOTTE_VOICE_ID = "XB0fDUnXU5powFXDhCwa";
+      const CHARLOTTE_VOICE_ID = "ZF6FPAbjXT4488VcRRnw";
 
       const response = await fetch(
         `https://api.elevenlabs.io/v1/text-to-speech/${CHARLOTTE_VOICE_ID}`,

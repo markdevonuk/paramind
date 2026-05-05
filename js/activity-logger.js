@@ -35,6 +35,7 @@
         'drugs.html':            'Understanding Drugs',
         'interview.html':        'Interview Prep',
         'flashcards.html':       'Flash Cards',
+        'after-the-call.html':   'After the Call',
         'cpd.html':              null
     };
 

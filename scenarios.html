@@ -583,6 +583,21 @@
         .impression-modal .modal-content { background: var(--color-white); color: var(--color-gray-800); }
         .impression-modal .form-control { border: 1px solid var(--color-gray-300); }
 
+        /* Role registration modal — first-visit grade question */
+        .role-reg-modal .modal-content { background: var(--color-white); color: var(--color-gray-800); border: none; border-radius: var(--radius-lg); }
+        .role-reg-intro { text-align: center; margin-bottom: 1.25rem; }
+        .role-reg-hollie-dot { width: 56px; height: 56px; margin: 0 auto 0.75rem; background: var(--color-teal); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .role-reg-title { font-size: 1.4rem; font-weight: 700; color: var(--color-gray-800); margin: 0 0 0.4rem; }
+        .role-reg-subtitle { font-size: 0.875rem; color: var(--color-gray-600); line-height: 1.5; margin: 0; }
+        .role-reg-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1rem; }
+        .role-reg-option { background: var(--color-white); border: 2px solid var(--color-gray-200); border-radius: var(--radius-lg); padding: 0.875rem 1rem; cursor: pointer; transition: all 0.18s; display: flex; align-items: flex-start; gap: 0.875rem; text-align: left; color: var(--color-gray-800); width: 100%; font-family: inherit; }
+        .role-reg-option:hover { border-color: var(--color-teal); background: rgba(43,138,156,0.05); }
+        .role-reg-option:disabled { opacity: 0.55; cursor: wait; }
+        .role-reg-icon { font-size: 1.4rem; flex-shrink: 0; width: 32px; text-align: center; line-height: 1.4; }
+        .role-reg-label { font-size: 0.92rem; font-weight: 600; color: var(--color-gray-800); display: block; margin-bottom: 0.2rem; line-height: 1.35; }
+        .role-reg-desc { font-size: 0.78rem; color: var(--color-gray-600); line-height: 1.45; display: block; font-weight: 400; }
+        .role-reg-note { font-size: 0.75rem; color: var(--color-gray-500); text-align: center; line-height: 1.5; margin: 0; }
+
         /* Assessment picker modal — bottom-sheet style */
         #assessmentPickerModal .modal-dialog {
             margin: 0;
@@ -921,6 +936,47 @@
                 <button type="button" class="btn btn-primary" id="startScenarioBtn">
                     <i class="bi bi-truck me-1"></i>Respond to Incident
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== ROLE REGISTRATION MODAL (first visit only) ==================== -->
+<div class="modal fade role-reg-modal" id="roleRegistrationModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body p-4">
+                <div class="role-reg-intro">
+                    <div class="role-reg-hollie-dot">🎧</div>
+                    <h2 class="role-reg-title">One quick question</h2>
+                    <p class="role-reg-subtitle">Help us pitch your scenarios at the right level.<br>You only need to answer this once.</p>
+                </div>
+
+                <div class="role-reg-options">
+                    <button class="role-reg-option" type="button" data-role="student">
+                        <span class="role-reg-icon">📚</span>
+                        <span>
+                            <span class="role-reg-label">Student/Apprentice Paramedic, ECA/EAA/Technician or studying to become a clinician</span>
+                            <span class="role-reg-desc">On a paramedic degree or apprenticeship, working as ECA/EAA/Technician, or otherwise studying to become a registered clinician</span>
+                        </span>
+                    </button>
+                    <button class="role-reg-option" type="button" data-role="nqp">
+                        <span class="role-reg-icon">🚑</span>
+                        <span>
+                            <span class="role-reg-label">Newly Qualified Paramedic (NQP)</span>
+                            <span class="role-reg-desc">Registered and in your first year or two of practice</span>
+                        </span>
+                    </button>
+                    <button class="role-reg-option" type="button" data-role="registered">
+                        <span class="role-reg-icon">⭐</span>
+                        <span>
+                            <span class="role-reg-label">Registered Paramedic</span>
+                            <span class="role-reg-desc">Experienced and registered with the HCPC</span>
+                        </span>
+                    </button>
+                </div>
+
+                <p class="role-reg-note">You can change this anytime in your "Account" if you want to change the difficulty or level of responses.</p>
             </div>
         </div>
     </div>
@@ -1310,9 +1366,67 @@ auth.onAuthStateChanged(async (user) => {
             console.error('Error fetching user data:', error);
         }
         buildCategoryGrid();
+        // Show first-visit role question if the user hasn't registered a grade yet
+        maybeShowRoleRegistrationModal();
     } else {
         window.location.href = 'login.html';
     }
+});
+
+// ==================== ROLE REGISTRATION (first visit only) ====================
+function maybeShowRoleRegistrationModal() {
+    // Only prompt if we successfully read a user doc and paramedicRole is not set
+    if (!chatState.userData) return;
+    if (chatState.userData.paramedicRole) return;
+    try {
+        const modalEl = document.getElementById('roleRegistrationModal');
+        if (!modalEl) return;
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    } catch (e) {
+        console.error('Could not open role registration modal:', e);
+    }
+}
+
+async function saveParamedicRole(role) {
+    const user = auth.currentUser;
+    if (!user) return;
+    try {
+        await db.collection('users').doc(user.uid).set(
+            { paramedicRole: role },
+            { merge: true }
+        );
+        // Keep local state in sync so openScenarioModal can pre-select correctly
+        if (chatState.userData) {
+            chatState.userData.paramedicRole = role;
+        } else {
+            chatState.userData = { paramedicRole: role };
+        }
+    } catch (e) {
+        console.error('Error saving paramedicRole:', e);
+        // Still update local state so the user can continue
+        if (chatState.userData) {
+            chatState.userData.paramedicRole = role;
+        } else {
+            chatState.userData = { paramedicRole: role };
+        }
+    }
+}
+
+// Wire up role-registration buttons
+document.querySelectorAll('#roleRegistrationModal .role-reg-option').forEach(btn => {
+    btn.addEventListener('click', async () => {
+        const role = btn.dataset.role;
+        if (!role) return;
+        // Disable all options to prevent double-clicks while saving
+        document.querySelectorAll('#roleRegistrationModal .role-reg-option').forEach(b => b.disabled = true);
+        await saveParamedicRole(role);
+        const modalEl = document.getElementById('roleRegistrationModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+        // Re-enable for any future re-open
+        document.querySelectorAll('#roleRegistrationModal .role-reg-option').forEach(b => b.disabled = false);
+    });
 });
 
 // ==================== COMPLETED SCENARIOS ====================
@@ -1514,9 +1628,19 @@ function openScenarioModal(scenarioId) {
     if (!scenario) return;
 
     chatState.currentScenario = scenarioId;
-    chatState.currentDifficultyLevel = 1;
-    document.getElementById('level1').checked = true;
-    document.getElementById('difficultyDescription').textContent = 'Classic presentations, cooperative patients';
+
+    // Map saved paramedicRole to a default difficulty level
+    // (user can still override per-scenario via the radio buttons)
+    const roleToLevel = { student: 1, nqp: 2, registered: 3 };
+    const levelDescriptions = {
+        1: 'Classic presentations, cooperative patients',
+        2: 'Realistic presentations, some complexity',
+        3: 'Atypical presentations, complex patients'
+    };
+    const defaultLevel = roleToLevel[chatState.userData?.paramedicRole] || 1;
+    chatState.currentDifficultyLevel = defaultLevel;
+    document.getElementById('level' + defaultLevel).checked = true;
+    document.getElementById('difficultyDescription').textContent = levelDescriptions[defaultLevel];
 
     const d = scenario.dispatch;
     const genderDisplay = d.gender === 'M' ? 'Male' : d.gender === 'F' ? 'Female' : '';

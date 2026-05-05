@@ -1046,8 +1046,8 @@
             <button class="role-option" onclick="saveRole('student')">
                 <span class="role-option-icon">📚</span>
                 <span>
-                    <span class="role-option-label">Student Paramedic</span>
-                    <span class="role-option-desc">Currently on a paramedic degree or pre-registration programme</span>
+                    <span class="role-option-label">Student/Apprentice Paramedic, ECA/EAA/Technician or studying to become a clinician</span>
+                    <span class="role-option-desc">On a paramedic degree or apprenticeship, working as ECA/EAA/Technician, or otherwise studying to become a registered clinician</span>
                 </span>
             </button>
             <button class="role-option" onclick="saveRole('nqp')">
@@ -1066,7 +1066,7 @@
             </button>
         </div>
 
-        <p class="role-note atc-fade-3">You can change this later in your profile settings.</p>
+        <p class="role-note atc-fade-3">You can change this anytime in your "Account" if you want to change the difficulty or level of responses.</p>
     </div>
 </div>
 
@@ -1235,6 +1235,7 @@
 <script src="js/app.js"></script>
 <script src="js/menu-v2.js"></script>
 <script src="js/pro-guard.js"></script>
+<script src="js/activity-logger.js"></script>
 
 <script>
 /* ══════════════════════════════════════════════════════
@@ -1260,6 +1261,7 @@ const ATC = {
     voiceEnabled: false,  // true when user entered via voice
     muted:        false,  // user toggled mute
     currentAudio: null,   // current Audio object for Hollie TTS
+    audioUnlocked: false,  // iOS Safari audio context unlocked
 
     // API base (matches app.js)
     API_BASE: 'https://europe-west2-paramind-64b8e.cloudfunctions.net',
@@ -1374,8 +1376,8 @@ async function initPage() {
                 headers: { 'Authorization': 'Bearer ' + token }
             });
             if (resp.ok) {
-                const records = await resp.json();
-                const atcRecords = (records || []).filter(r => r.type === 'after-the-call');
+                const data = await resp.json();
+                const atcRecords = (data.records || []).filter(r => r.type === 'after-the-call');
                 const countEl = document.getElementById('debriefCount');
                 if (countEl) {
                     countEl.textContent = atcRecords.length === 0
@@ -1736,13 +1738,12 @@ async function sendToAPI(userMessage, isFirstMessage) {
             renderReflectionCard(reflectionMatch[1].trim());
         }
 
-        // Speak Hollie's response if voice mode, then show mic
+        // Voice mode — speak then show mic
         const visibleForSpeech = fullMessage.replace(/REFLECTION_START[\s\S]*?REFLECTION_END/g, '').trim();
         if (ATC.voiceEnabled && visibleForSpeech && !reflectionMatch) {
             if (!ATC.muted) {
                 await speakHollie(visibleForSpeech);
             }
-            // Only show mic after Hollie has finished speaking
             appendInlineVoicePrompt();
         }
 
@@ -1860,7 +1861,7 @@ async function saveCPDRecord(btn) {
     try {
         await getToken();
         const db = firebase.firestore();
-        await db.collection('users').doc(ATC.userUid).collection('cpdRecords').add({
+        const ref = await db.collection('users').doc(ATC.userUid).collection('cpdRecords').add({
             type:             'after-the-call',
             scenarioId:       'after-the-call',
             scenarioCode:     'ATC',
@@ -1873,8 +1874,9 @@ async function saveCPDRecord(btn) {
             result:           'correct',
             questionsAsked:   Math.floor(ATC.conversationHistory.length / 2),
             assessmentsPerformed: 0,
-            completedAt:      firebase.firestore.FieldValue.serverTimestamp()
+            completedAt:      new Date()
         });
+        console.log('CPD record saved:', ref.id);
         btn.textContent = 'Saved \u2713';
     } catch (e) {
         console.error('CPD save error:', e);
@@ -2036,94 +2038,86 @@ async function downloadReflectionPDF(btn) {
 /* ══════════════════════════════════════
    HOLLIE VOICE — TTS playback
    ══════════════════════════════════════ */
-async function speakHollie(text) {
-    // Stop any current audio
-    if (ATC.currentAudio) {
-        ATC.currentAudio.pause();
-        ATC.currentAudio = null;
+/* ── Hollie TTS — persistent Audio element for iOS reliability ── */
+(function() {
+    // Create one Audio element at page load and unlock it on first user tap.
+    // Once unlocked, iOS allows programmatic src + play() on the same element.
+    ATC._hollieAudio = new Audio();
+    ATC._hollieAudio.preload = 'auto';
+    ATC._hollieUnlocked = false;
+
+    function unlockOnce() {
+        if (ATC._hollieUnlocked) return;
+        ATC._hollieUnlocked = true;
+        ATC._hollieAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+        ATC._hollieAudio.play().catch(() => {});
+        document.removeEventListener('touchstart', unlockOnce, true);
+        document.removeEventListener('click', unlockOnce, true);
     }
 
-    // Show speaking indicator
-    const titleEl = document.getElementById('debriefTopTitle');
-    const origTitle = titleEl.textContent.replace(/\s*▶.*$/, '').trim();
-    titleEl.innerHTML = origTitle + ' <span class="hollie-speaking"><span class="hollie-speaking-dot"></span><span class="hollie-speaking-dot"></span><span class="hollie-speaking-dot"></span></span>';
-
-    try {
-        const token = await getToken();
-
-        // Call ElevenLabs via Cloud Function
-        const resp = await fetch(ATC.API_BASE + '/speakHollie', {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Bearer ' + token,
-                'Content-Type':  'application/json'
-            },
-            body: JSON.stringify({ text: text })
-        });
-
-        if (!resp.ok) throw new Error('speakHollie API error ' + resp.status);
-
-        const data = await resp.json();
-        if (!data.audio) throw new Error('No audio returned');
-
-        // Decode base64 MP3 and play
-        const binary = atob(data.audio);
-        const bytes  = new Uint8Array(binary.length);
-        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-        const blob = new Blob([bytes], { type: 'audio/mpeg' });
-        const url  = URL.createObjectURL(blob);
-
-        const audio = new Audio(url);
-        ATC.currentAudio = audio;
-
-        try {
-            await audio.play();
-            await new Promise(resolve => {
-                audio.addEventListener('ended', resolve, { once: true });
-                audio.addEventListener('error', resolve, { once: true });
-            });
-        } catch (playErr) {
-            console.warn('Hollie audio playback error:', playErr);
-        }
-
-        URL.revokeObjectURL(url);
-        ATC.currentAudio = null;
-        titleEl.textContent = origTitle;
-
-    } catch (e) {
-        console.error('Hollie speak error:', e);
-        titleEl.textContent = origTitle;
-    }
-}
-
-function toggleMute() {
-    ATC.muted = !ATC.muted;
-
-    // Stop current audio if muting
-    if (ATC.muted && ATC.currentAudio) {
-        ATC.currentAudio.pause();
-        ATC.currentAudio = null;
-    }
-
-    const icon  = document.getElementById('muteIcon');
-    const label = document.getElementById('muteLabel');
-    if (ATC.muted) {
-        icon.className  = 'bi bi-volume-mute';
-        label.textContent = 'Unmute Hollie';
-    } else {
-        icon.className  = 'bi bi-volume-up';
-        label.textContent = 'Mute Hollie';
-    }
-}
+    document.addEventListener('touchstart', unlockOnce, true);
+    document.addEventListener('click',      unlockOnce, true);
+})();
 
 function showMuteBtn(show) {
     const btn = document.getElementById('muteBtn');
     if (btn) btn.classList.toggle('visible', show);
 }
 
-/* ══════════════════════════════════════
-   VOICE OVERLAY — in-page mic for replies
-   ══════════════════════════════════════ */
+async function speakHollie(text) {
+    if (ATC.muted) return;
+
+    // Stop any current playback
+    const audio = ATC._hollieAudio;
+    audio.pause();
+    audio.currentTime = 0;
+    ATC.currentAudio = null;
+
+    // Speaking indicator
+    const titleEl  = document.getElementById('debriefTopTitle');
+    const origTitle = titleEl ? titleEl.textContent.replace(/\s*▶.*$/, '').trim() : '';
+    if (titleEl) titleEl.innerHTML = origTitle + ' <span class="hollie-speaking"><span class="hollie-speaking-dot"></span><span class="hollie-speaking-dot"></span><span class="hollie-speaking-dot"></span></span>';
+
+    try {
+        const token = await getToken();
+        const resp  = await fetch(ATC.API_BASE + '/speakHollie', {
+            method:  'POST',
+            headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ text: text })
+        });
+
+        if (!resp.ok) throw new Error('speakHollie error ' + resp.status);
+
+        const data = await resp.json();
+        if (!data.audio) throw new Error('No audio returned');
+
+        // Decode base64 and set as blob URL on the persistent element
+        const binary = atob(data.audio);
+        const bytes  = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        const blob = new Blob([bytes], { type: 'audio/mpeg' });
+        const url  = URL.createObjectURL(blob);
+
+        audio.src = url;
+        ATC.currentAudio = audio;
+
+        await audio.play();
+
+        await new Promise(resolve => {
+            audio.addEventListener('ended', resolve, { once: true });
+            audio.addEventListener('error', resolve, { once: true });
+        });
+
+        URL.revokeObjectURL(url);
+        ATC.currentAudio = null;
+
+    } catch(e) {
+        console.error('speakHollie error:', e);
+    }
+
+    if (titleEl) titleEl.textContent = origTitle;
+}
+
 /* ══════════════════════════════════════
    INLINE VOICE WIDGET — mirrors entry screen exactly
    ══════════════════════════════════════ */
@@ -2146,7 +2140,7 @@ function appendInlineVoicePrompt() {
     widget.className = 'ivw';
     widget.id = 'ivw';
     widget.innerHTML = `
-        <div class="mic-stage" style="align-items:flex-start;margin-bottom:12px">
+        <div class="mic-stage" style="align-items:flex-start;margin-bottom:8px">
             <div class="mic-rings" id="ivwRings">
                 <button class="mic-btn" id="ivwBtn" onclick="toggleInlineMic()">
                     <i class="bi bi-mic-fill" id="ivwIcon"></i>
@@ -2158,13 +2152,6 @@ function appendInlineVoicePrompt() {
             </div>
             <p class="mic-status" id="ivwStatus">Tap the mic to reply</p>
         </div>
-        <div class="transcript-box" id="ivwTranscriptBox" style="margin-bottom:12px">
-            <span class="transcript-placeholder" id="ivwPlaceholder">Your reply will appear here...</span>
-            <span id="ivwText" style="display:none"></span>
-        </div>
-        <button class="atc-btn" id="ivwSendBtn" onclick="sendInlineVoiceReply()" disabled style="margin-bottom:0">
-            Send reply
-        </button>
     `;
 
     list.appendChild(widget);
@@ -2248,25 +2235,17 @@ async function transcribeInlineMic() {
         const data = await resp.json();
         const text = (data.text || '').trim();
 
-        // Append to any existing transcript (user may record multiple times)
-        debriefMic.transcribed = debriefMic.transcribed
-            ? debriefMic.transcribed + ' ' + text
-            : text;
-
-        // Show transcript — same as entry screen
-        document.getElementById('ivwPlaceholder').style.display = 'none';
-        const txtEl = document.getElementById('ivwText');
-        txtEl.style.display  = 'block';
-        txtEl.textContent    = debriefMic.transcribed;
-
-        document.getElementById('ivwStatus').textContent  = 'Tap the mic to add more, or send';
-        document.getElementById('ivwBtn').disabled         = false;
-
-        if (debriefMic.transcribed.trim().length > 0) {
-            document.getElementById('ivwSendBtn').disabled = false;
+        if (text) {
+            // Auto-send immediately — no button needed
+            debriefMic.transcribed = '';
+            document.querySelectorAll('.ivw').forEach(el => el.remove());
+            appendMessage('user', text);
+            sendToAPI(text, false);
+        } else {
+            // Nothing captured — let them try again
+            document.getElementById('ivwStatus').textContent = 'Nothing captured — tap to try again';
+            document.getElementById('ivwBtn').disabled = false;
         }
-
-        document.getElementById('messagesList').scrollTop = document.getElementById('messagesList').scrollHeight;
 
     } catch (e) {
         console.error('Inline transcribe error:', e);
