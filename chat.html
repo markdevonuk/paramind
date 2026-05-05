@@ -935,23 +935,44 @@ Available tools and when to suggest them:
 - readiness -- only if the learner is asking about general revision or testing where they stand
 
 ==================== QUIZ MODE ====================
-If the learner clicks the "Quiz me on this" button, the app will send you a quiz request. When that happens, output ONLY the structured quiz format below - no preamble, no markdown headings, no tool referrals, no closing remarks. Exactly 3 questions.
+When the app sends a quiz request, you MUST output ONLY 3 quiz blocks in the exact format below. The app parses these blocks programmatically - any deviation from the format will cause parsing to fail.
 
-Each question must use this exact format, surrounded by [QUIZ] and [/QUIZ] markers:
+CRITICAL FORMAT RULES:
+- Use the literal markers [QUIZ] and [/QUIZ] (square brackets, capitals, no spaces)
+- DO NOT use any markdown formatting INSIDE quiz blocks - no **bold**, no *italic*, no ##headers, no \`backticks\`, no leading bullets
+- DO NOT add any preamble, greeting, closing remarks, or tool referrals
+- Output exactly 3 blocks, separated by a single blank line
+- Each label (Q:, A), B), C), D), ANSWER:, EXPLANATION:) must appear at the very start of its line in plain text
+- The Q: line must be a single line. Each option must be a single line.
+- The ANSWER: line must be just one letter (A, B, C, or D) - nothing else
+
+EXACT TEMPLATE (do not deviate):
 
 [QUIZ]
-Q: <question text>
-A) <option 1>
-B) <option 2>
-C) <option 3>
-D) <option 4>
-ANSWER: <single letter A, B, C, or D>
-EXPLANATION: <one sentence explaining why the answer is correct>
+Q: <one-line question>
+A) <one-line option>
+B) <one-line option>
+C) <one-line option>
+D) <one-line option>
+ANSWER: B
+EXPLANATION: <one sentence>
+[/QUIZ]
+
+WORKED EXAMPLE - copy this structure exactly:
+
+[QUIZ]
+Q: Which structure initiates each heartbeat in a healthy heart?
+A) AV node
+B) SA node
+C) Bundle of His
+D) Purkinje fibres
+ANSWER: B
+EXPLANATION: The SA node in the right atrium fires first and sets the heart rate at 60-100 bpm.
 [/QUIZ]
 
 Quiz content rules:
-- Questions must be on the topic just discussed
-- Test understanding of A&P, pathophysiology, recognition, presentation patterns - NOT drug doses or drug calculations or treatment management
+- Questions must relate to the topic from your most recent explanation
+- Test understanding of A&P, pathophysiology, recognition, or presentation patterns - NOT drug doses, drug calculations, or treatment management
 - Make distractors plausible but clearly wrong on close reading
 - Keep explanations to ONE sentence
 
@@ -1260,8 +1281,11 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
                 const targetScroll = msgRect.top - containerRect.top + elements.chatMessages.scrollTop - 40;
                 elements.chatMessages.scrollTo({ top: targetScroll, behavior: 'smooth' });
 
-                // Add action buttons (Simplify + Quiz Me) - suppress Quiz Me on quiz responses
-                addActionButtons(messageId, parsed.cleanText, parsed.quizBlocks.length === 0);
+                // Add action buttons. Suppress Quiz Me if we rendered quiz cards OR if this
+                // looked like a quiz attempt that we couldn't parse - either way, asking again
+                // will produce more of the same.
+                const includeQuizMe = parsed.quizBlocks.length === 0 && !parsed.quizAttempted;
+                addActionButtons(messageId, parsed.cleanText, includeQuizMe);
             }
             userHasScrolledUp = false;
         }
@@ -1317,61 +1341,139 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
 
         // ==================== HOLLIE RESPONSE PARSING ====================
         // Extracts [TOOL:slug:label] markers and [QUIZ]...[/QUIZ] blocks from Hollie's text.
-        // Returns: { cleanText, toolMarkers: [{slug,label}], quizBlocks: [{question,options,answer,explanation}] }
+        // Returns: { cleanText, toolMarkers, quizBlocks, quizAttempted }
+        // quizAttempted flag is true if the response looked like a quiz - even if parsing
+        // failed - so the UI can suppress the Quiz Me button (don't ask again).
         function parseHollieResponse(rawText) {
             const toolMarkers = [];
             const quizBlocks = [];
+            let quizAttempted = false;
+            const rawTextOriginal = rawText;
 
-            // 1. Pull out quiz blocks first (they may contain colons that confuse tool regex)
+            // 1. Pull out [QUIZ]...[/QUIZ] blocks (preferred path)
             let cleaned = rawText.replace(/\[QUIZ\]([\s\S]*?)\[\/QUIZ\]/g, (m, body) => {
+                quizAttempted = true;
                 const parsed = parseQuizBlock(body);
                 if (parsed) quizBlocks.push(parsed);
+                else console.warn('[Paramind] [QUIZ] block failed to parse. Body was:\n', body);
                 return ''; // strip from text
             });
 
             // 2. Pull out tool markers: [TOOL:slug:label]
-            // Slug is alphanumeric/hyphen; label is anything up to the closing bracket.
             cleaned = cleaned.replace(/\[TOOL:([a-zA-Z0-9-]+):([^\]]+)\]/g, (m, slug, label) => {
                 slug = slug.trim();
                 label = label.trim();
                 if (TOOLS_REGISTRY[slug]) {
                     toolMarkers.push({ slug, label });
                 }
-                return ''; // strip from text whether registered or not
+                return '';
             });
 
-            // 3. Tidy up: collapse 3+ newlines and trim trailing whitespace
             cleaned = cleaned.replace(/\n{3,}/g, '\n\n').trim();
 
-            return { cleanText: cleaned, toolMarkers, quizBlocks };
+            // 3. Fallback: no [QUIZ] tags but the response looks like a quiz?
+            if (quizBlocks.length === 0 && !quizAttempted) {
+                if (looksLikeQuiz(cleaned)) {
+                    quizAttempted = true;
+                    const fallback = fallbackParseQuiz(cleaned);
+                    if (fallback.length > 0) {
+                        for (const b of fallback) quizBlocks.push(b);
+                        cleaned = ''; // displaying the parsed cards instead of raw
+                    }
+                }
+            }
+
+            // 4. Recovery: [QUIZ] tags were detected but parsing failed and produced no
+            //    blocks. Restore a sanitised version of the original text (with [QUIZ]
+            //    tags removed) so the user at least sees the questions, even if they're
+            //    not interactive. Quiz Me button stays suppressed via quizAttempted.
+            if (quizAttempted && quizBlocks.length === 0 && cleaned.trim().length === 0) {
+                cleaned = rawTextOriginal
+                    .replace(/\[\/?QUIZ\]/g, '')
+                    .replace(/\[TOOL:[a-zA-Z0-9-]+:[^\]]+\]/g, '')
+                    .replace(/\n{3,}/g, '\n\n')
+                    .trim();
+            }
+
+            return { cleanText: cleaned, toolMarkers, quizBlocks, quizAttempted };
         }
 
+        // Quick sniff test: does this text plausibly contain a quiz?
+        function looksLikeQuiz(text) {
+            const hasQuestion = /(^|\n)\s*(?:\*\*)?\s*(?:Q\d?|Question\s*\d?)\s*[:.\)]/im.test(text);
+            const hasOptions = /(^|\n)\s*(?:\*\*)?\s*\(?[A-D]\)?[\.:\)]\s+/m.test(text);
+            const hasAnswer = /\b(?:ANSWER|Correct\s*answer|The\s*answer\s*is)\b/i.test(text);
+            return hasQuestion && hasOptions && hasAnswer;
+        }
+
+        // Fallback: split text into question sections and try parsing each
+        function fallbackParseQuiz(text) {
+            // Split on "Q1", "Q2", "Question 1", "Question 2" markers (with optional ** wrapping)
+            const parts = text.split(/(?=(?:^|\n)\s*(?:\*\*)?\s*(?:Q\d|Question\s*\d)\s*[:.\)])/im);
+            const blocks = [];
+            for (const part of parts) {
+                if (part.trim().length < 20) continue;
+                const parsed = parseQuizBlock(part);
+                if (parsed) blocks.push(parsed);
+            }
+            return blocks;
+        }
+
+        // Parse a single quiz block. Tolerant of markdown decoration and label variants.
         function parseQuizBlock(body) {
-            const lines = body.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            // Strip code fences if Hollie wrapped the block in ```
+            body = body.replace(/^\s*```[a-zA-Z]*\s*\n?/g, '').replace(/\n?\s*```\s*$/g, '');
+
+            const stripMd = s => s
+                .replace(/^[-*\u2022]\s+/, '')   // leading bullet
+                .replace(/`+/g, '')                  // backticks
+                .replace(/\*+/g, '')                // bold/italic asterisks
+                .replace(/^_+|_+$/g, '')             // wrapping underscores
+                .trim();
+
+            const lines = body.split('\n').map(l => stripMd(l)).filter(l => l.length > 0);
             const result = { question: '', options: { A: '', B: '', C: '', D: '' }, answer: '', explanation: '' };
             let inExplanation = false;
 
             for (const line of lines) {
-                if (/^Q:\s*/i.test(line)) {
-                    result.question = line.replace(/^Q:\s*/i, '').trim();
+                // Question: "Q:", "Q1:", "Q1.", "Q1)", "Question:", "Question 1:", etc.
+                let m = line.match(/^(?:Q\d*|Question\s*\d*)\s*[:.\)]\s*(.+)$/i);
+                if (m && !result.question) {
+                    result.question = m[1].trim();
                     inExplanation = false;
-                } else if (/^([A-D])\)\s*/.test(line)) {
-                    const m = line.match(/^([A-D])\)\s*(.+)$/);
-                    if (m) result.options[m[1].toUpperCase()] = m[2].trim();
+                    continue;
+                }
+
+                // Option: "A)", "A.", "A:", "(A)" followed by a space and content
+                m = line.match(/^\(?([A-D])\)?\s*[\.:\)]\s+(.+)$/);
+                if (m) {
+                    result.options[m[1].toUpperCase()] = m[2].trim();
                     inExplanation = false;
-                } else if (/^ANSWER:\s*/i.test(line)) {
-                    const ans = line.replace(/^ANSWER:\s*/i, '').trim().toUpperCase().charAt(0);
-                    if (['A','B','C','D'].includes(ans)) result.answer = ans;
+                    continue;
+                }
+
+                // Answer line: tolerate "ANSWER: B", "Answer is B", "Correct answer: B"
+                if (/^(?:ANSWER|Correct\s*answer|The\s*answer\s*is|Correct)\b/i.test(line)) {
+                    const a = line.match(/\b([A-D])\b/);
+                    if (a) result.answer = a[1].toUpperCase();
                     inExplanation = false;
-                } else if (/^EXPLANATION:\s*/i.test(line)) {
-                    result.explanation = line.replace(/^EXPLANATION:\s*/i, '').trim();
+                    continue;
+                }
+
+                // Explanation line: tolerate "EXPLANATION:", "Rationale:", "Why:"
+                m = line.match(/^(?:EXPLANATION|Rationale|Why|Reason)\s*[:.]\s*(.*)$/i);
+                if (m) {
+                    result.explanation = m[1].trim();
                     inExplanation = true;
-                } else if (inExplanation) {
-                    result.explanation += ' ' + line;
+                    continue;
+                }
+
+                // Continuation of explanation (multi-line)
+                if (inExplanation) {
+                    result.explanation += (result.explanation ? ' ' : '') + line;
                 }
             }
 
-            // Validate - need a question, at least 2 options, and a valid answer pointing to a non-empty option
             const optionCount = Object.values(result.options).filter(v => v).length;
             if (!result.question || optionCount < 2 || !result.answer || !result.options[result.answer]) {
                 return null;
