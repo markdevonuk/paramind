@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -1535,8 +1538,10 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
                 card.dataset.explanation = quiz.explanation;
 
                 const optionLetters = Object.keys(quiz.options).filter(l => quiz.options[l]);
+                // Note: NO inline onclick - we use event delegation on the container below.
+                // This is more reliable on iOS WebView and avoids inline-handler quirks.
                 const optionsHtml = optionLetters.map(letter => `
-                    <button type="button" class="quiz-option" data-letter="${letter}" onclick="handleQuizAnswer(this)">
+                    <button type="button" class="quiz-option" data-letter="${letter}">
                         <span class="quiz-option-letter">${letter})</span>
                         <span class="quiz-option-text">${escapeHtml(quiz.options[letter])}</span>
                         <span class="quiz-option-icon"></span>
@@ -1552,14 +1557,24 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
                 container.appendChild(card);
             });
 
+            // Event delegation: one listener on the container catches all option clicks.
+            // Works for current and any future option buttons inside this container.
+            container.addEventListener('click', function(e) {
+                const optBtn = e.target.closest('.quiz-option');
+                if (!optBtn || optBtn.disabled) return;
+                if (!container.contains(optBtn)) return;
+                console.log('[Paramind] quiz option clicked:', optBtn.dataset.letter);
+                handleQuizAnswer(optBtn);
+            });
+
             anchor.after(container);
         }
 
         function handleQuizAnswer(btn) {
+            console.log('[Paramind] handleQuizAnswer fired for button:', btn);
             const card = btn.closest('.quiz-card');
-            if (!card) return;
-            // If already answered, ignore
-            if (card.dataset.answered === 'true') return;
+            if (!card) { console.warn('[Paramind] no parent quiz-card found'); return; }
+            if (card.dataset.answered === 'true') { console.log('[Paramind] already answered, ignoring'); return; }
             card.dataset.answered = 'true';
 
             const correct = card.dataset.correct;
@@ -1671,6 +1686,13 @@ QUIZ MODE ACTIVE: The learner has clicked "Quiz me on this". You MUST output ONL
                         }
                     }
                 }
+
+                // Diagnostic log so any future quiz failures can be analysed.
+                // Tag prefix [Paramind] makes it easy to filter in console.
+                console.log('[Paramind] Quiz Me - Hollie raw response (', fullMessage.length, 'chars):');
+                console.log(fullMessage);
+                const _diagParse = parseHollieResponse(fullMessage);
+                console.log('[Paramind] Parser result: blocks=', _diagParse.quizBlocks.length, 'attempted=', _diagParse.quizAttempted, 'cleanLen=', _diagParse.cleanText.length);
 
                 // Finalize using the same parser - this renders quiz cards interactively
                 finalizeStreamingMessage(aiMessageId, fullMessage);
