@@ -610,105 +610,6 @@ html {
             flex-shrink: 0;
         }
 
-        /* ==================== QUIZ CARDS ==================== */
-        .quiz-card-container {
-            padding-left: 52px;
-            padding-right: 12px;
-            margin-bottom: 0.75rem;
-        }
-        .quiz-card {
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-        }
-        .quiz-card-header {
-            display: inline-block;
-            background: #5BC166;
-            color: white;
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            padding: 3px 8px;
-            border-radius: 999px;
-            margin-bottom: 0.5rem;
-        }
-        .quiz-question {
-            font-weight: 600;
-            color: #111827;
-            margin-bottom: 0.75rem;
-            line-height: 1.4;
-        }
-        .quiz-options {
-            display: flex;
-            flex-direction: column;
-            gap: 0.4rem;
-        }
-        .quiz-option {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.5rem;
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 0.6rem 0.85rem;
-            text-align: left;
-            font-size: 0.9rem;
-            color: #111827;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            font-family: inherit;
-            line-height: 1.35;
-        }
-        .quiz-option:hover:not(:disabled) {
-            border-color: #2B8A9C;
-            background: #f0fafc;
-        }
-        .quiz-option-letter {
-            font-weight: 700;
-            color: #6b7280;
-            flex-shrink: 0;
-        }
-        .quiz-option:disabled {
-            cursor: default;
-        }
-        .quiz-option.correct {
-            background: #f0fdf4;
-            border-color: #5BC166;
-            color: #166534;
-        }
-        .quiz-option.correct .quiz-option-letter {
-            color: #16a34a;
-        }
-        .quiz-option.incorrect {
-            background: #fef2f2;
-            border-color: #ef4444;
-            color: #991b1b;
-        }
-        .quiz-option.incorrect .quiz-option-letter {
-            color: #dc2626;
-        }
-        .quiz-option.faded {
-            opacity: 0.45;
-        }
-        .quiz-option-icon {
-            margin-left: auto;
-            font-size: 1rem;
-            flex-shrink: 0;
-        }
-        .quiz-explanation {
-            margin-top: 0.75rem;
-            padding: 0.6rem 0.85rem;
-            background: #f9fafb;
-            border-left: 3px solid #2B8A9C;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            color: #374151;
-            line-height: 1.45;
-        }
 
         /* ==================== ACTION BUTTONS (Simplify + Quiz Me) ==================== */
         .actions-container {
@@ -719,33 +620,6 @@ html {
             padding-left: 52px;
             margin-top: -0.25rem;
             margin-bottom: 0.5rem;
-        }
-        .quiz-me-btn {
-            background: linear-gradient(135deg, #5BC166 0%, #16a34a 100%);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-full);
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-family: inherit;
-        }
-        .quiz-me-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(91, 193, 102, 0.4);
-        }
-        .quiz-me-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        .quiz-me-btn i {
-            font-size: 1rem;
         }
 
     </style>
@@ -936,48 +810,6 @@ Available tools and when to suggest them:
 - bone-lab -- when discussing bones, fractures, or musculoskeletal anatomy
 - atmist -- when the conversation touches on handover, structured communication, or trauma calls
 - readiness -- only if the learner is asking about general revision or testing where they stand
-
-==================== QUIZ MODE ====================
-When the app sends a quiz request, you MUST output ONLY 3 quiz blocks in the exact format below. The app parses these blocks programmatically - any deviation from the format will cause parsing to fail.
-
-CRITICAL FORMAT RULES:
-- Use the literal markers [QUIZ] and [/QUIZ] (square brackets, capitals, no spaces)
-- DO NOT use any markdown formatting INSIDE quiz blocks - no **bold**, no *italic*, no ##headers, no \`backticks\`, no leading bullets
-- DO NOT add any preamble, greeting, closing remarks, or tool referrals
-- Output exactly 3 blocks, separated by a single blank line
-- Each label (Q:, A), B), C), D), ANSWER:, EXPLANATION:) must appear at the very start of its line in plain text
-- The Q: line must be a single line. Each option must be a single line.
-- The ANSWER: line must be just one letter (A, B, C, or D) - nothing else
-
-EXACT TEMPLATE (do not deviate):
-
-[QUIZ]
-Q: <one-line question>
-A) <one-line option>
-B) <one-line option>
-C) <one-line option>
-D) <one-line option>
-ANSWER: B
-EXPLANATION: <one sentence>
-[/QUIZ]
-
-WORKED EXAMPLE - copy this structure exactly:
-
-[QUIZ]
-Q: Which structure initiates each heartbeat in a healthy heart?
-A) AV node
-B) SA node
-C) Bundle of His
-D) Purkinje fibres
-ANSWER: B
-EXPLANATION: The SA node in the right atrium fires first and sets the heart rate at 60-100 bpm.
-[/QUIZ]
-
-Quiz content rules:
-- Questions must relate to the topic from your most recent explanation
-- Test understanding of A&P, pathophysiology, recognition, or presentation patterns - NOT drug doses, drug calculations, or treatment management
-- Make distractors plausible but clearly wrong on close reading
-- Keep explanations to ONE sentence
 
 Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable! 🚑`;
 
@@ -1264,7 +1096,7 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
         function finalizeStreamingMessage(messageId, content) {
             const messageDiv = document.getElementById(messageId);
             if (messageDiv) {
-                // Parse out [TOOL:...] markers and [QUIZ]...[/QUIZ] blocks
+                // Parse out [TOOL:...] markers (and defensively strip stray [QUIZ] blocks)
                 const parsed = parseHollieResponse(content);
 
                 const contentDiv = messageDiv.querySelector('.message-content');
@@ -1275,25 +1107,19 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
                 // Render tool referral cards (stay attached to this message)
                 renderToolCards(messageId, parsed.toolMarkers);
 
-                // Render interactive quiz cards (stay attached to this message)
-                renderQuizCards(messageId, parsed.quizBlocks);
-
                 // Scroll to top of Hollie's message so user can read from the start
                 const containerRect = elements.chatMessages.getBoundingClientRect();
                 const msgRect = messageDiv.getBoundingClientRect();
                 const targetScroll = msgRect.top - containerRect.top + elements.chatMessages.scrollTop - 40;
                 elements.chatMessages.scrollTo({ top: targetScroll, behavior: 'smooth' });
 
-                // Add action buttons. Suppress Quiz Me if we rendered quiz cards OR if this
-                // looked like a quiz attempt that we couldn't parse - either way, asking again
-                // will produce more of the same.
-                const includeQuizMe = parsed.quizBlocks.length === 0 && !parsed.quizAttempted;
-                addActionButtons(messageId, parsed.cleanText, includeQuizMe);
+                // Add Simplify button (Quiz Me feature is disabled for now)
+                addActionButtons(messageId, parsed.cleanText);
             }
             userHasScrolledUp = false;
         }
         
-        function addActionButtons(messageId, content, includeQuizMe) {
+        function addActionButtons(messageId, content) {
             // Store the response for potential simplification
             lastAssistantResponse = content;
 
@@ -1303,33 +1129,25 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
                 if (oldBtn) oldBtn.remove();
             }
 
-            // Create unified actions container
+            // Create actions container with just the Simplify button
             const actionsContainer = document.createElement('div');
             actionsContainer.className = 'actions-container';
             actionsContainer.id = 'actions-' + messageId;
             lastSimplifyBtnId = actionsContainer.id;
-
-            const quizBtnHtml = includeQuizMe ? `
-                <button class="quiz-me-btn" onclick="askHollieToQuizMe()">
-                    <i class="bi bi-lightbulb"></i>
-                    Quiz me on this
-                </button>
-            ` : '';
 
             actionsContainer.innerHTML = `
                 <button class="simplify-btn" onclick="askHollieToSimplify()">
                     <i class="bi bi-emoji-smile"></i>
                     Make it simpler, Hollie!
                 </button>
-                ${quizBtnHtml}
             `;
 
-            // Find the LAST element belonging to this message (could be a tool/quiz card)
+            // Find the LAST element belonging to this message (could be a tool card)
             // and insert actions after it. Otherwise insert after the message itself.
             let anchor = document.getElementById(messageId);
             if (anchor) {
                 let next = anchor.nextElementSibling;
-                while (next && (next.classList.contains('tool-card-container') || next.classList.contains('quiz-card-container')) && next.dataset.forMessage === messageId) {
+                while (next && next.classList.contains('tool-card-container') && next.dataset.forMessage === messageId) {
                     anchor = next;
                     next = next.nextElementSibling;
                 }
@@ -1337,32 +1155,22 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
             }
         }
 
-        // Backwards-compat alias - some older code paths still call addSimplifyButton
+        // Backwards-compat alias
         function addSimplifyButton(messageId, content) {
-            addActionButtons(messageId, content, false);
+            addActionButtons(messageId, content);
         }
 
         // ==================== HOLLIE RESPONSE PARSING ====================
-        // Extracts [TOOL:slug:label] markers and [QUIZ]...[/QUIZ] blocks from Hollie's text.
-        // Returns: { cleanText, toolMarkers, quizBlocks, quizAttempted }
-        // quizAttempted flag is true if the response looked like a quiz - even if parsing
-        // failed - so the UI can suppress the Quiz Me button (don't ask again).
+        // Extracts [TOOL:slug:label] markers from Hollie's text. Also defensively strips
+        // any stray [QUIZ]...[/QUIZ] blocks (Quiz Me feature is disabled pending a fix -
+        // we don't want raw markers leaking into the bubble if Hollie ever volunteers them).
         function parseHollieResponse(rawText) {
             const toolMarkers = [];
-            const quizBlocks = [];
-            let quizAttempted = false;
-            const rawTextOriginal = rawText;
 
-            // 1. Pull out [QUIZ]...[/QUIZ] blocks (preferred path)
-            let cleaned = rawText.replace(/\[QUIZ\]([\s\S]*?)\[\/QUIZ\]/g, (m, body) => {
-                quizAttempted = true;
-                const parsed = parseQuizBlock(body);
-                if (parsed) quizBlocks.push(parsed);
-                else console.warn('[Paramind] [QUIZ] block failed to parse. Body was:\n', body);
-                return ''; // strip from text
-            });
+            // Defensive: strip any [QUIZ]...[/QUIZ] blocks if they appear
+            let cleaned = rawText.replace(/\[QUIZ\][\s\S]*?\[\/QUIZ\]/g, '');
 
-            // 2. Pull out tool markers: [TOOL:slug:label]
+            // Pull out tool markers: [TOOL:slug:label]
             cleaned = cleaned.replace(/\[TOOL:([a-zA-Z0-9-]+):([^\]]+)\]/g, (m, slug, label) => {
                 slug = slug.trim();
                 label = label.trim();
@@ -1374,114 +1182,7 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
 
             cleaned = cleaned.replace(/\n{3,}/g, '\n\n').trim();
 
-            // 3. Fallback: no [QUIZ] tags but the response looks like a quiz?
-            if (quizBlocks.length === 0 && !quizAttempted) {
-                if (looksLikeQuiz(cleaned)) {
-                    quizAttempted = true;
-                    const fallback = fallbackParseQuiz(cleaned);
-                    if (fallback.length > 0) {
-                        for (const b of fallback) quizBlocks.push(b);
-                        cleaned = ''; // displaying the parsed cards instead of raw
-                    }
-                }
-            }
-
-            // 4. Recovery: [QUIZ] tags were detected but parsing failed and produced no
-            //    blocks. Restore a sanitised version of the original text (with [QUIZ]
-            //    tags removed) so the user at least sees the questions, even if they're
-            //    not interactive. Quiz Me button stays suppressed via quizAttempted.
-            if (quizAttempted && quizBlocks.length === 0 && cleaned.trim().length === 0) {
-                cleaned = rawTextOriginal
-                    .replace(/\[\/?QUIZ\]/g, '')
-                    .replace(/\[TOOL:[a-zA-Z0-9-]+:[^\]]+\]/g, '')
-                    .replace(/\n{3,}/g, '\n\n')
-                    .trim();
-            }
-
-            return { cleanText: cleaned, toolMarkers, quizBlocks, quizAttempted };
-        }
-
-        // Quick sniff test: does this text plausibly contain a quiz?
-        function looksLikeQuiz(text) {
-            const hasQuestion = /(^|\n)\s*(?:\*\*)?\s*(?:Q\d?|Question\s*\d?)\s*[:.\)]/im.test(text);
-            const hasOptions = /(^|\n)\s*(?:\*\*)?\s*\(?[A-D]\)?[\.:\)]\s+/m.test(text);
-            const hasAnswer = /\b(?:ANSWER|Correct\s*answer|The\s*answer\s*is)\b/i.test(text);
-            return hasQuestion && hasOptions && hasAnswer;
-        }
-
-        // Fallback: split text into question sections and try parsing each
-        function fallbackParseQuiz(text) {
-            // Split on "Q1", "Q2", "Question 1", "Question 2" markers (with optional ** wrapping)
-            const parts = text.split(/(?=(?:^|\n)\s*(?:\*\*)?\s*(?:Q\d|Question\s*\d)\s*[:.\)])/im);
-            const blocks = [];
-            for (const part of parts) {
-                if (part.trim().length < 20) continue;
-                const parsed = parseQuizBlock(part);
-                if (parsed) blocks.push(parsed);
-            }
-            return blocks;
-        }
-
-        // Parse a single quiz block. Tolerant of markdown decoration and label variants.
-        function parseQuizBlock(body) {
-            // Strip code fences if Hollie wrapped the block in ```
-            body = body.replace(/^\s*```[a-zA-Z]*\s*\n?/g, '').replace(/\n?\s*```\s*$/g, '');
-
-            const stripMd = s => s
-                .replace(/^[-*\u2022]\s+/, '')   // leading bullet
-                .replace(/`+/g, '')                  // backticks
-                .replace(/\*+/g, '')                // bold/italic asterisks
-                .replace(/^_+|_+$/g, '')             // wrapping underscores
-                .trim();
-
-            const lines = body.split('\n').map(l => stripMd(l)).filter(l => l.length > 0);
-            const result = { question: '', options: { A: '', B: '', C: '', D: '' }, answer: '', explanation: '' };
-            let inExplanation = false;
-
-            for (const line of lines) {
-                // Question: "Q:", "Q1:", "Q1.", "Q1)", "Question:", "Question 1:", etc.
-                let m = line.match(/^(?:Q\d*|Question\s*\d*)\s*[:.\)]\s*(.+)$/i);
-                if (m && !result.question) {
-                    result.question = m[1].trim();
-                    inExplanation = false;
-                    continue;
-                }
-
-                // Option: "A)", "A.", "A:", "(A)" followed by a space and content
-                m = line.match(/^\(?([A-D])\)?\s*[\.:\)]\s+(.+)$/);
-                if (m) {
-                    result.options[m[1].toUpperCase()] = m[2].trim();
-                    inExplanation = false;
-                    continue;
-                }
-
-                // Answer line: tolerate "ANSWER: B", "Answer is B", "Correct answer: B"
-                if (/^(?:ANSWER|Correct\s*answer|The\s*answer\s*is|Correct)\b/i.test(line)) {
-                    const a = line.match(/\b([A-D])\b/);
-                    if (a) result.answer = a[1].toUpperCase();
-                    inExplanation = false;
-                    continue;
-                }
-
-                // Explanation line: tolerate "EXPLANATION:", "Rationale:", "Why:"
-                m = line.match(/^(?:EXPLANATION|Rationale|Why|Reason)\s*[:.]\s*(.*)$/i);
-                if (m) {
-                    result.explanation = m[1].trim();
-                    inExplanation = true;
-                    continue;
-                }
-
-                // Continuation of explanation (multi-line)
-                if (inExplanation) {
-                    result.explanation += (result.explanation ? ' ' : '') + line;
-                }
-            }
-
-            const optionCount = Object.values(result.options).filter(v => v).length;
-            if (!result.question || optionCount < 2 || !result.answer || !result.options[result.answer]) {
-                return null;
-            }
-            return result;
+            return { cleanText: cleaned, toolMarkers };
         }
 
         // ==================== TOOL CARD RENDERING ====================
@@ -1514,96 +1215,6 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
             messageElement.after(container);
         }
 
-        // ==================== QUIZ CARD RENDERING ====================
-        function renderQuizCards(messageId, quizBlocks) {
-            if (!quizBlocks.length) return;
-            const messageElement = document.getElementById(messageId);
-            if (!messageElement) return;
-
-            // Insert quiz container after the message (or after tool cards if present)
-            let anchor = messageElement;
-            const next = messageElement.nextElementSibling;
-            if (next && next.classList.contains('tool-card-container') && next.dataset.forMessage === messageId) {
-                anchor = next;
-            }
-
-            const container = document.createElement('div');
-            container.className = 'quiz-card-container';
-            container.dataset.forMessage = messageId;
-
-            quizBlocks.forEach((quiz, idx) => {
-                const card = document.createElement('div');
-                card.className = 'quiz-card';
-                card.dataset.correct = quiz.answer;
-                card.dataset.explanation = quiz.explanation;
-
-                const optionLetters = Object.keys(quiz.options).filter(l => quiz.options[l]);
-                // Note: NO inline onclick - we use event delegation on the container below.
-                // This is more reliable on iOS WebView and avoids inline-handler quirks.
-                const optionsHtml = optionLetters.map(letter => `
-                    <button type="button" class="quiz-option" data-letter="${letter}">
-                        <span class="quiz-option-letter">${letter})</span>
-                        <span class="quiz-option-text">${escapeHtml(quiz.options[letter])}</span>
-                        <span class="quiz-option-icon"></span>
-                    </button>
-                `).join('');
-
-                card.innerHTML = `
-                    <span class="quiz-card-header">Question ${idx + 1} of ${quizBlocks.length}</span>
-                    <div class="quiz-question">${escapeHtml(quiz.question)}</div>
-                    <div class="quiz-options">${optionsHtml}</div>
-                    <div class="quiz-explanation" style="display:none;"></div>
-                `;
-                container.appendChild(card);
-            });
-
-            // Event delegation: one listener on the container catches all option clicks.
-            // Works for current and any future option buttons inside this container.
-            container.addEventListener('click', function(e) {
-                const optBtn = e.target.closest('.quiz-option');
-                if (!optBtn || optBtn.disabled) return;
-                if (!container.contains(optBtn)) return;
-                console.log('[Paramind] quiz option clicked:', optBtn.dataset.letter);
-                handleQuizAnswer(optBtn);
-            });
-
-            anchor.after(container);
-        }
-
-        function handleQuizAnswer(btn) {
-            console.log('[Paramind] handleQuizAnswer fired for button:', btn);
-            const card = btn.closest('.quiz-card');
-            if (!card) { console.warn('[Paramind] no parent quiz-card found'); return; }
-            if (card.dataset.answered === 'true') { console.log('[Paramind] already answered, ignoring'); return; }
-            card.dataset.answered = 'true';
-
-            const correct = card.dataset.correct;
-            const chosen = btn.dataset.letter;
-
-            const allOptions = card.querySelectorAll('.quiz-option');
-            allOptions.forEach(opt => {
-                opt.disabled = true;
-                const letter = opt.dataset.letter;
-                const iconSpan = opt.querySelector('.quiz-option-icon');
-                if (letter === correct) {
-                    opt.classList.add('correct');
-                    if (iconSpan) iconSpan.innerHTML = '<i class="bi bi-check-circle-fill"></i>';
-                } else if (letter === chosen) {
-                    opt.classList.add('incorrect');
-                    if (iconSpan) iconSpan.innerHTML = '<i class="bi bi-x-circle-fill"></i>';
-                } else {
-                    opt.classList.add('faded');
-                }
-            });
-
-            const explDiv = card.querySelector('.quiz-explanation');
-            if (explDiv && card.dataset.explanation) {
-                const prefix = chosen === correct ? '<strong>Correct!</strong> ' : `<strong>Not quite.</strong> The answer is ${correct}. `;
-                explDiv.innerHTML = prefix + escapeHtml(card.dataset.explanation);
-                explDiv.style.display = 'block';
-            }
-        }
-
         // Tiny HTML-escape helper for safely injecting Hollie's text into DOM
         function escapeHtml(s) {
             return String(s)
@@ -1614,105 +1225,6 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
                 .replace(/'/g, '&#39;');
         }
 
-        // ==================== QUIZ ME REQUEST ====================
-        async function askHollieToQuizMe() {
-            if (!lastAssistantResponse || chatState.isLoading) return;
-
-            // Remove the action buttons
-            if (lastSimplifyBtnId) {
-                const btn = document.getElementById(lastSimplifyBtnId);
-                if (btn) btn.remove();
-                lastSimplifyBtnId = null;
-            }
-
-            addMessage('user', 'Quiz me on this! 🧠');
-
-            const aiMessageId = 'ai-msg-' + Date.now();
-            addStreamingMessage(aiMessageId);
-
-            chatState.isLoading = true;
-            elements.sendBtn.disabled = true;
-
-            try {
-                const user = auth.currentUser;
-                if (!user) throw new Error('Not authenticated');
-
-                const token = await user.getIdToken();
-
-                const quizSystemPromptAddendum = HOLLIE_SYSTEM_PROMPT + `
-
-QUIZ MODE ACTIVE: The learner has clicked "Quiz me on this". You MUST output ONLY 3 quiz blocks in the [QUIZ]...[/QUIZ] format described above. No greeting, no preamble, no closing remarks, no tool referrals - just the 3 quiz blocks one after another. Test the topic from your most recent explanation.`;
-
-                const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.chatEndpoint}`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message: 'Please write 3 multiple-choice questions on what you just explained, using the [QUIZ]...[/QUIZ] format.',
-                        conversationHistory: chatState.conversationHistory.slice(-6),
-                        systemPrompt: quizSystemPromptAddendum,
-                        scenarioId: null,
-                        scenarioPrompt: null
-                    })
-                });
-
-                if (!response.ok) {
-                    if (response.status === 429) throw new Error('LIMIT_REACHED');
-                    throw new Error('Failed to send message');
-                }
-
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                let fullMessage = '';
-
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-                    const text = decoder.decode(value, { stream: true });
-                    const lines = text.split('\n');
-                    for (const line of lines) {
-                        if (line.startsWith('data: ')) {
-                            try {
-                                const data = JSON.parse(line.slice(6));
-                                if (data.type === 'chunk') {
-                                    fullMessage += data.content;
-                                    updateStreamingMessage(aiMessageId, fullMessage);
-                                } else if (data.type === 'error') {
-                                    throw new Error(data.error);
-                                }
-                            } catch (parseError) { /* skip */ }
-                        }
-                    }
-                }
-
-                // Diagnostic log so any future quiz failures can be analysed.
-                // Tag prefix [Paramind] makes it easy to filter in console.
-                console.log('[Paramind] Quiz Me - Hollie raw response (', fullMessage.length, 'chars):');
-                console.log(fullMessage);
-                const _diagParse = parseHollieResponse(fullMessage);
-                console.log('[Paramind] Parser result: blocks=', _diagParse.quizBlocks.length, 'attempted=', _diagParse.quizAttempted, 'cleanLen=', _diagParse.cleanText.length);
-
-                // Finalize using the same parser - this renders quiz cards interactively
-                finalizeStreamingMessage(aiMessageId, fullMessage);
-
-                // Push a clean text version of the quiz to history (markers stripped)
-                const parsedForHistory = parseHollieResponse(fullMessage);
-                chatState.conversationHistory.push({ role: 'user', content: 'Quiz me on this!' });
-                chatState.conversationHistory.push({ role: 'assistant', content: parsedForHistory.cleanText || '[3 MCQs delivered]' });
-
-                lastAssistantResponse = fullMessage;
-
-            } catch (error) {
-                removeStreamingMessage(aiMessageId);
-                handleChatError(error);
-            } finally {
-                chatState.isLoading = false;
-                elements.sendBtn.disabled = false;
-            }
-        }
-        
         async function askHollieToSimplify() {
             if (!lastAssistantResponse || chatState.isLoading) return;
             
@@ -1851,7 +1363,7 @@ IMPORTANT: The learner just asked you to simplify your previous explanation. You
             lastAssistantResponse = '';
             lastSimplifyBtnId = null;
             
-            const messages = elements.chatMessages.querySelectorAll('.message, .simplify-container, .actions-container, .tool-card-container, .quiz-card-container');
+            const messages = elements.chatMessages.querySelectorAll('.message, .simplify-container, .actions-container, .tool-card-container');
             messages.forEach(msg => msg.remove());
             
             if (elements.welcomeMessage) {
@@ -1867,8 +1379,6 @@ IMPORTANT: The learner just asked you to simplify your previous explanation. You
 
         // Make functions global for onclick handlers
         window.askHollieToSimplify = askHollieToSimplify;
-        window.askHollieToQuizMe = askHollieToQuizMe;
-        window.handleQuizAnswer = handleQuizAnswer;
 
         // ==================== QUICK MESSAGES ====================
         function sendQuickMessage(message) {
