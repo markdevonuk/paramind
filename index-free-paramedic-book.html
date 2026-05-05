@@ -254,5 +254,34 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="js/menu-v2.js"></script>
+<script>
+    // ============================================
+    // EBOOK DOWNLOAD TRACKING (fire-and-forget)
+    // ============================================
+    // Pings the trackEbookDownload Cloud Function when either download
+    // button is clicked. Uses sendBeacon (or keepalive fetch as fallback)
+    // so the request survives the page navigating to the PDF and never
+    // blocks or delays the actual download. Failures are silent — the
+    // counter is a soft metric and must never affect the user's experience.
+    (function () {
+        var ENDPOINT = 'https://europe-west2-paramind-64b8e.cloudfunctions.net/trackEbookDownload';
+        var links = document.querySelectorAll('a[href="ebook/ThinkLikeaParamedic.pdf"]');
+        Array.prototype.forEach.call(links, function (link) {
+            link.addEventListener('click', function () {
+                try {
+                    if (navigator.sendBeacon) {
+                        // Empty Blob with text/plain avoids triggering CORS preflight
+                        navigator.sendBeacon(ENDPOINT, new Blob([''], { type: 'text/plain' }));
+                    } else {
+                        fetch(ENDPOINT, { method: 'POST', keepalive: true, mode: 'no-cors' })
+                            .catch(function () { /* swallow */ });
+                    }
+                } catch (e) {
+                    // Never let tracking interfere with the download
+                }
+            });
+        });
+    })();
+</script>
 </body>
 </html>

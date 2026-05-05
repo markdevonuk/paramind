@@ -3022,3 +3022,63 @@ Use UK spelling and terminology.`;
     }
   }
 );
+
+// ============================================
+// EBOOK DOWNLOAD TRACKING (anonymous)
+// ============================================
+// The Free Paramedic Book download page (index-free-paramedic-book.html)
+// intentionally has no authentication and promises "no email, no sign-up".
+// Direct Firestore writes from the page are therefore not possible
+// (analytics rules require auth). This endpoint provides a server-side
+// atomic increment so we can count downloads without collecting any
+// user data.
+//
+// Writes to analytics/ebookDownloads:
+//   count          — lifetime total (number)
+//   byDay.{date}   — per-day breakdown, UTC, key = YYYY-MM-DD
+//   lastUpdated    — server timestamp
+//
+// This is a soft metric. A determined bot could inflate it; we use a
+// referer allowlist to deflect casual abuse but make no stronger claim.
+// The endpoint always returns 204 — the user's actual PDF download must
+// never depend on this call succeeding.
+exports.trackEbookDownload = onRequest({ cors: true }, async (req, res) => {
+  try {
+    if (req.method !== "POST") {
+      res.status(204).send();
+      return;
+    }
+
+    const referer = req.headers.referer || req.headers.referrer || "";
+    const allowed =
+      referer.startsWith("https://paramind.co.uk/") ||
+      referer.startsWith("https://www.paramind.co.uk/") ||
+      referer.startsWith("http://localhost") ||
+      referer.startsWith("http://127.0.0.1");
+
+    if (!allowed) {
+      res.status(204).send();
+      return;
+    }
+
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD UTC
+
+    await db.collection("analytics").doc("ebookDownloads").set(
+      {
+        count: admin.firestore.FieldValue.increment(1),
+        byDay: {
+          [today]: admin.firestore.FieldValue.increment(1),
+        },
+        lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
+
+    res.status(204).send();
+  } catch (err) {
+    // Swallow errors — the user's download must not be affected by
+    // anything that happens here. Logged for observability only.
+    console.error("trackEbookDownload error:", err);
+    res.status(204).send();
+  }
+});

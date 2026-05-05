@@ -193,6 +193,22 @@
                 </div>
             </div>
 
+            <!-- Free Ebook Download Counts -->
+            <div class="card mt-0 mb-4" id="ebookDownloadsCard">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-book me-2"></i>Free Ebook — Download Counts</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3" style="font-size:0.85rem;">Anonymous click counts for the &ldquo;Think Like a Paramedic&rdquo; PDF download buttons on <code>index-free-paramedic-book.html</code>. Counts clicks, not completed downloads.</p>
+                    <div class="row g-3">
+                        <div class="col-6 col-md-3"><div class="stats-card total text-center"><p class="mb-1" style="font-size:0.8rem;color:#6c757d;">Lifetime Total</p><h3 id="ebookTotal">—</h3></div></div>
+                        <div class="col-6 col-md-3"><div class="stats-card total text-center"><p class="mb-1" style="font-size:0.8rem;color:#6c757d;">Today</p><h3 id="ebookToday">—</h3></div></div>
+                        <div class="col-6 col-md-3"><div class="stats-card total text-center"><p class="mb-1" style="font-size:0.8rem;color:#6c757d;">Last 7 Days</p><h3 id="ebookWeek">—</h3></div></div>
+                        <div class="col-6 col-md-3"><div class="stats-card total text-center"><p class="mb-1" style="font-size:0.8rem;color:#6c757d;">Last 30 Days</p><h3 id="ebookMonth">—</h3></div></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Platform Activity Metrics -->
             <div class="card mt-0 mb-4" id="platformActivityCard">
                 <div class="card-header bg-white">
@@ -602,6 +618,8 @@
                     loadArrestClicks();
                     // Load platform activity metrics
                     loadPlatformActivity();
+                    // Load free ebook download counts
+                    loadEbookDownloads();
                 } else {
                     // Not an admin
                     document.getElementById('loadingScreen').style.display = 'none';
@@ -1130,6 +1148,42 @@
                 document.getElementById('clickTrauma').textContent  = d.trauma  ?? 0;
             } catch(e) {
                 console.warn('Could not load arrest click stats', e);
+            }
+        }
+
+        async function loadEbookDownloads() {
+            try {
+                const snap = await getDoc(doc(db, 'analytics', 'ebookDownloads'));
+                if (!snap.exists()) {
+                    document.getElementById('ebookTotal').textContent = 0;
+                    document.getElementById('ebookToday').textContent = 0;
+                    document.getElementById('ebookWeek').textContent  = 0;
+                    document.getElementById('ebookMonth').textContent = 0;
+                    return;
+                }
+                const d = snap.data();
+                const byDay = d.byDay || {};
+
+                // Build YYYY-MM-DD keys (UTC) to match what the function writes
+                function dayKey(daysAgo) {
+                    const t = new Date();
+                    t.setUTCDate(t.getUTCDate() - daysAgo);
+                    return t.toISOString().split('T')[0];
+                }
+                function sumLastN(n) {
+                    let total = 0;
+                    for (let i = 0; i < n; i++) {
+                        total += byDay[dayKey(i)] || 0;
+                    }
+                    return total;
+                }
+
+                document.getElementById('ebookTotal').textContent = d.count ?? 0;
+                document.getElementById('ebookToday').textContent = byDay[dayKey(0)] || 0;
+                document.getElementById('ebookWeek').textContent  = sumLastN(7);
+                document.getElementById('ebookMonth').textContent = sumLastN(30);
+            } catch(e) {
+                console.warn('Could not load ebook download stats', e);
             }
         }
 
