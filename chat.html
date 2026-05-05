@@ -788,35 +788,8 @@ html {
             z-index: 2;
         }
         @keyframes ambulance-bob {
-            0%   { transform: translateY(0)   rotate(-0.5deg); }
-            100% { transform: translateY(-3px) rotate(0.5deg); }
-        }
-        /* Wheels rotating around their own centre.
-           Each wheel uses nested <g>: outer translates to position, inner rotates.
-           No transform-box needed - the inner <g> has its origin at (0,0) which
-           is also the wheel's visual centre, so rotation Just Works. */
-        .quiz-ambulance-svg .wheel {
-            transform-origin: 0 0;
-            animation: wheel-spin 0.5s linear infinite;
-        }
-        @keyframes wheel-spin {
-            from { transform: rotate(0deg); }
-            to   { transform: rotate(360deg); }
-        }
-        /* Blue light pulse */
-        .quiz-ambulance-svg .light-blue {
-            animation: light-flash-blue 0.6s ease-in-out infinite;
-        }
-        .quiz-ambulance-svg .light-red {
-            animation: light-flash-red 0.6s ease-in-out infinite;
-        }
-        @keyframes light-flash-blue {
-            0%, 49%   { fill: #3b82f6; opacity: 1; }
-            50%, 100% { fill: #1e3a8a; opacity: 0.4; }
-        }
-        @keyframes light-flash-red {
-            0%, 49%   { fill: #1e3a8a; opacity: 0.4; }
-            50%, 100% { fill: #ef4444; opacity: 1; }
+            0%   { transform: translateY(0)   rotate(-0.6deg); }
+            100% { transform: translateY(-4px) rotate(0.6deg); }
         }
         /* Motion lines drifting backward */
         .quiz-ambulance-motion {
@@ -867,9 +840,6 @@ html {
         }
         @media (prefers-reduced-motion: reduce) {
             .quiz-ambulance-svg,
-            .quiz-ambulance-svg .wheel,
-            .quiz-ambulance-svg .light-blue,
-            .quiz-ambulance-svg .light-red,
             .quiz-ambulance-motion span,
             .quiz-ambulance-loader::after {
                 animation: none !important;
@@ -1581,63 +1551,213 @@ Output the JSON object now. No other text.`;
                     <div class="quiz-ambulance-motion">
                         <span></span><span></span><span></span><span></span>
                     </div>
-                    <svg class="quiz-ambulance-svg" viewBox="0 0 240 130" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Subtle ground shadow -->
-                        <ellipse cx="120" cy="115" rx="95" ry="4" fill="rgba(0,0,0,0.08)"/>
-                        <!-- Box body (rear) -->
-                        <rect x="80" y="35" width="110" height="60" rx="3" fill="#ffffff" stroke="#1f2937" stroke-width="2"/>
-                        <!-- Cab (front, rounded top corners) -->
-                        <path d="M 30 95 L 30 55 Q 30 45 40 45 L 65 45 L 80 55 L 80 95 Z" fill="#fde047" stroke="#1f2937" stroke-width="2"/>
-                        <!-- Cab window -->
-                        <path d="M 38 50 L 65 50 L 75 58 L 75 70 L 38 70 Z" fill="#bfdbfe" stroke="#1f2937" stroke-width="1.5"/>
-                        <line x1="56" y1="50" x2="56" y2="70" stroke="#1f2937" stroke-width="1.2"/>
-                        <!-- Cab door handle -->
-                        <rect x="40" y="78" width="10" height="2" rx="1" fill="#1f2937"/>
-                        <!-- Battenburg stripe across full body -->
-                        <rect x="30" y="72" width="160" height="14" fill="#16a34a"/>
-                        <rect x="30"  y="72" width="20" height="14" fill="#fde047"/>
-                        <rect x="70"  y="72" width="20" height="14" fill="#fde047"/>
-                        <rect x="110" y="72" width="20" height="14" fill="#fde047"/>
-                        <rect x="150" y="72" width="20" height="14" fill="#fde047"/>
-                        <rect x="30" y="72" width="160" height="14" fill="none" stroke="#1f2937" stroke-width="1.5"/>
-                        <!-- Red medical cross above the stripe -->
-                        <g transform="translate(135 55)">
-                            <rect x="-3" y="-9" width="6" height="18" fill="#dc2626"/>
-                            <rect x="-9" y="-3" width="18" height="6" fill="#dc2626"/>
-                        </g>
-                        <!-- "999" text -->
-                        <text x="170" y="60" font-family="sans-serif" font-size="11" font-weight="700" fill="#1f2937" text-anchor="middle">999</text>
-                        <!-- Rear door line -->
-                        <line x1="180" y1="37" x2="180" y2="93" stroke="#1f2937" stroke-width="1.5"/>
-                        <line x1="183" y1="37" x2="183" y2="93" stroke="#1f2937" stroke-width="1"/>
-                        <!-- Light bar -->
-                        <rect x="80" y="27" width="80" height="10" rx="2" fill="#374151"/>
-                        <rect class="light-blue" x="86" y="24" width="32" height="6" rx="1.5" fill="#3b82f6"/>
-                        <rect class="light-red"  x="124" y="24" width="32" height="6" rx="1.5" fill="#ef4444"/>
-                        <!-- Headlight -->
-                        <rect x="32" y="80" width="5" height="6" rx="1" fill="#fef9c3" stroke="#1f2937" stroke-width="0.8"/>
-                        <!-- Front bumper -->
-                        <rect x="30" y="91" width="160" height="5" rx="1" fill="#6b7280"/>
-                        <!-- Wheels: outer <g> positions, inner <g class="wheel"> rotates around its own centre -->
-                        <g transform="translate(60 100)">
-                            <g class="wheel">
-                                <circle r="10" fill="#1f2937"/>
-                                <circle r="4.5" fill="#9ca3af"/>
-                                <circle r="1.5" fill="#1f2937"/>
-                                <rect x="-0.7" y="-9" width="1.4" height="18" fill="#4b5563"/>
-                                <rect x="-9" y="-0.7" width="18" height="1.4" fill="#4b5563"/>
-                            </g>
-                        </g>
-                        <g transform="translate(160 100)">
-                            <g class="wheel">
-                                <circle r="10" fill="#1f2937"/>
-                                <circle r="4.5" fill="#9ca3af"/>
-                                <circle r="1.5" fill="#1f2937"/>
-                                <rect x="-0.7" y="-9" width="1.4" height="18" fill="#4b5563"/>
-                                <rect x="-9" y="-0.7" width="18" height="1.4" fill="#4b5563"/>
-                            </g>
-                        </g>
-                    </svg>
+                    <svg class="quiz-ambulance-svg" viewBox="0 0 612.53391 330.86614" xmlns="http://www.w3.org/2000/svg">
+                         <g
+                         transform="translate(-101.3277,-131.21485)">
+                         <rect
+                         style="fill:#fdff53;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+                         width="373.73605"
+                         height="234.28572"
+                         x="136.8354"
+                         y="166.64792" />
+                         <path
+                         style="fill:#fdff53;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+                         d="m 512.5,400.21935 0.32605,-173.57143 c 10.10759,0 69.77498,17.5 74.33969,24.28571 7.49919,5 27.38831,58.57143 27.38831,58.57143 0,0 53.35656,8.33683 58.89943,16.55112 3.91261,7.85714 6.00398,68.44888 0.46111,74.16317 -3.26052,1.42857 -161.41459,0 -161.41459,0 z" />
+                         <path
+                         style="fill:#4d4d4d;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+                         d="m 611.31387,340.25893 -6.45645,60.51255 c 34.45084,0.15632 67.9874,0.13223 69.39453,-0.55273 4.98908,-5.71429 3.10602,-66.30497 -0.41568,-74.16211 -4.98908,-8.21429 -53.01448,-16.55078 -53.01448,-16.55078 0,0 -2.0209,48.20493 -9.50792,30.75307 z" />
+                         <path
+                         style="fill:#008000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+                         d="m 513.05078,294.36133 0,64.87109 163.4961,-0.35714 c -0.48558,-15.21024 -0.63201,-29.25696 -2.41262,-32.81864 -5.56476,-8.21429 -58.47704,-22.26507 -58.47704,-22.26507 0,0 -3.11763,-0.85409 -6.54781,-9.43024 z" />
+                         <rect
+                         y="326.78479"
+                         x="416.98627"
+                         height="32.577419"
+                         width="70.401863"
+                         style="fill:#e0fe00;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+                         <rect
+                         style="fill:#e0fe00;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+                         width="44.895512"
+                         height="32.577419"
+                         x="512.92676"
+                         y="294.28479" />
+                         <rect
+                         y="326.78479"
+                         x="557.52277"
+                         height="32.577419"
+                         width="70.401863"
+                         style="fill:#e0fe00;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+                         <path
+                         style="fill:#e0fe00;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+                         d="m 626.97516,307.16043 0.54405,19.7009 46.81953,0 c -0.0901,-0.26647 -0.18118,-0.50821 -0.27373,-0.70277 -3.97034,-6.15932 -37.72896,-17.35684 -47.08985,-18.99813 z" />
+                         <ellipse
+                         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+                         cx="262.9079"
+                         cy="392.53552"
+                         rx="34.234951"
+                         ry="34.1124" />
+                         <rect
+                         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+                         width="122.85715"
+                         height="42.142857"
+                         x="239.14285"
+                         y="220.64792"
+                         ry="7.0359936" />
+                         <path
+                         style="fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+                         d="m 532.14286,304.50506 c 8.57143,5.35715 77.85714,4.28571 77.85714,4.28571 0,0 -12.85713,-34.99999 -23.57142,-48.21428 -7.83731,-4.03047 -44.22053,-15 -52.14287,-9.64286 -1.82562,8.7067 -3.19616,38.82506 -2.14285,53.57143 z" />
+                         <text
+                         xml:space="preserve"
+                         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.5px;line-height:125%;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+                         x="229.20311"
+                         y="207.87468"><tspan
+                         x="229.20311"
+                         y="207.87468">Emergency Ambulance</tspan></text>
+                         <g
+                         transform="matrix(1.0019165,0,0,1,-0.97818553,12)">
+                         <rect
+                         y="282.36221"
+                         x="137.8"
+                         height="64.870018"
+                         width="372.60834"
+                         style="fill:#008000;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+                         <rect
+                         y="314.78479"
+                         x="137.70053"
+                         height="32.577419"
+                         width="70.267197"
+                         style="fill:#e0fe00;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+                         <rect
+                         style="fill:#e0fe00;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+                         width="70.267197"
+                         height="32.577419"
+                         x="208"
+                         y="282.28479" />
+                         <rect
+                         y="314.78479"
+                         x="277.96823"
+                         height="32.577419"
+                         width="70.267197"
+                         style="fill:#e0fe00;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+                         <rect
+                         style="fill:#e0fe00;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+                         width="70.267197"
+                         height="32.577419"
+                         x="348"
+                         y="282.28479" />
+                         <rect
+                         y="314.78479"
+                         x="417.66925"
+                         height="32.577419"
+                         width="70.267197"
+                         style="fill:#e0fe00;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+                         <rect
+                         y="282.28479"
+                         x="488"
+                         height="32.577419"
+                         width="22.401081"
+                         style="fill:#e0fe00;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+                         </g>
+                         <path
+                         style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:5.02949524;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                         d="m 136.766,359.82099 373.33818,0.7764" />
+                         <rect
+                         style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+                         width="57.578693"
+                         height="157.07872"
+                         x="439.41635"
+                         y="233.12849" />
+                         <path
+                         style="fill:#a8a93b;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+                         d="m 531.42857,319.50506 c 10e-4,3.69032 -0.002,8.45381 0,12.14286 8.29665,-0.23857 17.86482,-1.26461 17.58225,-5.53893 -0.44407,-6.6601 -13.44131,-6.36533 -17.58225,-6.60393 z" />
+                         <path
+                         style="fill:none;fill-rule:evenodd;stroke:#393939;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                         d="m 527.29963,325.55745 25.75889,0.50508" />
+                         <path
+                         d="m 606.2565,298.93965 c -1.27429,3.05012 -2.92132,6.98482 -4.19466,10.03446 4.28813,4.47496 9.49286,9.01523 10.82615,5.32395 2.07558,-5.75376 -4.61479,-12.82934 -6.63149,-15.35841 z"
+                         style="fill:#484537;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+                         <path
+                         style="fill:#fdff53;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+                         d="m 513.66256,176.55995 -0.50506,46.21447 c 0,0 71.46829,20.20306 77.78174,21.21321 0,0 -19.69798,-36.61803 -33.33504,-44.19417 0,0 -31.81981,-23.23351 -43.94164,-23.23351 z" />
+                         <ellipse
+                         ry="34.1124"
+                         rx="34.234951"
+                         cy="392.53552"
+                         cx="606.9079"
+                         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+                         <rect
+                         style="fill:#999999;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+                         width="27.142857"
+                         height="11.428572"
+                         x="143.42857"
+                         y="172.50507"
+                         ry="4.2857141" />
+                         <rect
+                         ry="4.2857141"
+                         y="172.50507"
+                         x="473.42859"
+                         height="11.428572"
+                         width="27.142857"
+                         style="fill:#999999;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+                         <ellipse
+                         ry="16.315855"
+                         rx="16.374472"
+                         cy="392.53552"
+                         cx="262.9079"
+                         style="fill:#666666;fill-opacity:1;stroke:#c7c7c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+                         <rect
+                         style="fill:#4d4d4d;fill-opacity:1;stroke:#4d4d4d;stroke-width:0.91917729;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+                         width="163.65227"
+                         height="14.545109"
+                         x="513.35242"
+                         y="350.00037" />
+                         <rect
+                         ry="3.5714154"
+                         y="298.93365"
+                         x="445.57144"
+                         height="17.142857"
+                         width="27.142857"
+                         style="fill:#1a1a1a;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+                         <rect
+                         style="fill:#008000;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+                         width="12.5"
+                         height="12.5"
+                         x="142.69341"
+                         y="506.75952"
+                         ry="0"
+                         transform="matrix(0.70710678,-0.70710678,0.70710678,0.70710678,0,0)" />
+                         <rect
+                         style="fill:#4d4d4d;fill-opacity:1;stroke:#c6c6c6;stroke-width:0.85712862;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+                         width="163.71431"
+                         height="12.642872"
+                         x="513.32141"
+                         y="351.93362" />
+                         <rect
+                         y="350.12656"
+                         x="513.33575"
+                         height="13.506998"
+                         width="163.68558"
+                         style="fill:#4d4d4d;fill-opacity:1;stroke:#4d4d4d;stroke-width:0.88585871;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+                         <ellipse
+                         style="fill:#cccccc;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+                         cx="671.28571"
+                         cy="342.36221"
+                         rx="7.1428571"
+                         ry="12.857142" />
+                         <ellipse
+                         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+                         cx="606.9079"
+                         cy="392.53552"
+                         rx="34.234951"
+                         ry="34.1124" />
+                         <ellipse
+                         style="fill:#808080;fill-opacity:1;stroke:#c7c7c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+                         cx="606.9079"
+                         cy="392.53552"
+                         rx="16.374472"
+                         ry="16.315855" />
+                         </g>
+                        </svg>
                     <div class="quiz-ambulance-status" id="${statusId}">🚑 Hollie is on her way&hellip;</div>
                     <div class="quiz-ambulance-substatus">Building your 3-question quiz</div>
                 </div>
