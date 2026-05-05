@@ -118,15 +118,26 @@ exports.chat = onRequest(
       const uid = await verifyAuth(req);
       const user = await getUser(uid);
 
-      // Get message, conversation history, and scenario prompt from request
-      const { message, conversationHistory = [], scenarioPrompt } = req.body;
+      // Get message, conversation history, scenario prompt, and addendum from request
+      const { message, conversationHistory = [], scenarioPrompt, systemPromptAddendum } = req.body;
 
       if (!message || typeof message !== "string") {
         return res.status(400).json({ error: "Message is required" });
       }
 
-      // Use scenario prompt if provided, otherwise use default trust prompt
-      const systemPrompt = scenarioPrompt || buildSystemPrompt(user.trust, user.trustFullName);
+      // Build the system prompt:
+      // - If scenarioPrompt is provided, it REPLACES the entire system prompt (used by scenarios)
+      // - Otherwise we use the trust-based safety prompt, optionally appending an addendum
+      //   from the client (used by chat.html to add Hollie's personality + tool referral rules)
+      let systemPrompt;
+      if (scenarioPrompt) {
+        systemPrompt = scenarioPrompt;
+      } else {
+        systemPrompt = buildSystemPrompt(user.trust, user.trustFullName);
+        if (systemPromptAddendum && typeof systemPromptAddendum === "string" && systemPromptAddendum.trim().length > 0) {
+          systemPrompt = systemPrompt + "\n\n" + systemPromptAddendum.trim();
+        }
+      }
 
       // Build messages array for OpenAI
       const validHistory = conversationHistory
