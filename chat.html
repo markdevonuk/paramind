@@ -544,6 +544,207 @@ html {
     
 
 }
+
+        /* ==================== TOOL REFERRAL CARDS ==================== */
+        .tool-card-container {
+            padding-left: 52px; /* align with message content */
+            padding-right: 12px;
+            margin-top: -0.25rem;
+            margin-bottom: 0.75rem;
+        }
+        .tool-card {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-left: 4px solid #2B8A9C;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.15s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+        }
+        .tool-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(43, 138, 156, 0.18);
+            border-color: #2B8A9C;
+        }
+        .tool-card-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: rgba(43, 138, 156, 0.1);
+            border-radius: 8px;
+            color: #2B8A9C;
+            font-size: 1.15rem;
+            flex-shrink: 0;
+        }
+        .tool-card-body {
+            flex: 1;
+            min-width: 0;
+        }
+        .tool-card-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #111827;
+            line-height: 1.2;
+        }
+        .tool-card-hook {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 2px;
+            line-height: 1.3;
+        }
+        .tool-card-cta {
+            color: #2B8A9C;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        /* ==================== QUIZ CARDS ==================== */
+        .quiz-card-container {
+            padding-left: 52px;
+            padding-right: 12px;
+            margin-bottom: 0.75rem;
+        }
+        .quiz-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+        }
+        .quiz-card-header {
+            display: inline-block;
+            background: #5BC166;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 999px;
+            margin-bottom: 0.5rem;
+        }
+        .quiz-question {
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .quiz-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 0.6rem 0.85rem;
+            text-align: left;
+            font-size: 0.9rem;
+            color: #111827;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: inherit;
+            line-height: 1.35;
+        }
+        .quiz-option:hover:not(:disabled) {
+            border-color: #2B8A9C;
+            background: #f0fafc;
+        }
+        .quiz-option-letter {
+            font-weight: 700;
+            color: #6b7280;
+            flex-shrink: 0;
+        }
+        .quiz-option:disabled {
+            cursor: default;
+        }
+        .quiz-option.correct {
+            background: #f0fdf4;
+            border-color: #5BC166;
+            color: #166534;
+        }
+        .quiz-option.correct .quiz-option-letter {
+            color: #16a34a;
+        }
+        .quiz-option.incorrect {
+            background: #fef2f2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+        .quiz-option.incorrect .quiz-option-letter {
+            color: #dc2626;
+        }
+        .quiz-option.faded {
+            opacity: 0.45;
+        }
+        .quiz-option-icon {
+            margin-left: auto;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .quiz-explanation {
+            margin-top: 0.75rem;
+            padding: 0.6rem 0.85rem;
+            background: #f9fafb;
+            border-left: 3px solid #2B8A9C;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #374151;
+            line-height: 1.45;
+        }
+
+        /* ==================== ACTION BUTTONS (Simplify + Quiz Me) ==================== */
+        .actions-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: flex-start;
+            padding-left: 52px;
+            margin-top: -0.25rem;
+            margin-bottom: 0.5rem;
+        }
+        .quiz-me-btn {
+            background: linear-gradient(135deg, #5BC166 0%, #16a34a 100%);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-full);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-family: inherit;
+        }
+        .quiz-me-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(91, 193, 102, 0.4);
+        }
+        .quiz-me-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .quiz-me-btn i {
+            font-size: 1rem;
+        }
+
     </style>
 </head>
 
@@ -710,7 +911,67 @@ Important rules:
 - Keep responses helpful but not overly long - be concise where possible
 - Use markdown formatting for lists and emphasis when it helps clarity
 
+==================== TOOL REFERRALS ====================
+Paramind has other learning tools alongside this chat. When a topic you've just explained naturally fits one of these tools, you may suggest it at the very end of your response by emitting a marker on its own line. The app will turn the marker into a styled card the learner can tap.
+
+The marker format is exactly: [TOOL:slug:one-line hook]
+- The hook is a short, friendly invitation (max ~10 words). Examples: "Try a sepsis scenario", "Practise interpreting a STEMI", "Test yourself on the long bones".
+- Use at most ONE marker per response.
+- Place it on its own line at the end, after a brief sentence like "Want to put this into practice?"
+- Only suggest a tool when it genuinely fits the topic. Do not shoehorn. If nothing fits, don't suggest anything.
+- NEVER invent slugs - only the ones in this list are valid. Anything else will be silently dropped.
+- NEVER use a tool referral to give treatment advice or drug calculations.
+
+Available tools and when to suggest them:
+- scenarios -- when a topic could be practised through a full patient encounter (e.g. chest pain, stroke, sepsis, breathlessness)
+- arrest -- when discussing cardiac arrest, ROSC, ALS algorithm, rhythms in arrest, post-arrest care
+- connections -- when explaining how anatomy or physiology underpins a clinical presentation
+- differentials -- when the topic involves narrowing down causes from signs and symptoms
+- ecg -- when discussing rhythms, ECG interpretation, axis, blocks, infarct patterns
+- interview -- when the topic comes up that's commonly asked at paramedic interviews (rarely - only if the learner mentions interviews or the topic is a classic interview question)
+- drugs -- ONLY for understanding patient medications they may already be taking (e.g. why a patient is on bisoprolol, what apixaban does). NEVER for paramedic-administered drug doses or treatment.
+- bone-lab -- when discussing bones, fractures, or musculoskeletal anatomy
+- atmist -- when the conversation touches on handover, structured communication, or trauma calls
+- readiness -- only if the learner is asking about general revision or testing where they stand
+
+==================== QUIZ MODE ====================
+If the learner clicks the "Quiz me on this" button, the app will send you a quiz request. When that happens, output ONLY the structured quiz format below - no preamble, no markdown headings, no tool referrals, no closing remarks. Exactly 3 questions.
+
+Each question must use this exact format, surrounded by [QUIZ] and [/QUIZ] markers:
+
+[QUIZ]
+Q: <question text>
+A) <option 1>
+B) <option 2>
+C) <option 3>
+D) <option 4>
+ANSWER: <single letter A, B, C, or D>
+EXPLANATION: <one sentence explaining why the answer is correct>
+[/QUIZ]
+
+Quiz content rules:
+- Questions must be on the topic just discussed
+- Test understanding of A&P, pathophysiology, recognition, presentation patterns - NOT drug doses or drug calculations or treatment management
+- Make distractors plausible but clearly wrong on close reading
+- Keep explanations to ONE sentence
+
 Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable! 🚑`;
+
+        // ==================== TOOLS REGISTRY ====================
+        // Maps Hollie's tool slugs to display info. Markers pointing to slugs not in this
+        // registry are silently dropped (so Hollie can never link to anything we don't control).
+        const TOOLS_REGISTRY = {
+            'scenarios':    { name: 'Patient Scenarios',       icon: 'bi-clipboard2-pulse', url: 'scenarios.html' },
+            'arrest':       { name: 'Cardiac Arrest Simulator', icon: 'bi-heart-pulse',     url: 'arrest-scenarios.html' },
+            'connections':  { name: 'A&P Connections',         icon: 'bi-diagram-3',        url: 'connections.html' },
+            'differentials':{ name: 'Differentials',           icon: 'bi-list-check',       url: 'differentials.html' },
+            'ecg':          { name: 'Interactive ECG',         icon: 'bi-activity',         url: 'ecg.html' },
+            'interview':    { name: 'Interview Simulator',     icon: 'bi-mic',              url: 'interview.html' },
+            'drugs':        { name: 'Patient Medications',     icon: 'bi-capsule',          url: 'drugs.html' },
+            'bone-lab':     { name: 'Bone Lab',                icon: 'bi-bricks',           url: 'bone-lab.html' },
+            'atmist':       { name: 'ATMIST Handover',         icon: 'bi-megaphone',        url: 'atmist.html' },
+            'readiness':    { name: 'Readiness Score',         icon: 'bi-speedometer2',     url: 'readiness.html' }
+        };
 
         // ==================== STATE ====================
         const chatState = {
@@ -824,7 +1085,9 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
                 });
                 
                 finalizeStreamingMessage(aiMessageId, response);
-                chatState.conversationHistory.push({ role: 'assistant', content: response });
+                // Store clean text (markers stripped) so Hollie doesn't see her own past markers next turn
+                const parsedForHistory = parseHollieResponse(response);
+                chatState.conversationHistory.push({ role: 'assistant', content: parsedForHistory.cleanText });
             } catch (error) {
                 removeStreamingMessage(aiMessageId);
                 handleChatError(error);
@@ -977,50 +1240,352 @@ Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable
         function finalizeStreamingMessage(messageId, content) {
             const messageDiv = document.getElementById(messageId);
             if (messageDiv) {
+                // Parse out [TOOL:...] markers and [QUIZ]...[/QUIZ] blocks
+                const parsed = parseHollieResponse(content);
+
                 const contentDiv = messageDiv.querySelector('.message-content');
                 if (contentDiv) {
-                    contentDiv.innerHTML = formatMessage(content);
+                    contentDiv.innerHTML = formatMessage(parsed.cleanText);
                 }
-                
+
+                // Render tool referral cards (stay attached to this message)
+                renderToolCards(messageId, parsed.toolMarkers);
+
+                // Render interactive quiz cards (stay attached to this message)
+                renderQuizCards(messageId, parsed.quizBlocks);
+
                 // Scroll to top of Hollie's message so user can read from the start
                 const containerRect = elements.chatMessages.getBoundingClientRect();
                 const msgRect = messageDiv.getBoundingClientRect();
                 const targetScroll = msgRect.top - containerRect.top + elements.chatMessages.scrollTop - 40;
                 elements.chatMessages.scrollTo({ top: targetScroll, behavior: 'smooth' });
-                
-                // Always add simplify button after Hollie's response
-                addSimplifyButton(messageId, content);
+
+                // Add action buttons (Simplify + Quiz Me) - suppress Quiz Me on quiz responses
+                addActionButtons(messageId, parsed.cleanText, parsed.quizBlocks.length === 0);
             }
             userHasScrolledUp = false;
         }
         
-        function addSimplifyButton(messageId, content) {
+        function addActionButtons(messageId, content, includeQuizMe) {
             // Store the response for potential simplification
             lastAssistantResponse = content;
-            
-            // Remove any existing simplify button
+
+            // Remove any existing action buttons (only latest message has them)
             if (lastSimplifyBtnId) {
                 const oldBtn = document.getElementById(lastSimplifyBtnId);
                 if (oldBtn) oldBtn.remove();
             }
-            
-            // Create simplify button container
-            const simplifyContainer = document.createElement('div');
-            simplifyContainer.className = 'simplify-container';
-            simplifyContainer.id = 'simplify-' + messageId;
-            lastSimplifyBtnId = simplifyContainer.id;
-            
-            simplifyContainer.innerHTML = `
+
+            // Create unified actions container
+            const actionsContainer = document.createElement('div');
+            actionsContainer.className = 'actions-container';
+            actionsContainer.id = 'actions-' + messageId;
+            lastSimplifyBtnId = actionsContainer.id;
+
+            const quizBtnHtml = includeQuizMe ? `
+                <button class="quiz-me-btn" onclick="askHollieToQuizMe()">
+                    <i class="bi bi-lightbulb"></i>
+                    Quiz me on this
+                </button>
+            ` : '';
+
+            actionsContainer.innerHTML = `
                 <button class="simplify-btn" onclick="askHollieToSimplify()">
                     <i class="bi bi-emoji-smile"></i>
                     Make it simpler, Hollie!
                 </button>
+                ${quizBtnHtml}
             `;
-            
-            // Insert after the message
+
+            // Find the LAST element belonging to this message (could be a tool/quiz card)
+            // and insert actions after it. Otherwise insert after the message itself.
+            let anchor = document.getElementById(messageId);
+            if (anchor) {
+                let next = anchor.nextElementSibling;
+                while (next && (next.classList.contains('tool-card-container') || next.classList.contains('quiz-card-container')) && next.dataset.forMessage === messageId) {
+                    anchor = next;
+                    next = next.nextElementSibling;
+                }
+                anchor.after(actionsContainer);
+            }
+        }
+
+        // Backwards-compat alias - some older code paths still call addSimplifyButton
+        function addSimplifyButton(messageId, content) {
+            addActionButtons(messageId, content, false);
+        }
+
+        // ==================== HOLLIE RESPONSE PARSING ====================
+        // Extracts [TOOL:slug:label] markers and [QUIZ]...[/QUIZ] blocks from Hollie's text.
+        // Returns: { cleanText, toolMarkers: [{slug,label}], quizBlocks: [{question,options,answer,explanation}] }
+        function parseHollieResponse(rawText) {
+            const toolMarkers = [];
+            const quizBlocks = [];
+
+            // 1. Pull out quiz blocks first (they may contain colons that confuse tool regex)
+            let cleaned = rawText.replace(/\[QUIZ\]([\s\S]*?)\[\/QUIZ\]/g, (m, body) => {
+                const parsed = parseQuizBlock(body);
+                if (parsed) quizBlocks.push(parsed);
+                return ''; // strip from text
+            });
+
+            // 2. Pull out tool markers: [TOOL:slug:label]
+            // Slug is alphanumeric/hyphen; label is anything up to the closing bracket.
+            cleaned = cleaned.replace(/\[TOOL:([a-zA-Z0-9-]+):([^\]]+)\]/g, (m, slug, label) => {
+                slug = slug.trim();
+                label = label.trim();
+                if (TOOLS_REGISTRY[slug]) {
+                    toolMarkers.push({ slug, label });
+                }
+                return ''; // strip from text whether registered or not
+            });
+
+            // 3. Tidy up: collapse 3+ newlines and trim trailing whitespace
+            cleaned = cleaned.replace(/\n{3,}/g, '\n\n').trim();
+
+            return { cleanText: cleaned, toolMarkers, quizBlocks };
+        }
+
+        function parseQuizBlock(body) {
+            const lines = body.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            const result = { question: '', options: { A: '', B: '', C: '', D: '' }, answer: '', explanation: '' };
+            let inExplanation = false;
+
+            for (const line of lines) {
+                if (/^Q:\s*/i.test(line)) {
+                    result.question = line.replace(/^Q:\s*/i, '').trim();
+                    inExplanation = false;
+                } else if (/^([A-D])\)\s*/.test(line)) {
+                    const m = line.match(/^([A-D])\)\s*(.+)$/);
+                    if (m) result.options[m[1].toUpperCase()] = m[2].trim();
+                    inExplanation = false;
+                } else if (/^ANSWER:\s*/i.test(line)) {
+                    const ans = line.replace(/^ANSWER:\s*/i, '').trim().toUpperCase().charAt(0);
+                    if (['A','B','C','D'].includes(ans)) result.answer = ans;
+                    inExplanation = false;
+                } else if (/^EXPLANATION:\s*/i.test(line)) {
+                    result.explanation = line.replace(/^EXPLANATION:\s*/i, '').trim();
+                    inExplanation = true;
+                } else if (inExplanation) {
+                    result.explanation += ' ' + line;
+                }
+            }
+
+            // Validate - need a question, at least 2 options, and a valid answer pointing to a non-empty option
+            const optionCount = Object.values(result.options).filter(v => v).length;
+            if (!result.question || optionCount < 2 || !result.answer || !result.options[result.answer]) {
+                return null;
+            }
+            return result;
+        }
+
+        // ==================== TOOL CARD RENDERING ====================
+        function renderToolCards(messageId, toolMarkers) {
+            if (!toolMarkers.length) return;
             const messageElement = document.getElementById(messageId);
-            if (messageElement) {
-                messageElement.after(simplifyContainer);
+            if (!messageElement) return;
+
+            const container = document.createElement('div');
+            container.className = 'tool-card-container';
+            container.dataset.forMessage = messageId;
+
+            for (const marker of toolMarkers) {
+                const tool = TOOLS_REGISTRY[marker.slug];
+                if (!tool) continue;
+                const card = document.createElement('a');
+                card.className = 'tool-card';
+                card.href = tool.url;
+                card.innerHTML = `
+                    <div class="tool-card-icon"><i class="bi ${escapeHtml(tool.icon)}"></i></div>
+                    <div class="tool-card-body">
+                        <div class="tool-card-name">${escapeHtml(tool.name)}</div>
+                        <div class="tool-card-hook">${escapeHtml(marker.label)}</div>
+                    </div>
+                    <div class="tool-card-cta">Open <i class="bi bi-arrow-right"></i></div>
+                `;
+                container.appendChild(card);
+            }
+
+            messageElement.after(container);
+        }
+
+        // ==================== QUIZ CARD RENDERING ====================
+        function renderQuizCards(messageId, quizBlocks) {
+            if (!quizBlocks.length) return;
+            const messageElement = document.getElementById(messageId);
+            if (!messageElement) return;
+
+            // Insert quiz container after the message (or after tool cards if present)
+            let anchor = messageElement;
+            const next = messageElement.nextElementSibling;
+            if (next && next.classList.contains('tool-card-container') && next.dataset.forMessage === messageId) {
+                anchor = next;
+            }
+
+            const container = document.createElement('div');
+            container.className = 'quiz-card-container';
+            container.dataset.forMessage = messageId;
+
+            quizBlocks.forEach((quiz, idx) => {
+                const card = document.createElement('div');
+                card.className = 'quiz-card';
+                card.dataset.correct = quiz.answer;
+                card.dataset.explanation = quiz.explanation;
+
+                const optionLetters = Object.keys(quiz.options).filter(l => quiz.options[l]);
+                const optionsHtml = optionLetters.map(letter => `
+                    <button type="button" class="quiz-option" data-letter="${letter}" onclick="handleQuizAnswer(this)">
+                        <span class="quiz-option-letter">${letter})</span>
+                        <span class="quiz-option-text">${escapeHtml(quiz.options[letter])}</span>
+                        <span class="quiz-option-icon"></span>
+                    </button>
+                `).join('');
+
+                card.innerHTML = `
+                    <span class="quiz-card-header">Question ${idx + 1} of ${quizBlocks.length}</span>
+                    <div class="quiz-question">${escapeHtml(quiz.question)}</div>
+                    <div class="quiz-options">${optionsHtml}</div>
+                    <div class="quiz-explanation" style="display:none;"></div>
+                `;
+                container.appendChild(card);
+            });
+
+            anchor.after(container);
+        }
+
+        function handleQuizAnswer(btn) {
+            const card = btn.closest('.quiz-card');
+            if (!card) return;
+            // If already answered, ignore
+            if (card.dataset.answered === 'true') return;
+            card.dataset.answered = 'true';
+
+            const correct = card.dataset.correct;
+            const chosen = btn.dataset.letter;
+
+            const allOptions = card.querySelectorAll('.quiz-option');
+            allOptions.forEach(opt => {
+                opt.disabled = true;
+                const letter = opt.dataset.letter;
+                const iconSpan = opt.querySelector('.quiz-option-icon');
+                if (letter === correct) {
+                    opt.classList.add('correct');
+                    if (iconSpan) iconSpan.innerHTML = '<i class="bi bi-check-circle-fill"></i>';
+                } else if (letter === chosen) {
+                    opt.classList.add('incorrect');
+                    if (iconSpan) iconSpan.innerHTML = '<i class="bi bi-x-circle-fill"></i>';
+                } else {
+                    opt.classList.add('faded');
+                }
+            });
+
+            const explDiv = card.querySelector('.quiz-explanation');
+            if (explDiv && card.dataset.explanation) {
+                const prefix = chosen === correct ? '<strong>Correct!</strong> ' : `<strong>Not quite.</strong> The answer is ${correct}. `;
+                explDiv.innerHTML = prefix + escapeHtml(card.dataset.explanation);
+                explDiv.style.display = 'block';
+            }
+        }
+
+        // Tiny HTML-escape helper for safely injecting Hollie's text into DOM
+        function escapeHtml(s) {
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        // ==================== QUIZ ME REQUEST ====================
+        async function askHollieToQuizMe() {
+            if (!lastAssistantResponse || chatState.isLoading) return;
+
+            // Remove the action buttons
+            if (lastSimplifyBtnId) {
+                const btn = document.getElementById(lastSimplifyBtnId);
+                if (btn) btn.remove();
+                lastSimplifyBtnId = null;
+            }
+
+            addMessage('user', 'Quiz me on this! 🧠');
+
+            const aiMessageId = 'ai-msg-' + Date.now();
+            addStreamingMessage(aiMessageId);
+
+            chatState.isLoading = true;
+            elements.sendBtn.disabled = true;
+
+            try {
+                const user = auth.currentUser;
+                if (!user) throw new Error('Not authenticated');
+
+                const token = await user.getIdToken();
+
+                const quizSystemPromptAddendum = HOLLIE_SYSTEM_PROMPT + `
+
+QUIZ MODE ACTIVE: The learner has clicked "Quiz me on this". You MUST output ONLY 3 quiz blocks in the [QUIZ]...[/QUIZ] format described above. No greeting, no preamble, no closing remarks, no tool referrals - just the 3 quiz blocks one after another. Test the topic from your most recent explanation.`;
+
+                const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.chatEndpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Please write 3 multiple-choice questions on what you just explained, using the [QUIZ]...[/QUIZ] format.',
+                        conversationHistory: chatState.conversationHistory.slice(-6),
+                        systemPrompt: quizSystemPromptAddendum,
+                        scenarioId: null,
+                        scenarioPrompt: null
+                    })
+                });
+
+                if (!response.ok) {
+                    if (response.status === 429) throw new Error('LIMIT_REACHED');
+                    throw new Error('Failed to send message');
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullMessage = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    const text = decoder.decode(value, { stream: true });
+                    const lines = text.split('\n');
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                if (data.type === 'chunk') {
+                                    fullMessage += data.content;
+                                    updateStreamingMessage(aiMessageId, fullMessage);
+                                } else if (data.type === 'error') {
+                                    throw new Error(data.error);
+                                }
+                            } catch (parseError) { /* skip */ }
+                        }
+                    }
+                }
+
+                // Finalize using the same parser - this renders quiz cards interactively
+                finalizeStreamingMessage(aiMessageId, fullMessage);
+
+                // Push a clean text version of the quiz to history (markers stripped)
+                const parsedForHistory = parseHollieResponse(fullMessage);
+                chatState.conversationHistory.push({ role: 'user', content: 'Quiz me on this!' });
+                chatState.conversationHistory.push({ role: 'assistant', content: parsedForHistory.cleanText || '[3 MCQs delivered]' });
+
+                lastAssistantResponse = fullMessage;
+
+            } catch (error) {
+                removeStreamingMessage(aiMessageId);
+                handleChatError(error);
+            } finally {
+                chatState.isLoading = false;
+                elements.sendBtn.disabled = false;
             }
         }
         
@@ -1119,13 +1684,14 @@ IMPORTANT: The learner just asked you to simplify your previous explanation. You
                     }
                 }
                 
-                // Add simplify button to this response too (so user can simplify again)
-                addSimplifyButton(aiMessageId, fullMessage);
-                
-                // Update conversation history
+                // Re-run finalize so any markers get parsed (rare on simplify, but safe)
+                finalizeStreamingMessage(aiMessageId, fullMessage);
+
+                // Update conversation history with clean text (markers stripped)
+                const parsedForHistory = parseHollieResponse(fullMessage);
                 chatState.conversationHistory.push({ role: 'user', content: 'Make it simpler please!' });
-                chatState.conversationHistory.push({ role: 'assistant', content: fullMessage });
-                
+                chatState.conversationHistory.push({ role: 'assistant', content: parsedForHistory.cleanText });
+
                 // Store this as the new last response
                 lastAssistantResponse = fullMessage;
                 
@@ -1161,7 +1727,7 @@ IMPORTANT: The learner just asked you to simplify your previous explanation. You
             lastAssistantResponse = '';
             lastSimplifyBtnId = null;
             
-            const messages = elements.chatMessages.querySelectorAll('.message, .simplify-container');
+            const messages = elements.chatMessages.querySelectorAll('.message, .simplify-container, .actions-container, .tool-card-container, .quiz-card-container');
             messages.forEach(msg => msg.remove());
             
             if (elements.welcomeMessage) {
@@ -1175,8 +1741,10 @@ IMPORTANT: The learner just asked you to simplify your previous explanation. You
             elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
         }
 
-        // Make simplify function global for onclick
+        // Make functions global for onclick handlers
         window.askHollieToSimplify = askHollieToSimplify;
+        window.askHollieToQuizMe = askHollieToQuizMe;
+        window.handleQuizAnswer = handleQuizAnswer;
 
         // ==================== QUICK MESSAGES ====================
         function sendQuickMessage(message) {
