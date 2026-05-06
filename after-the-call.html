@@ -1461,7 +1461,10 @@ async function startRecording() {
 
     } catch (e) {
         const errEl = document.getElementById('voiceError');
-        errEl.textContent = 'Microphone access is needed for voice input. Please allow access and try again.';
+        const isCapacitor = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+        errEl.textContent = isCapacitor
+            ? 'Microphone access is blocked. Go to Settings → Paramind → Microphone and turn it on, then come back.'
+            : 'Microphone access is blocked. Tap the lock icon in your browser address bar, allow the microphone, then tap the mic again.';
         errEl.style.display = 'block';
     }
 }
@@ -2196,7 +2199,10 @@ async function startInlineMic() {
     } catch (e) {
         console.error('Inline mic error:', e);
         const status = document.getElementById('ivwStatus');
-        if (status) status.textContent = 'Microphone access denied — please type below';
+        const isCapacitor2 = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+        if (status) status.textContent = isCapacitor2
+            ? 'Go to Settings → Paramind → Microphone and turn it on, then try again.'
+            : 'Microphone blocked — check your browser settings and try again.';
     }
 }
 
