@@ -54,7 +54,7 @@
             { id: 'bloodlab', href: 'blood-lab.html', icon: 'bi-droplet-half', label: 'Understanding Bloods', isPro: true },
             { id: 'drugs', href: 'drugs.html', icon: 'bi-capsule', label: 'Understanding Drugs', isPro: true },
             { id: 'interview', href: 'interview.html', icon: 'bi-mic', label: 'Interview Prep', isPro: true },
-            { id: 'afterthecall', href: 'after-the-call.html', icon: 'bi-moon-stars', label: 'After the Call', isPro: true },
+            { id: 'afterthecall', href: 'after-the-call.html', icon: 'bi-moon-stars', label: 'Debrief Your Calls', isPro: true },
             { id: 'cpd', href: 'cpd.html', icon: 'bi-award', label: 'CPD Portfolio', isPro: true }
         ],
         // Bottom items (Contact, Sign Out)
