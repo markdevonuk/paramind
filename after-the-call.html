@@ -1288,6 +1288,22 @@ function showScreen(id) {
     document.querySelectorAll('.atc-screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     window.scrollTo(0, 0);
+
+    // On Capacitor app, mic is not yet supported — show friendly message immediately
+    if (id === 'screen-voice') {
+        const isCapacitor = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+        if (isCapacitor) {
+            const errEl = document.getElementById('voiceError');
+            const micBtn = document.getElementById('micBtn');
+            const micStatus = document.getElementById('micStatus');
+            if (errEl) {
+                errEl.textContent = 'Voice input is coming to the app very soon — an update is on its way. In the meantime, use the “Write it” option to describe your call.';
+                errEl.style.display = 'block';
+            }
+            if (micBtn) micBtn.disabled = true;
+            if (micStatus) micStatus.textContent = 'Not yet available in the app';
+        }
+    }
 }
 
 /* ── Build Hollie system prompt ── */
