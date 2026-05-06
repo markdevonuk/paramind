@@ -1265,6 +1265,7 @@ const ATC = {
     muted:        false,  // user toggled mute
     currentAudio: null,   // current Audio object for Hollie TTS
     audioUnlocked: false,  // iOS Safari audio context unlocked
+    _wakeLock: null,          // Screen Wake Lock during recording
 
     // API base (matches app.js)
     API_BASE: 'https://europe-west2-paramind-64b8e.cloudfunctions.net',
@@ -1442,6 +1443,13 @@ async function startRecording() {
     const errEl = document.getElementById('voiceError');
     errEl.style.display = 'none';
 
+    // Keep screen on while recording
+    try {
+        if ('wakeLock' in navigator) {
+            ATC._wakeLock = await navigator.wakeLock.request('screen');
+        }
+    } catch(e) { /* wake lock not available — continue anyway */ }
+
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         ATC.audioChunks = [];
@@ -1474,6 +1482,9 @@ async function startRecording() {
 }
 
 function stopRecording() {
+    // Release wake lock
+    if (ATC._wakeLock) { ATC._wakeLock.release(); ATC._wakeLock = null; }
+
     if (ATC.mediaRecorder && ATC.isRecording) {
         ATC.mediaRecorder.stop();
         ATC.isRecording = false;
@@ -2178,6 +2189,12 @@ async function toggleInlineMic() {
 
 async function startInlineMic() {
     try {
+        if ('wakeLock' in navigator) {
+            ATC._wakeLock = await navigator.wakeLock.request('screen');
+        }
+    } catch(e) { /* ignore */ }
+
+    try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         debriefMic.audioChunks = [];
         debriefMic.mimeType    = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
@@ -2210,6 +2227,8 @@ async function startInlineMic() {
 }
 
 function stopInlineMic() {
+    if (ATC._wakeLock) { ATC._wakeLock.release(); ATC._wakeLock = null; }
+
     if (debriefMic.mediaRecorder && debriefMic.isRecording) {
         debriefMic.mediaRecorder.stop();
         debriefMic.isRecording = false;
