@@ -1386,24 +1386,21 @@ async function initPage() {
         const el = document.getElementById('shiftTime');
         if (el) el.textContent = dayStr + ' \u00b7 ' + timeStr;
 
-        // Count previous debriefs from CPD records
+        // Count previous debriefs directly from Firestore — no Cloud Function call
         try {
-            const resp = await fetch(ATC.API_BASE + '/getCpdRecords', {
-                headers: { 'Authorization': 'Bearer ' + token }
-            });
-            if (resp.ok) {
-                const data = await resp.json();
-                const atcRecords = (data.records || []).filter(r => r.type === 'after-the-call');
-                const countEl = document.getElementById('debriefCount');
-                if (countEl) {
-                    countEl.textContent = atcRecords.length === 0
-                        ? 'First debrief'
-                        : atcRecords.length + ' previous debrief' + (atcRecords.length === 1 ? '' : 's');
-                }
+            const snap = await firebase.firestore()
+                .collection('users').doc(ATC.userUid)
+                .collection('cpdRecords')
+                .where('type', '==', 'after-the-call')
+                .get();
+            const countEl = document.getElementById('debriefCount');
+            if (countEl) {
+                const n = snap.size;
+                countEl.textContent = n === 0 ? 'First debrief' : n + ' previous debrief' + (n === 1 ? '' : 's');
             }
         } catch (e) {
             const countEl = document.getElementById('debriefCount');
-            if (countEl) countEl.textContent = 'First debrief';
+            if (countEl) countEl.textContent = '';
         }
 
         // Show correct first screen
