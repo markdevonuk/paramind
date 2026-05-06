@@ -1154,6 +1154,9 @@
             </div>
             <p class="mic-status" id="micStatus">Tap the mic to start</p>
         </div>
+        <p id="micPermissionHint" style="display:none;font-size:12px;color:var(--atc-muted);text-align:center;padding:0 8px;margin-bottom:8px;line-height:1.6">
+            <i class="bi bi-info-circle"></i> If asked, please allow microphone access. If not prompted, go to <strong>Settings &rarr; Paramind &rarr; Microphone</strong> and turn it on.
+        </p>
 
         <div class="atc-error" id="voiceError"></div>
 
@@ -1289,20 +1292,11 @@ function showScreen(id) {
     document.getElementById(id).classList.add('active');
     window.scrollTo(0, 0);
 
-    // On Capacitor app, mic is not yet supported — show friendly message immediately
+    // Show mic permission hint on iOS app only
     if (id === 'screen-voice') {
-        const isCapacitor = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
-        if (isCapacitor) {
-            const errEl = document.getElementById('voiceError');
-            const micBtn = document.getElementById('micBtn');
-            const micStatus = document.getElementById('micStatus');
-            if (errEl) {
-                errEl.textContent = 'Voice input is coming to the app very soon — an update is on its way. In the meantime, use the “Write it” option to describe your call.';
-                errEl.style.display = 'block';
-            }
-            if (micBtn) micBtn.disabled = true;
-            if (micStatus) micStatus.textContent = 'Not yet available in the app';
-        }
+        const hint = document.getElementById('micPermissionHint');
+        const isApp = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+        if (hint) hint.style.display = isApp ? 'block' : 'none';
     }
 }
 
@@ -1474,10 +1468,7 @@ async function startRecording() {
 
     } catch (e) {
         const errEl = document.getElementById('voiceError');
-        const isCapacitor = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
-        errEl.textContent = isCapacitor
-            ? 'Voice input is coming to the app very soon — an update is on its way. In the meantime, use the “Write it” option to describe your call.'
-            : 'Microphone access is blocked. Tap the lock icon in your browser address bar, allow the microphone, then tap the mic again.';
+        errEl.textContent = 'Microphone access is blocked. On iPhone, go to Settings → Paramind → Microphone and turn it on, then try again.';
         errEl.style.display = 'block';
     }
 }
@@ -2212,9 +2203,8 @@ async function startInlineMic() {
     } catch (e) {
         console.error('Inline mic error:', e);
         const status = document.getElementById('ivwStatus');
-        const isCapacitor2 = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
         if (status) status.textContent = isCapacitor2
-            ? 'Voice replies are coming to the app very soon — update coming in the next few days.'
+            ? 'Microphone blocked — go to Settings → Paramind → Microphone and turn it on.'
             : 'Microphone blocked — check your browser settings and try again.';
     }
 }
