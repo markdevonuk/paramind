@@ -1738,9 +1738,17 @@ async function sendToAPI(userMessage, isFirstMessage) {
             renderReflectionCard(reflectionMatch[1].trim());
         }
 
-        // Capture speech text before finally clears isLoading
+        // Voice mode — speak then show mic
         const visibleForSpeech = fullMessage.replace(/REFLECTION_START[\s\S]*?REFLECTION_END/g, '').trim();
-        const shouldSpeak = ATC.voiceEnabled && visibleForSpeech && !reflectionMatch;
+        if (ATC.voiceEnabled && visibleForSpeech && !reflectionMatch) {
+            // Release loading lock first so mic reply can send while Hollie speaks
+            ATC.isLoading = false;
+            if (sendBtn) sendBtn.disabled = false;
+            if (inputEl) inputEl.disabled = false;
+            if (!ATC.muted) await speakHollie(visibleForSpeech);
+            appendInlineVoicePrompt();
+            return; // skip the finally block re-setting isLoading
+        }
 
     } catch (e) {
         console.error('Debrief API error:', e);
@@ -1750,20 +1758,12 @@ async function sendToAPI(userMessage, isFirstMessage) {
         errMsg.textContent = 'Something went wrong. Please try sending again.';
         document.getElementById('messagesList').appendChild(errMsg);
     } finally {
-        // Release the loading lock BEFORE speaking so mic reply can send
         ATC.isLoading = false;
         if (sendBtn) sendBtn.disabled = false;
         if (inputEl) {
             inputEl.disabled = false;
+            inputEl.focus();
         }
-    }
-
-    // Speak and show mic AFTER isLoading is released
-    if (typeof shouldSpeak !== 'undefined' && shouldSpeak) {
-        if (!ATC.muted) {
-            await speakHollie(visibleForSpeech);
-        }
-        appendInlineVoicePrompt();
     }
 }
 
