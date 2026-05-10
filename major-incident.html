@@ -354,6 +354,28 @@
     .pri-btn.selected.dead { background:var(--dead-bg); border-color:var(--dead); }
     .pri-btn span { display:block; font-size:.6rem; font-weight:600; opacity:.65; margin-top:2px; }
 
+    /* ── SPEEDOMETER GAUGE ── */
+    .gauge-wrap {
+      display:flex; flex-direction:column; align-items:center;
+      padding:1.25rem 1rem 0.5rem; margin-bottom:0.5rem;
+    }
+    .gauge-svg { overflow:visible; }
+    .gauge-track { fill:none; stroke:var(--color-gray-200); stroke-width:10; stroke-linecap:round; }
+    .gauge-fill  {
+      fill:none; stroke-width:10; stroke-linecap:round;
+      stroke-dasharray:251.3; stroke-dashoffset:251.3;
+      transition:stroke-dashoffset 1.6s cubic-bezier(0.25,0.46,0.45,0.94),
+                 stroke 0.5s ease;
+    }
+    .gauge-pct {
+      font-size:2.6rem; font-weight:800; line-height:1;
+      fill:var(--color-gray-900); text-anchor:middle; dominant-baseline:middle;
+    }
+    .gauge-label {
+      font-size:0.62rem; font-weight:700; letter-spacing:0.1em;
+      text-transform:uppercase; fill:var(--color-gray-400); text-anchor:middle;
+    }
+
     /* ── TIMEOUT ── */
     #mi-timeout {
       position:fixed; inset:0; z-index:300; background:var(--p1);
@@ -539,10 +561,25 @@
 <div id="mi-debrief" class="mi-screen">
   <div class="debrief-topbar">
     <div class="debrief-title">Incident Debrief</div>
-    <div class="pri-badge" id="debrief-score"></div>
   </div>
   <div class="debrief-body">
     <div class="debrief-max">
+
+      <!-- Speedometer gauge -->
+      <div class="gauge-wrap">
+        <svg class="gauge-svg" width="200" height="120" viewBox="0 0 200 120">
+          <!-- Track: semicircle from 180° to 0° -->
+          <path class="gauge-track"
+            d="M 20,100 A 80,80 0 0,1 180,100"/>
+          <!-- Fill arc -->
+          <path class="gauge-fill" id="gauge-fill"
+            d="M 20,100 A 80,80 0 0,1 180,100"/>
+          <!-- Percentage text -->
+          <text class="gauge-pct" id="gauge-pct" x="100" y="92">0%</text>
+          <text class="gauge-label" x="100" y="114">Score</text>
+        </svg>
+      </div>
+
       <div class="debrief-stats">
         <div class="db-stat"><div class="db-val" id="s-correct" style="color:var(--p3)">0</div><div class="db-lbl">Correct</div></div>
         <div class="db-stat"><div class="db-val" id="s-wrong"   style="color:var(--p1)">0</div><div class="db-lbl">Wrong</div></div>
@@ -1033,9 +1070,6 @@ function showDebrief(){
   document.getElementById('s-correct').textContent=ok;
   document.getElementById('s-wrong').textContent=bad;
   document.getElementById('s-timeout').textContent=miss;
-  const sb=document.getElementById('debrief-score');
-  sb.textContent=`${pct}%`;
-  sb.className=`pri-badge ${pct>=80?'pri-p3':pct>=50?'pri-p2':'pri-p1'}`;
   document.getElementById('cas-log').innerHTML=res.map((r,i)=>{
     if(!r)return'';
     const cls=r.timeout?'r-miss':r.correct?'r-ok':'r-bad';
@@ -1050,6 +1084,7 @@ function showDebrief(){
     </div>`;
   }).join('');
   showScreen('mi-debrief');
+  setTimeout(() => animateGauge(pct), 100);
 }
 
 async function fetchDebrief(res,pct){
@@ -1103,6 +1138,33 @@ Second person. Honest. No congratulations for average or poor scores.`;
     document.getElementById('ai-content').innerHTML =
       `<div class="ai-text" style="color:var(--color-gray-500)">Debrief unavailable — please ensure you are logged in.</div>`;
   }
+}
+
+function animateGauge(pct) {
+  // Semicircular arc length for r=80: PI * 80 ≈ 251.3
+  const ARC = 251.3;
+  const fill  = document.getElementById('gauge-fill');
+  const label = document.getElementById('gauge-pct');
+
+  // Colour by score
+  const colour = pct >= 80 ? 'var(--p3)' : pct >= 50 ? 'var(--p2)' : 'var(--p1)';
+  fill.style.stroke = colour;
+  label.style.fill  = colour;
+
+  // Animate offset from full (hidden) to target
+  const offset = ARC * (1 - pct / 100);
+  fill.style.strokeDashoffset = offset;
+
+  // Count up the number
+  const duration = 1600;
+  const start = performance.now();
+  function step(now) {
+    const elapsed = Math.min(now - start, duration);
+    const eased = 1 - Math.pow(1 - elapsed / duration, 3); // ease-out cubic
+    label.textContent = Math.round(eased * pct) + '%';
+    if (elapsed < duration) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
 }
 
 function runAgain(){
