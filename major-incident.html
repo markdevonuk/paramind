@@ -304,6 +304,56 @@
     }
     .mi-btn-home:active { transform:scale(.98); }
 
+    /* ── MODE SELECT ── */
+    #mi-mode { overflow-y:auto; justify-content:center; align-items:center; }
+    .mode-inner { max-width:400px; width:100%; padding:1.5rem 1rem; margin:0 auto; }
+    .mode-tool-pill {
+      display:inline-flex; align-items:center; gap:6px;
+      font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+      padding:4px 12px; border-radius:20px; margin-bottom:1.25rem;
+    }
+    .mode-tool-pill.tst  { background:rgba(43,138,156,.1); color:var(--color-teal); border:1px solid rgba(43,138,156,.25); }
+    .mode-tool-pill.mitt { background:var(--p1-bg); color:var(--p1); border:1px solid var(--p1-border); }
+    .mode-heading { font-size:1.5rem; font-weight:800; color:var(--color-gray-900); margin-bottom:.35rem; line-height:1.2; }
+    .mode-sub { font-size:.88rem; color:var(--color-gray-600); margin-bottom:1.5rem; line-height:1.5; }
+    .mode-cards { display:flex; flex-direction:column; gap:.75rem; margin-bottom:1.25rem; }
+    .mode-card {
+      background:#fff; border:2px solid var(--color-gray-200); border-radius:12px;
+      padding:1.1rem 1.25rem; cursor:pointer; text-align:left;
+      transition:border-color .18s, box-shadow .18s, transform .1s;
+    }
+    .mode-card:hover { border-color:var(--color-teal); box-shadow:0 4px 12px rgba(43,138,156,.12); }
+    .mode-card:active { transform:scale(.985); }
+    .mode-card-tag {
+      display:inline-block; font-size:.62rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:.08em; padding:2px 8px; border-radius:20px; margin-bottom:.5rem;
+    }
+    .mode-card.hints  .mode-card-tag { background:var(--p3-bg); color:var(--p3); border:1px solid var(--p3-border); }
+    .mode-card.nohints .mode-card-tag { background:var(--p1-bg); color:var(--p1); border:1px solid var(--p1-border); }
+    .mode-card-name { font-size:1.05rem; font-weight:800; color:var(--color-gray-900); margin-bottom:.25rem; }
+    .mode-card-desc { font-size:.83rem; color:var(--color-gray-600); line-height:1.45; }
+    .mode-back { background:none; border:none; color:var(--color-gray-400); font-size:.85rem; cursor:pointer; padding:.5rem 0; font-family:var(--font-primary); }
+
+    /* ── NO-HINTS priority buttons ── */
+    .pri-footer { flex-shrink:0; padding:.85rem 1rem 1.25rem; border-top:1px solid var(--color-gray-200); background:#fff; }
+    .pri-footer-label { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--color-gray-400); margin-bottom:.65rem; }
+    .pri-btns { display:grid; grid-template-columns:1fr 1fr; gap:.5rem; }
+    .pri-btn {
+      padding:.8rem .5rem; border-radius:10px; border:1.5px solid;
+      cursor:pointer; font-family:var(--font-primary); font-weight:800;
+      font-size:.9rem; transition:all .15s; text-align:center; background:#fff;
+    }
+    .pri-btn:active { transform:scale(.96); }
+    .pri-btn.p1   { border-color:var(--p1-border); color:var(--p1); }
+    .pri-btn.p2   { border-color:var(--p2-border); color:var(--p2); }
+    .pri-btn.p3   { border-color:var(--p3-border); color:var(--p3); }
+    .pri-btn.dead { border-color:var(--dead-border); color:var(--dead); }
+    .pri-btn.selected.p1   { background:var(--p1-bg);   border-color:var(--p1); }
+    .pri-btn.selected.p2   { background:var(--p2-bg);   border-color:var(--p2); }
+    .pri-btn.selected.p3   { background:var(--p3-bg);   border-color:var(--p3); }
+    .pri-btn.selected.dead { background:var(--dead-bg); border-color:var(--dead); }
+    .pri-btn span { display:block; font-size:.6rem; font-weight:600; opacity:.65; margin-top:2px; }
+
     /* ── TIMEOUT ── */
     #mi-timeout {
       position:fixed; inset:0; z-index:300; background:var(--p1);
@@ -374,6 +424,30 @@
   </div>
 </div>
 
+<!-- MODE SELECT -->
+<div id="mi-mode" class="mi-screen">
+  <div class="mode-inner">
+    <div class="mode-tool-pill" id="mode-tool-pill">TST</div>
+    <h2 class="mode-heading">How do you want to train?</h2>
+    <p class="mode-sub">Choose your difficulty before the incident begins.</p>
+    <div class="mode-cards">
+      <div class="mode-card hints" onclick="selectMode('hints')">
+        <div class="mode-card-tag">Guided</div>
+        <div class="mode-card-name">With Hints</div>
+        <div class="mode-card-desc">Work through the algorithm step by step. Each question reveals the next decision point. Good for learning the framework.</div>
+      </div>
+      <div class="mode-card nohints" onclick="selectMode('nohints')">
+        <div class="mode-card-tag">Hard Mode</div>
+        <div class="mode-card-name">No Hints</div>
+        <div class="mode-card-desc">Read the scene, make your call. Choose P1, P2, P3, or Dead directly. No algorithm prompts.</div>
+      </div>
+    </div>
+    <button class="mode-back" onclick="showScreen('mi-home')">
+      <i class="bi bi-chevron-left me-1"></i>Back
+    </button>
+  </div>
+</div>
+
 <!-- METHANE -->
 <div id="mi-methane" class="mi-screen">
   <div class="methane-alert">
@@ -426,13 +500,25 @@
     <div class="scene-tag" id="scene-tag">Scene</div>
     <div class="cas-text"  id="cas-text"></div>
   </div>
-  <div class="question-footer">
+  <!-- HINTS mode footer -->
+  <div class="question-footer" id="hints-footer">
     <div class="q-step" id="q-step"></div>
     <div class="q-text" id="q-text"></div>
     <div class="q-hint" id="q-hint"></div>
     <div class="ans-btns">
       <button class="ans-btn yes" onclick="handleAnswer(true)">YES<span>confirms</span></button>
       <button class="ans-btn no"  onclick="handleAnswer(false)">NO<span>rules out</span></button>
+    </div>
+  </div>
+
+  <!-- NO-HINTS mode footer -->
+  <div class="pri-footer" id="nohints-footer" style="display:none">
+    <div class="pri-footer-label">What is this casualty's priority?</div>
+    <div class="pri-btns">
+      <button class="pri-btn p1"   onclick="handlePriority('P1')">P1<span>Immediate</span></button>
+      <button class="pri-btn p2"   onclick="handlePriority('P2')">P2<span>Urgent</span></button>
+      <button class="pri-btn p3"   onclick="handlePriority('P3')">P3<span>Delayed</span></button>
+      <button class="pri-btn dead" onclick="handlePriority('DEAD')">Dead<span></span></button>
     </div>
   </div>
 </div>
@@ -595,7 +681,7 @@ const TIMERS = {tst:10,mitt:30};
 const CIRC   = 2*Math.PI*28;
 
 const S = {
-  tool:null, casualties:[], currentIdx:0, currentQIdx:0,
+  tool:null, mode:'hints', casualties:[], currentIdx:0, currentQIdx:0,
   results:[], timerInterval:null, timerSeconds:10, timerMax:10, startTime:null
 };
 
@@ -607,8 +693,17 @@ function showScreen(id) {
 function selectTool(tool) {
   S.tool=tool; S.casualties=tool==='tst'?[...TST_CAS]:[...MITT_CAS];
   S.results=[]; S.currentIdx=0;
-  const sc=SCENES[tool];
-  document.getElementById('methane-tool-tag').textContent=tool==='tst'?'TST':'MITT';
+  // Update mode screen pill
+  const pill=document.getElementById('mode-tool-pill');
+  pill.textContent=tool==='tst'?'Ten Second Triage':'MITT';
+  pill.className='mode-tool-pill '+(tool==='tst'?'tst':'mitt');
+  showScreen('mi-mode');
+}
+
+function selectMode(mode) {
+  S.mode=mode;
+  const sc=SCENES[S.tool];
+  document.getElementById('methane-tool-tag').textContent=S.tool==='tst'?'TST':'MITT';
   document.getElementById('methane-title').textContent=sc.title;
   document.getElementById('methane-subtitle').textContent=sc.subtitle;
   document.getElementById('methane-cas-count').textContent=sc.casualties;
@@ -616,7 +711,7 @@ function selectTool(tool) {
   document.getElementById('methane-grid').innerHTML=sc.methane.map(r=>
     `<div class="methane-row"><div class="methane-letter">${r.letter}</div><div class="methane-key">${r.key}</div><div class="methane-val">${r.value}</div></div>`
   ).join('');
-  document.getElementById('methane-tool-note').innerHTML=`Using: <strong>${sc.tool}</strong>`;
+  document.getElementById('methane-tool-note').innerHTML=`Using: <strong>${sc.tool}</strong> · Mode: <strong>${mode==='hints'?'Guided':'No Hints'}</strong>`;
   showScreen('mi-methane');
 }
 
@@ -632,6 +727,12 @@ function loadCas(idx) {
   document.getElementById('scene-tag').textContent=cas.tag;
   document.getElementById('cas-text').textContent=cas.desc;
   renderDots(); loadQ(0); startTimer();
+
+  // Show correct footer for mode
+  document.getElementById('hints-footer').style.display  = S.mode==='hints'   ? '' : 'none';
+  document.getElementById('nohints-footer').style.display = S.mode==='nohints' ? '' : 'none';
+  // Reset priority button states
+  document.querySelectorAll('.pri-btn').forEach(b=>b.classList.remove('selected'));
 }
 
 function loadQ(qi) {
@@ -694,6 +795,19 @@ function handleAnswer(ans) {
     if(last){clearTimer();recordResult(true,false,t);showFlash(false);}
     else{S.currentQIdx++;loadQ(S.currentQIdx);}
   } else {clearTimer();recordResult(false,false,t);showFlash(false);}
+}
+
+function handlePriority(pri) {
+  // Visual feedback
+  document.querySelectorAll('.pri-btn').forEach(b=>b.classList.remove('selected'));
+  document.querySelector(`.pri-btn.${pri.toLowerCase()}`).classList.add('selected');
+
+  clearTimer();
+  const cas=S.casualties[S.currentIdx];
+  const t=(Date.now()-S.startTime)/1000;
+  const correct=pri===cas.pri;
+  recordResult(correct,false,t);
+  showFlash(false);
 }
 
 function recordResult(correct,timeout,t){
@@ -793,7 +907,11 @@ Second person. Honest. No congratulations for average or poor scores.`;
   }
 }
 
-function runAgain(){S.results=[];S.currentIdx=0;loadCas(0);showScreen('mi-triage');}
+function runAgain(){
+  S.results=[]; S.currentIdx=0;
+  document.querySelectorAll('.pri-btn').forEach(b=>b.classList.remove('selected'));
+  loadCas(0); showScreen('mi-triage');
+}
 function goHome(){clearTimer();showScreen('mi-home');}
 </script>
 </body>
