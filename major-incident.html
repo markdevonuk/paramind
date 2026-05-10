@@ -589,240 +589,266 @@ const MITT_Q = [
   {id:'Q7',text:'Heart rate normal?',hint:'Check radial pulse',ctx:'Step 7 of 7 — Perfusion'}
 ];
 
-const TST_SCENARIOS = [
-  { id:'tst_s1',
-    scene:{title:"RTC — M62 Westbound",subtitle:"Multi-vehicle collision · Motorway · Dual carriageway",tool:"Ten Second Triage (TST)",casualties:9,cas_sub:"Approximate — confirmed on scene",methane:[
-      {letter:'M',key:'Major Incident',value:'Declared. Multiple agencies responding.'},
-      {letter:'E',key:'Exact Location',value:'M62 Westbound, between J27 and J28. Near Gildersome flyover.'},
-      {letter:'T',key:'Type',value:'RTC. Articulated lorry rear-ended stationary traffic. 6 vehicles involved.'},
-      {letter:'H',key:'Hazards',value:'Diesel spill across two lanes. Unstable HGV cab. Live carriageway opposite.'},
-      {letter:'A',key:'Access',value:'Approach via J27 westbound slip. RVP at Tesco Extra car park.'},
-      {letter:'N',key:'Number',value:'Approximately 9 casualties. Mix of ambulant and non-ambulant.'},
-      {letter:'E',key:'Emergency Services',value:'Police on scene. 2 ambulance crews. Fire ETA 4 min.'}]},
-    casualties:[
-  {id:'tst_s1_01',tag:'Vehicle 1 — Saloon car',
-   desc:"A man in his 50s is walking toward you from the wreckage. He's cradling his right arm. He makes eye contact. No obvious blood.",
-   path:[{q:'Q1',a:true}],pri:'P3',action:null,
-   expl:"He walked to you — TST ends at step one. P3. Any casualty who can walk is triaged P3 regardless of injury. Direct him to the Casualty Clearing Point and move on immediately."},
-  {id:'tst_s1_02',tag:'Vehicle 2 — Behind the HGV',
-   desc:"A woman in her 30s is on the ground, unresponsive. There is bright red, pulsatile bleeding from her left thigh. Her trousers are soaked.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:true}],pri:'P1',action:'Apply pressure / tourniquet / packing',
-   expl:"Not walking. Severe arterial haemorrhage at step two — P1. Haemorrhage control is the priority action: direct pressure or tourniquet. Do not proceed further down the algorithm."},
-  {id:'tst_s1_03',tag:'Vehicle 3 — Left lane',
-   desc:"A teenager, perhaps 16, sitting on the central barrier. Crying. Talking loudly on her phone. No visible wounds. No blood.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:false}],pri:'P2',action:null,
-   expl:"Not walking. No severe bleeding. Talking — conscious and airway clear. No penetrating injury. P2 Urgent. She's stable but non-ambulant and needs secondary assessment."},
-  {id:'tst_s1_04',tag:'Vehicle 4 — HGV cab',
-   desc:"A male driver, late 40s, conscious and talking. Telling you he can't move his legs. A steering column fragment is embedded in his left chest.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true}],pri:'P1',action:null,
-   expl:"Not walking. No severe external bleeding. Talking — conscious. Penetrating chest injury — P1 Immediate. Penetrating torso trauma is P1 regardless of current stability. Do not remove the impaled object."},
-  {id:'tst_s1_05',tag:'Motorway verge — ejected passenger',
-   desc:"A woman in her 40s is lying on the verge, eyes closed, not responding. No obvious bleeding. She's not breathing. You open her airway — she takes a breath.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:false},{q:'Q5',a:true}],pri:'P1',action:'Place in recovery position',
-   expl:"Not walking. No severe bleeding. Not talking. Not breathing initially — but airway opening restores breathing. P1 Immediate. Place her in the recovery position and move on."},
-  {id:'tst_s1_06',tag:'Central reservation — ejected driver',
-   desc:"A male passenger, 60s, lying supine. Eyes closed, not responding to shouting. No visible haemorrhage. You open his airway — no breathing. No movement.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:false},{q:'Q5',a:false}],pri:'DEAD',action:'CPR if resources allow',
-   expl:"Not walking. No severe bleeding. Not talking. Airway opened — still not breathing. Dead. In mass casualty triage, CPR is only commenced if resources allow after all living casualties are triaged."}
-  ]},
-  { id:'tst_s2',
-    scene:{title:"Train Derailment — Sheffield",subtitle:"Rail incident · Embankment · Multiple carriages",tool:"Ten Second Triage (TST)",casualties:14,cas_sub:"Estimate — full train not yet accessed",methane:[
-      {letter:'M',key:'Major Incident',value:'Declared by BTP. Rail network halted in both directions.'},
-      {letter:'E',key:'Exact Location',value:'East Midlands Railway, 400m south of Sheffield station. Near Sheaf Square bridge.'},
-      {letter:'T',key:'Type',value:'Passenger train derailed at low speed. 3 carriages off track. 1 on its side.'},
-      {letter:'H',key:'Hazards',value:'Unstable rolling stock. Third rail — confirmed de-energised. Fuel leak possible.'},
-      {letter:'A',key:'Access',value:'Access via Sheaf Street only. Steep embankment on east side. RVP at station car park.'},
-      {letter:'N',key:'Number',value:'Estimated 14 casualties. Self-evacuation ongoing. Many walking wounded.'},
-      {letter:'E',key:'Emergency Services',value:'Police on scene. BTP. 3 ambulance crews. Fire ETA 6 min. HEMS requested.'}]},
-    casualties:[
-  {id:'tst_s2_01',tag:'Trackside — self-evacuated',
-   desc:"A woman in her 60s is walking toward you slowly, clutching her chest. She's breathing with difficulty but upright and making progress toward you.",
-   path:[{q:'Q1',a:true}],pri:'P3',action:null,
-   expl:"She is walking — TST ends immediately at step one. P3. The chest complaint cannot upgrade her. Any ambulant casualty is P3 under TST. Direct her to the CCP."},
-  {id:'tst_s2_02',tag:'Carriage 2 — aisle',
-   desc:"A man in his 40s is slumped across two seats. His right forearm has a compound fracture — bone visible, bright red blood pooling rapidly on the seat.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:true}],pri:'P1',action:'Apply tourniquet or pressure dressing',
-   expl:"Not walking. Arterial bleeding from the compound fracture — P1 at step two. Tourniquet or firm pressure dressing required before moving on."},
-  {id:'tst_s2_03',tag:'Platform edge — sitting casualty',
-   desc:"A teenager, perhaps 17, sitting against the platform wall. He's talking — telling you his back hurts. No blood visible. No obvious wounds.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:false}],pri:'P2',action:null,
-   expl:"Not walking. No severe bleeding. Talking — conscious and maintaining airway. No penetrating injury. P2 Urgent. Potential spinal injury doesn't change the triage priority."},
-  {id:'tst_s2_04',tag:'Carriage 3 — window seat',
-   desc:"A woman in her 20s is conscious and talking clearly. She can't move her left leg. A metal shard from the window frame protrudes from her right shoulder.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true}],pri:'P1',action:null,
-   expl:"Not walking. No severe external bleeding. Talking — conscious. Penetrating injury to the shoulder — P1 Immediate. Do not remove the impaled shard. Penetrating injury proximal to mid-limb is P1 regardless of apparent stability."},
-  {id:'tst_s2_05',tag:'Embankment — ejected passenger',
-   desc:"A man in his 30s is face down on the embankment. Unresponsive to shouting. No visible blood. Not breathing. You open his airway — chest rise is visible.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:false},{q:'Q5',a:true}],pri:'P1',action:'Place in recovery position',
-   expl:"Not walking. No severe bleeding. Not talking. Not breathing until airway opened — now breathing. P1 Immediate. Airway opening is permitted in TST. Recovery position, then move on."},
-  {id:'tst_s2_06',tag:'Overturned carriage — floor',
-   desc:"An elderly woman lies on the ceiling of the overturned carriage. Eyes closed. No response to loud voice. No bleeding visible. You open her airway — no chest movement. No breath sounds.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:false},{q:'Q5',a:false}],pri:'DEAD',action:'CPR if resources allow',
-   expl:"Not walking. No severe bleeding. Not talking. Airway opened — still not breathing. Dead. Label and move on. Do not commit resources to CPR while living casualties remain unassessed."}
-  ]},
-  { id:'tst_s3',
-    scene:{title:"Crowd Crush — Manchester Arena",subtitle:"Mass gathering incident · Indoor venue · Concourse",tool:"Ten Second Triage (TST)",casualties:20,cas_sub:"Approximate — evacuation still in progress",methane:[
-      {letter:'M',key:'Major Incident',value:'Declared. GMP activating Bronze/Silver/Gold command structure.'},
-      {letter:'E',key:'Exact Location',value:'Manchester Arena, Victoria Station Approach. Crush at Gate 8 concourse.'},
-      {letter:'T',key:'Type',value:'Crowd crush. Exit gates failed during mass evacuation. Compressive asphyxia likely in multiple casualties.'},
-      {letter:'H',key:'Hazards',value:'Ongoing crowd movement. Secondary crush risk. Lighting compromised in Gate 8 corridor.'},
-      {letter:'A',key:'Access',value:'Emergency access via Victoria Station south entrance. Inner cordon forming. RVP at Hunts Bank car park.'},
-      {letter:'N',key:'Number',value:'Estimated 20+ casualties. Multiple reports of unresponsive persons. Many self-evacuating.'},
-      {letter:'E',key:'Emergency Services',value:'Police on scene managing crowd. 4 ambulance crews. HEMS tasked. Fire ETA 3 min.'}]},
-    casualties:[
-  {id:'tst_s3_01',tag:'Concourse — mobile casualty',
-   desc:"A young woman, early 20s, walking fast toward you. Crying, hyperventilating. She has a grazed knee and a small cut on her forehead. No major bleeding.",
-   path:[{q:'Q1',a:true}],pri:'P3',action:null,
-   expl:"Walking — P3 immediately at step one. Her distress and minor wounds do not change this. Direct her to the CCP. Secondary assessment and reassurance there."},
-  {id:'tst_s3_02',tag:'Gate 8 corridor — floor',
-   desc:"A man in his 50s is down. He's been partially trampled. Dark red blood is spreading from a scalp laceration — large volume, soaking his jacket collar.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:true}],pri:'P1',action:'Apply firm pressure to scalp wound',
-   expl:"Not walking. Severe haemorrhage from the scalp laceration — P1 at step two. Scalp wounds bleed heavily. Apply firm pressure immediately. Do not proceed down the algorithm."},
-  {id:'tst_s3_03',tag:'Concourse wall — sitting',
-   desc:"A man in his 30s is sitting against the wall, knees up. He's talking — telling you he thinks his ribs are broken. Pale and distressed but verbal. No visible wounds.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:false}],pri:'P2',action:null,
-   expl:"Not walking. No severe external bleeding. Talking — conscious, airway maintained. No penetrating injury. P2 Urgent. Rib fractures and the mechanism raise concern but do not change TST priority."},
-  {id:'tst_s3_04',tag:'Gate 8 — near door frame',
-   desc:"A woman in her 40s is conscious and talking. She says she felt something go in her side during the crush. A piece of broken door handle protrudes from her left flank.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true}],pri:'P1',action:null,
-   expl:"Not walking. No severe external bleeding. Talking — conscious. Penetrating abdominal injury — P1 Immediate. Do not remove the object. Penetrating torso trauma is P1 regardless of how stable she appears."},
-  {id:'tst_s3_05',tag:'Corridor floor — near exit',
-   desc:"A man in his 20s is supine. Unconscious. No bleeding visible. Not breathing. You open his airway and tilt his head — two seconds later, shallow breathing begins.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:false},{q:'Q5',a:true}],pri:'P1',action:'Place in recovery position',
-   expl:"Not walking. No severe bleeding. Not talking. Not breathing until airway opened — now breathing. P1 Immediate. Classic compressive asphyxia presentation. Recovery position, then move on."},
-  {id:'tst_s3_06',tag:'Gate 8 — centre of crush zone',
-   desc:"A woman in her 30s is lying flat at the centre of the crush zone. No breathing visible. Unresponsive. No bleeding. You open her airway — no movement, no breath sounds.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:false},{q:'Q5',a:false}],pri:'DEAD',action:'CPR if resources allow',
-   expl:"Not walking. No severe bleeding. Not talking. Airway opened — still not breathing. Dead. In a mass casualty context with living casualties still unassessed, CPR cannot be commenced at this stage."}
-  ]}
+const TST_SCENES = [
+  {title:"RTC — M62 Westbound",subtitle:"Multi-vehicle collision · Motorway · Dual carriageway",tool:"Ten Second Triage (TST)",casualties:"~9",cas_sub:"Approximate — confirmed on scene",methane:[
+    {letter:'M',key:'Major Incident',value:'Declared. Multiple agencies responding.'},
+    {letter:'E',key:'Exact Location',value:'M62 Westbound, between J27 and J28. Near Gildersome flyover.'},
+    {letter:'T',key:'Type',value:'RTC. Articulated lorry rear-ended stationary traffic. 6 vehicles involved.'},
+    {letter:'H',key:'Hazards',value:'Diesel spill across two lanes. Unstable HGV cab. Live carriageway opposite.'},
+    {letter:'A',key:'Access',value:'Approach via J27 westbound slip. RVP at Tesco Extra car park.'},
+    {letter:'N',key:'Number',value:'Approximately 9 casualties. Mix of ambulant and non-ambulant.'},
+    {letter:'E',key:'Emergency Services',value:'Police on scene. 2 ambulance crews. Fire ETA 4 min.'}]},
+  {title:"Train Derailment — Sheffield",subtitle:"Rail incident · Embankment · Multiple carriages",tool:"Ten Second Triage (TST)",casualties:"~14",cas_sub:"Estimate — full train not yet accessed",methane:[
+    {letter:'M',key:'Major Incident',value:'Declared by BTP. Rail network halted in both directions.'},
+    {letter:'E',key:'Exact Location',value:'East Midlands Railway, 400m south of Sheffield station. Near Sheaf Square bridge.'},
+    {letter:'T',key:'Type',value:'Passenger train derailed at low speed. 3 carriages off track. 1 on its side.'},
+    {letter:'H',key:'Hazards',value:'Unstable rolling stock. Third rail — confirmed de-energised. Fuel leak possible.'},
+    {letter:'A',key:'Access',value:'Access via Sheaf Street only. Steep embankment on east side. RVP at station car park.'},
+    {letter:'N',key:'Number',value:'Estimated 14 casualties. Self-evacuation ongoing. Many walking wounded.'},
+    {letter:'E',key:'Emergency Services',value:'Police on scene. BTP. 3 ambulance crews. Fire ETA 6 min. HEMS requested.'}]},
+  {title:"Crowd Crush — Manchester Arena",subtitle:"Mass gathering incident · Indoor venue · Concourse",tool:"Ten Second Triage (TST)",casualties:"~20",cas_sub:"Approximate — evacuation still in progress",methane:[
+    {letter:'M',key:'Major Incident',value:'Declared. GMP activating Bronze/Silver/Gold command structure.'},
+    {letter:'E',key:'Exact Location',value:'Manchester Arena, Victoria Station Approach. Crush at Gate 8 concourse.'},
+    {letter:'T',key:'Type',value:'Crowd crush. Exit gates failed during mass evacuation. Compressive asphyxia likely.'},
+    {letter:'H',key:'Hazards',value:'Ongoing crowd movement. Secondary crush risk. Lighting compromised in Gate 8 corridor.'},
+    {letter:'A',key:'Access',value:'Emergency access via Victoria Station south entrance. RVP at Hunts Bank car park.'},
+    {letter:'N',key:'Number',value:'Estimated 20+ casualties. Multiple unresponsive persons reported.'},
+    {letter:'E',key:'Emergency Services',value:'Police managing crowd. 4 ambulance crews. HEMS tasked. Fire ETA 3 min.'}]}
 ];
 
-const MITT_SCENARIOS = [
-  { id:'mitt_s1',
-    scene:{title:"Building Collapse — Bradford",subtitle:"Structural failure · Urban · Confined space",tool:"Major Incident Triage Tool (MITT)",casualties:11,cas_sub:"Working estimate — search ongoing",methane:[
-      {letter:'M',key:'Major Incident',value:'Declared. HART and urban search & rescue requested.'},
-      {letter:'E',key:'Exact Location',value:'Former mill conversion, Thornton Road, Bradford BD1. Rear section collapsed.'},
-      {letter:'T',key:'Type',value:'Partial building collapse. Residential upper floors. Ground floor commercial.'},
-      {letter:'H',key:'Hazards',value:'Secondary collapse risk. Gas leak suspected. Asbestos possible.'},
-      {letter:'A',key:'Access',value:"Thornton Road from north only. Inner cordon at 30m. RVP at Morrison's car park."},
-      {letter:'N',key:'Number',value:'Estimated 11 casualties. Mix of walking wounded and trapped.'},
-      {letter:'E',key:'Emergency Services',value:'Police cordoned. 3 ambulance crews. HART 8 min. Fire on scene.'}]},
-    casualties:[
-  {id:'mitt_s1_01',tag:'Ground floor — rear entrance',
-   desc:"A man in his 30s is conscious and calling for help. There is an avulsion injury to his left forearm — tissue exposed, bleeding heavily and continuously.",
-   path:[{q:'Q1',a:true}],pri:'P1',action:'Pressure dressing, tourniquet, or haemostatic packing',
-   expl:"Catastrophic bleeding — MITT ends immediately. P1. Haemostatic intervention required. His consciousness level doesn't change this. Step 1 is always catastrophic haemorrhage."},
-  {id:'mitt_s1_02',tag:'Car park — self-evacuated',
-   desc:"An older woman, perhaps 70s, walking slowly toward you holding her head. Confused but mobile. A small laceration on her forehead, bleeding minimally.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:true}],pri:'P3',action:null,
-   expl:"No catastrophic bleeding. Walking — P3. Despite confusion and age, she is ambulant. MITT step 2: walking = P3. Direct her to the Casualty Clearing Point."},
-  {id:'mitt_s1_03',tag:'Stairwell — first floor',
-   desc:"A male, mid-30s, prone, unresponsive. No obvious external bleeding. You open his airway — no respiratory effort. No chest rise.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:false}],pri:'DEAD',action:'Consider 5 rescue breaths if: submersion, smoke, or paediatric',
-   expl:"No catastrophic bleeding. Not walking. Airway opened — not breathing. Dead. In adults without a relevant mechanism, CPR is not indicated during active mass casualty triage."},
-  {id:'mitt_s1_04',tag:'Ground floor — retail area',
-   desc:"A woman in her 50s is breathing — you can see chest rise. Lying still. You call her name clearly — no response. No eye opening. No movement.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:false}],pri:'P1',action:'Place in recovery position',
-   expl:"No catastrophic bleeding. Not walking. Breathing — step 3 cleared. Unresponsive to voice — P1. Place in the recovery position. Unresponsiveness with spontaneous breathing is a critical sign."},
-  {id:'mitt_s1_05',tag:'Courtyard — partial collapse',
-   desc:"A small child, approximately 18 months old, lying on rubble. Breathing visible. Opens eyes when you call loudly. Appears frightened.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true},{q:'Q5',a:false}],pri:'P1',action:null,
-   expl:"No catastrophic bleeding. Not walking. Breathing. Responds to voice. Aged under 2 — P1 immediately. All children under 2 are automatically P1 under MITT regardless of apparent clinical status."},
-  {id:'mitt_s1_06',tag:'Upper floor — residential flat',
-   desc:"A man in his 40s, partially buried under plaster. He responds to your voice — opens eyes and speaks a few words. Respirations: 8 per minute.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true},{q:'Q5',a:true},{q:'Q6',a:false}],pri:'P1',action:null,
-   expl:"No catastrophic bleeding. Not walking. Breathing. Responds to voice. Adult. Breathing rate 8 — outside the 12–23 normal window. P1. A rate below 12 indicates significant physiological compromise."},
-  {id:'mitt_s1_07',tag:'Ground floor — office area',
-   desc:"A woman in her 30s, sitting against a wall. Responds to voice, speaks clearly. Respirations: 17 per minute. Radial pulse rapid and weak — approximately 120 bpm.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true},{q:'Q5',a:true},{q:'Q6',a:true},{q:'Q7',a:false}],pri:'P2',action:null,
-   expl:"Passes all P1 criteria. RR 17 — within range. But heart rate ~120 — abnormal. P2 Urgent. Non-ambulant with physiological compromise. Secondary assessment required urgently."}
-  ]},
-  { id:'mitt_s2',
-    scene:{title:"Industrial Explosion — Rotherham",subtitle:"Blast injury · Chemical plant · Open site",tool:"Major Incident Triage Tool (MITT)",casualties:13,cas_sub:"Approximate — site not fully searched",methane:[
-      {letter:'M',key:'Major Incident',value:'Declared. HART tasked. Hazmat standby requested.'},
-      {letter:'E',key:'Exact Location',value:'Forgemasters industrial site, Meadowhall Road, Rotherham S60. Warehouse C, east section.'},
-      {letter:'T',key:'Type',value:'Gas explosion followed by secondary fire. Blast overpressure and thermal injuries.'},
-      {letter:'H',key:'Hazards',value:'Ongoing fire in adjacent bay. Structural instability. Suspected chemical release — nature unknown.'},
-      {letter:'A',key:'Access',value:'Meadowhall Road from south. Inner cordon at 100m. RVP at site security cabin, Gate 1.'},
-      {letter:'N',key:'Number',value:'Estimated 13 casualties. Mix of blast, thermal, and crush injuries.'},
-      {letter:'E',key:'Emergency Services',value:'Fire holding at cordon. Police cordoned. 3 ambulance crews. HART ETA 10 min. HEMS tasked.'}]},
-    casualties:[
-  {id:'mitt_s2_01',tag:'Site entrance — blast thrown',
-   desc:"A man in his 20s is on the ground. His right arm is traumatically amputated below the elbow. He is screaming. The stump is spurting arterial blood at high pressure.",
-   path:[{q:'Q1',a:true}],pri:'P1',action:'High tourniquet — above elbow, as proximal as possible',
-   expl:"Catastrophic bleeding — MITT step 1. P1 immediately. Traumatic amputation with arterial haemorrhage requires a tourniquet as proximal as possible. This takes priority over all other assessment steps."},
-  {id:'mitt_s2_02',tag:'Car park — walking wounded',
-   desc:"A woman in her 50s is walking toward you. She has singed eyebrows and redness to her face and forearms. Alert, talking, and asking about her colleagues.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:true}],pri:'P3',action:null,
-   expl:"No catastrophic bleeding. Walking — P3. Despite the burns and the mechanism, she is ambulant. MITT step 2: walking = P3. Direct her to the CCP for secondary assessment and burns management."},
-  {id:'mitt_s2_03',tag:'Warehouse C — near blast seat',
-   desc:"A man in his 40s is found close to the blast origin. He is supine, unresponsive. No visible haemorrhage. You open his airway — no breathing. No chest movement.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:false}],pri:'DEAD',action:'Consider 5 rescue breaths if: submersion, smoke inhalation, or paediatric',
-   expl:"No catastrophic bleeding. Not walking. Airway opened — not breathing. Dead. Primary blast lung injury is likely but irrelevant to triage outcome. Label and move to next casualty."},
-  {id:'mitt_s2_04',tag:'Loading bay — behind pallets',
-   desc:"A woman in her 30s is lying on her side. Breathing is clearly audible — rapid and laboured. You call her name — no response. No eye opening.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:false}],pri:'P1',action:'Place in recovery position',
-   expl:"No catastrophic bleeding. Not walking. Breathing — step 3 cleared. Unresponsive to voice — P1. Place in the recovery position immediately to protect the airway."},
-  {id:'mitt_s2_05',tag:'Courtyard — blast-thrown child',
-   desc:"A boy, approximately 4 years old, is lying on the ground. Crying — responsive to your voice, makes eye contact. Breathing is visible. No significant external bleeding. Respirations appear normal for his age. Pulse is present and normal for his age.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true},{q:'Q5',a:true},{q:'Q6',a:true},{q:'Q7',a:true}],pri:'P2',action:null,
-   expl:"No catastrophic bleeding. Not walking. Breathing. Responds to voice. Aged over 2. RR normal for age. HR normal for age. P2 Urgent. Despite the mechanism, his physiology is currently compensated. Secondary assessment and close monitoring required."},
-  {id:'mitt_s2_06',tag:'Office block — ground floor',
-   desc:"A man in his 50s was blast-thrown through a partition wall. He responds to your voice — speaks a few words. Breathing rate counted at 28 per minute.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true},{q:'Q5',a:true},{q:'Q6',a:false}],pri:'P1',action:null,
-   expl:"No catastrophic bleeding. Not walking. Breathing. Responds to voice. Adult. Breathing rate 28 — above the 12–23 normal range. P1. Tachypnoea following blast suggests lung injury or significant pain."},
-  {id:'mitt_s2_07',tag:'Site road — partially buried',
-   desc:"A woman in her 40s is partially buried under collapsed roofing. Responsive and speaking coherently. Respirations: 14 per minute. Radial pulse present, regular, normal rate.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true},{q:'Q5',a:true},{q:'Q6',a:true},{q:'Q7',a:true}],pri:'P2',action:null,
-   expl:"No catastrophic bleeding. Not walking — entrapped. Breathing. Responds to voice. Adult. RR 14 — within range. HR normal. P2 Urgent. Physiologically stable for now but non-ambulant and entrapped. Requires extrication and secondary assessment."}
-  ]},
-  { id:'mitt_s3',
-    scene:{title:"Coach Crash — A1 Northbound",subtitle:"Road traffic collision · Dual carriageway · Embankment",tool:"Major Incident Triage Tool (MITT)",casualties:16,cas_sub:"Approximate — rear of coach not yet accessed",methane:[
-      {letter:'M',key:'Major Incident',value:'Declared. Multiple agencies responding. Coach operator notified.'},
-      {letter:'E',key:'Exact Location',value:'A1(M) Northbound, between Junctions 45 and 46, near Barnsdale Bar services.'},
-      {letter:'T',key:'Type',value:'Passenger coach left carriageway and rolled down embankment. Coach on its side. Some passengers ejected.'},
-      {letter:'H',key:'Hazards',value:'Unstable coach — secondary roll risk. Fuel leak. Live A1 carriageway 15m above. Glass and debris field.'},
-      {letter:'A',key:'Access',value:'Access via J45 slip road, south approach only. 4x4 required for embankment. RVP at Barnsdale Bar services.'},
-      {letter:'N',key:'Number',value:'Estimated 16 casualties. Multiple ejected. Self-evacuation from rear doors ongoing.'},
-      {letter:'E',key:'Emergency Services',value:'Police on scene. 4 ambulance crews. Fire ETA 5 min. HEMS tasked. Highways closing carriageway.'}]},
-    casualties:[
-  {id:'mitt_s3_01',tag:'Embankment — ejected passenger',
-   desc:"A man in his 30s is on the embankment. His left leg has a traumatic amputation below the knee. The wound is bleeding massively. He is shouting.",
-   path:[{q:'Q1',a:true}],pri:'P1',action:'Tourniquet above the knee, as proximal as possible',
-   expl:"Catastrophic bleeding — MITT ends at step 1. P1. Traumatic below-knee amputation with massive haemorrhage. Tourniquet above the knee immediately. His ability to shout does not delay haemorrhage control."},
-  {id:'mitt_s3_02',tag:'Roadside — self-evacuated',
-   desc:"A woman in her 60s is walking along the bottom of the embankment, dazed. She has a forehead laceration with minor bleeding. Talking but confused about where she is.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:true}],pri:'P3',action:null,
-   expl:"No catastrophic bleeding. Walking — P3. Her confusion and laceration cannot upgrade the priority. MITT step 2: walking = P3. Direct her to the CCP."},
-  {id:'mitt_s3_03',tag:'Coach interior — front seats',
-   desc:"A man in his 70s is in the front section of the overturned coach, lying on what is now the ceiling. Unresponsive. No visible bleeding. You open his airway — no breathing.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:false}],pri:'DEAD',action:'CPR if resources allow',
-   expl:"No catastrophic bleeding. Not walking. Airway opened — not breathing. Dead. Do not commit resources to CPR while living casualties remain unassessed."},
-  {id:'mitt_s3_04',tag:'Embankment mid-slope — ejected',
-   desc:"A woman in her 20s is lying on the slope. Breathing — visible chest rise. You shout her name — no response. Eyes remain closed.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:false}],pri:'P1',action:'Place in recovery position',
-   expl:"No catastrophic bleeding. Not walking. Breathing. Unresponsive to voice — P1. An unconscious patient with spontaneous breathing is at high risk of airway compromise. Recovery position immediately."},
-  {id:'mitt_s3_05',tag:'Coach rear exit — found outside',
-   desc:"A child, approximately 18 months old, has been brought out by another passenger. The child is crying — clearly responsive. Breathing visible. No significant bleeding.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true},{q:'Q5',a:false}],pri:'P1',action:null,
-   expl:"No catastrophic bleeding. Not walking. Breathing. Responds to voice. Aged under 2 — P1 immediately. All children under 2 are automatic P1 under MITT regardless of how clinically well they appear."},
-  {id:'mitt_s3_06',tag:'Coach interior — middle section',
-   desc:"A man in his 50s is trapped by his seat but conscious and talking. He says he has chest pain. Respirations counted: 26 per minute. No catastrophic bleeding.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true},{q:'Q5',a:true},{q:'Q6',a:false}],pri:'P1',action:null,
-   expl:"No catastrophic bleeding. Not walking. Breathing. Responds to voice. Adult. RR 26 — above the 12–23 normal range. P1. Tachypnoea with chest pain following blunt trauma suggests rib fractures or pneumothorax."},
-  {id:'mitt_s3_07',tag:'Embankment base — seated casualty',
-   desc:"A woman in her 30s is sitting upright against a fence post. Alert, answering your questions clearly. Respirations: 16 per minute. Radial pulse present, regular, approximately 85 bpm.",
-   path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true},{q:'Q5',a:true},{q:'Q6',a:true},{q:'Q7',a:true}],pri:'P2',action:null,
-   expl:"No catastrophic bleeding. Not walking. Breathing. Responds to voice. Adult. RR 16 — within range. HR 85 — normal. P2 Urgent. Physiologically stable but non-ambulant. Requires secondary assessment and monitoring."}
-  ]}
+const MITT_SCENES = [
+  {title:"Building Collapse — Bradford",subtitle:"Structural failure · Urban · Confined space",tool:"Major Incident Triage Tool (MITT)",casualties:"~11",cas_sub:"Working estimate — search ongoing",methane:[
+    {letter:'M',key:'Major Incident',value:'Declared. HART and urban search & rescue requested.'},
+    {letter:'E',key:'Exact Location',value:'Former mill conversion, Thornton Road, Bradford BD1. Rear section collapsed.'},
+    {letter:'T',key:'Type',value:'Partial building collapse. Residential upper floors. Ground floor commercial.'},
+    {letter:'H',key:'Hazards',value:'Secondary collapse risk. Gas leak suspected. Asbestos possible.'},
+    {letter:'A',key:'Access',value:"Thornton Road from north only. Inner cordon at 30m. RVP at Morrison's car park."},
+    {letter:'N',key:'Number',value:'Estimated 11 casualties. Mix of walking wounded and trapped.'},
+    {letter:'E',key:'Emergency Services',value:'Police cordoned. 3 ambulance crews. HART 8 min. Fire on scene.'}]},
+  {title:"Industrial Explosion — Rotherham",subtitle:"Blast injury · Chemical plant · Open site",tool:"Major Incident Triage Tool (MITT)",casualties:"~13",cas_sub:"Approximate — site not fully searched",methane:[
+    {letter:'M',key:'Major Incident',value:'Declared. HART tasked. Hazmat standby requested.'},
+    {letter:'E',key:'Exact Location',value:'Forgemasters industrial site, Meadowhall Road, Rotherham S60. Warehouse C, east section.'},
+    {letter:'T',key:'Type',value:'Gas explosion followed by secondary fire. Blast overpressure and thermal injuries.'},
+    {letter:'H',key:'Hazards',value:'Ongoing fire in adjacent bay. Structural instability. Suspected chemical release.'},
+    {letter:'A',key:'Access',value:'Meadowhall Road from south. Inner cordon at 100m. RVP at site security cabin, Gate 1.'},
+    {letter:'N',key:'Number',value:'Estimated 13 casualties. Mix of blast, thermal, and crush injuries.'},
+    {letter:'E',key:'Emergency Services',value:'Fire holding at cordon. Police cordoned. 3 ambulance crews. HART ETA 10 min. HEMS tasked.'}]},
+  {title:"Coach Crash — A1 Northbound",subtitle:"Road traffic collision · Dual carriageway · Embankment",tool:"Major Incident Triage Tool (MITT)",casualties:"~16",cas_sub:"Approximate — rear of coach not yet accessed",methane:[
+    {letter:'M',key:'Major Incident',value:'Declared. Multiple agencies responding. Coach operator notified.'},
+    {letter:'E',key:'Exact Location',value:'A1(M) Northbound, between Junctions 45 and 46, near Barnsdale Bar services.'},
+    {letter:'T',key:'Type',value:'Passenger coach left carriageway and rolled down embankment. Coach on its side. Some passengers ejected.'},
+    {letter:'H',key:'Hazards',value:'Unstable coach — secondary roll risk. Fuel leak. Live A1 carriageway 15m above.'},
+    {letter:'A',key:'Access',value:'Access via J45 slip road, south approach only. 4x4 required for embankment. RVP at Barnsdale Bar services.'},
+    {letter:'N',key:'Number',value:'Estimated 16 casualties. Multiple ejected. Self-evacuation from rear doors ongoing.'},
+    {letter:'E',key:'Emergency Services',value:'Police on scene. 4 ambulance crews. Fire ETA 5 min. HEMS tasked. Highways closing carriageway.'}]}
 ];
+
+// TST POOL — 3 patients per branch, 1 sampled per run = 6 unique casualties each time
+const TST_POOL = {
+  p3:[
+    {id:'tp3a',tag:'Walking casualty',
+     desc:"A man in his 50s is walking toward you. He's cradling his right arm and makes eye contact. No obvious bleeding.",
+     path:[{q:'Q1',a:true}],pri:'P3',action:null,
+     expl:"He walked to you — TST ends at step one. P3. Any casualty who can walk is triaged P3 regardless of injury. Direct him to the Casualty Clearing Point and move on immediately."},
+    {id:'tp3b',tag:'Walking casualty',
+     desc:"A woman in her 30s is walking away from the incident, limping on her right leg. She's upright and mobile, clutching her shoulder. No major bleeding visible.",
+     path:[{q:'Q1',a:true}],pri:'P3',action:null,
+     expl:"She is walking — TST step one. P3. The limp and shoulder injury cannot change this. Direct her to the CCP and move on immediately."},
+    {id:'tp3c',tag:'Walking casualty',
+     desc:"A teenage girl is walking fast toward you, crying. There is a small cut on her forehead. She is looking around in distress but making steady progress on her feet.",
+     path:[{q:'Q1',a:true}],pri:'P3',action:null,
+     expl:"Walking — P3 at step one. Her distress and head laceration do not change the triage priority. Direct to the CCP. Secondary assessment follows there."}
+  ],
+  p1bleed:[
+    {id:'tb1a',tag:'Non-ambulant — haemorrhage',
+     desc:"A woman in her 30s is on the ground, not moving. There is bright red, pulsatile bleeding from her left thigh. Her clothing is soaked.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:true}],pri:'P1',action:'Apply tourniquet or firm pressure',
+     expl:"Not walking. Severe arterial haemorrhage at step two — P1. Tourniquet or firm direct pressure immediately. Do not proceed further down the algorithm."},
+    {id:'tb1b',tag:'Non-ambulant — haemorrhage',
+     desc:"A man in his 40s is slumped and unresponsive. His right forearm has a compound fracture with bone visible and bright red blood pooling rapidly beneath him.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:true}],pri:'P1',action:'Apply tourniquet or pressure dressing',
+     expl:"Not walking. Arterial bleeding from the compound fracture — P1 at step two. Tourniquet or firm pressure dressing required immediately. Do not proceed further."},
+    {id:'tb1c',tag:'Non-ambulant — haemorrhage',
+     desc:"A man in his 50s is on the ground. There is a large scalp laceration pouring blood — dark red, soaking his collar and the ground beneath his head.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:true}],pri:'P1',action:'Apply firm pressure to scalp wound',
+     expl:"Not walking. Severe haemorrhage from the scalp wound — P1 at step two. Scalp wounds bleed heavily. Firm pressure immediately. Do not proceed further down the algorithm."}
+  ],
+  p2:[
+    {id:'tp2a',tag:'Non-ambulant — conscious',
+     desc:"A teenager, perhaps 16, is sitting down, talking loudly. She is crying and on her phone. No visible wounds. No blood.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:false}],pri:'P2',action:null,
+     expl:"Not walking. No severe bleeding. Talking — conscious, airway clear. No penetrating injury. P2 Urgent. She is stable but non-ambulant and needs secondary assessment."},
+    {id:'tp2b',tag:'Non-ambulant — conscious',
+     desc:"A man in his 30s is sitting against a wall. He's talking — telling you his back hurts and he can't stand. No blood visible. No obvious external wounds.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:false}],pri:'P2',action:null,
+     expl:"Not walking. No severe bleeding. Talking — conscious. No penetrating injury. P2 Urgent. Potential spinal injury doesn't change the TST priority. Secondary assessment required."},
+    {id:'tp2c',tag:'Non-ambulant — conscious',
+     desc:"A woman in her 40s is sitting on the ground, alert. She's speaking clearly — telling you she has chest pain and can't get up. No external bleeding or wounds visible.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:false}],pri:'P2',action:null,
+     expl:"Not walking. No severe bleeding. Talking — conscious, airway maintained. No penetrating injury visible. P2 Urgent. Chest pain with mechanism raises concern but TST does not differentiate further here."}
+  ],
+  p1penetrating:[
+    {id:'tp4a',tag:'Non-ambulant — penetrating injury',
+     desc:"A male driver in his late 40s is conscious and talking. He says he can't move his legs. There is a steering column fragment embedded in his left chest.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true}],pri:'P1',action:null,
+     expl:"Not walking. No severe external bleeding. Talking — conscious. Penetrating chest injury — P1 Immediate. Penetrating torso trauma is P1 regardless of current stability. Do not remove the impaled object."},
+    {id:'tp4b',tag:'Non-ambulant — penetrating injury',
+     desc:"A woman in her 20s is conscious and talking clearly. She says she can't move her left leg. A metal shard protrudes from her right shoulder close to the base of the neck.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true}],pri:'P1',action:null,
+     expl:"Not walking. No severe external bleeding. Talking — conscious. Penetrating injury to the proximal shoulder — P1 Immediate. Do not remove the shard. Penetrating injury proximal to the mid-limb is P1 regardless of apparent stability."},
+    {id:'tp4c',tag:'Non-ambulant — penetrating injury',
+     desc:"A woman in her 40s is conscious and talking. She says she felt something go into her side during the incident. An object is visible protruding from her left flank.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true}],pri:'P1',action:null,
+     expl:"Not walking. No severe external bleeding. Talking — conscious. Penetrating abdominal injury — P1 Immediate. Do not remove the object. Penetrating torso trauma is P1 regardless of how stable she currently appears."}
+  ],
+  p1airway:[
+    {id:'tp5a',tag:'Non-ambulant — unresponsive',
+     desc:"A woman in her 40s is lying down, eyes closed, not responding to your voice. No obvious bleeding. She is not breathing. You open her airway — she takes a breath.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:false},{q:'Q5',a:true}],pri:'P1',action:'Place in recovery position',
+     expl:"Not walking. No severe bleeding. Not talking. Not breathing until airway opened — now breathing. P1 Immediate. Place in the recovery position to protect the airway and move on."},
+    {id:'tp5b',tag:'Non-ambulant — unresponsive',
+     desc:"A man in his 30s is face down. Unresponsive to loud shouting. No blood visible. No breathing. You open his airway — chest rise becomes visible two seconds later.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:false},{q:'Q5',a:true}],pri:'P1',action:'Place in recovery position',
+     expl:"Not walking. No severe bleeding. Not talking. Breathing only after airway opened. P1 Immediate. Recovery position to protect the airway, then move on to the next casualty."},
+    {id:'tp5c',tag:'Non-ambulant — unresponsive',
+     desc:"A man in his 20s is supine. Unconscious. No bleeding visible. No respiratory effort. You open his airway and tilt his head — shallow breathing begins within seconds.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:false},{q:'Q5',a:true}],pri:'P1',action:'Place in recovery position',
+     expl:"Not walking. No severe bleeding. Not talking. Not breathing until airway opened — now breathing. P1 Immediate. Recovery position immediately. Consistent with compressive or positional airway obstruction."}
+  ],
+  dead:[
+    {id:'td6a',tag:'Non-ambulant — unresponsive',
+     desc:"A male passenger in his 60s is lying supine. Eyes closed. No response to shouting. No visible haemorrhage. You open his airway — no breathing. No movement.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:false},{q:'Q5',a:false}],pri:'DEAD',action:'CPR if resources allow',
+     expl:"Not walking. No severe bleeding. Not talking. Airway opened — still not breathing. Dead. CPR is only commenced in mass casualty triage if resources allow after all living casualties have been assessed."},
+    {id:'td6b',tag:'Non-ambulant — unresponsive',
+     desc:"An elderly woman is lying on the ground. Eyes closed. No response to voice or pain stimulus. No bleeding. You open her airway carefully — no chest movement. No breath sounds.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:false},{q:'Q5',a:false}],pri:'DEAD',action:'CPR if resources allow',
+     expl:"Not walking. No severe bleeding. Not talking. Airway opened — still not breathing. Dead. Label and move on. Do not commit resources to CPR while living casualties remain unassessed."},
+    {id:'td6c',tag:'Non-ambulant — unresponsive',
+     desc:"A woman in her 30s is lying flat. No breathing visible. Unresponsive to all stimuli. No bleeding. You open her airway — no movement, no breath sounds detected.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:false},{q:'Q5',a:false}],pri:'DEAD',action:'CPR if resources allow',
+     expl:"Not walking. No severe bleeding. Not talking. Airway opened — still not breathing. Dead. In a mass casualty context, CPR cannot be commenced at this stage. Label and move to the next casualty."}
+  ]
+};
+
+// MITT POOL — 3 patients per branch, 1 sampled per run = 7 unique casualties each time
+const MITT_POOL = {
+  p1bleed:[
+    {id:'mb1a',tag:'Catastrophic haemorrhage',
+     desc:"A man in his 30s is conscious and calling for help. There is an avulsion injury to his left forearm — tissue exposed, bleeding heavily and continuously.",
+     path:[{q:'Q1',a:true}],pri:'P1',action:'Pressure dressing, tourniquet, or haemostatic packing',
+     expl:"Catastrophic bleeding — MITT ends immediately. P1. Haemostatic intervention required. His consciousness level doesn't change this. Step 1 is always catastrophic haemorrhage."},
+    {id:'mb1b',tag:'Catastrophic haemorrhage',
+     desc:"A man in his 20s is on the ground. His arm is traumatically amputated below the elbow. He is screaming. The stump is spurting arterial blood at high pressure.",
+     path:[{q:'Q1',a:true}],pri:'P1',action:'High tourniquet — as proximal as possible',
+     expl:"Catastrophic bleeding — MITT step 1. P1 immediately. Traumatic amputation with arterial haemorrhage. Tourniquet as proximal as possible. This takes priority over all further assessment."},
+    {id:'mb1c',tag:'Catastrophic haemorrhage',
+     desc:"A man in his 30s is on the ground. His left leg has a traumatic amputation below the knee. The wound is bleeding massively. He is shouting and responsive.",
+     path:[{q:'Q1',a:true}],pri:'P1',action:'Tourniquet above the knee, as proximal as possible',
+     expl:"Catastrophic bleeding — MITT step 1. P1. Traumatic below-knee amputation with massive haemorrhage. Tourniquet above the knee immediately. His ability to shout does not delay haemorrhage control."}
+  ],
+  p3:[
+    {id:'mb2a',tag:'Walking casualty',
+     desc:"An older woman, perhaps 70s, is walking slowly toward you holding her head. She's confused but mobile. A small laceration on her forehead, bleeding minimally.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:true}],pri:'P3',action:null,
+     expl:"No catastrophic bleeding. Walking — P3. Despite confusion and age, she is ambulant. MITT step 2: walking = P3. Direct her to the Casualty Clearing Point."},
+    {id:'mb2b',tag:'Walking casualty',
+     desc:"A woman in her 50s is walking toward you. She has singed eyebrows and redness to her face and forearms. Alert, talking, and asking about her colleagues.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:true}],pri:'P3',action:null,
+     expl:"No catastrophic bleeding. Walking — P3. Despite burns and mechanism, she is ambulant. MITT step 2: walking = P3. Direct to the CCP for secondary assessment and burns management."},
+    {id:'mb2c',tag:'Walking casualty',
+     desc:"A man in his 60s is walking along the cordon perimeter, dazed. He has a forehead laceration with minor bleeding. Talking but confused about where he is.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:true}],pri:'P3',action:null,
+     expl:"No catastrophic bleeding. Walking — P3. Confusion and head laceration cannot upgrade the priority. MITT step 2: walking = P3. Direct to the CCP."}
+  ],
+  dead:[
+    {id:'mb3a',tag:'Non-ambulant — unresponsive',
+     desc:"A male, mid-30s, prone, unresponsive. No obvious external bleeding. You open his airway — no respiratory effort. No chest rise.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:false}],pri:'DEAD',action:'Consider 5 rescue breaths if: submersion, smoke, or paediatric',
+     expl:"No catastrophic bleeding. Not walking. Airway opened — not breathing. Dead. In adults without a relevant mechanism, CPR is not indicated during active mass casualty triage."},
+    {id:'mb3b',tag:'Non-ambulant — unresponsive',
+     desc:"A man in his 40s is found supine. He is unresponsive. No visible haemorrhage. You open his airway — no breathing. No chest movement.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:false}],pri:'DEAD',action:'Consider 5 rescue breaths if: submersion, smoke, or paediatric',
+     expl:"No catastrophic bleeding. Not walking. Airway opened — not breathing. Dead. Label and move on. CPR is not commenced while living casualties remain unassessed."},
+    {id:'mb3c',tag:'Non-ambulant — unresponsive',
+     desc:"A man in his 70s is found lying on his back. Unresponsive. No visible bleeding. You open his airway carefully — no breathing response. No chest movement.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:false}],pri:'DEAD',action:'CPR if resources allow',
+     expl:"No catastrophic bleeding. Not walking. Airway opened — not breathing. Dead. Do not commit resources to CPR while living casualties remain unassessed."}
+  ],
+  p1unresponsive:[
+    {id:'mb4a',tag:'Non-ambulant — unresponsive',
+     desc:"A woman in her 50s is breathing — you can see chest rise. Lying still. You call her name clearly — no response. No eye opening. No movement.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:false}],pri:'P1',action:'Place in recovery position',
+     expl:"No catastrophic bleeding. Not walking. Breathing. Unresponsive to voice — P1. Place in the recovery position. Unresponsiveness with spontaneous breathing is a critical sign."},
+    {id:'mb4b',tag:'Non-ambulant — unresponsive',
+     desc:"A woman in her 30s is lying on her side. Breathing is audible — rapid and laboured. You call her name — no response. No eye opening.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:false}],pri:'P1',action:'Place in recovery position',
+     expl:"No catastrophic bleeding. Not walking. Breathing — step 3 cleared. Unresponsive to voice — P1. Recovery position immediately to protect the airway."},
+    {id:'mb4c',tag:'Non-ambulant — unresponsive',
+     desc:"A woman in her 20s is on the ground. Chest is rising — she is breathing. You shout her name loudly — no response. Eyes remain closed.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:false}],pri:'P1',action:'Place in recovery position',
+     expl:"No catastrophic bleeding. Not walking. Breathing. Unresponsive to voice — P1. An unconscious patient with spontaneous breathing is at immediate risk of airway compromise. Recovery position and flag as P1."}
+  ],
+  p1age:[
+    {id:'mb5a',tag:'Paediatric casualty',
+     desc:"A small child, approximately 18 months old, lying on the ground. Breathing visible. Opens eyes when you call loudly. Appears frightened but does not speak.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true},{q:'Q5',a:false}],pri:'P1',action:null,
+     expl:"No catastrophic bleeding. Not walking. Breathing. Responds to voice. Aged under 2 — P1 immediately. All children under 2 are automatically P1 under MITT regardless of apparent clinical status."},
+    {id:'mb5b',tag:'Paediatric casualty',
+     desc:"A child, approximately 18 months old, has been brought to you by another casualty. The child is crying — clearly responsive. Breathing visible. No significant external bleeding.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true},{q:'Q5',a:false}],pri:'P1',action:null,
+     expl:"No catastrophic bleeding. Not walking. Breathing. Responds to voice. Aged under 2 — P1 immediately. Crying indicates a patent airway, but under 2 = automatic P1 under MITT."},
+    {id:'mb5c',tag:'Paediatric casualty',
+     desc:"A baby, approximately 12 months old, is found in a carrier. The child is whimpering — responsive to your voice. Breathing is visible. No obvious bleeding.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true},{q:'Q5',a:false}],pri:'P1',action:null,
+     expl:"No catastrophic bleeding. Not walking. Breathing. Responds to voice. Aged under 2 — P1 immediately. All children under 2 are P1 under MITT. Apparent stability does not change this."}
+  ],
+  p1rr:[
+    {id:'mb6a',tag:'Non-ambulant — physiological compromise',
+     desc:"A man in his 40s is partially trapped. He responds to your voice — opens eyes and speaks a few words. Respirations counted: 8 per minute.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true},{q:'Q5',a:true},{q:'Q6',a:false}],pri:'P1',action:null,
+     expl:"No catastrophic bleeding. Not walking. Breathing. Responds to voice. Adult. RR 8 — below the 12–23 normal window. P1. A rate below 12 indicates significant physiological compromise."},
+    {id:'mb6b',tag:'Non-ambulant — physiological compromise',
+     desc:"A man in his 50s is trapped but conscious and talking. He says he has chest pain. Respirations counted: 26 per minute.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true},{q:'Q5',a:true},{q:'Q6',a:false}],pri:'P1',action:null,
+     expl:"No catastrophic bleeding. Not walking. Breathing. Responds to voice. Adult. RR 26 — above the 12–23 normal range. P1. Tachypnoea with chest pain suggests rib fractures, pneumothorax, or pain-driven compensation."},
+    {id:'mb6c',tag:'Non-ambulant — physiological compromise',
+     desc:"A man in his 50s responds to your voice and speaks a few words. Breathing rate counted at 28 per minute.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true},{q:'Q5',a:true},{q:'Q6',a:false}],pri:'P1',action:null,
+     expl:"No catastrophic bleeding. Not walking. Breathing. Responds to voice. Adult. RR 28 — above the 12–23 normal range. P1. Tachypnoea following significant mechanism indicates physiological compromise."}
+  ],
+  p2:[
+    {id:'mb7a',tag:'Non-ambulant — urgent',
+     desc:"A woman in her 30s is sitting against a wall. Responds to voice, speaks clearly. Respirations: 17 per minute. Radial pulse rapid and weak — approximately 120 bpm.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true},{q:'Q5',a:true},{q:'Q6',a:true},{q:'Q7',a:false}],pri:'P2',action:null,
+     expl:"Passes all P1 criteria. RR 17 — within range. HR ~120 — elevated. P2 Urgent. Non-ambulant with some physiological compromise. Secondary assessment required urgently."},
+    {id:'mb7b',tag:'Non-ambulant — urgent',
+     desc:"A woman in her 40s is partially entrapped but responsive and speaking coherently. Respirations: 14 per minute. Radial pulse present, regular, normal rate.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true},{q:'Q5',a:true},{q:'Q6',a:true},{q:'Q7',a:true}],pri:'P2',action:null,
+     expl:"No catastrophic bleeding. Not walking. Breathing. Responds to voice. Adult. RR 14 — within range. HR normal. P2 Urgent. Physiologically stable but non-ambulant. Requires secondary assessment."},
+    {id:'mb7c',tag:'Non-ambulant — urgent',
+     desc:"A boy, approximately 4 years old, is lying on the ground. Crying — responsive to your voice, makes eye contact. Breathing visible. Respirations appear normal for his age. Pulse present and normal for his age.",
+     path:[{q:'Q1',a:false},{q:'Q2',a:false},{q:'Q3',a:true},{q:'Q4',a:true},{q:'Q5',a:true},{q:'Q6',a:true},{q:'Q7',a:true}],pri:'P2',action:null,
+     expl:"No catastrophic bleeding. Not walking. Breathing. Responds to voice. Aged over 2. RR normal for age. HR normal for age. P2 Urgent. Despite the mechanism, his physiology is compensated. Secondary assessment and close monitoring required."}
+  ]
+};
+
+// Sample one patient from each branch, then shuffle order
+function sampleCasualties(pool) {
+  const sampled = Object.values(pool).map(branch => branch[Math.floor(Math.random()*branch.length)]);
+  for (let i=sampled.length-1; i>0; i--) {
+    const j=Math.floor(Math.random()*(i+1));
+    [sampled[i],sampled[j]]=[sampled[j],sampled[i]];
+  }
+  return sampled;
+}
 
 const PRI_LABELS = {P1:'P1 — Immediate',P2:'P2 — Urgent',P3:'P3 — Delayed',DEAD:'Dead'};
 const TIMERS = {tst:10,mitt:30};
 const CIRC   = 2*Math.PI*28;
 
 const S = {
-  tool:null, mode:'hints', scenario:null, casualties:[], currentIdx:0, currentQIdx:0,
+  tool:null, mode:'hints', scene:null, casualties:[], currentIdx:0, currentQIdx:0,
   results:[], timerInterval:null, timerSeconds:10, timerMax:10, startTime:null
 };
 
@@ -832,13 +858,10 @@ function showScreen(id) {
 }
 
 function selectTool(tool) {
-  S.tool=tool;
-  S.results=[]; S.currentIdx=0;
-  // Pick a random scenario
-  const pool = tool==='tst' ? TST_SCENARIOS : MITT_SCENARIOS;
-  S.scenario = pool[Math.floor(Math.random()*pool.length)];
-  S.casualties = [...S.scenario.casualties];
-  // Update mode screen pill
+  S.tool=tool; S.results=[]; S.currentIdx=0;
+  const scenes = tool==='tst' ? TST_SCENES : MITT_SCENES;
+  S.scene = scenes[Math.floor(Math.random()*scenes.length)];
+  S.casualties = sampleCasualties(tool==='tst' ? TST_POOL : MITT_POOL);
   const pill=document.getElementById('mode-tool-pill');
   pill.textContent=tool==='tst'?'Ten Second Triage':'MITT';
   pill.className='mode-tool-pill '+(tool==='tst'?'tst':'mitt');
@@ -847,7 +870,7 @@ function selectTool(tool) {
 
 function selectMode(mode) {
   S.mode=mode;
-  const sc=S.scenario.scene;
+  const sc=S.scene;
   document.getElementById('methane-tool-tag').textContent=S.tool==='tst'?'TST':'MITT';
   document.getElementById('methane-title').textContent=sc.title;
   document.getElementById('methane-subtitle').textContent=sc.subtitle;
@@ -1054,7 +1077,7 @@ Second person. Honest. No congratulations for average or poor scores.`;
 
 function runAgain(){
   S.results=[]; S.currentIdx=0;
-  S.casualties=[...S.scenario.casualties];
+  S.casualties=sampleCasualties(S.tool==='tst' ? TST_POOL : MITT_POOL);
   document.querySelectorAll('.pri-btn').forEach(b=>b.classList.remove('selected'));
   loadCas(0); showScreen('mi-triage');
 }
