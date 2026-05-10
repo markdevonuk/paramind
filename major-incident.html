@@ -1061,17 +1061,43 @@ Write a debrief in 3 short paragraphs (max 140 words total):
 2. Specific error patterns — name the exact algorithm steps they struggled with
 3. One concrete focus for next practice session
 Second person. Honest. No congratulations for average or poor scores.`;
-  try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+
+  const systemPrompt = 'You are a clinical debrief tool for major incident triage training. Be direct, honest, and clinically precise. No padding or pleasantries.';
+
+  try {
+    // Use Paramind's Firebase-backed API — requires user to be logged in
+    const token = firebase.auth().currentUser
+      ? await firebase.auth().currentUser.getIdToken()
+      : null;
+
+    if (!token) throw new Error('Not authenticated');
+
+    const resp = await fetch(API.chat, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: prompt,
+        conversationHistory: [],
+        scenarioPrompt: systemPrompt
+      })
     });
-    const data=await resp.json();
-    const text=data.content.find(b=>b.type==='text')?.text||'Debrief unavailable.';
-    document.getElementById('ai-content').innerHTML=
+
+    // API returns a stream — read it fully
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let text = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      text += decoder.decode(value, { stream: true });
+    }
+
+    document.getElementById('ai-content').innerHTML =
       `<div class="ai-text">${text.replace(/\n\n/g,'</p><p style="margin-top:.75rem">').replace(/^/,'<p>').replace(/$/,'</p>')}</div>`;
-  }catch{
-    document.getElementById('ai-content').innerHTML='<div class="ai-text" style="color:var(--color-gray-500)">Debrief unavailable — check connection.</div>';
+  } catch(err) {
+    console.error('Debrief error:', err);
+    document.getElementById('ai-content').innerHTML =
+      `<div class="ai-text" style="color:var(--color-gray-500)">Debrief unavailable — please ensure you are logged in.</div>`;
   }
 }
 
