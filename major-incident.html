@@ -550,13 +550,6 @@
       </div>
       <div class="sec-eyebrow">Casualty Log</div>
       <div class="cas-log" id="cas-log"></div>
-      <div class="sec-eyebrow">Clinical Debrief</div>
-      <div class="ai-card">
-        <div class="ai-hdr"><div class="ai-dot"></div><div class="ai-lbl">AI Analysis</div></div>
-        <div id="ai-content">
-          <div class="ai-loading"><div class="ld"><span></span><span></span><span></span></div>Generating debrief...</div>
-        </div>
-      </div>
       <button class="mi-btn-again" onclick="runAgain()"><i class="bi bi-arrow-repeat me-2"></i>Run Same Scenario Again</button>
       <button class="mi-btn-home"  onclick="goHome()"><i class="bi bi-chevron-left me-1"></i>Choose Tool</button>
     </div>
@@ -1057,7 +1050,6 @@ function showDebrief(){
     </div>`;
   }).join('');
   showScreen('mi-debrief');
-  fetchDebrief(res,pct);
 }
 
 async function fetchDebrief(res,pct){
