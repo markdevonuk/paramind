@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <title>OSCE Practice | Paramind</title>
+  <meta name="description" content="Study and self-assess the four enhanced assessments. Built for UK student paramedics.">
+  <meta name="robots" content="noindex">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <!-- Google Fonts: Plus Jakarta Sans + DM Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Brand CSS -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/menu-v2.css">
+  <!-- Icons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+
+  <style>
+    /* ============================================
+       OSCE Practice page-specific styles
+       Uses brand tokens from css/styles.css
+       Page-specific osce- prefix mirrors the mi- pattern in major-incident.html
+       ============================================ */
+
+    /* Screen-switching architecture — only one screen visible at a time */
+    .osce-screen {
+      display: none;
+      padding-bottom: calc(3rem + env(safe-area-inset-bottom));
+    }
+    .osce-screen.active { display: block; }
+    .osce-inner { max-width: 560px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+    /* Back button in navbar */
+    .osce-back-btn {
+      background: none;
+      border: none;
+      color: var(--color-teal);
+      font-family: var(--font-primary);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 6px;
+    }
+    .osce-back-btn:hover { color: var(--color-teal-dark); }
+    .osce-back-btn[hidden] { display: none; }
+
+    /* Eyebrow tag — matches mi-eyebrow pattern */
+    .osce-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(43,138,156,0.08);
+      border: 1px solid rgba(43,138,156,0.2);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--color-teal);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .osce-eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-teal); }
+
+    /* Title — clamp() responsive, two-line with second word teal */
+    .osce-title {
+      font-size: clamp(1.8rem, 6vw, 2.4rem);
+      font-weight: 800;
+      line-height: 1.15;
+      color: var(--color-gray-900);
+      margin-bottom: 0.5rem;
+    }
+    .osce-title span { color: var(--color-teal); }
+
+    .osce-sub {
+      font-size: 0.95rem;
+      color: var(--color-gray-600);
+      margin-bottom: 1.75rem;
+      line-height: 1.6;
+    }
+
+    .osce-breadcrumb {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--color-gray-500);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Card pattern — left accent stripe, mirrors mi-tool-card */
+    .osce-cards { display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 1.25rem; }
+
+    .osce-card {
+      background: #fff;
+      border: 1px solid var(--color-gray-200);
+      border-radius: 12px;
+      padding: 1.15rem 1.25rem 1.15rem 1.5rem;
+      cursor: pointer;
+      text-align: left;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.18s, box-shadow 0.18s, transform 0.1s;
+      display: block;
+      width: 100%;
+    }
+    .osce-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: var(--color-teal);
+      border-radius: 4px 0 0 4px;
+    }
+    .osce-card.cardio::before { background: var(--color-teal); }
+    .osce-card.resp::before   { background: var(--color-teal-light); }
+    .osce-card.abdo::before   { background: var(--color-green); }
+    .osce-card.neuro::before  { background: var(--color-green-dark); }
+
+    .osce-card:hover {
+      border-color: var(--color-teal);
+      box-shadow: 0 4px 12px rgba(43,138,156,0.12);
+    }
+    .osce-card:active { transform: scale(0.985); }
+    .osce-card[data-status="coming"] { opacity: 0.55; cursor: not-allowed; }
+    .osce-card[data-status="coming"]:hover { border-color: var(--color-gray-200); box-shadow: none; }
+
+    .osce-card-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-gray-500);
+      margin-bottom: 0.25rem;
+    }
+    .osce-card-name {
+      font-size: 1.2rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 0.3rem;
+      color: var(--color-gray-900);
+    }
+    .osce-card.cardio .osce-card-name { color: var(--color-teal); }
+    .osce-card.abdo .osce-card-name { color: var(--color-green); }
+
+    .osce-card-desc { font-size: 0.84rem; color: var(--color-gray-600); line-height: 1.45; margin-bottom: 0.5rem; }
+    .osce-card-meta {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--color-gray-500);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .osce-card-arrow {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-gray-300);
+      font-size: 1.1rem;
+    }
+    .osce-card[data-status="coming"] .osce-card-arrow { display: none; }
+    .osce-card-flag {
+      display: inline-block;
+      background: rgba(220,53,69,0.08);
+      color: var(--color-danger);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-top: 0.5rem;
+    }
+
+    /* Section intro */
+    .osce-section-intro {
+      border-left: 3px solid var(--color-teal);
+      padding: 0.85rem 0 0.85rem 1rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.92rem;
+      color: var(--color-gray-700);
+      line-height: 1.6;
+    }
+
+    /* Mode toggle */
+    .osce-mode-toggle {
+      display: inline-flex;
+      background: var(--color-gray-100);
+      border: 1px solid var(--color-gray-200);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 3px;
+      margin-bottom: 1.5rem;
+    }
+    .osce-mode-toggle button {
+      background: none;
+      border: none;
+      font-family: var(--font-primary);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--color-gray-600);
+      padding: 7px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .osce-mode-toggle button.active {
+      background: #fff;
+      color: var(--color-gray-900);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    }
+    .osce-mode-toggle button:disabled {
+      color: var(--color-gray-400);
+      cursor: not-allowed;
+    }
+    .osce-mode-toggle button.coming-soon {
+      position: relative;
+    }
+    .osce-mode-toggle .soon-tag {
+      font-size: 0.55rem;
+      background: rgba(92,184,92,0.15);
+      color: var(--color-green-dark);
+      padding: 1px 5px;
+      border-radius: 8px;
+      margin-left: 4px;
+      vertical-align: middle;
+      letter-spacing: 0.04em;
+    }
+
+    /* Item detail view */
+    .osce-item-eyebrow {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-teal);
+      margin-bottom: 0.4rem;
+    }
+    .osce-item-title {
+      font-size: clamp(1.6rem, 5.5vw, 2.1rem);
+      font-weight: 800;
+      line-height: 1.15;
+      color: var(--color-gray-900);
+      margin-bottom: 1rem;
+    }
+    .osce-item-lead {
+      font-size: 1rem;
+      color: var(--color-gray-700);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      padding-left: 1rem;
+      border-left: 3px solid var(--color-gray-200);
+      font-style: italic;
+    }
+
+    /* Critical fail callout */
+    .osce-critical {
+      background: rgba(220,53,69,0.05);
+      border: 1px solid rgba(220,53,69,0.2);
+      border-left: 4px solid var(--color-danger);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+    .osce-critical i { color: var(--color-danger); font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+    .osce-critical-content { flex: 1; }
+    .osce-critical-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-danger);
+      margin-bottom: 0.2rem;
+    }
+    .osce-critical-text {
+      font-size: 0.85rem;
+      color: var(--color-gray-800);
+      line-height: 1.5;
+    }
+
+    /* Primary layer */
+    .osce-layer-primary {
+      background: #fff;
+      border: 1px solid var(--color-gray-200);
+      border-radius: 12px;
+      padding: 1.25rem 1.4rem;
+      margin-bottom: 0.85rem;
+    }
+    .osce-layer-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-teal);
+      margin-bottom: 0.75rem;
+    }
+    .osce-layer-primary p {
+      margin: 0 0 0.7rem 0;
+      font-size: 0.92rem;
+      line-height: 1.65;
+      color: var(--color-gray-800);
+    }
+    .osce-layer-primary p:last-child { margin-bottom: 0; }
+    .osce-layer-primary em { font-style: italic; }
+    .osce-layer-primary strong { font-weight: 700; color: var(--color-gray-900); }
+
+    /* Expandable layers */
+    .osce-layer-expandable {
+      background: #fff;
+      border: 1px solid var(--color-gray-200);
+      border-radius: 12px;
+      margin-bottom: 0.85rem;
+      overflow: hidden;
+    }
+    .osce-layer-expandable summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 1rem 1.4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      user-select: none;
+      transition: background 0.15s ease;
+    }
+    .osce-layer-expandable summary::-webkit-details-marker { display: none; }
+    .osce-layer-expandable summary:hover { background: var(--color-gray-50); }
+
+    .osce-summary-title {
+      font-family: var(--font-primary);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+      line-height: 1.2;
+      margin-bottom: 0.15rem;
+    }
+    .osce-summary-hint { font-size: 0.78rem; color: var(--color-gray-500); }
+    .osce-summary-chevron {
+      color: var(--color-gray-400);
+      font-size: 0.9rem;
+      transition: transform 0.2s ease, color 0.2s ease;
+      flex-shrink: 0;
+    }
+    details[open] .osce-summary-chevron { transform: rotate(180deg); color: var(--color-teal); }
+
+    .osce-layer-body {
+      padding: 0.25rem 1.4rem 1.4rem;
+      border-top: 1px solid var(--color-gray-100);
+      padding-top: 1.1rem;
+    }
+    .osce-layer-body p {
+      margin: 0 0 0.7rem 0;
+      font-size: 0.9rem;
+      line-height: 1.65;
+      color: var(--color-gray-700);
+    }
+    .osce-layer-body p:last-child { margin-bottom: 0; }
+    .osce-layer-body strong { color: var(--color-gray-900); font-weight: 700; }
+    .osce-layer-body em { font-style: italic; }
+    .osce-layer-body ul { list-style: none; padding: 0; margin: 0; }
+    .osce-layer-body ul li {
+      position: relative;
+      padding-left: 18px;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      color: var(--color-gray-700);
+    }
+    .osce-layer-body ul li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.65em;
+      width: 6px;
+      height: 6px;
+      background: var(--color-teal);
+      border-radius: 50%;
+    }
+
+    /* Ticks layer */
+    .osce-layer-expandable.osce-ticks summary {
+      background: linear-gradient(135deg, rgba(43,138,156,0.04) 0%, rgba(92,184,92,0.04) 100%);
+    }
+    .osce-tick-list { list-style: none; padding: 0; margin: 0; }
+    .osce-tick-list li {
+      padding: 0.7rem 0;
+      border-bottom: 1px solid var(--color-gray-100);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: var(--color-gray-700);
+      cursor: pointer;
+    }
+    .osce-tick-list li:last-child { border-bottom: none; }
+    .osce-tick-checkbox {
+      width: 20px;
+      height: 20px;
+      border: 1.5px solid var(--color-gray-300);
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      background: #fff;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+    .osce-tick-checkbox i { opacity: 0; font-size: 0.75rem; transition: opacity 0.15s ease; }
+    .osce-tick-list li.checked .osce-tick-checkbox {
+      background: var(--color-teal);
+      border-color: var(--color-teal);
+    }
+    .osce-tick-list li.checked .osce-tick-checkbox i { opacity: 1; }
+    .osce-tick-list li.checked {
+      color: var(--color-gray-500);
+      text-decoration: line-through;
+    }
+
+    /* Item nav */
+    .osce-item-nav {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--color-gray-200);
+      display: flex;
+      gap: 0.6rem;
+    }
+    .osce-item-nav button {
+      flex: 1;
+      background: #fff;
+      border: 1px solid var(--color-gray-200);
+      border-radius: 8px;
+      padding: 0.7rem 0.9rem;
+      font-family: var(--font-primary);
+      font-size: 0.85rem;
+      color: var(--color-gray-800);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: left;
+      line-height: 1.3;
+    }
+    .osce-item-nav button:hover { border-color: var(--color-teal); color: var(--color-teal-dark); }
+    .osce-item-nav button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .osce-item-nav button:disabled:hover { border-color: var(--color-gray-200); color: var(--color-gray-800); }
+    .osce-item-nav button.next { text-align: right; }
+    .osce-item-nav .direction {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-gray-500);
+      margin-bottom: 0.15rem;
+    }
+
+    /* Disclaimer */
+    .osce-disclaimer {
+      background: linear-gradient(135deg, rgba(43,138,156,0.04) 0%, rgba(92,184,92,0.04) 100%);
+      border: 1px solid var(--color-gray-200);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      font-size: 0.78rem;
+      color: var(--color-gray-600);
+      line-height: 1.55;
+    }
+    .osce-disclaimer strong { color: var(--color-gray-800); }
+
+    /* Toast for Examiner Mode coming-soon */
+    .osce-toast {
+      position: fixed;
+      bottom: calc(1.5rem + env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--color-gray-900);
+      color: #fff;
+      padding: 0.75rem 1.25rem;
+      border-radius: 24px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 200;
+      max-width: 90%;
+      text-align: center;
+    }
+    .osce-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================================
+     MEMBER NAVBAR — matches major-incident.html
+     ============================================ -->
+<nav class="member-navbar">
+  <div class="container">
+    <div style="display:flex; align-items:center; gap:0.5rem;">
+      <button class="osce-back-btn" id="backBtn" hidden onclick="goBack()">
+        <i class="bi bi-chevron-left"></i> Back
+      </button>
+    </div>
+    <span class="brand-text">
+      <a class="navbar-brand" href="landing.html">
+        <span class="brand-para">para</span><span class="brand-mind">mind</span>
+      </a>
+    </span>
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ============================================
+     HOME — Landing screen (system grid)
+     ============================================ -->
+<div id="osce-home" class="osce-screen active">
+  <div class="osce-inner">
+    <div class="osce-eyebrow"><span class="dot"></span>OSCE Practice</div>
+    <h1 class="osce-title">Practice the four<br><span>enhanced assessments.</span></h1>
+    <p class="osce-sub">
+      Study and self-assess against common UK paramedic frameworks. Pick a system to start — each one covers history-taking, examination, decision-making, and adjustments for special populations. Written in plain language for stressed students who don't have time to wade through textbooks.
+    </p>
+
+    <div class="osce-cards">
+      <button class="osce-card cardio" onclick="navigate('system-cardio')">
+        <div class="osce-card-label">Pilot system</div>
+        <div class="osce-card-name">Cardiovascular</div>
+        <div class="osce-card-desc">Heart, pulses, central and peripheral signs.</div>
+        <div class="osce-card-meta">Available now</div>
+        <i class="bi bi-chevron-right osce-card-arrow"></i>
+      </button>
+
+      <button class="osce-card resp" data-status="coming">
+        <div class="osce-card-label">Coming soon</div>
+        <div class="osce-card-name">Respiratory</div>
+        <div class="osce-card-desc">Lungs, airways, breath sounds, oxygenation.</div>
+        <div class="osce-card-meta">In development</div>
+      </button>
+
+      <button class="osce-card abdo" data-status="coming">
+        <div class="osce-card-label">Coming soon</div>
+        <div class="osce-card-name">Abdominal</div>
+        <div class="osce-card-desc">Inspection, palpation, percussion, auscultation of the abdomen.</div>
+        <div class="osce-card-meta">In development</div>
+      </button>
+
+      <button class="osce-card neuro" data-status="coming">
+        <div class="osce-card-label">Coming soon</div>
+        <div class="osce-card-name">Neurological</div>
+        <div class="osce-card-desc">Cranial nerves, motor, sensory, coordination, GCS.</div>
+        <div class="osce-card-meta">In development</div>
+      </button>
+    </div>
+
+    <div class="osce-disclaimer">
+      <strong><i class="bi bi-info-circle-fill me-1"></i>Paramind's OSCE Practice</strong> is based on common clinical assessment frameworks used in UK paramedic education. It is intended as a revision and self-assessment aid. <strong>Always consult the official rubric and guidance for your programme.</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     SYSTEM PAGE — Cardiovascular
+     ============================================ -->
+<div id="osce-system-cardio" class="osce-screen">
+  <div class="osce-inner">
+    <div class="osce-breadcrumb">OSCE Practice</div>
+    <h1 class="osce-title">Cardiovascular</h1>
+    <p class="osce-sub">Four sections, mirroring how the full OSCE flows from first contact to discharge.</p>
+
+    <div class="osce-mode-toggle">
+      <button class="active" onclick="setMode('study')">Study Mode</button>
+      <button class="coming-soon" onclick="showToast('Examiner Mode is coming soon — peer-mark each section with your study partner.')">Examiner Mode <span class="soon-tag">SOON</span></button>
+    </div>
+
+    <div class="osce-cards">
+      <button class="osce-card cardio" onclick="navigate('section-history')">
+        <div class="osce-card-label">Section 1 · 20%</div>
+        <div class="osce-card-name">Advanced History Taking</div>
+        <div class="osce-card-desc">Introduction, consent, presenting complaint, history, communication.</div>
+        <div class="osce-card-meta">10 items · ~15 min</div>
+        <i class="bi bi-chevron-right osce-card-arrow"></i>
+      </button>
+
+      <button class="osce-card cardio" onclick="navigate('section-exam')">
+        <div class="osce-card-label">Section 2 · 30%</div>
+        <div class="osce-card-name">Cardiovascular Examination</div>
+        <div class="osce-card-desc">General overview, inspection, palpation, auscultation, percussion, special tests.</div>
+        <div class="osce-card-meta">6 parts · ~20 min</div>
+        <i class="bi bi-chevron-right osce-card-arrow"></i>
+      </button>
+
+      <button class="osce-card cardio" onclick="navigate('section-decision')">
+        <div class="osce-card-label">Section 3 · 30%</div>
+        <div class="osce-card-name">Decision Making &amp; Management</div>
+        <div class="osce-card-desc">Working impression, pathophysiology, management plan, safety netting, closing.</div>
+        <div class="osce-card-meta">5 items · ~15 min</div>
+        <i class="bi bi-chevron-right osce-card-arrow"></i>
+      </button>
+
+      <button class="osce-card cardio" onclick="navigate('section-special')">
+        <div class="osce-card-label">Section 4 · 20%</div>
+        <div class="osce-card-name">Special Populations</div>
+        <div class="osce-card-desc">Adjusting your practice for pregnant, paediatric, and dementia patients.</div>
+        <div class="osce-card-meta">3 items · ~10 min</div>
+        <i class="bi bi-chevron-right osce-card-arrow"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     SECTION PAGES — item lists
+     ============================================ -->
+<div id="osce-section-history" class="osce-screen">
+  <div class="osce-inner">
+    <div class="osce-breadcrumb">OSCE Practice · Cardiovascular</div>
+    <h1 class="osce-title">Advanced<br><span>History Taking</span></h1>
+    <p class="osce-sub">Section 1 — shared across all four systems. Ten items, in the order you'd actually do them.</p>
+    <div class="osce-section-intro">
+      Everything that happens before you put your hands on the patient. This is where students most commonly underperform — not because they don't know the questions, but because they treat it as a list to get through rather than the work the rest of the exam depends on.
+    </div>
+    <div class="osce-cards" id="historyItemList"></div>
+  </div>
+</div>
+
+<div id="osce-section-exam" class="osce-screen">
+  <div class="osce-inner">
+    <div class="osce-breadcrumb">OSCE Practice · Cardiovascular</div>
+    <h1 class="osce-title">Cardiovascular<br><span>Examination</span></h1>
+    <p class="osce-sub">Section 2 — system-specific. The examination follows a sequence; verbalise as you go.</p>
+    <div class="osce-section-intro">
+      You walk in. You look. Then you start at the hands and work your way up. By the time your stethoscope touches the chest, you should already have a working impression from what you've seen and felt.
+    </div>
+    <div class="osce-cards" id="examItemList"></div>
+  </div>
+</div>
+
+<div id="osce-section-decision" class="osce-screen">
+  <div class="osce-inner">
+    <div class="osce-breadcrumb">OSCE Practice · Cardiovascular</div>
+    <h1 class="osce-title">Decision Making<br><span>&amp; Management</span></h1>
+    <p class="osce-sub">Section 3 — shared across all four systems. Two critical fails live here.</p>
+    <div class="osce-section-intro">
+      This is where the consultation becomes action. The biggest single bloc of marks in the OSCE — and home to two of the rubric's critical fails. Consent at the intervention stage, and discharge without proper safety netting.
+    </div>
+    <div class="osce-cards" id="decisionItemList"></div>
+  </div>
+</div>
+
+<div id="osce-section-special" class="osce-screen">
+  <div class="osce-inner">
+    <div class="osce-breadcrumb">OSCE Practice · Cardiovascular</div>
+    <h1 class="osce-title">Special<br><span>Populations</span></h1>
+    <p class="osce-sub">Section 4 — examiner's questions. How would you adjust for three specific patient groups?</p>
+    <div class="osce-section-intro">
+      After the consultation, the examiner asks how you'd adjust your assessment and management for pregnant patients, paediatric patients, and patients with dementia. This isn't a second consultation — it's a test of your ability to think and articulate the differences.
+    </div>
+    <div class="osce-cards" id="specialItemList"></div>
+  </div>
+</div>
+
+<!-- Item detail view -->
+<div id="osce-item" class="osce-screen">
+  <div class="osce-inner" id="itemContent"></div>
+</div>
+
+<!-- Toast for coming-soon notifications -->
+<div class="osce-toast" id="osceToast"></div>
+
+<!-- ============================================
+     PARAMIND SCRIPT STACK
+     Firebase → Bootstrap → app → menu → pro-guard → activity-logger → upgrade-modal
+     ============================================ -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/app.js"></script>
+<script src="js/menu-v2.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
+  authDomain: "paramind-64b8e.firebaseapp.com",
+  projectId: "paramind-64b8e",
+  storageBucket: "paramind-64b8e.firebasestorage.app",
+  messagingSenderId: "452173393964",
+  appId: "1:452173393964:web:8599c0fe1983a6f441e189"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.firestore();
+
+let isPro = false;
+
+auth.onAuthStateChanged(async (user) => {
+  if (!user) return;
+  try {
+    const doc = await db.collection('users').doc(user.uid).get();
+    if (doc.exists) {
+      const data = doc.data();
+      isPro = data.subscriptionStatus === 'active' || data.isPro === true;
+    }
+  } catch(e) { console.error('Pro check failed', e); }
+});
+</script>
+<script src="js/activity-logger.js"></script>
+<script src="js/upgrade-modal.js"></script>
+
+<!-- ============================================
+     OSCE PRACTICE — page logic + content data
+     ============================================ -->
+<script>
+/* eslint-disable */
+
+// ─── Content data ─────────────────────────────────
+// In production this could live in Firestore for live updates without redeploy.
+// For v1, embedded inline matches the major-incident.html pattern.
+
+const historyItems = [
+  { id:'h1', num:'Item 1 of 10', title:'Introduction',
+    lead:"Most students treat the introduction as the warm-up before the real exam. It isn't. The introduction is part of the real exam — and arguably the part that decides how everything else goes.",
+    whatToDo:`<p>Greet the patient. Confirm their name and ask how they'd like to be addressed. Introduce yourself by your first name and your role. Check they're comfortable to begin. Notice the environment — privacy, dignity, who else is in the room. Offer a chaperone where appropriate.</p>`,
+    why:`<p>A patient who feels rushed gives you less. A patient who feels respected gives you more. That's not a soft skill — that's clinical reality. The history is only as good as the rapport you've built in the first thirty seconds.</p><p>This is where many students burn marks they don't realise they're burning. They walk in, throw out a vague <em>"hi, are you OK to chat?"</em> and start firing questions. The examiner has already noted the rushed introduction, the lack of a chaperone offer, the missed environmental check. None of those are clinical errors in themselves, but they add up to a student who looks like they're trying to get through the OSCE rather than treat the patient in front of them.</p><p><strong>The chaperone offer</strong> signals professional confidence before you've taken a single observation. Most students associate chaperones only with intimate examinations, but offering one proactively — particularly when you're alone with the patient — lifts you out of the cohort.</p>`,
+    misses:`<ul><li>Skipping the patient's preferred name — using "Mr Smith" when they're a "John."</li><li>Introducing themselves by role without a name, or by name without a role.</li><li>Assuming the patient is ready to begin because they're sitting there.</li><li>Never offering a chaperone.</li><li>Ignoring the room. The environment is part of the assessment.</li></ul>`,
+    ticks:['Greeted the patient',"Asked the patient's name","Asked the patient's preferred form of address",'Introduced themselves by name and role','Checked the patient was comfortable to begin','Considered or addressed environmental factors','Offered a chaperone']
+  },
+  { id:'h2', num:'Item 2 of 10', title:'Consent',
+    lead:"Consent isn't a tick-box. It's a relationship. And it doesn't end when you start the consultation — it carries through everything you do next.",
+    whatToDo:`<p>Explain what you're going to do, why, and roughly how long it'll take — in plain language, no jargon. Ask explicitly if you can proceed. Then <em>keep asking</em> at meaningful moments — before you start examining, before you do anything that crosses a new boundary. Think about whether the patient has the capacity to consent in the first place.</p>`,
+    why:`<p>The legal foundation in England and Wales is the Mental Capacity Act 2005. Capacity is <em>assumed</em>, it's <em>decision-specific</em>, and the person must be able to <strong>understand, retain, weigh, and communicate</strong> the decision. Children under 16 are assessed against Gillick competence; 16- and 17-year-olds are generally presumed to have capacity.</p><p>Examiners look for two things. First, are you explaining the consultation in language the patient can actually understand? <em>"I'd like to take a presenting complaint and then perform an enhanced cardiovascular assessment"</em> isn't consent — it's jargon dressed up as politeness. Second, are you reconfirming at the right moments? Consent to history is not consent to examination.</p>`,
+    misses:`<ul><li>Vague openers like <em>"is it OK if we have a chat?"</em> without saying what the chat is for.</li><li>Treating consent as one moment at the start, then never mentioning it again.</li><li>Using jargon without translating.</li><li>Not pausing to think about capacity in patients where it could reasonably be questioned.</li></ul>`,
+    criticalFail:"Failure to obtain informed consent for any part of the management plan is a critical fail later in the OSCE. The habit you build now carries through to that moment.",
+    ticks:['Explained the nature of the consultation','Used plain language appropriate to the patient','Sought explicit consent to proceed','Reconfirmed consent at the transition to examination','Considered capacity where appropriate']
+  },
+  { id:'h3', num:'Item 3 of 10', title:'Presenting Complaint',
+    lead:"This is where your differential starts. Get this right and the rest of the consultation has a backbone. Get it wrong — too vague, too unstructured, too closed too early — and you're guessing for the rest of the OSCE.",
+    whatToDo:`<p>Use a structured approach. <strong>SOCRATES</strong> is the standard for symptoms with a sensory character: Site, Onset, Character, Radiation, Associations, Time course, Exacerbating/relieving factors, Severity. <strong>OPQRST</strong> is its alternative. Pick one and work it.</p><p>Explore red flags relevant to whichever system you suspect. Then <em>tell the patient</em> which system assessment you'll be doing next, and briefly why.</p>`,
+    why:`<p>There's a difference between a student who's <em>chatting</em> with the patient and a student who's <em>working a framework</em>. The examiner can tell within thirty seconds which one you are.</p><p>SOCRATES isn't there to make you look clever; it's there to make sure you don't miss anything. The bit that <em>really</em> lifts the grade is announcing the next step with reasoning attached: <em>"based on what you've told me, I'd like to focus on your lungs and chest next."</em></p>`,
+    misses:`<ul><li>Closing down to yes/no questions before the patient has finished their story.</li><li>Skipping severity, or quantifying it inconsistently.</li><li>Forgetting to ask about associated symptoms.</li><li>Failing to explicitly say which system assessment is coming next, and why.</li><li>Missing the red flags for the system in question.</li></ul>`,
+    ticks:['Used a structured approach (SOCRATES, OPQRST, or equivalent)','Explored site, onset, character, radiation','Explored timing and progression','Quantified severity','Explored exacerbating and relieving factors','Explored associated symptoms','Asked about red flags relevant to the presentation','Stated which system assessment will follow and why']
+  },
+  { id:'h4', num:'Item 4 of 10', title:'Past Medical History',
+    lead:"Past medical history isn't background reading — it's context. It changes what the current problem is likely to be, and it changes what you can safely do about it.",
+    whatToDo:`<p>Ask about ongoing medical conditions and how well-controlled they are. Ask about the treatment for each. Ask about previous operations — what, and when. Ask about recent hospital admissions and ongoing specialist follow-up.</p><p>Then connect what you find back to the presenting complaint <em>out loud</em>.</p>`,
+    why:`<p>A patient with chest pain and known ischaemic heart disease is a different clinical picture from chest pain in someone with no cardiac history. PMH shifts your pre-test probability.</p><p><strong>Surgical history matters more than students realise.</strong> Abdominal scars suggest adhesions. Recent operation? PE risk. Pacemakers and ICDs change how you interpret the rhythm strip.</p><p>The mark-distinguishing move: <em>"You mentioned you have COPD — how does today's breathlessness compare to your usual?"</em> That sentence shows you're integrating, not just collecting.</p>`,
+    misses:`<ul><li>Listing conditions without exploring how well-controlled each one is.</li><li>Asking about operations as a yes/no without finding out what and when.</li><li>Skipping recent hospital admissions and ongoing specialist follow-up.</li><li>Treating PMH as a data dump rather than weaving it into the picture.</li></ul>`,
+    ticks:['Asked about current chronic medical conditions','Explored how well-controlled each condition is','Asked about treatments for each condition','Explored surgical history (what and when)','Asked about recent hospital admissions','Asked about ongoing specialist follow-up','Connected relevant PMH to the presenting complaint']
+  },
+  { id:'h5', num:'Item 5 of 10', title:'Medications',
+    lead:"This is one of the most clinically actionable parts of the consultation. It can change your differential, change your management, and save the patient from a dangerous interaction.",
+    whatToDo:`<p>Get the full medication list: <strong>name, dose, frequency, route</strong> for each. Check whether the patient is <em>actually taking</em> what's prescribed. Then ask specifically about over-the-counter medications, herbal remedies, supplements, and illicit drug use.</p>`,
+    why:`<p><strong>Patients routinely forget OTC medication.</strong> They don't think of paracetamol as "medication." But NSAIDs cause GI bleeding. Long-term paracetamol causes liver problems. Asking specifically is the only way to get the information.</p><p><strong>Illicit drug use is rarely volunteered without specific, non-judgemental questioning.</strong> The framing matters as much as the question. <em>"Do you take anything else apart from your prescribed medications — anything from the chemist, supplements, anything recreational?"</em> — calm, expected — gets honest answers.</p>`,
+    misses:`<ul><li>Names without doses, frequencies, or routes.</li><li>Not asking whether the patient actually takes them as prescribed.</li><li>Skipping OTC, herbal, supplements.</li><li>Asking about drug use in a way that invites denial.</li><li>Not thinking about interactions with whatever they might give in management.</li></ul>`,
+    ticks:['Listed current medications with doses, frequencies, routes','Checked compliance','Asked about over-the-counter medications','Asked about herbal remedies and supplements','Asked about illicit drug use, framed non-judgementally','Considered interactions with planned interventions']
+  },
+  { id:'h6', num:'Item 6 of 10', title:'Allergies',
+    lead:"This is the easiest critical fail in the OSCE — and the easiest to avoid. Ask. Document. Ask again before you give anything.",
+    whatToDo:`<p>Ask about allergies. For each one, find out <strong>what actually happened</strong> when they took it. True allergy (urticaria, angioedema, anaphylaxis)? Intolerance? Side effect? Document each appropriately. Then confirm allergy status <em>again</em> immediately before administering any medication.</p>`,
+    why:`<p>Administering a drug to a patient without first checking allergies is a critical fail. No amount of brilliant clinical work elsewhere compensates for that. It's the single most reliable way to fail an OSCE you'd otherwise have passed.</p><p>The <em>depth</em> matters too. A patient who reports being "allergic to penicillin" might have had GI upset as a child — an intolerance, not an allergy. Recording it as "penicillin allergy" closes off an entire family of antibiotics, potentially for life.</p>`,
+    misses:`<ul><li>Forgetting to ask entirely — automatic critical-fail risk if they then administer anything.</li><li>Asking yes/no without exploring what actually happened.</li><li>Conflating allergy, intolerance, and side effect under one label.</li><li>Not reconfirming immediately before administration.</li></ul>`,
+    criticalFail:"Giving any medication without first considering allergies is a critical fail, regardless of how well you've done everything else. Ask early. Document properly. Ask again before you administer.",
+    ticks:['Asked about allergies','Explored the nature of each reaction','Documented allergy status clearly','Confirmed allergies again before administering any medication']
+  },
+  { id:'h7', num:'Item 7 of 10', title:'Family, Social & Lifestyle History',
+    lead:"This is the section students rush most. Three pillars, often shrunk into a token \"do you smoke? Drink? Anyone in the family with anything?\" Each pillar earns marks independently.",
+    whatToDo:`<p><strong>Family history</strong> — particularly first-degree relatives. Heart disease before 60. Cancers. Inherited conditions.</p><p><strong>Social history</strong> — who lives with them. Employment. Activities of daily living. Carers. Who's available to help at home.</p><p><strong>Lifestyle history</strong> — exercise (specifics). Diet. Alcohol <em>quantified</em>. Smoking quantified. Drug use.</p>`,
+    why:`<p><strong>Social history often decides what management is even possible.</strong> Discharging a frail elderly patient who lives alone with no support is not the same as discharging them to a partner who can monitor overnight. The information that makes safe management possible is gathered <em>here</em>.</p><p>The mark-distinguishing move: <em>"You mentioned your father had a heart attack at 55, and you smoke 20 a day. Both of those are relevant to today's chest pain."</em></p>`,
+    misses:`<ul><li>Treating this section as box-ticking.</li><li>Skipping social history entirely.</li><li>Vague exercise and diet questions.</li><li>Quantifying alcohol and smoking imprecisely.</li><li>Not linking findings back to the presenting complaint.</li></ul>`,
+    ticks:['Explored family history of relevant conditions','Asked about first-degree relatives specifically','Explored living arrangements and social support','Asked about employment','Asked about activities of daily living','Asked about exercise (specifics, not yes/no)','Asked about diet','Quantified alcohol intake','Quantified smoking history','Asked about drug use','Linked findings to the presenting complaint or PMH']
+  },
+  { id:'h8', num:'Item 8 of 10', title:'Communication',
+    lead:"Communication isn't a separate item that happens after the clinical bit. It's running underneath every other item in this section, all the way through.",
+    whatToDo:`<p><strong>Open questions early, closed questions later.</strong> <em>"Tell me what brought you to call us today"</em> gets a richer history than <em>"is the pain in your chest?"</em></p><p><strong>Active listening.</strong> Verbal cues — summarising back, reflecting feelings. Non-verbal cues — eye contact, posture, time.</p><p><strong>ICE.</strong> <strong>I</strong>deas — what does the patient think is going on? <strong>C</strong>oncerns — what are they worried about? <strong>E</strong>xpectations — what do they think should happen?</p>`,
+    why:`<p><strong>ICE is the part most students do mechanically, late, or not at all.</strong> A patient who privately thinks their chest pain is a heart attack responds very differently from one who thinks it's heartburn. Addressing their <em>actual</em> concern — not the one you assume — is what builds genuine rapport and changes outcomes.</p><p>Skipping ICE drops marks reliably. In real practice, it loses patients.</p>`,
+    misses:`<ul><li>Closed questions from the start.</li><li>ICE done mechanically, late, or not at all.</li><li>Missing non-verbal cues.</li><li>Interrupting early in the patient's narrative.</li><li>Not summarising back at appropriate points.</li></ul>`,
+    ticks:['Used open questions early','Used closed questions appropriately','Demonstrated active listening (verbal cues)','Demonstrated active listening (non-verbal cues)',"Elicited the patient's ideas","Elicited the patient's concerns","Elicited the patient's expectations",'Summarised back to the patient']
+  },
+  { id:'h9', num:'Item 9 of 10', title:'Clinical Observations',
+    lead:"Observations aren't a fixed set you recite for every patient. They're chosen for the clinical question in front of you. Examiners can tell, immediately, the difference between running \"the obs\" by rote and selecting them with rationale.",
+    whatToDo:`<p>Identify which baseline observations are needed for <em>this</em> patient with <em>this</em> presentation. Articulate the rationale for each. Interpret findings in clinical context — not as numbers in isolation.</p>`,
+    why:`<p><strong>Respiratory rate</strong> is the single most sensitive early indicator of deterioration in sepsis, PE, and most respiratory pathology. Also the observation most often estimated rather than measured.</p><p><strong>SpO2 alone is misleading</strong> in carbon monoxide poisoning, anaemia, and poor peripheral perfusion.</p><p><strong>Blood glucose is mandatory</strong> in any altered mental status.</p><p><strong>Pain score is a primary observation, not a soft one.</strong> Track it; don't ask once and forget.</p>`,
+    misses:`<ul><li>Reciting "the obs" without rationale.</li><li>Missing observations specific to the presentation.</li><li>Reading numbers without reading the patient.</li><li>Asking for a pain score once and never revisiting.</li></ul>`,
+    ticks:['Identified the required baseline observations','Articulated rationale for each observation','Included observations specific to the presentation','Included pain score','Interpreted findings in clinical context']
+  },
+  { id:'h10', num:'Item 10 of 10', title:'Working Impression',
+    lead:"This is the moment the examiner sees whether you've been thinking or just collecting. The single most concentrated demonstration of clinical reasoning in the OSCE.",
+    whatToDo:`<p>State your current working impression based on the history so far. Include your reasoning — what supports it, what argues against it, and at least one alternative differential. Identify which system assessment(s) you'll perform next, and justify the choice. Communicate the working impression to the patient in plain language.</p>`,
+    why:`<p>A student who can say: <em>"Given the central chest pain radiating to the jaw, brought on by exertion, the family history of early heart disease, and the patient's smoking and high blood pressure, my working impression is acute coronary syndrome. I'm also considering musculoskeletal pain and reflux, but the radiation pattern and the exertional element make those less likely. I'd like to do a focused cardiovascular assessment including a 12-lead ECG to confirm or rule out ACS."</em> — has demonstrated the synthesis the rubric is testing for.</p><p>Communicating the impression to the patient matters. Not in jargon. As a working idea: <em>"based on what you've told me, I'm thinking this might be related to your heart, so I'd like to focus my examination there and get an ECG. Does that make sense?"</em></p>`,
+    misses:`<ul><li>Failing to state a working impression explicitly.</li><li>Impression without reasoning.</li><li>Considering only one differential when more than one is plausible.</li><li>Failing to identify which system assessment will follow.</li><li>Not communicating any of this to the patient.</li></ul>`,
+    ticks:['Stated a working impression explicitly','Provided clinical reasoning','Considered at least one alternative differential','Identified which system assessment(s) will follow','Justified the choice of assessment','Communicated the impression to the patient in plain language']
+  }
+];
+
+const examItems = [
+  { id:'e0', num:'Shared module', title:'General Overview & Peripheral Inspection',
+    lead:"Every system assessment starts the same way. You walk in. You look. Then you start at the hands and work your way up. This is the bit most students rush. Don't.",
+    whatToDo:`<p>Before you reach for your stethoscope, before you ask a single question — what do you actually see? End-of-bed observation comes first. Then hands, face, eyes, mouth, neck — in that order. Verbalise everything you note.</p>`,
+    why:`<p>The end-of-bed assessment is just <em>looking</em>. And it's worth far more than you think. Someone who can't lie flat and is leaning forward to breathe — that's a person whose lungs are filling with fluid. Tripoded over their knees, hands on thighs — fighting for breath, classic COPD exacerbation. You haven't introduced yourself yet, and you already know something important.</p><p><strong>The hands tell you a lot.</strong> A surprising amount, actually. Most of what someone's chronic illness is doing to them shows up on the hands long before they mention it. Clubbing for long-term low oxygen. Splinter haemorrhages for endocarditis. Tar staining for smoking. Capillary refill for peripheral perfusion.</p>`,
+    misses:`<ul><li>Walking straight up to the patient without any end-of-bed observation.</li><li>Doing the looking silently.</li><li>Saying "the patient looks unwell" without saying <em>what</em> makes them look unwell.</li><li>Missing the room. The environment is part of the assessment.</li></ul>`,
+    ticks:['Performed an end-of-bed observation before approaching','Commented on patient position and work of breathing','Commented on skin colour, diaphoresis, general appearance','Examined hands (clubbing, splinter haemorrhages, tar staining, CRT)','Inspected face (cyanosis, diaphoresis, symmetry)','Inspected eyes (pupils, corneal arcus, conjunctival pallor)','Inspected mouth (under tongue, hydration, dentition)','Inspected neck (lymph nodes, trachea, carotid pulsation)','Verbalised findings throughout']
+  },
+  { id:'e1', num:'Part 1 of 5', title:'Inspection (Chest, Abdomen, Oedema)',
+    lead:"You've done the general overview. Now you're at the chest. You're still inspecting. You're still just looking.",
+    whatToDo:`<p><strong>The whole chest, front and back.</strong> Symmetry first. Look for scars (median sternotomy = previous heart surgery; small scar under the collarbone with a slight bulge = pacemaker or ICD). Look for visible heaves. Don't just spot the scar — say what it means.</p><p><strong>The abdomen.</strong> Pulsatile mass between sternum and umbilicus (potentially AAA). Ascites (right heart failure backing up).</p><p><strong>Ankle and sacral oedema.</strong> Press your thumb into the shin and let go. A pit that stays is pitting oedema. Always check both — students forget sacral oedema constantly because the patient is usually lying on it.</p>`,
+    why:`<p>You're building a picture of the cardiovascular system without touching it. A median sternotomy means the patient has had their breastbone split open — coronary artery bypass or valve replacement — and that reframes the differential for new chest pain entirely.</p><p>By the time you put your hands on the chest, you should already have a working impression. Students who go straight to palpation are doing the technical work without the context.</p>`,
+    misses:`<ul><li>Inspecting only the front of the chest and forgetting the back.</li><li>Spotting a scar but not commenting on what it means.</li><li>Forgetting to inspect the abdomen as part of the cardiovascular exam.</li><li>Skipping sacral oedema because the patient is lying down.</li><li>Saying "there's oedema" without saying how far up it goes.</li></ul>`,
+    ticks:['Inspected anterior chest','Inspected posterior chest','Commented on chest symmetry','Identified or excluded surgical scars','Identified or excluded pacemaker/ICD','Looked for visible heaves','Inspected abdomen for pulsatile mass','Inspected abdomen for ascites','Inspected for ankle oedema and noted extent','Inspected for sacral oedema where appropriate']
+  },
+  { id:'e2', num:'Part 2 of 5', title:'Palpation',
+    lead:"This is where you start touching. After all that looking, this is the first time your hands are actually on the patient. Slow down here.",
+    whatToDo:`<p><strong>Pulses.</strong> Radial pulse — both wrists at once. Brachial — both. Carotid — <em>one at a time, never both</em>. For each pulse, check four things: rate, rhythm, volume, character.</p><p><strong>Pulse delay.</strong> Check radial-radial — do both wrists feel synchronised?</p><p><strong>The apex beat.</strong> Lowest, most lateral point on the chest where you feel the heart pulsing. Normally 5th intercostal space, mid-clavicular line. Look for position (displaced?) and character (gentle tap vs forceful).</p><p><strong>Heaves and thrills.</strong> Heel of your hand over each valve area. A heave is a sustained outward lift. A thrill feels like a cat purring against your palm — a murmur loud enough to feel.</p>`,
+    why:`<p><strong>Pulse character does a lot of work.</strong> A slow-rising pulse points at aortic stenosis. A collapsing pulse points at aortic regurgitation. A thready pulse means low cardiac output or low volume. Reporting only rate and rhythm is doing half of what palpation offers.</p><p><strong>Never both carotids at once.</strong> This is a safety thing examiners actively watch for. Pressing both at once can trigger a vagal response or dislodge an atherosclerotic plaque.</p>`,
+    misses:`<ul><li>Palpating both carotids simultaneously. The examiner is genuinely watching for this.</li><li>Reporting <em>"pulse 80, regular"</em> and stopping there. Four things to report, not two.</li><li>Forgetting the delay check entirely.</li><li>Locating the apex beat without commenting on what it feels like.</li><li>Never reaching for heaves and thrills.</li></ul>`,
+    ticks:['Assessed radial pulses bilaterally','Assessed brachial pulses bilaterally','Assessed carotid pulses (separately)','Commented on pulse rate, rhythm, volume, character','Checked for radial-radial delay','Palpated precordium for tenderness','Located the apex beat','Commented on apex beat character','Palpated for heaves','Palpated for thrills']
+  },
+  { id:'e3', num:'Part 3 of 5', title:'Auscultation',
+    lead:"This is the part most students think of when they think \"cardiac exam.\" Stethoscope on the chest. Listening for murmurs. Pretending it sounds clearer than it actually does.",
+    whatToDo:`<p>Auscultate the four valve areas with both bell and diaphragm. Aortic, Pulmonary, Erb's point, Tricuspid, Mitral/Apex. Listen specifically for S3 and S4 with the bell (lightly applied). Reposition the patient in left lateral decubitus to accentuate mitral murmurs and S3/S4. Then auscultate lung fields and carotid arteries.</p>`,
+    why:`<p>The valve areas are where the sounds project loudest on the chest wall, not where the valves anatomically sit. That's why aortic stenosis can be heard radiating up into the carotids — the sound follows the blood.</p><p><strong>S3 and S4 are easy to miss because they're low-pitched and quiet.</strong> A diaphragm won't pick them up reliably. A bell pressed too hard turns into a diaphragm. Light contact, just enough to seal.</p><p><strong>Lung fields are part of the cardiac exam.</strong> The left side of the heart fails before the heart sounds shift, and the first place that failure shows is the lungs.</p>`,
+    misses:`<ul><li>Only using the diaphragm and missing S3, S4, mitral stenosis.</li><li>Pressing the bell too hard.</li><li>Forgetting to reposition the patient.</li><li>Forgetting lung fields and carotid bruits.</li><li>Listening in silence.</li></ul>`,
+    ticks:['Auscultated all valve areas','Used both bell and diaphragm','Listened specifically for S3 and S4 with the bell','Repositioned patient in left lateral decubitus','Auscultated lung fields bilaterally','Auscultated carotid arteries for bruits']
+  },
+  { id:'e4', num:'Part 4 of 5', title:'Percussion (If Indicated)',
+    lead:"Percussion in cardiovascular examination is targeted, not routine. You only do it if there's a reason — but saying you've thought about whether to do it counts for marks even if you don't actually do it.",
+    whatToDo:`<p>Percussion is <strong>indicated</strong> when the cardiovascular picture has spilled into the lungs — breathlessness, crackles at the bases, worry about an effusion. If you decide to percuss, work systematically: 8 sites anterior, 2 in the axillae, 8 posterior. Compare side to side. Listen for hyperresonance (too much air) or dullness (fluid/solid).</p><p>Whatever you decide, <strong>say what you're thinking out loud</strong>. <em>"Percussion isn't indicated here because the lung fields sounded clear."</em> That sentence picks up marks.</p>`,
+    why:`<p>The student who percusses <em>with rationale</em> is doing targeted clinical work. The student who percusses every patient mechanically misses the point. The student who never percusses misses the finding.</p>`,
+    misses:`<ul><li>Skipping percussion entirely without saying anything about why.</li><li>Doing percussion mechanically on every patient.</li><li>Forgetting tactile vocal fremitus.</li><li>Only percussing the front of the chest.</li></ul>`,
+    ticks:["Articulated when percussion is or isn't warranted, and why",'If indicated: percussed anterior chest','If indicated: percussed axillae','If indicated: percussed posterior chest','If indicated: compared side to side','If indicated: performed tactile vocal fremitus']
+  },
+  { id:'e5', num:'Part 5 of 5', title:'Special / Other Tests',
+    lead:"These are the tools that confirm or rule out what the rest of the examination has raised. By this point, you should have a working impression. The 12-lead ECG, the JVP discussion, and the vital signs are how you sharpen it.",
+    whatToDo:`<p><strong>Vital signs</strong> (where relevant): RR, SpO2, temp, HR, BP, GCS, BM, EtCO2, pain score. Interpret each in the cardiovascular context.</p><p><strong>12-lead ECG.</strong> Request it. Get it. Read it systematically. (Detailed ECG interpretation has its own Paramind module.)</p><p><strong>JVP.</strong> Formal measurement sits in advanced practice. Within paramedic scope, what's expected is <em>discussion</em>: what a raised JVP would suggest, the technique you'd use. Be honest about what is and isn't within your scope.</p>`,
+    why:`<p><strong>The 12-lead ECG is the single most important pre-hospital investigation paramedics can obtain</strong> in a cardiovascular complaint. It's time-critical — a STEMI on the trace changes the patient's journey from "ED" to "primary PCI centre" and minutes matter.</p><p><strong>JVP is the clinical window onto the right side of the heart and overall fluid status.</strong> Raised JVP suggests right heart failure, fluid overload, tamponade, tension pneumothorax, or SVC obstruction.</p>`,
+    misses:`<ul><li>Forgetting to actually request the 12-lead ECG.</li><li>Reading the ECG by pattern recognition without structured interpretation.</li><li>Skipping JVP entirely.</li><li>Reciting "the obs" without interpreting them in the cardiac context.</li></ul>`,
+    ticks:['Requested 12-lead ECG','Interpreted the 12-lead ECG systematically','Discussed the significance of the JVP','Described JVP assessment within paramedic scope','Measured and interpreted relevant vital signs','Considered EtCO2 where relevant','Included pain score','Interpreted findings in cardiovascular context']
+  }
+];
+
+const decisionItems = [
+  { id:'d1', num:'Item 1 of 5', title:'Refined Working Impression',
+    lead:"You stated a working impression at the end of Section 1. You then spent twenty minutes examining the patient. The question now is: does your impression still stand, or has the examination shifted it?",
+    whatToDo:`<p>State your <strong>refined working impression</strong> based on everything — history plus examination. Don't just repeat your Section 1 impression. Show what the examination confirmed, what it argued against, and what it ruled in or out.</p><p>Include at least one <strong>alternative differential</strong> you're still considering, and explicitly say why it's less likely. State your <strong>level of certainty</strong> honestly — "working impression" or "I'm fairly confident this is..." rather than implying a definitive call you can't make pre-hospital.</p>`,
+    why:`<p>Examiners can tell the difference between a student who arrives at a diagnosis and a student who <em>reasons toward</em> a diagnosis. The reasoning is what the rubric is testing.</p><p><strong>The honesty bit matters too.</strong> Pre-hospital, you cannot reach a definitive diagnosis. Stating your conclusion as a <em>working impression</em> — open to revision — is clinically more accurate and gets better marks than confidently announcing a diagnosis you can't actually confirm.</p>`,
+    misses:`<ul><li>Repeating the Section 1 impression word-for-word without showing what the examination added.</li><li>Skipping the alternative differentials.</li><li>Stating the impression without the supporting evidence.</li><li>Overcommitting — using "diagnosis" instead of "working impression" when pre-hospital certainty isn't possible.</li><li>Not communicating the refined impression to the patient.</li></ul>`,
+    ticks:['Stated a refined working impression based on history and examination','Linked examination findings to the impression explicitly','Considered at least one alternative differential','Explained why alternatives were less likely','Stated the impression with appropriate clinical certainty','Communicated the working impression to the patient in plain language']
+  },
+  { id:'d2', num:'Item 2 of 5', title:'Pathophysiology',
+    lead:"The examiner wants to know that you understand why this patient is presenting the way they are. Not just what they have — the underlying mechanism. This is where the difference between memorising and understanding shows up.",
+    whatToDo:`<p>Explain, in plain clinical language, the <strong>mechanism</strong> underlying your working impression. Why has this happened? What's actually going on inside the body? Link the pathophysiology to the <strong>specific findings</strong> you observed — the symptoms in the history, the signs on examination.</p>`,
+    why:`<p>Pathophysiology is what separates a clinician from a checklist-follower. A student who can join up the dots — <em>"this symptom and this examination finding are both happening because of one underlying mechanism, and that same mechanism is also why we'd expect this other feature"</em> — has demonstrated that they understand the condition, not just that they recognise it. The link words do the work: "because," "which is why," "this means." Those small words show you're thinking in mechanisms, not in lists.</p><p>You don't need to be exhaustive. A focused, accurate explanation that links to the patient's specific findings beats a long encyclopaedic recital.</p>`,
+    misses:`<ul><li>Reciting general pathophysiology without linking it to the specific findings in this patient.</li><li>Going too broad — trying to explain the whole condition rather than the parts relevant to today.</li><li>Using jargon the examiner won't reward and the patient won't understand.</li><li>Skipping pathophysiology entirely and going straight from impression to management.</li></ul>`,
+    ticks:['Explained the underlying mechanism of the working impression','Linked pathophysiology to specific findings in this patient','Used clear, accurate clinical language','Focused on what is relevant to today, not exhaustive review','Demonstrated understanding of why the patient is presenting as they are']
+  },
+  { id:'d3', num:'Item 3 of 5', title:'Management Plan',
+    lead:"This is where the consultation becomes action. Examiners are looking for a safe, structured, justified management plan — not a recitation of every possible treatment.",
+    whatToDo:`<p>State your management plan in a <strong>systematic order</strong>, typically following the <strong>A-E (ABCDE) approach</strong>. For each intervention: justify it, specify it (drug, dose, route, frequency), consider safety (allergies, contraindications), and confirm consent.</p><p>Identify any <strong>time-critical interventions</strong> and prioritise them. Identify what you would do <strong>if the patient deteriorates</strong>. Decide on the <strong>destination</strong> and <strong>escalation pathway</strong>.</p>`,
+    why:`<p>The management plan is the largest single bloc of marks in this section. Examiners can tell quickly whether you're following a structure or scattering interventions.</p><p><strong>Justification matters more than enumeration.</strong> <em>"I'd give 300mg aspirin"</em> gets one mark. <em>"I'd give 300mg of soluble aspirin chewed, because the platelet inhibition is most useful early in ACS — and I've confirmed she's not allergic and not on any contraindicated anticoagulants"</em> gets the full mark.</p><p><strong>Consent for each part of the plan</strong> is non-negotiable. Specific consent for specific interventions. Be explicit: <em>"I'd like to give you aspirin to help your heart — is that OK with you?"</em></p>`,
+    misses:`<ul><li>Listing interventions without justifying them.</li><li>Skipping the structure — random interventions in random order.</li><li>Forgetting to specify drug doses, routes, frequencies.</li><li>Not re-confirming allergies before administration.</li><li>Failing to ask for consent on each specific intervention.</li><li>Not stating what they'd do if the patient deteriorates.</li><li>Forgetting to decide on a destination and escalation pathway.</li></ul>`,
+    criticalFail:"Failing to obtain informed consent for any part of the management plan is a critical fail, regardless of how well you've done everything else. Consent must be specific to the intervention and confirmed before action.",
+    ticks:['Used a structured approach (A-E or equivalent)','Justified each intervention','Specified drug name, dose, route, frequency where applicable','Considered contraindications and interactions','Re-confirmed allergies before administering medication','Obtained consent for each part of the management plan','Identified time-critical interventions','Stated what would be done if the patient deteriorates','Decided on destination','Identified escalation pathway']
+  },
+  { id:'d4', num:'Item 4 of 5', title:'Safety Netting & Discharge',
+    lead:"This is the part of the consultation students forget most often — and it's the part with the second critical fail in this section. If you're discharging the patient (i.e. not transporting them), safety netting is not optional.",
+    whatToDo:`<p>Decide whether the patient is <strong>appropriate for discharge</strong> in the first place. Apply your clinical judgement honestly.</p><p>If discharge is appropriate, the safety net has three pillars: <strong>what to look out for</strong> (specific red flags), <strong>what to do if it happens</strong> (who to call, when), and <strong>who to follow up with</strong> (GP, specialist, when).</p><p>Confirm the patient has <strong>understood</strong> by asking them to repeat it back. Asking "do you understand?" gets a yes whether they do or not.</p>`,
+    why:`<p>Discharging a patient is a clinical decision with consequences. If you discharge someone who deteriorates at home — and you didn't tell them what to watch for, or who to call — that's a foreseeable, preventable harm. The HCPC, the coroner, and the rubric all see it the same way.</p><p>Examiners are watching for two things: that you've actually done safety netting (rather than just saying "I'd safety net"), and that the netting is <strong>concrete and specific</strong> to this patient's presentation.</p><p><strong>The check-back step matters.</strong> Patients regularly say they understand when they don't.</p>`,
+    misses:`<ul><li>Vague safety netting that wouldn't help anyone.</li><li>Forgetting to confirm understanding by asking the patient to repeat it back.</li><li>Not specifying who to call (999 vs 111 vs GP) or when.</li><li>Skipping follow-up arrangements.</li><li>Discharging vulnerable patients without checking who's with them.</li></ul>`,
+    criticalFail:"Discharging the patient without appropriate safety netting is a critical fail. \"Appropriate\" means specific red flags, a clear action plan, and confirmed understanding — not just a verbal \"call if needed.\"",
+    ticks:['Decided whether discharge is appropriate','Provided specific red flags relevant to this presentation','Specified what action the patient should take and who to call','Arranged appropriate follow-up','Confirmed patient understanding by asking them to repeat it back','Confirmed appropriate support at home','Documented the safety net']
+  },
+  { id:'d5', num:'Item 5 of 5', title:'Closing the Consultation',
+    lead:"A consultation that ends well is a consultation that finishes the clinical job and leaves the patient feeling looked after. This last item is small in word count but real in marks.",
+    whatToDo:`<p>Briefly <strong>summarise</strong> what you've done and what's happening next. Ask the patient if they have <strong>questions</strong> — and pause long enough that they can actually ask. <strong>Thank them.</strong> <strong>Confirm the next step.</strong></p>`,
+    why:`<p>The closing is where examiners check that you've held the consultation together as a single coherent thing. A student who closes well demonstrates that the consultation had a structure and that the patient was part of it throughout.</p><p>Patients also remember the end. A patient who feels rushed at the door will remember the whole consultation as rushed, even if it wasn't.</p><p><strong>The "any questions?" moment is genuinely high-yield.</strong> Patients often hold their most important question until the very end.</p>`,
+    misses:`<ul><li>Skipping the summary entirely.</li><li>Asking "any questions?" without pausing for an answer.</li><li>Forgetting to thank the patient.</li><li>Walking off without confirming the next step.</li><li>Closing too abruptly because they're worried about time.</li></ul>`,
+    ticks:['Briefly summarised the consultation and next steps','Asked the patient if they had any questions','Paused and waited for the answer','Thanked the patient','Confirmed the next step clearly']
+  }
+];
+
+const specialItems = [
+  { id:'s1', num:'Item 1 of 3', title:'The Pregnant Patient',
+    lead:"Pregnancy changes physiology. It changes the differential. It changes what's safe to give. The examiner is checking that you know the shifts.",
+    whatToDo:`<p>Cover <strong>four areas</strong>: <strong>physiological adjustments</strong> (HR slightly higher; BP lower in T2; after 20 weeks aortocaval compression — tilt left); <strong>differential adjustments</strong> (pre-eclampsia, eclampsia, ectopic, abruption, PE risk higher); <strong>management adjustments</strong> (confirm gestation, drug safety per JRCALC/BNF, positioning, destination); <strong>communication adjustments</strong> (anxiety, partner involvement, honesty without false reassurance).</p>`,
+    why:`<p>Pregnant patients present rarely enough that students don't get reps with them. The physiology is genuinely different, the differential is genuinely different, and several drug choices are genuinely different.</p><p><strong>Aortocaval compression is high-yield.</strong> A pregnant patient over 20 weeks lying flat on her back can become hypotensive because she's lying flat — not because of underlying pathology.</p><p><strong>Two patients, save the mother first.</strong> Foetal viability depends on maternal viability — there's no scenario in which prioritising the foetus over the mother helps the foetus.</p>`,
+    misses:`<ul><li>Defaulting to standard adult management without explicit adjustments.</li><li>Forgetting aortocaval compression and the need for left lateral tilt.</li><li>Treating "pregnant" as a single category — ignoring trimester-specific differences.</li><li>Skipping pregnancy-specific differentials.</li><li>Not confirming gestation early.</li><li>Forgetting to consider drug safety, or refusing to give anything because of pregnancy.</li></ul>`,
+    ticks:['Recognised pregnancy-related physiological changes','Adjusted positioning to avoid aortocaval compression after 20 weeks','Considered pregnancy-specific differentials','Considered conditions presenting atypically','Articulated drug-safety considerations','Identified appropriate destination/escalation','Acknowledged "two patients" — maternal priority','Adjusted communication appropriately']
+  },
+  { id:'s2', num:'Item 2 of 3', title:'The Paediatric Patient',
+    lead:"Children aren't small adults. The physiology is different, the presentation is different, the communication is different, and the management thresholds are different.",
+    whatToDo:`<p>Cover <strong>five areas</strong>: <strong>physiology by age band</strong> (vital signs vary; compensated shock is misleading; respiratory failure → arrest); <strong>differentials</strong> (bronchiolitis, sepsis, NAI, intussusception, DKA); <strong>assessment approach</strong> (eye level, distance observation first, age-appropriate pain tools); <strong>management</strong> (weight-based dosing, size-appropriate equipment, IO early); <strong>communication</strong> (child and carer, age-appropriate language, honesty).</p>`,
+    why:`<p><strong>Compensation is the trap.</strong> A child can look reasonable while in significant shock because their cardiovascular reserve is excellent — until it isn't. Looking OK and being OK aren't the same in a child.</p><p><strong>Respiratory failure as the path to arrest</strong> is one of the most important points in paediatric emergency care. Children arrest because they ran out of respiratory reserve.</p><p><strong>Safeguarding is non-negotiable</strong> and lives underneath every paediatric presentation.</p>`,
+    misses:`<ul><li>Not knowing the age-banded normal vital signs.</li><li>Treating paediatric presentations as "smaller adult."</li><li>Missing compensated shock because the headline numbers look fine.</li><li>Forgetting safeguarding as a constant background consideration.</li><li>Not adjusting drug doses for weight.</li><li>Using adult-sized equipment.</li><li>Talking only to the carer, ignoring the child entirely.</li></ul>`,
+    ticks:['Acknowledged age-banded physiological differences','Articulated paediatric-specific differentials','Identified compensated shock as a key paediatric risk','Noted respiratory failure as the main route to cardiac arrest','Articulated weight-based dosing','Articulated age-appropriate equipment','Acknowledged safeguarding as a background consideration','Adjusted assessment approach','Adjusted communication for child and carer','Identified appropriate destination']
+  },
+  { id:'s3', num:'Item 3 of 3', title:'The Patient with Dementia',
+    lead:"Dementia changes communication, changes consent, changes the reliability of history, and changes what management looks like. The examiner is checking that you don't default to either \"can't consent, so I'll just do what I think is best\" or \"seems fine, so I'll proceed as standard.\"",
+    whatToDo:`<p>Cover <strong>four areas</strong>: <strong>capacity assessment</strong> (decision-specific, MCA framework, advance decisions and LPAs); <strong>history-taking</strong> (collateral history essential, establish baseline, look for end-of-life care plan); <strong>communication</strong> (slow, simple, calm, involve familiar carers, not patronising); <strong>management</strong> (delirium superimposed is common, careful pharmacology, destination — hospital not always best).</p>`,
+    why:`<p><strong>Delirium superimposed on dementia is the most common scenario you'll encounter</strong> in practice, and the most frequently missed. A patient with dementia who is "more confused than usual" has, until proven otherwise, an acute medical problem causing the deterioration — UTI, pain, dehydration, constipation, medication.</p><p><strong>Capacity is decision-specific.</strong> A student who says "the patient has dementia so they can't consent" has failed to understand the law. A student who says "they can't consent so I won't do anything" has also failed.</p><p><strong>The destination question is genuinely important.</strong> Hospital is not always the right answer for a dementia patient. Disorientation in unfamiliar environments worsens confusion; outcomes are often poorer.</p>`,
+    misses:`<ul><li>Treating "dementia" as a blanket lack of capacity rather than a decision-specific assessment.</li><li>Forgetting to take a collateral history.</li><li>Missing delirium superimposed on dementia.</li><li>Defaulting to standard adult communication without slowing down or simplifying.</li><li>Forgetting to look for an advance care plan or LPA.</li><li>Defaulting to "transport to ED" without considering whether that's right.</li><li>Patronising communication.</li></ul>`,
+    ticks:['Articulated decision-specific capacity assessment','Referenced the Mental Capacity Act framework appropriately','Identified the need for collateral history',"Established the patient's baseline",'Considered delirium superimposed on dementia','Looked for an advance care plan or LPA','Adjusted communication for the patient','Articulated pharmacological cautions','Considered alternative destinations and care at home where appropriate','Involved family/carers appropriately']
+  }
+];
+
+// ─── Navigation ──────────────────────────────────
+const navStack = ['osce-home'];
+
+function navigate(target, listId, idx) {
+  if (target === 'item') {
+    renderItem(listId, idx);
+    showScreen('osce-item');
+    navStack.push('osce-item');
+  } else {
+    showScreen('osce-' + target);
+    navStack.push('osce-' + target);
+  }
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function goBack() {
+  if (navStack.length <= 1) return;
+  navStack.pop();
+  showScreen(navStack[navStack.length - 1]);
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function goHome() {
+  navStack.length = 0;
+  navStack.push('osce-home');
+  showScreen('osce-home');
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.osce-screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('backBtn').hidden = (id === 'osce-home');
+}
+
+function setMode(m) { /* prototype mode toggle — Study only at present */ }
+
+let toastTimer = null;
+function showToast(message) {
+  const t = document.getElementById('osceToast');
+  t.textContent = message;
+  t.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ─── Render section item lists ──────────────────
+function renderItemList(containerId, items) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = items.map((item, idx) => `
+    <button class="osce-card cardio" onclick="navigate('item', '${containerId}', ${idx})">
+      <div class="osce-card-label">${item.num}</div>
+      <div class="osce-card-name">${item.title}</div>
+      ${item.criticalFail ? '<span class="osce-card-flag"><i class="bi bi-exclamation-triangle-fill"></i> Critical fail risk</span>' : ''}
+      <i class="bi bi-chevron-right osce-card-arrow"></i>
+    </button>
+  `).join('');
+}
+
+// ─── Render an item ──────────────────────────────
+function renderItem(listId, idx) {
+  const listMap = {
+    'historyItemList':  { items: historyItems,  bc: 'OSCE Practice · Cardiovascular · History Taking' },
+    'examItemList':     { items: examItems,     bc: 'OSCE Practice · Cardiovascular · Examination' },
+    'decisionItemList': { items: decisionItems, bc: 'OSCE Practice · Cardiovascular · Decision Making' },
+    'specialItemList':  { items: specialItems,  bc: 'OSCE Practice · Cardiovascular · Special Populations' }
+  };
+  const ref = listMap[listId];
+  if (!ref) return;
+  const item = ref.items[idx];
+
+  const criticalBlock = item.criticalFail ? `
+    <div class="osce-critical">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <div class="osce-critical-content">
+        <div class="osce-critical-label">Critical fail risk</div>
+        <div class="osce-critical-text">${item.criticalFail}</div>
+      </div>
+    </div>` : '';
+
+  const ticksList = item.ticks.map(t => `
+    <li onclick="this.classList.toggle('checked')">
+      <div class="osce-tick-checkbox"><i class="bi bi-check2"></i></div>
+      <div>${t}</div>
+    </li>`).join('');
+
+  const prevBtn = idx > 0
+    ? `<button onclick="navigate('item','${listId}',${idx-1})"><span class="direction"><i class="bi bi-chevron-left"></i> Previous</span>${ref.items[idx-1].title}</button>`
+    : `<button disabled><span class="direction"><i class="bi bi-chevron-left"></i> Previous</span>—</button>`;
+
+  const nextBtn = idx < ref.items.length - 1
+    ? `<button class="next" onclick="navigate('item','${listId}',${idx+1})"><span class="direction">Next <i class="bi bi-chevron-right"></i></span>${ref.items[idx+1].title}</button>`
+    : `<button class="next" disabled><span class="direction">Next <i class="bi bi-chevron-right"></i></span>End of section</button>`;
+
+  document.getElementById('itemContent').innerHTML = `
+    <div class="osce-breadcrumb">${ref.bc}</div>
+    <div class="osce-item-eyebrow">${item.num}</div>
+    <h1 class="osce-item-title">${item.title}</h1>
+    <p class="osce-item-lead">${item.lead}</p>
+    ${criticalBlock}
+    <div class="osce-layer-primary">
+      <div class="osce-layer-label">What to do</div>
+      ${item.whatToDo}
+    </div>
+    <details class="osce-layer-expandable">
+      <summary>
+        <div>
+          <div class="osce-summary-title">Why it matters</div>
+          <div class="osce-summary-hint">The reasoning that lifts grade 4 to 7</div>
+        </div>
+        <i class="bi bi-chevron-down osce-summary-chevron"></i>
+      </summary>
+      <div class="osce-layer-body">${item.why}</div>
+    </details>
+    <details class="osce-layer-expandable">
+      <summary>
+        <div>
+          <div class="osce-summary-title">What students commonly miss</div>
+          <div class="osce-summary-hint">Easy marks left on the table</div>
+        </div>
+        <i class="bi bi-chevron-down osce-summary-chevron"></i>
+      </summary>
+      <div class="osce-layer-body">${item.misses}</div>
+    </details>
+    <details class="osce-layer-expandable osce-ticks">
+      <summary>
+        <div>
+          <div class="osce-summary-title">Examiner Mode ticks</div>
+          <div class="osce-summary-hint">${item.ticks.length} observable items · tap to check off</div>
+        </div>
+        <i class="bi bi-chevron-down osce-summary-chevron"></i>
+      </summary>
+      <div class="osce-layer-body">
+        <ul class="osce-tick-list">${ticksList}</ul>
+      </div>
+    </details>
+    <div class="osce-item-nav">
+      ${prevBtn}
+      ${nextBtn}
+    </div>
+  `;
+}
+
+// ─── Init ────────────────────────────────────────
+renderItemList('historyItemList',  historyItems);
+renderItemList('examItemList',     examItems);
+renderItemList('decisionItemList', decisionItems);
+renderItemList('specialItemList',  specialItems);
+</script>
+
+</body>
+</html>
