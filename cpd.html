@@ -1300,6 +1300,7 @@ async function loadCpdRecords() {
         });
         if (!response.ok) throw new Error('Failed to load CPD records');
         var data = await response.json();
+        console.log('CPD records returned:', data.records.length, data.records.map(function(r){ return r.scenarioId; }));
         displayCpdRecords(data.records || []);
     } catch(error) {
         console.error('Error loading CPD records:', error);
