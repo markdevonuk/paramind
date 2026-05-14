@@ -1241,18 +1241,40 @@ async function saveCpd(results, pct) {
     }
     const saveData = await response.json();
 
-    // Write to activityLog so it appears in the Activity Log tab
+    // Write to activityLog and update activitySummary so it appears in Activity Log and admin
     const now = new Date();
     const durationSeconds = results.reduce((acc, r) => acc + (r && r.t ? parseFloat(r.t) : (S.tool === 'tst' ? 10 : 30)), 0);
+    const toolName = 'Incident Ground';
+    const today   = now.toISOString().split('T')[0];
+    const weekKey = (function() {
+      const d = new Date(now), day = d.getDay();
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      return new Date(d.setDate(diff)).toISOString().split('T')[0];
+    })();
+    const inc = firebase.firestore.FieldValue.increment;
+
     db.collection('users').doc(user.uid).collection('activityLog').add({
-      tool:            'Incident Ground',
+      tool:            toolName,
       page:            'major-incident.html',
       startTime:       firebase.firestore.Timestamp.fromDate(new Date(now - durationSeconds * 1000)),
-      date:            now.toISOString().split('T')[0],
+      date:            today,
       durationSeconds: Math.round(durationSeconds),
       durationMinutes: parseFloat((durationSeconds / 60).toFixed(2)),
       complete:        true
     }).catch(e => console.warn('Activity log write failed:', e));
+
+    const summaryRef = db.collection('analytics').doc('activitySummary');
+    const summaryUpdates = {};
+    summaryUpdates['totalSessions']                        = inc(1);
+    summaryUpdates['totalSeconds']                         = inc(Math.round(durationSeconds));
+    summaryUpdates['sessionsByTool.' + toolName]           = inc(1);
+    summaryUpdates['secondsByTool.'  + toolName]           = inc(Math.round(durationSeconds));
+    summaryUpdates['sessionsByDay.'  + today]              = inc(1);
+    summaryUpdates['secondsByDay.'   + today]              = inc(Math.round(durationSeconds));
+    summaryUpdates['sessionsByWeek.' + weekKey]            = inc(1);
+    summaryUpdates['secondsByWeek.'  + weekKey]            = inc(Math.round(durationSeconds));
+    summaryUpdates['lastUpdated']                          = firebase.firestore.FieldValue.serverTimestamp();
+    summaryRef.update(summaryUpdates).catch(e => console.warn('Analytics write failed:', e));
     notice.innerHTML = `
       <div class="welcome-disclaimer" style="border-left-color:#3d8b3d;">
         <i class="bi bi-check-circle-fill me-2" style="color:#3d8b3d;"></i>
