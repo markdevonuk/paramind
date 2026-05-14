@@ -48,6 +48,7 @@
        // Pro features
         proNav: [
             { id: 'connections', href: 'connections.html', icon: 'bi-heart-pulse', label: 'A&P Connections', isPro: true },
+            { id: 'major-incident', href: 'major-incident.html', icon: 'bi-exclamation-triangle', label: 'Major Incident Training', isPro: true },
             { id: 'ecg', href: 'ecg.html', icon: 'bi-activity', label: 'ECG Tool', isPro: true },
             { id: 'atmist', href: 'atmist.html', icon: 'bi-telephone-outbound', label: 'ATMIST', isPro: true },
             { id: 'bonelab', href: 'bone-lab.html', icon: 'bi-body-text', label: 'Understanding Bones', isPro: true },
@@ -79,6 +80,7 @@
         if (path.includes('drugs')) return 'drugs';
         if (path.includes('bone-lab')) return 'bonelab';
         if (path.includes('atmist')) return 'atmist';
+        if (path.includes('major-incident')) return 'major-incident';
         if (path.includes('ecg')) return 'ecg';
         if (path.includes('blood-lab')) return 'bloodlab';
         if (path.includes('after-the-call')) return 'afterthecall';
