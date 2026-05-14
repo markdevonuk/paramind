@@ -1239,6 +1239,8 @@ async function saveCpd(results, pct) {
       console.error('CPD save failed:', response.status, errText);
       throw new Error('Save failed');
     }
+    const saveData = await response.json();
+    console.log('CPD save response:', saveData);
     notice.innerHTML = `
       <div class="welcome-disclaimer" style="border-left-color:#3d8b3d;">
         <i class="bi bi-check-circle-fill me-2" style="color:#3d8b3d;"></i>
