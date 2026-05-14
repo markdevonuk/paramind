@@ -177,6 +177,22 @@
                 </div>
             </div>
 
+            <!-- Users by Role -->
+            <div class="card mt-0 mb-4" id="usersByRoleCard">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i>Users by Role</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3" style="font-size:0.85rem;">Breakdown by qualification (set by users on their account page).</p>
+                    <div class="row g-3">
+                        <div class="col-6 col-md-4"><div class="stats-card total text-center"><p class="mb-1" style="font-size:0.8rem;color:#6c757d;">Student Paramedics</p><h3 id="roleStudent">—</h3></div></div>
+                        <div class="col-6 col-md-4"><div class="stats-card total text-center"><p class="mb-1" style="font-size:0.8rem;color:#6c757d;">NQPs</p><h3 id="roleNqp">—</h3></div></div>
+                        <div class="col-6 col-md-4"><div class="stats-card total text-center"><p class="mb-1" style="font-size:0.8rem;color:#6c757d;">Paramedics</p><h3 id="roleRegistered">—</h3></div></div>
+                    </div>
+                    <p class="text-muted mt-3 mb-0" style="font-size:0.75rem;" id="roleNotSetNote"></p>
+                </div>
+            </div>
+
             <!-- Cardiac Arrest Simulator — Track Click Counts -->
             <div class="card mt-0 mb-4" id="arrestClicksCard">
                 <div class="card-header bg-white">
@@ -662,7 +678,8 @@
                         discountApplied: userData.discountApplied || false,
                         discountAmount: userData.discountAmount || 0,
                         appleTransactionId: userData.appleTransactionId || "",
-                        appleProductId: userData.appleProductId || ""
+                        appleProductId: userData.appleProductId || "",
+                        paramedicRole: userData.paramedicRole || ""
                     };
 
                     // Work out if this user paid £0 (100% discount on monthly = 499p)
@@ -694,6 +711,20 @@
                 document.getElementById('totalUsers').textContent = allUsers.length;
                 document.getElementById('freeUsers').textContent = freeUsersList.length;
                 document.getElementById('paidUsers').textContent = paidUsersList.length;
+
+                // Update role breakdown (paramedicRole: 'student' | 'nqp' | 'registered' | '')
+                const roleCounts = { student: 0, nqp: 0, registered: 0, notSet: 0 };
+                allUsers.forEach((u) => {
+                    if (u.paramedicRole === 'student')         roleCounts.student++;
+                    else if (u.paramedicRole === 'nqp')        roleCounts.nqp++;
+                    else if (u.paramedicRole === 'registered') roleCounts.registered++;
+                    else                                       roleCounts.notSet++;
+                });
+                document.getElementById('roleStudent').textContent    = roleCounts.student;
+                document.getElementById('roleNqp').textContent        = roleCounts.nqp;
+                document.getElementById('roleRegistered').textContent = roleCounts.registered;
+                document.getElementById('roleNotSetNote').textContent =
+                    roleCounts.notSet + ' user' + (roleCounts.notSet === 1 ? '' : 's') + ' have not set their role yet.';
                 
                 // Render tables (showStatus, showPlatform)
                 renderTable('allUsersBody', allUsers, true, true);
