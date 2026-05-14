@@ -492,6 +492,195 @@
       box-shadow: none;
     }
 
+    /* Examiner Mode — Reflection screen
+       Section-specific prompt in a teal-accented panel; optional textarea
+       below for typed reflection. Solo mode only. */
+    .osce-reflect-prompt {
+      font-size: 1.02rem;
+      line-height: 1.55;
+      color: var(--color-gray-800);
+      background: rgba(43,138,156,0.05);
+      border-left: 3px solid var(--color-teal);
+      padding: 1rem 1.15rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1.25rem 0 0.5rem;
+    }
+    .osce-reflect-note {
+      font-size: 0.82rem;
+      color: var(--color-gray-500);
+      margin-bottom: 1rem;
+    }
+    .osce-reflection-input,
+    .osce-section-comment-input {
+      width: 100%;
+      border: 1.5px solid var(--color-gray-200);
+      border-radius: 8px;
+      padding: 0.75rem 0.85rem;
+      font-family: var(--font-primary);
+      font-size: 0.92rem;
+      line-height: 1.5;
+      color: var(--color-gray-800);
+      background: #fff;
+      resize: vertical;
+      transition: border-color 0.15s ease;
+    }
+    .osce-reflection-input:focus,
+    .osce-section-comment-input:focus {
+      outline: none;
+      border-color: var(--color-teal);
+    }
+
+    /* Examiner Mode — Grade descriptors
+       All four bands visible at once; the band containing the selected
+       grade gets the .active state. */
+    .osce-grade-descriptors {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .osce-grade-band {
+      padding: 0.7rem 0.95rem;
+      border-radius: 8px;
+      border: 1.5px solid var(--color-gray-200);
+      background: #fff;
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 0.6rem;
+      align-items: baseline;
+      transition: all 0.15s ease;
+    }
+    .osce-grade-band.active {
+      border-color: var(--color-teal);
+      background: rgba(43,138,156,0.05);
+    }
+    .osce-grade-band-range {
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--color-gray-700);
+      letter-spacing: -0.01em;
+    }
+    .osce-grade-band.active .osce-grade-band-range { color: var(--color-teal); }
+    .osce-grade-band-label {
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: var(--color-gray-900);
+      line-height: 1.3;
+    }
+    .osce-grade-band-desc {
+      grid-column: 2;
+      font-size: 0.8rem;
+      color: var(--color-gray-600);
+      line-height: 1.4;
+      margin-top: 0.15rem;
+    }
+
+    /* Examiner Mode — Grade picker (0–10 buttons) */
+    .osce-grade-picker { margin-top: 1.25rem; }
+    .osce-grade-picker-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-gray-500);
+      margin-bottom: 0.5rem;
+    }
+    .osce-grade-buttons {
+      display: grid;
+      grid-template-columns: repeat(11, 1fr);
+      gap: 3px;
+    }
+    .osce-grade-buttons button {
+      background: #fff;
+      border: 1.5px solid var(--color-gray-200);
+      border-radius: 6px;
+      padding: 0;
+      min-height: 44px;
+      font-family: var(--font-primary);
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: var(--color-gray-700);
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+    .osce-grade-buttons button:hover {
+      border-color: var(--color-teal);
+      color: var(--color-teal);
+    }
+    .osce-grade-buttons button.selected {
+      background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-teal-dark) 100%);
+      color: #fff;
+      border-color: var(--color-teal-dark);
+    }
+
+    /* Examiner Mode — Section comment */
+    .osce-section-comment { margin-top: 1.5rem; }
+    .osce-section-comment-label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-gray-600);
+      margin-bottom: 0.4rem;
+    }
+    .osce-optional {
+      font-weight: 500;
+      color: var(--color-gray-400);
+      letter-spacing: 0;
+      text-transform: none;
+      font-size: 0.78rem;
+    }
+
+    /* Examiner Mode — Lock screen summary */
+    .osce-lock-summary {
+      background: var(--color-gray-50);
+      border: 1px solid var(--color-gray-200);
+      border-radius: 10px;
+      padding: 0.4rem 1rem;
+      margin: 1rem 0 0.5rem;
+    }
+    .osce-lock-summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0.65rem 0;
+      border-bottom: 1px solid var(--color-gray-200);
+      gap: 1rem;
+    }
+    .osce-lock-summary-row:last-child { border-bottom: none; }
+    .osce-lock-summary-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-gray-500);
+      flex-shrink: 0;
+    }
+    .osce-lock-summary-value {
+      font-size: 0.92rem;
+      color: var(--color-gray-900);
+      font-weight: 600;
+      text-align: right;
+      word-wrap: break-word;
+      min-width: 0;
+    }
+    .osce-lock-summary-value.muted {
+      color: var(--color-gray-400);
+      font-weight: 400;
+      font-style: italic;
+    }
+    .osce-lock-warning {
+      font-size: 0.82rem;
+      color: var(--color-gray-600);
+      margin: 0.5rem 0 0.5rem;
+      padding: 0.6rem 0.85rem;
+      background: rgba(255,193,7,0.06);
+      border-left: 3px solid var(--color-warning);
+      border-radius: 0 6px 6px 0;
+      line-height: 1.5;
+    }
+
     /* Item nav */
     .osce-item-nav {
       margin-top: 1.5rem;
@@ -793,18 +982,131 @@
 </div>
 
 <!-- ============================================
+     EXAMINER MODE — Reflection prompt (solo only)
+     Section-specific prompt asking the marker (who is themselves the
+     performer in solo mode) to be honest before they grade. Optional
+     textarea for typed reflection. Skipped entirely in peer mode.
+     ============================================ -->
+<div id="osce-examiner-section-reflect" class="osce-screen">
+  <div class="osce-inner">
+    <div class="osce-eyebrow"><span class="dot"></span> <span id="reflectEyebrow">EXAMINER MODE · SECTION 1</span></div>
+    <h1 class="osce-title">Reflect, then grade</h1>
+
+    <div class="osce-reflect-prompt" id="reflectPrompt"></div>
+    <p class="osce-reflect-note">Optional — your honest answer stays in this session.</p>
+
+    <textarea class="osce-reflection-input" id="reflectInput" rows="5"
+              placeholder="Be honest with yourself. What did you actually do?"
+              oninput="captureReflection(this.value)"></textarea>
+
+    <button class="osce-cta" onclick="continueFromReflection()">Continue to grading</button>
+  </div>
+</div>
+
+<!-- ============================================
+     EXAMINER MODE — Grade slider + comment
+     All four grade descriptors visible at once; the band containing the
+     selected grade lights up. Eleven buttons (0–10) below. Comment field
+     is optional. Continue is disabled until a grade is selected.
+     ============================================ -->
+<div id="osce-examiner-section-grade" class="osce-screen">
+  <div class="osce-inner">
+    <div class="osce-eyebrow"><span class="dot"></span> <span id="gradeEyebrow">EXAMINER MODE · SECTION 1</span></div>
+    <h1 class="osce-title">Grade this section</h1>
+    <p class="osce-sub" id="gradeSub"></p>
+
+    <div class="osce-grade-descriptors" id="gradeDescriptors">
+      <div class="osce-grade-band" data-band="insufficient">
+        <div class="osce-grade-band-range">0–3</div>
+        <div class="osce-grade-band-label">Insufficient</div>
+        <div class="osce-grade-band-desc">Unsafe or missing required elements.</div>
+      </div>
+      <div class="osce-grade-band" data-band="pass">
+        <div class="osce-grade-band-range">4</div>
+        <div class="osce-grade-band-label">Pass</div>
+        <div class="osce-grade-band-desc">Covered the basics safely, minimal rationale.</div>
+      </div>
+      <div class="osce-grade-band" data-band="detailed">
+        <div class="osce-grade-band-range">5–6</div>
+        <div class="osce-grade-band-label">Detailed</div>
+        <div class="osce-grade-band-desc">Systematic, with reasoning beyond baseline.</div>
+      </div>
+      <div class="osce-grade-band" data-band="comprehensive">
+        <div class="osce-grade-band-range">7+</div>
+        <div class="osce-grade-band-label">Comprehensive</div>
+        <div class="osce-grade-band-desc">Well-sustained reasoning, deeply integrated.</div>
+      </div>
+    </div>
+
+    <div class="osce-grade-picker">
+      <div class="osce-grade-picker-label">Choose a grade</div>
+      <div class="osce-grade-buttons" id="gradeButtons"></div>
+    </div>
+
+    <div class="osce-section-comment">
+      <label class="osce-section-comment-label" for="commentInput">
+        Section comment <span class="osce-optional">(optional)</span>
+      </label>
+      <textarea class="osce-section-comment-input" id="commentInput" rows="3"
+                oninput="captureComment(this.value)"></textarea>
+    </div>
+
+    <button class="osce-cta" id="gradeContinueBtn" onclick="continueFromGrade()" disabled>Continue</button>
+  </div>
+</div>
+
+<!-- ============================================
+     EXAMINER MODE — Lock confirmation
+     Surfaces any critical fails for this section, shows a summary of
+     what's about to be locked in, and provides the irreversible Lock
+     and continue action. The back button still works on this screen
+     until lockSection() runs.
+     ============================================ -->
+<div id="osce-examiner-section-lock" class="osce-screen">
+  <div class="osce-inner">
+    <div class="osce-eyebrow"><span class="dot"></span> <span id="lockEyebrow">EXAMINER MODE · SECTION 1</span></div>
+    <h1 class="osce-title">Confirm and lock</h1>
+    <p class="osce-sub">Once locked, this section can't be re-opened — same as a real OSCE.</p>
+
+    <div id="lockCriticalFails"></div>
+
+    <div class="osce-lock-summary">
+      <div class="osce-lock-summary-row">
+        <span class="osce-lock-summary-label">Ticks covered</span>
+        <span class="osce-lock-summary-value" id="lockTickCount">0</span>
+      </div>
+      <div class="osce-lock-summary-row">
+        <span class="osce-lock-summary-label">Grade</span>
+        <span class="osce-lock-summary-value" id="lockGrade">—</span>
+      </div>
+      <div class="osce-lock-summary-row" id="lockCommentRow">
+        <span class="osce-lock-summary-label">Comment</span>
+        <span class="osce-lock-summary-value muted" id="lockComment">No comment</span>
+      </div>
+      <div class="osce-lock-summary-row" id="lockReflectionRow" style="display:none;">
+        <span class="osce-lock-summary-label">Reflection</span>
+        <span class="osce-lock-summary-value muted" id="lockReflection">No reflection</span>
+      </div>
+    </div>
+
+    <button class="osce-cta" onclick="lockSection()">Lock and continue</button>
+  </div>
+</div>
+
+<!-- ============================================
      EXAMINER MODE — Section flow placeholder
-     STUB ONLY. Replaced in the next commit by the reflection prompt
-     (solo only) and grade-slider/comment/lock screens.
+     STUB ONLY. Currently lands here after Section 1 is locked. Replaced
+     in the next commit when Sections 2–4 wire up (and again after that
+     by the final debrief screen).
      ============================================ -->
 <div id="osce-examiner-stub" class="osce-screen">
   <div class="osce-inner">
     <div class="osce-eyebrow"><span class="dot"></span> EXAMINER MODE</div>
     <h1 class="osce-title">Coming next</h1>
-    <p class="osce-sub" id="examinerStubFraming">Reflection prompt (solo only), grade slider, comment, and section lock.</p>
+    <p class="osce-sub" id="examinerStubFraming">Sections 2–4 and the final debrief land in upcoming commits.</p>
 
     <div class="osce-section-intro" id="examinerStubIntro">
-      Coverage captured. The rest of the section flow lands in the next commit.
+      Section locked. The rest of the assessment flow is being built.
     </div>
   </div>
 </div>
@@ -1238,16 +1540,53 @@ renderItemList('specialItemList',  specialItems);
 /* ============================================
    EXAMINER MODE — section-data lookup + coverage render
    SECTION_DATA maps the 1-based currentSection index to the underlying
-   item arrays. Declared after the item-array consts so initialisation
-   doesn't hit a temporal-dead-zone error.
+   item arrays, plus the section-specific reflection prompt (solo mode
+   only) and the human-readable section noun used for subheads.
+   Declared after the item-array consts so initialisation doesn't hit
+   a temporal-dead-zone error.
    ============================================ */
 const SECTION_DATA = [
   null, // index 0 unused — keeps section numbering 1-based to match the rubric
-  { sectionId: 'history',  title: 'History Taking',                items: historyItems  },
-  { sectionId: 'exam',     title: 'Cardiovascular Examination',    items: examItems     },
-  { sectionId: 'decision', title: 'Decision Making & Management',  items: decisionItems },
-  { sectionId: 'special',  title: 'Special Populations',           items: specialItems  }
+  {
+    sectionId: 'history',
+    title:     'History Taking',
+    noun:      'history-taking',
+    items:     historyItems,
+    reflectionPrompt: "Before you grade — what did you actually say when you took the history? Did you give the patient your reasoning, or did you just go through the steps?"
+  },
+  {
+    sectionId: 'exam',
+    title:     'Cardiovascular Examination',
+    noun:      'the examination',
+    items:     examItems,
+    reflectionPrompt: "Before you grade — did you say what you were finding as you went, or did you do it silently?"
+  },
+  {
+    sectionId: 'decision',
+    title:     'Decision Making & Management',
+    noun:      'decision making and management',
+    items:     decisionItems,
+    reflectionPrompt: "Before you grade — did you actually justify your plan, or did you just state it? Did you re-confirm consent and allergies?"
+  },
+  {
+    sectionId: 'special',
+    title:     'Special Populations',
+    noun:      'the special populations questions',
+    items:     specialItems,
+    reflectionPrompt: "Before you grade — could you genuinely articulate the adjustments, or were you reaching for general principles?"
+  }
 ];
+
+/* Per-section critical-fail mapping. Some criticalFail items in the data
+   (e.g. h2 Consent) document the concept but are JUDGED in a different
+   section, so they don't surface here. Keys are 1-based section indices;
+   values are item.id strings whose absence-of-ticks fires a fail. */
+const SECTION_CRITICAL_FAIL_ITEMS = {
+  1: ['h6'],          // Allergies
+  2: [],              // None judged at section-end
+  3: ['d3', 'd4'],    // Management consent, discharge safety-netting
+  4: []               // None judged at section-end
+};
 
 function renderCoverage() {
   if (!examinerSession) return;
@@ -1260,9 +1599,9 @@ function renderCoverage() {
     examinerSession.sections[idx - 1] = {
       id:         section.sectionId,
       ticks:      {},     // keyed 'itemId-tickIdx' -> boolean
-      grade:      null,   // 0–10, set in grade screen (next commit)
+      grade:      null,   // 0–10, set in grade screen
       comment:    '',
-      reflection: '',     // solo only, set in reflection screen (next commit)
+      reflection: '',     // solo only, set in reflection screen
       lockedAt:   null
     };
   }
@@ -1307,9 +1646,218 @@ function toggleCoverageTick(li) {
 }
 
 function continueFromCoverage() {
-  // Next commit: branch to reflection (solo) vs grade (peer). For now,
-  // navigate to the rolling stub so the flow stays visibly testable.
-  navigate('examiner-stub');
+  if (!examinerSession) return;
+  if (examinerSession.markerType === 'self') {
+    renderReflection();
+    navigate('examiner-section-reflect');
+  } else {
+    renderGrade();
+    navigate('examiner-section-grade');
+  }
+}
+
+/* ============================================
+   EXAMINER MODE — Reflection screen (solo only)
+   ============================================ */
+function renderReflection() {
+  const idx = examinerSession.currentSection;
+  const section = SECTION_DATA[idx];
+  const sectionState = examinerSession.sections[idx - 1];
+
+  document.getElementById('reflectEyebrow').textContent = `EXAMINER MODE · SECTION ${idx}`;
+  document.getElementById('reflectPrompt').textContent = section.reflectionPrompt;
+  document.getElementById('reflectInput').value = sectionState.reflection || '';
+}
+
+function captureReflection(text) {
+  if (!examinerSession) return;
+  const idx = examinerSession.currentSection;
+  examinerSession.sections[idx - 1].reflection = text;
+}
+
+function continueFromReflection() {
+  renderGrade();
+  navigate('examiner-section-grade');
+}
+
+/* ============================================
+   EXAMINER MODE — Grade screen
+   ============================================ */
+function renderGrade() {
+  const idx = examinerSession.currentSection;
+  const section = SECTION_DATA[idx];
+  const sectionState = examinerSession.sections[idx - 1];
+
+  document.getElementById('gradeEyebrow').textContent = `EXAMINER MODE · SECTION ${idx}`;
+
+  // Framing changes by markerType ("you" vs "they"). Same flow either way.
+  const isSelf = examinerSession.markerType === 'self';
+  document.getElementById('gradeSub').textContent = isSelf
+    ? `How did you do overall on ${section.noun}?`
+    : `How did they do overall on ${section.noun}?`;
+
+  const commentEl = document.getElementById('commentInput');
+  commentEl.placeholder = isSelf
+    ? "What stood out? What did you miss?"
+    : "What stood out? What did they miss?";
+  commentEl.value = sectionState.comment || '';
+
+  // Render the 0–10 buttons. Re-render on each entry so .selected reflects
+  // any previously-captured grade.
+  const grade = sectionState.grade;
+  let buttonsHtml = '';
+  for (let n = 0; n <= 10; n++) {
+    const selectedCls = (n === grade) ? ' class="selected"' : '';
+    buttonsHtml += `<button${selectedCls} onclick="selectGrade(${n})">${n}</button>`;
+  }
+  document.getElementById('gradeButtons').innerHTML = buttonsHtml;
+
+  updateGradeDescriptorHighlight(grade);
+  document.getElementById('gradeContinueBtn').disabled = (grade === null);
+}
+
+function selectGrade(n) {
+  if (!examinerSession) return;
+  const idx = examinerSession.currentSection;
+  examinerSession.sections[idx - 1].grade = n;
+
+  // Visually flip the button selection — JS-controlled class (not :focus
+  // or blur), so iOS doesn't end up with sticky state.
+  const buttons = document.querySelectorAll('#gradeButtons button');
+  buttons.forEach((b, i) => {
+    if (i === n) b.classList.add('selected');
+    else b.classList.remove('selected');
+  });
+
+  updateGradeDescriptorHighlight(n);
+  document.getElementById('gradeContinueBtn').disabled = false;
+}
+
+function updateGradeDescriptorHighlight(grade) {
+  const bands = document.querySelectorAll('#gradeDescriptors .osce-grade-band');
+  bands.forEach(b => b.classList.remove('active'));
+  if (grade === null || grade === undefined) return;
+  let activeBand;
+  if      (grade <= 3) activeBand = 'insufficient';
+  else if (grade === 4) activeBand = 'pass';
+  else if (grade <= 6) activeBand = 'detailed';
+  else                  activeBand = 'comprehensive';
+  const el = document.querySelector(`.osce-grade-band[data-band="${activeBand}"]`);
+  if (el) el.classList.add('active');
+}
+
+function captureComment(text) {
+  if (!examinerSession) return;
+  const idx = examinerSession.currentSection;
+  examinerSession.sections[idx - 1].comment = text;
+}
+
+function continueFromGrade() {
+  renderLock();
+  navigate('examiner-section-lock');
+}
+
+/* ============================================
+   EXAMINER MODE — Lock screen
+   Surfaces critical fails per SECTION_CRITICAL_FAIL_ITEMS map and the
+   "no ticks checked => fail" trigger rule.
+   ============================================ */
+function getCriticalFailsForCurrentSection() {
+  const idx = examinerSession.currentSection;
+  const sectionState = examinerSession.sections[idx - 1];
+  const section = SECTION_DATA[idx];
+  const flaggedIds = SECTION_CRITICAL_FAIL_ITEMS[idx] || [];
+
+  const fails = [];
+  flaggedIds.forEach(itemId => {
+    const item = section.items.find(it => it.id === itemId);
+    if (!item) return;
+    // Trigger rule (confirmed with Mark): fire if NO ticks for this item
+    // are checked. Imperfect coverage is a points loss, not a critical fail.
+    const anyChecked = (item.ticks || []).some((_, tickIdx) =>
+      sectionState.ticks[`${itemId}-${tickIdx}`]
+    );
+    if (!anyChecked) {
+      fails.push({
+        itemId:  itemId,
+        title:   item.title,
+        message: item.criticalFail
+      });
+    }
+  });
+  return fails;
+}
+
+function renderLock() {
+  const idx = examinerSession.currentSection;
+  const section = SECTION_DATA[idx];
+  const sectionState = examinerSession.sections[idx - 1];
+
+  document.getElementById('lockEyebrow').textContent = `EXAMINER MODE · SECTION ${idx}`;
+
+  // Critical fails block (or empty if none).
+  const fails = getCriticalFailsForCurrentSection();
+  const failsHtml = fails.map(f => `
+    <div class="osce-critical">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <div class="osce-critical-content">
+        <div class="osce-critical-label">Critical fail · ${f.title}</div>
+        <div class="osce-critical-text">${f.message}</div>
+      </div>
+    </div>`).join('');
+  document.getElementById('lockCriticalFails').innerHTML = failsHtml;
+
+  // Summary values.
+  const tickCount = Object.values(sectionState.ticks).filter(Boolean).length;
+  document.getElementById('lockTickCount').textContent = String(tickCount);
+
+  const gradeEl = document.getElementById('lockGrade');
+  if (sectionState.grade === null) {
+    gradeEl.textContent = '—';
+    gradeEl.classList.add('muted');
+  } else {
+    gradeEl.textContent = String(sectionState.grade);
+    gradeEl.classList.remove('muted');
+  }
+
+  const commentEl = document.getElementById('lockComment');
+  if (sectionState.comment && sectionState.comment.trim()) {
+    commentEl.textContent = sectionState.comment.trim();
+    commentEl.classList.remove('muted');
+  } else {
+    commentEl.textContent = 'No comment';
+    commentEl.classList.add('muted');
+  }
+
+  // Reflection row — solo only and only if something was typed.
+  const reflectionRow = document.getElementById('lockReflectionRow');
+  if (examinerSession.markerType === 'self' && sectionState.reflection && sectionState.reflection.trim()) {
+    document.getElementById('lockReflection').textContent = sectionState.reflection.trim();
+    document.getElementById('lockReflection').classList.remove('muted');
+    reflectionRow.style.display = '';
+  } else {
+    reflectionRow.style.display = 'none';
+  }
+}
+
+function lockSection() {
+  if (!examinerSession) return;
+  const idx = examinerSession.currentSection;
+  examinerSession.sections[idx - 1].lockedAt = Date.now();
+
+  // Strict no-reopen: reset the navStack so back-arrow returns past the
+  // locked section's screens. Updates to the stub copy reflect which
+  // section was just sealed.
+  navStack.length = 0;
+  navStack.push('osce-home');
+  navStack.push('osce-system-cardio');
+  navStack.push('osce-examiner-stub');
+  showScreen('osce-examiner-stub');
+  document.getElementById('backBtn').hidden = false;
+
+  document.getElementById('examinerStubFraming').textContent =
+    `Section ${idx} locked. The remaining sections and the final debrief land in upcoming commits.`;
+  window.scrollTo({ top: 0, behavior: 'instant' });
 }
 </script>
 
