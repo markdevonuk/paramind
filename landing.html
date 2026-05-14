@@ -1145,6 +1145,304 @@
         })();
         </script>
 
+        <!-- ==================== MAJOR INCIDENT BOX ==================== -->
+        <style>
+            .mi-banner { margin-bottom: 16px; }
+            .mi-outer {
+                background: linear-gradient(160deg, #1a0a0a 0%, #0d0d0d 100%);
+                border-radius: 18px;
+                overflow: hidden;
+                box-shadow: 0 8px 32px rgba(220,53,69,0.3), 0 2px 8px rgba(0,0,0,0.4);
+                position: relative;
+                border: 1px solid rgba(220,53,69,0.2);
+            }
+
+            /* Terminal strip */
+            .mi-terminal {
+                width: 100%;
+                background: #0a0a0a;
+                border-bottom: 1px solid rgba(220,53,69,0.15);
+                padding: 12px 14px;
+                min-height: 90px;
+                position: relative;
+                font-family: 'Courier New', monospace;
+                overflow: hidden;
+            }
+            .mi-terminal-header {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 8px;
+            }
+            .mi-terminal-dot {
+                width: 7px; height: 7px; border-radius: 50%;
+            }
+            .mi-terminal-dot.red   { background: #ff5f57; }
+            .mi-terminal-dot.amber { background: #febc2e; }
+            .mi-terminal-dot.green { background: #28c840; }
+            .mi-terminal-title {
+                font-size: 9px;
+                color: rgba(255,255,255,0.25);
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                margin-left: 4px;
+            }
+            .mi-terminal-lines {
+                font-size: 11px;
+                line-height: 1.7;
+                color: rgba(255,60,60,0.0);
+            }
+            .mi-terminal-line {
+                display: block;
+                opacity: 0;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+            .mi-terminal-line .mi-letter {
+                color: #ff4444;
+                font-weight: 900;
+            }
+            .mi-terminal-line .mi-key {
+                color: rgba(255,255,255,0.4);
+            }
+            .mi-terminal-line .mi-val {
+                color: rgba(255,200,200,0.85);
+            }
+            .mi-cursor {
+                display: inline-block;
+                width: 6px; height: 11px;
+                background: #ff4444;
+                margin-left: 2px;
+                vertical-align: middle;
+                animation: mi-blink 0.8s step-end infinite;
+            }
+            @keyframes mi-blink {
+                0%,100% { opacity: 1; } 50% { opacity: 0; }
+            }
+
+            /* Content area */
+            .mi-content {
+                padding: 14px 20px 18px;
+                position: relative;
+                text-align: center;
+            }
+            .mi-content::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: repeating-linear-gradient(
+                    -45deg,
+                    rgba(220,53,69,0.03) 0px,
+                    rgba(220,53,69,0.03) 1px,
+                    transparent 1px,
+                    transparent 12px
+                );
+                pointer-events: none;
+            }
+            .mi-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 7px;
+                background: rgba(220,53,69,0.15);
+                border: 1px solid rgba(220,53,69,0.3);
+                border-radius: 20px;
+                padding: 4px 12px;
+                margin-bottom: 10px;
+                font-size: 11px;
+                font-weight: 700;
+                color: #ff6b6b;
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+                position: relative;
+            }
+            .mi-badge-dot {
+                width: 7px; height: 7px; border-radius: 50%;
+                background: #ff4444;
+                animation: nlDotPulse 1.4s ease-in-out infinite;
+            }
+            .mi-heading {
+                font-size: 18px;
+                font-weight: 800;
+                color: #ffffff;
+                margin: 0 0 4px;
+                line-height: 1.2;
+                text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+                position: relative;
+            }
+            .mi-heading span { color: #ff6b6b; }
+            .mi-subtext {
+                font-size: 13px;
+                color: rgba(255,255,255,0.7);
+                margin: 0 0 16px;
+                line-height: 1.4;
+                position: relative;
+            }
+            .mi-cta {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                background: #DC3545;
+                color: #ffffff;
+                font-size: 14px;
+                font-weight: 800;
+                padding: 11px 22px;
+                border-radius: 12px;
+                text-decoration: none;
+                transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s;
+                box-shadow: 0 4px 20px rgba(220,53,69,0.5);
+                position: relative;
+                overflow: hidden;
+            }
+            .mi-cta::after {
+                content: "";
+                position: absolute;
+                top: 0; left: -100%;
+                width: 60%; height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+                animation: nlShimmer 3s ease-in-out infinite;
+            }
+            .mi-cta:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 28px rgba(220,53,69,0.6);
+                color: #ffffff;
+                text-decoration: none;
+                background: #c82333;
+            }
+
+            /* ── DEBRIEF BOX ── */
+            .atc-banner { margin-bottom: 16px; }
+            .atc-outer {
+                background: linear-gradient(160deg, #0f1420 0%, #080d18 100%);
+                border-radius: 18px;
+                overflow: hidden;
+                border: 1px solid rgba(99,130,180,0.15);
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                padding: 22px 22px 20px;
+                text-align: center;
+                position: relative;
+            }
+            .atc-outer::before {
+                content: '';
+                position: absolute;
+                top: 0; left: 0; right: 0; height: 1px;
+                background: linear-gradient(90deg, transparent, rgba(99,130,180,0.3), transparent);
+            }
+            .atc-stars {
+                font-size: 20px;
+                letter-spacing: 4px;
+                margin-bottom: 10px;
+                opacity: 0.5;
+            }
+            .atc-question {
+                font-size: 17px;
+                font-weight: 700;
+                color: rgba(255,255,255,0.9);
+                margin-bottom: 6px;
+                line-height: 1.3;
+            }
+            .atc-sub {
+                font-size: 13px;
+                color: rgba(255,255,255,0.4);
+                margin-bottom: 18px;
+                line-height: 1.5;
+            }
+            .atc-cta {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                background: rgba(255,255,255,0.07);
+                border: 1px solid rgba(255,255,255,0.15);
+                color: rgba(255,255,255,0.8);
+                font-size: 13px;
+                font-weight: 700;
+                padding: 10px 20px;
+                border-radius: 12px;
+                text-decoration: none;
+                transition: all 0.2s;
+            }
+            .atc-cta:hover {
+                background: rgba(255,255,255,0.12);
+                border-color: rgba(255,255,255,0.25);
+                color: #fff;
+                text-decoration: none;
+                transform: translateY(-1px);
+            }
+        </style>
+
+        <div class="mi-banner">
+            <div class="mi-outer">
+                <!-- Terminal strip -->
+                <div class="mi-terminal">
+                    <div class="mi-terminal-header">
+                        <span class="mi-terminal-dot red"></span>
+                        <span class="mi-terminal-dot amber"></span>
+                        <span class="mi-terminal-dot green"></span>
+                        <span class="mi-terminal-title">METHANE — Incident Briefing</span>
+                    </div>
+                    <div class="mi-terminal-lines" id="miTerminalLines">
+                        <span class="mi-terminal-line" id="miLine0"><span class="mi-letter">M</span> <span class="mi-key">Major Incident</span> <span class="mi-val">— Declared. Multiple agencies responding.</span></span>
+                        <span class="mi-terminal-line" id="miLine1"><span class="mi-letter">E</span> <span class="mi-key">Exact Location</span> <span class="mi-val">— M62 Westbound, between J27 and J28.</span></span>
+                        <span class="mi-terminal-line" id="miLine2"><span class="mi-letter">T</span> <span class="mi-key">Type</span> <span class="mi-val">— RTC. HGV rear-ended stationary traffic.</span></span>
+                        <span class="mi-terminal-line" id="miLine3"><span class="mi-letter">H</span> <span class="mi-key">Hazards</span> <span class="mi-val">— Diesel spill. Unstable HGV cab.</span></span>
+                        <span class="mi-terminal-line" id="miLine4"><span class="mi-letter">A</span> <span class="mi-key">Access</span> <span class="mi-val">— Via J27 westbound slip. RVP Tesco Extra.</span></span>
+                        <span class="mi-terminal-line" id="miLine5"><span class="mi-letter">N</span> <span class="mi-key">Number</span> <span class="mi-val">— Approx. 9 casualties. Ambulant and non-ambulant.</span></span>
+                        <span class="mi-terminal-line" id="miLine6"><span class="mi-letter">E</span> <span class="mi-key">Emergency Services</span> <span class="mi-val">— Police on scene. Fire ETA 4 min.<span class="mi-cursor"></span></span></span>
+                    </div>
+                </div>
+                <!-- Content -->
+                <div class="mi-content">
+                    <div class="mi-badge">
+                        <span class="mi-badge-dot"></span> Pro Feature
+                    </div>
+                    <p class="mi-heading">⚠ <span>Major Incident Trainer</span></p>
+                    <p class="mi-subtext">TST & MITT triage under real pressure · Hard cutoff · No second chances</p>
+                    <a href="major-incident.html" class="mi-cta">
+                        <i class="bi bi-play-circle-fill"></i> Launch the Trainer
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        (function() {
+            var lines = document.querySelectorAll('.mi-terminal-line');
+            var delays = [200, 700, 1200, 1700, 2200, 2700, 3200];
+            lines.forEach(function(line, i) {
+                setTimeout(function() {
+                    line.style.transition = 'opacity 0.3s ease';
+                    line.style.opacity = '1';
+                }, delays[i]);
+            });
+            // Loop: fade out and back in every 7 seconds
+            setInterval(function() {
+                lines.forEach(function(line) {
+                    line.style.transition = 'opacity 0.8s ease';
+                    line.style.opacity = '0';
+                });
+                setTimeout(function() {
+                    lines.forEach(function(line, i) {
+                        setTimeout(function() {
+                            line.style.transition = 'opacity 0.3s ease';
+                            line.style.opacity = '1';
+                        }, delays[i]);
+                    });
+                }, 1000);
+            }, 8000);
+        })();
+        </script>
+
+        <!-- ==================== DEBRIEF BOX ==================== -->
+        <div class="atc-banner">
+            <div class="atc-outer">
+                <div class="atc-stars">✦ ✦ ✦</div>
+                <div class="atc-question">How did your last job go?</div>
+                <div class="atc-sub">End of shift. Time to process what happened — before it follows you home.</div>
+                <a href="after-the-call.html" class="atc-cta">
+                    <i class="bi bi-moon-stars"></i> Debrief Your Last Job
+                </a>
+            </div>
+        </div>
+
         <!-- ==================== FREE TOOLS ==================== -->
         <div class="tools-section">
             <div class="section-label">
