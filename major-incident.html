@@ -1195,7 +1195,7 @@ async function saveCpd(results, pct) {
     const mode     = S.mode === 'hints' ? 'Guided' : 'No Hints';
     const correct  = results.filter(r => r && r.correct).length;
     const timeouts = results.filter(r => r && r.timeout).length;
-    const result   = pct >= 80 ? 'pass' : pct >= 50 ? 'borderline' : 'fail';
+    const result = pct >= 80 ? 'correct' : pct >= 50 ? 'partially_correct' : 'incorrect';
 
     const cpdData = {
       scenarioId:           `major-incident-${S.tool}-${Date.now()}`,
