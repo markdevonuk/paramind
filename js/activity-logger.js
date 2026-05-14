@@ -36,6 +36,8 @@
         'interview.html':        'Interview Prep',
         'flashcards.html':       'Flash Cards',
         'after-the-call.html':   'After the Call',
+        'osce-practice.html':    'OSCE Practice',
+        'major-incident.html':   'Incident Ground',
         'cpd.html':              null
     };
 
