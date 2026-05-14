@@ -589,6 +589,7 @@
       <div class="cas-log" id="cas-log"></div>
       <button class="mi-btn-again" onclick="runAgain()"><i class="bi bi-arrow-repeat me-2"></i>Run Same Scenario Again</button>
       <button class="mi-btn-home"  onclick="goHome()"><i class="bi bi-chevron-left me-1"></i>Choose Tool</button>
+      <div id="cpdSaveNotice" style="display:none;margin-top:0.75rem;"></div>
     </div>
   </div>
 </div>
@@ -1101,6 +1102,7 @@ function showDebrief(){
   }).join('');
   showScreen('mi-debrief');
   setTimeout(() => animateGauge(pct), 100);
+  saveCpd(res, pct);
 }
 
 async function fetchDebrief(res,pct){
@@ -1181,6 +1183,76 @@ function animateGauge(pct) {
     if (elapsed < duration) requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
+}
+
+async function saveCpd(results, pct) {
+  try {
+    const user = auth.currentUser;
+    if (!user) return;
+    const token = await user.getIdToken();
+
+    const tool     = S.tool === 'tst' ? 'Ten Second Triage (TST)' : 'Major Incident Triage Tool (MITT)';
+    const mode     = S.mode === 'hints' ? 'Guided' : 'No Hints';
+    const correct  = results.filter(r => r && r.correct).length;
+    const timeouts = results.filter(r => r && r.timeout).length;
+    const result   = pct >= 80 ? 'pass' : pct >= 50 ? 'borderline' : 'fail';
+
+    const cpdData = {
+      scenarioId:           `major-incident-${S.tool}-${Date.now()}`,
+      scenarioCode:         `MI-${S.tool.toUpperCase()}-${new Date().toISOString().slice(0,10)}`,
+      scenarioType:         `Major Incident Trainer: ${tool} — ${mode}`,
+      scenarioCategory:     'major-incident',
+      patientName:          `${results.length} casualties`,
+      chiefComplaint:       S.scene.title,
+      correctDiagnosis:     `${pct}% accuracy`,
+      userImpression:       `Scored ${pct}% — ${correct}/${results.length} correct. ${timeouts} timed out.`,
+      result,
+      questionsAsked:       0,
+      assessmentsPerformed: results.length,
+      difficultyLevel:      S.mode === 'nohints' ? 3 : 2,
+      debriefReport: JSON.stringify({
+        tool: S.tool,
+        mode: S.mode,
+        scene: S.scene.title,
+        score: pct,
+        correct,
+        timeouts,
+        casualties: results.map((r, i) => ({
+          num: i + 1,
+          desc: r ? r.cas.desc.substring(0, 80) : '',
+          correct: r ? r.correct : false,
+          timeout: r ? r.timeout : false,
+          priority: r ? r.cas.pri : '',
+          time: r ? r.t : null
+        }))
+      })
+    };
+
+    const response = await fetch('https://europe-west2-paramind-64b8e.cloudfunctions.net/saveEnhancedCpdRecord', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(cpdData)
+    });
+
+    const notice = document.getElementById('cpdSaveNotice');
+    if (!response.ok) throw new Error('Save failed');
+    notice.innerHTML = `
+      <div class="welcome-disclaimer" style="border-left-color:#3d8b3d;">
+        <i class="bi bi-check-circle-fill me-2" style="color:#3d8b3d;"></i>
+        <strong>CPD record saved.</strong>
+        <a href="cpd.html" style="color:var(--color-teal);font-weight:600;margin-left:0.4rem;">View in your portfolio <i class="bi bi-arrow-right"></i></a>
+      </div>`;
+    notice.style.display = 'block';
+  } catch(e) {
+    console.error('CPD save error:', e);
+    const notice = document.getElementById('cpdSaveNotice');
+    notice.innerHTML = `
+      <div class="welcome-disclaimer" style="border-left-color:#dc3545;">
+        <i class="bi bi-exclamation-triangle me-2" style="color:#dc3545;"></i>
+        <strong>CPD record could not be saved.</strong> Please check your connection and try again.
+      </div>`;
+    notice.style.display = 'block';
+  }
 }
 
 function runAgain(){
