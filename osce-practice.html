@@ -593,7 +593,7 @@
 
     <div class="osce-mode-toggle">
       <button class="active" onclick="setMode('study')">Study Mode</button>
-      <button class="coming-soon" onclick="showToast('Examiner Mode is coming soon — peer-mark each section with your study partner.')">Examiner Mode <span class="soon-tag">SOON</span></button>
+      <button onclick="setMode('examiner')">Examiner Mode</button>
     </div>
 
     <div class="osce-cards">
@@ -686,6 +686,52 @@
 <!-- Item detail view -->
 <div id="osce-item" class="osce-screen">
   <div class="osce-inner" id="itemContent"></div>
+</div>
+
+<!-- ============================================
+     EXAMINER MODE — Marker-type question
+     Entry point for the Examiner flow. Captures whether the marker is
+     reviewing themselves (solo) or someone else (peer). Sets framing only;
+     no auth change.
+     ============================================ -->
+<div id="osce-examiner-marker-type" class="osce-screen">
+  <div class="osce-inner">
+    <div class="osce-eyebrow"><span class="dot"></span> EXAMINER MODE</div>
+    <h1 class="osce-title">Who are you marking?</h1>
+    <p class="osce-sub">Pick one so the language matches who's doing the work. Same flow either way.</p>
+
+    <div class="osce-cards">
+      <button class="osce-card cardio" onclick="setMarkerType('self')">
+        <div class="osce-card-name">Myself</div>
+        <div class="osce-card-desc">You're marking your own performance. A short reflection prompt appears before you grade each section.</div>
+        <i class="bi bi-chevron-right osce-card-arrow"></i>
+      </button>
+
+      <button class="osce-card cardio" onclick="setMarkerType('peer')">
+        <div class="osce-card-name">Someone else</div>
+        <div class="osce-card-desc">You're marking a study partner. Same structure, framed for marking another person. No reflection prompt.</div>
+        <i class="bi bi-chevron-right osce-card-arrow"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     EXAMINER MODE — Section flow placeholder
+     STUB ONLY for this commit. The real section flow (coverage tick-list,
+     reflection prompt, grade slider, comment field, lock) lands in the next
+     commit. The framing text reflects markerType so the wiring is testable.
+     ============================================ -->
+<div id="osce-examiner-stub" class="osce-screen">
+  <div class="osce-inner">
+    <div class="osce-eyebrow"><span class="dot"></span> EXAMINER MODE · SECTION 1</div>
+    <h1 class="osce-title">History Taking</h1>
+    <p class="osce-sub" id="examinerStubFraming">Coming next: coverage tick-list, reflection, grade slider, comment.</p>
+
+    <div class="osce-section-intro" id="examinerStubIntro">
+      Placeholder screen. Marker-type captured. The section flow lands in the next commit.
+    </div>
+  </div>
 </div>
 
 <!-- Toast for coming-soon notifications -->
@@ -959,7 +1005,61 @@ function showScreen(id) {
   document.getElementById('backBtn').hidden = (id === 'osce-home');
 }
 
-function setMode(m) { /* prototype mode toggle — Study only at present */ }
+function setMode(m) {
+  // Visually flip the toggle on the system page.
+  const btns = document.querySelectorAll('.osce-mode-toggle button');
+  btns.forEach(b => b.classList.remove('active'));
+  if (m === 'study') {
+    if (btns[0]) btns[0].classList.add('active');
+    // Study Mode is the default content of osce-system-cardio — no nav needed.
+    return;
+  }
+  if (m === 'examiner') {
+    if (btns[1]) btns[1].classList.add('active');
+    startExaminerSession();
+    navigate('examiner-marker-type');
+  }
+}
+
+/* ============================================
+   EXAMINER MODE — in-memory session state
+   Firestore persistence lands in a follow-up commit. For now the session
+   is in-memory only and resets each time the user re-enters Examiner Mode.
+   Schema mirrors the planned osceSessions Firestore document.
+   ============================================ */
+let examinerSession = null;
+
+function startExaminerSession() {
+  examinerSession = {
+    system:         'cardiovascular',
+    mode:           'examiner',
+    markerType:     null,             // 'self' | 'peer' — set on next screen
+    createdAt:      Date.now(),
+    currentSection: 1,
+    sections:       []
+  };
+}
+
+function setMarkerType(type) {
+  if (!examinerSession) startExaminerSession();
+  examinerSession.markerType = type;
+
+  // Reflect the captured choice on the stub so the wiring is visibly testable.
+  const framing = document.getElementById('examinerStubFraming');
+  if (framing) {
+    framing.textContent = type === 'self'
+      ? 'Solo flow. A reflection prompt will appear at the start of each section.'
+      : 'Peer flow. No reflection prompt — direct to coverage and grading.';
+  }
+  const intro = document.getElementById('examinerStubIntro');
+  if (intro) {
+    intro.textContent = type === 'self'
+      ? 'Marker type captured (self). Section flow lands in the next commit.'
+      : 'Marker type captured (peer). Section flow lands in the next commit.';
+  }
+
+  navigate('examiner-stub');
+}
 
 let toastTimer = null;
 function showToast(message) {
