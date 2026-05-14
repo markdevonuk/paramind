@@ -1197,6 +1197,20 @@ async function saveCpd(results, pct) {
     const timeouts = results.filter(r => r && r.timeout).length;
     const result = pct >= 80 ? 'correct' : pct >= 50 ? 'partially_correct' : 'incorrect';
 
+    // Build human-readable warn/good arrays for the PDF certificate
+    const good = [], warn = [];
+    results.forEach((r, i) => {
+      if (!r) return;
+      const label = `Casualty ${i+1} (${r.cas.pri})`;
+      if (r.timeout) {
+        warn.push(`${label}: Timed out — ${r.cas.expl.split('.')[0]}.`);
+      } else if (r.correct) {
+        good.push(`${label}: Correctly triaged. ${r.cas.expl.split('.')[0]}.`);
+      } else {
+        warn.push(`${label}: Incorrect triage. ${r.cas.expl.split('.')[0]}.`);
+      }
+    });
+
     const cpdData = {
       scenarioId:           `major-incident-${S.tool}-${Date.now()}`,
       scenarioCode:         `MI-${S.tool.toUpperCase()}-${new Date().toISOString().slice(0,10)}`,
@@ -1204,28 +1218,13 @@ async function saveCpd(results, pct) {
       scenarioCategory:     'trauma',
       patientName:          `${results.length} casualties`,
       chiefComplaint:       S.scene.title,
-      correctDiagnosis:     `${pct}% accuracy`,
+      correctDiagnosis:     `${pct}% triage accuracy`,
       userImpression:       `Scored ${pct}% — ${correct}/${results.length} correct. ${timeouts} timed out.`,
       result,
       questionsAsked:       0,
       assessmentsPerformed: results.length,
       difficultyLevel:      S.mode === 'nohints' ? 3 : 2,
-      debriefReport: JSON.stringify({
-        tool: S.tool,
-        mode: S.mode,
-        scene: S.scene.title,
-        score: pct,
-        correct,
-        timeouts,
-        casualties: results.map((r, i) => ({
-          num: i + 1,
-          desc: r ? r.cas.desc.substring(0, 80) : '',
-          correct: r ? r.correct : false,
-          timeout: r ? r.timeout : false,
-          priority: r ? r.cas.pri : '',
-          time: r ? r.t : null
-        }))
-      })
+      debriefReport: JSON.stringify({ good, warn })
     };
 
     const response = await fetch('https://europe-west2-paramind-64b8e.cloudfunctions.net/saveEnhancedCpdRecord', {
