@@ -1240,6 +1240,19 @@ async function saveCpd(results, pct) {
       throw new Error('Save failed');
     }
     const saveData = await response.json();
+
+    // Write to activityLog so it appears in the Activity Log tab
+    const now = new Date();
+    const durationSeconds = results.reduce((acc, r) => acc + (r && r.t ? parseFloat(r.t) : (S.tool === 'tst' ? 10 : 30)), 0);
+    db.collection('users').doc(user.uid).collection('activityLog').add({
+      tool:            'Incident Ground',
+      page:            'major-incident.html',
+      startTime:       firebase.firestore.Timestamp.fromDate(new Date(now - durationSeconds * 1000)),
+      date:            now.toISOString().split('T')[0],
+      durationSeconds: Math.round(durationSeconds),
+      durationMinutes: parseFloat((durationSeconds / 60).toFixed(2)),
+      complete:        true
+    }).catch(e => console.warn('Activity log write failed:', e));
     notice.innerHTML = `
       <div class="welcome-disclaimer" style="border-left-color:#3d8b3d;">
         <i class="bi bi-check-circle-fill me-2" style="color:#3d8b3d;"></i>
