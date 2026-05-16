@@ -29,16 +29,13 @@
     .mi-screen {
       position: fixed;
       top: 60px; left: 0; right: 0; bottom: 0;
-      display: none;
-      flex-direction: column;
+      display: flex; flex-direction: column;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.22s ease;
       background: var(--color-gray-50);
       overflow: hidden;
-      z-index: 1;
     }
-    .mi-screen.active {
-      display: flex;
-      z-index: 2;
-    }
+    .mi-screen.active { opacity: 1; pointer-events: all; }
 
     :root {
       --p1: #DC3545; --p1-bg: rgba(220,53,69,0.08); --p1-border: rgba(220,53,69,0.25);
@@ -154,8 +151,14 @@
       width:100%; background:var(--color-teal); color:#fff; border:none;
       border-radius:10px; padding:.95rem; font-family:var(--font-primary);
       font-size:1rem; font-weight:700; cursor:pointer; transition:background .15s, transform .1s;
+      -webkit-user-select: none; user-select: none;
+      -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+      touch-action: manipulation;
     }
     .mi-btn-primary:active { transform:scale(.98); background:var(--color-teal-dark); }
+    /* iOS WebView fix: prevent button children from intercepting taps */
+    .mi-btn-primary > *,
+    .mi-btn-next > * { pointer-events: none; }
 
     /* ── ACTIVE TRIAGE ── */
     .triage-topbar {
