@@ -44,7 +44,7 @@
             { id: 'chat', href: 'chat.html', icon: 'bi-chat-dots', label: 'Chat with Hollie' },
             { id: 'connections', href: 'connections.html', icon: 'bi-heart-pulse', label: 'A&P Connections', isPro: true },
             { id: 'ecg', href: 'ecg.html', icon: 'bi-activity', label: 'ECG Tool', isPro: true },
-            { id: 'flashcards', href: 'flashcards.html', icon: 'bi-layers', label: 'Flash Cards' },
+            { id: 'flashcards', href: 'flashcards.html', icon: 'bi-layers', label: 'Flash Cards', isPro: true },
             { id: 'bonelab', href: 'bone-lab.html', icon: 'bi-body-text', label: 'Understanding Bones', isPro: true },
             { id: 'bloodlab', href: 'blood-lab.html', icon: 'bi-droplet-half', label: 'Understanding Bloods', isPro: true },
             { id: 'drugs', href: 'drugs.html', icon: 'bi-capsule', label: 'Understanding Drugs', isPro: true }
@@ -52,7 +52,7 @@
         // Practise section
         practiseNav: [
             { id: 'scenarios', href: 'scenarios.html', icon: 'bi-mortarboard', label: 'Scenarios' },
-            { id: 'arrest', href: 'arrest-scenarios.html', icon: 'bi-lightning-charge', label: 'Cardiac Arrest Sim' },
+            { id: 'arrest', href: 'arrest-scenarios.html', icon: 'bi-lightning-charge', label: 'Cardiac Arrest Sim', isPro: true },
             { id: 'major-incident', href: 'major-incident.html', icon: 'bi-exclamation-triangle', label: 'Major Incident Training', isPro: true },
             { id: 'atmist', href: 'atmist.html', icon: 'bi-telephone-outbound', label: 'ATMIST', isPro: true },
             { id: 'differentials', href: 'differentials.html', icon: 'bi-clipboard2-pulse', label: 'Differentials' },
