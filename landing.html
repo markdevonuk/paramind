@@ -174,6 +174,43 @@
             animation: shimmerSweep 4s ease-in-out infinite;
         }
         @keyframes shimmerSweep { 0% { left: -100%; } 40% { left: 100%; } 100% { left: 100%; } }
+
+        /* ============================================================
+           "WHAT'S NEW" PILL — small CTA under the hero subtitle.
+           Quiet by default so it doesn't compete with the triptych or
+           the upgrade banner. Subtle hover lift + colour swap.
+           ============================================================ */
+        .whatsnew-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 0.85rem;
+            padding: 0.45rem 1.1rem;
+            border-radius: 999px;
+            background: #FFFFFF;
+            border: 1.5px solid var(--color-teal);
+            color: var(--color-teal);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+            box-shadow: 0 2px 6px rgba(43, 138, 156, 0.08);
+        }
+        .whatsnew-pill:hover {
+            background: var(--color-teal);
+            color: #FFFFFF;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(43, 138, 156, 0.25);
+        }
+        .whatsnew-pill i {
+            font-size: 0.95rem;
+            animation: whatsnewPulse 2.6s ease-in-out infinite;
+        }
+        .whatsnew-pill:hover i { animation: none; }
+        @keyframes whatsnewPulse {
+            0%, 100% { transform: scale(1);    opacity: 1;    }
+            50%      { transform: scale(1.18); opacity: 0.75; }
+        }
         .upgrade-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; position: relative; z-index: 1; }
         .upgrade-icon {
             width: 44px; height: 44px; border-radius: 10px;
@@ -312,6 +349,10 @@
 
             <h1 class="hero-greeting page-load-3"><span id="heroGreeting">Hey</span> <span class="gradient-name" id="userFirstName">there</span>! <span id="greetingEmoji">👋</span></h1>
             <p class="hero-subtitle page-load-4">I'm Hollie, your paramedic tutor. What shall we do today?</p>
+            <a href="whatsnew.html" class="whatsnew-pill page-load-5" aria-label="See what's new">
+                <i class="bi bi-megaphone"></i>
+                <span>What's new</span>
+            </a>
         </div>
 
         <!-- ==================== TRIPTYCH ==================== -->

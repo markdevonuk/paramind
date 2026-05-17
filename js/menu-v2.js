@@ -37,7 +37,8 @@
     const MENU_CONFIG = {
         // Home (top of the menu)
         homeNav: [
-            { id: 'home', href: 'landing.html', icon: 'bi-house', label: 'Home' }
+            { id: 'home',     href: 'landing.html',  icon: 'bi-house',      label: 'Home' },
+            { id: 'whatsnew', href: 'whatsnew.html', icon: 'bi-megaphone',  label: "What's new" }
         ],
         // Learn section
         learnNav: [
@@ -98,6 +99,7 @@
         if (path.includes('cpd')) return 'cpd';
         if (path.includes('flashcards')) return 'flashcards';
         if (path.includes('index-free-paramedic-book')) return 'ebook';
+        if (path.includes('whatsnew')) return 'whatsnew';
         if (path.includes('contact')) return 'contact';
         if (path.includes('account')) return 'account';
 
