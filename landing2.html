@@ -530,5 +530,51 @@
         })();
     </script>
 
+    <!-- ==================== PERSONALISED GREETING ==================== -->
+    <script>
+        (function() {
+            'use strict';
+            // Firebase is initialised by menu-v2.js — wait briefly if not ready yet.
+            function start() {
+                if (!window.firebase || !firebase.auth) { setTimeout(start, 100); return; }
+                const auth = firebase.auth();
+                const db = firebase.firestore();
+
+                auth.onAuthStateChanged(async function(user) {
+                    if (!user) {
+                        window.location.href = 'login.html';
+                        return;
+                    }
+
+                    // Time-of-day greeting (matches landing.html behaviour)
+                    const greetingEl = document.getElementById('heroGreeting');
+                    const emojiEl    = document.getElementById('greetingEmoji');
+                    const firstNameEl = document.getElementById('userFirstName');
+                    const hour = new Date().getHours();
+                    if (greetingEl && emojiEl) {
+                        if (hour < 12)      { greetingEl.textContent = 'Good morning';                emojiEl.textContent = '👋'; }
+                        else if (hour < 17) { greetingEl.textContent = 'Good afternoon';              emojiEl.textContent = '👋'; }
+                        else if (hour < 21) { greetingEl.textContent = 'Good evening';                emojiEl.textContent = '👋'; }
+                        else                { greetingEl.textContent = 'Burning the midnight oil';    emojiEl.textContent = '👋'; }
+                    }
+
+                    // First name from Firestore
+                    try {
+                        const doc = await db.collection('users').doc(user.uid).get();
+                        if (doc.exists && firstNameEl) {
+                            const data = doc.data();
+                            if (data.firstName)   firstNameEl.textContent = data.firstName;
+                            else if (data.name)   firstNameEl.textContent = data.name.split(' ')[0];
+                            else                  firstNameEl.textContent = 'there';
+                        }
+                    } catch (err) {
+                        console.warn('landing2: could not load profile for greeting:', err);
+                    }
+                });
+            }
+            start();
+        })();
+    </script>
+
 </body>
 </html>
