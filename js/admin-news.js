@@ -279,7 +279,11 @@ function closeForm() {
 async function saveArticle() {
     const title = document.getElementById('articleTitle').value.trim();
     const excerpt = document.getElementById('articleExcerpt').value.trim();
-    const content = _quill.root.innerHTML;
+    // Clean empty paragraph artifacts (<p><br></p>) — Quill produces these
+    // when Enter is pressed on a blank line. Each would render as a ~42px
+    // gap on the public page.
+    const rawContent = _quill.root.innerHTML;
+    const content = rawContent.replace(/<p>(?:\s|&nbsp;|<br\s*\/?>)*<\/p>/g, '');
 
     if (!title) {
         alert('Please enter a title.');

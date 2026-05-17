@@ -459,7 +459,7 @@
                             ${cover}
                             <h1>${escapeHtml(a.title || 'Untitled')}</h1>
                             <div class="meta">${formatDate(a.publishedAt)}${a.author ? ' &middot; ' + escapeHtml(a.author) : ''}</div>
-                            <div class="article-content">${a.content || ''}</div>
+                            <div class="article-content">${cleanQuillHTML(a.content)}</div>
                             ${attachments}
                         </div>
                     `;
@@ -501,6 +501,12 @@
             }
             function escapeAttr(s) {
                 return String(s).replace(/"/g, '&quot;');
+            }
+            // Strip Quill's empty paragraph artifacts (<p><br></p>, <p>&nbsp;</p>, etc.)
+            // Each empty paragraph would otherwise render as a ~42px gap.
+            function cleanQuillHTML(html) {
+                if (!html) return '';
+                return html.replace(/<p>(?:\s|&nbsp;|<br\s*\/?>)*<\/p>/g, '');
             }
             function showError(err) {
                 let msg = (err && err.message) || String(err);
