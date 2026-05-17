@@ -35,30 +35,36 @@
 
     // ==================== MENU CONFIGURATION ====================
     const MENU_CONFIG = {
-        // Main navigation items (free features)
-        mainNav: [
-            { id: 'home', href: 'landing.html', icon: 'bi-house', label: 'Home' },
-            { id: 'chat', href: 'chat.html', icon: 'bi-chat-dots', label: 'Chat' },
-            { id: 'scenarios', href: 'scenarios.html', icon: 'bi-mortarboard', label: 'Scenarios' },
-            { id: 'arrest', href: 'arrest-scenarios.html', icon: 'bi-lightning-charge', label: 'Cardiac Arrest Sim' },
-            { id: 'flashcards', href: 'flashcards.html', icon: 'bi-layers', label: 'Flash Cards' },
-            { id: 'differentials', href: 'differentials.html', icon: 'bi-clipboard2-pulse', label: 'Differentials' },
-            { id: 'podcast', href: 'podcast.html', icon: 'bi-headphones', label: 'Podcast' }
+        // Home (top of the menu)
+        homeNav: [
+            { id: 'home', href: 'landing.html', icon: 'bi-house', label: 'Home' }
         ],
-       // Pro features
-        proNav: [
+        // Learn section
+        learnNav: [
+            { id: 'chat', href: 'chat.html', icon: 'bi-chat-dots', label: 'Chat with Hollie' },
             { id: 'connections', href: 'connections.html', icon: 'bi-heart-pulse', label: 'A&P Connections', isPro: true },
-            { id: 'major-incident', href: 'major-incident.html', icon: 'bi-exclamation-triangle', label: 'Major Incident Training', isPro: true },
             { id: 'ecg', href: 'ecg.html', icon: 'bi-activity', label: 'ECG Tool', isPro: true },
-            { id: 'atmist', href: 'atmist.html', icon: 'bi-telephone-outbound', label: 'ATMIST', isPro: true },
+            { id: 'flashcards', href: 'flashcards.html', icon: 'bi-layers', label: 'Flash Cards' },
             { id: 'bonelab', href: 'bone-lab.html', icon: 'bi-body-text', label: 'Understanding Bones', isPro: true },
             { id: 'bloodlab', href: 'blood-lab.html', icon: 'bi-droplet-half', label: 'Understanding Bloods', isPro: true },
-            { id: 'drugs', href: 'drugs.html', icon: 'bi-capsule', label: 'Understanding Drugs', isPro: true },
-            { id: 'interview', href: 'interview.html', icon: 'bi-mic', label: 'Interview Prep', isPro: true },
-            { id: 'afterthecall', href: 'after-the-call.html', icon: 'bi-moon-stars', label: 'Debrief Your Calls', isPro: true },
-            { id: 'cpd', href: 'cpd.html', icon: 'bi-award', label: 'CPD Portfolio', isPro: true }
+            { id: 'drugs', href: 'drugs.html', icon: 'bi-capsule', label: 'Understanding Drugs', isPro: true }
         ],
-        // Bottom items (Contact, Sign Out)
+        // Practise section
+        practiseNav: [
+            { id: 'scenarios', href: 'scenarios.html', icon: 'bi-mortarboard', label: 'Scenarios' },
+            { id: 'arrest', href: 'arrest-scenarios.html', icon: 'bi-lightning-charge', label: 'Cardiac Arrest Sim' },
+            { id: 'major-incident', href: 'major-incident.html', icon: 'bi-exclamation-triangle', label: 'Major Incident Training', isPro: true },
+            { id: 'atmist', href: 'atmist.html', icon: 'bi-telephone-outbound', label: 'ATMIST', isPro: true },
+            { id: 'differentials', href: 'differentials.html', icon: 'bi-clipboard2-pulse', label: 'Differentials' },
+            { id: 'interview', href: 'interview.html', icon: 'bi-mic', label: 'Interview Prep', isPro: true }
+        ],
+        // Reflect section
+        reflectNav: [
+            { id: 'afterthecall', href: 'after-the-call.html', icon: 'bi-moon-stars', label: 'Debrief Your Calls', isPro: true },
+            { id: 'cpd', href: 'cpd.html', icon: 'bi-award', label: 'CPD Portfolio', isPro: true },
+            { id: 'ebook', href: 'index-free-paramedic-book.html', icon: 'bi-book', label: 'Think Like a Paramedic' }
+        ],
+        // Bottom items (Account, Contact)
         bottomNav: [
             { id: 'account', href: 'account.html', icon: 'bi-person-gear', label: 'Account' },
             { id: 'contact', href: 'contact.html', icon: 'bi-envelope', label: 'Contact Us' }
@@ -68,7 +74,12 @@
     // ==================== DETECT CURRENT PAGE ====================
     function getCurrentPage() {
         const path = window.location.pathname.toLowerCase();
-        
+
+        // Section pages — no individual tool is active; suppress highlight
+        if (path.includes('learn.html'))    return '';
+        if (path.includes('practise.html')) return '';
+        if (path.includes('reflect.html'))  return '';
+
         if (path.includes('landing')) return 'home';
         if (path.includes('chat')) return 'chat';
         if (path.includes('arrest-scenarios')) return 'arrest';
@@ -86,9 +97,10 @@
         if (path.includes('after-the-call')) return 'afterthecall';
         if (path.includes('cpd')) return 'cpd';
         if (path.includes('flashcards')) return 'flashcards';
+        if (path.includes('index-free-paramedic-book')) return 'ebook';
         if (path.includes('contact')) return 'contact';
         if (path.includes('account')) return 'account';
-        
+
         // Default to home for root or unknown pages
         return 'home';
     }
@@ -139,22 +151,34 @@
                 </div>
                 
                 <div class="menu-nav">
-                    <!-- Main Navigation -->
-                    ${MENU_CONFIG.mainNav.map(createNavItem).join('')}
-                    
+                    <!-- Home -->
+                    ${MENU_CONFIG.homeNav.map(createNavItem).join('')}
+
                     <div class="menu-divider"></div>
-                    
-                    <!-- Pro Features -->
-                    <div class="menu-section-label">Pro Features</div>
-                    ${MENU_CONFIG.proNav.map(createNavItem).join('')}
-                    
+
+                    <!-- Learn -->
+                    <div class="menu-section-label">Learn</div>
+                    ${MENU_CONFIG.learnNav.map(createNavItem).join('')}
+
+                    <div class="menu-divider"></div>
+
+                    <!-- Practise -->
+                    <div class="menu-section-label">Practise</div>
+                    ${MENU_CONFIG.practiseNav.map(createNavItem).join('')}
+
+                    <div class="menu-divider"></div>
+
+                    <!-- Reflect -->
+                    <div class="menu-section-label">Reflect</div>
+                    ${MENU_CONFIG.reflectNav.map(createNavItem).join('')}
+
                     ${upgradeHTML}
-                    
+
                     <div class="menu-divider"></div>
-                    
+
                     <!-- Bottom Navigation -->
                     ${MENU_CONFIG.bottomNav.map(createNavItem).join('')}
-                    
+
                     <button class="menu-nav-item logout" id="menuLogoutBtn">
                         <i class="bi bi-box-arrow-right"></i>
                         <span>Sign Out</span>
