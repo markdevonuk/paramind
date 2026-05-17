@@ -1,0 +1,225 @@
+/* ================================================================
+   PARAMIND — TOOL CARDS + SECTION PAGE HEADER (shared)
+   ----------------------------------------------------------------
+   Tool-card visual pattern lifted from landing.html plus the new
+   slim section-page header used on learn.html / practise.html /
+   reflect.html.
+
+   USED BY:
+     learn.html, practise.html, reflect.html
+
+   NOT USED BY:
+     landing.html — keeps its own self-contained inline copy until
+                    retired, then this file replaces it.
+
+   REQUIRES (from css/styles.css):
+     --color-teal, --color-green, --color-gray-100..800
+
+   NOTES ON ADDED STYLES:
+     .card-interview and .card-flashcards glow/gradient/icon
+     colours did NOT exist in landing.html. Added here with
+     sensible defaults (indigo for interview, teal for flashcards)
+     so the cards aren't visually orphaned on the section pages.
+     Adjust freely.
+   ================================================================ */
+
+/* ============================================================
+   SECTION PAGE HEADER (slim banner for learn/practise/reflect)
+   ============================================================ */
+.section-page-header {
+    position: relative;
+    margin: 0.5rem 0 1.75rem;
+    padding: 1.5rem 1.5rem 1.5rem;
+    border-radius: 16px;
+    overflow: hidden;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(15,66,82,0.10);
+}
+.section-page-header.section-page--learn    { background: linear-gradient(135deg, #0F4252 0%, #2B8A9C 70%, #1F6B7C 100%); }
+.section-page-header.section-page--practise { background: linear-gradient(135deg, #0B5564 0%, #35B0C8 70%, #1d7e94 100%); }
+.section-page-header.section-page--reflect  { background: linear-gradient(135deg, #2C5A1A 0%, #5BC166 65%, #3B8C2D 100%); }
+
+.section-page-back {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    color: rgba(255,255,255,0.85);
+    text-decoration: none;
+    font-size: 0.78rem;
+    letter-spacing: 0.5px;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    margin-bottom: 1rem;
+    transition: all 0.2s ease;
+}
+.section-page-back:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.18);
+    border-color: rgba(255,255,255,0.5);
+}
+
+.section-page-label {
+    font-family: 'JetBrains Mono', 'DM Sans', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+    margin-bottom: 0.25rem;
+}
+.section-page-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.5px;
+    margin: 0 0 0.35rem;
+    color: #fff;
+}
+.section-page-tagline {
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.92);
+    margin: 0;
+    font-weight: 500;
+}
+
+/* ============================================================
+   TOOL CARDS — GLASSMORPHISM (extracted from landing.html)
+   ============================================================ */
+.tools-section { margin-bottom: 2rem; }
+
+.tools-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+@media (min-width: 480px) { .tools-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 768px) { .tools-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.tool-card {
+    position: relative;
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 20px;
+    padding: 1.5rem 1.25rem 1.25rem;
+    text-decoration: none; color: inherit;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    min-height: 175px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8);
+    transition: all 0.5s cubic-bezier(0.4,0,0.2,1);
+    will-change: transform, box-shadow;
+    opacity: 0; transform: translateY(40px);
+}
+.tool-card.revealed { opacity: 1; transform: translateY(0); }
+
+/* Coloured glow blob */
+.tool-card .card-glow {
+    position: absolute;
+    width: 200px; height: 200px;
+    border-radius: 50%; filter: blur(60px);
+    opacity: 0; transition: opacity 0.5s ease;
+    pointer-events: none; z-index: 0;
+}
+.tool-card:hover .card-glow { opacity: 1; }
+.card-chat .card-glow          { background: rgba(43,138,156,0.12); }
+.card-scenarios .card-glow     { background: rgba(92,184,92,0.12); }
+.card-differentials .card-glow { background: rgba(108,117,125,0.08); }
+.card-connections .card-glow   { background: rgba(236,72,153,0.10); }
+.card-drugs .card-glow         { background: rgba(59,130,246,0.10); }
+.card-atmist .card-glow        { background: rgba(220,53,69,0.10); }
+.card-ecg .card-glow           { background: rgba(245,158,11,0.12); }
+.card-major-incident .card-glow{ background: rgba(220,53,69,0.10); }
+.card-cpd .card-glow           { background: rgba(139,92,246,0.10); }
+.card-bonelab .card-glow       { background: rgba(20,184,166,0.10); }
+.card-bloodlab .card-glow      { background: rgba(220,53,69,0.10); }
+.card-arrest .card-glow        { background: rgba(192,57,43,0.12); }
+.card-atc .card-glow           { background: rgba(43,138,156,0.12); }
+.card-book .card-glow          { background: rgba(146,64,14,0.12); }
+.card-flashcards .card-glow    { background: rgba(43,138,156,0.12); } /* added */
+.card-interview .card-glow     { background: rgba(99,102,241,0.12); } /* added — indigo */
+
+/* Top gradient accent line */
+.tool-card .card-line {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--card-gradient);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+.tool-card:hover .card-line { transform: scaleX(1); }
+
+.tool-card:hover {
+    border-color: rgba(43,138,156,0.12);
+    box-shadow: 0 24px 48px rgba(0,0,0,0.08), 0 8px 16px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.9);
+    color: inherit;
+}
+
+.card-chat          { --card-gradient: linear-gradient(135deg, #2B8A9C, #5CB85C); }
+.card-scenarios     { --card-gradient: linear-gradient(135deg, #5CB85C, #28a745); }
+.card-differentials { --card-gradient: linear-gradient(135deg, #6c757d, #495057); }
+.card-connections   { --card-gradient: linear-gradient(135deg, #ec4899, #f472b6); }
+.card-drugs         { --card-gradient: linear-gradient(135deg, #3b82f6, #60a5fa); }
+.card-atmist        { --card-gradient: linear-gradient(135deg, #dc3545, #c82333); }
+.card-ecg           { --card-gradient: linear-gradient(135deg, #f59e0b, #fbbf24); }
+.card-major-incident{ --card-gradient: linear-gradient(135deg, #DC3545, #ff6b6b); }
+.card-cpd           { --card-gradient: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+.card-bonelab       { --card-gradient: linear-gradient(135deg, #14b8a6, #2dd4bf); }
+.card-bloodlab      { --card-gradient: linear-gradient(135deg, #DC3545, #ef4444); }
+.card-arrest        { --card-gradient: linear-gradient(135deg, #c0392b, #8B0000); }
+.card-atc           { --card-gradient: linear-gradient(135deg, #2B8A9C, #1d6a7a); }
+.card-book          { --card-gradient: linear-gradient(135deg, #78350f, #b45309); }
+.card-flashcards    { --card-gradient: linear-gradient(135deg, #2B8A9C, #35B0C8); } /* added */
+.card-interview     { --card-gradient: linear-gradient(135deg, #6366F1, #818CF8); } /* added — indigo */
+
+/* ---- Card header (icon + title block) ---- */
+.tool-card-header {
+    display: flex; align-items: flex-start; gap: 1rem;
+    margin-bottom: 0.75rem; position: relative; z-index: 1;
+}
+.tool-card-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; flex-shrink: 0;
+    transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+.tool-card:hover .tool-card-icon { transform: scale(1.15) rotate(-5deg); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+
+.card-chat .tool-card-icon          { background: linear-gradient(135deg, rgba(43,138,156,0.15), rgba(92,184,92,0.1)); color: #2B8A9C; }
+.card-scenarios .tool-card-icon     { background: rgba(92,184,92,0.15);  color: #28a745; }
+.card-differentials .tool-card-icon { background: rgba(108,117,125,0.12); color: #495057; }
+.card-connections .tool-card-icon   { background: rgba(236,72,153,0.12); color: #ec4899; }
+.card-drugs .tool-card-icon         { background: rgba(59,130,246,0.12); color: #3b82f6; }
+.card-atmist .tool-card-icon        { background: rgba(220,53,69,0.12);  color: #dc3545; }
+.card-ecg .tool-card-icon           { background: rgba(245,158,11,0.15); color: #d97706; }
+.card-major-incident .tool-card-icon{ background: rgba(220,53,69,0.12);  color: #DC3545; }
+.card-cpd .tool-card-icon           { background: rgba(139,92,246,0.12); color: #8b5cf6; }
+.card-bonelab .tool-card-icon       { background: rgba(20,184,166,0.12); color: #14b8a6; }
+.card-bloodlab .tool-card-icon      { background: rgba(220,53,69,0.12);  color: #DC3545; }
+.card-arrest .tool-card-icon        { background: rgba(192,57,43,0.12);  color: #c0392b; }
+.card-atc .tool-card-icon           { background: rgba(43,138,156,0.12); color: #2B8A9C; }
+.card-book .tool-card-icon          { background: rgba(146,64,14,0.12);  color: #92400e; }
+.card-flashcards .tool-card-icon    { background: rgba(43,138,156,0.12); color: #2B8A9C; }
+.card-interview .tool-card-icon     { background: rgba(99,102,241,0.12); color: #6366F1; } /* added */
+
+.tool-card-title    { font-weight: 700; font-size: 1.05rem; color: var(--color-gray-800); margin-bottom: 0.1rem; display: flex; align-items: center; gap: 0.5rem; }
+.tool-card-subtitle { font-size: 0.72rem; color: var(--color-gray-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.tool-card-desc     { font-size: 0.85rem; color: var(--color-gray-500); margin: 0; line-height: 1.5; flex: 1; position: relative; z-index: 1; }
+
+.tool-card-arrow {
+    position: absolute; bottom: 1.1rem; right: 1.1rem;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--color-gray-100);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--color-gray-400);
+    transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    font-size: 0.85rem; z-index: 1;
+}
+.tool-card:hover .tool-card-arrow {
+    background: var(--color-teal); color: #fff;
+    transform: translateX(4px) scale(1.08);
+    box-shadow: 0 4px 16px rgba(43,138,156,0.35);
+}
+
+.card-pro-badge {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #1a1a2e; font-size: 0.58rem; font-weight: 700;
+    padding: 0.18rem 0.5rem; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
