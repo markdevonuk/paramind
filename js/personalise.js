@@ -33,10 +33,22 @@
 (function() {
     'use strict';
 
+    var waitCount = 0;
+    var MAX_WAITS = 100; // ~10s of 100ms ticks before giving up
+
     function start() {
-        // Firebase is initialised by menu-v2.js. If we got here before that
-        // finished, retry shortly. (Guard against an unbounded wait.)
-        if (!window.firebase || !firebase.auth) { setTimeout(start, 100); return; }
+        // menu-v2.js is the single source of Firebase initialisation across
+        // the site. Wait until it has actually created the default app — just
+        // checking for the SDK namespace isn't enough: firebase.auth() throws
+        // "No Firebase App '[DEFAULT]' has been created" if no app exists yet.
+        if (!window.firebase || !firebase.apps || !firebase.apps.length) {
+            if (++waitCount < MAX_WAITS) {
+                setTimeout(start, 100);
+                return;
+            }
+            console.warn('personalise.js: Firebase app never initialised — greeting will stay at defaults.');
+            return;
+        }
 
         const auth = firebase.auth();
         const db   = firebase.firestore();
