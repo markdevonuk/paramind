@@ -94,6 +94,40 @@
             max-width: 300px;
         }
     </style>
+    <style>
+        /* ============================================================
+           QUILL EDITOR OVERRIDES — WYSIWYG match for whatsnew.html
+           The editor's defaults are tight (line-height ~1.42, no
+           paragraph margins). Public articles render with 1.65 line
+           height and 1rem between paragraphs for readability. This
+           block makes the editor preview match the published output.
+           ============================================================ */
+        #articleEditor .ql-editor {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1rem;
+            line-height: 1.65;
+            color: #212529;
+            min-height: 280px;
+        }
+        #articleEditor .ql-editor p     { margin: 0 0 1rem; }
+        #articleEditor .ql-editor h1    { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.6rem;  font-weight: 700; margin: 1.5rem 0 0.5rem; }
+        #articleEditor .ql-editor h2    { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.35rem; font-weight: 700; margin: 1.5rem 0 0.5rem; }
+        #articleEditor .ql-editor h3    { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.15rem; font-weight: 700; margin: 1.5rem 0 0.5rem; }
+        #articleEditor .ql-editor blockquote {
+            border-left: 3px solid #2B8A9C;
+            padding: 0.25rem 0 0.25rem 1rem;
+            margin: 1rem 0;
+            background: rgba(43,138,156,0.04);
+            border-radius: 0 8px 8px 0;
+            color: #495057;
+            font-style: italic;
+        }
+        #articleEditor .ql-editor img   { max-width: 100%; height: auto; border-radius: 10px; margin: 1rem 0; }
+        #articleEditor .ql-editor a     { color: #2B8A9C; text-decoration: underline; }
+        #articleEditor .ql-editor ul,
+        #articleEditor .ql-editor ol    { padding-left: 1.5rem; margin: 0 0 1rem; }
+        #articleEditor .ql-editor li    { margin-bottom: 0.3rem; }
+    </style>
 </head>
 <body>
     <!-- Access Denied Screen (shown if not admin) -->
