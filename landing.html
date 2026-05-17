@@ -5,41 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title>Dashboard | ParaMind</title>
-    
+    <title>Dashboard | Paramind</title>
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <!-- Menu CSS -->
     <link rel="stylesheet" href="css/menu-v2.css">
-    
+
+    <!-- Shared hero component (avatar + greeting) -->
+    <link rel="stylesheet" href="css/hero.css">
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-    
+
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
-    
+
     <style>
         /* ================================================================
-           PARAMIND SUPER SITE — V5
-           Particle Network × Live ECG × Glassmorphism × Magnetic Cards
-           All original content preserved
+           PARAMIND — LANDING (post-login dashboard)
+           Hero + three-section triptych + payment/upgrade/Pro-video extras.
            ================================================================ */
-        
+
         .landing-page {
             min-height: 100vh;
             background: #FFFFFF;
             overflow-x: hidden;
             position: relative;
         }
-        
-     
-        /* ---- MAIN CONTAINER ---- */
         .landing-container {
             max-width: 920px;
             margin: 0 auto;
@@ -47,7 +46,7 @@
             position: relative;
             z-index: 1;
         }
-        
+
         /* ============================================================
            PAYMENT SUCCESS BANNER
            ============================================================ */
@@ -67,9 +66,7 @@
             to   { opacity: 1; transform: translateY(0); }
         }
         .payment-success-banner .success-content {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
+            display: flex; align-items: center; gap: 0.75rem;
         }
         .payment-success-banner .success-icon {
             width: 40px; height: 40px;
@@ -86,451 +83,79 @@
         .payment-success-banner .success-text p {
             font-size: 0.875rem; color: var(--color-gray-600); margin: 0;
         }
-        
-        /* ============================================================
-           HERO SECTION
-           ============================================================ */
-        .hero-section {
-            text-align: center;
-            padding: 0.5rem 0 1rem;
-            position: relative;
+
+        /* ================================================================
+           TRIPTYCH — three animated section panels
+           ================================================================ */
+        .triptych { display: flex; flex-direction: column; gap: 14px; margin-top: 0.5rem; }
+        .triptych-panel {
+            position: relative; display: block;
+            height: 220px; border-radius: 18px;
+            overflow: hidden; text-decoration: none; color: #FFFFFF;
+            opacity: 0; transform: translateY(16px);
+            transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.3s ease;
+            box-shadow: 0 6px 18px rgba(15, 66, 82, 0.10);
         }
-        
-        /* Avatar with orbiting ring + heartbeat pulses */
-        .avatar-stage {
-            position: relative;
-            display: inline-block;
-            width: 90px; height: 90px;
-            margin-bottom: 0.75rem;
+        .triptych-panel.revealed { opacity: 1; transform: translateY(0); }
+        .triptych-panel:hover {
+            box-shadow: 0 14px 36px rgba(15, 66, 82, 0.22);
+            transform: translateY(-3px);
         }
-        .orbit-ring {
-            position: absolute; inset: -6px;
-            border-radius: 50%;
-            border: 2px dashed rgba(43,138,156,0.2);
-            animation: orbitSpin 20s linear infinite;
-        }
-        .orbit-dot {
-            position: absolute;
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            top: -4px; left: 50%; margin-left: -4px;
-        }
-        .orbit-dot.dot-teal  { background: var(--color-teal); box-shadow: 0 0 12px rgba(43,138,156,0.6); }
-        .orbit-dot.dot-green { background: var(--color-green); box-shadow: 0 0 12px rgba(92,184,92,0.6); top: auto; bottom: -4px; }
-        .orbit-dot.dot-gold  { background: #FFD700; box-shadow: 0 0 12px rgba(255,215,0,0.6); top: 50%; left: -4px; margin-left: 0; }
-        @keyframes orbitSpin { to { transform: rotate(360deg); } }
-        
-        .avatar-glow {
-            position: absolute; inset: -14px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(43,138,156,0.12) 0%, transparent 70%);
-            animation: glowPulse 3s ease-in-out infinite;
-        }
-        @keyframes glowPulse {
-            0%, 100% { transform: scale(1); opacity: 0.6; }
-            50%      { transform: scale(1.15); opacity: 1; }
-        }
-        
-        .heartbeat-ring {
+        .triptych-panel:hover .panel-arrow { transform: translate(6px, -50%); }
+
+        .panel-bg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+        .panel-veil {
             position: absolute; inset: 0;
-            border-radius: 50%;
-            border: 2px solid rgba(43,138,156,0.25);
-            animation: heartbeatPulse 2.5s cubic-bezier(0.4,0,0.2,1) infinite;
+            background: linear-gradient(to right, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.05) 55%, rgba(0,0,0,0) 100%);
+            pointer-events: none;
         }
-        .heartbeat-ring:nth-child(2) { animation-delay: 0.8s; }
-        .heartbeat-ring:nth-child(3) { animation-delay: 1.6s; }
-        @keyframes heartbeatPulse {
-            0%   { transform: scale(1); opacity: 0.6; }
-            50%  { transform: scale(1.5); opacity: 0; }
-            100% { transform: scale(1.5); opacity: 0; }
-        }
-        
-        .hollie-avatar {
-            width: 72px; height: 72px;
-            border-radius: 50%; overflow: hidden;
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 2;
-            border: 3px solid #fff;
-            box-shadow: 0 6px 24px rgba(43,138,156,0.2);
-        }
-        .hollie-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .hollie-badge {
-            display: inline-flex; align-items: center; gap: 0.4rem;
-            background: rgba(43,138,156,0.08);
-            color: var(--color-teal);
-            padding: 0.35rem 0.85rem;
-            border-radius: var(--radius-full);
-            font-size: 0.8rem; font-weight: 600;
-            margin-bottom: 0.4rem;
-            border: 1px solid rgba(43,138,156,0.12);
-        }
-        
-        /* Animated gradient heading */
-        .hero-greeting {
-            font-size: 1.5rem; font-weight: 800;
-            margin-bottom: 0.2rem; line-height: 1.3;
-            color: var(--color-gray-800);
-        }
-        .hero-greeting .gradient-name {
-            background: linear-gradient(135deg, #2B8A9C 0%, #5CB85C 50%, #2B8A9C 100%);
-            background-size: 200% auto;
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: gradientText 4s ease infinite;
-        }
-        @keyframes gradientText {
-            0%   { background-position: 0% center; }
-            50%  { background-position: 100% center; }
-            100% { background-position: 0% center; }
-        }
-        
-        .hero-subtitle {
-            color: var(--color-gray-500);
-            margin: 0 auto 0.6rem; font-size: 0.95rem;
-            max-width: 400px;
-            text-align: center;
-        }
-        
-        /* User info row */
-        .user-info-row {
-            display: flex; flex-wrap: wrap;
-            justify-content: center; gap: 0.5rem;
-        }
-        .info-chip {
-            display: inline-flex; align-items: center; gap: 0.4rem;
-            background: rgba(248,249,250,0.8);
-            backdrop-filter: blur(8px);
-            border: 1px solid var(--color-gray-200);
-            padding: 0.4rem 0.85rem;
-            border-radius: var(--radius-full);
-            font-size: 0.8rem; color: var(--color-gray-600);
-            transition: all 0.3s ease;
-        }
-        .info-chip:hover { border-color: var(--color-teal); background: rgba(43,138,156,0.04); }
-        .info-chip i { color: var(--color-teal); }
-        .info-chip.pro-chip {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            border: none; color: #1a1a2e; font-weight: 700;
-        }
-        .info-chip.pro-chip i { color: #1a1a2e; }
-        .info-chip.messages-chip .count { font-weight: 700; color: var(--color-teal); }
-        
-        .info-chip.streak-chip {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(239, 68, 68, 0.08) 100%);
-            border-color: rgba(245, 158, 11, 0.25);
-            color: #d97706;
-            font-weight: 600;
-        }
-        
-        /* Pro content stats — counter row below Pro Tools header */
-        .pro-stats-row {
-            display: flex; justify-content: center; gap: 2rem;
-            flex-wrap: wrap;
-            margin: -0.25rem 0 1.5rem;
-            padding: 1rem 0;
-            border-bottom: 1px solid var(--color-gray-100);
-        }
-        .pro-stat-item { text-align: center; }
-        .pro-stat-number {
-            font-size: 1.5rem; font-weight: 800;
-            color: var(--color-teal);
-            line-height: 1; margin-bottom: 0.2rem;
-        }
-        .pro-stat-label {
-            font-size: 0.7rem; text-transform: uppercase;
-            letter-spacing: 1px; color: var(--color-gray-400);
-            font-weight: 600;
-        }
-        
-        /* ============================================================
-           SECTION HEADERS
-           ============================================================ */
-        .tools-section { margin-bottom: 2rem; }
-        .section-label {
-            font-size: 0.7rem; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 2px;
-            color: var(--color-gray-400);
-            margin-bottom: 1.25rem;
-            display: flex; align-items: center; gap: 0.75rem;
-        }
-        .section-label .label-icon {
-            width: 24px; height: 24px; border-radius: 6px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.7rem;
-        }
-        .section-label .label-icon.free { background: rgba(92,184,92,0.12); color: var(--color-green); }
-        .section-label .label-icon.pro  { background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,165,0,0.1)); color: #d97706; }
-        .section-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, var(--color-gray-200), transparent); }
-        
-        /* ============================================================
-           TOOL CARDS — GLASSMORPHISM
-           ============================================================ */
-        .tools-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
-        @media (min-width: 480px) { .tools-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (min-width: 768px) { .tools-grid { grid-template-columns: repeat(3, 1fr); } }
-        
-        .tool-card {
+        .panel-content {
             position: relative;
-            background: rgba(255,255,255,0.7);
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255,255,255,0.6);
-            border-radius: 20px;
-            padding: 1.5rem 1.25rem 1.25rem;
-            text-decoration: none; color: inherit;
-            overflow: hidden;
-            display: flex; flex-direction: column;
-            min-height: 175px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8);
-            transition: all 0.5s cubic-bezier(0.4,0,0.2,1);
-            will-change: transform, box-shadow;
-            /* scroll reveal start hidden */
-            opacity: 0; transform: translateY(40px);
+            padding: 1.75rem 2rem; height: 100%;
+            display: flex; flex-direction: column; justify-content: center;
+            max-width: 78%;
         }
-        .tool-card.revealed { opacity: 1; transform: translateY(0); }
-        
-        /* Coloured glow blob follows cursor */
-        .tool-card .card-glow {
-            position: absolute;
-            width: 200px; height: 200px;
-            border-radius: 50%; filter: blur(60px);
-            opacity: 0; transition: opacity 0.5s ease;
-            pointer-events: none; z-index: 0;
+        .panel-label {
+            font-family: 'JetBrains Mono', 'DM Sans', monospace;
+            font-size: 0.7rem; letter-spacing: 2.5px; text-transform: uppercase;
+            color: rgba(255,255,255,0.75); margin-bottom: 0.35rem;
         }
-        .tool-card:hover .card-glow { opacity: 1; }
-        .card-chat .card-glow         { background: rgba(43,138,156,0.12); }
-        .card-scenarios .card-glow     { background: rgba(92,184,92,0.12); }
-        .card-differentials .card-glow { background: rgba(108,117,125,0.08); }
-        .card-podcast .card-glow       { background: rgba(249,115,22,0.12); }
-        .card-connections .card-glow   { background: rgba(236,72,153,0.1); }
-        .card-drugs .card-glow         { background: rgba(59,130,246,0.1); }
-        .card-atmist .card-glow        { background: rgba(220,53,69,0.1); }
-        .card-ecg .card-glow           { background: rgba(245,158,11,0.12); }
-        .card-major-incident .card-glow { background: rgba(220,53,69,0.1); }
-        .card-cpd .card-glow           { background: rgba(139,92,246,0.1); }
-        .card-bonelab .card-glow       { background: rgba(20,184,166,0.1); }
-        .card-bloodlab .card-glow      { background: rgba(220,53,69,0.1); }
-        .card-readiness .card-glow     { background: rgba(101,163,13,0.12); }
-        .card-arrest .card-glow        { background: rgba(192,57,43,0.12); }
-        .card-atc .card-glow           { background: rgba(43,138,156,0.12); }
-        .card-book .card-glow          { background: rgba(146,64,14,0.12); }
-        
-        /* Top gradient accent line */
-        .tool-card .card-line {
-            position: absolute; top: 0; left: 0; right: 0;
-            height: 3px;
-            background: var(--card-gradient);
-            transform: scaleX(0); transform-origin: left;
-            transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
+        .panel-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 2.4rem; font-weight: 700; line-height: 1;
+            letter-spacing: -0.5px; margin: 0; color: #FFFFFF;
         }
-        .tool-card:hover .card-line { transform: scaleX(1); }
-        
-        .tool-card:hover {
-            border-color: rgba(43,138,156,0.12);
-            box-shadow: 0 24px 48px rgba(0,0,0,0.08), 0 8px 16px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.9);
-            color: inherit;
+        .panel-tagline { font-size: 1rem; color: rgba(255,255,255,0.92); margin-top: 0.5rem; font-weight: 500; }
+        .panel-tools   { font-size: 0.82rem; color: rgba(255,255,255,0.85); margin-top: 0.9rem; line-height: 1.55; font-weight: 400; }
+        .panel-arrow   { position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); font-size: 1.6rem; opacity: 0.85; transition: transform 0.3s ease; }
+
+        .panel-learn    { background: linear-gradient(135deg, #0F4252 0%, #2B8A9C 60%, #1F6B7C 100%); }
+        .panel-practise { background: linear-gradient(135deg, #0B5564 0%, #35B0C8 70%, #1d7e94 100%); }
+        .panel-reflect  { background: linear-gradient(135deg, #2C5A1A 0%, #5BC166 65%, #3B8C2D 100%); }
+
+        @keyframes ecgScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+        @media (max-width: 640px) {
+            .triptych-panel { height: 190px; border-radius: 14px; }
+            .panel-content { padding: 1.25rem 1.25rem; max-width: 86%; }
+            .panel-title { font-size: 1.9rem; }
+            .panel-tagline { font-size: 0.9rem; }
+            .panel-tools { font-size: 0.75rem; margin-top: 0.7rem; }
+            .panel-arrow { right: 1rem; font-size: 1.3rem; }
         }
-        
-        .card-chat         { --card-gradient: linear-gradient(135deg, #2B8A9C, #5CB85C); }
-        .card-scenarios     { --card-gradient: linear-gradient(135deg, #5CB85C, #28a745); }
-        .card-differentials { --card-gradient: linear-gradient(135deg, #6c757d, #495057); }
-        .card-podcast       { --card-gradient: linear-gradient(135deg, #f97316, #fb923c); }
-        .card-connections   { --card-gradient: linear-gradient(135deg, #ec4899, #f472b6); }
-        .card-drugs         { --card-gradient: linear-gradient(135deg, #3b82f6, #60a5fa); }
-        .card-atmist        { --card-gradient: linear-gradient(135deg, #dc3545, #c82333); }
-        .card-ecg           { --card-gradient: linear-gradient(135deg, #f59e0b, #fbbf24); }
-        .card-major-incident { --card-gradient: linear-gradient(135deg, #DC3545, #ff6b6b); }
-        .card-cpd           { --card-gradient: linear-gradient(135deg, #8b5cf6, #a78bfa); }
-        .card-bonelab       { --card-gradient: linear-gradient(135deg, #14b8a6, #2dd4bf); }
-        .card-bloodlab      { --card-gradient: linear-gradient(135deg, #DC3545, #ef4444); }
-        .card-readiness     { --card-gradient: linear-gradient(135deg, #65a30d, #84cc16); }
-        .card-arrest        { --card-gradient: linear-gradient(135deg, #c0392b, #8B0000); }
-        .card-atc           { --card-gradient: linear-gradient(135deg, #2B8A9C, #1d6a7a); }
-        .card-book          { --card-gradient: linear-gradient(135deg, #78350f, #b45309); }
-        
-        .tool-card-header {
-            display: flex; align-items: flex-start; gap: 1rem;
-            margin-bottom: 0.75rem; position: relative; z-index: 1;
-        }
-        .tool-card-icon {
-            width: 52px; height: 52px; border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.4rem; flex-shrink: 0;
-            transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
-        }
-        .tool-card:hover .tool-card-icon { transform: scale(1.15) rotate(-5deg); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
-        
-        .card-chat .tool-card-icon         { background: linear-gradient(135deg, rgba(43,138,156,0.15), rgba(92,184,92,0.1)); color: #2B8A9C; }
-        .card-scenarios .tool-card-icon     { background: rgba(92,184,92,0.15); color: #28a745; }
-        .card-differentials .tool-card-icon { background: rgba(108,117,125,0.12); color: #495057; }
-        .card-podcast .tool-card-icon       { background: rgba(249,115,22,0.12); color: #f97316; }
-        .card-connections .tool-card-icon   { background: rgba(236,72,153,0.12); color: #ec4899; }
-        .card-drugs .tool-card-icon         { background: rgba(59,130,246,0.12); color: #3b82f6; }
-        .card-atmist .tool-card-icon        { background: rgba(220,53,69,0.12); color: #dc3545; }
-        .card-ecg .tool-card-icon           { background: rgba(245,158,11,0.15); color: #d97706; }
-        .card-major-incident .tool-card-icon { background: rgba(220,53,69,0.12); color: #DC3545; }
-        .card-cpd .tool-card-icon           { background: rgba(139,92,246,0.12); color: #8b5cf6; }
-        .card-bonelab .tool-card-icon       { background: rgba(20,184,166,0.12); color: #14b8a6; }
-        .card-bloodlab .tool-card-icon      { background: rgba(220,53,69,0.12); color: #DC3545; }
-        .card-readiness .tool-card-icon    { background: rgba(101,163,13,0.12); color: #65a30d; }
-        .card-arrest .tool-card-icon       { background: rgba(192,57,43,0.12); color: #c0392b; }
-        .card-atc .tool-card-icon          { background: rgba(43,138,156,0.12); color: #2B8A9C; }
-        .card-book .tool-card-icon         { background: rgba(146,64,14,0.12); color: #92400e; }
-        .card-flashcards .tool-card-icon    { background: rgba(43,138,156,0.12); color: #2B8A9C; }
-        
-        .tool-card-title { font-weight: 700; font-size: 1.05rem; color: var(--color-gray-800); margin-bottom: 0.1rem; display: flex; align-items: center; gap: 0.5rem; }
-        .tool-card-subtitle { font-size: 0.72rem; color: var(--color-gray-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .tool-card-desc { font-size: 0.85rem; color: var(--color-gray-500); margin: 0; line-height: 1.5; flex: 1; position: relative; z-index: 1; }
-        
-        .tool-card-arrow {
-            position: absolute; bottom: 1.1rem; right: 1.1rem;
-            width: 34px; height: 34px; border-radius: 50%;
-            background: var(--color-gray-100);
-            display: flex; align-items: center; justify-content: center;
-            color: var(--color-gray-400);
-            transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
-            font-size: 0.85rem; z-index: 1;
-        }
-        .tool-card:hover .tool-card-arrow {
-            background: var(--color-teal); color: #fff;
-            transform: translateX(4px) scale(1.08);
-            box-shadow: 0 4px 16px rgba(43,138,156,0.35);
-        }
-        
-        .card-pro-badge {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #1a1a2e; font-size: 0.58rem; font-weight: 700;
-            padding: 0.18rem 0.5rem; border-radius: 20px;
-            text-transform: uppercase; letter-spacing: 0.5px;
-        }
-        
-        .tool-card.locked { opacity: 0.7; }
-        .tool-card.locked:hover { opacity: 1; }
-        .tool-card.locked .tool-card-arrow { background: linear-gradient(135deg, #FFD700, #FFA500); color: #1a1a2e; }
-        .tool-card.locked:hover .tool-card-arrow { background: linear-gradient(135deg, #FFD700, #FFA500); box-shadow: 0 4px 16px rgba(255,193,7,0.35); }
-        
-        
-        /* ==================== PRO VIDEO MODAL ==================== */
-.pro-video-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.75);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-    padding: 1rem;
-}
-.pro-video-overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
-.pro-video-modal {
-    position: relative;
-    width: 100%;
-    max-width: 360px;
-    background: var(--color-white);
-    border-radius: 24px;
-    overflow: hidden;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.4);
-    transform: scale(0.9) translateY(20px);
-    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
-}
-.pro-video-overlay.active .pro-video-modal {
-    transform: scale(1) translateY(0);
-}
-.pro-video-close {
-    position: absolute;
-    top: 12px; right: 12px;
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    border: none;
-    background: rgba(0,0,0,0.5);
-    color: #fff;
-    font-size: 1.2rem;
-    cursor: pointer;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
-}
-.pro-video-close:hover {
-    background: rgba(0,0,0,0.7);
-}
-.pro-video-container {
-    position: relative;
-    width: 100%;
-    padding-top: 177.78%; /* 9:16 aspect ratio */
-    background: #000;
-}
-.pro-video-container iframe {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-}
-.pro-video-footer {
-    padding: 1.25rem;
-    text-align: center;
-    background: var(--color-white);
-}
-.pro-video-footer h3 {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--color-gray-800);
-    margin: 0 0 0.35rem;
-}
-.pro-video-footer p {
-    font-size: 0.82rem;
-    color: var(--color-gray-500);
-    margin: 0 0 1rem;
-    line-height: 1.4;
-}
-.pro-video-upgrade-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.75rem;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #2B8A9C, #5cb85c);
-    color: #fff;
-    font-weight: 700;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    width: 100%;
-    justify-content: center;
-}
-.pro-video-upgrade-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(43,138,156,0.35);
-}
-        
-        
-        
+
         /* ============================================================
-           UPGRADE BANNER
+           UPGRADE BANNER (shown to free users only)
            ============================================================ */
         .upgrade-banner {
             position: relative; background: #FFFFFF;
             border-radius: 24px; padding: 2rem 1.5rem;
-            margin-bottom: 2rem; overflow: hidden;
+            margin-top: 2rem; margin-bottom: 2rem; overflow: hidden;
             box-shadow: 0 4px 30px rgba(255,193,7,0.08);
             opacity: 0; transform: translateY(40px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
         }
         .upgrade-banner.revealed { opacity: 1; transform: translateY(0); }
-        
-        /* Rotating conic-gradient border */
         .upgrade-banner::before {
             content: ''; position: absolute; inset: 0;
             border-radius: 24px; padding: 2px;
@@ -542,7 +167,6 @@
         }
         @property --upgrade-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
         @keyframes rotateBorder { to { --upgrade-angle: 360deg; } }
-        
         .upgrade-banner::after {
             content: ''; position: absolute; top: 0; left: -100%;
             width: 50%; height: 100%;
@@ -550,37 +174,24 @@
             animation: shimmerSweep 4s ease-in-out infinite;
         }
         @keyframes shimmerSweep { 0% { left: -100%; } 40% { left: 100%; } 100% { left: 100%; } }
-        
-        .upgrade-header {
-            display: flex; align-items: center; gap: 0.75rem;
-            margin-bottom: 0.75rem;
-            position: relative; z-index: 1;
-        }
+        .upgrade-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; position: relative; z-index: 1; }
         .upgrade-icon {
             width: 44px; height: 44px; border-radius: 10px;
             background: linear-gradient(135deg, #FFD700, #FFA500);
             display: flex; align-items: center; justify-content: center;
             font-size: 1.1rem; color: #1a1a2e;
         }
-        .upgrade-title { font-size: 1.1rem; font-weight: 700; color: var(--color-gray-800); margin: 0; }
+        .upgrade-title    { font-size: 1.1rem; font-weight: 700; color: var(--color-gray-800); margin: 0; }
         .upgrade-subtitle { font-size: 0.8rem; color: var(--color-gray-600); margin: 0; }
-        
         .upgrade-features {
             display: grid; grid-template-columns: repeat(2, 1fr);
             gap: 0.35rem 1rem; margin: 0.75rem 0 1rem;
             position: relative; z-index: 1;
         }
         @media (min-width: 600px) { .upgrade-features { grid-template-columns: repeat(4, 1fr); } }
-        .upgrade-feature {
-            display: flex; align-items: center; gap: 0.35rem;
-            font-size: 0.78rem; color: var(--color-gray-600);
-        }
+        .upgrade-feature { display: flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; color: var(--color-gray-600); }
         .upgrade-feature i { color: #d97706; font-size: 0.8rem; }
-        
-        .upgrade-cta {
-            display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem;
-            position: relative; z-index: 1;
-        }
+        .upgrade-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; position: relative; z-index: 1; }
         .upgrade-btn {
             display: inline-flex; align-items: center; gap: 0.5rem;
             background: linear-gradient(135deg, #FFD700, #FFA500);
@@ -594,103 +205,82 @@
         .upgrade-btn:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 12px 32px rgba(255,193,7,0.4); color: #1a1a2e; }
         .upgrade-price { font-size: 0.85rem; color: var(--color-gray-500); }
         .upgrade-price strong { color: var(--color-gray-700); }
-        
+
         /* ============================================================
-           UPDATES / WHAT'S NEW
+           PRO VIDEO MODAL
+           NOTE: dormant on this page — no current trigger.
+           HTML / CSS / JS retained so a trigger can be wired in later
+           (e.g. a "See what Pro offers" link in the upgrade banner).
+           Call window.openProVideoModal() to open from anywhere.
            ============================================================ */
-        .updates-section {
-            background: rgba(255,255,255,0.8);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.6);
-            border-radius: 20px; padding: 1.5rem;
-            box-shadow: 0 2px 16px rgba(0,0,0,0.03);
-            margin-bottom: 2rem;
-            opacity: 0; transform: translateY(40px);
+        .pro-video-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            padding: 1rem;
         }
-        .updates-section.revealed { opacity: 1; transform: translateY(0); }
-        
-        .updates-header {
-            display: flex; align-items: center; gap: 0.5rem;
-            margin-bottom: 1rem;
+        .pro-video-overlay.active { opacity: 1; visibility: visible; }
+        .pro-video-modal {
+            position: relative; width: 100%; max-width: 360px;
+            background: var(--color-white);
+            border-radius: 24px; overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
         }
-        .updates-header i { color: var(--color-teal); font-size: 1.1rem; }
-        .updates-header h3 { font-size: 1rem; font-weight: 700; color: var(--color-gray-800); margin: 0; }
-        
-        .update-item {
-            display: flex; align-items: flex-start; gap: 0.75rem;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid var(--color-gray-100);
-            transition: all 0.3s ease;
+        .pro-video-overlay.active .pro-video-modal { transform: scale(1) translateY(0); }
+        .pro-video-close {
+            position: absolute; top: 12px; right: 12px;
+            width: 36px; height: 36px; border-radius: 50%;
+            border: none; background: rgba(0,0,0,0.5); color: #fff;
+            font-size: 1.2rem; cursor: pointer; z-index: 10;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
         }
-        .update-item:hover { padding-left: 0.5rem; }
-        .update-item:last-child { border-bottom: none; padding-bottom: 0; }
-        
-        .update-badge {
-            display: inline-flex; align-items: center; justify-content: center;
-            min-width: 42px; height: 20px;
-            background: linear-gradient(135deg, var(--color-teal), var(--color-green));
-            color: white; font-size: 0.6rem; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.3px;
-            border-radius: 4px; flex-shrink: 0;
+        .pro-video-close:hover { background: rgba(0,0,0,0.7); }
+        .pro-video-container { position: relative; width: 100%; padding-top: 177.78%; background: #000; }
+        .pro-video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .pro-video-footer { padding: 1.25rem; text-align: center; background: var(--color-white); }
+        .pro-video-footer h3 { font-size: 1.05rem; font-weight: 700; color: var(--color-gray-800); margin: 0 0 0.35rem; }
+        .pro-video-footer p  { font-size: 0.82rem; color: var(--color-gray-500); margin: 0 0 1rem; line-height: 1.4; }
+        .pro-video-upgrade-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.75rem 1.75rem; border: none; border-radius: 12px;
+            background: linear-gradient(135deg, #2B8A9C, #5cb85c);
+            color: #fff; font-weight: 700; font-size: 0.95rem;
+            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%; justify-content: center;
         }
-        .update-text {
-            font-size: 0.85rem; color: var(--color-gray-600); line-height: 1.45;
-        }
-        .update-text strong { color: var(--color-gray-800); }
-        
-        /* ============================================================
-           SCROLL REVEAL + PAGE LOAD ORCHESTRATION
-           ============================================================ */
-        .reveal-element {
-            transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1),
-                        transform 0.7s cubic-bezier(0.4,0,0.2,1);
-        }
-        .page-load-1 { opacity: 0; animation: pageReveal 0.7s 0.1s ease both; }
-        .page-load-2 { opacity: 0; animation: pageReveal 0.7s 0.2s ease both; }
-        .page-load-3 { opacity: 0; animation: pageReveal 0.7s 0.35s ease both; }
-        .page-load-4 { opacity: 0; animation: pageReveal 0.7s 0.5s ease both; }
-        .page-load-5 { opacity: 0; animation: pageReveal 0.7s 0.65s ease both; }
-        @keyframes pageReveal { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* ============================================================
-           REDUCED MOTION
-           ============================================================ */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
-            .tool-card, .upgrade-banner, .updates-section { opacity: 1 !important; transform: none !important; }
-        }
-        
-        @media (max-width: 480px) {
-            .hero-greeting { font-size: 1.3rem; }
-            .pro-stats-row { gap: 1.25rem; }
-            .pro-stat-number { font-size: 1.25rem; }
-        }
+        .pro-video-upgrade-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(43,138,156,0.35); }
     </style>
 </head>
 
 <body class="landing-page member-page">
-   
-    
-<!-- ==================== NAVIGATION ==================== -->
-<nav class="member-navbar">
-    <div class="container">
-        <span class="brand-text">
-            <a class="navbar-brand" href="landing.html">
-                <span class="brand-para">para</span><span class="brand-mind">mind</span>
-            </a>
-        </span>
-        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
-    </div>
-</nav>
+
+    <!-- ==================== NAVIGATION ==================== -->
+    <nav class="member-navbar">
+        <div class="container">
+            <span class="brand-text">
+                <a class="navbar-brand" href="landing.html">
+                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
+                </a>
+            </span>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
 
     <!-- ==================== MAIN CONTENT ==================== -->
     <div class="landing-container">
-        
-        <!-- Payment Success Banner -->
+
+        <!-- Payment success banner (only shown after ?success=true) -->
         <div class="payment-success-banner" id="paymentSuccessBanner">
             <div class="success-content">
                 <div class="success-icon">
@@ -702,8 +292,8 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Hero Section -->
+
+        <!-- Hero -->
         <div class="hero-section">
             <div class="avatar-stage page-load-2">
                 <div class="avatar-glow"></div>
@@ -719,1066 +309,113 @@
                     <img src="images/hollie.png" alt="Hollie - Your Paramedic Tutor">
                 </div>
             </div>
-            
-            <div class="hollie-badge page-load-3">
-                <i class="bi bi-patch-check-fill"></i> Paramedic Tutor
-            </div>
-            
+
             <h1 class="hero-greeting page-load-3"><span id="heroGreeting">Hey</span> <span class="gradient-name" id="userFirstName">there</span>! <span id="greetingEmoji">👋</span></h1>
-            <p class="hero-subtitle page-load-4">I'm Hollie, your AI paramedic tutor. What shall we learn today?</p>
-            
-            <div class="user-info-row page-load-5">
-                <div class="info-chip streak-chip" id="streakChip" style="display: none;">
-                    <span id="streakIcon">🔥</span>
-                    <span><span id="streakCount">0</span> day streak</span>
+            <p class="hero-subtitle page-load-4">I'm Hollie, your paramedic tutor. What shall we do today?</p>
+        </div>
+
+        <!-- ==================== TRIPTYCH ==================== -->
+        <div class="triptych">
+
+            <!-- LEARN -->
+            <a href="learn.html" class="triptych-panel panel-learn" aria-label="Learn section">
+                <svg class="panel-bg" viewBox="0 0 920 220" preserveAspectRatio="none" aria-hidden="true">
+                    <g stroke="rgba(157,224,212,0.50)" stroke-width="1" fill="none">
+                        <path d="M0,130 Q180,70 360,120 T720,90 L920,120"/>
+                        <path d="M0,160 Q220,200 440,150 T920,170"/>
+                        <path d="M0,70 Q130,40 260,65 T520,55 T920,70" opacity="0.55"/>
+                        <path d="M40,220 L40,150 L130,150 L130,95 L240,95" opacity="0.4"/>
+                        <path d="M680,220 L680,170 L790,170 L790,120 L920,120" opacity="0.4"/>
+                    </g>
+                    <g fill="#5DCAA5">
+                        <circle cx="180" cy="95" r="5"><animate attributeName="opacity" values=".25;1;.25" dur="2.6s" repeatCount="indefinite"/></circle>
+                        <circle cx="430" cy="135" r="5"><animate attributeName="opacity" values=".25;1;.25" dur="2.6s" begin=".7s" repeatCount="indefinite"/></circle>
+                        <circle cx="720" cy="100" r="5"><animate attributeName="opacity" values=".25;1;.25" dur="2.6s" begin="1.3s" repeatCount="indefinite"/></circle>
+                        <circle cx="320" cy="60" r="4"><animate attributeName="opacity" values=".15;.85;.15" dur="3.2s" begin=".4s" repeatCount="indefinite"/></circle>
+                        <circle cx="820" cy="175" r="4"><animate attributeName="opacity" values=".15;.85;.15" dur="3.2s" begin="1.8s" repeatCount="indefinite"/></circle>
+                    </g>
+                    <g fill="#C8F0E0">
+                        <circle r="4" opacity="0">
+                            <animateMotion dur="5s" repeatCount="indefinite" path="M0,130 Q180,70 360,120 T720,90 L920,120"/>
+                            <animate attributeName="opacity" values="0;0.95;0.95;0" keyTimes="0;0.08;0.92;1" dur="5s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle r="3.5" opacity="0">
+                            <animateMotion dur="6s" begin="1.5s" repeatCount="indefinite" path="M0,160 Q220,200 440,150 T920,170"/>
+                            <animate attributeName="opacity" values="0;0.85;0.85;0" keyTimes="0;0.08;0.92;1" dur="6s" begin="1.5s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle r="3.5" opacity="0">
+                            <animateMotion dur="5.5s" begin="3s" repeatCount="indefinite" path="M0,70 Q130,40 260,65 T520,55 T920,70"/>
+                            <animate attributeName="opacity" values="0;0.85;0.85;0" keyTimes="0;0.08;0.92;1" dur="5.5s" begin="3s" repeatCount="indefinite"/>
+                        </circle>
+                    </g>
+                </svg>
+                <div class="panel-veil"></div>
+                <div class="panel-content">
+                    <div class="panel-label">Section one</div>
+                    <h2 class="panel-title">Learn</h2>
+                    <div class="panel-tagline">Build your knowledge</div>
+                    <div class="panel-tools">Chat with Hollie &middot; A&amp;P Connections &middot; ECG Tool &middot; Flash Cards &middot; Understanding Bones &middot; Understanding Bloods &middot; Understanding Drugs</div>
                 </div>
-                <div class="info-chip">
-                    <i class="bi bi-hospital"></i>
-                    <span id="userTrust">Loading...</span>
+                <div class="panel-arrow"><i class="bi bi-arrow-right"></i></div>
+            </a>
+
+            <!-- PRACTISE -->
+            <a href="practise.html" class="triptych-panel panel-practise" aria-label="Practise section">
+                <svg class="panel-bg" viewBox="0 0 1840 220" preserveAspectRatio="none" style="width:200%;animation:ecgScroll 7s linear infinite" aria-hidden="true">
+                    <line x1="0" y1="110" x2="1840" y2="110" stroke="rgba(157,224,212,0.10)" stroke-width="1"/>
+                    <path d="M0,110 L130,110 L140,90 L150,110 L170,110 L180,50 L190,170 L200,110 L380,110 L390,90 L400,110 L420,110 L430,50 L440,170 L450,110 L630,110 L640,90 L650,110 L670,110 L680,50 L690,170 L700,110 L880,110 L890,90 L900,110 L920,110 L930,50 L940,170 L950,110 L1130,110 L1140,90 L1150,110 L1170,110 L1180,50 L1190,170 L1200,110 L1380,110 L1390,90 L1400,110 L1420,110 L1430,50 L1440,170 L1450,110 L1630,110 L1640,90 L1650,110 L1670,110 L1680,50 L1690,170 L1700,110 L1840,110" stroke="#9FE1CB" stroke-width="1.6" fill="none" opacity="0.6"/>
+                </svg>
+                <div class="panel-veil"></div>
+                <div class="panel-content">
+                    <div class="panel-label">Section two</div>
+                    <h2 class="panel-title">Practise</h2>
+                    <div class="panel-tagline">Apply it under pressure</div>
+                    <div class="panel-tools">Medical Scenarios &middot; Cardiac Arrest Sim &middot; Major Incident Sim &middot; ATMIST &middot; How to get Differentials &middot; Interview Prep</div>
                 </div>
-                <div class="info-chip pro-chip" id="proBadge" style="display: none;">
-                    <i class="bi bi-star-fill"></i> Pro user
+                <div class="panel-arrow"><i class="bi bi-arrow-right"></i></div>
+            </a>
+
+            <!-- REFLECT -->
+            <a href="reflect.html" class="triptych-panel panel-reflect" aria-label="Reflect section">
+                <svg class="panel-bg" viewBox="0 0 920 220" preserveAspectRatio="none" aria-hidden="true">
+                    <g stroke="rgba(234,243,222,0.55)" stroke-width="1.4" stroke-linecap="round" fill="none">
+                        <line x1="60" y1="60" x2="430" y2="60" stroke-dasharray="370" stroke-dashoffset="370">
+                            <animate attributeName="stroke-dashoffset" values="370;0;0;370" keyTimes="0;0.35;0.85;1" dur="4.2s" repeatCount="indefinite"/>
+                        </line>
+                        <line x1="60" y1="110" x2="500" y2="110" stroke-dasharray="440" stroke-dashoffset="440">
+                            <animate attributeName="stroke-dashoffset" values="440;0;0;440" keyTimes="0;0.35;0.85;1" dur="4.2s" begin=".45s" repeatCount="indefinite"/>
+                        </line>
+                        <line x1="60" y1="160" x2="350" y2="160" stroke-dasharray="290" stroke-dashoffset="290">
+                            <animate attributeName="stroke-dashoffset" values="290;0;0;290" keyTimes="0;0.35;0.85;1" dur="4.2s" begin=".9s" repeatCount="indefinite"/>
+                        </line>
+                    </g>
+                    <g fill="none" stroke="#EAF3DE" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M780,55 l10,10 l20,-20" opacity="0">
+                            <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.3;0.45;0.85;1" dur="4.2s" repeatCount="indefinite"/>
+                        </path>
+                        <path d="M780,105 l10,10 l20,-20" opacity="0">
+                            <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.3;0.45;0.85;1" dur="4.2s" begin=".45s" repeatCount="indefinite"/>
+                        </path>
+                        <path d="M780,155 l10,10 l20,-20" opacity="0">
+                            <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.3;0.45;0.85;1" dur="4.2s" begin=".9s" repeatCount="indefinite"/>
+                        </path>
+                    </g>
+                </svg>
+                <div class="panel-veil"></div>
+                <div class="panel-content">
+                    <div class="panel-label">Section three</div>
+                    <h2 class="panel-title">Reflect</h2>
+                    <div class="panel-tagline">Capture what you've done</div>
+                    <div class="panel-tools">Debrief Your Calls &middot; CPD Portfolio &middot; Think like a paramedic ebook</div>
                 </div>
-            </div>
+                <div class="panel-arrow"><i class="bi bi-arrow-right"></i></div>
+            </a>
+
         </div>
-        
-        <!-- ==================== NOW LIVE BANNER ==================== -->
-        <style>
-            #now-live-banner {
-                margin-bottom: 28px;
-                animation: nlFadeIn 0.6s ease both;
-            }
-            @keyframes nlFadeIn {
-                from { opacity: 0; transform: translateY(-8px); }
-                to   { opacity: 1; transform: translateY(0); }
-            }
+        <!-- ==================== /TRIPTYCH ==================== -->
 
-            /* Outer shell — crimson, same as countdown */
-            .nl-outer {
-                background: linear-gradient(160deg, #c0392b 0%, #8B0000 55%, #5a0000 100%);
-                border-radius: 18px;
-                overflow: hidden;
-                box-shadow: 0 8px 32px rgba(192,57,43,0.5), 0 2px 8px rgba(0,0,0,0.35);
-                position: relative;
-            }
-
-            /* ECG monitor strip */
-            .nl-ecg-strip {
-                width: 100%;
-                height: 86px;
-                background: #060c06;
-                position: relative;
-                border-bottom: 1px solid rgba(255,255,255,0.06);
-            }
-            #nl-ecg-canvas {
-                width: 100%;
-                height: 100%;
-                display: block;
-            }
-            .nl-lead-label {
-                position: absolute;
-                bottom: 7px;
-                left: 10px;
-                font-family: "Courier New", monospace;
-                font-size: 10px;
-                font-weight: 700;
-                color: rgba(0,220,60,0.45);
-                letter-spacing: 1px;
-                pointer-events: none;
-            }
-            .nl-ecg-status {
-                position: absolute;
-                top: 8px;
-                right: 10px;
-                font-family: "Courier New", monospace;
-                font-size: 11px;
-                font-weight: 700;
-                letter-spacing: 1px;
-                pointer-events: none;
-                transition: color 0.2s;
-            }
-            .nl-ecg-status.st-vf    { color: #ff4444; animation: statusBlink 0.55s ease-in-out infinite; }
-            .nl-ecg-status.st-shock { color: #ffffff; animation: none; }
-            .nl-ecg-status.st-flat  { color: rgba(255,255,255,0.4); animation: none; }
-            .nl-ecg-status.st-rosc  { color: #00ff41; animation: none; }
-            @keyframes statusBlink {
-                0%, 100% { opacity: 1; }
-                50%       { opacity: 0.25; }
-            }
-            .nl-shock-flash {
-                position: absolute;
-                inset: 0;
-                background: #ffffff;
-                opacity: 0;
-                pointer-events: none;
-                transition: opacity 0.04s ease;
-            }
-            .nl-shock-flash.active { opacity: 0.92; }
-            .nl-shock-delivered {
-                position: absolute;
-                inset: 0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-family: 'Courier New', monospace;
-                font-size: 22px;
-                font-weight: 900;
-                letter-spacing: 4px;
-                text-transform: uppercase;
-                color: #ffffff;
-                background: rgba(0,0,0,0.55);
-                text-shadow:
-                    0 0 8px  #ffcc00,
-                    0 0 20px #ffcc00,
-                    0 0 50px rgba(255,204,0,0.7),
-                    0 2px 4px rgba(0,0,0,0.9);
-                opacity: 0;
-                pointer-events: none;
-                transition: opacity 0.15s ease;
-                animation: none;
-            }
-            .nl-shock-delivered.active {
-                opacity: 1;
-                animation: shockPulse 0.6s ease-out;
-            }
-            @keyframes shockPulse {
-                0%   { transform: scale(1.18); letter-spacing: 8px; }
-                60%  { transform: scale(1.03); letter-spacing: 5px; }
-                100% { transform: scale(1);    letter-spacing: 4px; }
-            }
-
-            /* Content area below strip */
-            .nl-content {
-                padding: 16px 20px 20px;
-                position: relative;
-                z-index: 1;
-                text-align: center;
-            }
-            .nl-content::before {
-                content: "";
-                position: absolute;
-                inset: 0;
-                background: repeating-linear-gradient(
-                    -45deg,
-                    rgba(255,255,255,0.025) 0px,
-                    rgba(255,255,255,0.025) 1px,
-                    transparent 1px,
-                    transparent 12px
-                );
-                pointer-events: none;
-                border-radius: 0 0 18px 18px;
-            }
-            .nl-badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 7px;
-                background: rgba(255,255,255,0.15);
-                border: 1px solid rgba(255,255,255,0.25);
-                border-radius: 20px;
-                padding: 4px 12px;
-                margin-bottom: 10px;
-                font-size: 11px;
-                font-weight: 700;
-                color: #fff;
-                text-transform: uppercase;
-                letter-spacing: 0.1em;
-                position: relative;
-                z-index: 1;
-            }
-            .nl-live-dot {
-                width: 8px; height: 8px;
-                border-radius: 50%;
-                background: #ff4444;
-                flex-shrink: 0;
-                animation: nlDotPulse 1.4s ease-in-out infinite;
-            }
-            @keyframes nlDotPulse {
-                0%   { box-shadow: 0 0 0 0 rgba(255,68,68,0.8); }
-                70%  { box-shadow: 0 0 0 7px rgba(255,68,68,0); }
-                100% { box-shadow: 0 0 0 0 rgba(255,68,68,0); }
-            }
-            .nl-heading {
-                font-size: 18px;
-                font-weight: 800;
-                color: #ffffff;
-                margin: 0 0 4px;
-                line-height: 1.2;
-                text-shadow: 0 1px 4px rgba(0,0,0,0.35);
-                position: relative; z-index: 1;
-            }
-            .nl-heading span { color: #ffcc00; }
-            .nl-subtext {
-                font-size: 13px;
-                color: rgba(255,255,255,0.85);
-                margin: 0 0 18px;
-                line-height: 1.4;
-                position: relative; z-index: 1;
-            }
-            .nl-cta {
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                background: #ffffff;
-                color: #8B0000;
-                font-size: 14px;
-                font-weight: 800;
-                padding: 11px 22px;
-                border-radius: 12px;
-                text-decoration: none;
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-                position: relative; z-index: 1;
-                overflow: hidden;
-            }
-            .nl-cta::after {
-                content: "";
-                position: absolute;
-                top: 0; left: -100%;
-                width: 60%; height: 100%;
-                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
-                animation: nlShimmer 3s ease-in-out infinite;
-            }
-            @keyframes nlShimmer {
-                0%   { left: -100%; }
-                40%  { left: 130%; }
-                100% { left: 130%; }
-            }
-            .nl-cta:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 28px rgba(0,0,0,0.4);
-                color: #8B0000;
-                text-decoration: none;
-            }
-            .nl-cta i { font-size: 16px; }
-        </style>
-
-        <div id="now-live-banner">
-            <div class="nl-outer">
-
-                <!-- ECG Monitor Strip -->
-                <div class="nl-ecg-strip">
-                    <canvas id="nl-ecg-canvas"></canvas>
-                    <div class="nl-lead-label">LEAD II</div>
-                    <div class="nl-ecg-status st-vf" id="nlEcgStatus">&#x26A1; VF</div>
-                    <div class="nl-shock-flash" id="nlShockFlash"></div>
-                    <div class="nl-shock-delivered" id="nlShockDelivered">⚡ SHOCK DELIVERED</div>
-                </div>
-
-                <!-- Content -->
-                <div class="nl-content">
-                    <div class="nl-badge">
-                        <span class="nl-live-dot"></span> Now Live
-                    </div>
-                    <p class="nl-heading">&#x1FAC0; <span>Cardiac Arrest Simulator</span></p>
-                    <p class="nl-subtext">Adult ALS for all members &middot; Paediatric, Newborn &amp; Traumatic Arrest for Pro</p>
-                    <a href="arrest-scenarios.html" class="nl-cta">
-                        <i class="bi bi-play-circle-fill"></i> Launch the Simulator
-                    </a>
-                </div>
-
-            </div>
-        </div>
-
-        <script>
-        (function () {
-            'use strict';
-
-            var canvas   = document.getElementById('nl-ecg-canvas');
-            var statusEl = document.getElementById('nlEcgStatus');
-            var flashEl  = document.getElementById('nlShockFlash');
-            var shockDeliveredEl = document.getElementById('nlShockDelivered');
-            var ctx      = canvas.getContext('2d');
-
-            function setSize() {
-                var dpr = window.devicePixelRatio || 1;
-                canvas.width  = canvas.clientWidth  * dpr;
-                canvas.height = canvas.clientHeight * dpr;
-            }
-            setSize();
-            window.addEventListener('resize', setSize);
-
-            /* data buffer */
-            var SAMPLES = 520;
-            var buf = new Array(SAMPLES).fill(0.5);
-
-            /* phase durations in frames (~60fps) */
-            var PHASE_DUR = { vf: 210, shock: 14, flat: 150, sinus: 380 };
-            var phase      = 'vf';
-            var phaseFrame = 0;
-
-            /* VF generator */
-            var vfT = 0;
-            function nextVF() {
-                vfT += 0.13;
-                var v = Math.sin(vfT * 7.1)        * 0.36 +
-                        Math.sin(vfT * 12.3 + 1.3)  * 0.27 +
-                        Math.sin(vfT * 18.7 + 0.6)  * 0.16 +
-                        Math.cos(vfT * 5.9  + 2.4)  * 0.21 +
-                        Math.sin(vfT * 24.1 + 3.0)  * 0.09 +
-                        (Math.random() - 0.5)        * 0.04;
-                return Math.max(0.05, Math.min(0.95, 0.5 + v * 0.42));
-            }
-
-            /* Sinus rhythm generator */
-            var sinusPos = 0;
-            var BEAT_LEN = 108;
-            function nextSinus() {
-                sinusPos++;
-                var t = (sinusPos % BEAT_LEN) / BEAT_LEN;
-                var y = 0.5;
-                if (t < 0.07) {
-                    y = 0.5 - Math.sin(t / 0.07 * Math.PI) * 0.11;
-                } else if (t < 0.20) {
-                    y = 0.5;
-                } else if (t < 0.245) {
-                    y = 0.5 + (t - 0.20) / 0.045 * 0.09;
-                } else if (t < 0.30) {
-                    var r = (t - 0.245) / 0.055;
-                    y = 0.5 + 0.09 - Math.sin(r * Math.PI) * 0.70;
-                } else if (t < 0.36) {
-                    var s = (t - 0.30) / 0.06;
-                    y = 0.5 - 0.20 * (1 - s);
-                } else if (t < 0.46) {
-                    y = 0.5;
-                } else if (t < 0.67) {
-                    y = 0.5 - Math.sin((t - 0.46) / 0.21 * Math.PI) * 0.22;
-                } else {
-                    y = 0.5;
-                }
-                return y;
-            }
-
-            function nextSample() {
-                if (phase === 'vf')    return nextVF();
-                if (phase === 'shock') return 0.5;
-                if (phase === 'flat')  return 0.5;
-                return nextSinus();
-            }
-
-            function advancePhase() {
-                phaseFrame++;
-                if (phase === 'vf' && phaseFrame >= PHASE_DUR.vf) {
-                    phase = 'shock'; phaseFrame = 0;
-                    flashEl.classList.add('active');
-                    shockDeliveredEl.classList.add('active');
-                    statusEl.textContent = '⚡ SHOCK';
-                    statusEl.className   = 'nl-ecg-status st-shock';
-                } else if (phase === 'shock' && phaseFrame >= PHASE_DUR.shock) {
-                    phase = 'flat'; phaseFrame = 0;
-                    flashEl.classList.remove('active');
-                    statusEl.textContent = '-- --';
-                    statusEl.className   = 'nl-ecg-status st-flat';
-                } else if (phase === 'flat' && phaseFrame >= PHASE_DUR.flat) {
-                    phase = 'sinus'; phaseFrame = 0;
-                    shockDeliveredEl.classList.remove('active');
-                    statusEl.textContent = 'ROSC \u2713';
-                    statusEl.className   = 'nl-ecg-status st-rosc';
-                } else if (phase === 'sinus' && phaseFrame >= PHASE_DUR.sinus) {
-                    phase = 'vf'; phaseFrame = 0; vfT = 0; sinusPos = 0;
-                    statusEl.textContent = '⚡ VF';
-                    statusEl.className   = 'nl-ecg-status st-vf';
-                }
-            }
-
-            function render() {
-                var W   = canvas.width;
-                var H   = canvas.height;
-                var dpr = window.devicePixelRatio || 1;
-
-                ctx.fillStyle = '#060c06';
-                ctx.fillRect(0, 0, W, H);
-
-                ctx.strokeStyle = 'rgba(0,180,50,0.07)';
-                ctx.lineWidth   = 1;
-                var gs = 22 * dpr;
-                for (var gx = 0; gx < W; gx += gs) {
-                    ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke();
-                }
-                for (var gy = 0; gy < H; gy += gs) {
-                    ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke();
-                }
-
-                var lineCol, glowCol;
-                if (phase === 'vf') {
-                    lineCol = '#ff5050'; glowCol = 'rgba(255,80,80,0.65)';
-                } else if (phase === 'shock') {
-                    lineCol = '#ffffff'; glowCol = 'rgba(255,255,255,0.9)';
-                } else if (phase === 'flat') {
-                    lineCol = '#55aa66'; glowCol = 'rgba(85,170,102,0.5)';
-                } else {
-                    lineCol = '#00ff41'; glowCol = 'rgba(0,255,65,0.65)';
-                }
-
-                ctx.beginPath();
-                ctx.lineWidth   = 2.2 * dpr;
-                ctx.lineJoin    = 'round';
-                ctx.lineCap     = 'round';
-                ctx.strokeStyle = lineCol;
-                ctx.shadowColor = glowCol;
-                ctx.shadowBlur  = 10 * dpr;
-
-                for (var i = 0; i < buf.length; i++) {
-                    var px = (i / (buf.length - 1)) * W;
-                    var py = buf[i] * H;
-                    if (i === 0) ctx.moveTo(px, py);
-                    else         ctx.lineTo(px, py);
-                }
-                ctx.stroke();
-                ctx.shadowBlur = 0;
-
-                var lastY = buf[buf.length - 1] * H;
-                ctx.fillStyle   = lineCol;
-                ctx.shadowColor = lineCol;
-                ctx.shadowBlur  = 18 * dpr;
-                ctx.beginPath();
-                ctx.arc(W - 1, lastY, 3.5 * dpr, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
-            }
-
-            function tick() {
-                advancePhase();
-                buf.shift();
-                buf.push(nextSample());
-                render();
-                requestAnimationFrame(tick);
-            }
-
-            requestAnimationFrame(tick);
-        })();
-        </script>
-
-        <!-- ==================== MAJOR INCIDENT BOX ==================== -->
-        <style>
-            .mi-banner { margin-bottom: 16px; }
-            .mi-outer {
-                background: linear-gradient(160deg, #1a0a0a 0%, #0d0d0d 100%);
-                border-radius: 18px;
-                overflow: hidden;
-                box-shadow: 0 8px 32px rgba(220,53,69,0.3), 0 2px 8px rgba(0,0,0,0.4);
-                position: relative;
-                border: 1px solid rgba(220,53,69,0.2);
-            }
-
-            /* Terminal strip */
-            .mi-terminal {
-                width: 100%;
-                background: #0d0d0d;
-                border-bottom: 1px solid rgba(220,53,69,0.15);
-                padding: 18px 20px;
-                position: relative;
-                font-family: 'Courier New', monospace;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                min-height: 80px;
-            }
-            .mi-terminal-header {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                margin-bottom: 12px;
-            }
-            .mi-terminal-dot {
-                width: 7px; height: 7px; border-radius: 50%;
-            }
-            .mi-terminal-dot.red   { background: #ff5f57; }
-            .mi-terminal-dot.amber { background: #febc2e; }
-            .mi-terminal-dot.green { background: #28c840; }
-            .mi-terminal-title {
-                font-size: 11px;
-                color: rgba(255,255,255,0.6);
-                letter-spacing: 0.1em;
-                text-transform: uppercase;
-                margin-left: 4px;
-                font-weight: 600;
-            }
-            .mi-terminal-display {
-                text-align: center;
-                min-height: 2.4em;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 100%;
-            }
-            .mi-terminal-line {
-                font-size: 16px;
-                line-height: 1.5;
-                transition: opacity 0.5s ease;
-                text-align: center;
-            }
-            .mi-terminal-line .mi-letter {
-                color: #ff4444;
-                font-weight: 900;
-                font-size: 18px;
-            }
-            .mi-terminal-line .mi-key {
-                color: rgba(255,255,255,0.5);
-            }
-            .mi-terminal-line .mi-val {
-                color: rgba(255,220,220,0.95);
-                font-weight: 600;
-            }
-            .mi-cursor {
-                display: inline-block;
-                width: 6px; height: 12px;
-                background: #ff4444;
-                margin-left: 3px;
-                vertical-align: middle;
-                animation: mi-blink 0.8s step-end infinite;
-            }
-            @keyframes mi-blink {
-                0%,100% { opacity: 1; } 50% { opacity: 0; }
-            }
-
-            /* Content area */
-            .mi-content {
-                padding: 14px 20px 18px;
-                position: relative;
-                text-align: center;
-            }
-            .mi-content::before {
-                content: "";
-                position: absolute;
-                inset: 0;
-                background: repeating-linear-gradient(
-                    -45deg,
-                    rgba(220,53,69,0.03) 0px,
-                    rgba(220,53,69,0.03) 1px,
-                    transparent 1px,
-                    transparent 12px
-                );
-                pointer-events: none;
-            }
-            .mi-badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 7px;
-                background: rgba(220,53,69,0.15);
-                border: 1px solid rgba(220,53,69,0.3);
-                border-radius: 20px;
-                padding: 4px 12px;
-                margin-bottom: 10px;
-                font-size: 11px;
-                font-weight: 700;
-                color: #ff6b6b;
-                text-transform: uppercase;
-                letter-spacing: 0.1em;
-                position: relative;
-            }
-            .mi-badge-dot {
-                width: 7px; height: 7px; border-radius: 50%;
-                background: #ff4444;
-                animation: nlDotPulse 1.4s ease-in-out infinite;
-            }
-            .mi-heading {
-                font-size: 18px;
-                font-weight: 800;
-                color: #ffffff;
-                margin: 0 0 4px;
-                line-height: 1.2;
-                text-shadow: 0 1px 4px rgba(0,0,0,0.5);
-                position: relative;
-            }
-            .mi-heading span { color: #ff6b6b; }
-            .mi-subtext {
-                font-size: 13px;
-                color: rgba(255,255,255,0.7);
-                margin: 0 0 16px;
-                line-height: 1.4;
-                position: relative;
-            }
-            .mi-cta {
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                background: #DC3545;
-                color: #ffffff;
-                font-size: 14px;
-                font-weight: 800;
-                padding: 11px 22px;
-                border-radius: 12px;
-                text-decoration: none;
-                transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s;
-                box-shadow: 0 4px 20px rgba(220,53,69,0.5);
-                position: relative;
-                overflow: hidden;
-            }
-            .mi-cta::after {
-                content: "";
-                position: absolute;
-                top: 0; left: -100%;
-                width: 60%; height: 100%;
-                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-                animation: nlShimmer 3s ease-in-out infinite;
-            }
-            .mi-cta:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 28px rgba(220,53,69,0.6);
-                color: #ffffff;
-                text-decoration: none;
-                background: #c82333;
-            }
-
-            /* ── DEBRIEF BOX ── */
-            .atc-banner { margin-bottom: 16px; }
-            .atc-outer {
-                background: linear-gradient(160deg, #0f1420 0%, #080d18 100%);
-                border-radius: 18px;
-                overflow: hidden;
-                border: 1px solid rgba(99,130,180,0.15);
-                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-                padding: 22px 22px 20px;
-                text-align: center;
-                position: relative;
-            }
-            .atc-outer::before {
-                content: '';
-                position: absolute;
-                top: 0; left: 0; right: 0; height: 1px;
-                background: linear-gradient(90deg, transparent, rgba(99,130,180,0.3), transparent);
-            }
-            .atc-stars {
-                font-size: 20px;
-                letter-spacing: 4px;
-                margin-bottom: 10px;
-                opacity: 0.5;
-            }
-            .atc-question {
-                font-size: 17px;
-                font-weight: 700;
-                color: rgba(255,255,255,0.9);
-                margin-bottom: 6px;
-                line-height: 1.3;
-            }
-            .atc-sub {
-                font-size: 13px;
-                color: rgba(255,255,255,0.4);
-                margin-bottom: 18px;
-                line-height: 1.5;
-            }
-            .atc-cta {
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                background: rgba(255,255,255,0.07);
-                border: 1px solid rgba(255,255,255,0.15);
-                color: rgba(255,255,255,0.8);
-                font-size: 13px;
-                font-weight: 700;
-                padding: 10px 20px;
-                border-radius: 12px;
-                text-decoration: none;
-                transition: all 0.2s;
-            }
-            .atc-cta:hover {
-                background: rgba(255,255,255,0.12);
-                border-color: rgba(255,255,255,0.25);
-                color: #fff;
-                text-decoration: none;
-                transform: translateY(-1px);
-            }
-        </style>
-
-        <div class="mi-banner">
-            <div class="mi-outer">
-                <!-- Terminal strip -->
-                <div class="mi-terminal">
-                    <div class="mi-terminal-header">
-                        <span class="mi-terminal-dot red"></span>
-                        <span class="mi-terminal-dot amber"></span>
-                        <span class="mi-terminal-dot green"></span>
-                        <span class="mi-terminal-title">METHANE — Incident Briefing</span>
-                    </div>
-                    <div class="mi-terminal-display">
-                        <div class="mi-terminal-line" id="miTerminalLine">
-                            <span class="mi-letter">M</span> <span class="mi-key">Major Incident</span> <span class="mi-val">— Declared. Multiple agencies responding.<span class="mi-cursor"></span></span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Content -->
-                <div class="mi-content">
-                    <div class="mi-badge">
-                        <span class="mi-badge-dot"></span> Pro Feature
-                    </div>
-                    <p class="mi-heading">⚠ <span>Major Incident Trainer</span></p>
-                    <p class="mi-subtext">TST & MITT triage under real pressure · Hard cutoff · No second chances</p>
-                    <a href="major-incident.html" class="mi-cta">
-                        <i class="bi bi-play-circle-fill"></i> Launch the Trainer
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <script>
-        (function() {
-            var el = document.getElementById('miTerminalLine');
-            var lines = [
-                { letter:'M', key:'Major Incident',     val:'— Declared. Multiple agencies responding.' },
-                { letter:'E', key:'Exact Location',     val:'— M62 Westbound, between J27 and J28.' },
-                { letter:'T', key:'Type',               val:'— RTC. HGV rear-ended stationary traffic.' },
-                { letter:'H', key:'Hazards',            val:'— Diesel spill. Unstable HGV cab.' },
-                { letter:'A', key:'Access',             val:'— Via J27 westbound slip. RVP Tesco Extra.' },
-                { letter:'N', key:'Number',             val:'— Approx. 9 casualties. Mix of ambulant.' },
-                { letter:'E', key:'Emergency Services', val:'— Police on scene. Fire ETA 4 min.' }
-            ];
-            var idx = 0;
-            var FADE = 500; // ms — must match CSS transition
-            el.style.transition = 'opacity ' + (FADE/1000) + 's ease';
-
-            function showNext() {
-                // Step 1: fade out
-                el.style.opacity = '0';
-                // Step 2: swap content only after fade fully done
-                setTimeout(function() {
-                    idx = (idx + 1) % lines.length;
-                    var l = lines[idx];
-                    var cursor = idx === lines.length - 1 ? '<span class="mi-cursor"></span>' : '';
-                    el.innerHTML = '<span class="mi-letter">' + l.letter + '</span> '
-                        + '<span class="mi-key">' + l.key + '</span> '
-                        + '<span class="mi-val">' + l.val + cursor + '</span>';
-                    // Step 3: fade in
-                    el.style.opacity = '1';
-                }, FADE);
-            }
-            setInterval(showNext, 3000);
-        })();
-        </script>
-
-        <!-- ==================== DEBRIEF BOX ==================== -->
-        <div class="atc-banner">
-            <div class="atc-outer">
-                <div class="atc-stars">✦ ✦ ✦</div>
-                <div class="atc-question">How did your last job go?</div>
-                <div class="atc-sub">End of shift. Time to process what happened — before it follows you home.</div>
-                <a href="after-the-call.html" class="atc-cta">
-                    <i class="bi bi-moon-stars"></i> Debrief Your Last Job
-                </a>
-            </div>
-        </div>
-
-        <!-- ==================== FREE TOOLS ==================== -->
-        <div class="tools-section">
-            <div class="section-label">
-                <span class="label-icon free"><i class="bi bi-unlock-fill"></i></span>
-                Free Tools
-            </div>
-            <div class="tools-grid">
-                <!-- Chat -->
-                <a href="chat.html" class="tool-card card-chat reveal-element">
-                    <div class="card-glow"></div>
-                    <div class="card-line"></div>
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-chat-dots"></i></div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">Chat</div>
-                            <div class="tool-card-subtitle">AI Assistant</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Ask me anything about paramedicine. I'll help with your clinical questions!</p>
-                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
-                </a>
-                
-                <!-- Scenarios -->
-                <a href="scenarios.html" class="tool-card card-scenarios reveal-element">
-                    <div class="card-glow"></div>
-                    <div class="card-line"></div>
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-mortarboard"></i></div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">Scenarios</div>
-                            <div class="tool-card-subtitle">Case Studies</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Practice realistic patient cases from dispatch to handover. Build your confidence!</p>
-                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
-                </a>
-                
-                <!-- Differentials -->
-                <a href="differentials.html" class="tool-card card-differentials reveal-element">
-                    <div class="card-glow"></div>
-                    <div class="card-line"></div>
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-clipboard2-pulse"></i></div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">Differentials</div>
-                            <div class="tool-card-subtitle">Diagnosis Explorer</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Explore differential diagnoses based on patient presentation and vitals.</p>
-                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
-                </a>
-                
-                <!-- Podcast -->
-                <!-- Readiness Score -->
-                <a href="readiness.html" class="tool-card card-readiness reveal-element">
-                    <div class="card-glow"></div>
-                    <div class="card-line"></div>
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-clipboard2-check"></i></div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">Readiness Score</div>
-                            <div class="tool-card-subtitle">Knowledge Assessment</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">20 timed questions across 6 clinical domains. Get your instant readiness score — no sign-up needed.</p>
-                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
-                </a>
-                
-                <a href="podcast.html" class="tool-card card-podcast reveal-element">
-                    <div class="card-glow"></div>
-                    <div class="card-line"></div>
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-headphones"></i></div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">Podcast</div>
-                            <div class="tool-card-subtitle">The Paramind Podcast</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Monthly clinical episodes with Matt & Ellie. Listen to the latest Paramind Podcast!</p>
-                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
-                </a>
-                
-                <!-- Cardiac Arrest Simulator -->
-                <a href="arrest-scenarios.html" class="tool-card card-arrest reveal-element">
-                    <div class="card-glow"></div>
-                    <div class="card-line"></div>
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-heartbreak"></i></div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">Cardiac Arrest Simulator</div>
-                            <div class="tool-card-subtitle">Resuscitation Training</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Simulate cardiac arrest scenarios from first rhythm to ROSC. Adult ALS free for all members.</p>
-                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
-                </a>
-
-                <!-- Flash Cards -->
-                <a href="flashcards.html" class="tool-card card-flashcards reveal-element">
-                    <div class="card-glow"></div>
-                    <div class="card-line"></div>
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-layers"></i></div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">Flash Cards</div>
-                            <div class="tool-card-subtitle">Spaced Repetition</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">400 MCQ cards across 8 decks. Smart spaced repetition keeps the right cards coming back at the right time.</p>
-                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
-                </a>
-
-                <!-- Free Ebook -->
-                <a href="index-free-paramedic-book.html" class="tool-card card-book reveal-element">
-                    <div class="card-glow"></div>
-                    <div class="card-line"></div>
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-book"></i></div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">Free Ebook</div>
-                            <div class="tool-card-subtitle">Think Like a Paramedic</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">25 clinical frameworks for thinking on scene. No sign-up, no email — just download the PDF.</p>
-                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
-                </a>
-                
-            </div>
-        </div>
-        
-        <!-- ==================== PRO TOOLS ==================== -->
-        <div class="tools-section">
-            <div class="section-label">
-                <span class="label-icon pro"><i class="bi bi-star-fill"></i></span>
-                Pro Tools
-            </div>
-            <div class="tools-grid">
-                <!-- A&P Connections -->
-                <a href="connections.html" class="tool-card card-connections reveal-element" id="connectionsCard">
-                    <div class="card-glow"></div>
-                    <div class="card-line"></div>
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-heart-pulse"></i></div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">A&P Connections <span class="card-pro-badge" id="connectionsProBadge">Pro</span></div>
-                            <div class="tool-card-subtitle">Understand the Why</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Learn why things happen. "Why does sepsis cause mottled skin?" I'll explain!</p>
-                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
-                </a>
-                
-                <!-- Major Incident Training -->
-                <a href="major-incident.html" class="tool-card card-major-incident reveal-element" id="majorIncidentCard">
-                    <div class="card-glow"></div>
-                    <div class="card-line"></div>
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-exclamation-triangle"></i></div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">Major Incident Training <span class="card-pro-badge" id="majorIncidentProBadge">Pro</span></div>
-                            <div class="tool-card-subtitle">TST & MITT Triage</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Train on Ten Second Triage and MITT under real time pressure. Hard cutoff. No second chances.</p>
-                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
-                </a>
-
-                <!-- ECG Tool -->
-                <a href="ecg.html" class="tool-card card-ecg reveal-element" id="ecgCard">
-                    <div class="card-glow"></div>
-                    <div class="card-line"></div>
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-activity"></i></div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">ECG Tool <span class="card-pro-badge" id="ecgProBadge">Pro</span></div>
-                            <div class="tool-card-subtitle">Rhythm Mastery</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Interactive ECG training with 23 key cardiac rhythms. Learn, then test yourself!</p>
-                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
-                </a>
-                
-                <!-- ATMIST -->
-                <a href="atmist.html" class="tool-card card-atmist reveal-element" id="atmistCard">
-                    <div class="card-glow"></div>
-                    <div class="card-line"></div>
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-telephone-outbound"></i></div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">ATMIST <span class="card-pro-badge" id="atmistProBadge">Pro</span></div>
-                            <div class="tool-card-subtitle">Handover Generator</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Generate and practice structured pre-alert messages for hospital handovers.</p>
-                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
-                </a>
-                
-                <!-- Understanding Bones -->
-                <a href="bone-lab.html" class="tool-card card-bonelab reveal-element" id="bonelabCard">
-                    <div class="card-glow"></div>
-                    <div class="card-line"></div>
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-body-text"></i></div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">Understanding Bones <span class="card-pro-badge" id="bonelabProBadge">Pro</span></div>
-                            <div class="tool-card-subtitle">Skeletal Anatomy</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Interactive skeleton with 63 landmarks, quiz mode, and 15 clinical fracture scenarios.</p>
-                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
-                </a>
-                
-                <!-- Understanding Bloods -->
-                <a href="blood-lab.html" class="tool-card card-bloodlab reveal-element" id="bloodlabCard">
-                    <div class="card-glow"></div>
-                    <div class="card-line"></div>
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-droplet-half"></i></div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">Understanding Bloods <span class="card-pro-badge" id="bloodlabProBadge">Pro</span></div>
-                            <div class="tool-card-subtitle">Blood Test Interpreter</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Explore 35 blood markers with interactive sliders, clinical explanations, and scenario-based questions.</p>
-                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
-                </a>
-                
-                <!-- Understanding Drugs -->
-                <a href="drugs.html" class="tool-card card-drugs reveal-element" id="drugsCard">
-                    <div class="card-glow"></div>
-                    <div class="card-line"></div>
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-capsule"></i></div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">Understanding Drugs <span class="card-pro-badge" id="drugsProBadge">Pro</span></div>
-                            <div class="tool-card-subtitle">Pharmacology Guide</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Deep dive into patient drugs, mechanisms, doses, and paramedic-specific clinical considerations.</p>
-                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
-                </a>
-                
-                <!-- Interview Prep -->
-                <a href="interview.html" class="tool-card card-interview reveal-element" id="interviewCard">
-                    <div class="card-glow"></div>
-                    <div class="card-line"></div>
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-mortarboard"></i></div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">Interview Prep <span class="card-pro-badge" id="interviewProBadge">Pro</span></div>
-                            <div class="tool-card-subtitle">Mock Interviews</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Practise NHS, university &amp; promotion interviews with AI feedback and model answers.</p>
-                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
-                </a>
-                
-                <!-- Debrief Your Calls -->
-                <a href="after-the-call.html" class="tool-card card-atc reveal-element" id="atcCard">
-                    <div class="card-glow"></div>
-                    <div class="card-line"></div>
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-moon-stars"></i></div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">Debrief Your Calls <span class="card-pro-badge" id="atcProBadge">Pro</span></div>
-                            <div class="tool-card-subtitle">Shift Debrief</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Debrief real calls with Hollie. Explore your clinical reasoning and generate HCPC-ready CPD reflections.</p>
-                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
-                </a>
-
-                <!-- CPD Portfolio -->
-                <a href="cpd.html" class="tool-card card-cpd reveal-element" id="cpdCard">
-                    <div class="card-glow"></div>
-                    <div class="card-line"></div>
-                    <div class="tool-card-header">
-                        <div class="tool-card-icon"><i class="bi bi-award"></i></div>
-                        <div class="tool-card-info">
-                            <div class="tool-card-title">CPD Portfolio <span class="card-pro-badge" id="cpdProBadge">Pro</span></div>
-                            <div class="tool-card-subtitle">Track & Certify</div>
-                        </div>
-                    </div>
-                    <p class="tool-card-desc">Track your learning and download CPD certificates for completed scenarios.</p>
-                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
-                </a>
-            </div>
-        </div>
-
-        <!-- CPD Approved Provider -->
-        <div style="text-align: center; margin-bottom: 2rem;">
-            <img src="images/cpd-approved-provider.png" alt="CPD Group Approved Provider #789946" style="max-width: 100%; height: auto;">
-        </div>
-        
-        
-<!-- ==================== PRO VIDEO MODAL ==================== -->
-<div class="pro-video-overlay" id="proVideoOverlay">
-    <div class="pro-video-modal">
-        <button class="pro-video-close" id="proVideoClose" aria-label="Close">
-            <i class="bi bi-x-lg"></i>
-        </button>
-        <div class="pro-video-container">
-            <iframe id="proVideoIframe"
-                src=""
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen>
-            </iframe>
-        </div>
-        <div class="pro-video-footer">
-            <h3>Unlock Pro Tools</h3>
-            <p>Get unlimited access to all learning tools, CPD certificates, and more.</p>
-            <button class="pro-video-upgrade-btn" onclick="handleUpgrade()">
-                <i class="bi bi-star-fill"></i>
-                Upgrade to Pro — £4.99/month
-            </button>
-        </div>
-    </div>
-</div>
-
-        <!-- ==================== UPGRADE BANNER ==================== -->
-        <div class="upgrade-banner reveal-element" id="upgradeBanner">
+        <!-- Upgrade banner — visible to free users only -->
+        <div class="upgrade-banner" id="upgradeBanner" style="display: none;">
             <div class="upgrade-header">
                 <div class="upgrade-icon">
                     <i class="bi bi-rocket-takeoff"></i>
@@ -1788,7 +425,7 @@
                     <p class="upgrade-subtitle">Get unlimited access to all learning tools</p>
                 </div>
             </div>
-            
+
             <div class="upgrade-features">
                 <div class="upgrade-feature">
                     <i class="bi bi-check-circle-fill"></i>
@@ -1803,7 +440,7 @@
                     <span>CPD certificates</span>
                 </div>
             </div>
-            
+
             <div class="upgrade-cta">
                 <button class="upgrade-btn" onclick="handleUpgrade()">
                     <i class="bi bi-star-fill"></i>
@@ -1812,30 +449,52 @@
                 <span class="upgrade-price">Just <strong>£4.99</strong>/month</span>
             </div>
         </div>
-        
-        <!-- ==================== UPDATES ==================== -->
+
     </div>
-    
-    
+
+    <!-- ==================== PRO VIDEO MODAL (dormant — call window.openProVideoModal() to open) ==================== -->
+    <div class="pro-video-overlay" id="proVideoOverlay">
+        <div class="pro-video-modal">
+            <button class="pro-video-close" id="proVideoClose" aria-label="Close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <div class="pro-video-container">
+                <iframe id="proVideoIframe"
+                    src=""
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+                </iframe>
+            </div>
+            <div class="pro-video-footer">
+                <h3>Unlock Pro Tools</h3>
+                <p>Get unlimited access to all learning tools, CPD certificates, and more.</p>
+                <button class="pro-video-upgrade-btn" onclick="handleUpgrade()">
+                    <i class="bi bi-star-fill"></i>
+                    Upgrade to Pro — £4.99/month
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- ==================== FOOTER ==================== -->
-<footer class="member-footer">
-    <div class="container">
-        <div class="footer-brand">
-            <span class="brand-text">
-                <span class="brand-para">para</span><span class="brand-mind">mind</span>
-            </span>
+    <footer class="member-footer">
+        <div class="container">
+            <div class="footer-brand">
+                <span class="brand-text">
+                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
+                </span>
+            </div>
+            <div class="footer-links">
+                <a href="terms.html">Terms of Service</a>
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="purpose.html">Intended Purpose</a>
+                <a href="sources.html">Sources &amp; Citations</a>
+                <a href="contact.html">Contact</a>
+            </div>
+            <p class="footer-copyright">&copy; 2026 Paramind. All rights reserved.</p>
+            <p class="footer-trademark" style="font-size: 0.85rem; color: var(--color-gray-500);">Paramind&#174; is a registered UK trade mark (UK00004321918).</p>
         </div>
-        <div class="footer-links">
-            <a href="terms.html">Terms of Service</a>
-            <a href="privacy.html">Privacy Policy</a>
-            <a href="purpose.html">Intended Purpose</a>
-            <a href="sources.html">Sources &amp; Citations</a>
-            <a href="contact.html">Contact</a>
-        </div>
-        <p class="footer-copyright">&copy; 2026 Paramind. All rights reserved.</p>
-        <p class="footer-trademark" style="font-size: 0.85rem; color: var(--color-gray-500);">Paramind&#174; is a registered UK trade mark (UK00004321918).</p>
-    </div>
-</footer>
+    </footer>
 
     <!-- ==================== SCRIPTS ==================== -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -1844,132 +503,119 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/menu-v2.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/personalise.js"></script>
     <script src="js/news-popup.js"></script>
     <script src="js/upgrade-modal.js"></script>
-    
-    <!-- ==================== VISUAL ENGINE ==================== -->
+
+    <!-- ==================== SCROLL REVEAL ==================== -->
     <script>
-     (function() {
-        'use strict';
-        
-        /* ========== 2. SCROLL REVEALS ========== */
-        const rObs = new IntersectionObserver((entries) => {
-            entries.forEach((e, i) => {
-                if (e.isIntersecting) {
-                    setTimeout(() => e.target.classList.add('revealed'), (e.target.dataset.rd || i*80));
-                    rObs.unobserve(e.target);
-                }
-            });
-        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-        document.querySelectorAll('.tool-card, .upgrade-banner, .updates-section').forEach((el, i) => { el.dataset.rd = i*80; rObs.observe(el); });
-        
-        /* ========== 3. MAGNETIC CARD HOVER ========== */
-        document.querySelectorAll('.tool-card').forEach(card => {
-            const glow = card.querySelector('.card-glow');
-            card.addEventListener('mousemove', e => {
-                const r = card.getBoundingClientRect();
-                const x = e.clientX - r.left, y = e.clientY - r.top;
-                const rx = ((y - r.height/2)/(r.height/2))*-5;
-                const ry = ((x - r.width/2)/(r.width/2))*5;
-                card.style.transform = `translateY(-8px) perspective(600px) rotateX(${rx}deg) rotateY(${ry}deg)`;
-                if (glow) { glow.style.left = (x-100)+'px'; glow.style.top = (y-100)+'px'; }
-            });
-            card.addEventListener('mouseleave', () => { card.style.transform = ''; });
-        });
-        
-        
-    })();
+        (function() {
+            'use strict';
+            const targets = document.querySelectorAll('.triptych-panel, .upgrade-banner');
+            const obs = new IntersectionObserver((entries) => {
+                entries.forEach((e, i) => {
+                    if (e.isIntersecting) {
+                        setTimeout(() => e.target.classList.add('revealed'), i * 140);
+                        obs.unobserve(e.target);
+                    }
+                });
+            }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+            targets.forEach(t => obs.observe(t));
+        })();
     </script>
-    
-    <!-- ==================== FIREBASE & APP LOGIC ==================== -->
+
+    <!-- ==================== LANDING-SPECIFIC LOGIC ==================== -->
+    <!-- Greeting + first name + Pro badge hiding live in js/personalise.js.
+         This block covers landing-only behaviour:
+           - URL param checks (payment success, upgrade)
+           - Pro detection to show/hide the upgrade banner
+           - Apple silent restore (iOS Capacitor only)
+           - Pro video modal handlers (close / Escape / click-outside)
+           - openProVideoModal() helper for future triggers -->
     <script>
-        // ==================== FIREBASE CONFIG ====================
-        const firebaseConfig = {
-            apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
-            authDomain: "paramind-64b8e.firebaseapp.com",
-            projectId: "paramind-64b8e",
-            storageBucket: "paramind-64b8e.firebasestorage.app",
-            messagingSenderId: "452173393964",
-            appId: "1:452173393964:web:8599c0fe1983a6f441e189",
-            measurementId: "G-GW385S6L0L"
-        };
+        (function() {
+            'use strict';
 
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+            const firebaseConfig = {
+                apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
+                authDomain: "paramind-64b8e.firebaseapp.com",
+                projectId: "paramind-64b8e",
+                storageBucket: "paramind-64b8e.firebasestorage.app",
+                messagingSenderId: "452173393964",
+                appId: "1:452173393964:web:8599c0fe1983a6f441e189",
+                measurementId: "G-GW385S6L0L"
+            };
+            try {
+                if (!firebase.apps || !firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+            } catch (e) { /* already initialised — fine */ }
 
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+            const auth = firebase.auth();
+            const db   = firebase.firestore();
 
-        // ==================== STATE ====================
-        let isPro = false;
-        let userData = null;
+            // ==================== URL PARAMS ====================
+            const urlParams = new URLSearchParams(window.location.search);
 
-        // ==================== DOM ELEMENTS ====================
-        const userFirstNameEl = document.getElementById('userFirstName');
-        const userTrustEl = document.getElementById('userTrust');
-        const proBadgeEl = document.getElementById('proBadge');
-        const upgradeBannerEl = document.getElementById('upgradeBanner');
+            if (urlParams.get('success') === 'true') {
+                const banner = document.getElementById('paymentSuccessBanner');
+                if (banner) {
+                    banner.classList.add('show');
+                    setTimeout(() => {
+                        banner.style.animation = 'none';
+                        banner.style.opacity = '0';
+                        banner.style.transition = 'opacity 0.5s ease';
+                        setTimeout(() => banner.classList.remove('show'), 500);
+                    }, 10000);
+                }
+                window.history.replaceState({}, document.title, 'landing.html');
+            }
 
-        // Pro badge elements on cards
-        const connectionsProBadge = document.getElementById('connectionsProBadge');
-        const majorIncidentProBadge = document.getElementById('majorIncidentProBadge');
-        const drugsProBadge = document.getElementById('drugsProBadge');
-        const atmistProBadge = document.getElementById('atmistProBadge');
-        const ecgProBadge = document.getElementById('ecgProBadge');
-        const cpdProBadge = document.getElementById('cpdProBadge');
-        const bonelabProBadge = document.getElementById('bonelabProBadge');
-        const bloodlabProBadge = document.getElementById('bloodlabProBadge');
-        const interviewProBadge = document.getElementById('interviewProBadge');
-        const atcProBadge = document.getElementById('atcProBadge');
+            if (urlParams.get('upgrade') === 'true') {
+                setTimeout(() => {
+                    if (typeof window.handleUpgrade === 'function') window.handleUpgrade();
+                }, 500);
+            }
 
-        // ==================== AUTH STATE ====================
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
+            // ==================== AUTH + PRO STATE ====================
+            auth.onAuthStateChanged(async function(user) {
+                if (!user) return; // personalise.js handles the redirect
+
                 try {
                     const doc = await db.collection('users').doc(user.uid).get();
-                    if (doc.exists) {
-                        userData = doc.data();
-                        // Pro if active, OR if cancelled but still within their paid access period
-                        const appleAccessExpiry = userData.accessExpiresAt ? new Date(userData.accessExpiresAt) : null;
-                        isPro = userData.subscriptionStatus === 'active' ||
-                                userData.isPro === true ||
-                                (appleAccessExpiry && appleAccessExpiry > new Date());
-                        updateUI();
+                    if (!doc.exists) return;
+                    const data = doc.data();
 
-                        // ==================== SILENT APPLE RESTORE ====================
-                        // If this user is on free tier and we are running on iOS,
-                        // silently check Apple for any existing subscription.
-                        // This recovers users who purchased before registering.
-                        if (!isPro &&
-                            window.Capacitor &&
-                            window.Capacitor.isNativePlatform &&
-                            window.Capacitor.isNativePlatform() &&
-                            window.Capacitor.getPlatform &&
-                            window.Capacitor.getPlatform() === 'ios') {
+                    const appleAccessExpiry = data.accessExpiresAt ? new Date(data.accessExpiresAt) : null;
+                    let isPro = data.subscriptionStatus === 'active'
+                             || data.isPro === true
+                             || (appleAccessExpiry && appleAccessExpiry > new Date());
 
-                            (async () => {
-                                try {
-                                    const NativePurchases = window.Capacitor.Plugins.NativePurchases;
-                                    if (!NativePurchases) return;
+                    const upgradeBanner = document.getElementById('upgradeBanner');
+                    if (upgradeBanner) {
+                        upgradeBanner.style.display = isPro ? 'none' : '';
+                    }
 
-                                    // Step 1: Tell Apple to restore — mirrors the working restore button
-                                    await NativePurchases.restorePurchases();
+                    // ==================== SILENT APPLE RESTORE (iOS only) ====================
+                    if (!isPro
+                        && window.Capacitor
+                        && window.Capacitor.isNativePlatform
+                        && window.Capacitor.isNativePlatform()
+                        && window.Capacitor.getPlatform
+                        && window.Capacitor.getPlatform() === 'ios') {
 
-                                    // Step 2: getPurchases() checks current entitlements — more reliable than restorePurchases() result
-                                    const purchases = await NativePurchases.getPurchases({});
-                                    const allTx = (purchases && purchases.purchases) ? purchases.purchases : [];
-
-                                    // Step 3: Find a paramind subscription in the results
-                                    const activeSub = allTx.find(function(tx) {
-                                        var id = tx.productIdentifier || '';
-                                        return id === 'paramind_pro_monthly' || id === 'paramind_pro_annual';
-                                    });
-                                    if (!activeSub) return;
-
+                        try {
+                            const NativePurchases = window.Capacitor.Plugins.NativePurchases;
+                            if (NativePurchases) {
+                                await NativePurchases.restorePurchases();
+                                const purchases = await NativePurchases.getPurchases({});
+                                const allTx = (purchases && purchases.purchases) ? purchases.purchases : [];
+                                const activeSub = allTx.find(function(tx) {
+                                    const id = tx.productIdentifier || '';
+                                    return id === 'paramind_pro_monthly' || id === 'paramind_pro_annual';
+                                });
+                                if (activeSub) {
                                     console.log('Silent restore found active Apple subscription:', activeSub.productIdentifier);
-
-                                    // Step 4: Update Firestore
                                     await db.collection('users').doc(user.uid).update({
                                         subscriptionStatus: 'active',
                                         subscriptionPlatform: 'apple',
@@ -1978,292 +624,63 @@
                                         subscriptionUpdatedAt: new Date().toISOString(),
                                         restoredSilentlyOnLogin: true
                                     });
-
-                                    // Step 5: Update local state and refresh dashboard
                                     isPro = true;
-                                    userData.subscriptionStatus = 'active';
-                                    updateUI();
+                                    if (upgradeBanner) upgradeBanner.style.display = 'none';
                                     console.log('Silent restore complete — user upgraded to Pro');
-
-                                } catch (restoreErr) {
-                                    // Completely silent — never show an error to the user
-                                    console.log('Silent restore check completed with no action:', restoreErr.message);
                                 }
-                            })();
+                            }
+                        } catch (restoreErr) {
+                            console.log('Silent restore check completed with no action:', restoreErr && restoreErr.message);
                         }
-                        // ==================== END SILENT APPLE RESTORE ====================
+                    }
+                } catch (err) {
+                    console.warn('landing: could not load user state:', err);
+                }
+            });
 
+            // ==================== HANDLE UPGRADE FALLBACK ====================
+            // upgrade-modal.js overrides window.handleUpgrade on DOMContentLoaded
+            // to show its plan picker. This is a safety net in case that fails.
+            if (typeof window.handleUpgrade !== 'function') {
+                window.handleUpgrade = function() {
+                    if (typeof window.showUpgradeModal === 'function') {
+                        window.showUpgradeModal();
                     } else {
-                        console.log('No user document found');
-                        userTrustEl.textContent = 'Setup required';
+                        console.warn('handleUpgrade called but no modal handler available.');
                     }
-                } catch (error) {
-                    console.error('Error fetching user data:', error);
-                    userTrustEl.textContent = 'Error loading';
+                };
+            }
+
+            // ==================== PRO VIDEO MODAL HANDLERS ====================
+            (function() {
+                const overlay  = document.getElementById('proVideoOverlay');
+                const iframe   = document.getElementById('proVideoIframe');
+                const closeBtn = document.getElementById('proVideoClose');
+                if (!overlay || !iframe || !closeBtn) return;
+
+                function closeVideoModal() {
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                    iframe.src = '';
                 }
-            } else {
-                window.location.href = 'login.html';
-            }
-        });
-
-        // ==================== UPDATE UI ====================
-        function updateUI() {
-            // Update greeting based on time of day
-            const hour = new Date().getHours();
-            const greetingEl = document.getElementById('heroGreeting');
-            const emojiEl = document.getElementById('greetingEmoji');
-            if (greetingEl && emojiEl) {
-                if (hour < 12) {
-                    greetingEl.textContent = 'Good morning';
-                    emojiEl.textContent = '👋';
-                } else if (hour < 17) {
-                    greetingEl.textContent = 'Good afternoon';
-                    emojiEl.textContent = '👋';
-                } else if (hour < 21) {
-                    greetingEl.textContent = 'Good evening';
-                    emojiEl.textContent = '👋';
-                } else {
-                    greetingEl.textContent = 'Burning the midnight oil';
-                    emojiEl.textContent = '👋';
-                }
-            }
-
-            // Update learning streak
-            updateStreak();
-
-            // Update first name
-            if (userData.firstName) {
-                userFirstNameEl.textContent = userData.firstName;
-            } else if (userData.name) {
-                userFirstNameEl.textContent = userData.name.split(' ')[0];
-            } else {
-                userFirstNameEl.textContent = 'there';
-            }
-            
-            // Update trust name
-            if (userData.trust || userData.trustName) {
-                userTrustEl.textContent = userData.trust || userData.trustName;
-            } else {
-                userTrustEl.textContent = 'No trust set';
-            }
-
-            // Pro status
-            if (isPro) {
-                proBadgeEl.style.display = 'inline-flex';
-                upgradeBannerEl.style.display = 'none';
-                
-                if (connectionsProBadge) connectionsProBadge.style.display = 'none';
-                if (majorIncidentProBadge) majorIncidentProBadge.style.display = 'none';
-                if (drugsProBadge) drugsProBadge.style.display = 'none';
-                if (atmistProBadge) atmistProBadge.style.display = 'none';
-                if (ecgProBadge) ecgProBadge.style.display = 'none';
-                if (cpdProBadge) cpdProBadge.style.display = 'none';
-                if (bonelabProBadge) bonelabProBadge.style.display = 'none';
-                if (bloodlabProBadge) bloodlabProBadge.style.display = 'none';
-                if (interviewProBadge) interviewProBadge.style.display = 'none';
-                if (atcProBadge) atcProBadge.style.display = 'none';
-                
-                document.querySelectorAll('.tool-card').forEach(card => {
-                    card.classList.remove('locked');
+                closeBtn.addEventListener('click', closeVideoModal);
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === overlay) closeVideoModal();
                 });
-            } else {
-                proBadgeEl.style.display = 'none';
-                upgradeBannerEl.style.display = 'block';
-                
-                document.getElementById('connectionsCard')?.classList.add('locked');
-                document.getElementById('drugsCard')?.classList.add('locked');
-                document.getElementById('atmistCard')?.classList.add('locked');
-                document.getElementById('ecgCard')?.classList.add('locked');
-                document.getElementById('cpdCard')?.classList.add('locked');
-                document.getElementById('bonelabCard')?.classList.add('locked');
-                document.getElementById('bloodlabCard')?.classList.add('locked');
-                 document.getElementById('interviewCard')?.classList.add('locked');
-            }
-        }
-
-        // ==================== LEARNING STREAK ====================
-        function updateStreak() {
-            try {
-                const today = new Date().toDateString();
-                const streakKey = 'paramind_streak_days';
-                let days = JSON.parse(localStorage.getItem(streakKey) || '[]');
-                
-                // Add today if not already recorded
-                if (!days.includes(today)) {
-                    days.push(today);
-                }
-                
-                // Keep only last 365 days
-                if (days.length > 365) days = days.slice(-365);
-                localStorage.setItem(streakKey, JSON.stringify(days));
-                
-                // Calculate consecutive streak (counting backwards from today)
-                let streak = 0;
-                const now = new Date();
-                for (let i = 0; i < 365; i++) {
-                    const checkDate = new Date(now);
-                    checkDate.setDate(checkDate.getDate() - i);
-                    if (days.includes(checkDate.toDateString())) {
-                        streak++;
-                    } else {
-                        break;
-                    }
-                }
-                
-                // Update UI
-                const streakChip = document.getElementById('streakChip');
-                const streakCount = document.getElementById('streakCount');
-                const streakIcon = document.getElementById('streakIcon');
-                
-                if (streakChip && streakCount && streak > 0) {
-                    streakCount.textContent = streak;
-                    // Plural handling
-                    streakChip.querySelector('span:last-child').innerHTML = 
-                        '<span id="streakCount">' + streak + '</span> day' + (streak !== 1 ? 's' : '') + ' streak';
-                    
-                    // Different icons for different streak lengths
-                    if (streak >= 30) {
-                        streakIcon.textContent = '💎';
-                    } else if (streak >= 14) {
-                        streakIcon.textContent = '⚡';
-                    } else if (streak >= 7) {
-                        streakIcon.textContent = '🔥';
-                    } else {
-                        streakIcon.textContent = '✨';
-                    }
-                    
-                    streakChip.style.display = 'inline-flex';
-                }
-            } catch (e) {
-                console.warn('Streak tracking error:', e);
-            }
-        }
-
-        // ==================== UPGRADE HANDLER ====================
-        async function createCheckoutSession() {
-            try {
-                const user = auth.currentUser;
-                if (!user) { alert('Please sign in to upgrade'); return; }
-                
-                const token = await user.getIdToken();
-                const baseUrl = window.paramind?.CONFIG?.api?.baseUrl || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
-                const checkoutEndpoint = window.paramind?.CONFIG?.api?.createCheckout || '/createCheckoutSession';
-                
-                const response = await fetch(`${baseUrl}${checkoutEndpoint}`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') closeVideoModal();
                 });
-                
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error || 'Failed to create checkout session');
-                window.location.href = data.url;
-            } catch (error) {
-                console.error('Checkout error:', error);
-                alert('Failed to start checkout. Please try again.');
-            }
-        }
-        
-        function handleUpgrade() {
-            createCheckoutSession();
-        }
 
-
-// ==================== PRO VIDEO MODAL ====================
-(function() {
-    const YOUTUBE_VIDEO_ID = 'lR8qd_BzWcI';
-    const overlay = document.getElementById('proVideoOverlay');
-    const iframe  = document.getElementById('proVideoIframe');
-    const closeBtn = document.getElementById('proVideoClose');
-    
-    // Cards that are PRO-only
-    const proCardIds = ['connectionsCard', 'drugsCard', 'atmistCard', 'ecgCard', 'cpdCard', 'bonelabCard', 'bloodlabCard', 'interviewCard'];
-    
-    function openVideoModal(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        iframe.src = `https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&rel=0&modestbranding=1`;
-        overlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-    
-    function closeVideoModal() {
-        overlay.classList.remove('active');
-        document.body.style.overflow = '';
-        // Stop the video by clearing the src
-        iframe.src = '';
-    }
-    
-    // Close button
-    closeBtn.addEventListener('click', closeVideoModal);
-    
-    // Click outside modal to close
-    overlay.addEventListener('click', function(e) {
-        if (e.target === overlay) closeVideoModal();
-    });
-    
-    // Escape key to close
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') closeVideoModal();
-    });
-    
-    // Attach click interceptors to locked PRO cards
-    // We need to wait until after auth state resolves and cards get .locked class
-    // So we use a MutationObserver + periodic check
-    function attachProCardListeners() {
-        proCardIds.forEach(function(cardId) {
-            const card = document.getElementById(cardId);
-            if (card && card.classList.contains('locked')) {
-                // Remove existing href behaviour and add video modal
-                card.addEventListener('click', function(e) {
-                    if (this.classList.contains('locked')) {
-                        openVideoModal(e);
-                    }
-                });
-            }
-        });
-    }
-    
-    // Check periodically until cards are locked (auth resolves async)
-    let checkCount = 0;
-    const checker = setInterval(function() {
-        checkCount++;
-        const anyLocked = proCardIds.some(function(id) {
-            const el = document.getElementById(id);
-            return el && el.classList.contains('locked');
-        });
-        if (anyLocked || checkCount > 20) {
-            clearInterval(checker);
-            attachProCardListeners();
-        }
-    }, 250);
-})();
-
-
-        // ==================== CHECK FOR URL PARAMS ====================
-        const urlParams = new URLSearchParams(window.location.search);
-        
-        // Check for successful payment
-        if (urlParams.get('success') === 'true') {
-            const banner = document.getElementById('paymentSuccessBanner');
-            if (banner) {
-                banner.classList.add('show');
-                setTimeout(() => {
-                    banner.style.animation = 'none';
-                    banner.style.opacity = '0';
-                    banner.style.transition = 'opacity 0.5s ease';
-                    setTimeout(() => banner.classList.remove('show'), 500);
-                }, 10000);
-            }
-            window.history.replaceState({}, document.title, 'landing.html');
-        }
-        
-        // If user came from menu upgrade button
-        if (urlParams.get('upgrade') === 'true') {
-            setTimeout(() => { handleUpgrade(); }, 500);
-        }
+                // Helper for future triggers: window.openProVideoModal()
+                const YOUTUBE_VIDEO_ID = 'lR8qd_BzWcI';
+                window.openProVideoModal = function() {
+                    iframe.src = `https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&rel=0&modestbranding=1`;
+                    overlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                };
+            })();
+        })();
     </script>
+
 </body>
 </html>
