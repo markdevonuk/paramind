@@ -13,6 +13,9 @@
     <!-- Menu CSS -->
     <link rel="stylesheet" href="css/menu-v2.css">
 
+    <!-- Shared hero component (avatar + greeting) -->
+    <link rel="stylesheet" href="css/hero.css">
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -58,150 +61,6 @@
             letter-spacing: 0.5px;
         }
         .test-banner strong { font-weight: 600; }
-
-        /* ================================================================
-           HERO (copied from landing.html so avatar + dynamic chips render)
-           ================================================================ */
-        .hero-section {
-            text-align: center;
-            padding: 0.5rem 0 0.25rem;
-            position: relative;
-        }
-
-        /* Avatar with orbiting ring + heartbeat pulses */
-        .avatar-stage {
-            position: relative;
-            display: inline-block;
-            width: 120px; height: 120px;
-            margin-bottom: 0.75rem;
-        }
-        .orbit-ring {
-            position: absolute; inset: -6px;
-            border-radius: 50%;
-            border: 2px dashed rgba(43,138,156,0.2);
-            animation: orbitSpin 20s linear infinite;
-        }
-        .orbit-dot {
-            position: absolute;
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            top: -4px; left: 50%; margin-left: -4px;
-        }
-        .orbit-dot.dot-teal  { background: var(--color-teal); box-shadow: 0 0 12px rgba(43,138,156,0.6); }
-        .orbit-dot.dot-green { background: var(--color-green); box-shadow: 0 0 12px rgba(92,184,92,0.6); top: auto; bottom: -4px; }
-        .orbit-dot.dot-gold  { background: #FFD700; box-shadow: 0 0 12px rgba(255,215,0,0.6); top: 50%; left: -4px; margin-left: 0; }
-        @keyframes orbitSpin { to { transform: rotate(360deg); } }
-
-        .avatar-glow {
-            position: absolute; inset: -14px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(43,138,156,0.12) 0%, transparent 70%);
-            animation: glowPulse 3s ease-in-out infinite;
-        }
-        @keyframes glowPulse {
-            0%, 100% { transform: scale(1); opacity: 0.6; }
-            50%      { transform: scale(1.15); opacity: 1; }
-        }
-
-        .heartbeat-ring {
-            position: absolute; inset: 0;
-            border-radius: 50%;
-            border: 2px solid rgba(43,138,156,0.25);
-            animation: heartbeatPulse 2.5s cubic-bezier(0.4,0,0.2,1) infinite;
-        }
-        .heartbeat-ring:nth-child(2) { animation-delay: 0.8s; }
-        .heartbeat-ring:nth-child(3) { animation-delay: 1.6s; }
-        @keyframes heartbeatPulse {
-            0%   { transform: scale(1); opacity: 0.6; }
-            50%  { transform: scale(1.5); opacity: 0; }
-            100% { transform: scale(1.5); opacity: 0; }
-        }
-
-        .hollie-avatar {
-            width: 100px; height: 100px;
-            border-radius: 50%; overflow: hidden;
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 2;
-            border: 3px solid #fff;
-            box-shadow: 0 6px 24px rgba(43,138,156,0.2);
-        }
-        .hollie-avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-        .hollie-badge {
-            display: inline-flex; align-items: center; gap: 0.4rem;
-            background: rgba(43,138,156,0.08);
-            color: var(--color-teal);
-            padding: 0.35rem 0.85rem;
-            border-radius: var(--radius-full);
-            font-size: 0.8rem; font-weight: 600;
-            margin-bottom: 0.4rem;
-            border: 1px solid rgba(43,138,156,0.12);
-        }
-
-        /* Animated gradient heading */
-        .hero-greeting {
-            font-size: 1.5rem; font-weight: 800;
-            margin-bottom: 0.2rem; line-height: 1.3;
-            color: var(--color-gray-800);
-        }
-        .hero-greeting .gradient-name {
-            background: linear-gradient(135deg, #2B8A9C 0%, #5CB85C 50%, #2B8A9C 100%);
-            background-size: 200% auto;
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: gradientText 4s ease infinite;
-        }
-        @keyframes gradientText {
-            0%   { background-position: 0% center; }
-            50%  { background-position: 100% center; }
-            100% { background-position: 0% center; }
-        }
-
-        .hero-subtitle {
-            color: var(--color-gray-500);
-            margin: 0 auto 0.25rem; font-size: 0.95rem;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        /* User info row */
-        .user-info-row {
-            display: flex; flex-wrap: wrap;
-            justify-content: center; gap: 0.5rem;
-        }
-        .info-chip {
-            display: inline-flex; align-items: center; gap: 0.4rem;
-            background: rgba(248,249,250,0.8);
-            backdrop-filter: blur(8px);
-            border: 1px solid var(--color-gray-200);
-            padding: 0.4rem 0.85rem;
-            border-radius: var(--radius-full);
-            font-size: 0.8rem; color: var(--color-gray-600);
-            transition: all 0.3s ease;
-        }
-        .info-chip:hover { border-color: var(--color-teal); background: rgba(43,138,156,0.04); }
-        .info-chip i { color: var(--color-teal); }
-        .info-chip.pro-chip {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            border: none; color: #1a1a2e; font-weight: 700;
-        }
-        .info-chip.pro-chip i { color: #1a1a2e; }
-        .info-chip.streak-chip {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(239, 68, 68, 0.08) 100%);
-            border-color: rgba(245, 158, 11, 0.25);
-            color: #d97706;
-            font-weight: 600;
-        }
-
-        /* Staggered page-load reveal animations (for .page-load-N classes) */
-        .page-load-1 { opacity: 0; animation: pageReveal 0.7s 0.1s ease both; }
-        .page-load-2 { opacity: 0; animation: pageReveal 0.7s 0.2s ease both; }
-        .page-load-3 { opacity: 0; animation: pageReveal 0.7s 0.35s ease both; }
-        .page-load-4 { opacity: 0; animation: pageReveal 0.7s 0.5s ease both; }
-        .page-load-5 { opacity: 0; animation: pageReveal 0.7s 0.65s ease both; }
-        @keyframes pageReveal { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         /* ================================================================
            TRIPTYCH — three animated section panels
@@ -530,51 +389,9 @@
         })();
     </script>
 
-    <!-- ==================== PERSONALISED GREETING ==================== -->
-    <script>
-        (function() {
-            'use strict';
-            // Firebase is initialised by menu-v2.js — wait briefly if not ready yet.
-            function start() {
-                if (!window.firebase || !firebase.auth) { setTimeout(start, 100); return; }
-                const auth = firebase.auth();
-                const db = firebase.firestore();
+    <!-- Shared personalisation script (auth + greeting + first name) -->
+    <script src="js/personalise.js"></script>
 
-                auth.onAuthStateChanged(async function(user) {
-                    if (!user) {
-                        window.location.href = 'login.html';
-                        return;
-                    }
-
-                    // Time-of-day greeting (matches landing.html behaviour)
-                    const greetingEl = document.getElementById('heroGreeting');
-                    const emojiEl    = document.getElementById('greetingEmoji');
-                    const firstNameEl = document.getElementById('userFirstName');
-                    const hour = new Date().getHours();
-                    if (greetingEl && emojiEl) {
-                        if (hour < 12)      { greetingEl.textContent = 'Good morning';                emojiEl.textContent = '👋'; }
-                        else if (hour < 17) { greetingEl.textContent = 'Good afternoon';              emojiEl.textContent = '👋'; }
-                        else if (hour < 21) { greetingEl.textContent = 'Good evening';                emojiEl.textContent = '👋'; }
-                        else                { greetingEl.textContent = 'Burning the midnight oil';    emojiEl.textContent = '👋'; }
-                    }
-
-                    // First name from Firestore
-                    try {
-                        const doc = await db.collection('users').doc(user.uid).get();
-                        if (doc.exists && firstNameEl) {
-                            const data = doc.data();
-                            if (data.firstName)   firstNameEl.textContent = data.firstName;
-                            else if (data.name)   firstNameEl.textContent = data.name.split(' ')[0];
-                            else                  firstNameEl.textContent = 'there';
-                        }
-                    } catch (err) {
-                        console.warn('landing2: could not load profile for greeting:', err);
-                    }
-                });
-            }
-            start();
-        })();
-    </script>
 
 </body>
 </html>
