@@ -270,7 +270,7 @@
             font-size: 0.7rem;
             letter-spacing: 2.5px;
             text-transform: uppercase;
-            opacity: 0.75;
+            color: rgba(255,255,255,0.75);
             margin-bottom: 0.35rem;
         }
         .panel-title {
@@ -280,16 +280,17 @@
             line-height: 1;
             letter-spacing: -0.5px;
             margin: 0;
+            color: #FFFFFF;
         }
         .panel-tagline {
             font-size: 1rem;
-            opacity: 0.92;
+            color: rgba(255,255,255,0.92);
             margin-top: 0.5rem;
             font-weight: 500;
         }
         .panel-tools {
             font-size: 0.82rem;
-            opacity: 0.85;
+            color: rgba(255,255,255,0.85);
             margin-top: 0.9rem;
             line-height: 1.55;
             font-weight: 400;
@@ -418,6 +419,21 @@
                         <circle cx="720" cy="100" r="5"><animate attributeName="opacity" values=".25;1;.25" dur="2.6s" begin="1.3s" repeatCount="indefinite"/></circle>
                         <circle cx="320" cy="60" r="4"><animate attributeName="opacity" values=".15;.85;.15" dur="3.2s" begin=".4s" repeatCount="indefinite"/></circle>
                         <circle cx="820" cy="175" r="4"><animate attributeName="opacity" values=".15;.85;.15" dur="3.2s" begin="1.8s" repeatCount="indefinite"/></circle>
+                    </g>
+                    <!-- Travelling signal pulses along the curves -->
+                    <g fill="#C8F0E0">
+                        <circle r="4" opacity="0">
+                            <animateMotion dur="5s" repeatCount="indefinite" path="M0,130 Q180,70 360,120 T720,90 L920,120"/>
+                            <animate attributeName="opacity" values="0;0.95;0.95;0" keyTimes="0;0.08;0.92;1" dur="5s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle r="3.5" opacity="0">
+                            <animateMotion dur="6s" begin="1.5s" repeatCount="indefinite" path="M0,160 Q220,200 440,150 T920,170"/>
+                            <animate attributeName="opacity" values="0;0.85;0.85;0" keyTimes="0;0.08;0.92;1" dur="6s" begin="1.5s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle r="3.5" opacity="0">
+                            <animateMotion dur="5.5s" begin="3s" repeatCount="indefinite" path="M0,70 Q130,40 260,65 T520,55 T920,70"/>
+                            <animate attributeName="opacity" values="0;0.85;0.85;0" keyTimes="0;0.08;0.92;1" dur="5.5s" begin="3s" repeatCount="indefinite"/>
+                        </circle>
                     </g>
                 </svg>
                 <div class="panel-veil"></div>
