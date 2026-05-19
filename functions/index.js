@@ -392,7 +392,7 @@ if (session.total_details?.amount_discount > 0) {
         // join date for users who cancel and later resubscribe)
         try {
           const userSnap = await userRef.get();
-          if (!userSnap.exists || !userSnap.data().proSince) {
+          if (!userSnap.exists || userSnap.data().proSince === undefined) {
             updateData.proSince = admin.firestore.FieldValue.serverTimestamp();
             updateData.proSinceSource = "stripe";
           }
@@ -1214,7 +1214,7 @@ exports.verifyApplePurchase = onRequest(
       // join date through restores, renewals, and resubscriptions)
       try {
         const userSnap = await db.collection("users").doc(uid).get();
-        if (!userSnap.exists || !userSnap.data().proSince) {
+        if (!userSnap.exists || userSnap.data().proSince === undefined) {
           updateData.proSince = admin.firestore.FieldValue.serverTimestamp();
           updateData.proSinceSource = "apple";
         }
@@ -1310,7 +1310,7 @@ exports.verifyGooglePurchase = onRequest(
       // join date through restores, renewals, and resubscriptions)
       try {
         const userSnap = await db.collection("users").doc(uid).get();
-        if (!userSnap.exists || !userSnap.data().proSince) {
+        if (!userSnap.exists || userSnap.data().proSince === undefined) {
           updateData.proSince = admin.firestore.FieldValue.serverTimestamp();
           updateData.proSinceSource = "google";
         }
@@ -2365,7 +2365,7 @@ exports.appleServerNotifications = onRequest(
           // already have it from their original subscription, so this only
           // fires for genuine first-time SUBSCRIBED cases that didn't go
           // through verifyApplePurchase)
-          if (!userDoc.data().proSince) {
+          if (userDoc.data().proSince === undefined) {
             renewalUpdate.proSince = admin.firestore.FieldValue.serverTimestamp();
             renewalUpdate.proSinceSource = "apple_notification";
           }
@@ -3213,8 +3213,9 @@ exports.backfillProSince = onRequest(
         const userId = doc.id;
         const data = doc.data();
 
-        // Idempotent: never overwrite an existing proSince
-        if (data.proSince) {
+        // Idempotent: skip if proSince has been touched in any way
+        // (a real Timestamp, OR a null placeholder set by the seeder)
+        if (data.proSince !== undefined) {
           summary.skipped_alreadySet++;
           continue;
         }
@@ -3333,6 +3334,143 @@ exports.backfillProSince = onRequest(
       return res.status(200).json(summary);
     } catch (err) {
       console.error("backfillProSince fatal error:", err);
+      return res.status(500).json({ error: err.message });
+    }
+  }
+);
+
+// ============================================
+// ADMIN: SEED proSince PLACEHOLDERS
+// ============================================
+// Companion to backfillProSince. For active Pro users where proSince could not
+// be derived automatically (Google Play, Apple-without-JWS, unknown platform),
+// writes null placeholder fields so they show up in Firebase Console as
+// editable slots — easier for manual data entry than adding fields from
+// scratch.
+//
+// Sources written:
+//   "pending_apple_manual"   — Apple subscribers without a stored JWS
+//   "pending_google_manual"  — all Google Play subscribers
+//   "pending_unknown"        — active Pro user with no platform marker
+//
+// Filter trick in Firebase Console: filter `users` by
+// proSinceSource == "pending_apple_manual" (or _google_manual) to see only
+// the users still needing manual entry.
+//
+// Trigger (after deploy) from a browser console while logged in:
+//
+//   const t = await firebase.auth().currentUser.getIdToken();
+//   const r = await fetch(
+//     "https://europe-west2-paramind-64b8e.cloudfunctions.net/seedProSincePlaceholders",
+//     {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json", Authorization: `Bearer ${t}` },
+//       body: JSON.stringify({ dryRun: true })
+//     }
+//   );
+//   console.log(await r.json());
+
+exports.seedProSincePlaceholders = onRequest(
+  { cors: true },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+      const uid = await verifyAuth(req);
+      if (uid !== BACKFILL_ADMIN_UID) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+
+      const dryRun = req.body?.dryRun !== false;
+
+      const snap = await db
+        .collection("users")
+        .where("subscriptionStatus", "==", "active")
+        .get();
+
+      const summary = {
+        dryRun,
+        scanned: snap.size,
+        wouldSeed: 0,
+        seeded: 0,
+        skipped_alreadyHasField: 0,
+        seeded_apple: 0,
+        seeded_google: 0,
+        seeded_unknown: 0,
+        errors: 0,
+        details: [],
+      };
+
+      for (const doc of snap.docs) {
+        const userId = doc.id;
+        const data = doc.data();
+
+        // Skip anyone whose proSince field has been touched (real value OR
+        // an existing null placeholder from a previous run of this seeder)
+        if (data.proSince !== undefined) {
+          summary.skipped_alreadyHasField++;
+          continue;
+        }
+
+        // Decide which "pending" source to assign
+        let sourceLabel = null;
+        if (data.subscriptionPlatform === "apple") {
+          sourceLabel = "pending_apple_manual";
+        } else if (data.subscriptionPlatform === "google") {
+          sourceLabel = "pending_google_manual";
+        } else {
+          sourceLabel = "pending_unknown";
+        }
+
+        try {
+          if (dryRun) {
+            summary.wouldSeed++;
+            summary.details.push({
+              userId,
+              email: data.email,
+              proSinceSource: sourceLabel,
+              wouldWrite: true,
+            });
+          } else {
+            await doc.ref.update({
+              proSince: null,
+              proSinceSource: sourceLabel,
+            });
+            summary.seeded++;
+            if (sourceLabel === "pending_apple_manual") summary.seeded_apple++;
+            else if (sourceLabel === "pending_google_manual") summary.seeded_google++;
+            else summary.seeded_unknown++;
+
+            summary.details.push({
+              userId,
+              email: data.email,
+              proSinceSource: sourceLabel,
+              written: true,
+            });
+          }
+        } catch (perUserErr) {
+          summary.errors++;
+          summary.details.push({
+            userId,
+            email: data.email,
+            reason: "exception",
+            message: perUserErr.message,
+          });
+          console.error(`seedProSincePlaceholders error for ${userId}:`, perUserErr);
+        }
+      }
+
+      console.log(
+        `seedProSincePlaceholders finished. dryRun=${dryRun} ` +
+          `scanned=${summary.scanned} seeded=${summary.seeded} ` +
+          `wouldSeed=${summary.wouldSeed} errors=${summary.errors}`
+      );
+
+      return res.status(200).json(summary);
+    } catch (err) {
+      console.error("seedProSincePlaceholders fatal error:", err);
       return res.status(500).json({ error: err.message });
     }
   }
