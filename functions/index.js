@@ -3093,3 +3093,200 @@ exports.trackEbookDownload = onRequest({ cors: true }, async (req, res) => {
     res.status(204).send();
   }
 });
+
+// ============================================
+// ADMIN: BACKFILL proSince
+// ============================================
+// One-off admin tool to populate a `proSince` timestamp on existing Pro users
+// based on the original purchase date held externally (Stripe API for web
+// subscribers; decoded JWS for Apple). Google Play subscribers are intentionally
+// skipped — handle those manually via the Play Console.
+//
+// Safety:
+//   - Gated to a single admin UID
+//   - Idempotent: skips any user that already has `proSince`
+//   - Dry-run by default: only writes to Firestore when dryRun === false
+//
+// Trigger (after deploy) from a browser console while logged in at paramind.co.uk:
+//
+//   const t = await firebase.auth().currentUser.getIdToken();
+//   const r = await fetch(
+//     "https://europe-west2-paramind-app.cloudfunctions.net/backfillProSince",
+//     {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json", Authorization: `Bearer ${t}` },
+//       body: JSON.stringify({ dryRun: true })   // set to false to actually write
+//     }
+//   );
+//   console.log(await r.json());
+
+const BACKFILL_ADMIN_UID = "Yo72GSxxr2TO7ixAYGk2ll0jtLr1";
+
+exports.backfillProSince = onRequest(
+  { cors: true, secrets: ["STRIPE_SECRET_KEY"] },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+      // 1) Auth + admin gate
+      const uid = await verifyAuth(req);
+      if (uid !== BACKFILL_ADMIN_UID) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+
+      // dryRun defaults to true; only `false` actually writes
+      const dryRun = req.body?.dryRun !== false;
+
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+        apiVersion: "2023-10-16",
+      });
+
+      // 2) Pull all currently-active Pro users
+      const snap = await db
+        .collection("users")
+        .where("subscriptionStatus", "==", "active")
+        .get();
+
+      const summary = {
+        dryRun,
+        scanned: snap.size,
+        wouldUpdate: 0,
+        updated: 0,
+        skipped_alreadySet: 0,
+        skipped_google_manual: 0,
+        skipped_apple_missing_jws: 0,
+        skipped_unknown: 0,
+        errors: 0,
+        details: [],
+      };
+
+      for (const doc of snap.docs) {
+        const userId = doc.id;
+        const data = doc.data();
+
+        // Idempotent: never overwrite an existing proSince
+        if (data.proSince) {
+          summary.skipped_alreadySet++;
+          continue;
+        }
+
+        let proSinceDate = null;
+        let source = null;
+
+        try {
+          // -------- Stripe path --------
+          if (data.stripeSubscriptionId) {
+            const sub = await stripe.subscriptions.retrieve(
+              data.stripeSubscriptionId
+            );
+            if (sub && sub.created) {
+              // Stripe `created` is Unix epoch in seconds
+              proSinceDate = new Date(sub.created * 1000);
+              source = "stripe";
+            }
+          }
+
+          // -------- Apple path (decode stored JWS) --------
+          else if (data.appleJws) {
+            const parts = data.appleJws.split(".");
+            if (parts.length === 3) {
+              const payload = JSON.parse(
+                Buffer.from(parts[1], "base64").toString("utf8")
+              );
+              // originalPurchaseDate is ms since epoch
+              if (payload.originalPurchaseDate) {
+                proSinceDate = new Date(payload.originalPurchaseDate);
+                source = "apple_jws";
+              }
+            }
+          }
+
+          // -------- Skip categories --------
+          else if (data.subscriptionPlatform === "google") {
+            summary.skipped_google_manual++;
+            summary.details.push({ userId, email: data.email, reason: "google_manual" });
+            continue;
+          } else if (data.subscriptionPlatform === "apple") {
+            // Apple user but no JWS stored — needs manual handling
+            summary.skipped_apple_missing_jws++;
+            summary.details.push({
+              userId,
+              email: data.email,
+              reason: "apple_missing_jws",
+              appleOriginalTransactionId: data.appleOriginalTransactionId || null,
+            });
+            continue;
+          } else {
+            // Active Pro user with no recognised platform marker
+            summary.skipped_unknown++;
+            summary.details.push({
+              userId,
+              email: data.email,
+              reason: "no_platform_identifier",
+            });
+            continue;
+          }
+
+          // Defensive: if we reached here but didn't manage to derive a date
+          if (!proSinceDate || isNaN(proSinceDate.getTime())) {
+            summary.errors++;
+            summary.details.push({
+              userId,
+              email: data.email,
+              reason: "could_not_derive_date",
+              source,
+            });
+            continue;
+          }
+
+          // Write (or pretend to)
+          if (dryRun) {
+            summary.wouldUpdate++;
+            summary.details.push({
+              userId,
+              email: data.email,
+              source,
+              proSince: proSinceDate.toISOString(),
+              wouldWrite: true,
+            });
+          } else {
+            await doc.ref.update({
+              proSince: admin.firestore.Timestamp.fromDate(proSinceDate),
+              proSinceSource: source,
+            });
+            summary.updated++;
+            summary.details.push({
+              userId,
+              email: data.email,
+              source,
+              proSince: proSinceDate.toISOString(),
+              written: true,
+            });
+          }
+        } catch (perUserErr) {
+          summary.errors++;
+          summary.details.push({
+            userId,
+            email: data.email,
+            reason: "exception",
+            message: perUserErr.message,
+          });
+          console.error(`backfillProSince error for ${userId}:`, perUserErr);
+        }
+      }
+
+      console.log(
+        `backfillProSince finished. dryRun=${dryRun} scanned=${summary.scanned} ` +
+          `updated=${summary.updated} wouldUpdate=${summary.wouldUpdate} ` +
+          `errors=${summary.errors}`
+      );
+
+      return res.status(200).json(summary);
+    } catch (err) {
+      console.error("backfillProSince fatal error:", err);
+      return res.status(500).json({ error: err.message });
+    }
+  }
+);
