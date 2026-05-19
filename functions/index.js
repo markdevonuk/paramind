@@ -388,6 +388,18 @@ if (session.total_details?.amount_discount > 0) {
     }
 }
 
+        // Set proSince on first activation (never overwrite — protects original
+        // join date for users who cancel and later resubscribe)
+        try {
+          const userSnap = await userRef.get();
+          if (!userSnap.exists || !userSnap.data().proSince) {
+            updateData.proSince = admin.firestore.FieldValue.serverTimestamp();
+            updateData.proSinceSource = "stripe";
+          }
+        } catch (proSinceErr) {
+          console.error(`proSince check failed for ${uid}:`, proSinceErr.message);
+        }
+
         await userRef.update(updateData);
         console.log(`Checkout completed for user: ${uid}`);
     }
@@ -1198,6 +1210,18 @@ exports.verifyApplePurchase = onRequest(
         updateData.appleJws = jwsRepresentation || null;
       }
 
+      // Set proSince on first activation (never overwrite — protects original
+      // join date through restores, renewals, and resubscriptions)
+      try {
+        const userSnap = await db.collection("users").doc(uid).get();
+        if (!userSnap.exists || !userSnap.data().proSince) {
+          updateData.proSince = admin.firestore.FieldValue.serverTimestamp();
+          updateData.proSinceSource = "apple";
+        }
+      } catch (proSinceErr) {
+        console.error(`proSince check failed for ${uid}:`, proSinceErr.message);
+      }
+
       await db.collection("users").doc(uid).update(updateData);
 
       console.log(`Apple purchase verified for user ${uid}: ${productId} (${plan})${restored ? ' [restored]' : ''}`);
@@ -1280,6 +1304,18 @@ exports.verifyGooglePurchase = onRequest(
 
       if (restored) {
         updateData.googleRestoredAt = admin.firestore.FieldValue.serverTimestamp();
+      }
+
+      // Set proSince on first activation (never overwrite — protects original
+      // join date through restores, renewals, and resubscriptions)
+      try {
+        const userSnap = await db.collection("users").doc(uid).get();
+        if (!userSnap.exists || !userSnap.data().proSince) {
+          updateData.proSince = admin.firestore.FieldValue.serverTimestamp();
+          updateData.proSinceSource = "google";
+        }
+      } catch (proSinceErr) {
+        console.error(`proSince check failed for ${uid}:`, proSinceErr.message);
       }
 
       await db.collection("users").doc(uid).update(updateData);
@@ -2317,13 +2353,24 @@ exports.appleServerNotifications = onRequest(
         case 'DID_RENEW':
         case 'SUBSCRIBED': {
           // Subscription renewed or new subscription — ensure user is active
-          await userDoc.ref.update({
+          const renewalUpdate = {
             subscriptionStatus: 'active',
             accessExpiresAt: null,
             cancelledAt: null,
             appleOriginalTransactionId: originalTransactionId,
             subscriptionUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
-          });
+          };
+
+          // Set proSince on first activation only (DID_RENEW users will
+          // already have it from their original subscription, so this only
+          // fires for genuine first-time SUBSCRIBED cases that didn't go
+          // through verifyApplePurchase)
+          if (!userDoc.data().proSince) {
+            renewalUpdate.proSince = admin.firestore.FieldValue.serverTimestamp();
+            renewalUpdate.proSinceSource = "apple_notification";
+          }
+
+          await userDoc.ref.update(renewalUpdate);
           console.log(`Apple notification: renewed/subscribed for user ${userDoc.id}`);
           if (notificationType === 'SUBSCRIBED') {
             const userEmail = userDoc.data().email || 'unknown';
