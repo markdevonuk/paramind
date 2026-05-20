@@ -103,6 +103,46 @@
             color: #2B8A9C;
         }
 
+        /* Image hover indicator + floating resize toolbar */
+        .email-editor .ql-editor img {
+            cursor: pointer;
+            transition: outline 0.1s;
+        }
+        .email-editor .ql-editor img:hover {
+            outline: 2px solid #2B8A9C;
+            outline-offset: 2px;
+        }
+        .email-image-resizer {
+            position: fixed;
+            z-index: 1050;
+            background: #1a237e;
+            color: white;
+            border-radius: 6px;
+            padding: 4px;
+            display: none;
+            gap: 2px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            font-size: 0.78rem;
+            white-space: nowrap;
+        }
+        .email-image-resizer.is-open { display: flex; }
+        .email-image-resizer button {
+            background: transparent;
+            border: 0;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: inherit;
+        }
+        .email-image-resizer button:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .email-image-resizer button.active {
+            background: #2B8A9C;
+        }
+
         /* Preview pane */
         .email-preview {
             background: #ffffff;

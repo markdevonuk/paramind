@@ -63,6 +63,9 @@ export async function initAdminEmails({ db, storage, adminEmail }) {
     buildEditor('newProMember',  '#newProMember-editor',  false);
     buildEditor('general',       '#general-editor',       true);  // with {firstName} button
 
+    // Set up the shared image-resize toolbar listeners (once)
+    attachGlobalImageListeners();
+
     // Load existing template content from Firestore
     await Promise.all([
         loadTemplate('newMember'),
@@ -151,11 +154,22 @@ function buildEditor(templateId, selector, includeFirstNameButton) {
     });
 
     TEMPLATES[templateId].quill = quill;
+
+    // Per-editor click handler — show resize toolbar when an image is clicked
+    quill.root.addEventListener('click', (e) => {
+        if (e.target.tagName === 'IMG') {
+            showResizeToolbar(e.target);
+        } else {
+            hideResizeToolbar();
+        }
+    });
 }
 
 
 // ============================================================
 // IMAGE UPLOAD HANDLER (per template)
+// Pipeline: pick file -> client-side compress to max 600px wide
+// -> upload to Storage -> embed URL in editor.
 // ============================================================
 function quillImageHandler(templateId) {
     const quill = TEMPLATES[templateId].quill;
@@ -174,7 +188,8 @@ function quillImageHandler(templateId) {
         quill.insertText(range.index, '⏳ uploading…\n', 'user');
 
         try {
-            const url = await uploadFile(file, 'email-templates/images');
+            const processed = await compressImage(file, 600);
+            const url = await uploadFile(processed, 'email-templates/images');
             quill.deleteText(range.index, '⏳ uploading…\n'.length, 'user');
             quill.insertEmbed(range.index, 'image', url, 'user');
             quill.setSelection(range.index + 1);
@@ -185,6 +200,147 @@ function quillImageHandler(templateId) {
         }
     };
     input.click();
+}
+
+// Client-side image compression. Returns a File (possibly the original
+// if no resize was needed, or a new compressed File).
+// GIFs and SVGs are returned unchanged (preserve animation / vector).
+async function compressImage(file, maxWidth) {
+    if (file.type === 'image/gif')     return file;
+    if (file.type === 'image/svg+xml') return file;
+
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                // Already small enough — use original to avoid recompression artefacts
+                if (img.width <= maxWidth) {
+                    resolve(file);
+                    return;
+                }
+
+                const ratio = maxWidth / img.width;
+                const newW = maxWidth;
+                const newH = Math.round(img.height * ratio);
+
+                const canvas = document.createElement('canvas');
+                canvas.width = newW;
+                canvas.height = newH;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, newW, newH);
+
+                // Preserve PNG/WebP (for transparency), JPEG everything else
+                const outType = (file.type === 'image/png' || file.type === 'image/webp')
+                    ? file.type : 'image/jpeg';
+                const quality = (outType === 'image/jpeg') ? 0.85 : undefined;
+
+                canvas.toBlob((blob) => {
+                    if (!blob) {
+                        reject(new Error('Image compression failed'));
+                        return;
+                    }
+                    // Keep original name but ensure extension matches outType
+                    const baseName = file.name.replace(/\.[^.]+$/, '');
+                    const ext = outType === 'image/png' ? '.png'
+                              : outType === 'image/webp' ? '.webp'
+                              : '.jpg';
+                    const compressed = new File([blob], baseName + ext, { type: outType });
+                    resolve(compressed);
+                }, outType, quality);
+            };
+            img.onerror = () => reject(new Error('Could not read image'));
+            img.src = e.target.result;
+        };
+        reader.onerror = () => reject(new Error('Could not read file'));
+        reader.readAsDataURL(file);
+    });
+}
+
+// ============================================================
+// IMAGE RESIZE TOOLBAR (click-to-resize)
+// One shared toolbar, positioned over whichever image was clicked.
+// Sets the HTML `width` attribute (best supported by email clients).
+// ============================================================
+let _resizeToolbar = null;
+let _activeImage = null;
+let _globalImageListenersAttached = false;
+
+function ensureResizeToolbar() {
+    if (_resizeToolbar) return;
+    const tb = document.createElement('div');
+    tb.className = 'email-image-resizer';
+    tb.innerHTML = `
+        <button type="button" data-width="25">25%</button>
+        <button type="button" data-width="50">50%</button>
+        <button type="button" data-width="75">75%</button>
+        <button type="button" data-width="100">100%</button>
+    `;
+    tb.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-width]');
+        if (!btn || !_activeImage) return;
+        const w = btn.getAttribute('data-width');
+        _activeImage.setAttribute('width', w + '%');
+        // Update active-button styling
+        tb.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        // Refresh preview for whichever editor owns this image
+        for (const [tid, cfg] of Object.entries(TEMPLATES)) {
+            if (cfg.quill && cfg.quill.root.contains(_activeImage)) {
+                renderPreview(tid);
+                // Mark the editor dirty so save status reflects unsaved changes
+                cfg.quill.update();
+                break;
+            }
+        }
+        // Reposition after resize since image dimensions changed
+        requestAnimationFrame(() => positionResizeToolbar(_activeImage));
+    });
+    document.body.appendChild(tb);
+    _resizeToolbar = tb;
+}
+
+function showResizeToolbar(img) {
+    ensureResizeToolbar();
+    _activeImage = img;
+    _resizeToolbar.classList.add('is-open');
+    // Reflect current image width on the buttons
+    const current = img.getAttribute('width') || '';
+    _resizeToolbar.querySelectorAll('button').forEach(b => {
+        b.classList.toggle('active', current === b.getAttribute('data-width') + '%');
+    });
+    positionResizeToolbar(img);
+}
+
+function hideResizeToolbar() {
+    if (_resizeToolbar) _resizeToolbar.classList.remove('is-open');
+    _activeImage = null;
+}
+
+function positionResizeToolbar(img) {
+    if (!_resizeToolbar || !img) return;
+    const rect = img.getBoundingClientRect();
+    // Place above the image; if no room, place below
+    const tbHeight = 36;
+    let top = rect.top - tbHeight - 4;
+    if (top < 4) top = rect.bottom + 4;
+    _resizeToolbar.style.top = top + 'px';
+    _resizeToolbar.style.left = rect.left + 'px';
+}
+
+function attachGlobalImageListeners() {
+    if (_globalImageListenersAttached) return;
+    _globalImageListenersAttached = true;
+
+    document.addEventListener('click', (e) => {
+        // Clicks inside the resize toolbar are handled internally — leave alone
+        if (_resizeToolbar && _resizeToolbar.contains(e.target)) return;
+        // Clicks on an editor image are handled by the per-editor listener
+        if (e.target.tagName === 'IMG' && e.target.closest('.ql-editor')) return;
+        hideResizeToolbar();
+    });
+    window.addEventListener('scroll', hideResizeToolbar, true);
+    window.addEventListener('resize', hideResizeToolbar);
 }
 
 async function uploadFile(file, pathPrefix) {
