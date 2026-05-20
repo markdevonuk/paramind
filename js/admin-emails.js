@@ -37,9 +37,9 @@ const API_BASE = 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
 
 // One entry per template
 const TEMPLATES = {
-    newMember:     { quill: null, hasGreeting: true,  hasFirstNameToken: false },
-    newProMember:  { quill: null, hasGreeting: true,  hasFirstNameToken: false },
-    general:       { quill: null, hasGreeting: false, hasFirstNameToken: true  }
+    newMember:     { quill: null, hasGreeting: true,  hasFirstNameToken: true },
+    newProMember:  { quill: null, hasGreeting: true,  hasFirstNameToken: true },
+    general:       { quill: null, hasGreeting: false, hasFirstNameToken: true }
 };
 
 // Parsed CSV recipients (general tab)
@@ -63,10 +63,10 @@ export async function initAdminEmails({ auth, db, storage, adminEmail }) {
         return;
     }
 
-    // Build the three editors
-    buildEditor('newMember',     '#newMember-editor',     false);
-    buildEditor('newProMember',  '#newProMember-editor',  false);
-    buildEditor('general',       '#general-editor',       true);  // with {firstName} button
+    // Build the three editors (all support the {firstName} insert button)
+    buildEditor('newMember',     '#newMember-editor',     true);
+    buildEditor('newProMember',  '#newProMember-editor',  true);
+    buildEditor('general',       '#general-editor',       true);
 
     // Set up the shared image-resize toolbar listeners (once)
     attachGlobalImageListeners();
