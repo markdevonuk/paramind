@@ -3707,3 +3707,221 @@ exports.backfillProSinceGooglePlay = onRequest(
     }
   }
 );
+
+// ============================================
+// ADMIN: DEMOTE INACTIVE GOOGLE PLAY USERS
+// ============================================
+// Counterpart to the missing RTDN webhook handler. Finds active Pro users on
+// Google Play whose Google subscriptionState is NOT one of
+// {ACTIVE, IN_GRACE_PERIOD, ON_HOLD} and demotes them in Firestore.
+//
+// Demotion semantics (intentionally conservative):
+//   - subscriptionStatus: "active" → "cancelled"
+//   - Adds subscriptionDemotedAt + subscriptionDemoteReason for audit trail
+//   - Preserves proSince, proSinceSource, Google fields, profile data
+//   - Does NOT touch users whose API call fails (no demote on unreliable data)
+//   - Does NOT touch Apple or Stripe users
+//
+// Trigger (after deploy) from browser console while logged in:
+//
+//   const t = await firebase.auth().currentUser.getIdToken();
+//   const r = await fetch(
+//     "https://europe-west2-paramind-64b8e.cloudfunctions.net/demoteInactiveGoogleUsers",
+//     {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json", Authorization: `Bearer ${t}` },
+//       body: JSON.stringify({ dryRun: true })
+//     }
+//   );
+//   console.log(await r.json());
+
+exports.demoteInactiveGoogleUsers = onRequest(
+  {
+    cors: true,
+    secrets: ["GOOGLE_PLAY_SERVICE_ACCOUNT"],
+    timeoutSeconds: 540,
+  },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+      const uid = await verifyAuth(req);
+      if (uid !== BACKFILL_ADMIN_UID) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+
+      const dryRun = req.body?.dryRun !== false;
+
+      let serviceAccountCredentials;
+      try {
+        serviceAccountCredentials = JSON.parse(
+          process.env.GOOGLE_PLAY_SERVICE_ACCOUNT
+        );
+      } catch (parseErr) {
+        return res.status(500).json({
+          error: "GOOGLE_PLAY_SERVICE_ACCOUNT secret is not valid JSON",
+          detail: parseErr.message,
+        });
+      }
+
+      const auth = new GoogleAuth({
+        credentials: serviceAccountCredentials,
+        scopes: ["https://www.googleapis.com/auth/androidpublisher"],
+      });
+      const client = await auth.getClient();
+      const tokenResp = await client.getAccessToken();
+      const accessToken = tokenResp?.token;
+      if (!accessToken) {
+        return res.status(500).json({
+          error: "Failed to obtain Google Play API access token",
+        });
+      }
+
+      // Target ALL active Google Play users, not just the recent backfill bucket
+      const snap = await db
+        .collection("users")
+        .where("subscriptionStatus", "==", "active")
+        .where("subscriptionPlatform", "==", "google")
+        .get();
+
+      const summary = {
+        dryRun,
+        scanned: snap.size,
+        wouldDemote: 0,
+        demoted: 0,
+        keptActive_googleSaysActive: 0,
+        skipped_noToken: 0,
+        skipped_apiError: 0,
+        details: [],
+      };
+
+      const ACTIVE_LIKE_STATES = new Set([
+        "SUBSCRIPTION_STATE_ACTIVE",
+        "SUBSCRIPTION_STATE_IN_GRACE_PERIOD",
+        "SUBSCRIPTION_STATE_ON_HOLD",
+      ]);
+
+      for (const doc of snap.docs) {
+        const userId = doc.id;
+        const data = doc.data();
+        const purchaseToken = data.googlePurchaseToken;
+
+        if (!purchaseToken) {
+          summary.skipped_noToken++;
+          summary.details.push({
+            userId,
+            email: data.email,
+            decision: "skipped",
+            reason: "no_purchase_token",
+          });
+          continue;
+        }
+
+        let googleState = null;
+        try {
+          const apiUrl =
+            `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/` +
+            `${encodeURIComponent(PLAY_PACKAGE_NAME)}/purchases/subscriptionsv2/tokens/` +
+            `${encodeURIComponent(purchaseToken)}`;
+
+          const apiResponse = await fetch(apiUrl, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+
+          if (!apiResponse.ok) {
+            summary.skipped_apiError++;
+            summary.details.push({
+              userId,
+              email: data.email,
+              decision: "skipped",
+              reason: "google_api_error",
+              status: apiResponse.status,
+            });
+            continue;
+          }
+
+          const subData = await apiResponse.json();
+          googleState = subData.subscriptionState || null;
+        } catch (perUserErr) {
+          summary.skipped_apiError++;
+          summary.details.push({
+            userId,
+            email: data.email,
+            decision: "skipped",
+            reason: "exception",
+            message: perUserErr.message,
+          });
+          console.error(
+            `demoteInactiveGoogleUsers API call failed for ${userId}:`,
+            perUserErr
+          );
+          continue;
+        }
+
+        // Decision
+        if (!googleState) {
+          // API succeeded but didn't return a state — treat as unreliable
+          summary.skipped_apiError++;
+          summary.details.push({
+            userId,
+            email: data.email,
+            decision: "skipped",
+            reason: "no_subscription_state_in_response",
+          });
+          continue;
+        }
+
+        if (ACTIVE_LIKE_STATES.has(googleState)) {
+          summary.keptActive_googleSaysActive++;
+          summary.details.push({
+            userId,
+            email: data.email,
+            decision: "kept_active",
+            googleState,
+          });
+          continue;
+        }
+
+        // Demote
+        if (dryRun) {
+          summary.wouldDemote++;
+          summary.details.push({
+            userId,
+            email: data.email,
+            decision: "would_demote",
+            googleState,
+          });
+        } else {
+          await doc.ref.update({
+            subscriptionStatus: "cancelled",
+            subscriptionDemotedAt: admin.firestore.FieldValue.serverTimestamp(),
+            subscriptionDemoteReason: googleState,
+          });
+          summary.demoted++;
+          summary.details.push({
+            userId,
+            email: data.email,
+            decision: "demoted",
+            googleState,
+          });
+        }
+      }
+
+      console.log(
+        `demoteInactiveGoogleUsers finished. dryRun=${dryRun} ` +
+          `scanned=${summary.scanned} demoted=${summary.demoted} ` +
+          `wouldDemote=${summary.wouldDemote} ` +
+          `kept=${summary.keptActive_googleSaysActive} ` +
+          `skipped_noToken=${summary.skipped_noToken} ` +
+          `skipped_apiError=${summary.skipped_apiError}`
+      );
+
+      return res.status(200).json(summary);
+    } catch (err) {
+      console.error("demoteInactiveGoogleUsers fatal error:", err);
+      return res.status(500).json({ error: err.message });
+    }
+  }
+);
