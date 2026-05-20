@@ -135,20 +135,16 @@ function waitForQuill() {
 let _softBreakRegistered = false;
 function ensureSoftBreakRegistered() {
     if (_softBreakRegistered) return;
-    const Break = window.Quill.import('blots/break');
     const Embed = window.Quill.import('blots/embed');
 
-    class SoftBreak extends Break {
+    class SoftBreak extends Embed {
         length() { return 1; }
         value()  { return '\n'; }
-        insertInto(parent, ref) {
-            Embed.prototype.insertInto.call(this, parent, ref);
-        }
     }
-    SoftBreak.blotName = 'soft-break';
-    SoftBreak.tagName  = 'BR';
+    SoftBreak.blotName = 'softBreak';
+    SoftBreak.tagName  = 'br';
 
-    window.Quill.register(SoftBreak);
+    window.Quill.register('formats/softBreak', SoftBreak, true);
     _softBreakRegistered = true;
 }
 
@@ -195,9 +191,11 @@ function buildEditor(templateId, selector, includeFirstNameButton) {
     });
 
     // Bind Shift+Enter to insert a soft line break (<br>) instead of a new paragraph.
+    // Returning false prevents Quill's default Enter handler from also running.
     quill.keyboard.addBinding({ key: 'Enter', shiftKey: true }, function (range) {
-        this.quill.insertEmbed(range.index, 'soft-break', true, 'user');
+        this.quill.insertEmbed(range.index, 'softBreak', true, 'user');
         this.quill.setSelection(range.index + 1, 0, 'silent');
+        return false;
     });
 
     TEMPLATES[templateId].quill = quill;
