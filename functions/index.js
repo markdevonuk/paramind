@@ -3925,3 +3925,277 @@ exports.demoteInactiveGoogleUsers = onRequest(
     }
   }
 );
+
+// ============================================
+// ADMIN: BACKFILL proSince — APPLE APP STORE SERVER API
+// ============================================
+// Counterpart to backfillProSinceGooglePlay. For active Pro users on Apple
+// (iOS) whose proSinceSource is "pending_apple_manual" — i.e. those who came
+// from the iOS app before appleJws was stored at verification time — this
+// calls Apple's App Store Server API to retrieve the authoritative
+// originalPurchaseDate.
+//
+// Falls back to subscriptionUpdatedAt where the API can't return an answer
+// (typically users with null appleOriginalTransactionId, including the
+// privaterelay Hide-My-Email user). Same pattern as the Google version.
+//
+// Requires three secrets, all set via `firebase functions:secrets:set`:
+//   APPLE_API_PRIVATE_KEY   — full contents of the downloaded .p8 file
+//   APPLE_API_KEY_ID        — Key ID from App Store Connect
+//   APPLE_API_ISSUER_ID     — Issuer ID from App Store Connect
+//
+// Trigger (after deploy) from browser console while logged in:
+//
+//   const t = await firebase.auth().currentUser.getIdToken();
+//   const r = await fetch(
+//     "https://europe-west2-paramind-64b8e.cloudfunctions.net/backfillProSinceApple",
+//     {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json", Authorization: `Bearer ${t}` },
+//       body: JSON.stringify({ dryRun: true })
+//     }
+//   );
+//   console.log(await r.json());
+
+const jwt = require("jsonwebtoken");
+
+const APPLE_BUNDLE_ID = "uk.co.paramind.app";
+const APPLE_API_BASE = "https://api.storekit.itunes.apple.com/inApps/v1";
+
+// Build a fresh signed JWT for Apple's App Store Server API.
+// Lifetime: 20 minutes (Apple allows up to 1 hour but shorter is safer).
+function buildAppleAuthJwt() {
+  const privateKey = process.env.APPLE_API_PRIVATE_KEY;
+  const keyId = process.env.APPLE_API_KEY_ID;
+  const issuerId = process.env.APPLE_API_ISSUER_ID;
+
+  if (!privateKey || !keyId || !issuerId) {
+    throw new Error(
+      "Missing Apple API credentials. Required secrets: " +
+        "APPLE_API_PRIVATE_KEY, APPLE_API_KEY_ID, APPLE_API_ISSUER_ID."
+    );
+  }
+
+  const now = Math.floor(Date.now() / 1000);
+
+  return jwt.sign(
+    {
+      iss: issuerId,
+      iat: now,
+      exp: now + 20 * 60,
+      aud: "appstoreconnect-v1",
+      bid: APPLE_BUNDLE_ID,
+    },
+    privateKey,
+    {
+      algorithm: "ES256",
+      header: {
+        alg: "ES256",
+        kid: keyId,
+        typ: "JWT",
+      },
+    }
+  );
+}
+
+// Decode the middle (payload) segment of a JWS. We trust the issuer (Apple)
+// in this backfill context so we don't verify the signature — same approach
+// as the existing appleJws decoding in backfillProSince.
+function decodeJwsPayload(jws) {
+  const parts = jws.split(".");
+  if (parts.length !== 3) {
+    throw new Error("Invalid JWS structure");
+  }
+  return JSON.parse(Buffer.from(parts[1], "base64").toString("utf8"));
+}
+
+exports.backfillProSinceApple = onRequest(
+  {
+    cors: true,
+    secrets: [
+      "APPLE_API_PRIVATE_KEY",
+      "APPLE_API_KEY_ID",
+      "APPLE_API_ISSUER_ID",
+    ],
+    timeoutSeconds: 540,
+  },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+      const uid = await verifyAuth(req);
+      if (uid !== BACKFILL_ADMIN_UID) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+
+      const dryRun = req.body?.dryRun !== false;
+
+      // Single JWT shared across all per-user API calls in this run
+      let appleJwtToken;
+      try {
+        appleJwtToken = buildAppleAuthJwt();
+      } catch (jwtErr) {
+        return res.status(500).json({
+          error: "Failed to build Apple API JWT",
+          detail: jwtErr.message,
+        });
+      }
+
+      const snap = await db
+        .collection("users")
+        .where("subscriptionStatus", "==", "active")
+        .where("proSinceSource", "==", "pending_apple_manual")
+        .get();
+
+      const summary = {
+        dryRun,
+        scanned: snap.size,
+        wouldUpdate_api: 0,
+        wouldUpdate_fallback: 0,
+        updated_api: 0,
+        updated_fallback: 0,
+        skipped_noFallback: 0,
+        flagged_inactiveOnApple: [],
+        details: [],
+      };
+
+      for (const doc of snap.docs) {
+        const userId = doc.id;
+        const data = doc.data();
+        const originalTransactionId = data.appleOriginalTransactionId;
+
+        let derivedDate = null;
+        let source = null;
+        let apiNote = null;
+        let appleStatus = null;        // active/expired/cancelled/etc, if discoverable
+
+        // First try: Apple App Store Server API
+        if (originalTransactionId) {
+          try {
+            const apiUrl = `${APPLE_API_BASE}/transactions/${encodeURIComponent(
+              originalTransactionId
+            )}`;
+
+            const apiResponse = await fetch(apiUrl, {
+              headers: { Authorization: `Bearer ${appleJwtToken}` },
+            });
+
+            if (!apiResponse.ok) {
+              apiNote = `api_${apiResponse.status}`;
+            } else {
+              const apiJson = await apiResponse.json();
+              if (apiJson.signedTransactionInfo) {
+                const txPayload = decodeJwsPayload(apiJson.signedTransactionInfo);
+
+                // originalPurchaseDate is ms since epoch
+                if (txPayload.originalPurchaseDate) {
+                  const purchaseDate = new Date(txPayload.originalPurchaseDate);
+                  if (!isNaN(purchaseDate.getTime())) {
+                    derivedDate = purchaseDate;
+                    source = "apple_api";
+                  } else {
+                    apiNote = "invalid_originalPurchaseDate";
+                  }
+                } else {
+                  apiNote = "no_originalPurchaseDate";
+                }
+
+                // Try to derive a status hint from the same payload. For a
+                // valid active subscription, expiresDate is in the future.
+                if (txPayload.expiresDate) {
+                  appleStatus =
+                    txPayload.expiresDate > Date.now() ? "active" : "expired";
+                }
+              } else {
+                apiNote = "no_signedTransactionInfo";
+              }
+            }
+          } catch (perUserErr) {
+            apiNote = `exception:${perUserErr.message.slice(0, 100)}`;
+            console.error(
+              `backfillProSinceApple API call failed for ${userId}:`,
+              perUserErr
+            );
+          }
+        } else {
+          apiNote = "no_originalTransactionId";
+        }
+
+        // Fallback: subscriptionUpdatedAt from Firestore (Timestamp)
+        if (!derivedDate) {
+          if (
+            data.subscriptionUpdatedAt &&
+            typeof data.subscriptionUpdatedAt.toDate === "function"
+          ) {
+            derivedDate = data.subscriptionUpdatedAt.toDate();
+            source = "apple_fallback";
+          } else {
+            summary.skipped_noFallback++;
+            summary.details.push({
+              userId,
+              email: data.email,
+              reason: "no_api_date_and_no_fallback",
+              apiNote,
+            });
+            continue;
+          }
+        }
+
+        // Flag (don't skip) users that Apple thinks are expired
+        if (appleStatus && appleStatus !== "active") {
+          summary.flagged_inactiveOnApple.push({
+            userId,
+            email: data.email,
+            appleStatus,
+          });
+        }
+
+        // Write (or pretend to)
+        if (dryRun) {
+          if (source === "apple_api") summary.wouldUpdate_api++;
+          else summary.wouldUpdate_fallback++;
+          summary.details.push({
+            userId,
+            email: data.email,
+            proSince: derivedDate.toISOString(),
+            source,
+            apiNote,
+            appleStatus,
+            wouldWrite: true,
+          });
+        } else {
+          await doc.ref.update({
+            proSince: admin.firestore.Timestamp.fromDate(derivedDate),
+            proSinceSource: source,
+          });
+          if (source === "apple_api") summary.updated_api++;
+          else summary.updated_fallback++;
+          summary.details.push({
+            userId,
+            email: data.email,
+            proSince: derivedDate.toISOString(),
+            source,
+            apiNote,
+            appleStatus,
+            written: true,
+          });
+        }
+      }
+
+      console.log(
+        `backfillProSinceApple finished. dryRun=${dryRun} ` +
+          `scanned=${summary.scanned} ` +
+          `updated_api=${summary.updated_api} updated_fallback=${summary.updated_fallback} ` +
+          `wouldUpdate_api=${summary.wouldUpdate_api} wouldUpdate_fallback=${summary.wouldUpdate_fallback} ` +
+          `skipped_noFallback=${summary.skipped_noFallback}`
+      );
+
+      return res.status(200).json(summary);
+    } catch (err) {
+      console.error("backfillProSinceApple fatal error:", err);
+      return res.status(500).json({ error: err.message });
+    }
+  }
+);
