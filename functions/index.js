@@ -5,6 +5,7 @@
  */
 
 const { onRequest } = require("firebase-functions/v2/https");
+const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { setGlobalOptions } = require("firebase-functions/v2/options");
 const admin = require("firebase-admin");
 const { OpenAI } = require("openai");
@@ -4196,6 +4197,279 @@ exports.backfillProSinceApple = onRequest(
     } catch (err) {
       console.error("backfillProSinceApple fatal error:", err);
       return res.status(500).json({ error: err.message });
+    }
+  }
+);
+
+// ============================================
+// DEMOTE EXPIRED USERS — manual + scheduled
+// ============================================
+// Catches users whose paid access period has ended but whose
+// subscriptionStatus is still "active" because the platform's "subscription
+// ended" webhook never fired (or fired but wasn't processed). Looks at
+// accessExpiresAt, which is set ONLY in cancellation paths:
+//   - Stripe customer.subscription.updated when cancel_at_period_end is true
+//   - Apple DID_CHANGE_RENEWAL_STATUS when AUTO_RENEW_DISABLED
+// Google users never have accessExpiresAt set (no RTDN webhook handler);
+// they're handled separately by demoteInactiveGoogleUsers.
+//
+// Two ways to invoke:
+//   1. HTTPS POST to demoteExpiredUsers (admin-gated, dry-run capable)
+//      — use this for the one-off historical cleanup
+//   2. Cloud Scheduler runs scheduledDemoteExpiredUsers daily at 03:00 UTC
+//      — ongoing safety net for missed webhook events
+//
+// Safeguards:
+//   - Hard cap MAX_DEMOTIONS per run. If a run would exceed it, ABORT
+//     without writing anything and send Mark an alert email.
+//   - Per-user error catching: one user's failure won't halt the run.
+//   - Email notification of every actual demotion via sendNotificationEmail.
+
+const MAX_DEMOTIONS_PER_RUN_DEFAULT = 5;
+
+// Parse accessExpiresAt — Apple stores it as ISO string, Stripe as Timestamp
+function parseAccessExpiresAt(value) {
+  if (!value) return null;
+  if (typeof value.toDate === "function") return value.toDate(); // Firestore Timestamp
+  if (value instanceof Date) return value;
+  if (typeof value === "string") {
+    const d = new Date(value);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  return null;
+}
+
+// Shared logic used by both the HTTPS endpoint and the scheduled function.
+// Returns a summary object describing what happened (or would have happened).
+async function performExpiredUsersScan({ dryRun, maxDemotions, source }) {
+  const now = new Date();
+
+  const snap = await db
+    .collection("users")
+    .where("subscriptionStatus", "==", "active")
+    .get();
+
+  // First pass: classify every active user. NO writes yet — we want to know
+  // the full demotion count before deciding whether to proceed.
+  const toDemote = [];
+  let noExpiry = 0;
+  let futureExpiry = 0;
+  const futureExpiryDetails = [];
+
+  for (const doc of snap.docs) {
+    const data = doc.data();
+    const expiry = parseAccessExpiresAt(data.accessExpiresAt);
+
+    if (!expiry) {
+      noExpiry++;
+      continue;
+    }
+    if (expiry >= now) {
+      futureExpiry++;
+      futureExpiryDetails.push({
+        userId: doc.id,
+        email: data.email,
+        platform: data.subscriptionPlatform || "unknown",
+        accessExpiresAt: expiry.toISOString(),
+      });
+      continue;
+    }
+
+    // expiry < now → candidate for demotion
+    toDemote.push({
+      doc,
+      userInfo: {
+        userId: doc.id,
+        email: data.email,
+        platform: data.subscriptionPlatform || "unknown",
+        cancelledAt: data.cancelledAt
+          ? (typeof data.cancelledAt.toDate === "function"
+              ? data.cancelledAt.toDate().toISOString()
+              : data.cancelledAt)
+          : null,
+        accessExpiresAt: expiry.toISOString(),
+      },
+    });
+  }
+
+  const summary = {
+    source,
+    dryRun,
+    timestamp: now.toISOString(),
+    scanned: snap.size,
+    keptActive_noExpiry: noExpiry,
+    keptActive_futureExpiry: futureExpiry,
+    wouldDemote: 0,
+    demoted: 0,
+    errors: 0,
+    safetyLimitTriggered: false,
+    maxDemotions,
+    details: [],
+    futureExpiryDetails: futureExpiryDetails.slice(0, 20), // preview, not exhaustive
+  };
+
+  // SAFETY LIMIT — refuse to act if too many demotions in one run
+  if (toDemote.length > maxDemotions) {
+    summary.safetyLimitTriggered = true;
+    summary.wouldDemote = toDemote.length;
+    summary.details = toDemote.map((t) => ({
+      ...t.userInfo,
+      decision: "blocked_by_safety_limit",
+    }));
+
+    console.warn(
+      `demoteExpiredUsers safety limit hit (source=${source}). ` +
+        `Wanted to demote ${toDemote.length}, limit is ${maxDemotions}. ` +
+        `No writes performed.`
+    );
+
+    // Always send the alert email when this triggers (regardless of dryRun)
+    try {
+      await sendNotificationEmail(
+        `⚠️ Paramind: demoteExpiredUsers safety limit hit (${toDemote.length} > ${maxDemotions})`,
+        `The ${source} demoteExpiredUsers run wanted to demote ${toDemote.length} ` +
+          `users, exceeding the safety limit of ${maxDemotions}. ` +
+          `NO DEMOTIONS WERE PERFORMED.\n\n` +
+          `Users that would have been demoted:\n\n` +
+          toDemote
+            .map(
+              (t) =>
+                `- ${t.userInfo.email} (${t.userInfo.platform}), accessExpiresAt ${t.userInfo.accessExpiresAt}`
+            )
+            .join("\n") +
+          `\n\nInvestigate before proceeding. Manually demote in Firebase Console, ` +
+          `or temporarily raise the maxDemotions parameter on a manual run.`
+      );
+    } catch (emailErr) {
+      console.error("Failed to send safety-limit alert email:", emailErr.message);
+    }
+
+    return summary;
+  }
+
+  // Below safety limit — proceed with demotion (unless dryRun)
+  for (const { doc, userInfo } of toDemote) {
+    try {
+      if (dryRun) {
+        summary.wouldDemote++;
+        summary.details.push({ ...userInfo, decision: "would_demote" });
+      } else {
+        await doc.ref.update({
+          subscriptionStatus: "cancelled",
+          subscriptionDemotedAt: admin.firestore.FieldValue.serverTimestamp(),
+          subscriptionDemoteReason: "access_expired",
+        });
+        summary.demoted++;
+        summary.details.push({ ...userInfo, decision: "demoted" });
+      }
+    } catch (perUserErr) {
+      summary.errors++;
+      summary.details.push({
+        ...userInfo,
+        decision: "error",
+        error: perUserErr.message,
+      });
+      console.error(
+        `demoteExpiredUsers failed for ${userInfo.userId}:`,
+        perUserErr
+      );
+    }
+  }
+
+  // Send notification email IF we actually demoted anyone
+  if (!dryRun && summary.demoted > 0) {
+    try {
+      await sendNotificationEmail(
+        `Paramind: ${summary.demoted} user${summary.demoted === 1 ? "" : "s"} demoted (expired access)`,
+        `The ${source} demoteExpiredUsers run demoted ${summary.demoted} ` +
+          `user${summary.demoted === 1 ? "" : "s"} whose accessExpiresAt is in the past:\n\n` +
+          summary.details
+            .filter((d) => d.decision === "demoted")
+            .map(
+              (d) =>
+                `- ${d.email} (${d.platform}), expired ${d.accessExpiresAt}`
+            )
+            .join("\n") +
+          `\n\nAll demoted users have:\n` +
+          `  - subscriptionStatus: "cancelled"\n` +
+          `  - subscriptionDemotedAt: now\n` +
+          `  - subscriptionDemoteReason: "access_expired"\n` +
+          `Their proSince and platform fields are preserved.`
+      );
+    } catch (emailErr) {
+      console.error("Failed to send demotion summary email:", emailErr.message);
+    }
+  }
+
+  console.log(
+    `demoteExpiredUsers (source=${source}) finished. dryRun=${dryRun} ` +
+      `scanned=${summary.scanned} demoted=${summary.demoted} ` +
+      `wouldDemote=${summary.wouldDemote} errors=${summary.errors}`
+  );
+
+  return summary;
+}
+
+// HTTPS endpoint — for manual triggering and dry-runs
+exports.demoteExpiredUsers = onRequest(
+  { cors: true, secrets: ["GMAIL_APP_PASSWORD"] },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+      const uid = await verifyAuth(req);
+      if (uid !== BACKFILL_ADMIN_UID) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+
+      const dryRun = req.body?.dryRun !== false;
+      const maxDemotions =
+        typeof req.body?.maxDemotions === "number" && req.body.maxDemotions > 0
+          ? req.body.maxDemotions
+          : MAX_DEMOTIONS_PER_RUN_DEFAULT;
+
+      const summary = await performExpiredUsersScan({
+        dryRun,
+        maxDemotions,
+        source: "manual",
+      });
+
+      return res.status(200).json(summary);
+    } catch (err) {
+      console.error("demoteExpiredUsers fatal error:", err);
+      return res.status(500).json({ error: err.message });
+    }
+  }
+);
+
+// Scheduled — runs daily at 03:00 UTC
+exports.scheduledDemoteExpiredUsers = onSchedule(
+  {
+    schedule: "0 3 * * *",
+    timeZone: "Etc/UTC",
+    secrets: ["GMAIL_APP_PASSWORD"],
+    retryCount: 1,
+  },
+  async () => {
+    try {
+      await performExpiredUsersScan({
+        dryRun: false,
+        maxDemotions: MAX_DEMOTIONS_PER_RUN_DEFAULT,
+        source: "scheduled",
+      });
+    } catch (err) {
+      console.error("scheduledDemoteExpiredUsers fatal error:", err);
+      try {
+        await sendNotificationEmail(
+          "⚠️ Paramind: scheduledDemoteExpiredUsers crashed",
+          `The daily scheduledDemoteExpiredUsers run failed:\n\n${err.message}\n\n${err.stack || ""}`
+        );
+      } catch (emailErr) {
+        // Best-effort logging only
+        console.error("Failed to send crash alert email:", emailErr.message);
+      }
     }
   }
 );
