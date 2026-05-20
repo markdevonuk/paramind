@@ -29,7 +29,11 @@ import {
 // ---- Module-local state ------------------------------------
 let _db = null;
 let _storage = null;
+let _auth = null;
 let _adminEmail = null;
+
+// API base — same Cloud Functions region as the rest of the app
+const API_BASE = 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
 
 // One entry per template
 const TEMPLATES = {
@@ -45,7 +49,8 @@ let _recipients = [];
 // ============================================================
 // PUBLIC: initAdminEmails
 // ============================================================
-export async function initAdminEmails({ db, storage, adminEmail }) {
+export async function initAdminEmails({ auth, db, storage, adminEmail }) {
+    _auth = auth;
     _db = db;
     _storage = storage;
     _adminEmail = adminEmail;
@@ -84,7 +89,10 @@ export async function initAdminEmails({ db, storage, adminEmail }) {
     // Wire up live preview updates on editor changes
     TEMPLATES.newMember.quill.on('text-change',    () => renderPreview('newMember'));
     TEMPLATES.newProMember.quill.on('text-change', () => renderPreview('newProMember'));
-    TEMPLATES.general.quill.on('text-change',      () => renderPreview('general'));
+    TEMPLATES.general.quill.on('text-change',      () => {
+        renderPreview('general');
+        updateSendButtonState();
+    });
 
     // Wire up CSV controls
     document.getElementById('general-csv-file').addEventListener('change', handleCsvFile);
@@ -92,6 +100,14 @@ export async function initAdminEmails({ db, storage, adminEmail }) {
         const text = document.getElementById('general-csv-paste').value;
         parseCsvAndRender(text);
     });
+
+    // Subject changes affect the Send button state too
+    document.getElementById('general-subject').addEventListener('input', updateSendButtonState);
+
+    // Wire up the Send button
+    document.getElementById('general-send').addEventListener('click', handleSendGeneralEmail);
+
+    updateSendButtonState();
 }
 
 
@@ -450,6 +466,12 @@ function renderPreview(templateId) {
     }
 
     previewEl.innerHTML = finalHtml;
+
+    // The General tab's send-button state depends on subject/body/recipients,
+    // all of which may have changed by the time we re-render the preview.
+    if (templateId === 'general') {
+        updateSendButtonState();
+    }
 }
 
 
@@ -654,4 +676,167 @@ function describeError(err) {
     if (!err) return 'unknown error';
     if (typeof err === 'string') return err;
     return err.message || err.code || String(err);
+}
+
+
+// ============================================================
+// SEND (GENERAL TAB)
+// Calls the sendGeneralEmail Cloud Function with the current
+// editor content and parsed recipient list. Auth via the
+// caller's Firebase ID token.
+// ============================================================
+function updateSendButtonState() {
+    const btn  = document.getElementById('general-send');
+    const hint = document.getElementById('general-send-hint');
+    if (!btn) return;
+
+    const subject = (document.getElementById('general-subject').value || '').trim();
+    const quill   = TEMPLATES.general.quill;
+    const bodyText = quill ? quill.getText().trim() : '';
+    const recipientCount = _recipients.length;
+
+    const reasons = [];
+    if (!subject)          reasons.push('subject');
+    if (!bodyText)         reasons.push('email body');
+    if (recipientCount === 0) reasons.push('recipients');
+
+    if (reasons.length === 0) {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="bi bi-send me-1"></i>Send to ${recipientCount} recipient${recipientCount === 1 ? '' : 's'}`;
+        hint.textContent = 'Click to send. You will be asked to confirm before any emails go out.';
+    } else {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-send me-1"></i>Send to recipients';
+        hint.textContent = `Add ${reasons.join(', ')} to enable sending.`;
+    }
+}
+
+async function handleSendGeneralEmail() {
+    const btn       = document.getElementById('general-send');
+    const resultsEl = document.getElementById('general-send-results');
+    const subject   = (document.getElementById('general-subject').value || '').trim();
+    const htmlBody  = TEMPLATES.general.quill.root.innerHTML;
+    const recipients = _recipients.slice(); // copy
+
+    if (!subject || !htmlBody || recipients.length === 0) {
+        alert('Please complete the subject, body, and recipient list first.');
+        return;
+    }
+
+    // Confirmation
+    const ok = window.confirm(
+        `Send this email to ${recipients.length} recipient${recipients.length === 1 ? '' : 's'}?\n\n`
+        + `Subject: "${subject}"\n\n`
+        + `This cannot be undone.`
+    );
+    if (!ok) return;
+
+    // Sending UI
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Sending…';
+    resultsEl.style.display = 'block';
+    resultsEl.innerHTML = `
+        <div class="alert alert-info mb-0">
+            <i class="bi bi-hourglass-split me-1"></i>
+            Sending ${recipients.length} email${recipients.length === 1 ? '' : 's'} via Postmark… this may take a moment.
+        </div>
+    `;
+
+    try {
+        if (!_auth || !_auth.currentUser) {
+            throw new Error('Not signed in.');
+        }
+        const token = await _auth.currentUser.getIdToken();
+
+        const response = await fetch(`${API_BASE}/sendGeneralEmail`, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                subject: subject,
+                htmlBody: htmlBody,
+                recipients: recipients
+            })
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(data.error || `HTTP ${response.status}`);
+        }
+
+        renderSendResults(data);
+    } catch (err) {
+        console.error('Send failed:', err);
+        resultsEl.innerHTML = `
+            <div class="alert alert-danger mb-0">
+                <i class="bi bi-x-circle-fill me-1"></i>
+                <strong>Send failed:</strong> ${escapeHtml(describeError(err))}
+            </div>
+        `;
+    } finally {
+        // Re-enable button (state will reflect what's still present)
+        updateSendButtonState();
+    }
+}
+
+function renderSendResults(data) {
+    const { sent = 0, failed = 0, errors = [] } = data;
+    const resultsEl = document.getElementById('general-send-results');
+
+    let html = '';
+    if (failed === 0) {
+        html += `
+            <div class="alert alert-success mb-2">
+                <i class="bi bi-check-circle-fill me-1"></i>
+                <strong>Sent successfully:</strong>
+                ${sent} email${sent === 1 ? '' : 's'} delivered to Postmark.
+            </div>
+        `;
+    } else {
+        html += `
+            <div class="alert alert-warning mb-2">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                <strong>Partial send:</strong>
+                ${sent} accepted by Postmark, ${failed} failed.
+            </div>
+        `;
+        if (errors.length > 0) {
+            html += `
+                <div class="card">
+                    <div class="card-header py-2 small fw-semibold">Failed recipients</div>
+                    <div class="card-body p-0">
+                        <div style="max-height: 240px; overflow-y: auto;">
+                            <table class="table table-sm mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Email</th>
+                                        <th>Reason</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${errors.map(e => `
+                                        <tr>
+                                            <td>${escapeHtml(e.email || '')}</td>
+                                            <td>${escapeHtml(e.message || `Code ${e.code || '?'}`)}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    html += `
+        <p class="text-muted small mt-2 mb-0">
+            "Accepted by Postmark" means Postmark received the message.
+            Delivery to the recipient's inbox may take a few minutes — check
+            Postmark's Activity dashboard for per-message status.
+        </p>
+    `;
+    resultsEl.innerHTML = html;
 }

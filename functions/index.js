@@ -4473,3 +4473,214 @@ exports.scheduledDemoteExpiredUsers = onSchedule(
     }
   }
 );
+
+// ============================================
+// ADMIN EMAIL — POSTMARK INTEGRATION
+// ============================================
+
+const postmark = require("postmark");
+
+const ADMIN_EMAILS = ['markdevon@gmail.com'];
+const EMAIL_FROM = 'Paramind <hello@paramind.co.uk>';
+const EMAIL_REPLY_TO = 'mark@paramind.co.uk';
+
+/**
+ * Verify the request is from an admin user.
+ * Reuses the same Bearer-token pattern as verifyAuth() but additionally
+ * checks the decoded token's email is on the ADMIN_EMAILS allowlist.
+ */
+async function verifyAdmin(req) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    throw new Error("Unauthorized: No token provided");
+  }
+  const token = authHeader.split("Bearer ")[1];
+  const decodedToken = await admin.auth().verifyIdToken(token);
+  const email = (decodedToken.email || '').toLowerCase();
+  if (!ADMIN_EMAILS.includes(email)) {
+    throw new Error("Forbidden: Admin access required");
+  }
+  return decodedToken;
+}
+
+/**
+ * Wrap Quill-produced HTML fragment in a proper email shell.
+ * Keeps styling inline (most email clients strip <style> blocks).
+ */
+function wrapEmailHtml(bodyHtml, subject) {
+  const safeSubject = String(subject || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${safeSubject}</title>
+</head>
+<body style="margin:0;padding:0;font-family:'Helvetica Neue',Arial,sans-serif;line-height:1.6;color:#212529;background:#f5f5f5;">
+<div style="max-width:600px;margin:0 auto;background:#ffffff;padding:30px;">
+${bodyHtml}
+<hr style="border:none;border-top:1px solid #e0e0e0;margin:40px 0 20px;">
+<p style="font-size:12px;color:#888;text-align:center;margin:0;line-height:1.4;">
+Paramind &middot; UK Paramedic Education<br>
+<a href="https://paramind.co.uk" style="color:#888;text-decoration:underline;">paramind.co.uk</a> &middot;
+<a href="mailto:unsubscribe@paramind.co.uk?subject=Unsubscribe" style="color:#888;text-decoration:underline;">Unsubscribe</a>
+</p>
+</div>
+</body>
+</html>`;
+}
+
+/**
+ * Generate a plain-text version of HTML for Postmark's TextBody field.
+ * Not perfect (no library), but enough to satisfy spam filters and
+ * give accessible text fallback.
+ */
+function htmlToText(html) {
+  return String(html || '')
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n\n')
+    .replace(/<\/h[1-6]>/gi, '\n\n')
+    .replace(/<\/li>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+/** Escape user-supplied strings being inserted into HTML content. */
+function escapeEmailHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/**
+ * POST /sendGeneralEmail
+ * Admin-only. Sends a one-off email to a supplied list of recipients
+ * via Postmark, performing {firstName} substitution per recipient.
+ *
+ * Body: {
+ *   subject:    string (may contain {firstName}),
+ *   htmlBody:   string of Quill HTML (may contain {firstName}),
+ *   recipients: [{ firstName: string, email: string }]   // max 5000
+ * }
+ *
+ * Response: { sent: int, failed: int, errors: [{ email, code, message }] }
+ *
+ * Logs each send to Firestore collection emailSendLog/{autoId}.
+ */
+exports.sendGeneralEmail = onRequest(
+  {
+    cors: true,
+    secrets: ["POSTMARK_API_TOKEN"],
+    timeoutSeconds: 540,
+    memory: '512MiB'
+  },
+  async (req, res) => {
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    // Admin auth
+    try {
+      await verifyAdmin(req);
+    } catch (err) {
+      console.warn('sendGeneralEmail auth failed:', err.message);
+      return res.status(err.message.startsWith('Forbidden') ? 403 : 401)
+        .json({ error: err.message });
+    }
+
+    // Validate body
+    const { subject, htmlBody, recipients } = req.body || {};
+    if (!subject || typeof subject !== 'string') {
+      return res.status(400).json({ error: 'subject is required' });
+    }
+    if (!htmlBody || typeof htmlBody !== 'string') {
+      return res.status(400).json({ error: 'htmlBody is required' });
+    }
+    if (!Array.isArray(recipients) || recipients.length === 0) {
+      return res.status(400).json({ error: 'recipients must be a non-empty array' });
+    }
+    if (recipients.length > 5000) {
+      return res.status(400).json({ error: 'Maximum 5000 recipients per send' });
+    }
+    for (const r of recipients) {
+      if (!r || typeof r.firstName !== 'string' || typeof r.email !== 'string'
+          || !r.firstName.trim() || !r.email.trim()) {
+        return res.status(400).json({
+          error: 'Each recipient must have a non-empty firstName and email'
+        });
+      }
+    }
+
+    // Build personalised messages
+    const messages = recipients.map(r => {
+      const firstName = r.firstName.trim();
+      const personalisedSubject = subject.replace(/\{firstName\}/g, firstName);
+      const personalisedBody    = htmlBody.replace(/\{firstName\}/g, escapeEmailHtml(firstName));
+      return {
+        From: EMAIL_FROM,
+        To: r.email.trim(),
+        ReplyTo: EMAIL_REPLY_TO,
+        Subject: personalisedSubject,
+        HtmlBody: wrapEmailHtml(personalisedBody, personalisedSubject),
+        TextBody: htmlToText(personalisedBody),
+        MessageStream: 'outbound',
+      };
+    });
+
+    // Send in batches (Postmark limit: 500 per call)
+    let allResults = [];
+    try {
+      const client = new postmark.ServerClient(process.env.POSTMARK_API_TOKEN);
+      const CHUNK = 500;
+      for (let i = 0; i < messages.length; i += CHUNK) {
+        const chunk = messages.slice(i, i + CHUNK);
+        const batchResults = await client.sendEmailBatch(chunk);
+        allResults = allResults.concat(batchResults);
+      }
+    } catch (err) {
+      console.error('sendGeneralEmail Postmark call failed:', err);
+      return res.status(500).json({
+        error: 'Postmark request failed: ' + (err.message || 'unknown error')
+      });
+    }
+
+    const sent   = allResults.filter(r => r.ErrorCode === 0).length;
+    const failed = allResults.length - sent;
+    const errors = allResults
+      .filter(r => r.ErrorCode !== 0)
+      .map(r => ({ email: r.To, code: r.ErrorCode, message: r.Message }));
+
+    // Best-effort audit log
+    try {
+      await db.collection('emailSendLog').add({
+        type: 'general',
+        subject: subject,
+        totalRecipients: recipients.length,
+        sent: sent,
+        failed: failed,
+        errors: errors.slice(0, 20),
+        sentAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    } catch (logErr) {
+      console.error('Failed to write emailSendLog:', logErr.message);
+    }
+
+    return res.status(200).json({
+      sent: sent,
+      failed: failed,
+      errors: errors.slice(0, 50)
+    });
+  }
+);
