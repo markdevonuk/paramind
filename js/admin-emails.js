@@ -57,6 +57,7 @@ export async function initAdminEmails({ auth, db, storage, adminEmail }) {
 
     try {
         await waitForQuill();
+        ensureSoftBreakRegistered();
     } catch (err) {
         console.error('admin-emails: Quill failed to load', err);
         alert('Rich text editor failed to load. Please refresh.');
@@ -127,6 +128,30 @@ function waitForQuill() {
     });
 }
 
+// Register a "soft break" blot once so Shift+Enter inserts a <br>
+// (a real line break) instead of starting a new paragraph.
+// Quill 2 does not bind Shift+Enter by default, so without this
+// the keystroke falls through and behaves like plain Enter.
+let _softBreakRegistered = false;
+function ensureSoftBreakRegistered() {
+    if (_softBreakRegistered) return;
+    const Break = window.Quill.import('blots/break');
+    const Embed = window.Quill.import('blots/embed');
+
+    class SoftBreak extends Break {
+        length() { return 1; }
+        value()  { return '\n'; }
+        insertInto(parent, ref) {
+            Embed.prototype.insertInto.call(this, parent, ref);
+        }
+    }
+    SoftBreak.blotName = 'soft-break';
+    SoftBreak.tagName  = 'BR';
+
+    window.Quill.register(SoftBreak);
+    _softBreakRegistered = true;
+}
+
 function buildEditor(templateId, selector, includeFirstNameButton) {
     // Base toolbar
     const toolbar = [
@@ -167,6 +192,12 @@ function buildEditor(templateId, selector, includeFirstNameButton) {
                 handlers: handlers
             }
         }
+    });
+
+    // Bind Shift+Enter to insert a soft line break (<br>) instead of a new paragraph.
+    quill.keyboard.addBinding({ key: 'Enter', shiftKey: true }, function (range) {
+        this.quill.insertEmbed(range.index, 'soft-break', true, 'user');
+        this.quill.setSelection(range.index + 1, 0, 'silent');
     });
 
     TEMPLATES[templateId].quill = quill;
