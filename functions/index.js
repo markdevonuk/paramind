@@ -6,6 +6,7 @@
 
 const { onRequest } = require("firebase-functions/v2/https");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
+const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { setGlobalOptions } = require("firebase-functions/v2/options");
 const admin = require("firebase-admin");
 const { OpenAI } = require("openai");
@@ -4682,5 +4683,146 @@ exports.sendGeneralEmail = onRequest(
       failed: failed,
       errors: errors.slice(0, 50)
     });
+  }
+);
+
+
+// ============================================
+// NEW MEMBER WELCOME EMAIL (auto-send on signup)
+// ============================================
+// Fires automatically when a user document is first created in
+// users/{uid} (after registration via email/password, Google, or Apple).
+// Reads the editable template from emailTemplates/newMember, substitutes
+// {firstName} tokens, prepends the locked "Dear {firstName}," greeting,
+// and sends via Postmark with a BCC to hello@paramind.co.uk.
+//
+// Policy (agreed with Mark):
+//   - Silent skip if no template saved yet
+//   - Silent skip if welcomeEmailSent flag already true (dedupe — protects
+//     against rare at-least-once delivery dupes from EventArc)
+//   - Silent skip if user has no firstName or email
+//   - Log Postmark failures but DO NOT retry (function returns normally
+//     so Firestore doesn't trigger a retry)
+//   - BCC hello@paramind.co.uk on every send
+//
+// On success, marks users/{uid} with welcomeEmailSent: true and writes
+// an audit entry to emailSendLog.
+
+exports.sendWelcomeEmailOnSignup = onDocumentCreated(
+  {
+    document: 'users/{userId}',
+    secrets: ['POSTMARK_API_TOKEN'],
+    memory: '256MiB',
+    timeoutSeconds: 60,
+  },
+  async (event) => {
+    try {
+      const snap = event.data;
+      if (!snap) {
+        console.warn('[welcome] No snapshot in event; skipping');
+        return;
+      }
+
+      const userId = event.params.userId;
+      const userData = snap.data() || {};
+
+      // Dedupe — already sent
+      if (userData.welcomeEmailSent === true) {
+        console.log(`[welcome] User ${userId} already received welcome; skipping`);
+        return;
+      }
+
+      const firstName = String(userData.firstName || '').trim();
+      const email     = String(userData.email || '').trim();
+
+      if (!firstName || !email) {
+        console.warn(`[welcome] User ${userId} missing firstName or email; skipping`);
+        return;
+      }
+
+      // Load template
+      const templateSnap = await db.collection('emailTemplates').doc('newMember').get();
+      if (!templateSnap.exists) {
+        console.warn(`[welcome] newMember template not saved yet; skipping user ${userId}`);
+        return;
+      }
+      const template = templateSnap.data() || {};
+      if (!template.subject || !template.htmlBody) {
+        console.warn(`[welcome] newMember template incomplete; skipping user ${userId}`);
+        return;
+      }
+
+      // Substitute {firstName} tokens
+      const subject = String(template.subject).replace(/\{firstName\}/g, firstName);
+      const bodyWithTokens = String(template.htmlBody).replace(
+        /\{firstName\}/g,
+        escapeEmailHtml(firstName)
+      );
+
+      // Prepend the locked "Dear {firstName}," greeting — matches the
+      // client-side preview behaviour exactly.
+      const fullBody = `<p>Dear ${escapeEmailHtml(firstName)},</p>` + bodyWithTokens;
+
+      // Send via Postmark (any failure here is logged but not rethrown)
+      try {
+        const client = new postmark.ServerClient(process.env.POSTMARK_API_TOKEN);
+        const result = await client.sendEmail({
+          From: EMAIL_FROM,
+          To: email,
+          Bcc: 'hello@paramind.co.uk',
+          ReplyTo: EMAIL_REPLY_TO,
+          Subject: subject,
+          HtmlBody: wrapEmailHtml(fullBody, subject),
+          TextBody: htmlToText(fullBody),
+          MessageStream: 'outbound',
+        });
+
+        // Mark as sent so retries/duplicates skip
+        await snap.ref.update({
+          welcomeEmailSent: true,
+          welcomeEmailSentAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+
+        // Audit log
+        await db.collection('emailSendLog').add({
+          type: 'newMember',
+          subject: subject,
+          totalRecipients: 1,
+          sent: 1,
+          failed: 0,
+          errors: [],
+          userId: userId,
+          recipientEmail: email,
+          postmarkMessageId: result.MessageID || null,
+          sentAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+
+        console.log(`[welcome] Sent welcome to ${email} for user ${userId} (msg ${result.MessageID})`);
+      } catch (sendErr) {
+        console.error(
+          `[welcome] Postmark send FAILED for user ${userId} (${email}):`,
+          sendErr.message || sendErr
+        );
+        // Log the failure but do NOT rethrow — Option A: no retry
+        try {
+          await db.collection('emailSendLog').add({
+            type: 'newMember',
+            subject: subject,
+            totalRecipients: 1,
+            sent: 0,
+            failed: 1,
+            errors: [{ email: email, code: -1, message: String(sendErr.message || sendErr) }],
+            userId: userId,
+            recipientEmail: email,
+            sentAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        } catch (logErr) {
+          console.error('[welcome] Failed to write audit log:', logErr.message);
+        }
+      }
+    } catch (err) {
+      // Catch-all so we never throw from the trigger (preventing retries)
+      console.error('[welcome] Unexpected error:', err);
+    }
   }
 );
