@@ -3566,11 +3566,11 @@ exports.backfillProSinceGooglePlay = onRequest(
       const summary = {
         dryRun,
         scanned: snap.size,
-        wouldUpdate: 0,
-        updated: 0,
-        skipped_noToken: 0,
-        skipped_apiError: 0,
-        skipped_noStartTime: 0,
+        wouldUpdate_api: 0,
+        wouldUpdate_fallback: 0,
+        updated_api: 0,
+        updated_fallback: 0,
+        skipped_noFallback: 0,
         flagged_inactiveOnGoogle: [],
         details: [],
       };
@@ -3580,66 +3580,73 @@ exports.backfillProSinceGooglePlay = onRequest(
         const data = doc.data();
         const purchaseToken = data.googlePurchaseToken;
 
-        if (!purchaseToken) {
-          summary.skipped_noToken++;
-          summary.details.push({
-            userId,
-            email: data.email,
-            reason: "no_purchase_token",
-          });
-          continue;
+        // First try: authoritative date from Google Play API
+        let derivedDate = null;
+        let source = null;
+        let apiNote = null;       // why API didn't yield a date (for logging)
+        let googleState = null;
+
+        if (purchaseToken) {
+          try {
+            const apiUrl =
+              `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/` +
+              `${encodeURIComponent(PLAY_PACKAGE_NAME)}/purchases/subscriptionsv2/tokens/` +
+              `${encodeURIComponent(purchaseToken)}`;
+
+            const apiResponse = await fetch(apiUrl, {
+              headers: { Authorization: `Bearer ${accessToken}` },
+            });
+
+            if (!apiResponse.ok) {
+              apiNote = `api_${apiResponse.status}`;
+            } else {
+              const subData = await apiResponse.json();
+              googleState = subData.subscriptionState || null;
+
+              if (subData.startTime) {
+                const startDate = new Date(subData.startTime);
+                if (!isNaN(startDate.getTime())) {
+                  derivedDate = startDate;
+                  source = "google_api";
+                } else {
+                  apiNote = "invalid_startTime";
+                }
+              } else {
+                apiNote = "no_startTime";
+              }
+            }
+          } catch (perUserErr) {
+            apiNote = `exception:${perUserErr.message.slice(0, 100)}`;
+            console.error(
+              `backfillProSinceGooglePlay API call failed for ${userId}:`,
+              perUserErr
+            );
+          }
+        } else {
+          apiNote = "no_purchase_token";
         }
 
-        try {
-          const apiUrl =
-            `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/` +
-            `${encodeURIComponent(PLAY_PACKAGE_NAME)}/purchases/subscriptionsv2/tokens/` +
-            `${encodeURIComponent(purchaseToken)}`;
-
-          const apiResponse = await fetch(apiUrl, {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          });
-
-          if (!apiResponse.ok) {
-            const errText = await apiResponse.text();
-            summary.skipped_apiError++;
+        // Fallback: subscriptionUpdatedAt from Firestore (Timestamp)
+        if (!derivedDate) {
+          if (data.subscriptionUpdatedAt && typeof data.subscriptionUpdatedAt.toDate === "function") {
+            derivedDate = data.subscriptionUpdatedAt.toDate();
+            source = "google_fallback";
+          } else {
+            summary.skipped_noFallback++;
             summary.details.push({
               userId,
               email: data.email,
-              reason: "google_api_error",
-              status: apiResponse.status,
-              message: errText.slice(0, 300),
+              reason: "no_api_date_and_no_fallback",
+              apiNote,
             });
             continue;
           }
+        }
 
-          const subData = await apiResponse.json();
-
-          if (!subData.startTime) {
-            summary.skipped_noStartTime++;
-            summary.details.push({
-              userId,
-              email: data.email,
-              reason: "no_startTime_in_response",
-              subscriptionState: subData.subscriptionState || null,
-            });
-            continue;
-          }
-
-          const startDate = new Date(subData.startTime);
-          if (isNaN(startDate.getTime())) {
-            summary.skipped_noStartTime++;
-            summary.details.push({
-              userId,
-              email: data.email,
-              reason: "invalid_startTime",
-              raw: subData.startTime,
-            });
-            continue;
-          }
-
-          // Flag (but don't skip) if Google says the subscription isn't active
-          const googleState = subData.subscriptionState || null;
+        // Flag if Google explicitly says the subscription is not active.
+        // For fallback users, googleState will usually be null (API didn't work)
+        // — so this flag is essentially only meaningful when source === "google_api".
+        if (googleState) {
           const looksActive =
             googleState === "SUBSCRIPTION_STATE_ACTIVE" ||
             googleState === "SUBSCRIPTION_STATE_IN_GRACE_PERIOD" ||
@@ -3651,52 +3658,46 @@ exports.backfillProSinceGooglePlay = onRequest(
               googleState,
             });
           }
+        }
 
-          if (dryRun) {
-            summary.wouldUpdate++;
-            summary.details.push({
-              userId,
-              email: data.email,
-              proSince: startDate.toISOString(),
-              googleState,
-              wouldWrite: true,
-            });
-          } else {
-            await doc.ref.update({
-              proSince: admin.firestore.Timestamp.fromDate(startDate),
-              proSinceSource: "google_api",
-            });
-            summary.updated++;
-            summary.details.push({
-              userId,
-              email: data.email,
-              proSince: startDate.toISOString(),
-              googleState,
-              written: true,
-            });
-          }
-        } catch (perUserErr) {
-          summary.skipped_apiError++;
+        // Write (or pretend to)
+        if (dryRun) {
+          if (source === "google_api") summary.wouldUpdate_api++;
+          else summary.wouldUpdate_fallback++;
           summary.details.push({
             userId,
             email: data.email,
-            reason: "exception",
-            message: perUserErr.message,
+            proSince: derivedDate.toISOString(),
+            source,
+            apiNote,    // null on full success, otherwise reason API didn't yield
+            googleState,
+            wouldWrite: true,
           });
-          console.error(
-            `backfillProSinceGooglePlay error for ${userId}:`,
-            perUserErr
-          );
+        } else {
+          await doc.ref.update({
+            proSince: admin.firestore.Timestamp.fromDate(derivedDate),
+            proSinceSource: source,
+          });
+          if (source === "google_api") summary.updated_api++;
+          else summary.updated_fallback++;
+          summary.details.push({
+            userId,
+            email: data.email,
+            proSince: derivedDate.toISOString(),
+            source,
+            apiNote,
+            googleState,
+            written: true,
+          });
         }
       }
 
       console.log(
         `backfillProSinceGooglePlay finished. dryRun=${dryRun} ` +
-          `scanned=${summary.scanned} updated=${summary.updated} ` +
-          `wouldUpdate=${summary.wouldUpdate} ` +
-          `skipped_noToken=${summary.skipped_noToken} ` +
-          `skipped_apiError=${summary.skipped_apiError} ` +
-          `skipped_noStartTime=${summary.skipped_noStartTime}`
+          `scanned=${summary.scanned} ` +
+          `updated_api=${summary.updated_api} updated_fallback=${summary.updated_fallback} ` +
+          `wouldUpdate_api=${summary.wouldUpdate_api} wouldUpdate_fallback=${summary.wouldUpdate_fallback} ` +
+          `skipped_noFallback=${summary.skipped_noFallback}`
       );
 
       return res.status(200).json(summary);
