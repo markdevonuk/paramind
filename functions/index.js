@@ -3475,3 +3475,234 @@ exports.seedProSincePlaceholders = onRequest(
     }
   }
 );
+
+// ============================================
+// ADMIN: BACKFILL proSince — GOOGLE PLAY API
+// ============================================
+// Companion to backfillProSince. For active Pro users on the Google Play
+// platform, calls the Google Play Developer API to retrieve the authoritative
+// subscription startTime, then writes that as proSince.
+//
+// Targets only users where proSinceSource === "pending_google_manual" so it
+// won't disturb anyone already correctly backfilled or manually entered.
+//
+// Requires:
+//   - GOOGLE_PLAY_SERVICE_ACCOUNT secret (JSON contents of the Play API
+//     service account key file)
+//   - Service account invited as a user in Google Play Console with
+//     "View financial data" app permission
+//   - Google Play Android Developer API enabled in the GCP project
+//
+// Trigger (after deploy) from browser console while logged in:
+//
+//   const t = await firebase.auth().currentUser.getIdToken();
+//   const r = await fetch(
+//     "https://europe-west2-paramind-64b8e.cloudfunctions.net/backfillProSinceGooglePlay",
+//     {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json", Authorization: `Bearer ${t}` },
+//       body: JSON.stringify({ dryRun: true })
+//     }
+//   );
+//   console.log(await r.json());
+
+const { GoogleAuth } = require("google-auth-library");
+
+const PLAY_PACKAGE_NAME = "uk.co.paramind.app";
+
+exports.backfillProSinceGooglePlay = onRequest(
+  {
+    cors: true,
+    secrets: ["GOOGLE_PLAY_SERVICE_ACCOUNT"],
+    timeoutSeconds: 540,
+  },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+      const uid = await verifyAuth(req);
+      if (uid !== BACKFILL_ADMIN_UID) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+
+      const dryRun = req.body?.dryRun !== false;
+
+      // Parse service account JSON from secret
+      let serviceAccountCredentials;
+      try {
+        serviceAccountCredentials = JSON.parse(
+          process.env.GOOGLE_PLAY_SERVICE_ACCOUNT
+        );
+      } catch (parseErr) {
+        return res.status(500).json({
+          error: "GOOGLE_PLAY_SERVICE_ACCOUNT secret is not valid JSON",
+          detail: parseErr.message,
+        });
+      }
+
+      // Build an authenticated Google API client using the service account
+      const auth = new GoogleAuth({
+        credentials: serviceAccountCredentials,
+        scopes: ["https://www.googleapis.com/auth/androidpublisher"],
+      });
+      const client = await auth.getClient();
+      const tokenResp = await client.getAccessToken();
+      const accessToken = tokenResp?.token;
+      if (!accessToken) {
+        return res.status(500).json({
+          error: "Failed to obtain Google Play API access token",
+        });
+      }
+
+      // Find target users — active Pro on Google Play awaiting manual entry
+      const snap = await db
+        .collection("users")
+        .where("subscriptionStatus", "==", "active")
+        .where("proSinceSource", "==", "pending_google_manual")
+        .get();
+
+      const summary = {
+        dryRun,
+        scanned: snap.size,
+        wouldUpdate: 0,
+        updated: 0,
+        skipped_noToken: 0,
+        skipped_apiError: 0,
+        skipped_noStartTime: 0,
+        flagged_inactiveOnGoogle: [],
+        details: [],
+      };
+
+      for (const doc of snap.docs) {
+        const userId = doc.id;
+        const data = doc.data();
+        const purchaseToken = data.googlePurchaseToken;
+
+        if (!purchaseToken) {
+          summary.skipped_noToken++;
+          summary.details.push({
+            userId,
+            email: data.email,
+            reason: "no_purchase_token",
+          });
+          continue;
+        }
+
+        try {
+          const apiUrl =
+            `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/` +
+            `${encodeURIComponent(PLAY_PACKAGE_NAME)}/purchases/subscriptionsv2/tokens/` +
+            `${encodeURIComponent(purchaseToken)}`;
+
+          const apiResponse = await fetch(apiUrl, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+
+          if (!apiResponse.ok) {
+            const errText = await apiResponse.text();
+            summary.skipped_apiError++;
+            summary.details.push({
+              userId,
+              email: data.email,
+              reason: "google_api_error",
+              status: apiResponse.status,
+              message: errText.slice(0, 300),
+            });
+            continue;
+          }
+
+          const subData = await apiResponse.json();
+
+          if (!subData.startTime) {
+            summary.skipped_noStartTime++;
+            summary.details.push({
+              userId,
+              email: data.email,
+              reason: "no_startTime_in_response",
+              subscriptionState: subData.subscriptionState || null,
+            });
+            continue;
+          }
+
+          const startDate = new Date(subData.startTime);
+          if (isNaN(startDate.getTime())) {
+            summary.skipped_noStartTime++;
+            summary.details.push({
+              userId,
+              email: data.email,
+              reason: "invalid_startTime",
+              raw: subData.startTime,
+            });
+            continue;
+          }
+
+          // Flag (but don't skip) if Google says the subscription isn't active
+          const googleState = subData.subscriptionState || null;
+          const looksActive =
+            googleState === "SUBSCRIPTION_STATE_ACTIVE" ||
+            googleState === "SUBSCRIPTION_STATE_IN_GRACE_PERIOD" ||
+            googleState === "SUBSCRIPTION_STATE_ON_HOLD";
+          if (!looksActive) {
+            summary.flagged_inactiveOnGoogle.push({
+              userId,
+              email: data.email,
+              googleState,
+            });
+          }
+
+          if (dryRun) {
+            summary.wouldUpdate++;
+            summary.details.push({
+              userId,
+              email: data.email,
+              proSince: startDate.toISOString(),
+              googleState,
+              wouldWrite: true,
+            });
+          } else {
+            await doc.ref.update({
+              proSince: admin.firestore.Timestamp.fromDate(startDate),
+              proSinceSource: "google_api",
+            });
+            summary.updated++;
+            summary.details.push({
+              userId,
+              email: data.email,
+              proSince: startDate.toISOString(),
+              googleState,
+              written: true,
+            });
+          }
+        } catch (perUserErr) {
+          summary.skipped_apiError++;
+          summary.details.push({
+            userId,
+            email: data.email,
+            reason: "exception",
+            message: perUserErr.message,
+          });
+          console.error(
+            `backfillProSinceGooglePlay error for ${userId}:`,
+            perUserErr
+          );
+        }
+      }
+
+      console.log(
+        `backfillProSinceGooglePlay finished. dryRun=${dryRun} ` +
+          `scanned=${summary.scanned} updated=${summary.updated} ` +
+          `wouldUpdate=${summary.wouldUpdate} ` +
+          `skipped_noToken=${summary.skipped_noToken} ` +
+          `skipped_apiError=${summary.skipped_apiError} ` +
+          `skipped_noStartTime=${summary.skipped_noStartTime}`
+      );
+
+      return res.status(200).json(summary);
+    } catch (err) {
+      console.error("backfillProSinceGooglePlay fatal error:", err);
+      return res.status(500).json({ error: err.message });
+    }
+  }
+);
