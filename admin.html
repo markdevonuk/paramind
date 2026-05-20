@@ -160,8 +160,8 @@
                     </div>
                     <div>
                         <span id="adminEmail" class="me-3"></span>
-                        <a href="podcast-generator.html" class="btn btn-outline-light btn-sm me-2">
-    <i class="bi bi-mic-fill me-1"></i>Podcast Generator
+                        <a href="admin-users.html" class="btn btn-outline-light btn-sm me-2">
+    <i class="bi bi-people-fill me-1"></i>User Data
 </a>
 <a href="chat.html" class="btn btn-outline-light btn-sm me-2">
     <i class="bi bi-chat-dots me-1"></i>Back to Chat
@@ -317,120 +317,6 @@
                 </div>
             </div>
 
-            <!-- User Tables -->
-            <div class="user-table">
-                <div class="p-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <ul class="nav nav-tabs border-0" id="userTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">
-                                All Users
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="free-tab" data-bs-toggle="tab" data-bs-target="#free" type="button" role="tab">
-                                Free Users
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="paid-tab" data-bs-toggle="tab" data-bs-target="#paid" type="button" role="tab">
-                                Paid Users
-                            </button>
-                        </li>
-                    </ul>
-                    
-                    <div class="d-flex gap-2 align-items-center">
-                        <div class="input-group search-box">
-                            <span class="input-group-text"><i class="bi bi-search"></i></span>
-                            <input type="text" id="searchInput" class="form-control" placeholder="Search users...">
-                        </div>
-                        <button id="exportAllBtn" class="btn btn-outline-primary export-btn">
-                            <i class="bi bi-download me-1"></i>Export All CSV
-                        </button>
-                        <button id="exportFreeBtn" class="btn btn-outline-secondary export-btn">
-                            <i class="bi bi-download me-1"></i>Export Free CSV
-                        </button>
-                        <button id="exportPaidBtn" class="btn btn-outline-success export-btn">
-                            <i class="bi bi-download me-1"></i>Export Paid CSV
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="tab-content p-3" id="userTabsContent">
-                    <!-- All Users Tab -->
-                    <div class="tab-pane fade show active" id="all" role="tabpanel">
-                        <div class="table-responsive">
-                            <table class="table table-hover" id="allUsersTable">
-                                <thead>
-                                    <tr>
-                                        <th data-sort="name" onclick="handleSort('allUsersBody', 'name', true, true)" style="cursor:pointer;user-select:none;">Name <span class="sort-icon text-muted">⇅</span></th>
-                                        <th data-sort="email" onclick="handleSort('allUsersBody', 'email', true, true)" style="cursor:pointer;user-select:none;">Email <span class="sort-icon text-muted">⇅</span></th>
-                                        <th data-sort="trust" onclick="handleSort('allUsersBody', 'trust', true, true)" style="cursor:pointer;user-select:none;">Trust <span class="sort-icon text-muted">⇅</span></th>
-                                        <th data-sort="status" onclick="handleSort('allUsersBody', 'status', true, true)" style="cursor:pointer;user-select:none;">Status <span class="sort-icon text-muted">⇅</span></th>
-                                        <th data-sort="platform" onclick="handleSort('allUsersBody', 'platform', true, true)" style="cursor:pointer;user-select:none;">Platform <span class="sort-icon text-muted">⇅</span></th>
-                                        <!-- CHANGE 1: Added Last Login column -->
-                                        <th data-sort="lastLogin" onclick="handleSort('allUsersBody', 'lastLogin', true, true)" style="cursor:pointer;user-select:none;">Last Login <span class="sort-icon text-muted">⇅</span></th>
-                                        <th data-sort="createdAt" onclick="handleSort('allUsersBody', 'createdAt', true, true)" style="cursor:pointer;user-select:none;">Joined <span class="sort-icon text-muted">⇅</span></th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="allUsersBody">
-                                    <tr>
-                                        <td colspan="8" class="text-center py-4">
-                                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-                                            Loading users...
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    
-                    <!-- Free Users Tab -->
-                    <div class="tab-pane fade" id="free" role="tabpanel">
-                        <div class="table-responsive">
-                            <table class="table table-hover" id="freeUsersTable">
-                                <thead>
-                                    <tr>
-                                        <th data-sort="name" onclick="handleSort('freeUsersBody', 'name', false, false)" style="cursor:pointer;user-select:none;">Name <span class="sort-icon text-muted">⇅</span></th>
-                                        <th data-sort="email" onclick="handleSort('freeUsersBody', 'email', false, false)" style="cursor:pointer;user-select:none;">Email <span class="sort-icon text-muted">⇅</span></th>
-                                        <th data-sort="trust" onclick="handleSort('freeUsersBody', 'trust', false, false)" style="cursor:pointer;user-select:none;">Trust <span class="sort-icon text-muted">⇅</span></th>
-                                        <!-- CHANGE 3: Added Last Login column -->
-                                        <th data-sort="lastLogin" onclick="handleSort('freeUsersBody', 'lastLogin', false, false)" style="cursor:pointer;user-select:none;">Last Login <span class="sort-icon text-muted">⇅</span></th>
-                                        <th data-sort="createdAt" onclick="handleSort('freeUsersBody', 'createdAt', false, false)" style="cursor:pointer;user-select:none;">Joined <span class="sort-icon text-muted">⇅</span></th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="freeUsersBody">
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    
-                    <!-- Paid Users Tab -->
-                    <div class="tab-pane fade" id="paid" role="tabpanel">
-                        <div class="table-responsive">
-                            <table class="table table-hover" id="paidUsersTable">
-                                <thead>
-                                    <tr>
-                                        <th data-sort="name" onclick="handleSort('paidUsersBody', 'name', false, true)" style="cursor:pointer;user-select:none;">Name <span class="sort-icon text-muted">⇅</span></th>
-                                        <th data-sort="email" onclick="handleSort('paidUsersBody', 'email', false, true)" style="cursor:pointer;user-select:none;">Email <span class="sort-icon text-muted">⇅</span></th>
-                                        <th data-sort="trust" onclick="handleSort('paidUsersBody', 'trust', false, true)" style="cursor:pointer;user-select:none;">Trust <span class="sort-icon text-muted">⇅</span></th>
-                                        <th data-sort="platform" onclick="handleSort('paidUsersBody', 'platform', false, true)" style="cursor:pointer;user-select:none;">Platform <span class="sort-icon text-muted">⇅</span></th>
-                                        <!-- CHANGE 4: Added Last Login column -->
-                                        <th data-sort="lastLogin" onclick="handleSort('paidUsersBody', 'lastLogin', false, true)" style="cursor:pointer;user-select:none;">Last Login <span class="sort-icon text-muted">⇅</span></th>
-                                        <th data-sort="createdAt" onclick="handleSort('paidUsersBody', 'createdAt', false, true)" style="cursor:pointer;user-select:none;">Joined <span class="sort-icon text-muted">⇅</span></th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="paidUsersBody">
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            
             <!-- ============================================
      NEWS MANAGER SECTION
      Add this AFTER the closing </div> of the user tables section
@@ -696,7 +582,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, query, where, orderBy, increment } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, getCountFromServer, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, query, where, orderBy, increment } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
         import { getStorage } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
         import { firebaseConfig } from './js/firebase-config.js';
         import { initAdminNews } from './js/admin-news.js';
@@ -717,11 +603,6 @@
             // 'another-admin@example.com',
         ];
 
-        // Store all users data
-        let allUsers = [];
-        let freeUsersList = [];
-        let paidUsersList = [];
-
         // ============================================
         // AUTHENTICATION & ACCESS CONTROL
         // ============================================
@@ -734,8 +615,8 @@
                     document.getElementById('adminContent').style.display = 'block';
                     document.getElementById('adminEmail').textContent = user.email;
                     
-                    // Load users
-                    await loadAllUsers();
+                    // Load user stats (lean count queries)
+                    await loadUserStats();
                     // Load news manager
 					initNewsManager();
                     // Load articles manager (What's New page)
@@ -758,341 +639,51 @@
         });
 
         // ============================================
-        // LOAD ALL USERS FROM FIRESTORE
+        // LOAD USER STATS (lean count queries — no full collection scan)
         // ============================================
-        async function loadAllUsers() {
+        async function loadUserStats() {
             try {
                 const usersRef = collection(db, 'users');
-                const querySnapshot = await getDocs(usersRef);
-                
-                allUsers = [];
-                freeUsersList = [];
-                paidUsersList = [];
-                
-                querySnapshot.forEach((doc) => {
-                    const userData = doc.data();
-                    const user = {
-                        id: doc.id,
-                        firstName: userData.firstName || '',
-                        surname: userData.surname || '',
-                        email: userData.email || '',
-                        trust: userData.trust || '',
-                        trustFullName: userData.trustFullName || userData.trust || '',
-                        subscriptionStatus: userData.subscriptionStatus || 'free',
-                        createdAt: userData.createdAt || null,
-                        lastLogin: userData.lastLogin || null,
-                        promoCodeUsed: userData.promoCodeUsed || '',
-                        // Fields for platform column and £0 detection
-                        subscriptionPlatform: userData.subscriptionPlatform || '',
-                        stripeSubscriptionId: userData.stripeSubscriptionId || '',
-                        discountApplied: userData.discountApplied || false,
-                        discountAmount: userData.discountAmount || 0,
-                        appleTransactionId: userData.appleTransactionId || "",
-                        appleProductId: userData.appleProductId || "",
-                        paramedicRole: userData.paramedicRole || ""
-                    };
 
-                    // Work out if this user paid £0 (100% discount on monthly = 499p)
-                    user.isZeroPaid = user.subscriptionStatus === 'active' 
-                        && user.discountApplied 
-                        && user.discountAmount >= 499;
-                    allUsers.push(user);
-                    
-                    // Paid = active AND actually paid money. £0 promo users go to Free.
-                    if (user.subscriptionStatus === 'active' && !user.isZeroPaid) {
-                        paidUsersList.push(user);
-                    } else {
-                        freeUsersList.push(user);
-                    }
-                });
-                
-                // Sort by creation date (newest first)
-                const sortByDate = (a, b) => {
-                    if (!a.createdAt) return 1;
-                    if (!b.createdAt) return -1;
-                    return new Date(b.createdAt) - new Date(a.createdAt);
-                };
-                
-                allUsers.sort(sortByDate);
-                freeUsersList.sort(sortByDate);
-                paidUsersList.sort(sortByDate);
-                
-                // Update stats
-                document.getElementById('totalUsers').textContent = allUsers.length;
-                document.getElementById('freeUsers').textContent = freeUsersList.length;
-                document.getElementById('paidUsers').textContent = paidUsersList.length;
+                // Run all counts in parallel. Each getCountFromServer is 1 read
+                // regardless of how many docs match, so this is ~5 reads total
+                // instead of fetching every user doc.
+                const [totalSnap, paidSnap, studentSnap, nqpSnap, regSnap] = await Promise.all([
+                    getCountFromServer(usersRef),
+                    getCountFromServer(query(usersRef, where('subscriptionStatus', '==', 'active'))),
+                    getCountFromServer(query(usersRef, where('paramedicRole', '==', 'student'))),
+                    getCountFromServer(query(usersRef, where('paramedicRole', '==', 'nqp'))),
+                    getCountFromServer(query(usersRef, where('paramedicRole', '==', 'registered')))
+                ]);
 
-                // Update role breakdown (paramedicRole: 'student' | 'nqp' | 'registered' | '')
-                const roleCounts = { student: 0, nqp: 0, registered: 0, notSet: 0 };
-                allUsers.forEach((u) => {
-                    if (u.paramedicRole === 'student')         roleCounts.student++;
-                    else if (u.paramedicRole === 'nqp')        roleCounts.nqp++;
-                    else if (u.paramedicRole === 'registered') roleCounts.registered++;
-                    else                                       roleCounts.notSet++;
-                });
-                document.getElementById('roleStudent').textContent    = roleCounts.student;
-                document.getElementById('roleNqp').textContent        = roleCounts.nqp;
-                document.getElementById('roleRegistered').textContent = roleCounts.registered;
+                const total      = totalSnap.data().count;
+                const paid       = paidSnap.data().count;
+                const student    = studentSnap.data().count;
+                const nqp        = nqpSnap.data().count;
+                const registered = regSnap.data().count;
+                const free       = Math.max(0, total - paid);
+                const notSet     = Math.max(0, total - student - nqp - registered);
+
+                document.getElementById('totalUsers').textContent     = total;
+                document.getElementById('freeUsers').textContent      = free;
+                document.getElementById('paidUsers').textContent      = paid;
+                document.getElementById('roleStudent').textContent    = student;
+                document.getElementById('roleNqp').textContent        = nqp;
+                document.getElementById('roleRegistered').textContent = registered;
                 document.getElementById('roleNotSetNote').textContent =
-                    roleCounts.notSet + ' user' + (roleCounts.notSet === 1 ? '' : 's') + ' have not set their role yet.';
-                
-                // Render tables (showStatus, showPlatform)
-                renderTable('allUsersBody', allUsers, true, true);
-                renderTable('freeUsersBody', freeUsersList, false, false);
-                renderTable('paidUsersBody', paidUsersList, false, true);
-                
-                // Update last refresh time
+                    notSet + ' user' + (notSet === 1 ? '' : 's') + ' have not set their role yet.';
+
                 document.getElementById('lastRefresh').textContent = new Date().toLocaleString();
-                
             } catch (error) {
-                console.error('Error loading users:', error);
-                document.getElementById('allUsersBody').innerHTML = `
-                    <tr>
-                        <!-- Updated colspan to 8 for actions column -->
-                        <td colspan="8" class="text-center text-danger py-4">
-                            <i class="bi bi-exclamation-triangle me-2"></i>
-                            Error loading users. Check console for details.
-                        </td>
-                    </tr>
-                `;
+                console.error('Error loading user stats:', error);
+                document.getElementById('totalUsers').textContent = 'Error';
             }
         }
-
-        // ============================================
-        // COLUMN SORTING
-        // ============================================
-        const sortState = {
-            allUsersBody:  { col: null, dir: 'asc' },
-            freeUsersBody: { col: null, dir: 'asc' },
-            paidUsersBody: { col: null, dir: 'asc' }
-        };
-
-        const baseArrayFor = {
-            allUsersBody:  () => allUsers,
-            freeUsersBody: () => freeUsersList,
-            paidUsersBody: () => paidUsersList
-        };
-
-        function getSortValue(user, col) {
-            switch (col) {
-                case 'name':      return ((user.firstName || '') + ' ' + (user.surname || '')).trim().toLowerCase();
-                case 'email':     return (user.email || '').toLowerCase();
-                case 'trust':     return (user.trust || '').toLowerCase();
-                case 'status':    return (user.subscriptionStatus || '').toLowerCase();
-                case 'platform':
-                    if (user.subscriptionPlatform === 'apple') return 'apple';
-                    if (user.stripeSubscriptionId) return 'stripe';
-                    return '';
-                case 'lastLogin': return user.lastLogin || '';
-                case 'createdAt': return user.createdAt || '';
-                default:          return '';
-            }
-        }
-
-        function applySort(users, tableBodyId) {
-            const { col, dir } = sortState[tableBodyId];
-            if (!col) return users;
-            return [...users].sort((a, b) => {
-                const av = getSortValue(a, col);
-                const bv = getSortValue(b, col);
-                if (av < bv) return dir === 'asc' ? -1 : 1;
-                if (av > bv) return dir === 'asc' ?  1 : -1;
-                return 0;
-            });
-        }
-
-        function updateSortIndicators(tableBodyId, activeCol, dir) {
-            const tbody = document.getElementById(tableBodyId);
-            if (!tbody) return;
-            tbody.closest('table').querySelectorAll('th[data-sort]').forEach(th => {
-                const icon = th.querySelector('.sort-icon');
-                if (!icon) return;
-                if (th.dataset.sort === activeCol) {
-                    icon.textContent = dir === 'asc' ? '▲' : '▼';
-                    icon.classList.remove('text-muted');
-                } else {
-                    icon.textContent = '⇅';
-                    icon.classList.add('text-muted');
-                }
-            });
-        }
-
-        window.handleSort = function handleSort(tableBodyId, col, showStatus, showPlatform) {
-            const state = sortState[tableBodyId];
-            state.dir = (state.col === col && state.dir === 'asc') ? 'desc' : 'asc';
-            state.col = col;
-            updateSortIndicators(tableBodyId, col, state.dir);
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const base = baseArrayFor[tableBodyId]();
-            const filtered = searchTerm ? base.filter(u =>
-                (u.firstName || '').toLowerCase().includes(searchTerm) ||
-                (u.surname   || '').toLowerCase().includes(searchTerm) ||
-                (u.email     || '').toLowerCase().includes(searchTerm) ||
-                (u.trust     || '').toLowerCase().includes(searchTerm)
-            ) : base;
-            renderTable(tableBodyId, applySort(filtered, tableBodyId), showStatus, showPlatform);
-        }
-
-        // ============================================
-        // RENDER TABLE
-        // ============================================
-        function renderTable(tableBodyId, users, showStatus = false, showPlatform = false) {
-            const tbody = document.getElementById(tableBodyId);
-            
-            // base 5 cols + status + platform + actions column
-            const colspan = 5 + (showStatus ? 1 : 0) + (showPlatform ? 1 : 0) + 1;
-            
-            if (users.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="${colspan}" class="text-center py-4 text-muted">
-                            No users found
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            tbody.innerHTML = users.map(user => {
-                const fullName = `${user.firstName} ${user.surname}`.trim() || 'No name';
-                const joinDate = user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-GB', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric'
-                }) : 'Unknown';
-                
-                // Status badge: Paid, Free, or £0 Promo
-                let statusBadge;
-                if (user.isZeroPaid) {
-                    statusBadge = '<span class="badge bg-warning text-dark">£0 Promo</span>';
-                } else if (user.subscriptionStatus === 'active') {
-                    statusBadge = '<span class="badge badge-paid">Paid</span>';
-                } else {
-                    statusBadge = '<span class="badge badge-free">Free</span>';
-                }
-                
-                // Platform badge: Apple, Stripe, or blank
-                let platformBadge = '';
-                if (user.subscriptionStatus === 'active' || user.isZeroPaid) {
-                    if (user.subscriptionPlatform === 'apple') {
-                        platformBadge = '<span class="badge bg-dark">\u{1F34E} Apple</span>';
-                    } else if (user.subscriptionPlatform === 'google') {
-                        platformBadge = '<span class="badge bg-success">\u{1F916} Google</span>';
-                    } else if (user.stripeSubscriptionId) {
-                        platformBadge = '<span class="badge bg-primary">\u{1F4B3} Stripe</span>';
-                    }
-                }
-                
-                const lastLogin = user.lastLogin 
-                    ? new Date(user.lastLogin).toLocaleDateString('en-GB', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    }) 
-                    : 'Never';
-                
-                // Build the name cell (same for all table variants)
-                const nameCell = `<td>${escapeHtml(fullName)}${user.promoCodeUsed ? '<br><small class="text-muted"><i class="bi bi-tag me-1"></i>' + escapeHtml(user.promoCodeUsed) + '</small>' : ''}</td>`;
-                
-                // Build row based on which columns are shown
-                let row = `<tr>${nameCell}`;
-                row += `<td>${escapeHtml(user.email)}</td>`;
-                row += `<td>${escapeHtml(user.trust)}</td>`;
-                if (showStatus) row += `<td>${statusBadge}</td>`;
-                if (showPlatform) row += `<td>${platformBadge}</td>`;
-                row += `<td>${lastLogin}</td>`;
-                row += `<td>${joinDate}</td>`;
-                row += `<td><button class="btn btn-outline-danger btn-sm" onclick="deleteUser('${user.id}', '${escapeHtml(user.email)}', '${escapeHtml(fullName)}')"><i class="bi bi-trash"></i></button></td>`;
-                row += `</tr>`;
-                return row;
-            }).join('');
-        }
-
-        // ============================================
-        // SEARCH FUNCTIONALITY
-        // ============================================
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            
-            const filterUsers = (users) => {
-                return users.filter(user => 
-                    user.firstName.toLowerCase().includes(searchTerm) ||
-                    user.surname.toLowerCase().includes(searchTerm) ||
-                    user.email.toLowerCase().includes(searchTerm) ||
-                    user.trust.toLowerCase().includes(searchTerm)
-                );
-            };
-            
-            renderTable('allUsersBody',  applySort(filterUsers(allUsers),       'allUsersBody'),  true,  true);
-            renderTable('freeUsersBody', applySort(filterUsers(freeUsersList),   'freeUsersBody'), false, false);
-            renderTable('paidUsersBody', applySort(filterUsers(paidUsersList),   'paidUsersBody'), false, true);
-        });
-
-        // ============================================
-        // CSV EXPORT FUNCTIONALITY
-        // ============================================
-        function exportToCSV(users, filename) {
-            // CHANGE 13: Added 'Last Login' to CSV headers
-            const headers = ['First Name', 'Surname', 'Email', 'Trust', 'Trust Full Name', 'Subscription Status', 'Platform', 'Last Login', 'Joined Date'];
-            
-            // Convert users to CSV rows
-            const rows = users.map(user => {
-                const joinDate = user.createdAt ? new Date(user.createdAt).toISOString() : '';
-                // CHANGE 14: Added lastLogin to CSV export
-                const lastLogin = user.lastLogin ? new Date(user.lastLogin).toISOString() : '';
-                // Work out platform for CSV
-                let platform = '';
-                if (user.subscriptionPlatform === 'apple') {
-                    platform = 'Apple';
-                } else if (user.subscriptionPlatform === 'google') {
-                    platform = 'Google';
-                } else if (user.stripeSubscriptionId) {
-                    platform = 'Stripe';
-                }
-                return [
-                    user.firstName,
-                    user.surname,
-                    user.email,
-                    user.trust,
-                    user.trustFullName,
-                    user.isZeroPaid ? 'free (£0 promo)' : user.subscriptionStatus,
-                    platform,
-                    lastLogin,
-                    joinDate
-                ].map(field => `"${(field || '').replace(/"/g, '""')}"`).join(',');
-            });
-            
-            // Combine headers and rows
-            const csv = [headers.join(','), ...rows].join('\n');
-            
-            // Create and trigger download
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = filename;
-            link.click();
-            URL.revokeObjectURL(link.href);
-        }
-
-        // Export buttons
-        document.getElementById('exportAllBtn').addEventListener('click', () => {
-            exportToCSV(allUsers, `paramind-all-users-${new Date().toISOString().split('T')[0]}.csv`);
-        });
-
-        document.getElementById('exportFreeBtn').addEventListener('click', () => {
-            exportToCSV(freeUsersList, `paramind-free-users-${new Date().toISOString().split('T')[0]}.csv`);
-        });
-
-        document.getElementById('exportPaidBtn').addEventListener('click', () => {
-            exportToCSV(paidUsersList, `paramind-paid-users-${new Date().toISOString().split('T')[0]}.csv`);
-        });
 
         // ============================================
         // REFRESH BUTTON
         // ============================================
-        document.getElementById('refreshBtn').addEventListener('click', loadAllUsers);
+        document.getElementById('refreshBtn').addEventListener('click', loadUserStats);
 
         // ============================================
         // LOGOUT
@@ -1107,53 +698,7 @@
         });
 
         // ============================================
-        // DELETE USER
-        // ============================================
-        window.deleteUser = async function(userId, userEmail, userName) {
-            const displayName = userName && userName !== 'No name' ? userName : userEmail;
-            const confirmed = window.confirm(
-                `Are you sure you want to delete this user?\n\n${displayName} (${userEmail})\n\nThis will remove their Paramind data permanently. This cannot be undone.`
-            );
-            if (!confirmed) return;
-
-            try {
-                await deleteDoc(doc(db, 'users', userId));
-
-                // Remove from all in-memory arrays
-                allUsers      = allUsers.filter(u => u.id !== userId);
-                freeUsersList = freeUsersList.filter(u => u.id !== userId);
-                paidUsersList = paidUsersList.filter(u => u.id !== userId);
-
-                // Update stats
-                document.getElementById('totalUsers').textContent = allUsers.length;
-                document.getElementById('freeUsers').textContent  = freeUsersList.length;
-                document.getElementById('paidUsers').textContent  = paidUsersList.length;
-
-                // Re-render all three tables
-                renderTable('allUsersBody',  allUsers,      true,  true);
-                renderTable('freeUsersBody', freeUsersList, false, false);
-                renderTable('paidUsersBody', paidUsersList, false, true);
-
-            } catch (error) {
-                console.error('Error deleting user:', error);
-                alert('Failed to delete user: ' + error.message);
-            }
-        };
-
-        // ============================================
-        // UTILITY FUNCTIONS
-        // ============================================
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
-        
-        // ============================================
         // NEWS POPUP MANAGER
-        // Add this code INSIDE the existing <script type="module"> block
-        // AFTER the loadAllUsers() function and its closing bracket
         // ============================================
 
         // ---- Load existing news articles when page loads ----
