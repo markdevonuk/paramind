@@ -4482,7 +4482,7 @@ const postmark = require("postmark");
 
 const ADMIN_EMAILS = ['markdevon@gmail.com'];
 const EMAIL_FROM = 'Paramind <hello@paramind.co.uk>';
-const EMAIL_REPLY_TO = 'mark@paramind.co.uk';
+const EMAIL_REPLY_TO = 'hello@paramind.co.uk';
 
 /**
  * Verify the request is from an admin user.
