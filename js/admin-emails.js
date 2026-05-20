@@ -190,15 +190,23 @@ function buildEditor(templateId, selector, includeFirstNameButton) {
         }
     });
 
-    // Bind Shift+Enter to insert a soft line break (<br>) instead of a new paragraph.
-    // Returning false prevents Quill's default Enter handler from also running.
-    quill.keyboard.addBinding({ key: 'Enter', shiftKey: true }, function (range) {
-        this.quill.insertEmbed(range.index, 'softBreak', true, 'user');
-        this.quill.setSelection(range.index + 1, 0, 'silent');
-        return false;
-    });
-
     TEMPLATES[templateId].quill = quill;
+
+    // Bind Shift+Enter to insert a soft line break (<br>) instead of a new paragraph.
+    // We listen at the DOM capture phase BEFORE Quill's own keydown handler runs,
+    // because Quill 2.0.2's keyboard.addBinding() doesn't reliably intercept
+    // Shift+Enter. preventDefault + stopPropagation stop Quill from also acting.
+    quill.root.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && e.shiftKey) {
+            e.preventDefault();
+            e.stopPropagation();
+            const range = quill.getSelection(true);
+            if (range) {
+                quill.insertEmbed(range.index, 'softBreak', ' ', 'user');
+                quill.setSelection(range.index + 1, 0, 'silent');
+            }
+        }
+    }, true);  // capture phase = fires before Quill's bubble-phase listener
 
     // Per-editor click handler — show resize toolbar when an image is clicked
     quill.root.addEventListener('click', (e) => {
