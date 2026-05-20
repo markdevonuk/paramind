@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Email Templates - Admin - Paramind</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem;
+        }
+
+        .access-denied {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .access-denied i {
+            font-size: 4rem;
+            color: #dc3545;
+            margin-bottom: 1rem;
+        }
+
+        #adminContent {
+            display: none;
+        }
+
+        /* Locked "Dear [firstName]," greeting label shown above editors that auto-send */
+        .greeting-lock {
+            background: #f1f3f5;
+            border: 1px dashed #adb5bd;
+            border-radius: 8px;
+            padding: 0.6rem 0.9rem;
+            margin-bottom: 0.5rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #495057;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .greeting-lock .firstName-token {
+            background: #2B8A9C;
+            color: white;
+            padding: 0.1rem 0.45rem;
+            border-radius: 5px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .greeting-lock i {
+            color: #6c757d;
+        }
+
+        /* Quill editor styling — matches admin.html's article editor */
+        .email-editor .ql-editor {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1rem;
+            line-height: 1.65;
+            color: #212529;
+            min-height: 280px;
+        }
+        .email-editor .ql-editor p     { margin: 0 0 1rem; }
+        .email-editor .ql-editor h1    { font-size: 1.6rem;  font-weight: 700; margin: 1.5rem 0 0.5rem; }
+        .email-editor .ql-editor h2    { font-size: 1.35rem; font-weight: 700; margin: 1.5rem 0 0.5rem; }
+        .email-editor .ql-editor h3    { font-size: 1.15rem; font-weight: 700; margin: 1.5rem 0 0.5rem; }
+        .email-editor .ql-editor img   { max-width: 100%; height: auto; border-radius: 10px; margin: 1rem 0; }
+        .email-editor .ql-editor a     { color: #2B8A9C; text-decoration: underline; }
+        .email-editor .ql-editor ul,
+        .email-editor .ql-editor ol    { padding-left: 1.5rem; margin: 0 0 1rem; }
+
+        /* Custom "Insert {firstName}" toolbar button */
+        .ql-insertFirstName::after {
+            content: "{firstName}";
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #2B8A9C;
+        }
+
+        /* Preview pane */
+        .email-preview {
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1.25rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            line-height: 1.65;
+            color: #212529;
+            min-height: 120px;
+        }
+        .email-preview img { max-width: 100%; height: auto; border-radius: 10px; margin: 1rem 0; }
+        .email-preview a   { color: #2B8A9C; text-decoration: underline; }
+
+        /* Status line under each editor */
+        .save-status {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        .save-status.saved   { color: #198754; }
+        .save-status.error   { color: #dc3545; }
+
+        /* CSV recipient preview */
+        .recipient-table-wrap {
+            max-height: 320px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+        }
+        .recipient-table-wrap table {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+        .recipient-table-wrap thead th {
+            position: sticky;
+            top: 0;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        /* Tabs */
+        .nav-tabs .nav-link {
+            color: #495057;
+            font-weight: 500;
+        }
+        .nav-tabs .nav-link.active {
+            color: #1a237e;
+            font-weight: 600;
+        }
+        .tab-content {
+            padding-top: 1.25rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Access Denied Screen (shown if not admin) -->
+    <div id="accessDenied" class="access-denied" style="display: none;">
+        <i class="bi bi-shield-lock"></i>
+        <h2>Access Denied</h2>
+        <p class="text-muted">You don't have permission to access this page.</p>
+        <a href="chat.html" class="btn btn-primary">Back to Chat</a>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-spinner">
+        <div class="text-center">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p>Verifying admin access...</p>
+        </div>
+    </div>
+
+    <!-- Admin Content (hidden until verified) -->
+    <div id="adminContent">
+
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <h1><i class="bi bi-envelope-paper me-2"></i>Email Templates</h1>
+                        <p class="mb-0 opacity-75">Manage automated and one-off member emails</p>
+                    </div>
+                    <div>
+                        <span id="adminEmail" class="me-3"></span>
+                        <a href="admin.html" class="btn btn-outline-light btn-sm me-2">
+                            <i class="bi bi-arrow-left me-1"></i>Admin Dashboard
+                        </a>
+                        <a href="chat.html" class="btn btn-outline-light btn-sm me-2">
+                            <i class="bi bi-chat-dots me-1"></i>Back to Chat
+                        </a>
+                        <button id="logoutBtn" class="btn btn-light btn-sm">
+                            <i class="bi bi-box-arrow-right me-1"></i>Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="container pb-5">
+
+            <!-- Integration status banner -->
+            <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                <div>
+                    <strong>Postmark integration pending.</strong>
+                    You can write and save templates now. Sending will be wired up next.
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <ul class="nav nav-tabs" id="emailTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="tab-newMember-btn" data-bs-toggle="tab"
+                            data-bs-target="#tab-newMember" type="button" role="tab">
+                        <i class="bi bi-person-plus me-1"></i>New Member
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-newProMember-btn" data-bs-toggle="tab"
+                            data-bs-target="#tab-newProMember" type="button" role="tab">
+                        <i class="bi bi-star-fill me-1"></i>New Pro Member
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-general-btn" data-bs-toggle="tab"
+                            data-bs-target="#tab-general" type="button" role="tab">
+                        <i class="bi bi-megaphone me-1"></i>General (CSV)
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+
+                <!-- ============================================
+                     TAB 1: NEW MEMBER EMAIL
+                     ============================================ -->
+                <div class="tab-pane fade show active" id="tab-newMember" role="tabpanel">
+                    <div class="panel">
+                        <h4 class="mb-1">New Member Welcome Email</h4>
+                        <p class="text-muted small mb-3">
+                            Sent automatically to every user when they register for a free account.
+                        </p>
+
+                        <label class="form-label fw-semibold">Subject</label>
+                        <input type="text" id="newMember-subject" class="form-control mb-3"
+                               placeholder="Welcome to Paramind">
+
+                        <label class="form-label fw-semibold">Email body</label>
+                        <div class="greeting-lock">
+                            <i class="bi bi-lock-fill"></i>
+                            <span>Email will begin with:</span>
+                            <strong>Dear&nbsp;</strong>
+                            <span class="firstName-token">firstName</span>
+                            <strong>,</strong>
+                            <span class="text-muted small ms-2">(locked — written automatically)</span>
+                        </div>
+                        <div id="newMember-editor" class="email-editor"></div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span id="newMember-status" class="save-status">Loading…</span>
+                            <button id="newMember-save" class="btn btn-primary">
+                                <i class="bi bi-save me-1"></i>Save Template
+                            </button>
+                        </div>
+
+                        <hr class="my-4">
+                        <h5 class="mb-2">Preview</h5>
+                        <p class="text-muted small mb-2">Shown with sample name "Sarah".</p>
+                        <div id="newMember-preview" class="email-preview"></div>
+                    </div>
+                </div>
+
+                <!-- ============================================
+                     TAB 2: NEW PRO MEMBER EMAIL
+                     ============================================ -->
+                <div class="tab-pane fade" id="tab-newProMember" role="tabpanel">
+                    <div class="panel">
+                        <h4 class="mb-1">New Pro Member Email</h4>
+                        <p class="text-muted small mb-3">
+                            Sent automatically when a member upgrades to Paramind Pro.
+                        </p>
+
+                        <label class="form-label fw-semibold">Subject</label>
+                        <input type="text" id="newProMember-subject" class="form-control mb-3"
+                               placeholder="Welcome to Paramind Pro">
+
+                        <label class="form-label fw-semibold">Email body</label>
+                        <div class="greeting-lock">
+                            <i class="bi bi-lock-fill"></i>
+                            <span>Email will begin with:</span>
+                            <strong>Dear&nbsp;</strong>
+                            <span class="firstName-token">firstName</span>
+                            <strong>,</strong>
+                            <span class="text-muted small ms-2">(locked — written automatically)</span>
+                        </div>
+                        <div id="newProMember-editor" class="email-editor"></div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span id="newProMember-status" class="save-status">Loading…</span>
+                            <button id="newProMember-save" class="btn btn-primary">
+                                <i class="bi bi-save me-1"></i>Save Template
+                            </button>
+                        </div>
+
+                        <hr class="my-4">
+                        <h5 class="mb-2">Preview</h5>
+                        <p class="text-muted small mb-2">Shown with sample name "Sarah".</p>
+                        <div id="newProMember-preview" class="email-preview"></div>
+                    </div>
+                </div>
+
+                <!-- ============================================
+                     TAB 3: GENERAL EMAIL (CSV)
+                     ============================================ -->
+                <div class="tab-pane fade" id="tab-general" role="tabpanel">
+                    <div class="panel">
+                        <h4 class="mb-1">General Email</h4>
+                        <p class="text-muted small mb-3">
+                            One-off email sent to a list of recipients you paste in or upload as a CSV.
+                            Use the <code>{firstName}</code> button on the toolbar to insert each recipient's name.
+                        </p>
+
+                        <label class="form-label fw-semibold">Subject</label>
+                        <input type="text" id="general-subject" class="form-control mb-3"
+                               placeholder="A quick update from Paramind">
+
+                        <label class="form-label fw-semibold">Email body</label>
+                        <div id="general-editor" class="email-editor"></div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span id="general-status" class="save-status">Loading…</span>
+                            <button id="general-save" class="btn btn-primary">
+                                <i class="bi bi-save me-1"></i>Save Template
+                            </button>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h5 class="mb-2">Recipients</h5>
+                        <p class="text-muted small mb-2">
+                            CSV must have a header row including columns named
+                            <code>firstName</code> (or <code>first name</code>, <code>first_name</code>) and
+                            <code>email</code>. Other columns are ignored.
+                        </p>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Paste CSV</label>
+                                <textarea id="general-csv-paste" class="form-control" rows="6"
+                                          placeholder="firstName,email&#10;Mark,mark@example.com&#10;Sarah,sarah@example.com"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">…or upload CSV file</label>
+                                <input type="file" id="general-csv-file" class="form-control" accept=".csv,text/csv">
+                                <div class="form-text">File contents will replace the pasted text above.</div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <button id="general-parse" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-list-check me-1"></i>Parse recipients
+                            </button>
+                            <span id="general-csv-status" class="ms-2 small text-muted"></span>
+                        </div>
+
+                        <div id="general-recipient-preview-wrap" class="mt-3" style="display: none;">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong id="general-recipient-count">0 valid recipients</strong>
+                                <span id="general-recipient-skipped" class="text-muted small"></span>
+                            </div>
+                            <div class="recipient-table-wrap">
+                                <table class="table table-sm mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 50px;">#</th>
+                                            <th>First name</th>
+                                            <th>Email</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="general-recipient-tbody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h5 class="mb-2">Preview</h5>
+                        <p class="text-muted small mb-2">
+                            Shown using the first recipient's name (or "Sarah" if no recipients parsed).
+                        </p>
+                        <div id="general-preview" class="email-preview"></div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-end">
+                            <button id="general-send" class="btn btn-success" disabled
+                                    title="Postmark integration pending">
+                                <i class="bi bi-send me-1"></i>Send to recipients
+                            </button>
+                        </div>
+                        <p class="text-muted small text-end mt-2 mb-0">
+                            Send is disabled until Postmark integration is in place.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Quill rich text editor (global) -->
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getStorage } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+        import { firebaseConfig } from './js/firebase-config.js';
+        import { initAdminEmails } from './js/admin-emails.js';
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        // ============================================
+        // ADMIN EMAIL WHITELIST (must match admin.html)
+        // ============================================
+        const ADMIN_EMAILS = [
+            'markdevon@gmail.com',
+        ];
+
+        // ============================================
+        // AUTHENTICATION & ACCESS CONTROL
+        // ============================================
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                if (ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+                    document.getElementById('loadingScreen').style.display = 'none';
+                    document.getElementById('adminContent').style.display = 'block';
+                    document.getElementById('adminEmail').textContent = user.email;
+
+                    initAdminEmails({ db, storage, adminEmail: user.email })
+                        .catch(err => console.error('admin-emails init failed:', err));
+                } else {
+                    document.getElementById('loadingScreen').style.display = 'none';
+                    document.getElementById('accessDenied').style.display = 'block';
+                }
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'login.html';
+        });
+    </script>
+</body>
+</html>
