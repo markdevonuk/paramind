@@ -6,7 +6,7 @@
 
 const { onRequest } = require("firebase-functions/v2/https");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
-const { onDocumentCreated } = require("firebase-functions/v2/firestore");
+const { onDocumentCreated, onDocumentUpdated } = require("firebase-functions/v2/firestore");
 const { setGlobalOptions } = require("firebase-functions/v2/options");
 const admin = require("firebase-admin");
 const { OpenAI } = require("openai");
@@ -4823,6 +4823,140 @@ exports.sendWelcomeEmailOnSignup = onDocumentCreated(
     } catch (err) {
       // Catch-all so we never throw from the trigger (preventing retries)
       console.error('[welcome] Unexpected error:', err);
+    }
+  }
+);
+
+
+// ============================================
+// NEW PRO MEMBER EMAIL (auto-send on upgrade)
+// ============================================
+// Fires when a user document transitions to subscriptionStatus: 'active'.
+// Covers all three upgrade paths in one place:
+//   - Stripe web checkout (subscriptionStatus set by Stripe webhook)
+//   - Apple IAP (set by verifyApplePurchase)
+//   - Google Play (set by verifyGooglePurchase)
+//
+// Policy (matches the welcome email):
+//   - Silent skip if template not saved, fields missing, or already sent
+//   - Dedupe via proWelcomeEmailSent flag — a user who downgrades and
+//     re-upgrades will NOT receive the email a second time. Safer to
+//     under-email than spam.
+//   - BCC hello@paramind.co.uk on every send
+//   - Postmark failures logged but never rethrown (no Firestore retry)
+
+exports.sendProWelcomeEmailOnUpgrade = onDocumentUpdated(
+  {
+    document: 'users/{userId}',
+    secrets: ['POSTMARK_API_TOKEN'],
+    memory: '256MiB',
+    timeoutSeconds: 60,
+  },
+  async (event) => {
+    try {
+      const before = event.data?.before?.data() || {};
+      const after  = event.data?.after?.data()  || {};
+      const userId = event.params.userId;
+
+      // Only act on a transition INTO 'active'
+      const wasActive = before.subscriptionStatus === 'active';
+      const isActive  = after.subscriptionStatus  === 'active';
+      if (!isActive || wasActive) {
+        return;  // either still inactive, or already was active
+      }
+
+      // Dedupe — already sent
+      if (after.proWelcomeEmailSent === true) {
+        console.log(`[proWelcome] User ${userId} already received Pro welcome; skipping`);
+        return;
+      }
+
+      const firstName = String(after.firstName || '').trim();
+      const email     = String(after.email || '').trim();
+
+      if (!firstName || !email) {
+        console.warn(`[proWelcome] User ${userId} missing firstName or email; skipping`);
+        return;
+      }
+
+      // Load template
+      const templateSnap = await db.collection('emailTemplates').doc('newProMember').get();
+      if (!templateSnap.exists) {
+        console.warn(`[proWelcome] newProMember template not saved yet; skipping user ${userId}`);
+        return;
+      }
+      const template = templateSnap.data() || {};
+      if (!template.subject || !template.htmlBody) {
+        console.warn(`[proWelcome] newProMember template incomplete; skipping user ${userId}`);
+        return;
+      }
+
+      // Substitute {firstName} tokens
+      const subject = String(template.subject).replace(/\{firstName\}/g, firstName);
+      const bodyWithTokens = String(template.htmlBody).replace(
+        /\{firstName\}/g,
+        escapeEmailHtml(firstName)
+      );
+      const fullBody = `<p>Dear ${escapeEmailHtml(firstName)},</p>` + bodyWithTokens;
+
+      // Send via Postmark
+      try {
+        const client = new postmark.ServerClient(process.env.POSTMARK_API_TOKEN);
+        const result = await client.sendEmail({
+          From: EMAIL_FROM,
+          To: email,
+          Bcc: 'hello@paramind.co.uk',
+          ReplyTo: EMAIL_REPLY_TO,
+          Subject: subject,
+          HtmlBody: wrapEmailHtml(fullBody, subject),
+          TextBody: htmlToText(fullBody),
+          MessageStream: 'outbound',
+        });
+
+        await event.data.after.ref.update({
+          proWelcomeEmailSent: true,
+          proWelcomeEmailSentAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+
+        await db.collection('emailSendLog').add({
+          type: 'newProMember',
+          subject: subject,
+          totalRecipients: 1,
+          sent: 1,
+          failed: 0,
+          errors: [],
+          userId: userId,
+          recipientEmail: email,
+          subscriptionPlatform: after.subscriptionPlatform || 'stripe',
+          postmarkMessageId: result.MessageID || null,
+          sentAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+
+        console.log(`[proWelcome] Sent Pro welcome to ${email} for user ${userId} (msg ${result.MessageID})`);
+      } catch (sendErr) {
+        console.error(
+          `[proWelcome] Postmark send FAILED for user ${userId} (${email}):`,
+          sendErr.message || sendErr
+        );
+        try {
+          await db.collection('emailSendLog').add({
+            type: 'newProMember',
+            subject: subject,
+            totalRecipients: 1,
+            sent: 0,
+            failed: 1,
+            errors: [{ email: email, code: -1, message: String(sendErr.message || sendErr) }],
+            userId: userId,
+            recipientEmail: email,
+            subscriptionPlatform: after.subscriptionPlatform || 'stripe',
+            sentAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        } catch (logErr) {
+          console.error('[proWelcome] Failed to write audit log:', logErr.message);
+        }
+      }
+    } catch (err) {
+      console.error('[proWelcome] Unexpected error:', err);
     }
   }
 );
