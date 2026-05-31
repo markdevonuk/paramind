@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Your Free Card | ParaMind</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Menu CSS -->
+    <link rel="stylesheet" href="css/menu-v2.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <style>
+        body {
+            background: var(--color-gray-50);
+            color: var(--color-gray-700);
+        }
+
+        .page-content {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+
+        /* ---- Gift hero ---- */
+        .gift-hero {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .gift-hero .gift-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--color-teal);
+            color: var(--color-white);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .gift-hero h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+
+        .gift-hero .subtitle {
+            color: var(--color-gray-500);
+            margin: 0;
+        }
+
+        /* ---- Cards (matches account-card styling) ---- */
+        .card-block {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .card-block h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--color-gray-800);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-block h3 i {
+            color: var(--color-teal);
+        }
+
+        /* ---- "What you'll receive" list ---- */
+        .gift-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 0.75rem;
+        }
+
+        .gift-list li {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            padding: 0.5rem 0;
+            font-size: 0.95rem;
+            color: var(--color-gray-700);
+        }
+
+        .gift-list li i {
+            color: var(--color-teal);
+            font-size: 1.15rem;
+            flex-shrink: 0;
+        }
+
+        .gift-list li strong {
+            color: var(--color-gray-800);
+        }
+
+        .gift-note {
+            font-size: 0.85rem;
+            color: var(--color-gray-500);
+            margin: 0;
+            padding-top: 0.5rem;
+            border-top: 1px solid var(--color-gray-100);
+        }
+
+        .gift-note .one-per {
+            display: block;
+            font-weight: 600;
+            color: var(--color-gray-700);
+            margin-bottom: 0.25rem;
+        }
+
+        /* ---- Form fields ---- */
+        .field-group {
+            margin-bottom: 1rem;
+        }
+
+        .field-group:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .field-label {
+            font-size: 0.85rem;
+            color: var(--color-gray-500);
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+            display: block;
+        }
+
+        .field-label .optional {
+            color: var(--color-gray-500);
+            font-weight: 400;
+        }
+
+        .field-input {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: var(--color-gray-800);
+            background: var(--color-white);
+        }
+
+        .field-input:focus {
+            outline: none;
+            border-color: var(--color-teal);
+            box-shadow: 0 0 0 3px rgba(43, 138, 156, 0.12);
+        }
+
+        .field-input[readonly] {
+            background: var(--color-gray-50);
+            color: var(--color-gray-500);
+            cursor: not-allowed;
+        }
+
+        .field-row {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .field-row .field-group {
+            flex: 1;
+        }
+
+        .submit-btn {
+            width: 100%;
+            margin-top: 0.5rem;
+            padding: 0.8rem 1rem;
+            border: none;
+            border-radius: var(--radius-md);
+            background: var(--color-teal);
+            color: var(--color-white);
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: opacity 0.15s ease;
+        }
+
+        .submit-btn:hover { opacity: 0.92; }
+
+        .submit-btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .form-feedback {
+            margin-top: 0.85rem;
+            font-size: 0.9rem;
+            text-align: center;
+            min-height: 1.2rem;
+        }
+
+        /* ---- Already-claimed / success states ---- */
+        .state-card {
+            text-align: center;
+        }
+
+        .state-card .state-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(43, 138, 156, 0.12);
+            color: var(--color-teal);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .state-card h3 {
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .state-card p {
+            color: var(--color-gray-500);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .delivery-summary {
+            text-align: left;
+            background: var(--color-gray-50);
+            border-radius: var(--radius-md);
+            padding: 0.9rem 1rem;
+            font-size: 0.9rem;
+            color: var(--color-gray-700);
+            line-height: 1.5;
+        }
+
+        .delivery-summary .summary-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--color-gray-500);
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="member-navbar">
+        <div class="container">
+            <span class="brand-text">
+                <a class="navbar-brand" href="landing.html">
+                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
+                </a>
+            </span>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="page-content">
+
+        <!-- Gift hero -->
+        <div class="gift-hero">
+            <div class="gift-icon"><i class="bi bi-gift-fill"></i></div>
+            <h1>A thank you gift from us to you</h1>
+            <p class="subtitle">Your free ECG / ATMIST reference card &mdash; on its way to you.</p>
+        </div>
+
+        <!-- What you'll receive -->
+        <div class="card-block">
+            <h3><i class="bi bi-box-seam"></i> What you'll receive</h3>
+            <ul class="gift-list">
+                <li><i class="bi bi-check-circle-fill"></i> A <strong>FREE</strong> ECG / ATMIST reference card</li>
+                <li><i class="bi bi-check-circle-fill"></i> A <strong>FREE</strong> protective card holder</li>
+                <li><i class="bi bi-check-circle-fill"></i> <strong>FREE</strong> postage, delivered to your door</li>
+            </ul>
+            <p class="gift-note">
+                <span class="one-per">One card per member.</span>
+                This is a genuine, no-strings gift to say thank you for being a Pro member.
+                There's absolutely nothing to pay and nothing expected in return &mdash;
+                just tell us where to send it.
+            </p>
+        </div>
+
+        <!-- Request form -->
+        <div class="card-block hidden" id="formCard">
+            <h3><i class="bi bi-truck"></i> Where shall we send it?</h3>
+
+            <div class="field-row">
+                <div class="field-group">
+                    <label class="field-label" for="firstName">First name</label>
+                    <input type="text" class="field-input" id="firstName" readonly tabindex="-1" aria-readonly="true">
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="surname">Surname</label>
+                    <input type="text" class="field-input" id="surname" readonly tabindex="-1" aria-readonly="true">
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label" for="addr1">Address line 1</label>
+                <input type="text" class="field-input" id="addr1" autocomplete="address-line1" maxlength="120">
+            </div>
+
+            <div class="field-group">
+                <label class="field-label" for="addr2">Address line 2 <span class="optional">(optional)</span></label>
+                <input type="text" class="field-input" id="addr2" autocomplete="address-line2" maxlength="120">
+            </div>
+
+            <div class="field-group">
+                <label class="field-label" for="addr3">Address line 3 <span class="optional">(optional)</span></label>
+                <input type="text" class="field-input" id="addr3" maxlength="120">
+            </div>
+
+            <div class="field-group">
+                <label class="field-label" for="townCity">Town / City</label>
+                <input type="text" class="field-input" id="townCity" autocomplete="address-level2" maxlength="80">
+            </div>
+
+            <div class="field-group">
+                <label class="field-label" for="postcode">Postcode</label>
+                <input type="text" class="field-input" id="postcode" autocomplete="postal-code" maxlength="10" style="text-transform: uppercase;">
+            </div>
+
+            <button class="submit-btn" id="submitBtn" type="button">
+                <i class="bi bi-gift"></i> Send me my free card
+            </button>
+            <div class="form-feedback" id="formFeedback"></div>
+        </div>
+
+        <!-- Success state (after submitting this session) -->
+        <div class="card-block state-card hidden" id="successCard">
+            <div class="state-icon"><i class="bi bi-check-lg"></i></div>
+            <h3>You're all set!</h3>
+            <p>Thank you &mdash; your free card is on its way. We'll post it to the address below.</p>
+            <div class="delivery-summary" id="successSummary"></div>
+        </div>
+
+        <!-- Already-claimed state (request exists from a previous visit) -->
+        <div class="card-block state-card hidden" id="claimedCard">
+            <div class="state-icon"><i class="bi bi-mailbox"></i></div>
+            <h3>Your card is on its way</h3>
+            <p>You've already claimed your free card &mdash; one per member. It's being posted to:</p>
+            <div class="delivery-summary" id="claimedSummary"></div>
+        </div>
+
+    </div>
+
+    <!-- ============================================
+         PAGE LOGIC
+         Pro pages do not include the Firebase SDK directly —
+         menu-v2.js loads it dynamically and pro-guard.js gates
+         the page. We therefore wait for Firebase before using it.
+         ============================================ -->
+    <script>
+    (function () {
+        'use strict';
+
+        var els = {
+            formCard:       document.getElementById('formCard'),
+            successCard:    document.getElementById('successCard'),
+            claimedCard:    document.getElementById('claimedCard'),
+            firstName:      document.getElementById('firstName'),
+            surname:        document.getElementById('surname'),
+            addr1:          document.getElementById('addr1'),
+            addr2:          document.getElementById('addr2'),
+            addr3:          document.getElementById('addr3'),
+            townCity:       document.getElementById('townCity'),
+            postcode:       document.getElementById('postcode'),
+            submitBtn:      document.getElementById('submitBtn'),
+            feedback:       document.getElementById('formFeedback'),
+            successSummary: document.getElementById('successSummary'),
+            claimedSummary: document.getElementById('claimedSummary')
+        };
+
+        var currentUser = null;
+        var loadedProfile = null;
+
+        // Basic UK postcode check — permissive, normalises spacing/case.
+        var UK_POSTCODE = /^[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}$/i;
+
+        function setFeedback(msg, isError) {
+            els.feedback.textContent = msg || '';
+            els.feedback.style.color = isError ? '#dc3545' : 'var(--color-teal)';
+        }
+
+        function escapeHtml(text) {
+            var div = document.createElement('div');
+            div.textContent = text == null ? '' : text;
+            return div.innerHTML;
+        }
+
+        // Build the address summary block shown after submitting / when already claimed.
+        function renderSummary(target, req) {
+            var name = [req.firstName, req.surname].filter(Boolean).join(' ');
+            var lines = [
+                name,
+                req.addressLine1,
+                req.addressLine2,
+                req.addressLine3,
+                req.townCity,
+                req.postcode
+            ].filter(function (l) { return l && l.trim(); });
+
+            target.innerHTML =
+                '<div class="summary-label">Delivery address</div>' +
+                lines.map(function (l) { return escapeHtml(l); }).join('<br>');
+        }
+
+        function showForm() {
+            els.formCard.classList.remove('hidden');
+        }
+
+        function showClaimed(req) {
+            renderSummary(els.claimedSummary, req);
+            els.formCard.classList.add('hidden');
+            els.successCard.classList.add('hidden');
+            els.claimedCard.classList.remove('hidden');
+        }
+
+        function showSuccess(req) {
+            renderSummary(els.successSummary, req);
+            els.formCard.classList.add('hidden');
+            els.claimedCard.classList.add('hidden');
+            els.successCard.classList.remove('hidden');
+        }
+
+        // Wait for Firebase (loaded by menu-v2.js) and a signed-in user.
+        // pro-guard.js has already verified Pro access by the time the page
+        // is visible, but Firebase loads asynchronously so we poll for it.
+        async function waitForUser() {
+            var attempts = 0;
+            while ((typeof firebase === 'undefined' || !firebase.auth ||
+                    !firebase.firestore || !firebase.auth().currentUser) && attempts < 60) {
+                await new Promise(function (r) { setTimeout(r, 200); });
+                attempts++;
+            }
+            return (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
+        }
+
+        async function init() {
+            currentUser = await waitForUser();
+            if (!currentUser) {
+                // pro-guard.js will normally have redirected already; bail quietly.
+                return;
+            }
+
+            try {
+                var doc = await firebase.firestore().collection('users').doc(currentUser.uid).get();
+                loadedProfile = doc.exists ? doc.data() : {};
+
+                // Auto-fill the locked name fields from the user's profile.
+                els.firstName.value = loadedProfile.firstName || '';
+                els.surname.value   = loadedProfile.surname || '';
+
+                // One card per member — if a request already exists, show the claimed state.
+                if (loadedProfile.freeCardRequest && loadedProfile.freeCardRequest.addressLine1) {
+                    showClaimed(loadedProfile.freeCardRequest);
+                } else {
+                    showForm();
+                }
+            } catch (err) {
+                console.error('Free card: error loading profile', err);
+                // Don't block the user — show the form; name fields may be blank.
+                showForm();
+            }
+        }
+
+        function validate() {
+            var addr1    = els.addr1.value.trim();
+            var townCity = els.townCity.value.trim();
+            var postcode = els.postcode.value.trim();
+
+            if (!addr1)    { setFeedback('Please enter the first line of your address.', true); els.addr1.focus(); return null; }
+            if (!townCity) { setFeedback('Please enter your town or city.', true); els.townCity.focus(); return null; }
+            if (!postcode) { setFeedback('Please enter your postcode.', true); els.postcode.focus(); return null; }
+            if (!UK_POSTCODE.test(postcode)) {
+                setFeedback('That postcode doesn\u2019t look right \u2014 please check it.', true);
+                els.postcode.focus();
+                return null;
+            }
+
+            return {
+                // Name snapshot taken from the loaded profile (not the inputs),
+                // so the stored label data is trusted and self-contained.
+                firstName:    (loadedProfile && loadedProfile.firstName) || '',
+                surname:      (loadedProfile && loadedProfile.surname) || '',
+                addressLine1: addr1,
+                addressLine2: els.addr2.value.trim(),
+                addressLine3: els.addr3.value.trim(),
+                townCity:     townCity,
+                postcode:     postcode.toUpperCase().replace(/\s+/g, ' '),
+                status:       'pending',
+                requestedAt:  new Date().toISOString()
+            };
+        }
+
+        async function submit() {
+            if (!currentUser) {
+                setFeedback('Not signed in. Please refresh and try again.', true);
+                return;
+            }
+
+            var request = validate();
+            if (!request) return;
+
+            els.submitBtn.disabled = true;
+            var originalLabel = els.submitBtn.innerHTML;
+            els.submitBtn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Sending\u2026';
+            setFeedback('');
+
+            try {
+                // Guard against a double-claim if a request appeared since page load.
+                var fresh = await firebase.firestore().collection('users').doc(currentUser.uid).get();
+                var freshData = fresh.exists ? fresh.data() : {};
+                if (freshData.freeCardRequest && freshData.freeCardRequest.addressLine1) {
+                    showClaimed(freshData.freeCardRequest);
+                    return;
+                }
+
+                // Store on the user's own document — permitted by existing
+                // Firestore rules with no rules change required.
+                await firebase.firestore().collection('users').doc(currentUser.uid).update({
+                    freeCardRequest: request
+                });
+
+                showSuccess(request);
+            } catch (err) {
+                console.error('Free card: error saving request', err);
+                els.submitBtn.disabled = false;
+                els.submitBtn.innerHTML = originalLabel;
+                setFeedback('Something went wrong saving your request. Please try again.', true);
+            }
+        }
+
+        els.submitBtn.addEventListener('click', submit);
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
+    </script>
+
+    <!-- Core scripts (order matters — pro-guard.js gates the page) -->
+    <script src="js/app.js"></script>
+    <script src="js/menu-v2.js"></script>
+    <script src="js/pro-guard.js"></script>
+</body>
+</html>
