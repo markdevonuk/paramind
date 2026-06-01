@@ -18,7 +18,8 @@
 // ============================================================
 
 import {
-    doc, getDoc, setDoc, serverTimestamp
+    doc, getDoc, setDoc, serverTimestamp,
+    collection, getDocs, query, where
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 import {
@@ -101,6 +102,10 @@ export async function initAdminEmails({ auth, db, storage, adminEmail }) {
         const text = document.getElementById('general-csv-paste').value;
         parseCsvAndRender(text);
     });
+
+    // Wire up the Free / Pro audience loaders
+    document.getElementById('general-load-free').addEventListener('click', () => loadAudience('free'));
+    document.getElementById('general-load-pro').addEventListener('click',  () => loadAudience('pro'));
 
     // Subject changes affect the Send button state too
     document.getElementById('general-subject').addEventListener('input', updateSendButtonState);
@@ -533,9 +538,6 @@ function handleCsvFile(e) {
 function parseCsvAndRender(text) {
     const statusEl = document.getElementById('general-csv-status');
     const wrap     = document.getElementById('general-recipient-preview-wrap');
-    const tbody    = document.getElementById('general-recipient-tbody');
-    const countEl  = document.getElementById('general-recipient-count');
-    const skipEl   = document.getElementById('general-recipient-skipped');
 
     if (!text || !text.trim()) {
         _recipients = [];
@@ -603,8 +605,23 @@ function parseCsvAndRender(text) {
     }
 
     _recipients = validRows;
+    renderRecipientTable(validRows, skipped, 'row');
+    statusEl.textContent = '';
+}
 
-    // Render preview table
+// ============================================================
+// SHARED RECIPIENT TABLE RENDER
+// Used by both the CSV path and the Free/Pro audience loaders.
+// Fills the preview table, count, and skipped note, then
+// refreshes the email preview. Each caller manages its own
+// status line separately.
+// ============================================================
+function renderRecipientTable(validRows, skipped, unit) {
+    const tbody   = document.getElementById('general-recipient-tbody');
+    const countEl = document.getElementById('general-recipient-count');
+    const skipEl  = document.getElementById('general-recipient-skipped');
+    const wrap    = document.getElementById('general-recipient-preview-wrap');
+
     tbody.innerHTML = validRows.slice(0, 200).map((r, i) => `
         <tr>
             <td>${i + 1}</td>
@@ -615,16 +632,90 @@ function parseCsvAndRender(text) {
 
     countEl.textContent = `${validRows.length} valid recipient${validRows.length === 1 ? '' : 's'}`;
     skipEl.textContent  = skipped > 0
-        ? `${skipped} row${skipped === 1 ? '' : 's'} skipped (missing/invalid data)`
+        ? `${skipped} ${unit}${skipped === 1 ? '' : 's'} skipped (missing/invalid data)`
         : '';
     if (validRows.length > 200) {
         skipEl.textContent += ` — showing first 200`;
     }
     wrap.style.display = 'block';
-    statusEl.textContent = '';
 
     // Refresh preview with first recipient's name
     renderPreview('general');
+}
+
+// ============================================================
+// AUDIENCE LOADING (general tab)
+// Pull all Free or all Pro members from Firestore and fill the
+// same _recipients list / preview table the CSV path uses.
+// "Pro" / "Free" classification matches admin-users.html exactly:
+//   Pro  = subscriptionStatus === 'active' AND NOT a £0 promo
+//   Free = everyone else
+// Members missing a first name, email, or with an invalid email
+// are skipped (the sendGeneralEmail function requires both).
+// ============================================================
+async function loadAudience(tier) {
+    const statusEl = document.getElementById('general-audience-status');
+    const freeBtn  = document.getElementById('general-load-free');
+    const proBtn   = document.getElementById('general-load-pro');
+    const label    = tier === 'pro' ? 'Pro' : 'Free';
+
+    freeBtn.disabled = true;
+    proBtn.disabled  = true;
+    statusEl.textContent = `Loading ${label} members…`;
+
+    try {
+        const users = [];
+        if (tier === 'pro') {
+            // Pro = active subscription. Targeted (cheap) query, then
+            // exclude £0 promo users below.
+            const q = query(collection(_db, 'users'),
+                where('subscriptionStatus', '==', 'active'));
+            const snap = await getDocs(q);
+            snap.forEach(d => users.push(d.data()));
+        } else {
+            // Free = anyone who is NOT a paying active member. No single
+            // query covers this, so fetch all and filter (same approach
+            // as the Users admin page).
+            const snap = await getDocs(collection(_db, 'users'));
+            snap.forEach(d => users.push(d.data()));
+        }
+
+        const validRows = [];
+        let skipped = 0;
+        for (const u of users) {
+            const status     = u.subscriptionStatus || 'free';
+            const isZeroPaid = status === 'active'
+                && u.discountApplied === true
+                && (u.discountAmount || 0) >= 499;
+            const isPro      = status === 'active' && !isZeroPaid;
+
+            // Keep only members in the requested tier
+            if (tier === 'pro'  && !isPro) continue;
+            if (tier === 'free' &&  isPro) continue;
+
+            const firstName = String(u.firstName || '').trim();
+            const email     = String(u.email || '').trim();
+            if (!firstName || !email || !isValidEmail(email)) {
+                skipped++;
+                continue;
+            }
+            validRows.push({ firstName, email });
+        }
+
+        _recipients = validRows;
+        renderRecipientTable(validRows, skipped, 'member');
+        statusEl.textContent =
+            `Loaded ${validRows.length} ${label} member${validRows.length === 1 ? '' : 's'}.`;
+    } catch (err) {
+        console.error(`Failed to load ${label} members:`, err);
+        statusEl.textContent = 'Failed to load: ' + describeError(err);
+        _recipients = [];
+        document.getElementById('general-recipient-preview-wrap').style.display = 'none';
+        renderPreview('general');
+    } finally {
+        freeBtn.disabled = false;
+        proBtn.disabled  = false;
+    }
 }
 
 function findColumnIndex(headers, candidates) {

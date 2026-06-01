@@ -390,8 +390,28 @@
                         <hr class="my-4">
 
                         <h5 class="mb-2">Recipients</h5>
+
+                        <!-- Quick audience: all Free / all Pro members (pulled from the database) -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold d-block mb-2">Send to all members</label>
+                            <button id="general-load-free" class="btn btn-outline-primary btn-sm me-2">
+                                <i class="bi bi-people me-1"></i>Load all Free members
+                            </button>
+                            <button id="general-load-pro" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-star me-1"></i>Load all Pro members
+                            </button>
+                            <span id="general-audience-status" class="ms-2 small text-muted"></span>
+                            <div class="form-text">
+                                Pulls members straight from the database and fills the recipient list below.
+                                Members without a first name or email are skipped automatically.
+                                Use the <code>{firstName}</code> button on the toolbar to personalise the email.
+                            </div>
+                        </div>
+
+                        <hr class="my-3">
+
                         <p class="text-muted small mb-2">
-                            CSV must have a header row including columns named
+                            …or paste / upload a CSV. It must have a header row including columns named
                             <code>firstName</code> (or <code>first name</code>, <code>first_name</code>) and
                             <code>email</code>. Other columns are ignored.
                         </p>
