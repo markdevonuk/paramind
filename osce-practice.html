@@ -492,6 +492,47 @@
       box-shadow: none;
     }
 
+    /* Secondary CTA — outlined teal. Used for the "Save and continue
+       later" action on the lock screen (sections 1–3 only). Sits below
+       the primary CTA. */
+    .osce-cta-secondary {
+      display: block;
+      width: 100%;
+      background: #fff;
+      color: var(--color-teal-dark);
+      border: 1.5px solid var(--color-teal);
+      border-radius: 10px;
+      padding: 0.95rem 1.25rem;
+      font-family: var(--font-primary);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      margin-top: 0.6rem;
+    }
+    .osce-cta-secondary:hover { background: rgba(43,138,156,0.04); }
+    .osce-cta-secondary:active { transform: scale(0.985); }
+
+    /* Anonymous-user banner on the marker-type screen. */
+    .osce-anon-banner {
+      display: flex;
+      gap: 0.6rem;
+      align-items: flex-start;
+      padding: 0.7rem 0.85rem;
+      background: rgba(255,193,7,0.08);
+      border-left: 3px solid var(--color-warning);
+      border-radius: 0 6px 6px 0;
+      font-size: 0.85rem;
+      color: var(--color-gray-700);
+      margin: 0.75rem 0 0.5rem;
+      line-height: 1.5;
+    }
+    .osce-anon-banner i {
+      color: var(--color-warning);
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
     /* Examiner Mode — Reflection screen
        Section-specific prompt in a teal-accented panel; optional textarea
        below for typed reflection. Solo mode only. */
@@ -1080,6 +1121,34 @@
 </div>
 
 <!-- ============================================
+     EXAMINER MODE — Resume prompt
+     Shown when Firestore returns an incomplete session for the signed-in
+     user. Two paths: Resume (hydrate from doc, jump to current section's
+     coverage) or Start fresh (delete the old doc, begin a new session).
+     ============================================ -->
+<div id="osce-examiner-resume" class="osce-screen">
+  <div class="osce-inner">
+    <div class="osce-eyebrow"><span class="dot"></span> EXAMINER MODE</div>
+    <h1 class="osce-title">Resume your session?</h1>
+    <p class="osce-sub" id="resumePromptSub">You have an in-progress Cardiovascular session.</p>
+
+    <div class="osce-cards">
+      <button class="osce-card cardio" onclick="resumeSavedSession()">
+        <div class="osce-card-name">Yes, resume</div>
+        <div class="osce-card-desc" id="resumeCardDesc">Pick up where you left off.</div>
+        <i class="bi bi-chevron-right osce-card-arrow"></i>
+      </button>
+
+      <button class="osce-card cardio" onclick="startFreshSession()">
+        <div class="osce-card-name">Start fresh</div>
+        <div class="osce-card-desc">Begin a new session. Your previous session will be discarded.</div>
+        <i class="bi bi-chevron-right osce-card-arrow"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
      EXAMINER MODE — Marker-type question
      Entry point for the Examiner flow. Captures whether the marker is
      reviewing themselves (solo) or someone else (peer). Sets framing only;
@@ -1089,6 +1158,12 @@
   <div class="osce-inner">
     <div class="osce-eyebrow"><span class="dot"></span> EXAMINER MODE</div>
     <h1 class="osce-title">Who are you marking?</h1>
+
+    <div class="osce-anon-banner" id="anonBanner" style="display:none;">
+      <i class="bi bi-info-circle-fill"></i>
+      <div>You're not signed in — your progress won't be saved between sessions.</div>
+    </div>
+
     <p class="osce-sub">Pick one so the language matches who's doing the work. Same flow either way.</p>
 
     <div class="osce-cards">
@@ -1235,6 +1310,7 @@
     </div>
 
     <button class="osce-cta" onclick="lockSection()">Lock and continue</button>
+    <button class="osce-cta-secondary" id="lockAndStopBtn" onclick="lockAndStop()" style="display:none;">Save and continue later</button>
   </div>
 </div>
 
@@ -1539,7 +1615,7 @@ function showScreen(id) {
   document.getElementById('backBtn').hidden = (id === 'osce-home');
 }
 
-function setMode(m) {
+async function setMode(m) {
   // Visually flip the toggle on the system page.
   const btns = document.querySelectorAll('.osce-mode-toggle button');
   btns.forEach(b => b.classList.remove('active'));
@@ -1550,33 +1626,213 @@ function setMode(m) {
   }
   if (m === 'examiner') {
     if (btns[1]) btns[1].classList.add('active');
+
+    // If signed in, check Firestore for an incomplete session. Anonymous
+    // users skip straight to marker-type (they can't have a saved session).
+    const resumable = await findResumableSession();
+    if (resumable) {
+      pendingResumeDoc = resumable;
+      renderResumePrompt(resumable);
+      navigate('examiner-resume');
+      return;
+    }
+
     startExaminerSession();
+    showAnonBannerIfNeeded();
     navigate('examiner-marker-type');
   }
 }
 
 /* ============================================
-   EXAMINER MODE — in-memory session state
-   Firestore persistence lands in a follow-up commit. For now the session
-   is in-memory only and resets each time the user re-enters Examiner Mode.
-   Schema mirrors the planned osceSessions Firestore document.
+   EXAMINER MODE — in-memory session state + Firestore persistence
+   The session lives in memory while the user is working; every meaningful
+   state change schedules a debounced (500 ms) write to Firestore. The
+   first write creates the document and assigns sessionId; subsequent
+   writes merge on top of the same doc.
    ============================================ */
 let examinerSession = null;
+let pendingResumeDoc = null;   // doc snapshot stashed between resume-prompt and resume action
+let saveTimer = null;
+const SAVE_DEBOUNCE_MS = 500;
 
 function startExaminerSession() {
   examinerSession = {
+    sessionId:      null,             // assigned by Firestore on first save
     system:         'cardiovascular',
     mode:           'examiner',
     markerType:     null,             // 'self' | 'peer' — set on next screen
-    createdAt:      Date.now(),
+    createdAt:      Date.now(),       // local placeholder; serverTimestamp on save
     currentSection: 1,
-    sections:       []
+    sections:       [],
+    completedAt:    null,
+    overallGrade:   null,
+    passed:         null
   };
+}
+
+function showAnonBannerIfNeeded() {
+  const banner = document.getElementById('anonBanner');
+  if (banner) {
+    banner.style.display = auth.currentUser ? 'none' : '';
+  }
+}
+
+/* Schedule a debounced save. Rapid actions (e.g. ticking five boxes in
+   a row, typing in the comment field) coalesce into a single write. */
+function scheduleSave() {
+  if (!auth.currentUser) return;          // anonymous — no-op
+  if (!examinerSession) return;
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    saveTimer = null;
+    saveSession();
+  }, SAVE_DEBOUNCE_MS);
+}
+
+/* Force-flush any pending save and wait for the write to complete. Used
+   when the user is about to leave the flow (Save and continue later). */
+async function flushSave() {
+  if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+  await saveSession();
+}
+
+/* Write the current examinerSession to Firestore. Silent on failure —
+   per the brief, autosave should not interrupt the user with error UI. */
+async function saveSession() {
+  if (!examinerSession) return;
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const isFirstSave = !examinerSession.sessionId;
+  const colRef = db.collection('users').doc(user.uid).collection('osceSessions');
+  if (isFirstSave) {
+    examinerSession.sessionId = colRef.doc().id;
+  }
+  const docRef = colRef.doc(examinerSession.sessionId);
+
+  const payload = {
+    system:         examinerSession.system,
+    mode:           examinerSession.mode,
+    markerType:     examinerSession.markerType,
+    currentSection: examinerSession.currentSection,
+    sections:       examinerSession.sections,
+    lastSavedAt:    firebase.firestore.FieldValue.serverTimestamp()
+  };
+  if (isFirstSave) {
+    payload.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    payload.completedAt = null;
+  }
+  // Completion fields are only set once the session has reached debrief.
+  if (examinerSession.completedAt) {
+    payload.completedAt  = firebase.firestore.FieldValue.serverTimestamp();
+    payload.overallGrade = examinerSession.overallGrade;
+    payload.passed       = examinerSession.passed;
+  }
+
+  try {
+    await docRef.set(payload, { merge: true });
+  } catch (e) {
+    console.error('OSCE session save failed', e);
+  }
+}
+
+/* Query the user's incomplete cardiovascular sessions. Returns the most
+   recently saved one, or null if none exists. Sorts client-side to avoid
+   needing a Firestore composite index on (completedAt, lastSavedAt). */
+async function findResumableSession() {
+  const user = auth.currentUser;
+  if (!user) return null;
+  try {
+    const snap = await db
+      .collection('users').doc(user.uid)
+      .collection('osceSessions')
+      .where('completedAt', '==', null)
+      .get();
+    if (snap.empty) return null;
+
+    const docs = snap.docs
+      .map(d => ({ id: d.id, data: d.data() }))
+      .filter(d => d.data.system === 'cardiovascular')
+      .sort((a, b) => {
+        const aT = a.data.lastSavedAt ? a.data.lastSavedAt.toMillis() : 0;
+        const bT = b.data.lastSavedAt ? b.data.lastSavedAt.toMillis() : 0;
+        return bT - aT;
+      });
+    return docs.length > 0 ? docs[0] : null;
+  } catch (e) {
+    console.error('Resume check failed', e);
+    return null;
+  }
+}
+
+function formatRelativeDate(ts) {
+  if (!ts || !ts.toDate) return 'earlier';
+  const date = ts.toDate();
+  const now  = new Date();
+  const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+  if (diffDays === 0) return 'earlier today';
+  if (diffDays === 1) return 'yesterday';
+  if (diffDays < 7)   return date.toLocaleDateString('en-GB', { weekday: 'long' });
+  return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+}
+
+function renderResumePrompt(resumable) {
+  const when = formatRelativeDate(resumable.data.lastSavedAt);
+  document.getElementById('resumePromptSub').textContent =
+    `You have an in-progress Cardiovascular session from ${when}.`;
+  const sectionIdx = resumable.data.currentSection || 1;
+  const sectionTitle = SECTION_DATA[sectionIdx] ? SECTION_DATA[sectionIdx].title : '';
+  document.getElementById('resumeCardDesc').textContent =
+    sectionTitle
+      ? `Pick up where you left off — Section ${sectionIdx} · ${sectionTitle}.`
+      : `Pick up where you left off — Section ${sectionIdx}.`;
+}
+
+/* Hydrate examinerSession from a saved doc and drop the user back at the
+   current section's coverage screen. Sub-step (was-on-grade vs coverage)
+   is not tracked — coverage is always the entry point for an unlocked
+   section, and tick / grade / comment / reflection state is preserved. */
+function resumeSavedSession() {
+  if (!pendingResumeDoc) return;
+  const d = pendingResumeDoc.data;
+  examinerSession = {
+    sessionId:      pendingResumeDoc.id,
+    system:         d.system,
+    mode:           d.mode,
+    markerType:     d.markerType,
+    createdAt:      d.createdAt ? d.createdAt.toMillis() : Date.now(),
+    currentSection: d.currentSection || 1,
+    sections:       d.sections || [],
+    completedAt:    null,
+    overallGrade:   null,
+    passed:         null
+  };
+  pendingResumeDoc = null;
+  renderCoverage();
+  resetNavStackTo('osce-examiner-section-coverage');
+}
+
+async function startFreshSession() {
+  // Abandon the old session before starting a new one — keeps the history
+  // view clean of half-finished sessions the user explicitly discarded.
+  if (pendingResumeDoc) {
+    try {
+      await db.collection('users').doc(auth.currentUser.uid)
+        .collection('osceSessions').doc(pendingResumeDoc.id).delete();
+    } catch (e) {
+      console.error('Abandon failed', e);
+    }
+    pendingResumeDoc = null;
+  }
+  startExaminerSession();
+  showAnonBannerIfNeeded();
+  navigate('examiner-marker-type');
 }
 
 function setMarkerType(type) {
   if (!examinerSession) startExaminerSession();
   examinerSession.markerType = type;
+  scheduleSave();
   renderCoverage();
   navigate('examiner-section-coverage');
 }
@@ -1778,12 +2034,13 @@ function renderCoverage() {
   // Initialise per-section state on first entry to this section.
   if (!examinerSession.sections[idx - 1]) {
     examinerSession.sections[idx - 1] = {
-      id:         section.sectionId,
-      ticks:      {},     // keyed 'itemId-tickIdx' -> boolean
-      grade:      null,   // 0–10, set in grade screen
-      comment:    '',
-      reflection: '',     // solo only, set in reflection screen
-      lockedAt:   null
+      id:               section.sectionId,
+      ticks:            {},     // keyed 'itemId-tickIdx' -> boolean
+      grade:            null,   // 0–10, set in grade screen
+      comment:          '',
+      reflection:       '',     // solo only, set in reflection screen
+      criticalFailsHit: [],     // populated on lock
+      lockedAt:         null
     };
   }
   const ticksState = examinerSession.sections[idx - 1].ticks;
@@ -1824,6 +2081,7 @@ function toggleCoverageTick(li) {
   const tickId = li.getAttribute('data-tick-id');
   const idx = examinerSession.currentSection;
   examinerSession.sections[idx - 1].ticks[tickId] = li.classList.contains('checked');
+  scheduleSave();
 }
 
 function continueFromCoverage() {
@@ -1854,6 +2112,7 @@ function captureReflection(text) {
   if (!examinerSession) return;
   const idx = examinerSession.currentSection;
   examinerSession.sections[idx - 1].reflection = text;
+  scheduleSave();
 }
 
 function continueFromReflection() {
@@ -1912,6 +2171,7 @@ function selectGrade(n) {
 
   updateGradeDescriptorHighlight(n);
   document.getElementById('gradeContinueBtn').disabled = false;
+  scheduleSave();
 }
 
 function updateGradeDescriptorHighlight(grade) {
@@ -1927,6 +2187,7 @@ function captureComment(text) {
   if (!examinerSession) return;
   const idx = examinerSession.currentSection;
   examinerSession.sections[idx - 1].comment = text;
+  scheduleSave();
 }
 
 function continueFromGrade() {
@@ -2075,6 +2336,14 @@ function renderLock() {
   } else {
     reflectionRow.style.display = 'none';
   }
+
+  // Save and continue later — only meaningful for sections 1–3 (S4 lock
+  // is the end of the assessment) and only if the user is signed in
+  // (anonymous users have no Firestore doc to save to).
+  const stopBtn = document.getElementById('lockAndStopBtn');
+  if (stopBtn) {
+    stopBtn.style.display = (idx < 4 && auth.currentUser) ? '' : 'none';
+  }
 }
 
 /* Resets the navStack to a fresh state with the given screen on top.
@@ -2093,22 +2362,46 @@ function resetNavStackTo(target) {
 function lockSection() {
   if (!examinerSession) return;
   const idx = examinerSession.currentSection;
-  examinerSession.sections[idx - 1].lockedAt = Date.now();
+  const sectionState = examinerSession.sections[idx - 1];
+  sectionState.lockedAt = Date.now();
+  // Persist which critical fails actually fired at lock time, so the
+  // history view can show them without recomputing from raw ticks.
+  sectionState.criticalFailsHit = getCriticalFailsForSection(idx)
+    .map(f => ({ itemId: f.itemId, title: f.title }));
 
   if (idx >= 4) {
-    // Final section — render and show the real debrief.
+    // Final section — compute completion fields, render debrief, save.
+    examinerSession.completedAt = Date.now();
+    examinerSession.overallGrade = computeOverallGrade();
+    examinerSession.passed = computePassed();
     renderDebrief();
+    saveSession();   // fire-and-forget; user lingers on debrief
     resetNavStackTo('osce-examiner-debrief');
     return;
   }
 
-  // Advance to the next section's coverage screen. The render reads
-  // examinerSession.currentSection so all the section-aware screens
-  // (coverage, reflect, grade, lock) reuse for sections 2–4 without
-  // duplication.
+  // Advance to the next section's coverage screen.
   examinerSession.currentSection = idx + 1;
+  saveSession();   // fire-and-forget; lock state must persist
   renderCoverage();
   resetNavStackTo('osce-examiner-section-coverage');
+}
+
+/* Save-and-continue-later: lock the current section and exit the flow.
+   Same data shape as Lock-and-continue but the navigation goes home
+   instead of advancing. Awaits the save so closing the browser
+   immediately after still preserves the locked state. */
+async function lockAndStop() {
+  if (!examinerSession) return;
+  const idx = examinerSession.currentSection;
+  const sectionState = examinerSession.sections[idx - 1];
+  sectionState.lockedAt = Date.now();
+  sectionState.criticalFailsHit = getCriticalFailsForSection(idx)
+    .map(f => ({ itemId: f.itemId, title: f.title }));
+  if (idx < 4) examinerSession.currentSection = idx + 1;
+  await flushSave();
+  examinerSession = null;
+  goHome();
 }
 
 /* ============================================
