@@ -681,6 +681,151 @@
       line-height: 1.5;
     }
 
+    /* Examiner Mode — Debrief screen
+       Composed of a pass/fail banner, all critical fails at the top,
+       four per-section cards (grade bar + band pill + guidance +
+       comment + reflection), then a disclaimer and Done CTA. */
+    .osce-debrief-banner {
+      border-radius: 12px;
+      padding: 1.1rem 1.25rem;
+      margin: 0.75rem 0 1.25rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      align-items: center;
+    }
+    .osce-debrief-banner.pass {
+      background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-teal-dark) 100%);
+      color: #fff;
+    }
+    .osce-debrief-banner.fail {
+      background: #fff;
+      border: 2px solid var(--color-danger);
+      color: var(--color-danger);
+    }
+    .osce-debrief-status {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+    .osce-debrief-status-value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      line-height: 1.1;
+      margin-top: 0.1rem;
+    }
+    .osce-debrief-overall {
+      text-align: right;
+    }
+    .osce-debrief-overall-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+    .osce-debrief-overall-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-top: 0.1rem;
+    }
+
+    .osce-debrief-section {
+      background: #fff;
+      border: 1px solid var(--color-gray-200);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 1rem;
+    }
+    .osce-debrief-section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .osce-debrief-section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+      margin: 0;
+      line-height: 1.3;
+    }
+    .osce-debrief-section-grade {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--color-teal);
+      flex-shrink: 0;
+    }
+    .osce-grade-bar {
+      height: 6px;
+      background: var(--color-gray-100);
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 0.5rem 0 0.5rem;
+    }
+    .osce-grade-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+    .osce-grade-bar-fill.insufficient { background: var(--color-danger); }
+    .osce-grade-bar-fill.pass         { background: var(--color-warning); }
+    .osce-grade-bar-fill.detailed     { background: var(--color-teal); }
+    .osce-grade-bar-fill.comprehensive { background: var(--color-green); }
+
+    .osce-band-pill {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      margin-bottom: 0.5rem;
+    }
+    .osce-band-pill.insufficient  { background: rgba(220,53,69,0.1); color: var(--color-danger); }
+    .osce-band-pill.pass          { background: rgba(255,193,7,0.15); color: #b08400; }
+    .osce-band-pill.detailed      { background: rgba(43,138,156,0.1); color: var(--color-teal-dark); }
+    .osce-band-pill.comprehensive { background: rgba(92,184,92,0.12); color: #3d8b3d; }
+
+    .osce-debrief-guidance {
+      font-size: 0.88rem;
+      color: var(--color-gray-700);
+      line-height: 1.55;
+      margin: 0.5rem 0 0;
+      padding: 0.65rem 0.85rem;
+      background: var(--color-gray-50);
+      border-radius: 6px;
+    }
+
+    .osce-debrief-feedback {
+      margin-top: 0.75rem;
+      border-top: 1px solid var(--color-gray-100);
+      padding-top: 0.75rem;
+    }
+    .osce-debrief-feedback-row + .osce-debrief-feedback-row { margin-top: 0.5rem; }
+    .osce-debrief-feedback-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-gray-500);
+      margin-bottom: 0.15rem;
+    }
+    .osce-debrief-feedback-value {
+      font-size: 0.86rem;
+      color: var(--color-gray-800);
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
     /* Item nav */
     .osce-item-nav {
       margin-top: 1.5rem;
@@ -1095,23 +1240,31 @@
 
 <!-- ============================================
      EXAMINER MODE — Final debrief
-     STUB ONLY. Renders after Section 4 locks. The real debrief screen
-     (weighted score, critical fails surfaced, grade bars, improvement
-     guidance, comments by section, disclaimer) lands in the next
-     commit. For now it confirms the run completed and shows the four
-     captured grades so the data flow is visibly testable end-to-end.
+     Composed of:
+       1. Pass/fail banner + overall weighted score (top)
+       2. Critical fails block (red, only if any)
+       3. Four per-section cards (grade bar, band pill, guidance, comment, reflection)
+       4. Standard Paramind OSCE disclaimer
+       5. Done CTA (resets session, returns home)
+     All dynamic content rendered by renderDebrief().
      ============================================ -->
 <div id="osce-examiner-debrief" class="osce-screen">
   <div class="osce-inner">
-    <div class="osce-eyebrow"><span class="dot"></span> EXAMINER MODE</div>
+    <div class="osce-eyebrow"><span class="dot"></span> EXAMINER MODE · DEBRIEF</div>
     <h1 class="osce-title">Session complete</h1>
-    <p class="osce-sub">All four sections locked. The full debrief — weighted score, critical fails, improvement guidance — lands in the next commit.</p>
+    <p class="osce-sub" id="debriefSub">Your overall result, section by section.</p>
 
-    <div class="osce-lock-summary" id="debriefGrades"></div>
+    <div id="debriefBanner"></div>
 
-    <div class="osce-section-intro">
-      Data captured in-memory only at this stage. Firestore persistence and the history view land after the real debrief.
+    <div id="debriefCriticalFails"></div>
+
+    <div id="debriefSections"></div>
+
+    <div class="osce-disclaimer">
+      <strong><i class="bi bi-info-circle-fill me-1"></i>This isn't a formal OSCE assessment.</strong> It's a practice debrief based on common UK paramedic OSCE rubrics. <strong>Always check your programme's official rubric and guidance.</strong>
     </div>
+
+    <button class="osce-cta" onclick="endSession()">Done</button>
   </div>
 </div>
 
@@ -1556,28 +1709,52 @@ const SECTION_DATA = [
     title:     'History Taking',
     noun:      'history-taking',
     items:     historyItems,
-    reflectionPrompt: "Before you grade — what did you actually say when you took the history? Did you give the patient your reasoning, or did you just go through the steps?"
+    reflectionPrompt: "Before you grade — what did you actually say when you took the history? Did you give the patient your reasoning, or did you just go through the steps?",
+    guidance: {
+      insufficient: "The foundation isn't there yet. Go back to the structure — introduction, consent, presenting complaint via SOCRATES or OPQRST, full PMH, medications, allergies. Each one needs to be deliberate, not skimmed.",
+      pass:         "You covered the basics safely. To push toward Detailed, work on rationale — say WHY you're asking each question, and connect findings to the differential out loud.",
+      detailed:     "Systematic and reasoned. To reach Comprehensive, integrate findings as you go. The mark-distinguishing move is the running commentary that links what you're hearing to what you're thinking.",
+      comprehensive: "Strong. Keep the rhythm — punchy questions, plain language, no jargon without translation. The standard now is sustaining this under pressure."
+    }
   },
   {
     sectionId: 'exam',
     title:     'Cardiovascular Examination',
     noun:      'the examination',
     items:     examItems,
-    reflectionPrompt: "Before you grade — did you say what you were finding as you went, or did you do it silently?"
+    reflectionPrompt: "Before you grade — did you say what you were finding as you went, or did you do it silently?",
+    guidance: {
+      insufficient: "Examination needs a system. Inspection, palpation, auscultation, percussion, special tests — in that order, named out loud as you go. Without the structure, it reads as guessing.",
+      pass:         "Basic structure is there. To move toward Detailed, say what you're finding as you find it. Silent palpation is invisible to the examiner.",
+      detailed:     "Methodical. To reach Comprehensive, connect findings to the differential in real time. 'No oedema, no JVD' isn't enough — say what that rules out and where you go next.",
+      comprehensive: "Comprehensive. The bar from here is consistency: every patient, every system, every time, no shortcuts when the case feels routine."
+    }
   },
   {
     sectionId: 'decision',
     title:     'Decision Making & Management',
     noun:      'decision making and management',
     items:     decisionItems,
-    reflectionPrompt: "Before you grade — did you actually justify your plan, or did you just state it? Did you re-confirm consent and allergies?"
+    reflectionPrompt: "Before you grade — did you actually justify your plan, or did you just state it? Did you re-confirm consent and allergies?",
+    guidance: {
+      insufficient: "The plan needs to be justified, not just stated. Why this drug, why this dose, why this referral? Consent for management, allergy reconfirmation, and safety-netting are not optional add-ons — they're the work.",
+      pass:         "Plan is safe but minimal. To move toward Detailed, articulate the reasoning. 'I'd give salbutamol' is half an answer — pair it with the why.",
+      detailed:     "Solid clinical reasoning. To reach Comprehensive, anticipate. What's your second-line plan if the first doesn't work? What would change your mind? Showing flexibility lifts the grade.",
+      comprehensive: "Comprehensive decision-making. From here, stress-test under time pressure — the OSCE clock is the variable that catches most candidates."
+    }
   },
   {
     sectionId: 'special',
     title:     'Special Populations',
     noun:      'the special populations questions',
     items:     specialItems,
-    reflectionPrompt: "Before you grade — could you genuinely articulate the adjustments, or were you reaching for general principles?"
+    reflectionPrompt: "Before you grade — could you genuinely articulate the adjustments, or were you reaching for general principles?",
+    guidance: {
+      insufficient: "Adjustments for special populations need to be specific, not vague. Paediatrics, pregnancy, frailty, mental capacity, end-of-life — each has its own framework. General principles only score points if you can name them.",
+      pass:         "You named some adjustments. To move toward Detailed, get specific — what changes for this patient, in this scenario, beyond general principles?",
+      detailed:     "Good awareness of adjustments. To reach Comprehensive, integrate them into the plan rather than listing them. Show how the special-population factor changed your management, not just that it's relevant.",
+      comprehensive: "Comprehensive. The bar from here is recognition in less obvious cases — frail with subtle delirium, undisclosed pregnancy, cognitive impairment not flagged on the notes."
+    }
   }
 ];
 
@@ -1740,13 +1917,9 @@ function selectGrade(n) {
 function updateGradeDescriptorHighlight(grade) {
   const bands = document.querySelectorAll('#gradeDescriptors .osce-grade-band');
   bands.forEach(b => b.classList.remove('active'));
-  if (grade === null || grade === undefined) return;
-  let activeBand;
-  if      (grade <= 3) activeBand = 'insufficient';
-  else if (grade === 4) activeBand = 'pass';
-  else if (grade <= 6) activeBand = 'detailed';
-  else                  activeBand = 'comprehensive';
-  const el = document.querySelector(`.osce-grade-band[data-band="${activeBand}"]`);
+  const band = getGradeBand(grade);
+  if (!band.key) return;
+  const el = document.querySelector(`.osce-grade-band[data-band="${band.key}"]`);
   if (el) el.classList.add('active');
 }
 
@@ -1766,9 +1939,23 @@ function continueFromGrade() {
    Surfaces critical fails per SECTION_CRITICAL_FAIL_ITEMS map and the
    "no ticks checked => fail" trigger rule.
    ============================================ */
-function getCriticalFailsForCurrentSection() {
-  const idx = examinerSession.currentSection;
-  const sectionState = examinerSession.sections[idx - 1];
+
+/* Returns the grade band for a 0–10 grade. Used by the lock-screen
+   descriptor highlight, the band pill on the debrief, and pass/fail
+   logic. Single source of truth for band thresholds. */
+function getGradeBand(grade) {
+  if (grade === null || grade === undefined) return { label: '—', key: null };
+  if (grade <= 3)  return { label: 'Insufficient',  key: 'insufficient' };
+  if (grade === 4) return { label: 'Pass',          key: 'pass' };
+  if (grade <= 6)  return { label: 'Detailed',      key: 'detailed' };
+  return                 { label: 'Comprehensive', key: 'comprehensive' };
+}
+
+/* Critical fails for a specific 1-based section index. Trigger rule
+   (confirmed): fire if NO ticks for the flagged item are checked. */
+function getCriticalFailsForSection(idx) {
+  const sectionState = examinerSession && examinerSession.sections[idx - 1];
+  if (!sectionState) return [];
   const section = SECTION_DATA[idx];
   const flaggedIds = SECTION_CRITICAL_FAIL_ITEMS[idx] || [];
 
@@ -1776,8 +1963,6 @@ function getCriticalFailsForCurrentSection() {
   flaggedIds.forEach(itemId => {
     const item = section.items.find(it => it.id === itemId);
     if (!item) return;
-    // Trigger rule (confirmed with Mark): fire if NO ticks for this item
-    // are checked. Imperfect coverage is a points loss, not a critical fail.
     const anyChecked = (item.ticks || []).some((_, tickIdx) =>
       sectionState.ticks[`${itemId}-${tickIdx}`]
     );
@@ -1790,6 +1975,54 @@ function getCriticalFailsForCurrentSection() {
     }
   });
   return fails;
+}
+
+function getCriticalFailsForCurrentSection() {
+  if (!examinerSession) return [];
+  return getCriticalFailsForSection(examinerSession.currentSection);
+}
+
+/* Aggregated across all four sections. Each entry adds sectionIdx +
+   sectionTitle so the debrief can group/label. */
+function getAllCriticalFails() {
+  const all = [];
+  for (let idx = 1; idx <= 4; idx++) {
+    const fails = getCriticalFailsForSection(idx);
+    fails.forEach(f => all.push({
+      ...f,
+      sectionIdx:   idx,
+      sectionTitle: SECTION_DATA[idx].title
+    }));
+  }
+  return all;
+}
+
+/* Overall weighted score: 20% S1 + 30% S2 + 30% S3 + 20% S4. Returns
+   a number rounded to one decimal place. Treats missing grades as 0
+   defensively — by design the marker can't reach lock without a grade,
+   so this is belt-and-braces. */
+function computeOverallGrade() {
+  const weights = [0.2, 0.3, 0.3, 0.2];
+  let total = 0;
+  for (let i = 0; i < 4; i++) {
+    const g = examinerSession.sections[i] && examinerSession.sections[i].grade;
+    total += (g || 0) * weights[i];
+  }
+  return Math.round(total * 10) / 10;
+}
+
+/* Pass/fail rule (from brief):
+     - Any section grade <= 3      => fail
+     - Any unticked critical fail  => fail
+     - Otherwise                   => pass
+   Treats null grade as fail (defensive). */
+function computePassed() {
+  for (let i = 0; i < 4; i++) {
+    const g = examinerSession.sections[i] && examinerSession.sections[i].grade;
+    if (g === null || g === undefined || g <= 3) return false;
+  }
+  if (getAllCriticalFails().length > 0) return false;
+  return true;
 }
 
 function renderLock() {
@@ -1863,8 +2096,8 @@ function lockSection() {
   examinerSession.sections[idx - 1].lockedAt = Date.now();
 
   if (idx >= 4) {
-    // Final section — show the debrief stub. Real debrief lands next commit.
-    renderDebriefStub();
+    // Final section — render and show the real debrief.
+    renderDebrief();
     resetNavStackTo('osce-examiner-debrief');
     return;
   }
@@ -1878,20 +2111,114 @@ function lockSection() {
   resetNavStackTo('osce-examiner-section-coverage');
 }
 
-/* Minimal debrief stub — confirms the four grades were captured so the
-   end-to-end flow is visibly testable. Replaced wholesale in the next
-   commit by the real debrief (weighted score, critical fails, etc.). */
-function renderDebriefStub() {
-  const rows = examinerSession.sections.map((s, i) => {
-    const sectionTitle = SECTION_DATA[i + 1].title;
-    const grade = (s && s.grade !== null && s.grade !== undefined) ? String(s.grade) : '—';
+/* ============================================
+   EXAMINER MODE — Final debrief
+   Renders the post-S4 result page: pass/fail banner, weighted overall,
+   all critical fails surfaced at the top, four per-section cards
+   (grade bar + band pill + static guidance + comment + reflection),
+   disclaimer, Done CTA. Static guidance lives in SECTION_DATA.
+   ============================================ */
+function renderDebrief() {
+  const overall = computeOverallGrade();
+  const passed = computePassed();
+  const fails = getAllCriticalFails();
+  const isSelf = examinerSession.markerType === 'self';
+
+  // Subtitle framing matches markerType.
+  document.getElementById('debriefSub').textContent = isSelf
+    ? "Your overall result, section by section."
+    : "Their overall result, section by section.";
+
+  // Pass/fail banner.
+  const banner = document.getElementById('debriefBanner');
+  banner.innerHTML = `
+    <div class="osce-debrief-banner ${passed ? 'pass' : 'fail'}">
+      <div>
+        <div class="osce-debrief-status">Result</div>
+        <div class="osce-debrief-status-value">${passed ? 'PASS' : 'FAIL'}</div>
+      </div>
+      <div class="osce-debrief-overall">
+        <div class="osce-debrief-overall-label">Overall</div>
+        <div class="osce-debrief-overall-value">${overall.toFixed(1)} / 10</div>
+      </div>
+    </div>`;
+
+  // Critical fails, grouped by section. Only renders if any exist.
+  const failsEl = document.getElementById('debriefCriticalFails');
+  if (fails.length === 0) {
+    failsEl.innerHTML = '';
+  } else {
+    failsEl.innerHTML = fails.map(f => `
+      <div class="osce-critical">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <div class="osce-critical-content">
+          <div class="osce-critical-label">Critical fail · Section ${f.sectionIdx} · ${f.sectionTitle}</div>
+          <div class="osce-critical-text"><strong>${f.title}</strong>${f.message ? ' — ' + f.message : ''}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  // Per-section cards.
+  const sectionsEl = document.getElementById('debriefSections');
+  sectionsEl.innerHTML = examinerSession.sections.map((s, i) => {
+    const idx = i + 1;
+    const meta = SECTION_DATA[idx];
+    const grade = (s && s.grade !== null && s.grade !== undefined) ? s.grade : 0;
+    const band = getGradeBand(grade);
+    const fillPct = Math.max(0, Math.min(100, grade * 10));
+    const guidance = (band.key && meta.guidance && meta.guidance[band.key]) || '';
+    const comment = (s && s.comment && s.comment.trim()) || '';
+    const reflection = (s && s.reflection && s.reflection.trim()) || '';
+
+    const feedbackRows = [];
+    if (comment) feedbackRows.push(`
+      <div class="osce-debrief-feedback-row">
+        <div class="osce-debrief-feedback-label">${isSelf ? 'Your comment' : 'Marker comment'}</div>
+        <div class="osce-debrief-feedback-value">${escapeHtml(comment)}</div>
+      </div>`);
+    if (isSelf && reflection) feedbackRows.push(`
+      <div class="osce-debrief-feedback-row">
+        <div class="osce-debrief-feedback-label">Your reflection</div>
+        <div class="osce-debrief-feedback-value">${escapeHtml(reflection)}</div>
+      </div>`);
+    const feedbackBlock = feedbackRows.length
+      ? `<div class="osce-debrief-feedback">${feedbackRows.join('')}</div>`
+      : '';
+
     return `
-      <div class="osce-lock-summary-row">
-        <span class="osce-lock-summary-label">Section ${i + 1} · ${sectionTitle}</span>
-        <span class="osce-lock-summary-value">${grade}</span>
+      <div class="osce-debrief-section">
+        <div class="osce-debrief-section-head">
+          <h3 class="osce-debrief-section-title">Section ${idx} · ${meta.title}</h3>
+          <span class="osce-debrief-section-grade">${grade} / 10</span>
+        </div>
+        <span class="osce-band-pill ${band.key || ''}">${band.label}</span>
+        <div class="osce-grade-bar">
+          <div class="osce-grade-bar-fill ${band.key || ''}" style="width: ${fillPct}%"></div>
+        </div>
+        ${guidance ? `<div class="osce-debrief-guidance">${guidance}</div>` : ''}
+        ${feedbackBlock}
       </div>`;
   }).join('');
-  document.getElementById('debriefGrades').innerHTML = rows;
+}
+
+/* Minimal HTML escape for user-typed strings rendered via innerHTML.
+   Marker comments and reflections are user-supplied, so any &<>"
+   characters need encoding. Keep this small — not a sanitiser, just
+   enough to prevent breakage from typed quotes or ampersands. */
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/* Done CTA — resets the in-memory session and returns home. The
+   Firestore commit replaces this with a save-and-return action. */
+function endSession() {
+  examinerSession = null;
+  goHome();
 }
 </script>
 
