@@ -1094,19 +1094,23 @@
 </div>
 
 <!-- ============================================
-     EXAMINER MODE — Section flow placeholder
-     STUB ONLY. Currently lands here after Section 1 is locked. Replaced
-     in the next commit when Sections 2–4 wire up (and again after that
-     by the final debrief screen).
+     EXAMINER MODE — Final debrief
+     STUB ONLY. Renders after Section 4 locks. The real debrief screen
+     (weighted score, critical fails surfaced, grade bars, improvement
+     guidance, comments by section, disclaimer) lands in the next
+     commit. For now it confirms the run completed and shows the four
+     captured grades so the data flow is visibly testable end-to-end.
      ============================================ -->
-<div id="osce-examiner-stub" class="osce-screen">
+<div id="osce-examiner-debrief" class="osce-screen">
   <div class="osce-inner">
     <div class="osce-eyebrow"><span class="dot"></span> EXAMINER MODE</div>
-    <h1 class="osce-title">Coming next</h1>
-    <p class="osce-sub" id="examinerStubFraming">Sections 2–4 and the final debrief land in upcoming commits.</p>
+    <h1 class="osce-title">Session complete</h1>
+    <p class="osce-sub">All four sections locked. The full debrief — weighted score, critical fails, improvement guidance — lands in the next commit.</p>
 
-    <div class="osce-section-intro" id="examinerStubIntro">
-      Section locked. The rest of the assessment flow is being built.
+    <div class="osce-lock-summary" id="debriefGrades"></div>
+
+    <div class="osce-section-intro">
+      Data captured in-memory only at this stage. Firestore persistence and the history view land after the real debrief.
     </div>
   </div>
 </div>
@@ -1840,24 +1844,54 @@ function renderLock() {
   }
 }
 
+/* Resets the navStack to a fresh state with the given screen on top.
+   Used after section lock so the back arrow returns to the system page
+   rather than into the locked section's screens. */
+function resetNavStackTo(target) {
+  navStack.length = 0;
+  navStack.push('osce-home');
+  navStack.push('osce-system-cardio');
+  navStack.push(target);
+  showScreen(target);
+  document.getElementById('backBtn').hidden = false;
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
 function lockSection() {
   if (!examinerSession) return;
   const idx = examinerSession.currentSection;
   examinerSession.sections[idx - 1].lockedAt = Date.now();
 
-  // Strict no-reopen: reset the navStack so back-arrow returns past the
-  // locked section's screens. Updates to the stub copy reflect which
-  // section was just sealed.
-  navStack.length = 0;
-  navStack.push('osce-home');
-  navStack.push('osce-system-cardio');
-  navStack.push('osce-examiner-stub');
-  showScreen('osce-examiner-stub');
-  document.getElementById('backBtn').hidden = false;
+  if (idx >= 4) {
+    // Final section — show the debrief stub. Real debrief lands next commit.
+    renderDebriefStub();
+    resetNavStackTo('osce-examiner-debrief');
+    return;
+  }
 
-  document.getElementById('examinerStubFraming').textContent =
-    `Section ${idx} locked. The remaining sections and the final debrief land in upcoming commits.`;
-  window.scrollTo({ top: 0, behavior: 'instant' });
+  // Advance to the next section's coverage screen. The render reads
+  // examinerSession.currentSection so all the section-aware screens
+  // (coverage, reflect, grade, lock) reuse for sections 2–4 without
+  // duplication.
+  examinerSession.currentSection = idx + 1;
+  renderCoverage();
+  resetNavStackTo('osce-examiner-section-coverage');
+}
+
+/* Minimal debrief stub — confirms the four grades were captured so the
+   end-to-end flow is visibly testable. Replaced wholesale in the next
+   commit by the real debrief (weighted score, critical fails, etc.). */
+function renderDebriefStub() {
+  const rows = examinerSession.sections.map((s, i) => {
+    const sectionTitle = SECTION_DATA[i + 1].title;
+    const grade = (s && s.grade !== null && s.grade !== undefined) ? String(s.grade) : '—';
+    return `
+      <div class="osce-lock-summary-row">
+        <span class="osce-lock-summary-label">Section ${i + 1} · ${sectionTitle}</span>
+        <span class="osce-lock-summary-value">${grade}</span>
+      </div>`;
+  }).join('');
+  document.getElementById('debriefGrades').innerHTML = rows;
 }
 </script>
 
