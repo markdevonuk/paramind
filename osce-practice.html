@@ -533,6 +533,101 @@
       flex-shrink: 0;
     }
 
+    /* History trigger — subtle link on the system-cardio page that
+       opens the past-Examiner-sessions list. Hidden for anonymous
+       users by JS in the auth handler. */
+    .osce-history-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: transparent;
+      border: none;
+      color: var(--color-teal);
+      font-family: var(--font-primary);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.6rem 0;
+      margin-top: 0.5rem;
+      cursor: pointer;
+    }
+    .osce-history-trigger:hover { color: var(--color-teal-dark); text-decoration: underline; }
+    .osce-history-trigger i { font-size: 0.95rem; }
+
+    /* History list — compact rows showing date+time, marker type,
+       critical-fail count, overall grade, pass/fail pill. */
+    .osce-history-list { margin-top: 1rem; }
+    .osce-history-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.75rem;
+      align-items: center;
+      width: 100%;
+      background: #fff;
+      border: 1px solid var(--color-gray-200);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      font-family: var(--font-primary);
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      margin-bottom: 0.6rem;
+    }
+    .osce-history-row:hover { border-color: var(--color-teal); }
+    .osce-history-row:active { transform: scale(0.99); }
+    .osce-history-row-date {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+      margin-bottom: 0.2rem;
+      line-height: 1.3;
+    }
+    .osce-history-row-meta {
+      font-size: 0.78rem;
+      color: var(--color-gray-500);
+      line-height: 1.4;
+    }
+    .osce-history-row-fails {
+      color: var(--color-danger);
+      font-weight: 600;
+    }
+    .osce-history-row-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.3rem;
+      flex-shrink: 0;
+    }
+    .osce-history-row-grade {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--color-gray-900);
+      line-height: 1;
+    }
+    .osce-history-row-pill {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+    }
+    .osce-history-row-pill.pass { background: rgba(92,184,92,0.12); color: #3d8b3d; }
+    .osce-history-row-pill.fail { background: rgba(220,53,69,0.1); color: var(--color-danger); }
+
+    .osce-history-empty {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--color-gray-500);
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+    .osce-history-empty i {
+      font-size: 2rem;
+      color: var(--color-gray-300);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
     /* Examiner Mode — Reflection screen
        Section-specific prompt in a teal-accented panel; optional textarea
        below for typed reflection. Solo mode only. */
@@ -1061,6 +1156,10 @@
         <i class="bi bi-chevron-right osce-card-arrow"></i>
       </button>
     </div>
+
+    <button class="osce-history-trigger" id="osceHistoryTrigger" onclick="openHistory()" style="display:none;">
+      <i class="bi bi-clock-history"></i> View past Examiner Mode sessions
+    </button>
   </div>
 </div>
 
@@ -1145,6 +1244,23 @@
         <i class="bi bi-chevron-right osce-card-arrow"></i>
       </button>
     </div>
+  </div>
+</div>
+
+<!-- ============================================
+     EXAMINER MODE — Past sessions list
+     Loaded via openHistory(); rendered by renderHistory(). Each row
+     navigates to the existing debrief screen, hydrated in replay mode
+     so the Done button becomes "Back to history" and endSession returns
+     here instead of going home.
+     ============================================ -->
+<div id="osce-examiner-history" class="osce-screen">
+  <div class="osce-inner">
+    <div class="osce-eyebrow"><span class="dot"></span> EXAMINER MODE · HISTORY</div>
+    <h1 class="osce-title">Past sessions</h1>
+    <p class="osce-sub">Tap a session to view its debrief.</p>
+
+    <div class="osce-history-list" id="historyList"></div>
   </div>
 </div>
 
@@ -1340,7 +1456,7 @@
       <strong><i class="bi bi-info-circle-fill me-1"></i>This isn't a formal OSCE assessment.</strong> It's a practice debrief based on common UK paramedic OSCE rubrics. <strong>Always check your programme's official rubric and guidance.</strong>
     </div>
 
-    <button class="osce-cta" onclick="endSession()">Done</button>
+    <button class="osce-cta" id="debriefDoneBtn" onclick="endSession()">Done</button>
   </div>
 </div>
 
@@ -1373,6 +1489,11 @@ const db   = firebase.firestore();
 let isPro = false;
 
 auth.onAuthStateChanged(async (user) => {
+  // Toggle history-trigger visibility on the system-cardio page —
+  // anonymous users have no history to show.
+  const historyTrigger = document.getElementById('osceHistoryTrigger');
+  if (historyTrigger) historyTrigger.style.display = user ? '' : 'none';
+
   if (!user) return;
   try {
     const doc = await db.collection('users').doc(user.uid).get();
@@ -2412,15 +2533,48 @@ async function lockAndStop() {
    disclaimer, Done CTA. Static guidance lives in SECTION_DATA.
    ============================================ */
 function renderDebrief() {
-  const overall = computeOverallGrade();
-  const passed = computePassed();
-  const fails = getAllCriticalFails();
+  const isReplay = examinerSession._isReplay === true;
   const isSelf = examinerSession.markerType === 'self';
 
-  // Subtitle framing matches markerType.
-  document.getElementById('debriefSub').textContent = isSelf
-    ? "Your overall result, section by section."
-    : "Their overall result, section by section.";
+  // In replay, use the values captured at lock time so historical sessions
+  // reflect the verdict given then, not what current logic would derive.
+  // In live mode, compute from the in-memory session.
+  let overall, passed, fails;
+  if (isReplay) {
+    overall = (examinerSession.overallGrade !== null && examinerSession.overallGrade !== undefined)
+      ? Number(examinerSession.overallGrade)
+      : 0;
+    passed = examinerSession.passed === true;
+    fails = [];
+    examinerSession.sections.forEach((s, i) => {
+      const sectionIdx = i + 1;
+      const section = SECTION_DATA[sectionIdx];
+      if (!section || !s) return;
+      (s.criticalFailsHit || []).forEach(stored => {
+        const item = section.items.find(it => it.id === stored.itemId);
+        fails.push({
+          itemId:       stored.itemId,
+          title:        stored.title,
+          message:      item ? item.criticalFail : '',
+          sectionIdx:   sectionIdx,
+          sectionTitle: section.title
+        });
+      });
+    });
+  } else {
+    overall = computeOverallGrade();
+    passed  = computePassed();
+    fails   = getAllCriticalFails();
+  }
+
+  // Subtitle framing matches markerType. In replay mode, frame as past tense.
+  document.getElementById('debriefSub').textContent = isReplay
+    ? (isSelf ? "Your past result, section by section." : "Their past result, section by section.")
+    : (isSelf ? "Your overall result, section by section." : "Their overall result, section by section.");
+
+  // Done button text reflects mode: live session -> "Done"; replay -> "Back to history".
+  const doneBtn = document.getElementById('debriefDoneBtn');
+  if (doneBtn) doneBtn.textContent = isReplay ? 'Back to history' : 'Done';
 
   // Pass/fail banner.
   const banner = document.getElementById('debriefBanner');
@@ -2507,11 +2661,161 @@ function escapeHtml(s) {
     .replace(/'/g, '&#39;');
 }
 
-/* Done CTA — resets the in-memory session and returns home. The
-   Firestore commit replaces this with a save-and-return action. */
+/* Done CTA on the debrief.
+   Live session: clear in-memory state and return to OSCE home.
+   Replay (viewing a past session from history): go back to the
+   history list, preserving its loaded state. */
 function endSession() {
+  const wasReplay = examinerSession && examinerSession._isReplay === true;
   examinerSession = null;
-  goHome();
+  if (wasReplay) {
+    goBack();
+  } else {
+    goHome();
+  }
+}
+
+/* ============================================
+   EXAMINER MODE — Past sessions list (history view)
+   Triggered from the system-cardio page. Lists the user's completed
+   cardiovascular sessions; tapping one loads that session's debrief
+   in replay mode. Anonymous users never reach this — the trigger is
+   hidden in the auth handler.
+   ============================================ */
+function openHistory() {
+  loadAndRenderHistory();
+  navigate('examiner-history');
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+async function loadAndRenderHistory() {
+  const listEl = document.getElementById('historyList');
+  listEl.innerHTML = '<p class="osce-sub" style="text-align:center;padding:1.5rem 0;">Loading…</p>';
+
+  const user = auth.currentUser;
+  if (!user) {
+    listEl.innerHTML = `
+      <div class="osce-history-empty">
+        <i class="bi bi-person-circle"></i>
+        Sign in to see your past sessions.
+      </div>`;
+    return;
+  }
+
+  try {
+    const snap = await db
+      .collection('users').doc(user.uid)
+      .collection('osceSessions')
+      .get();
+
+    // Filter to completed cardiovascular sessions; sort most-recent first.
+    const sessions = snap.docs
+      .map(d => ({ id: d.id, data: d.data() }))
+      .filter(s => s.data.system === 'cardiovascular' && s.data.completedAt)
+      .sort((a, b) => b.data.completedAt.toMillis() - a.data.completedAt.toMillis());
+
+    renderHistory(sessions);
+  } catch (e) {
+    console.error('History load failed', e);
+    listEl.innerHTML = `
+      <div class="osce-history-empty">
+        <i class="bi bi-cloud-slash"></i>
+        Could not load past sessions. Check your connection and try again.
+      </div>`;
+  }
+}
+
+function renderHistory(sessions) {
+  const listEl = document.getElementById('historyList');
+  if (sessions.length === 0) {
+    listEl.innerHTML = `
+      <div class="osce-history-empty">
+        <i class="bi bi-clipboard"></i>
+        No past sessions yet.<br>Complete an Examiner Mode session and it'll show up here.
+      </div>`;
+    return;
+  }
+
+  listEl.innerHTML = sessions.map(s => {
+    const d = s.data;
+    const dateStr = formatHistoryDate(d.completedAt);
+    const grade = (d.overallGrade !== null && d.overallGrade !== undefined)
+      ? Number(d.overallGrade).toFixed(1)
+      : '—';
+    const passed = d.passed === true;
+    const markerLabel = d.markerType === 'self' ? 'Self' : 'Peer';
+    const failCount = (d.sections || []).reduce(
+      (sum, sec) => sum + ((sec && sec.criticalFailsHit) ? sec.criticalFailsHit.length : 0),
+      0
+    );
+
+    const metaParts = [markerLabel];
+    if (failCount > 0) {
+      metaParts.push(`<span class="osce-history-row-fails">${failCount} critical fail${failCount > 1 ? 's' : ''}</span>`);
+    }
+
+    return `
+      <button class="osce-history-row" onclick="viewPastSession('${s.id}')">
+        <div>
+          <div class="osce-history-row-date">${dateStr}</div>
+          <div class="osce-history-row-meta">${metaParts.join(' · ')}</div>
+        </div>
+        <div class="osce-history-row-right">
+          <span class="osce-history-row-grade">${grade}</span>
+          <span class="osce-history-row-pill ${passed ? 'pass' : 'fail'}">${passed ? 'PASS' : 'FAIL'}</span>
+        </div>
+      </button>`;
+  }).join('');
+}
+
+/* Date + time for history rows. Today/Yesterday/[Weekday]/[D Mon] +
+   24-hour HH:MM. Multiple sessions on the same day stay distinguishable
+   by the time component. */
+function formatHistoryDate(ts) {
+  if (!ts || !ts.toDate) return '';
+  const date = ts.toDate();
+  const now = new Date();
+  const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+  const timeStr = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  let datePart;
+  if (diffDays === 0)      datePart = 'Today';
+  else if (diffDays === 1) datePart = 'Yesterday';
+  else if (diffDays < 7)   datePart = date.toLocaleDateString('en-GB', { weekday: 'long' });
+  else                     datePart = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  return `${datePart} · ${timeStr}`;
+}
+
+/* Load a past session's full doc and hand it to renderDebrief in replay
+   mode. The _isReplay flag tells renderDebrief to relabel the Done
+   button and tells endSession to navigate back to the history list. */
+async function viewPastSession(sessionId) {
+  const user = auth.currentUser;
+  if (!user) return;
+  try {
+    const doc = await db.collection('users').doc(user.uid)
+      .collection('osceSessions').doc(sessionId).get();
+    if (!doc.exists) return;
+    const data = doc.data();
+
+    examinerSession = {
+      sessionId:      doc.id,
+      system:         data.system,
+      mode:           data.mode,
+      markerType:     data.markerType,
+      currentSection: data.currentSection,
+      sections:       data.sections || [],
+      completedAt:    data.completedAt ? data.completedAt.toMillis() : null,
+      overallGrade:   data.overallGrade !== undefined ? data.overallGrade : null,
+      passed:         data.passed !== undefined ? data.passed : null,
+      _isReplay:      true
+    };
+
+    renderDebrief();
+    navigate('examiner-debrief');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  } catch (e) {
+    console.error('View past session failed', e);
+  }
 }
 </script>
 
