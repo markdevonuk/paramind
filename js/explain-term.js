@@ -19,7 +19,8 @@
 
     var SELECTOR = '.hollie-bubble, [data-explain]';
     var MIN_LEN = 2, MAX_LEN = 200, LONG_PRESS_MS = 450, MOVE_CANCEL = 10;
-    var TIP_KEY = 'pm_explainTermTipSeen';
+    var TIP_KEY = 'pm_explainTermTipFirstSeen';
+    var TIP_WINDOW_MS = 90 * 24 * 60 * 60 * 1000; // keep showing the tip for ~3 months
 
     var HX_SYSTEM_PROMPT = [
         'You are Hollie, a friendly and experienced UK paramedic tutor. The learner was reading and has tapped a word or short phrase. They want a quick, clear explanation of just that term.',
@@ -157,13 +158,17 @@
     /* ---- one-time tip ---- */
     var tipShown = false;
     function maybeShowTip() {
-        if (tipShown) return;
-        try { if (localStorage.getItem(TIP_KEY)) { tipShown = true; return; } } catch (e) {}
+        if (tipShown) return;          // at most once per page load
         tipShown = true;
+        var now = Date.now(), first = 0;
+        try {
+            first = parseInt(localStorage.getItem(TIP_KEY), 10) || 0;
+            if (!first) { first = now; localStorage.setItem(TIP_KEY, String(now)); }
+        } catch (e) { first = now; }
+        if (now - first > TIP_WINDOW_MS) return;   // past the few-month window -> stop
         tipEl.style.display = 'flex';
         requestAnimationFrame(function () { tipEl.classList.add('hx-show'); });
         tipHideTimer = setTimeout(hideTip, 8000);
-        try { localStorage.setItem(TIP_KEY, '1'); } catch (e) {}
     }
     function hideTip() {
         clearTimeout(tipHideTimer);
