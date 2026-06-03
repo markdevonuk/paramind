@@ -65,7 +65,7 @@
         '#hxTip .hx-tiptxt{font-size:13px;color:var(--color-teal-dark,#237282);line-height:1.5;font-weight:500;}',
         '#hxTip .hx-tipx{margin-left:auto;border:none;background:none;color:#7bb8c4;font-size:18px;line-height:1;cursor:pointer;flex-shrink:0;padding:0 2px;}',
         '#hxTip .hx-tipx:hover{color:var(--color-teal,#2B8A9C);}',
-        '@media (max-width:600px){#hxOverlay{align-items:flex-end;padding:0;}.hx-modal{max-width:100%;border-radius:18px 18px 0 0;max-height:88vh;}}'
+        '@media (max-width:600px){#hxOverlay{align-items:flex-end;padding:0;}.hx-modal{max-width:100%;border-radius:18px 18px 0 0;max-height:88vh;}#hxTip{top:max(calc(env(safe-area-inset-top, 0px) + 0.75rem), 56px);}}'
     ].join('');
 
     var overlay, snippetEl, answerEl, tipEl, tipHideTimer = null;
