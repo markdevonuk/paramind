@@ -1835,5 +1835,306 @@ Use UK spelling and terminology.`;
     <script src="js/pro-guard.js"></script>
     <script src="js/activity-logger.js"></script>
     <script src="js/upgrade-modal.js"></script>
+
+    <!-- ============================================================= -->
+    <!-- HIGHLIGHT-TO-EXPLAIN (pilot) - self-contained feature.        -->
+    <!-- Highlight a term inside a Hollie explanation (.hollie-bubble) -->
+    <!-- to get a quick single-shot explanation in a modal.           -->
+    <!-- Reuses this page's existing /chat call, getAuthToken and      -->
+    <!-- formatMessage. Touches nothing else. Safe to remove as a unit.-->
+    <!-- ============================================================= -->
+    <style id="hxStyles">
+        #hxPill {
+            position: absolute;
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            background: var(--color-teal, #2B8A9C);
+            color: #fff;
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 9999px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(43, 138, 156, 0.35);
+        }
+        #hxPill::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: var(--color-teal, #2B8A9C);
+        }
+        #hxOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(20, 40, 45, 0.5);
+            padding: 1rem;
+        }
+        #hxOverlay.hx-open { display: flex; }
+        .hx-modal {
+            background: #fff;
+            border-radius: 18px;
+            width: 100%;
+            max-width: 460px;
+            max-height: 85vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+        }
+        .hx-mhead {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--color-gray-200, #E9ECEF);
+            flex-shrink: 0;
+        }
+        .hx-mav {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .hx-mav img { width: 100%; height: 100%; object-fit: cover; }
+        .hx-mtitle { font-size: 0.9rem; font-weight: 700; color: #212529; line-height: 1.2; }
+        .hx-mtag { font-size: 0.72rem; font-weight: 600; color: var(--color-teal, #2B8A9C); }
+        .hx-close {
+            margin-left: auto;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #f1f3f5;
+            border-radius: 8px;
+            color: var(--color-gray-700, #495057);
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .hx-close:hover { background: var(--color-gray-200, #E9ECEF); }
+        .hx-mbody { padding: 16px; overflow-y: auto; }
+        .hx-snip {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+            background: #f0f9fb;
+            border-left: 3px solid var(--color-teal, #2B8A9C);
+            padding: 10px 12px;
+            font-size: 0.82rem;
+            color: var(--color-teal-dark, #237282);
+            margin-bottom: 14px;
+            font-weight: 500;
+        }
+        .hx-ans { font-size: 0.9rem; line-height: 1.7; color: var(--color-gray-700, #495057); min-height: 20px; }
+        .hx-ans p { margin: 0 0 0.7rem; }
+        .hx-ans p:last-child { margin-bottom: 0; }
+        .hx-cur {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background: var(--color-teal, #2B8A9C);
+            vertical-align: -2px;
+            animation: hxBlink 1s steps(1) infinite;
+        }
+        @keyframes hxBlink { 50% { opacity: 0; } }
+        .hx-foot {
+            padding: 0 16px 16px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .hx-footbtn {
+            font-size: 0.8rem;
+            color: var(--color-teal, #2B8A9C);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+    </style>
+
+    <div id="hxPill" role="button" tabindex="0" aria-label="Ask Hollie to explain the highlighted text">
+        <i class="bi bi-stars"></i> Ask Hollie
+    </div>
+
+    <div id="hxOverlay" role="dialog" aria-modal="true" aria-label="Hollie explanation">
+        <div class="hx-modal">
+            <div class="hx-mhead">
+                <div class="hx-mav"><img src="images/hollie.png" alt="Hollie"></div>
+                <div>
+                    <div class="hx-mtitle">Hollie</div>
+                    <div class="hx-mtag">Paramedic Tutor</div>
+                </div>
+                <button class="hx-close" id="hxClose" aria-label="Close">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="hx-mbody">
+                <div class="hx-snip">
+                    <i class="bi bi-quote" style="flex-shrink:0"></i>
+                    <span id="hxSnippet"></span>
+                </div>
+                <div class="hx-ans" id="hxAnswer"></div>
+            </div>
+            <div class="hx-foot">
+                <button class="hx-footbtn" id="hxFootClose">Got it, close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        const MIN_LEN = 2;      // ignore tiny accidental selections
+        const MAX_LEN = 200;    // ignore giant selections (e.g. whole page)
+
+        const pill = document.getElementById('hxPill');
+        const overlay = document.getElementById('hxOverlay');
+        const snippetEl = document.getElementById('hxSnippet');
+        const answerEl = document.getElementById('hxAnswer');
+        const closeBtn = document.getElementById('hxClose');
+        const footClose = document.getElementById('hxFootClose');
+        if (!pill || !overlay) return;
+
+        let currentSnippet = '';
+
+        // Snippet-tuned prompt. Includes the no-treatment rules so it stays
+        // policy-safe regardless of how the server handles systemPrompt.
+        const HX_SYSTEM_PROMPT = `You are Hollie, a friendly and experienced UK paramedic tutor. The learner was reading and has highlighted a single word or short phrase. They want a quick, clear explanation of just that term.
+
+Rules:
+- Explain ONLY the highlighted term: what it means and why it matters clinically for a UK paramedic.
+- Keep it short: 2 to 4 sentences, roughly 60-110 words. Warm, plain, conversational. UK spelling.
+- This is EDUCATION only. Never give treatment advice, drug names, doses, or protocols. If treatment comes up, remind them to check JRCalc.
+- Don't add a long greeting or sign-off. Just explain the term.`;
+
+        function hidePill() {
+            pill.style.display = 'none';
+        }
+
+        // Decide whether the current selection should show the pill.
+        function evaluateSelection() {
+            if (overlay.classList.contains('hx-open')) return;
+            const sel = window.getSelection();
+            if (!sel || sel.isCollapsed || sel.rangeCount === 0) { hidePill(); return; }
+
+            const text = sel.toString().trim();
+            if (text.length < MIN_LEN || text.length > MAX_LEN) { hidePill(); return; }
+
+            // Only inside a Hollie explanation bubble.
+            const range = sel.getRangeAt(0);
+            let node = range.commonAncestorContainer;
+            if (node.nodeType === 3) node = node.parentElement;
+            if (!node || !node.closest || !node.closest('.hollie-bubble')) { hidePill(); return; }
+
+            currentSnippet = text;
+            const rect = range.getBoundingClientRect();
+            pill.style.display = 'flex';
+            pill.style.left = (rect.left + window.scrollX + rect.width / 2) + 'px';
+            pill.style.top = (rect.top + window.scrollY) + 'px';
+            pill.style.transform = 'translate(-50%, calc(-100% - 8px))';
+        }
+
+        document.addEventListener('mouseup', function() { setTimeout(evaluateSelection, 0); });
+        document.addEventListener('keyup', function(e) {
+            if (e.shiftKey || e.key === 'Shift') setTimeout(evaluateSelection, 0);
+        });
+        document.addEventListener('scroll', hidePill, true);
+
+        // Keep the selection alive when the pill is pressed.
+        pill.addEventListener('mousedown', function(e) { e.preventDefault(); });
+        pill.addEventListener('click', openModal);
+        pill.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(); }
+        });
+
+        function closeModal() {
+            overlay.classList.remove('hx-open');
+            answerEl.innerHTML = '';
+        }
+        closeBtn.addEventListener('click', closeModal);
+        footClose.addEventListener('click', closeModal);
+        overlay.addEventListener('click', function(e) { if (e.target === overlay) closeModal(); });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && overlay.classList.contains('hx-open')) closeModal();
+        });
+
+        function escapeHtml(s) {
+            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        async function openModal() {
+            if (!currentSnippet) return;
+            const snippet = currentSnippet;
+            hidePill();
+            window.getSelection().removeAllRanges();
+
+            snippetEl.textContent = snippet;
+            answerEl.innerHTML = '<span class="hx-cur"></span>';
+            overlay.classList.add('hx-open');
+
+            try {
+                const token = await getAuthToken();
+                const cfg = (window.paramind && window.paramind.CONFIG && window.paramind.CONFIG.api) || {};
+                const response = await fetch(`${cfg.baseUrl}${cfg.chat}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: `Please give me a quick explanation of this term: "${snippet}"`,
+                        conversationHistory: [],
+                        systemPrompt: HX_SYSTEM_PROMPT
+                    })
+                });
+
+                if (!response.ok) throw new Error('Request failed');
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let full = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    const lines = decoder.decode(value, { stream: true }).split('\n');
+                    for (const line of lines) {
+                        if (!line.startsWith('data: ')) continue;
+                        try {
+                            const data = JSON.parse(line.slice(6));
+                            if (data.type === 'chunk') {
+                                full += data.content;
+                                answerEl.innerHTML = escapeHtml(full).replace(/\n/g, '<br>') + '<span class="hx-cur"></span>';
+                            } else if (data.type === 'error') {
+                                throw new Error(data.error);
+                            }
+                        } catch (err) { /* skip partial/invalid JSON */ }
+                    }
+                }
+
+                answerEl.innerHTML = (typeof formatMessage === 'function')
+                    ? formatMessage(full)
+                    : escapeHtml(full).replace(/\n/g, '<br>');
+
+            } catch (err) {
+                console.error('Highlight-to-explain error:', err);
+                answerEl.innerHTML = '<p style="color:#dc2626;">Sorry, I couldn\'t get an explanation just now. Please try again.</p>';
+            }
+        }
+    })();
+    </script>
 </body>
 </html>
