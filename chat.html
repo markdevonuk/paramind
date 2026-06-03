@@ -453,30 +453,59 @@
             padding: 0;
         }
         
-        /* Quick Actions */
+        /* Quick Actions - animated example question */
         .quick-actions {
             display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
             margin-top: 1rem;
         }
         
-        .quick-action-btn {
+        .suggestion-typer {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            max-width: 100%;
             background: var(--color-white);
             border: 1px solid var(--color-gray-200);
             border-radius: var(--radius-full);
-            padding: 0.5rem 1rem;
-            font-size: 0.85rem;
+            padding: 0.6rem 1.1rem;
+            font-size: 0.9rem;
             color: var(--color-gray-700);
             cursor: pointer;
+            line-height: 1.3;
             transition: all 0.2s ease;
         }
         
-        .quick-action-btn:hover {
+        .suggestion-typer:hover {
             border-color: var(--color-teal);
             color: var(--color-teal);
             background: rgba(43, 138, 156, 0.05);
+        }
+        
+        .suggestion-typer .suggestion-spark {
+            color: var(--color-teal-light, #3DA4B8);
+            flex-shrink: 0;
+        }
+        
+        .suggestion-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background: var(--color-teal);
+            margin-left: 1px;
+            vertical-align: -2px;
+            animation: suggestionBlink 1s steps(1) infinite;
+        }
+        
+        @keyframes suggestionBlink {
+            50% { opacity: 0; }
+        }
+        
+        .suggestion-hint {
+            font-size: 0.7rem;
+            color: var(--color-gray-500, #ADB5BD);
+            margin-top: 0.5rem;
         }
         
         /* Simplify Button - appears after assistant messages */
@@ -912,17 +941,13 @@ html {
                     Ask me anything about anatomy, physiology, pathophysiology, or paramedicine - I'll explain it like we're having a chat over a cuppa! ☕
                 </p>
                 
-                <!-- Quick Actions -->
+                <!-- Quick Actions - animated example question -->
                 <div class="quick-actions">
-                    <button class="quick-action-btn" onclick="sendQuickMessage('Explain the pathophysiology of MI')">
-                        <i class="bi bi-heart-pulse me-1"></i>MI Pathophysiology
-                    </button>
-                    <button class="quick-action-btn" onclick="sendQuickMessage('What are the signs of sepsis?')">
-                        <i class="bi bi-thermometer-half me-1"></i>Sepsis Signs
-                    </button>
-                    <button class="quick-action-btn" onclick="sendQuickMessage('Explain ABCDE assessment')">
-                        <i class="bi bi-list-check me-1"></i>ABCDE Assessment
-                    </button>
+                    <div class="suggestion-typer" id="suggestionTyper" role="button" tabindex="0" aria-label="Use the suggested example question">
+                        <i class="bi bi-stars suggestion-spark"></i>
+                        <span><span id="suggestionText"></span><span class="suggestion-cursor"></span></span>
+                    </div>
+                    <div class="suggestion-hint">Tap a suggestion to ask it</div>
                 </div>
                 <p><br></p>
                 <div class="welcome-disclaimer">
@@ -2257,6 +2282,100 @@ SIMPLIFY MODE: The learner just asked you to simplify your previous explanation.
         });
 
         elements.clearChatBtn.addEventListener('click', clearChat);
+
+        // ==================== ANIMATED EXAMPLE QUESTIONS ====================
+        (function() {
+            const suggestionQuestions = [
+                "Why does my pt have left arm pain in an MI?",
+                "How do I test for gallbladder issues?",
+                "Why do some MI patients go sick and sweaty?",
+                "What's the difference between a STEMI and an NSTEMI?",
+                "Why does a tension pneumothorax push the trachea over?",
+                "How do I tell a stroke from Bell's palsy?",
+                "Why does my pt go pale and clammy in shock?",
+                "What separates asthma from COPD on assessment?",
+                "Why do diabetics get confused when their sugar drops?",
+                "How do I pick up sepsis early?",
+                "Why does chest pain sometimes spread to the jaw?",
+                "What's actually happening in anaphylaxis?",
+                "How do I assess a head injury that's getting worse?",
+                "Why do some strokes only affect one side?",
+                "What does a third heart sound tell me?",
+                "Why does my pt's leg swell after a long flight?",
+                "How do I spot a silent MI in an elderly pt?",
+                "Why does pneumonia leave someone short of breath?",
+                "What's the difference between type 1 and type 2 respiratory failure?",
+                "How do I tell if abdominal pain is serious?",
+                "Why does a seizure leave my pt drowsy afterwards?",
+                "What causes the crushing pain in angina?",
+                "How do I assess a burns patient?",
+                "Why does heart failure make the lungs wet?",
+                "What does a raised lactate actually mean?",
+                "How do I recognise an AAA before it ruptures?",
+                "Why does my pt have neck stiffness in meningitis?",
+                "What's the link between AF and stroke risk?",
+                "How do I tell cardiac chest pain from musculoskeletal?",
+                "Why does hyperventilation make hands tingle?"
+            ];
+
+            const txtEl = document.getElementById('suggestionText');
+            const typerEl = document.getElementById('suggestionTyper');
+            if (!txtEl || !typerEl) return;
+
+            let queue = [];
+            let current = "";
+            let pos = 0;
+
+            function shuffle(arr) {
+                const a = arr.slice();
+                for (let i = a.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [a[i], a[j]] = [a[j], a[i]];
+                }
+                return a;
+            }
+
+            function nextQuestion() {
+                if (queue.length === 0) queue = shuffle(suggestionQuestions);
+                current = queue.shift();
+                pos = 0;
+                typeChar();
+            }
+
+            function typeChar() {
+                if (pos <= current.length) {
+                    txtEl.textContent = current.slice(0, pos);
+                    pos++;
+                    setTimeout(typeChar, 42);
+                } else {
+                    setTimeout(deleteChar, 1700);
+                }
+            }
+
+            function deleteChar() {
+                if (pos > 0) {
+                    pos--;
+                    txtEl.textContent = current.slice(0, pos);
+                    setTimeout(deleteChar, 22);
+                } else {
+                    setTimeout(nextQuestion, 350);
+                }
+            }
+
+            function useCurrent() {
+                if (current) sendQuickMessage(current);
+            }
+
+            typerEl.addEventListener('click', useCurrent);
+            typerEl.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    useCurrent();
+                }
+            });
+
+            nextQuestion();
+        })();
     </script>
     <script src="js/upgrade-modal.js"></script>
 </body>
