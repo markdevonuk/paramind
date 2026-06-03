@@ -240,6 +240,129 @@
       letter-spacing: 0.04em;
     }
 
+    /* Mode select page — two big tappable choice cards */
+    .osce-mode-card {
+      background: #fff;
+      border: 1px solid var(--color-gray-200);
+      border-radius: 16px;
+      padding: 1.4rem 1.4rem 1.25rem;
+      cursor: pointer;
+      text-align: left;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+      display: block;
+      width: 100%;
+      font-family: var(--font-primary);
+    }
+    .osce-mode-card + .osce-mode-card { margin-top: 1rem; }
+    .osce-mode-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 5px;
+      border-radius: 5px 0 0 5px;
+    }
+    .osce-mode-card.study::before    { background: var(--color-teal); }
+    .osce-mode-card.examiner::before { background: var(--color-green); }
+    .osce-mode-card.study:hover {
+      border-color: var(--color-teal);
+      box-shadow: 0 6px 20px rgba(43,138,156,0.12);
+    }
+    .osce-mode-card.examiner:hover {
+      border-color: var(--color-green);
+      box-shadow: 0 6px 20px rgba(92,184,92,0.12);
+    }
+    .osce-mode-card:active { transform: scale(0.99); }
+    .osce-mode-header {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      margin-bottom: 0.7rem;
+    }
+    .osce-mode-icon {
+      width: 46px; height: 46px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.55rem;
+      flex-shrink: 0;
+    }
+    .osce-mode-card.study .osce-mode-icon {
+      background: rgba(43,138,156,0.10);
+      color: var(--color-teal);
+    }
+    .osce-mode-card.examiner .osce-mode-icon {
+      background: rgba(92,184,92,0.13);
+      color: var(--color-green-dark);
+    }
+    .osce-mode-eyebrow {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-gray-500);
+      margin-bottom: 0.18rem;
+    }
+    .osce-mode-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      line-height: 1.2;
+      color: var(--color-gray-900);
+    }
+    .osce-mode-card.study .osce-mode-title    { color: var(--color-teal); }
+    .osce-mode-card.examiner .osce-mode-title { color: var(--color-green-dark); }
+    .osce-mode-desc {
+      font-size: 0.94rem;
+      color: var(--color-gray-700);
+      line-height: 1.5;
+      margin-bottom: 0.95rem;
+    }
+    .osce-mode-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 0.9rem;
+    }
+    .osce-mode-features li {
+      font-size: 0.86rem;
+      color: var(--color-gray-700);
+      line-height: 1.45;
+      padding: 0.34rem 0 0.34rem 1.65rem;
+      position: relative;
+    }
+    .osce-mode-features li::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0.6rem;
+      width: 1rem; height: 1rem;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+    }
+    .osce-mode-card.study .osce-mode-features li::before {
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%232B8A9C'><path d='M13.485 1.929a.75.75 0 011.06 1.061l-7.5 9.5a.75.75 0 01-1.114.065L1.929 8.55a.75.75 0 011.06-1.061l3.473 3.473 6.95-8.94z'/></svg>");
+    }
+    .osce-mode-card.examiner .osce-mode-features li::before {
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%234A9A4A'><path d='M13.485 1.929a.75.75 0 011.061 1.061l-7.5 9.5a.75.75 0 01-1.114.065L1.929 8.55a.75.75 0 011.06-1.061l3.473 3.473 6.95-8.94z'/></svg>");
+    }
+    .osce-mode-best {
+      font-size: 0.82rem;
+      color: var(--color-gray-700);
+      border-top: 1px solid var(--color-gray-100);
+      padding-top: 0.8rem;
+      line-height: 1.55;
+    }
+    .osce-mode-best strong {
+      color: var(--color-gray-800);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 0.66rem;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
     /* Item detail view */
     .osce-item-eyebrow {
       font-size: 0.7rem;
@@ -1109,6 +1232,63 @@
     <div class="osce-disclaimer">
       <strong><i class="bi bi-info-circle-fill me-1"></i>Paramind's OSCE Practice</strong> is based on common clinical assessment frameworks used in UK paramedic education. It is intended as a revision and self-assessment aid. <strong>Always consult the official rubric and guidance for your programme.</strong>
     </div>
+  </div>
+</div>
+
+<!-- ============================================
+     MODE SELECT — Study vs Examiner choice page.
+     Shown after the user picks a body system on home. Title reflects
+     the chosen system; the two cards each launch one of the modes.
+     Title is populated by renderModeSelectPage() inside openSystem.
+     ============================================ -->
+<div id="osce-mode-select" class="osce-screen">
+  <div class="osce-inner">
+    <div class="osce-breadcrumb">OSCE Practice</div>
+    <h1 class="osce-title" id="modeSelectTitle">Cardiovascular</h1>
+    <p class="osce-sub">Two ways to work this. Pick the one that fits where you are right now.</p>
+
+    <button class="osce-mode-card study" onclick="chooseStudyMode()">
+      <div class="osce-mode-header">
+        <div class="osce-mode-icon"><i class="bi bi-book-fill"></i></div>
+        <div>
+          <div class="osce-mode-eyebrow">Self-directed</div>
+          <div class="osce-mode-title">Study Mode</div>
+        </div>
+      </div>
+      <p class="osce-mode-desc">Learn the OSCE properly. At your own pace, no pressure.</p>
+      <ul class="osce-mode-features">
+        <li>Every item across all four sections, opened up.</li>
+        <li>For each one — what to do, why it matters, common misses, the tick list.</li>
+        <li>Stop wherever. Come back to it later.</li>
+        <li>No grading. No timer. Just learning.</li>
+      </ul>
+      <div class="osce-mode-best">
+        <strong>Best for</strong>
+        Revising. Prepping for a specific station. Building the habit before you're tested.
+      </div>
+    </button>
+
+    <button class="osce-mode-card examiner" onclick="chooseExaminerMode()">
+      <div class="osce-mode-header">
+        <div class="osce-mode-icon"><i class="bi bi-clipboard-check-fill"></i></div>
+        <div>
+          <div class="osce-mode-eyebrow">Practice like it's real</div>
+          <div class="osce-mode-title">Examiner Mode</div>
+        </div>
+      </div>
+      <p class="osce-mode-desc">Run the OSCE like you're being marked. Tick coverage, grade yourself, get a debrief.</p>
+      <ul class="osce-mode-features">
+        <li>Pick your marker — yourself, a peer, or a mentor.</li>
+        <li>Tick what you covered, section by section.</li>
+        <li>Grade each section 0–10 against the rubric.</li>
+        <li>Critical fails flagged the moment they happen.</li>
+        <li>A full written debrief at the end. Save it. Review later.</li>
+      </ul>
+      <div class="osce-mode-best">
+        <strong>Best for</strong>
+        Mock OSCEs. The week before the real one. When you want an honest read on where you actually are.
+      </div>
+    </button>
   </div>
 </div>
 
@@ -1989,10 +2169,38 @@ function openSystem(systemId) {
   if (!sys) return;
   currentSystem = systemId;
   renderSystemPage(systemId);
-  // Always start a fresh system page in Study Mode — Examiner Mode
-  // would otherwise stay 'active' from a previous system visit.
+  renderModeSelectPage(systemId);
+  // Reset the system page toggle to Study; if a previous visit left it
+  // in Examiner, picking Study from mode-select should land on the
+  // section cards (not on the wrong toggle state).
+  setStudyModeActive();
+  navigate('mode-select');
+}
+
+/* Populate the mode-select page with the chosen system's name.
+   The accent colours on the two mode cards (teal for Study, green for
+   Examiner) are mode-specific, not system-specific — they read as
+   the two paths through the same destination. */
+function renderModeSelectPage(systemId) {
+  const sys = SYSTEM_BY_ID[systemId] || SYSTEM_BY_ID.cardiovascular;
+  const titleEl = document.getElementById('modeSelectTitle');
+  if (titleEl) titleEl.textContent = sys.label;
+}
+
+/* User picked Study Mode on the mode-select page → go to the section
+   cards. setStudyModeActive() was already called in openSystem, so the
+   in-page toggle on osce-system already reflects Study. */
+function chooseStudyMode() {
   setStudyModeActive();
   navigate('system');
+}
+
+/* User picked Examiner Mode on the mode-select page. Reuse the
+   existing setMode('examiner') flow which handles the resumable-
+   session check and routes to either the resume prompt or the
+   marker-type screen. */
+async function chooseExaminerMode() {
+  await setMode('examiner');
 }
 
 function setStudyModeActive() {
@@ -2863,10 +3071,13 @@ function renderLock() {
 
 /* Resets the navStack to a fresh state with the given screen on top.
    Used after section lock so the back arrow returns to the system page
-   rather than into the locked section's screens. */
+   rather than into the locked section's screens. Includes mode-select
+   in the stack so a user can back out of Examiner Mode entirely without
+   getting trapped on osce-system. */
 function resetNavStackTo(target) {
   navStack.length = 0;
   navStack.push('osce-home');
+  navStack.push('osce-mode-select');
   navStack.push('osce-system');
   navStack.push(target);
   showScreen(target);
