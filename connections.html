@@ -2086,7 +2086,9 @@ Rules:
             overlay.classList.add('hx-open');
 
             try {
-                const token = await getAuthToken();
+                const user = firebase.auth().currentUser;
+                if (!user) throw new Error('Not signed in');
+                const token = await user.getIdToken(true);
                 const cfg = (window.paramind && window.paramind.CONFIG && window.paramind.CONFIG.api) || {};
                 const response = await fetch(`${cfg.baseUrl}${cfg.chat}`, {
                     method: 'POST',
@@ -2125,8 +2127,8 @@ Rules:
                     }
                 }
 
-                answerEl.innerHTML = (typeof formatMessage === 'function')
-                    ? formatMessage(full)
+                answerEl.innerHTML = (typeof marked !== 'undefined')
+                    ? marked.parse(full.replace(/^[ \t]*•[ \t]*/gm, '- '))
                     : escapeHtml(full).replace(/\n/g, '<br>');
 
             } catch (err) {
