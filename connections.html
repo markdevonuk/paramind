@@ -2046,21 +2046,44 @@ Rules:
 
             currentSnippet = text;
             const rect = range.getBoundingClientRect();
+            const isTouch = window.matchMedia('(pointer: coarse)').matches;
+
+            // Centre horizontally on the selection, but keep the pill on-screen.
+            let cx = rect.left + rect.width / 2;
+            const margin = 70;
+            cx = Math.max(margin, Math.min(cx, window.innerWidth - margin));
+
             pill.style.display = 'flex';
-            pill.style.left = (rect.left + window.scrollX + rect.width / 2) + 'px';
-            pill.style.top = (rect.top + window.scrollY) + 'px';
-            pill.style.transform = 'translate(-50%, calc(-100% - 8px))';
+            pill.style.left = (cx + window.scrollX) + 'px';
+            if (isTouch) {
+                // On phones the native iOS menu usually sits ABOVE the selection,
+                // so drop our pill BELOW it to reduce the clash.
+                pill.style.top = (rect.bottom + window.scrollY + 10) + 'px';
+                pill.style.transform = 'translateX(-50%)';
+            } else {
+                pill.style.top = (rect.top + window.scrollY) + 'px';
+                pill.style.transform = 'translate(-50%, calc(-100% - 8px))';
+            }
         }
 
         document.addEventListener('mouseup', function() { setTimeout(evaluateSelection, 0); });
         document.addEventListener('keyup', function(e) {
             if (e.shiftKey || e.key === 'Shift') setTimeout(evaluateSelection, 0);
         });
+        // selectionchange is the reliable signal on touch devices (iOS), where
+        // text is selected via drag-handles and mouseup never fires. Debounced
+        // so the pill appears once the user stops adjusting the selection.
+        let selTimer = null;
+        document.addEventListener('selectionchange', function() {
+            clearTimeout(selTimer);
+            selTimer = setTimeout(evaluateSelection, 250);
+        });
         document.addEventListener('scroll', hidePill, true);
 
-        // Keep the selection alive when the pill is pressed.
-        pill.addEventListener('mousedown', function(e) { e.preventDefault(); });
-        pill.addEventListener('click', openModal);
+        // Open on pointerdown so the tap registers before the selection clears
+        // (critical on touch). preventDefault keeps the selection alive.
+        pill.addEventListener('pointerdown', function(e) { e.preventDefault(); openModal(); });
+        pill.addEventListener('click', function(e) { e.preventDefault(); });
         pill.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(); }
         });
