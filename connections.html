@@ -1995,7 +1995,7 @@ Rules:
         }
         function wordAt(x, y) {
             const el = document.elementFromPoint(x, y);
-            return (el && el.classList && el.classList.contains('hx-w') && currentBubble && currentBubble.contains(el)) ? el : null;
+            return (el && el.classList && el.classList.contains('hx-w') && el.closest('.hollie-bubble')) ? el : null;
         }
         function resetGesture() { gestureActive = false; phraseSelecting = false; moved = false; clearTimeout(pressTimer); }
 
@@ -2040,7 +2040,7 @@ Rules:
             if (!gestureActive || isTouch) return;
             const dist = Math.hypot(e.clientX - startX, e.clientY - startY);
             if (!phraseSelecting && dist > MOVE_CANCEL) phraseSelecting = true;
-            if (phraseSelecting) { const w = wordAt(e.clientX, e.clientY); if (w) applyRange(startI, +w.dataset.i); }
+            if (phraseSelecting) { const w = wordAt(e.clientX, e.clientY); if (w && w.closest('.hollie-bubble') === currentBubble) applyRange(startI, +w.dataset.i); }
         });
         cm.addEventListener('pointerup', function() { if (!isTouch) finish(); });
         cm.addEventListener('pointercancel', function() { clearSel(); resetGesture(); });
@@ -2050,7 +2050,7 @@ Rules:
             const t = e.touches[0]; if (!t) return;
             if (phraseSelecting) {
                 e.preventDefault();
-                const w = wordAt(t.clientX, t.clientY); if (w) applyRange(startI, +w.dataset.i);
+                const w = wordAt(t.clientX, t.clientY); if (w && w.closest('.hollie-bubble') === currentBubble) applyRange(startI, +w.dataset.i);
             } else if (!moved) {
                 if (Math.hypot(t.clientX - startX, t.clientY - startY) > MOVE_CANCEL) { moved = true; clearTimeout(pressTimer); }
             }
