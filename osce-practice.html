@@ -1073,7 +1073,7 @@
     </p>
 
     <div class="osce-cards">
-      <button class="osce-card cardio" onclick="navigate('system-cardio')">
+      <button class="osce-card cardio" onclick="openSystem('cardiovascular')">
         <div class="osce-card-label">Pilot system</div>
         <div class="osce-card-name">Cardiovascular</div>
         <div class="osce-card-desc">Heart, pulses, central and peripheral signs.</div>
@@ -1110,52 +1110,22 @@
 </div>
 
 <!-- ============================================
-     SYSTEM PAGE — Cardiovascular
+     SYSTEM PAGE — shared across all four systems.
+     Title, breadcrumb, and section cards are populated by
+     renderSystemPage() based on currentSystem.
      ============================================ -->
-<div id="osce-system-cardio" class="osce-screen">
+<div id="osce-system" class="osce-screen">
   <div class="osce-inner">
     <div class="osce-breadcrumb">OSCE Practice</div>
-    <h1 class="osce-title">Cardiovascular</h1>
+    <h1 class="osce-title" id="systemTitle">Cardiovascular</h1>
     <p class="osce-sub">Four sections, mirroring how the full OSCE flows from first contact to discharge.</p>
 
     <div class="osce-mode-toggle">
-      <button class="active" onclick="setMode('study')">Study Mode</button>
-      <button onclick="setMode('examiner')">Examiner Mode</button>
+      <button id="modeToggleStudy" class="active" onclick="setMode('study')">Study Mode</button>
+      <button id="modeToggleExaminer" onclick="setMode('examiner')">Examiner Mode</button>
     </div>
 
-    <div class="osce-cards">
-      <button class="osce-card cardio" onclick="navigate('section-history')">
-        <div class="osce-card-label">Section 1 · 20%</div>
-        <div class="osce-card-name">Advanced History Taking</div>
-        <div class="osce-card-desc">Introduction, consent, presenting complaint, history, communication.</div>
-        <div class="osce-card-meta">10 items · ~15 min</div>
-        <i class="bi bi-chevron-right osce-card-arrow"></i>
-      </button>
-
-      <button class="osce-card cardio" onclick="navigate('section-exam')">
-        <div class="osce-card-label">Section 2 · 30%</div>
-        <div class="osce-card-name">Cardiovascular Examination</div>
-        <div class="osce-card-desc">General overview, inspection, palpation, auscultation, percussion, special tests.</div>
-        <div class="osce-card-meta">6 parts · ~20 min</div>
-        <i class="bi bi-chevron-right osce-card-arrow"></i>
-      </button>
-
-      <button class="osce-card cardio" onclick="navigate('section-decision')">
-        <div class="osce-card-label">Section 3 · 30%</div>
-        <div class="osce-card-name">Decision Making &amp; Management</div>
-        <div class="osce-card-desc">Working impression, pathophysiology, management plan, safety netting, closing.</div>
-        <div class="osce-card-meta">5 items · ~15 min</div>
-        <i class="bi bi-chevron-right osce-card-arrow"></i>
-      </button>
-
-      <button class="osce-card cardio" onclick="navigate('section-special')">
-        <div class="osce-card-label">Section 4 · 20%</div>
-        <div class="osce-card-name">Special Populations</div>
-        <div class="osce-card-desc">Adjusting your practice for pregnant, paediatric, and dementia patients.</div>
-        <div class="osce-card-meta">3 items · ~10 min</div>
-        <i class="bi bi-chevron-right osce-card-arrow"></i>
-      </button>
-    </div>
+    <div class="osce-cards" id="systemSectionCards"></div>
 
     <button class="osce-history-trigger" id="osceHistoryTrigger" onclick="openHistory()" style="display:none;">
       <i class="bi bi-clock-history"></i> View past Examiner Mode sessions
@@ -1168,7 +1138,7 @@
      ============================================ -->
 <div id="osce-section-history" class="osce-screen">
   <div class="osce-inner">
-    <div class="osce-breadcrumb">OSCE Practice · Cardiovascular</div>
+    <div class="osce-breadcrumb osce-bc-system">OSCE Practice · Cardiovascular</div>
     <h1 class="osce-title">Advanced<br><span>History Taking</span></h1>
     <p class="osce-sub">Section 1 — shared across all four systems. Ten items, in the order you'd actually do them.</p>
     <div class="osce-section-intro">
@@ -1180,8 +1150,8 @@
 
 <div id="osce-section-exam" class="osce-screen">
   <div class="osce-inner">
-    <div class="osce-breadcrumb">OSCE Practice · Cardiovascular</div>
-    <h1 class="osce-title">Cardiovascular<br><span>Examination</span></h1>
+    <div class="osce-breadcrumb osce-bc-system">OSCE Practice · Cardiovascular</div>
+    <h1 class="osce-title"><span id="examTitleSystem">Cardiovascular</span><br><span>Examination</span></h1>
     <p class="osce-sub">Section 2 — system-specific. The examination follows a sequence; verbalise as you go.</p>
     <div class="osce-section-intro">
       You walk in. You look. Then you start at the hands and work your way up. By the time your stethoscope touches the chest, you should already have a working impression from what you've seen and felt.
@@ -1192,7 +1162,7 @@
 
 <div id="osce-section-decision" class="osce-screen">
   <div class="osce-inner">
-    <div class="osce-breadcrumb">OSCE Practice · Cardiovascular</div>
+    <div class="osce-breadcrumb osce-bc-system">OSCE Practice · Cardiovascular</div>
     <h1 class="osce-title">Decision Making<br><span>&amp; Management</span></h1>
     <p class="osce-sub">Section 3 — shared across all four systems. Two critical fails live here.</p>
     <div class="osce-section-intro">
@@ -1204,7 +1174,7 @@
 
 <div id="osce-section-special" class="osce-screen">
   <div class="osce-inner">
-    <div class="osce-breadcrumb">OSCE Practice · Cardiovascular</div>
+    <div class="osce-breadcrumb osce-bc-system">OSCE Practice · Cardiovascular</div>
     <h1 class="osce-title">Special<br><span>Populations</span></h1>
     <p class="osce-sub">Section 4 — examiner's questions. How would you adjust for three specific patient groups?</p>
     <div class="osce-section-intro">
@@ -1489,7 +1459,7 @@ const db   = firebase.firestore();
 let isPro = false;
 
 auth.onAuthStateChanged(async (user) => {
-  // Toggle history-trigger visibility on the system-cardio page —
+  // Toggle history-trigger visibility on the shared system page —
   // anonymous users have no history to show.
   const historyTrigger = document.getElementById('osceHistoryTrigger');
   if (historyTrigger) historyTrigger.style.display = user ? '' : 'none';
@@ -1701,6 +1671,109 @@ const specialItems = [
   }
 ];
 
+// ─── Multi-system support ────────────────────────
+// The OSCE supports four systems. Section 1 (History) and Section 3
+// (Decision Making) are SHARED — the same historyItems / decisionItems
+// arrays serve every system. Section 2 (Examination) and Section 4
+// (Special Populations) are per-system — separate arrays per system.
+//
+// The four arrays examItems / specialItems above are the Cardiovascular
+// versions; the placeholders below will be filled in by upcoming commits.
+//
+// Each system has:
+//   id        — data field value (examinerSession.system, history filter)
+//   slug      — CSS class + screen-id token
+//   label     — human-readable name (titles, breadcrumbs)
+//   *Desc / *Meta — section-card content for the system page
+//   enabled   — whether the system is browsable from the home screen
+
+const SYSTEMS = [
+  {
+    id: 'cardiovascular', slug: 'cardio', label: 'Cardiovascular',
+    cardDesc:     'Heart, pulses, central and peripheral signs.',
+    examLabel:    'Cardiovascular Examination',
+    examDesc:     'General overview, inspection, palpation, auscultation, percussion, special tests.',
+    examMeta:     '6 parts · ~20 min',
+    specialLabel: 'Special Populations',
+    specialDesc:  'Adjusting your practice for pregnant, paediatric, and dementia patients.',
+    specialMeta:  '3 items · ~10 min',
+    enabled: true
+  },
+  {
+    id: 'respiratory', slug: 'resp', label: 'Respiratory',
+    cardDesc:     'Lungs, airways, breath sounds, oxygenation.',
+    examLabel:    'Respiratory Examination',
+    examDesc:     'Coming soon.',
+    examMeta:     '—',
+    specialLabel: 'Special Populations',
+    specialDesc:  'Coming soon.',
+    specialMeta:  '—',
+    enabled: false
+  },
+  {
+    id: 'abdominal', slug: 'abdo', label: 'Abdominal',
+    cardDesc:     'Inspection, palpation, percussion, auscultation of the abdomen.',
+    examLabel:    'Abdominal Examination',
+    examDesc:     'Coming soon.',
+    examMeta:     '—',
+    specialLabel: 'Special Populations',
+    specialDesc:  'Coming soon.',
+    specialMeta:  '—',
+    enabled: false
+  },
+  {
+    id: 'neurological', slug: 'neuro', label: 'Neurological',
+    cardDesc:     'Cranial nerves, motor, sensory, coordination, GCS.',
+    examLabel:    'Neurological Examination',
+    examDesc:     'Coming soon.',
+    examMeta:     '—',
+    specialLabel: 'Special Populations',
+    specialDesc:  'Coming soon.',
+    specialMeta:  '—',
+    enabled: false
+  }
+];
+
+const SYSTEM_BY_ID   = Object.fromEntries(SYSTEMS.map(s => [s.id,   s]));
+const SYSTEM_BY_SLUG = Object.fromEntries(SYSTEMS.map(s => [s.slug, s]));
+
+// Placeholder Section 2 + Section 4 arrays for the not-yet-authored
+// systems. Empty arrays are fine here — the home cards for these
+// systems are locked (enabled: false) so users can't reach the
+// screens that would render them. Subsequent commits replace these
+// with real authored content, one system at a time.
+const examItemsResp = [];
+const examItemsAbdo = [];
+const examItemsNeuro = [];
+
+const specialItemsResp = [];
+const specialItemsAbdo = [];
+const specialItemsNeuro = [];
+
+function getExamItems(systemId) {
+  return ({
+    cardiovascular: examItems,
+    respiratory:    examItemsResp,
+    abdominal:      examItemsAbdo,
+    neurological:   examItemsNeuro
+  })[systemId] || examItems;
+}
+
+function getSpecialItems(systemId) {
+  return ({
+    cardiovascular: specialItems,
+    respiratory:    specialItemsResp,
+    abdominal:      specialItemsAbdo,
+    neurological:   specialItemsNeuro
+  })[systemId] || specialItems;
+}
+
+// Tracks which system the user is currently in. Set by openSystem()
+// before navigating to the (single, shared) system page. Defaults to
+// cardiovascular so any code path that reads it before openSystem has
+// run (legacy entry, direct deep link) degrades gracefully.
+let currentSystem = 'cardiovascular';
+
 // ─── Navigation ──────────────────────────────────
 const navStack = ['osce-home'];
 
@@ -1714,6 +1787,97 @@ function navigate(target, listId, idx) {
     navStack.push('osce-' + target);
   }
   window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+/* ─── System entry ────────────────────────────────
+   openSystem sets currentSystem, populates the shared system page
+   for that system (title, section cards, breadcrumbs on the four
+   downstream section pages, item card lists), then navigates to it.
+   It's the single entry point — both for users (via home cards) and
+   for any internal code that needs to switch system context.
+   ──────────────────────────────────────────────── */
+function openSystem(systemId) {
+  const sys = SYSTEM_BY_ID[systemId];
+  if (!sys) return;
+  currentSystem = systemId;
+  renderSystemPage(systemId);
+  // Always start a fresh system page in Study Mode — Examiner Mode
+  // would otherwise stay 'active' from a previous system visit.
+  setStudyModeActive();
+  navigate('system');
+}
+
+function setStudyModeActive() {
+  const study = document.getElementById('modeToggleStudy');
+  const exam  = document.getElementById('modeToggleExaminer');
+  if (study) study.classList.add('active');
+  if (exam)  exam.classList.remove('active');
+}
+
+function renderSystemPage(systemId) {
+  const sys = SYSTEM_BY_ID[systemId] || SYSTEM_BY_ID.cardiovascular;
+
+  // 1) System page title.
+  const titleEl = document.getElementById('systemTitle');
+  if (titleEl) titleEl.textContent = sys.label;
+
+  // 2) Section card list inside the system page.
+  const cardsEl = document.getElementById('systemSectionCards');
+  if (cardsEl) cardsEl.innerHTML = generateSystemCards(sys);
+
+  // 3) Breadcrumbs on the four downstream section pages.
+  document.querySelectorAll('.osce-bc-system').forEach(el => {
+    el.textContent = `OSCE Practice · ${sys.label}`;
+  });
+
+  // 4) Exam-page title prefix (only the system name part is dynamic).
+  const examTitleSystemEl = document.getElementById('examTitleSystem');
+  if (examTitleSystemEl) examTitleSystemEl.textContent = sys.label;
+
+  // 5) Item-card lists for all four sections, for THIS system.
+  //    History + Decision content is shared (same arrays every system);
+  //    Examination + Special pull per-system arrays via getExamItems /
+  //    getSpecialItems. Rendering all four here keeps the system page
+  //    and its downstream section pages consistent regardless of which
+  //    section the user enters first.
+  renderItemList('historyItemList',  historyItems);
+  renderItemList('examItemList',     getExamItems(sys.id));
+  renderItemList('decisionItemList', decisionItems);
+  renderItemList('specialItemList',  getSpecialItems(sys.id));
+}
+
+function generateSystemCards(sys) {
+  const slug = sys.slug;
+  return `
+    <button class="osce-card ${slug}" onclick="navigate('section-history')">
+      <div class="osce-card-label">Section 1 · 20%</div>
+      <div class="osce-card-name">Advanced History Taking</div>
+      <div class="osce-card-desc">Introduction, consent, presenting complaint, history, communication.</div>
+      <div class="osce-card-meta">10 items · ~15 min</div>
+      <i class="bi bi-chevron-right osce-card-arrow"></i>
+    </button>
+    <button class="osce-card ${slug}" onclick="navigate('section-exam')">
+      <div class="osce-card-label">Section 2 · 30%</div>
+      <div class="osce-card-name">${sys.examLabel}</div>
+      <div class="osce-card-desc">${sys.examDesc}</div>
+      <div class="osce-card-meta">${sys.examMeta}</div>
+      <i class="bi bi-chevron-right osce-card-arrow"></i>
+    </button>
+    <button class="osce-card ${slug}" onclick="navigate('section-decision')">
+      <div class="osce-card-label">Section 3 · 30%</div>
+      <div class="osce-card-name">Decision Making &amp; Management</div>
+      <div class="osce-card-desc">Working impression, pathophysiology, management plan, safety netting, closing.</div>
+      <div class="osce-card-meta">5 items · ~15 min</div>
+      <i class="bi bi-chevron-right osce-card-arrow"></i>
+    </button>
+    <button class="osce-card ${slug}" onclick="navigate('section-special')">
+      <div class="osce-card-label">Section 4 · 20%</div>
+      <div class="osce-card-name">${sys.specialLabel}</div>
+      <div class="osce-card-desc">${sys.specialDesc}</div>
+      <div class="osce-card-meta">${sys.specialMeta}</div>
+      <i class="bi bi-chevron-right osce-card-arrow"></i>
+    </button>
+  `;
 }
 
 function goBack() {
@@ -1742,7 +1906,7 @@ async function setMode(m) {
   btns.forEach(b => b.classList.remove('active'));
   if (m === 'study') {
     if (btns[0]) btns[0].classList.add('active');
-    // Study Mode is the default content of osce-system-cardio — no nav needed.
+    // Study Mode is the default content of osce-system — no nav needed.
     return;
   }
   if (m === 'examiner') {
@@ -1779,7 +1943,7 @@ const SAVE_DEBOUNCE_MS = 500;
 function startExaminerSession() {
   examinerSession = {
     sessionId:      null,             // assigned by Firestore on first save
-    system:         'cardiovascular',
+    system:         currentSystem,    // set by openSystem before the user reaches Examiner Mode
     mode:           'examiner',
     markerType:     null,             // 'self' | 'peer' — set on next screen
     createdAt:      Date.now(),       // local placeholder; serverTimestamp on save
@@ -1873,7 +2037,7 @@ async function findResumableSession() {
 
     const docs = snap.docs
       .map(d => ({ id: d.id, data: d.data() }))
-      .filter(d => d.data.system === 'cardiovascular')
+      .filter(d => d.data.system === currentSystem)
       .sort((a, b) => {
         const aT = a.data.lastSavedAt ? a.data.lastSavedAt.toMillis() : 0;
         const bT = b.data.lastSavedAt ? b.data.lastSavedAt.toMillis() : 0;
@@ -1899,10 +2063,12 @@ function formatRelativeDate(ts) {
 
 function renderResumePrompt(resumable) {
   const when = formatRelativeDate(resumable.data.lastSavedAt);
+  const sys = SYSTEM_BY_ID[resumable.data.system] || SYSTEM_BY_ID.cardiovascular;
   document.getElementById('resumePromptSub').textContent =
-    `You have an in-progress Cardiovascular session from ${when}.`;
+    `You have an in-progress ${sys.label} session from ${when}.`;
   const sectionIdx = resumable.data.currentSection || 1;
-  const sectionTitle = SECTION_DATA[sectionIdx] ? SECTION_DATA[sectionIdx].title : '';
+  const sectionData = getSectionData(resumable.data.system);
+  const sectionTitle = sectionData[sectionIdx] ? sectionData[sectionIdx].title : '';
   document.getElementById('resumeCardDesc').textContent =
     sectionTitle
       ? `Pick up where you left off — Section ${sectionIdx} · ${sectionTitle}.`
@@ -1982,14 +2148,18 @@ function renderItemList(containerId, items) {
 }
 
 // ─── Render an item ──────────────────────────────
+function getListInfo(listId) {
+  const sys = SYSTEM_BY_ID[currentSystem] || SYSTEM_BY_ID.cardiovascular;
+  return ({
+    'historyItemList':  { items: historyItems,                bc: `OSCE Practice · ${sys.label} · History Taking` },
+    'examItemList':     { items: getExamItems(sys.id),        bc: `OSCE Practice · ${sys.label} · Examination` },
+    'decisionItemList': { items: decisionItems,               bc: `OSCE Practice · ${sys.label} · Decision Making` },
+    'specialItemList':  { items: getSpecialItems(sys.id),     bc: `OSCE Practice · ${sys.label} · Special Populations` }
+  })[listId];
+}
+
 function renderItem(listId, idx) {
-  const listMap = {
-    'historyItemList':  { items: historyItems,  bc: 'OSCE Practice · Cardiovascular · History Taking' },
-    'examItemList':     { items: examItems,     bc: 'OSCE Practice · Cardiovascular · Examination' },
-    'decisionItemList': { items: decisionItems, bc: 'OSCE Practice · Cardiovascular · Decision Making' },
-    'specialItemList':  { items: specialItems,  bc: 'OSCE Practice · Cardiovascular · Special Populations' }
-  };
-  const ref = listMap[listId];
+  const ref = getListInfo(listId);
   if (!ref) return;
   const item = ref.items[idx];
 
@@ -2066,74 +2236,92 @@ function renderItem(listId, idx) {
 }
 
 // ─── Init ────────────────────────────────────────
-renderItemList('historyItemList',  historyItems);
-renderItemList('examItemList',     examItems);
-renderItemList('decisionItemList', decisionItems);
-renderItemList('specialItemList',  specialItems);
+// (Item card lists are rendered by renderSystemPage on each system
+// entry rather than at page load — keeps Examination + Special card
+// lists in sync with whichever system the user opened.)
 
 /* ============================================
    EXAMINER MODE — section-data lookup + coverage render
-   SECTION_DATA maps the 1-based currentSection index to the underlying
-   item arrays, plus the section-specific reflection prompt (solo mode
-   only) and the human-readable section noun used for subheads.
-   Declared after the item-array consts so initialisation doesn't hit
-   a temporal-dead-zone error.
+   getSectionData(systemId) returns the 1-based array of section metadata
+   for that system. Section 1 (History) and Section 3 (Decision) are
+   SHARED — same metadata across all systems. Section 2 (Examination)
+   and Section 4 (Special Populations) pull items and title from the
+   per-system arrays + SYSTEMS entry; reflection prompts and guidance
+   are universal (the educational principles are the same regardless
+   of which body system is being examined).
+
+   Each call builds a fresh array — cheap and avoids stale references
+   if items / SYSTEMS change at runtime.
    ============================================ */
-const SECTION_DATA = [
-  null, // index 0 unused — keeps section numbering 1-based to match the rubric
-  {
-    sectionId: 'history',
-    title:     'History Taking',
-    noun:      'history-taking',
-    items:     historyItems,
-    reflectionPrompt: "Before you grade — what did you actually say when you took the history? Did you give the patient your reasoning, or did you just go through the steps?",
-    guidance: {
-      insufficient: "The foundation isn't there yet. Go back to the structure — introduction, consent, presenting complaint via SOCRATES or OPQRST, full PMH, medications, allergies. Each one needs to be deliberate, not skimmed.",
-      pass:         "You covered the basics safely. To push toward Detailed, work on rationale — say WHY you're asking each question, and connect findings to the differential out loud.",
-      detailed:     "Systematic and reasoned. To reach Comprehensive, integrate findings as you go. The mark-distinguishing move is the running commentary that links what you're hearing to what you're thinking.",
-      comprehensive: "Strong. Keep the rhythm — punchy questions, plain language, no jargon without translation. The standard now is sustaining this under pressure."
-    }
-  },
-  {
-    sectionId: 'exam',
-    title:     'Cardiovascular Examination',
-    noun:      'the examination',
-    items:     examItems,
-    reflectionPrompt: "Before you grade — did you say what you were finding as you went, or did you do it silently?",
-    guidance: {
-      insufficient: "Examination needs a system. Inspection, palpation, auscultation, percussion, special tests — in that order, named out loud as you go. Without the structure, it reads as guessing.",
-      pass:         "Basic structure is there. To move toward Detailed, say what you're finding as you find it. Silent palpation is invisible to the examiner.",
-      detailed:     "Methodical. To reach Comprehensive, connect findings to the differential in real time. 'No oedema, no JVD' isn't enough — say what that rules out and where you go next.",
-      comprehensive: "Comprehensive. The bar from here is consistency: every patient, every system, every time, no shortcuts when the case feels routine."
-    }
-  },
-  {
-    sectionId: 'decision',
-    title:     'Decision Making & Management',
-    noun:      'decision making and management',
-    items:     decisionItems,
-    reflectionPrompt: "Before you grade — did you actually justify your plan, or did you just state it? Did you re-confirm consent and allergies?",
-    guidance: {
-      insufficient: "The plan needs to be justified, not just stated. Why this drug, why this dose, why this referral? Consent for management, allergy reconfirmation, and safety-netting are not optional add-ons — they're the work.",
-      pass:         "Plan is safe but minimal. To move toward Detailed, articulate the reasoning. 'I'd give salbutamol' is half an answer — pair it with the why.",
-      detailed:     "Solid clinical reasoning. To reach Comprehensive, anticipate. What's your second-line plan if the first doesn't work? What would change your mind? Showing flexibility lifts the grade.",
-      comprehensive: "Comprehensive decision-making. From here, stress-test under time pressure — the OSCE clock is the variable that catches most candidates."
-    }
-  },
-  {
-    sectionId: 'special',
-    title:     'Special Populations',
-    noun:      'the special populations questions',
-    items:     specialItems,
-    reflectionPrompt: "Before you grade — could you genuinely articulate the adjustments, or were you reaching for general principles?",
-    guidance: {
-      insufficient: "Adjustments for special populations need to be specific, not vague. Paediatrics, pregnancy, frailty, mental capacity, end-of-life — each has its own framework. General principles only score points if you can name them.",
-      pass:         "You named some adjustments. To move toward Detailed, get specific — what changes for this patient, in this scenario, beyond general principles?",
-      detailed:     "Good awareness of adjustments. To reach Comprehensive, integrate them into the plan rather than listing them. Show how the special-population factor changed your management, not just that it's relevant.",
-      comprehensive: "Comprehensive. The bar from here is recognition in less obvious cases — frail with subtle delirium, undisclosed pregnancy, cognitive impairment not flagged on the notes."
-    }
+
+const SHARED_HISTORY_SECTION = {
+  sectionId: 'history',
+  title:     'History Taking',
+  noun:      'history-taking',
+  items:     historyItems,
+  reflectionPrompt: "Before you grade — what did you actually say when you took the history? Did you give the patient your reasoning, or did you just go through the steps?",
+  guidance: {
+    insufficient: "The foundation isn't there yet. Go back to the structure — introduction, consent, presenting complaint via SOCRATES or OPQRST, full PMH, medications, allergies. Each one needs to be deliberate, not skimmed.",
+    pass:         "You covered the basics safely. To push toward Detailed, work on rationale — say WHY you're asking each question, and connect findings to the differential out loud.",
+    detailed:     "Systematic and reasoned. To reach Comprehensive, integrate findings as you go. The mark-distinguishing move is the running commentary that links what you're hearing to what you're thinking.",
+    comprehensive: "Strong. Keep the rhythm — punchy questions, plain language, no jargon without translation. The standard now is sustaining this under pressure."
   }
-];
+};
+
+const SHARED_DECISION_SECTION = {
+  sectionId: 'decision',
+  title:     'Decision Making & Management',
+  noun:      'decision making and management',
+  items:     decisionItems,
+  reflectionPrompt: "Before you grade — did you actually justify your plan, or did you just state it? Did you re-confirm consent and allergies?",
+  guidance: {
+    insufficient: "The plan needs to be justified, not just stated. Why this drug, why this dose, why this referral? Consent for management, allergy reconfirmation, and safety-netting are not optional add-ons — they're the work.",
+    pass:         "Plan is safe but minimal. To move toward Detailed, articulate the reasoning. 'I'd give salbutamol' is half an answer — pair it with the why.",
+    detailed:     "Solid clinical reasoning. To reach Comprehensive, anticipate. What's your second-line plan if the first doesn't work? What would change your mind? Showing flexibility lifts the grade.",
+    comprehensive: "Comprehensive decision-making. From here, stress-test under time pressure — the OSCE clock is the variable that catches most candidates."
+  }
+};
+
+const EXAM_REFLECTION = "Before you grade — did you say what you were finding as you went, or did you do it silently?";
+const EXAM_GUIDANCE = {
+  insufficient: "Examination needs a system. Inspection, palpation, auscultation, percussion, special tests — in that order, named out loud as you go. Without the structure, it reads as guessing.",
+  pass:         "Basic structure is there. To move toward Detailed, say what you're finding as you find it. Silent palpation is invisible to the examiner.",
+  detailed:     "Methodical. To reach Comprehensive, connect findings to the differential in real time. Naming what's absent isn't enough — say what that rules out and where you go next.",
+  comprehensive: "Comprehensive. The bar from here is consistency: every patient, every system, every time, no shortcuts when the case feels routine."
+};
+
+const SPECIAL_REFLECTION = "Before you grade — could you genuinely articulate the adjustments, or were you reaching for general principles?";
+const SPECIAL_GUIDANCE = {
+  insufficient: "Adjustments for special populations need to be specific, not vague. Paediatrics, pregnancy, frailty, mental capacity, end-of-life — each has its own framework. General principles only score points if you can name them.",
+  pass:         "You named some adjustments. To move toward Detailed, get specific — what changes for this patient, in this scenario, beyond general principles?",
+  detailed:     "Good awareness of adjustments. To reach Comprehensive, integrate them into the plan rather than listing them. Show how the special-population factor changed your management, not just that it's relevant.",
+  comprehensive: "Comprehensive. The bar from here is recognition in less obvious cases — frail with subtle delirium, undisclosed pregnancy, cognitive impairment not flagged on the notes."
+};
+
+function getSectionData(systemId) {
+  const sys = SYSTEM_BY_ID[systemId] || SYSTEM_BY_ID.cardiovascular;
+  return [
+    null,
+    SHARED_HISTORY_SECTION,
+    {
+      sectionId: 'exam',
+      title:     sys.examLabel,
+      noun:      'the examination',
+      items:     getExamItems(sys.id),
+      reflectionPrompt: EXAM_REFLECTION,
+      guidance:  EXAM_GUIDANCE
+    },
+    SHARED_DECISION_SECTION,
+    {
+      sectionId: 'special',
+      title:     sys.specialLabel,
+      noun:      'the special populations questions',
+      items:     getSpecialItems(sys.id),
+      reflectionPrompt: SPECIAL_REFLECTION,
+      guidance:  SPECIAL_GUIDANCE
+    }
+  ];
+}
 
 /* Per-section critical-fail mapping. Some criticalFail items in the data
    (e.g. h2 Consent) document the concept but are JUDGED in a different
@@ -2149,7 +2337,8 @@ const SECTION_CRITICAL_FAIL_ITEMS = {
 function renderCoverage() {
   if (!examinerSession) return;
   const idx = examinerSession.currentSection;
-  const section = SECTION_DATA[idx];
+  const sectionData = getSectionData(examinerSession.system);
+  const section = sectionData[idx];
   if (!section) return;
 
   // Initialise per-section state on first entry to this section.
@@ -2221,7 +2410,8 @@ function continueFromCoverage() {
    ============================================ */
 function renderReflection() {
   const idx = examinerSession.currentSection;
-  const section = SECTION_DATA[idx];
+  const sectionData = getSectionData(examinerSession.system);
+  const section = sectionData[idx];
   const sectionState = examinerSession.sections[idx - 1];
 
   document.getElementById('reflectEyebrow').textContent = `EXAMINER MODE · SECTION ${idx}`;
@@ -2246,7 +2436,8 @@ function continueFromReflection() {
    ============================================ */
 function renderGrade() {
   const idx = examinerSession.currentSection;
-  const section = SECTION_DATA[idx];
+  const sectionData = getSectionData(examinerSession.system);
+  const section = sectionData[idx];
   const sectionState = examinerSession.sections[idx - 1];
 
   document.getElementById('gradeEyebrow').textContent = `EXAMINER MODE · SECTION ${idx}`;
@@ -2338,7 +2529,8 @@ function getGradeBand(grade) {
 function getCriticalFailsForSection(idx) {
   const sectionState = examinerSession && examinerSession.sections[idx - 1];
   if (!sectionState) return [];
-  const section = SECTION_DATA[idx];
+  const sectionData = getSectionData(examinerSession.system);
+  const section = sectionData[idx];
   const flaggedIds = SECTION_CRITICAL_FAIL_ITEMS[idx] || [];
 
   const fails = [];
@@ -2368,12 +2560,13 @@ function getCriticalFailsForCurrentSection() {
    sectionTitle so the debrief can group/label. */
 function getAllCriticalFails() {
   const all = [];
+  const sectionData = getSectionData(examinerSession.system);
   for (let idx = 1; idx <= 4; idx++) {
     const fails = getCriticalFailsForSection(idx);
     fails.forEach(f => all.push({
       ...f,
       sectionIdx:   idx,
-      sectionTitle: SECTION_DATA[idx].title
+      sectionTitle: sectionData[idx].title
     }));
   }
   return all;
@@ -2409,7 +2602,8 @@ function computePassed() {
 
 function renderLock() {
   const idx = examinerSession.currentSection;
-  const section = SECTION_DATA[idx];
+  const sectionData = getSectionData(examinerSession.system);
+  const section = sectionData[idx];
   const sectionState = examinerSession.sections[idx - 1];
 
   document.getElementById('lockEyebrow').textContent = `EXAMINER MODE · SECTION ${idx}`;
@@ -2473,7 +2667,7 @@ function renderLock() {
 function resetNavStackTo(target) {
   navStack.length = 0;
   navStack.push('osce-home');
-  navStack.push('osce-system-cardio');
+  navStack.push('osce-system');
   navStack.push(target);
   showScreen(target);
   document.getElementById('backBtn').hidden = false;
@@ -2546,9 +2740,10 @@ function renderDebrief() {
       : 0;
     passed = examinerSession.passed === true;
     fails = [];
+    const replaySectionData = getSectionData(examinerSession.system);
     examinerSession.sections.forEach((s, i) => {
       const sectionIdx = i + 1;
-      const section = SECTION_DATA[sectionIdx];
+      const section = replaySectionData[sectionIdx];
       if (!section || !s) return;
       (s.criticalFailsHit || []).forEach(stored => {
         const item = section.items.find(it => it.id === stored.itemId);
@@ -2607,9 +2802,10 @@ function renderDebrief() {
 
   // Per-section cards.
   const sectionsEl = document.getElementById('debriefSections');
+  const debriefSectionData = getSectionData(examinerSession.system);
   sectionsEl.innerHTML = examinerSession.sections.map((s, i) => {
     const idx = i + 1;
-    const meta = SECTION_DATA[idx];
+    const meta = debriefSectionData[idx];
     const grade = (s && s.grade !== null && s.grade !== undefined) ? s.grade : 0;
     const band = getGradeBand(grade);
     const fillPct = Math.max(0, Math.min(100, grade * 10));
@@ -2708,10 +2904,11 @@ async function loadAndRenderHistory() {
       .collection('osceSessions')
       .get();
 
-    // Filter to completed cardiovascular sessions; sort most-recent first.
+    // Filter to completed sessions for the currently-active system;
+    // sort most-recent first.
     const sessions = snap.docs
       .map(d => ({ id: d.id, data: d.data() }))
-      .filter(s => s.data.system === 'cardiovascular' && s.data.completedAt)
+      .filter(s => s.data.system === currentSystem && s.data.completedAt)
       .sort((a, b) => b.data.completedAt.toMillis() - a.data.completedAt.toMillis());
 
     renderHistory(sessions);
