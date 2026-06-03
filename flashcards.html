@@ -732,7 +732,7 @@
                     <!-- Front -->
                     <div class="fc-face fc-front">
                         <div class="face-label">Question</div>
-                        <div class="card-question" id="cardQuestion"></div>
+                        <div class="card-question" id="cardQuestion" data-explain="longpress"></div>
                         <div class="card-options" id="cardOptions"></div>
                         <div class="tap-hint"><i class="bi bi-hand-index"></i> Tap to reveal</div>
                     </div>
@@ -741,7 +741,7 @@
                     <div class="fc-face fc-back">
                         <div class="face-label">Answer</div>
                         <div class="card-correct-option" id="cardCorrectOption"></div>
-                        <div class="card-explanation" id="cardExplanation"></div>
+                        <div class="card-explanation" id="cardExplanation" data-explain="longpress"></div>
                         <div class="tap-hint"><i class="bi bi-arrow-counterclockwise"></i> Tap to flip back</div>
                     </div>
 
@@ -1361,6 +1361,11 @@
     </script>
 
     <script src="js/activity-logger.js"></script>
+
+    <!-- Explain a term (reusable module). Long-press a word in the question or
+         explanation to explain it; a normal tap still flips the card. -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="js/explain-term.js"></script>
 
 </body>
 </html>

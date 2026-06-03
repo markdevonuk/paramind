@@ -17,7 +17,7 @@
     if (window.__paramindExplainTerm) return;
     window.__paramindExplainTerm = true;
 
-    var SELECTOR = '.hollie-bubble, [data-explain]';
+    var SELECTOR = '.hollie-bubble, .message.assistant .message-content, [data-explain]';
     var MIN_LEN = 2, MAX_LEN = 200, LONG_PRESS_MS = 450, MOVE_CANCEL = 10;
 
     var HX_SYSTEM_PROMPT = [
@@ -171,7 +171,9 @@
     /* ---- tap (word) + long-press-drag (phrase); flicks still scroll ---- */
     var currentRegion = null, wordSpans = [], currentSnippet = '';
     var gestureActive = false, phraseSelecting = false, moved = false, isTouch = false;
+    var currentLongpressOnly = false;
     var startI = 0, startX = 0, startY = 0, pressTimer = null;
+    var suppressNextClick = false, suppressTimer = null;
 
     function regionOf(el) { return (el && el.closest) ? el.closest(SELECTOR) : null; }
     function spanAt(x, y) { var el = document.elementFromPoint(x, y); return (el && el.classList && el.classList.contains('hx-w')) ? el : null; }
@@ -201,6 +203,7 @@
         var w = spanAt(x, y);
         if (!w) return false;
         currentRegion = region;
+        currentLongpressOnly = (region.getAttribute('data-explain') === 'longpress');
         wordSpans = Array.prototype.slice.call(region.querySelectorAll('.hx-w'));
         startI = +w.dataset.i; startX = x; startY = y;
         gestureActive = true; phraseSelecting = false; moved = false; isTouch = !!touch;
@@ -208,21 +211,34 @@
         return true;
     }
 
+    function armClickSuppression() {
+        // Swallow the one click the OS synthesises after our gesture, so it
+        // can't flip a flashcard or close the just-opened popup.
+        suppressNextClick = true;
+        clearTimeout(suppressTimer);
+        suppressTimer = setTimeout(function () { suppressNextClick = false; }, 600);
+    }
     function tryOpen() {
         var t = selectedText();
-        if (t.length >= MIN_LEN && t.length <= MAX_LEN) { currentSnippet = t; openModal(); }
-        else clearSel();
+        if (t.length >= MIN_LEN && t.length <= MAX_LEN) {
+            currentSnippet = t;
+            if (currentLongpressOnly) armClickSuppression();
+            openModal();
+        } else clearSel();
     }
     function finish() {
         clearTimeout(pressTimer);
         if (!gestureActive) return;
         if (phraseSelecting) { tryOpen(); }
-        else if (!moved) { applyRange(startI, startI); tryOpen(); }
+        else if (!moved && !currentLongpressOnly) { applyRange(startI, startI); tryOpen(); }
         else { clearSel(); }
         resetGesture();
     }
 
     function bindGestures() {
+        document.addEventListener('click', function (e) {
+            if (suppressNextClick) { suppressNextClick = false; clearTimeout(suppressTimer); e.stopPropagation(); e.preventDefault(); }
+        }, true);
         document.addEventListener('pointerdown', function (e) {
             if (e.button && e.button !== 0) return;
             if (!beginAt(e.clientX, e.clientY, e.pointerType === 'touch')) return;
@@ -230,7 +246,7 @@
                 pressTimer = setTimeout(function () {
                     if (gestureActive && !moved) { phraseSelecting = true; applyRange(startI, startI); }
                 }, LONG_PRESS_MS);
-            } else {
+            } else if (!currentLongpressOnly) {
                 e.preventDefault();
             }
         });
