@@ -141,22 +141,17 @@
         region.classList.add('hx-tappable');
     }
 
-    /* ---- proactively wrap explainable regions once their text settles ---- */
-    var wrapTimers = new WeakMap();
-    function scheduleWrap(region) {
-        if (region.dataset.hxWrapped) return;
-        clearTimeout(wrapTimers.get(region));
-        var t = setTimeout(function () {
-            if (!region.dataset.hxWrapped && region.textContent.trim().length > 0) {
-                wrapWords(region);
-                maybeShowTip();
-            }
-        }, 400);
-        wrapTimers.set(region, t);
-    }
+    /* ---- light scan: prep styling + show tip; wrapping happens lazily on tap ---- */
     function scanRegions() {
         var regions = document.querySelectorAll(SELECTOR);
-        for (var i = 0; i < regions.length; i++) scheduleWrap(regions[i]);
+        for (var i = 0; i < regions.length; i++) {
+            var r = regions[i];
+            // Apply no-native-menu styling early (cheap class; does NOT wrap yet,
+            // so streamed answers can't lose their wrapping mid-render).
+            if (!r.classList.contains('hx-tappable')) r.classList.add('hx-tappable');
+            // Show the one-time tip once there's real content worth explaining.
+            if (r.textContent.trim().length > 40) maybeShowTip();
+        }
     }
 
     /* ---- one-time tip ---- */
@@ -200,7 +195,12 @@
         if (!el || (el.closest && el.closest('a,button,input,textarea,select'))) return false;
         var region = regionOf(el);
         if (!region) return false;
-        if (!region.dataset.hxWrapped) wrapWords(region);
+        // Wrap the final answer now (lazily). If a stale flag is set but the
+        // spans are gone (content was re-rendered), wrap again.
+        if (!region.dataset.hxWrapped || !region.querySelector('.hx-w')) {
+            delete region.dataset.hxWrapped;
+            wrapWords(region);
+        }
         var w = spanAt(x, y);
         if (!w) return false;
         currentRegion = region;
