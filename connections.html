@@ -1837,11 +1837,11 @@ Use UK spelling and terminology.`;
     <script src="js/upgrade-modal.js"></script>
 
     <!-- ============================================================= -->
-    <!-- HIGHLIGHT-TO-EXPLAIN (pilot) - self-contained feature.        -->
-    <!-- Highlight a term inside a Hollie explanation (.hollie-bubble) -->
-    <!-- to get a quick single-shot explanation in a modal.           -->
-    <!-- Reuses this page's existing /chat call, getAuthToken and      -->
-    <!-- formatMessage. Touches nothing else. Safe to remove as a unit.-->
+    <!-- EXPLAIN A TERM (pilot) - self-contained feature.              -->
+    <!-- Toggle "Explain a term" under Hollie's answer, then drag      -->
+    <!-- across a word/phrase to get a quick explanation in a popup.   -->
+    <!-- Works with mouse and touch (one path). Reuses this page's     -->
+    <!-- /chat call, firebase auth and marked. Safe to remove as unit. -->
     <!-- ============================================================= -->
     <style id="hxStyles">
         #hxPill {
@@ -1969,6 +1969,33 @@ Use UK spelling and terminology.`;
             cursor: pointer;
             font-weight: 600;
         }
+        /* Explain-mode: toggle button, draggable words, mode state */
+        .hx-w { border-radius: 3px; }
+        .hollie-bubble.hx-explain-on { -webkit-user-select: none; user-select: none; touch-action: none; cursor: pointer; }
+        .hollie-bubble.hx-explain-on .hx-w:active { background: rgba(43, 138, 156, 0.12); }
+        .hx-w.hx-sel { background: rgba(43, 138, 156, 0.28); }
+        .hx-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--color-white);
+            color: var(--color-teal);
+            border: 1.5px solid var(--color-teal);
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .hx-toggle:hover { background: rgba(43, 138, 156, 0.06); }
+        .hx-toggle.hx-on { background: var(--color-teal); color: #fff; }
+        .hx-hint { flex-basis: 100%; text-align: center; font-size: 0.8rem; color: var(--color-gray-500, #ADB5BD); }
+        /* On phones the popup becomes a bottom sheet */
+        @media (max-width: 600px) {
+            #hxOverlay { align-items: flex-end; padding: 0; }
+            .hx-modal { max-width: 100%; border-radius: 18px 18px 0 0; max-height: 88vh; }
+        }
     </style>
 
     <div id="hxPill" role="button" tabindex="0" aria-label="Ask Hollie to explain the highlighted text">
@@ -2029,68 +2056,189 @@ Rules:
             pill.style.display = 'none';
         }
 
-        // Decide whether the current selection should show the pill.
-        function evaluateSelection() {
-            if (overlay.classList.contains('hx-open')) return;
-            const sel = window.getSelection();
-            if (!sel || sel.isCollapsed || sel.rangeCount === 0) { hidePill(); return; }
+        // ---- Explain mode: toggle + drag-to-pick (one path for mouse + touch) ----
+        let explainMode = false;
+        let currentBubble = null;
+        let wordSpans = [];
+        let dragging = false;
+        let startI = null;
 
-            const text = sel.toString().trim();
+        const cm = document.getElementById('chatMessages');
+
+        // The most recent Hollie answer bubble that has finished rendering.
+        function getLatestBubble() {
+            if (!cm) return null;
+            const bubbles = cm.querySelectorAll('.hollie-bubble');
+            for (let i = bubbles.length - 1; i >= 0; i--) {
+                const b = bubbles[i];
+                if (b.querySelector('.typing-indicator')) continue;
+                if (b.textContent.trim().length > 0) return b;
+            }
+            return null;
+        }
+
+        // Wrap each word in a span so we can highlight word-by-word, without
+        // disturbing Hollie's formatting (bold, lists, paragraphs).
+        function wrapWords(bubble) {
+            if (!bubble || bubble.dataset.hxWrapped) return;
+            const walker = document.createTreeWalker(bubble, NodeFilter.SHOW_TEXT, null);
+            const nodes = [];
+            let n;
+            while ((n = walker.nextNode())) {
+                if (n.nodeValue && n.nodeValue.trim()) nodes.push(n);
+            }
+            let idx = 0;
+            nodes.forEach(function(node) {
+                const parts = node.nodeValue.split(/(\s+)/);
+                const frag = document.createDocumentFragment();
+                parts.forEach(function(part) {
+                    if (part === '') return;
+                    if (/^\s+$/.test(part)) {
+                        frag.appendChild(document.createTextNode(part));
+                    } else {
+                        const s = document.createElement('span');
+                        s.className = 'hx-w';
+                        s.dataset.i = idx++;
+                        s.textContent = part;
+                        frag.appendChild(s);
+                    }
+                });
+                node.parentNode.replaceChild(frag, node);
+            });
+            bubble.dataset.hxWrapped = '1';
+        }
+
+        function clearSel() {
+            wordSpans.forEach(function(w) { w.classList.remove('hx-sel'); });
+        }
+        function applyRange(a, b) {
+            const lo = Math.min(a, b), hi = Math.max(a, b);
+            wordSpans.forEach(function(w, i) { w.classList.toggle('hx-sel', i >= lo && i <= hi); });
+        }
+        function selectedText() {
+            return wordSpans.filter(function(w) { return w.classList.contains('hx-sel'); })
+                            .map(function(w) { return w.textContent; })
+                            .join(' ').replace(/\s+/g, ' ').trim();
+        }
+        function wordAt(x, y) {
+            const el = document.elementFromPoint(x, y);
+            return (el && el.classList && el.classList.contains('hx-w') && currentBubble && currentBubble.contains(el)) ? el : null;
+        }
+        function showPillForSelection() {
+            const sel = wordSpans.filter(function(w) { return w.classList.contains('hx-sel'); });
+            if (!sel.length) { hidePill(); return; }
+            const text = selectedText();
             if (text.length < MIN_LEN || text.length > MAX_LEN) { hidePill(); return; }
-
-            // Only inside a Hollie explanation bubble.
-            const range = sel.getRangeAt(0);
-            let node = range.commonAncestorContainer;
-            if (node.nodeType === 3) node = node.parentElement;
-            if (!node || !node.closest || !node.closest('.hollie-bubble')) { hidePill(); return; }
-
             currentSnippet = text;
-            const rect = range.getBoundingClientRect();
-            const isTouch = window.matchMedia('(pointer: coarse)').matches;
-
-            // Centre horizontally on the selection, but keep the pill on-screen.
+            const last = sel[sel.length - 1];
+            const rect = last.getBoundingClientRect();
             let cx = rect.left + rect.width / 2;
             const margin = 70;
             cx = Math.max(margin, Math.min(cx, window.innerWidth - margin));
-
             pill.style.display = 'flex';
             pill.style.left = (cx + window.scrollX) + 'px';
-            if (isTouch) {
-                // On phones the native iOS menu usually sits ABOVE the selection,
-                // so drop our pill BELOW it to reduce the clash.
-                pill.style.top = (rect.bottom + window.scrollY + 10) + 'px';
-                pill.style.transform = 'translateX(-50%)';
-            } else {
-                pill.style.top = (rect.top + window.scrollY) + 'px';
-                pill.style.transform = 'translate(-50%, calc(-100% - 8px))';
-            }
+            pill.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+            pill.style.transform = 'translateX(-50%)';
         }
 
-        document.addEventListener('mouseup', function() { setTimeout(evaluateSelection, 0); });
-        document.addEventListener('keyup', function(e) {
-            if (e.shiftKey || e.key === 'Shift') setTimeout(evaluateSelection, 0);
-        });
-        // selectionchange is the reliable signal on touch devices (iOS), where
-        // text is selected via drag-handles and mouseup never fires. Debounced
-        // so the pill appears once the user stops adjusting the selection.
-        let selTimer = null;
-        document.addEventListener('selectionchange', function() {
-            clearTimeout(selTimer);
-            selTimer = setTimeout(evaluateSelection, 250);
-        });
-        document.addEventListener('scroll', hidePill, true);
+        function enterMode() {
+            currentBubble = getLatestBubble();
+            if (!currentBubble) return;
+            wrapWords(currentBubble);
+            wordSpans = Array.prototype.slice.call(currentBubble.querySelectorAll('.hx-w'));
+            currentBubble.classList.add('hx-explain-on');
+            explainMode = true;
+            updateToggleUI();
+        }
+        function exitMode() {
+            explainMode = false;
+            dragging = false;
+            clearSel();
+            hidePill();
+            if (currentBubble) currentBubble.classList.remove('hx-explain-on');
+            updateToggleUI();
+        }
 
-        // Open on pointerdown so the tap registers before the selection clears
-        // (critical on touch). preventDefault keeps the selection alive.
+        // Drag handlers, delegated on the chat area, active only in explain mode.
+        function onDown(e) {
+            if (!explainMode) return;
+            const w = wordAt(e.clientX, e.clientY);
+            if (!w) return;
+            e.preventDefault();
+            dragging = true;
+            startI = +w.dataset.i;
+            hidePill();
+            applyRange(startI, startI);
+        }
+        function onMove(e) {
+            if (!explainMode || !dragging) return;
+            const w = wordAt(e.clientX, e.clientY);
+            if (!w) return;
+            applyRange(startI, +w.dataset.i);
+        }
+        function onUp() {
+            if (!explainMode || !dragging) return;
+            dragging = false;
+            showPillForSelection();
+        }
+        if (cm) {
+            cm.addEventListener('pointerdown', onDown);
+            cm.addEventListener('pointermove', onMove);
+            cm.addEventListener('pointerup', onUp);
+            cm.addEventListener('pointercancel', onUp);
+        }
+
+        // Tap the pill to open the explanation.
         pill.addEventListener('pointerdown', function(e) { e.preventDefault(); openModal(); });
         pill.addEventListener('click', function(e) { e.preventDefault(); });
         pill.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(); }
         });
 
+        // The toggle button, injected into the existing chat actions row.
+        let toggleBtn = null, toggleLbl = null, hintEl = null;
+        function updateToggleUI() {
+            if (!toggleBtn) return;
+            toggleBtn.classList.toggle('hx-on', explainMode);
+            toggleBtn.setAttribute('aria-pressed', explainMode ? 'true' : 'false');
+            if (toggleLbl) toggleLbl.textContent = explainMode ? 'Done explaining' : 'Explain a term';
+            if (hintEl) hintEl.style.display = explainMode ? 'block' : 'none';
+        }
+        function ensureToggle() {
+            const actions = document.getElementById('chatActions');
+            if (!actions || document.getElementById('hxToggle')) return;
+            toggleBtn = document.createElement('button');
+            toggleBtn.id = 'hxToggle';
+            toggleBtn.type = 'button';
+            toggleBtn.className = 'hx-toggle';
+            toggleBtn.setAttribute('aria-pressed', 'false');
+            toggleBtn.innerHTML = '<i class="bi bi-lightbulb"></i> <span id="hxToggleLbl">Explain a term</span>';
+            toggleBtn.addEventListener('click', function() { explainMode ? exitMode() : enterMode(); });
+            actions.appendChild(toggleBtn);
+            toggleLbl = document.getElementById('hxToggleLbl');
+            hintEl = document.createElement('div');
+            hintEl.id = 'hxHint';
+            hintEl.className = 'hx-hint';
+            hintEl.style.display = 'none';
+            hintEl.textContent = 'Drag across a word or phrase to explain it';
+            actions.appendChild(hintEl);
+        }
+
+        ensureToggle();
+        if (cm) {
+            const obs = new MutationObserver(function() {
+                ensureToggle();
+                // A brand-new question shows a typing indicator -> leave explain mode.
+                if (explainMode && cm.querySelector('.typing-indicator')) exitMode();
+            });
+            obs.observe(cm, { childList: true, subtree: true });
+        }
+
         function closeModal() {
             overlay.classList.remove('hx-open');
             answerEl.innerHTML = '';
+            clearSel();
+            hidePill();
         }
         closeBtn.addEventListener('click', closeModal);
         footClose.addEventListener('click', closeModal);
@@ -2107,7 +2255,6 @@ Rules:
             if (!currentSnippet) return;
             const snippet = currentSnippet;
             hidePill();
-            window.getSelection().removeAllRanges();
 
             snippetEl.textContent = snippet;
             answerEl.innerHTML = '<span class="hx-cur"></span>';
