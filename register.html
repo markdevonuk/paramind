@@ -58,6 +58,12 @@
     <label for="surname" class="form-label">Surname</label>
     <input type="text" class="form-control" id="surname" required>
 </div>
+<!-- Hidden verification field — must remain empty -->
+<input type="text" id="website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"
+       style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0;">
+<div aria-hidden="true" style="position:absolute; left:-9999px;">
+    <label for="website">Leave this field empty</label>
+</div>
                         
                         
                             <div class="mb-3">
@@ -368,6 +374,14 @@ onAuthStateChanged(auth, (user) => {
     // Form submission handler
     document.getElementById('registerForm').addEventListener('submit', async function(e) {
         e.preventDefault();
+
+        // Hidden verification field — real users never fill this; a filled value means a bot
+        const honeypot = document.getElementById('website');
+        if (honeypot && honeypot.value.trim() !== '') {
+            console.warn('Verification field filled — blocking suspected automated signup');
+            return; // quietly stop: no account created, no Firestore write
+        }
+
         
         const firstName = toTitleCase(document.getElementById('firstName').value.trim());
 const surname = toTitleCase(document.getElementById('surname').value.trim());
