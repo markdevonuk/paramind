@@ -4,7 +4,7 @@
    This file enables offline functionality and caching
 */
 
-const CACHE_NAME = 'paramind-v29';
+const CACHE_NAME = 'paramind-v30';
 
 // Files to cache for offline use
 // Add your main pages and essential assets here

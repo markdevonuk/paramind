@@ -99,8 +99,8 @@
                            || (appleAccessExpiry && appleAccessExpiry > new Date());
 
                 if (isPro) {
-                    // Hide all Pro badges across the page
-                    document.querySelectorAll('.card-pro-badge').forEach(function(el) {
+                    // Hide all Pro badges across the page (full Pro + partial/limited-free)
+                    document.querySelectorAll('.card-pro-badge, .card-partial-pro-badge').forEach(function(el) {
                         el.style.display = 'none';
                     });
                 }
