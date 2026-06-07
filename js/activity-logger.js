@@ -38,6 +38,11 @@
         'after-the-call.html':   'After the Call',
         'osce-practice.html':    'OSCE Practice',
         'major-incident.html':   'Incident Ground',
+        'placement.html':        'On Placement',
+        'placement-year-1.html': 'On Placement',
+        'placement-year-2.html': 'On Placement',
+        'placement-year-3.html': 'On Placement',
+        'framework-lesson.html': 'On Placement',
         'cpd.html':              null
     };
 
