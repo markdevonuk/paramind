@@ -113,6 +113,9 @@
         '<p class="pm-onscene-label"><i class="bi bi-lightbulb"></i> Try it</p>' +
         '<p>' + esc(f.tryItScenario) + '</p>' +
         '<p class="pm-sub">' + esc(f.tryItQuestions) + '</p>' +
+        '<button type="button" class="pm-btn pm-nudge-btn" id="pmNudgeBtn"><i class="bi bi-lightbulb"></i> Stuck? Get a nudge</button>' +
+        '<div class="pm-hollie pm-hidden" id="pmNudge"><span class="pm-hollie-av">H</span><div class="pm-hollie-bubble">' +
+        '<p class="pm-sub">Hollie \u00b7 a nudge to get you started</p><p>' + esc(f.hollieSample) + '</p></div></div>' +
         '<textarea class="pm-textarea" id="pmReflect" placeholder="Type your thinking here\u2026"></textarea>' +
         '<button type="button" class="pm-btn pm-btn-primary" id="pmHollieBtn"><i class="bi bi-chat-dots"></i> Ask Hollie</button>' +
         '<div class="pm-hollie pm-hidden" id="pmHollie"><span class="pm-hollie-av">H</span><div class="pm-hollie-bubble">' +
@@ -167,6 +170,11 @@
     if (reveal) reveal.addEventListener('click', function () {
       root.querySelector('#pmRevealBox').classList.remove('pm-hidden');
       reveal.style.display = 'none';
+    });
+    var nudge = root.querySelector('#pmNudgeBtn');
+    if (nudge) nudge.addEventListener('click', function () {
+      root.querySelector('#pmNudge').classList.remove('pm-hidden');
+      nudge.style.display = 'none';
     });
     var hb = root.querySelector('#pmHollieBtn');
     if (hb) hb.addEventListener('click', function () { askHollie(root, f); });
@@ -232,7 +240,7 @@
         body: JSON.stringify({ message: message, conversationHistory: [], systemPromptAddendum: addendum })
       });
     }).then(function (resp) {
-      if (!resp.ok) { if (resp.status === 429) throw new Error('LIMIT'); throw new Error('HTTP ' + resp.status); }
+      if (!resp.ok) { throw new Error('HTTP ' + resp.status); }
       var reader = resp.body.getReader();
       var decoder = new TextDecoder();
       var buffer = '', acc = '';
@@ -260,13 +268,9 @@
         });
       }
       return pump();
-    }).catch(function (err) {
+    }).catch(function () {
       btn.disabled = false; btn.innerHTML = original;
-      if (err && err.message === 'LIMIT') {
-        out.innerHTML = '<p>You\u2019ve reached today\u2019s Hollie limit on the free plan. It resets tomorrow, or upgrade for unlimited coaching.</p>';
-      } else {
-        out.innerHTML = '<p>Sorry, I couldn\u2019t reach Hollie just now. Please try again in a moment.</p>';
-      }
+      out.innerHTML = '<p>Sorry, I couldn\u2019t reach Hollie just now. Please try again in a moment.</p>';
     });
   }
 
