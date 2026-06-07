@@ -560,7 +560,24 @@ window.PLACEMENT_FRAMEWORKS = [
 ];
 
 window.PLACEMENT_ADVICE = {
-  1: ['Before your first shift \u2014 be ready', 'Your first few shifts', 'When a job gets to you', 'Asking questions without feeling daft'],
+  1: [
+    { title: 'Before your shift', body: [
+      'The nerves the night before are completely normal \u2014 every paramedic you\u2019ll ever meet had them too. Get the practical things sorted early: uniform and kit ready, route and start time checked, a proper meal and as much sleep as the nerves will allow. Arrive a little early, introduce yourself to your mentor and the crew, and go in with one honest expectation \u2014 you\u2019re there to learn, not to know everything. The pressure you\u2019re putting on yourself is almost always higher than the pressure anyone\u2019s putting on you.',
+      'Dress smart. It\u2019s not a night out, so tuck your top in and clean your boots. Look professional and you\u2019ll act professional. Lose the excess jewellery, go bare below the elbow, and you\u2019ll be treated well. Try to \u201cbe an individual\u201d and it won\u2019t go down well.'
+    ] },
+    { title: 'Your first few shifts', body: [
+      'The first few shifts can feel like standing in a busy room where everyone\u2019s speaking a language you only half understand \u2014 and that\u2019s exactly how they\u2019re meant to feel. Your job at this stage isn\u2019t to perform, it\u2019s to watch: how the crew moves, how they talk to patients, how a scene gets read in the first thirty seconds. Find small ways to be useful, ask where you should stand, and let yourself be a beginner. Competence comes in layers, and nobody fitted them all on day one.',
+      'Get in 30 minutes early every day. Find your truck and start going through every single cupboard and every single bag \u2014 you need to know what is in there and what it does. The quickest way to impress your mentor is, on a time-critical job, being able to immediately put your hand on a Russell chest seal.'
+    ] },
+    { title: 'When a job gets to you', body: [
+      'Some jobs will stay with you longer than others, and that doesn\u2019t mean you\u2019re not cut out for this \u2014 it means you\u2019re human, and being affected by hard things is part of caring about them. Don\u2019t carry it alone or feel you have to look unshaken. Talk to your mentor, your crewmate, your university tutor, or someone you trust at home; saying it out loud is often what stops it sitting heavy. And if something keeps returning \u2014 your sleep, your mood, your appetite \u2014 treat that as a signal to reach out for proper support, not something to push through. The people around you would far rather you spoke up early.',
+      'Talk\u2026 sharing the load is a real thing, and it works.'
+    ] },
+    { title: 'Asking questions without feeling daft', body: [
+      'Here\u2019s the thing nobody says often enough: asking questions is what good clinicians do, not what beginners do. Your mentor expects them \u2014 a placement where you ask nothing tends to worry them more than one where you ask plenty. Pick your moment (not mid-resus), jot the question down if now isn\u2019t the time, and try asking \u201cwhy\u201d as well as \u201cwhat,\u201d because the reasoning is the part that sticks. The only daft question is the one you sat on because you were too proud to ask.',
+      'A really good mentor will admit when they don\u2019t know the answer, and they\u2019ll go and search for it with you. And then you\u2019ll quickly realise they aren\u2019t Superman or Superwoman \u2014 they\u2019re human, just like you.'
+    ] }
+  ],
   2: ['Taking more of the lead', 'Managing tiredness and shifts', 'When you make a mistake'],
   3: ['Becoming the decision-maker', 'Preparing for sign-off', 'Looking after yourself long-term']
 };

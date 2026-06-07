@@ -206,9 +206,24 @@
     var list = forYear(year);
     var advice = (window.PLACEMENT_ADVICE && window.PLACEMENT_ADVICE[year]) || [];
 
-    var adviceCards = advice.map(function (a) {
-      return '<div class="pm-advice-card"><span>' + esc(a) + '</span>' +
-        '<span class="pm-tag is-none">Coming soon</span></div>';
+    var adviceCards = advice.map(function (a, i) {
+      var title = (typeof a === 'string') ? a : (a.title || '');
+      var body = (a && typeof a === 'object' && a.body) ? a.body : null;
+      if (!body) {
+        return '<div class="pm-advice-card"><span>' + esc(title) + '</span>' +
+          '<span class="pm-tag is-none">Coming soon</span></div>';
+      }
+      var paras = (Array.isArray(body) ? body : [body]).map(function (p) {
+        return '<p>' + esc(p) + '</p>';
+      }).join('');
+      var bid = 'adv-' + year + '-' + i;
+      return '<div class="pm-advice-card is-expandable">' +
+        '<button type="button" class="pm-advice-head" aria-expanded="false" aria-controls="' + bid + '">' +
+          '<span>' + esc(title) + '</span>' +
+          '<i class="bi bi-chevron-down pm-advice-chev" aria-hidden="true"></i>' +
+        '</button>' +
+        '<div class="pm-advice-body" id="' + bid + '" hidden>' + paras + '</div>' +
+      '</div>';
     }).join('');
 
     var revisit = list.filter(function (f) { var c = getConf(f.id); return c >= 1 && c <= 2; });
@@ -237,6 +252,20 @@
       '<div class="pm-fw-list">' + list.map(fwRow).join('') + '</div>';
 
     startMonitor(root);
+    attachAdviceToggles(root);
+  }
+
+  function attachAdviceToggles(root) {
+    var heads = root.querySelectorAll('.pm-advice-card.is-expandable .pm-advice-head');
+    heads.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var card = btn.parentNode;
+        var body = card.querySelector('.pm-advice-body');
+        var open = card.classList.toggle('is-open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (body) { body.hidden = !open; }
+      });
+    });
   }
 
   /* ---------- LESSON PAGE ---------- */
