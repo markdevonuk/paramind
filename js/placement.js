@@ -116,7 +116,7 @@
         '<textarea class="pm-textarea" id="pmReflect" placeholder="Type your thinking here\u2026"></textarea>' +
         '<button type="button" class="pm-btn pm-btn-primary" id="pmHollieBtn"><i class="bi bi-chat-dots"></i> Ask Hollie</button>' +
         '<div class="pm-hollie pm-hidden" id="pmHollie"><span class="pm-hollie-av">H</span><div class="pm-hollie-bubble">' +
-        '<p class="pm-sub">Hollie \u00b7 coaching preview</p><p>' + esc(f.hollieSample) + '</p></div></div>' +
+        '<p class="pm-sub" id="pmHollieLabel">Hollie</p><div id="pmHollieText"></div></div></div>' +
         '<div class="pm-conf"><p class="pm-sub">How confident are you running this under pressure?</p>' +
         '<div class="pm-conf-row"><input type="range" min="1" max="5" step="1" value="' + (getConf(f.id) || 3) + '" id="pmConf">' +
         '<span id="pmConfOut">' + (getConf(f.id) || 3) + ' of 5</span></div>' +
@@ -169,7 +169,7 @@
       reveal.style.display = 'none';
     });
     var hb = root.querySelector('#pmHollieBtn');
-    if (hb) hb.addEventListener('click', function () { root.querySelector('#pmHollie').classList.remove('pm-hidden'); });
+    if (hb) hb.addEventListener('click', function () { askHollie(root, f); });
 
     var conf = root.querySelector('#pmConf');
     var confOut = root.querySelector('#pmConfOut');
@@ -181,6 +181,93 @@
     });
 
     render();
+  }
+
+  /* ---------- live Hollie coaching ---------- */
+  function chatEndpoint() {
+    try {
+      if (window.paramind && window.paramind.CONFIG && window.paramind.CONFIG.api) {
+        return window.paramind.CONFIG.api.baseUrl + window.paramind.CONFIG.api.chat;
+      }
+    } catch (e) {}
+    return 'https://europe-west2-paramind-64b8e.cloudfunctions.net/chat';
+  }
+
+  function askHollie(root, f) {
+    var btn = root.querySelector('#pmHollieBtn');
+    var wrap = root.querySelector('#pmHollie');
+    var out = root.querySelector('#pmHollieText');
+    var ta = root.querySelector('#pmReflect');
+    var reflection = (ta && ta.value ? ta.value : '').trim();
+    wrap.classList.remove('pm-hidden');
+
+    if (reflection.length < 3) {
+      out.innerHTML = '<p>Jot down your thinking first \u2014 even a sentence \u2014 and I\u2019ll give you feedback on it.</p>';
+      if (ta) ta.focus();
+      return;
+    }
+    if (typeof firebase === 'undefined' || !firebase.auth || !firebase.auth().currentUser) {
+      out.innerHTML = '<p>Sign in and I can give you feedback on your answer. ' +
+        '<a href="' + LOGIN_PAGE + '?redirect=' + encodeURIComponent(window.location.href) + '">Sign in</a></p>';
+      return;
+    }
+
+    var original = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-three-dots"></i> Hollie is thinking\u2026';
+    out.innerHTML = '';
+
+    var addendum = 'You are Hollie, coaching a student paramedic through the clinical REASONING framework "' + f.title +
+      '". They have written an answer to a practice scenario. Reply in one short, warm paragraph: name what they got right, ' +
+      'gently surface what they have missed or could develop, and finish with one focused question that pushes their reasoning further. ' +
+      'This is reasoning practice only \u2014 do not give treatment steps, drug names, doses, or calculations; coach the thinking, not the management.';
+    var message = 'Framework: ' + f.title + '\n\nScenario:\n' + f.tryItScenario +
+      '\n\nThe questions: ' + f.tryItQuestions +
+      '\n\nMy answer:\n"' + reflection + '"\n\nPlease coach me on my thinking.';
+
+    firebase.auth().currentUser.getIdToken().then(function (token) {
+      return fetch(chatEndpoint(), {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: message, conversationHistory: [], systemPromptAddendum: addendum })
+      });
+    }).then(function (resp) {
+      if (!resp.ok) { if (resp.status === 429) throw new Error('LIMIT'); throw new Error('HTTP ' + resp.status); }
+      var reader = resp.body.getReader();
+      var decoder = new TextDecoder();
+      var buffer = '', acc = '';
+      function done() { btn.disabled = false; btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Ask again'; }
+      function pump() {
+        return reader.read().then(function (r) {
+          if (r.done) { done(); return; }
+          buffer += decoder.decode(r.value, { stream: true });
+          var lines = buffer.split('\n');
+          buffer = lines.pop();
+          lines.forEach(function (line) {
+            if (line.indexOf('data: ') === 0) {
+              try {
+                var data = JSON.parse(line.slice(6));
+                if (data.type === 'chunk' && data.content) {
+                  acc += data.content;
+                  out.innerHTML = '<p>' + esc(acc).replace(/\n/g, '<br>') + '</p>';
+                } else if (data.type === 'error') {
+                  out.innerHTML = '<p>Sorry, something went wrong. Please try again.</p>';
+                }
+              } catch (e) {}
+            }
+          });
+          return pump();
+        });
+      }
+      return pump();
+    }).catch(function (err) {
+      btn.disabled = false; btn.innerHTML = original;
+      if (err && err.message === 'LIMIT') {
+        out.innerHTML = '<p>You\u2019ve reached today\u2019s Hollie limit on the free plan. It resets tomorrow, or upgrade for unlimited coaching.</p>';
+      } else {
+        out.innerHTML = '<p>Sorry, I couldn\u2019t reach Hollie just now. Please try again in a moment.</p>';
+      }
+    });
   }
 
   function renderLessonContent(root, f) {
