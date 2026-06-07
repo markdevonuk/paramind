@@ -286,7 +286,7 @@
       { name: 'On scene', body:
         '<p class="pm-onscene-label"><i class="bi bi-truck"></i> On scene</p>' +
         '<p>' + esc(f.onSceneSetup) + '</p>' +
-        '<button type="button" class="pm-btn" id="pmReveal"><i class="bi bi-eye"></i> Reveal the point</button>' +
+        '<button type="button" class="pm-btn" id="pmReveal"><i class="bi bi-eye"></i> Reveal</button>' +
         '<div class="pm-reveal-box pm-hidden" id="pmRevealBox"><p>' + esc(f.onSceneReveal) + '</p></div>' },
       { name: 'Try it', body:
         '<p class="pm-onscene-label"><i class="bi bi-lightbulb"></i> Try it</p>' +
@@ -298,7 +298,10 @@
         '<textarea class="pm-textarea" id="pmReflect" placeholder="Type your thinking here\u2026"></textarea>' +
         '<button type="button" class="pm-btn pm-btn-primary" id="pmHollieBtn"><i class="bi bi-chat-dots"></i> Ask Hollie</button>' +
         '<div class="pm-hollie pm-hidden" id="pmHollie"><span class="pm-hollie-av">H</span><div class="pm-hollie-bubble">' +
-        '<p class="pm-sub" id="pmHollieLabel">Hollie</p><div id="pmHollieText"></div></div></div>' +
+        '<p class="pm-sub" id="pmHollieLabel">Hollie</p><div id="pmHollieText"></div></div></div>' },
+      { name: 'The point', body:
+        (f.wrapPoint ? '<p class="pm-onscene-label"><i class="bi bi-flag"></i> The point</p><p>' + esc(f.wrapPoint) + '</p>' : '') +
+        (f.takeaways && f.takeaways.length ? '<p class="pm-onscene-label"><i class="bi bi-check2-circle"></i> Key takeaways</p><ul class="pm-takeaways">' + f.takeaways.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>' : '') +
         '<div class="pm-conf"><p class="pm-sub">How confident are you running this under pressure?</p>' +
         '<div class="pm-conf-row"><input type="range" min="1" max="5" step="1" value="' + (getConf(f.id) || 3) + '" id="pmConf">' +
         '<span id="pmConfOut">' + (getConf(f.id) || 3) + ' of 5</span></div>' +
