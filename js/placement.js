@@ -164,7 +164,12 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     back.addEventListener('click', function () { if (step > 0) { step--; render(); } });
-    next.addEventListener('click', function () { if (step < steps.length - 1) { step++; render(); } });
+    next.addEventListener('click', function () {
+      if (step < steps.length - 1) { step++; render(); return; }
+      var c = root.querySelector('#pmConf');
+      if (c) setConf(f.id, parseInt(c.value, 10));
+      window.location.href = 'placement-year-' + f.year + '.html';
+    });
 
     var reveal = root.querySelector('#pmReveal');
     if (reveal) reveal.addEventListener('click', function () {
