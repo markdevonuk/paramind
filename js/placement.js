@@ -58,11 +58,11 @@
     return '<div class="pm-monitor" aria-hidden="true">' +
       '<div class="pm-mon-top"><span><span class="pm-mon-dot"></span>ParaMind monitor</span>' +
       '<span class="pm-mon-mid"><span id="pmClock">--:--:--</span>' +
-      '<button type="button" class="pm-sound-btn" id="pmSound" aria-label="Toggle monitor sound"><i class="bi bi-volume-mute"></i></button></span></div>' +
+      '<button type="button" class="pm-sound-btn" id="pmSound" aria-label="Toggle monitor sound"><i class="bi bi-volume-mute"></i> Sound</button></span></div>' +
       '<div class="pm-mon-body">' +
         '<div class="pm-mon-waves">' +
           '<div class="pm-wave"><span class="pm-wave-label" style="color:#38e06a">ECG</span><canvas id="pmEcg"></canvas></div>' +
-          '<div class="pm-wave"><span class="pm-wave-label" style="color:#37d6e6">Pleth</span><canvas id="pmPleth"></canvas></div>' +
+          '<div class="pm-wave"><span class="pm-wave-label" style="color:#37d6e6">Pleth (SpO2)</span><canvas id="pmPleth"></canvas></div>' +
         '</div>' +
         '<div class="pm-mon-nums">' +
           '<div class="pm-vital pm-hr-c"><span class="pm-v-label">HR</span><span><span class="pm-v-num" id="pmHR">78</span><span class="pm-v-unit">bpm</span></span></div>' +
@@ -97,8 +97,14 @@
     soundBtn.addEventListener('click', function () {
       audioOn = !audioOn;
       soundBtn.classList.toggle('on', audioOn);
-      soundBtn.innerHTML = audioOn ? '<i class="bi bi-volume-up"></i>' : '<i class="bi bi-volume-mute"></i>';
-      if (audioOn) { try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); } catch (e) {} }
+      soundBtn.innerHTML = (audioOn ? '<i class="bi bi-volume-up"></i>' : '<i class="bi bi-volume-mute"></i>') + ' Sound';
+      if (audioOn) {
+        try {
+          actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+          if (actx.state === 'suspended') actx.resume();
+          beep();
+        } catch (e) {}
+      }
     });
     function beep() {
       if (!audioOn || !actx || document.hidden) return;
@@ -106,7 +112,7 @@
         var o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime;
         o.type = 'sine'; o.frequency.value = 880;
         g.gain.setValueAtTime(0.0001, t);
-        g.gain.exponentialRampToValueAtTime(0.05, t + 0.005);
+        g.gain.exponentialRampToValueAtTime(0.1, t + 0.005);
         g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
         o.connect(g); g.connect(actx.destination);
         o.start(t); o.stop(t + 0.1);
