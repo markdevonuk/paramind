@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="robots" content="noindex">
+    <title>On Placement | ParaMind</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/menu-v2.css">
+    <link rel="stylesheet" href="css/tool-cards.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/placement.css">
+</head>
+<body class="landing-page member-page">
+
+    <nav class="member-navbar">
+        <div class="container">
+            <span class="brand-text">
+                <a class="navbar-brand" href="landing.html">
+                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
+                </a>
+            </span>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="landing-container">
+
+        <div class="section-page-header section-page--placement">
+            <a href="landing.html" class="section-page-back"><i class="bi bi-arrow-left"></i> Back to home</a>
+            <div class="section-page-label">New</div>
+            <h1 class="section-page-title">On placement</h1>
+            <p class="section-page-tagline">Think like a paramedic, one framework at a time</p>
+        </div>
+
+        <div class="tools-section">
+
+            <div class="placement-brief">
+                <div class="placement-brief-top">
+                    <button type="button" class="placement-brief-play" id="introPlayBtn" aria-label="Play the introduction">
+                        <i class="bi bi-play-fill" id="introPlayIcon"></i>
+                    </button>
+                    <div class="placement-brief-text">
+                        <div class="placement-brief-kicker"><i class="bi bi-broadcast-pin"></i> Start here · essential listening</div>
+                        <div class="placement-brief-title">Listen to this before you begin</div>
+                        <div class="placement-brief-sub">A short introduction to how the placement frameworks work and how to get the most from them. Please listen all the way through before you start Year 1.</div>
+                    </div>
+                </div>
+                <div class="placement-brief-player">
+                    <div class="placement-brief-bar" id="introBar"><div class="placement-brief-fill" id="introFill"></div></div>
+                    <div class="placement-brief-time"><span id="introCurrent">0:00</span> / <span id="introDuration">--:--</span></div>
+                </div>
+                <audio id="introAudio" src="assets/intro.mp3" preload="metadata"></audio>
+            </div>
+
+            <div class="tools-grid">
+
+                <a href="placement-year-1.html" class="tool-card year-tile">
+                    <div class="card-glow"></div>
+                    <div class="card-line"></div>
+                    <div class="tool-card-header">
+                        <div class="tool-card-icon"><i class="bi bi-1-circle"></i></div>
+                        <div class="tool-card-info">
+                            <div class="tool-card-title">First year</div>
+                            <div class="tool-card-subtitle">Finding your feet</div>
+                        </div>
+                    </div>
+                    <p class="tool-card-desc">Your placements, and the foundation frameworks to build first.</p>
+                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
+                </a>
+
+                <a href="placement-year-2.html" class="tool-card year-tile">
+                    <div class="card-glow"></div>
+                    <div class="card-line"></div>
+                    <div class="tool-card-header">
+                        <div class="tool-card-icon"><i class="bi bi-2-circle"></i></div>
+                        <div class="tool-card-info">
+                            <div class="tool-card-title">Second year <span class="card-pro-badge">Pro</span></div>
+                            <div class="tool-card-subtitle">Building your reasoning</div>
+                        </div>
+                    </div>
+                    <p class="tool-card-desc">Clinical thinking, fuller histories, and structured handover.</p>
+                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
+                </a>
+
+                <a href="placement-year-3.html" class="tool-card year-tile">
+                    <div class="card-glow"></div>
+                    <div class="card-line"></div>
+                    <div class="tool-card-header">
+                        <div class="tool-card-icon"><i class="bi bi-3-circle"></i></div>
+                        <div class="tool-card-info">
+                            <div class="tool-card-title">Third year <span class="card-pro-badge">Pro</span></div>
+                            <div class="tool-card-subtitle">Decisions and pressure</div>
+                        </div>
+                    </div>
+                    <p class="tool-card-desc">Decisions, autonomy, and performance under pressure for NQP readiness.</p>
+                    <div class="tool-card-arrow"><i class="bi bi-arrow-right"></i></div>
+                </a>
+
+            </div>
+        </div>
+
+        <div class="placement-disclaimer">
+            <i class="bi bi-info-circle" aria-hidden="true"></i>
+            <p>The frameworks in this section are drawn from real-world clinical experience and are here to support your learning — they are not a substitute for formal teaching. Always seek guidance from your practice mentor and university lecturers, and follow your trust's protocols and current JRCALC guidance.</p>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/menu-v2.js"></script>
+    <script src="js/activity-logger.js"></script>
+    <script src="js/personalise.js"></script>
+
+    <script>
+        /* Reveal the year tiles (same pattern as other hub pages) */
+        (function() {
+            'use strict';
+            var cards = document.querySelectorAll('.tool-card');
+            var obs = new IntersectionObserver(function(entries) {
+                entries.forEach(function(e, i) {
+                    if (e.isIntersecting) {
+                        setTimeout(function(){ e.target.classList.add('revealed'); }, (e.target.dataset.rd || i*100));
+                        obs.unobserve(e.target);
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+            cards.forEach(function(el, i) { el.dataset.rd = i*100; obs.observe(el); });
+        })();
+
+        /* Essential-listening audio player */
+        (function() {
+            var audio = document.getElementById('introAudio');
+            var btn   = document.getElementById('introPlayBtn');
+            var icon  = document.getElementById('introPlayIcon');
+            var bar   = document.getElementById('introBar');
+            var fill  = document.getElementById('introFill');
+            var cur   = document.getElementById('introCurrent');
+            var dur   = document.getElementById('introDuration');
+            if (!audio || !btn) return;
+            function fmt(t) {
+                if (!isFinite(t)) return '--:--';
+                var m = Math.floor(t / 60);
+                var s = Math.floor(t % 60);
+                return m + ':' + (s < 10 ? '0' : '') + s;
+            }
+            audio.addEventListener('loadedmetadata', function(){ dur.textContent = fmt(audio.duration); });
+            btn.addEventListener('click', function(){ if (audio.paused) { audio.play(); } else { audio.pause(); } });
+            audio.addEventListener('play',  function(){ icon.className = 'bi bi-pause-fill'; btn.classList.add('is-playing'); });
+            audio.addEventListener('pause', function(){ icon.className = 'bi bi-play-fill';  btn.classList.remove('is-playing'); });
+            audio.addEventListener('ended', function(){ icon.className = 'bi bi-play-fill';  btn.classList.remove('is-playing'); fill.style.width = '0%'; cur.textContent = '0:00'; });
+            audio.addEventListener('timeupdate', function(){
+                if (audio.duration) {
+                    fill.style.width = ((audio.currentTime / audio.duration) * 100) + '%';
+                    cur.textContent = fmt(audio.currentTime);
+                }
+            });
+            bar.addEventListener('click', function(e){
+                var r = bar.getBoundingClientRect();
+                var p = (e.clientX - r.left) / r.width;
+                if (audio.duration) { audio.currentTime = Math.max(0, Math.min(1, p)) * audio.duration; }
+            });
+        })();
+    </script>
+</body>
+</html>
