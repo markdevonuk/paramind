@@ -196,7 +196,7 @@ window.PLACEMENT_FRAMEWORKS = [
 ];
 
 window.PLACEMENT_ADVICE = {
-  1: ['Your first few shifts', 'When a job gets to you', 'Asking questions without feeling daft'],
+  1: ['Before your first shift \u2014 be ready', 'Your first few shifts', 'When a job gets to you', 'Asking questions without feeling daft'],
   2: ['Taking more of the lead', 'Managing tiredness and shifts', 'When you make a mistake'],
   3: ['Becoming the decision-maker', 'Preparing for sign-off', 'Looking after yourself long-term']
 };
