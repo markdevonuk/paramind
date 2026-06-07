@@ -591,5 +591,15 @@ window.PLACEMENT_ADVICE = {
       'Look at the HCPC hearings and you\u2019ll see that no one gets struck off for an individual error. However, they will do for lying \u2014 or for squeezing someone\u2019s personal bits!'
     ] }
   ],
-  3: ['Becoming the decision-maker', 'Preparing for sign-off', 'Looking after yourself long-term']
+  3: [
+    { title: 'Becoming the decision-maker', body: [
+      'By third year the question quietly shifts from \u201cwhat would my mentor do?\u201d to \u201cwhat am I going to do?\u201d \u2014 and being the one the decision lands on is a different weight entirely. Learn to trust the reasoning you\u2019ve spent two years building, while holding it lightly enough to change your mind when the picture does. Confidence here isn\u2019t never being unsure; it\u2019s being able to act sensibly while you\u2019re unsure and keep reassessing. And knowing when to call for help is not a gap in your decision-making \u2014 it is good decision-making.'
+    ] },
+    { title: 'Preparing for sign-off', body: [
+      'Sign-off feels enormous from a distance and a lot more manageable once you break it into pieces \u2014 so start early and treat your portfolio as something you build week by week, not a panic in the final month. Use every shift as evidence: capture what you did, why you did it, and what you\u2019d change. Practise saying your clinical reasoning out loud, because being able to explain a decision is often what\u2019s really being assessed. And as the date nears, take the feedback you keep getting at face value \u2014 if the people signing you off think you\u2019re ready, it\u2019s worth believing them.'
+    ] },
+    { title: 'Looking after yourself long-term', body: [
+      'This is a career, not a sprint, and the habits you build now are the ones that decide whether you\u2019re still well and still enjoying it in ten years. Get good early at putting jobs down properly \u2014 debriefing, talking to people who get it, having a life that\u2019s fully yours when the uniform comes off. Notice your own warning signs the way you\u2019d notice a patient\u2019s, and treat protecting your wellbeing as part of being a competent clinician, not a luxury on top of it. The best paramedics aren\u2019t the ones who never feel the weight \u2014 they\u2019re the ones who\u2019ve learned how to carry it sustainably.'
+    ] }
+  ]
 };
