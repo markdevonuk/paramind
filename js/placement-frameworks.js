@@ -578,6 +578,18 @@ window.PLACEMENT_ADVICE = {
       'A really good mentor will admit when they don\u2019t know the answer, and they\u2019ll go and search for it with you. And then you\u2019ll quickly realise they aren\u2019t Superman or Superwoman \u2014 they\u2019re human, just like you.'
     ] }
   ],
-  2: ['Taking more of the lead', 'Managing tiredness and shifts', 'When you make a mistake'],
+  2: [
+    { title: 'Taking more of the lead', body: [
+      'Second year is where the training wheels start coming off \u2014 your mentor steps back a little and lets you run more of the call, and that gap they leave is meant to feel slightly uncomfortable. That discomfort is the work; it\u2019s what growth actually feels like. Take the assessment, voice your thinking out loud, commit to a plan \u2014 and let your mentor be the safety net they\u2019re there to be, rather than the driver. You\u2019ll get things wrong while you find your feet leading, and that\u2019s not a sign you\u2019ve stepped up too soon \u2014 it\u2019s the only way anyone ever does.',
+      'Try this\u2026 repeat the patient\u2019s concerns, cover the history and observations, and explain your thinking and your idea for a plan \u2014 but at the end, add a few words to give your mentor the chance to step in if needed: \u201cIs there anything else you\u2019d like to ask, or any concerns you have that I may not have covered?\u201d'
+    ] },
+    { title: 'Managing tiredness and shifts', body: [
+      'Shift work is one of the hardest parts of this job to get good at, and nobody really teaches it \u2014 you learn it the tired way. Protect your sleep like it\u2019s part of your kit: wind down properly after a late, get daylight and movement on your days off, and eat and drink regularly across a shift rather than running on fumes and a vending machine. Fatigue isn\u2019t a badge of toughness \u2014 it quietly blunts your judgement, and the culture that treats pushing through as strength has it backwards. Looking after the basics is what lets you do the job well, shift after shift.'
+    ] },
+    { title: 'When you make a mistake', body: [
+      'You will make mistakes \u2014 every clinician who has ever worked has \u2014 and what defines you isn\u2019t whether it happens but what you do next. The instinct to hide it or shrink is human, but the professional move is the opposite: own it, say it early, and report it through the proper channel so it can be learned from. A good service treats that as how care gets safer, not as a stick to beat you with. And go easy on yourself afterwards; carrying it quietly helps no one, so talk it through with your mentor and let it make you sharper rather than smaller.',
+      'Look at the HCPC hearings and you\u2019ll see that no one gets struck off for an individual error. However, they will do for lying \u2014 or for squeezing someone\u2019s personal bits!'
+    ] }
+  ],
   3: ['Becoming the decision-maker', 'Preparing for sign-off', 'Looking after yourself long-term']
 };
