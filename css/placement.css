@@ -152,3 +152,66 @@
 .pm-nibp-c .pm-v-num { color: #f2f6f7; font-size: 1.5rem; }
 .pm-nibp-c .pm-v-num.pm-inflating { color: #e0a93c; }
 .pm-v-sub { color: #e0a93c; font-size: 0.72rem; font-family: ui-monospace, monospace; margin-left: 2px; }
+
+/* ---- Placement header: animated blue light-bar sweep (emergency blues) ---- */
+.section-page--placement .pm-lightbar {
+  position: absolute; top: 0; left: 0; right: 0; height: 6px;
+  background: rgba(8,47,60,0.55); overflow: hidden; z-index: 2;
+}
+.section-page--placement .pm-lightbar::before,
+.section-page--placement .pm-lightbar::after {
+  content: ''; position: absolute; top: -2px; bottom: -2px; width: 28%; border-radius: 4px;
+  background: linear-gradient(90deg, rgba(56,176,200,0) 0%, #35B0C8 45%, #aef1ff 50%, #35B0C8 55%, rgba(56,176,200,0) 100%);
+  filter: drop-shadow(0 0 8px rgba(53,176,200,0.9));
+  animation: pmLightSweep 2.2s linear infinite;
+}
+.section-page--placement .pm-lightbar::after {
+  background: linear-gradient(90deg, rgba(37,99,235,0) 0%, #2563eb 45%, #bfdbfe 50%, #2563eb 55%, rgba(37,99,235,0) 100%);
+  filter: drop-shadow(0 0 8px rgba(37,99,235,0.9));
+  animation-delay: 1.1s;
+}
+@keyframes pmLightSweep { 0% { left: -30%; } 100% { left: 108%; } }
+@media (prefers-reduced-motion: reduce) {
+  .section-page--placement .pm-lightbar::before { animation: none; left: 18%; }
+  .section-page--placement .pm-lightbar::after  { animation: none; left: 54%; }
+}
+
+/* ---- Essential-listening audio panel ---- */
+.placement-brief {
+  position: relative; overflow: hidden;
+  background: linear-gradient(135deg, #0F4252 0%, #176379 60%, #1d7e94 100%);
+  color: #fff; border-radius: 16px; padding: 18px 18px 16px; margin-bottom: 1.5rem;
+  box-shadow: 0 6px 22px rgba(15,66,82,0.25);
+}
+.placement-brief::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, #2563eb, #35B0C8, #aef1ff, #35B0C8, #2563eb);
+  background-size: 200% 100%; animation: pmBriefShimmer 3s linear infinite;
+}
+@keyframes pmBriefShimmer { 0% { background-position: 0% 0; } 100% { background-position: 200% 0; } }
+@media (prefers-reduced-motion: reduce) { .placement-brief::before { animation: none; } }
+.placement-brief-top { display: flex; align-items: center; gap: 16px; }
+.placement-brief-play {
+  flex-shrink: 0; width: 58px; height: 58px; border-radius: 50%; border: none; cursor: pointer;
+  background: #fff; color: #0F4252; font-size: 1.7rem;
+  display: flex; align-items: center; justify-content: center;
+  animation: pmPlayPulse 2.4s ease-out infinite; transition: transform .15s ease;
+}
+.placement-brief-play:hover { transform: scale(1.06); }
+.placement-brief-play.is-playing { animation: none; }
+@keyframes pmPlayPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(255,255,255,0.5); }
+  70%  { box-shadow: 0 0 0 14px rgba(255,255,255,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+}
+@media (prefers-reduced-motion: reduce) { .placement-brief-play { animation: none; } }
+.placement-brief-kicker {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  opacity: 0.9; display: flex; align-items: center; gap: 6px; margin-bottom: 3px;
+}
+.placement-brief-title { font-weight: 700; font-size: 1.12rem; line-height: 1.25; margin-bottom: 3px; }
+.placement-brief-sub { font-size: 0.86rem; line-height: 1.5; opacity: 0.92; }
+.placement-brief-player { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+.placement-brief-bar { flex: 1; height: 8px; border-radius: 6px; background: rgba(255,255,255,0.25); cursor: pointer; overflow: hidden; }
+.placement-brief-fill { height: 100%; width: 0%; border-radius: 6px; background: #aef1ff; transition: width .1s linear; }
+.placement-brief-time { font-size: 0.78rem; font-variant-numeric: tabular-nums; opacity: 0.9; flex-shrink: 0; }
