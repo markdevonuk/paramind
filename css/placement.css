@@ -117,3 +117,37 @@
 
 /* ---- hub tiles (year cards reuse .tool-card; small extras) ---- */
 .year-tile .tool-card-icon { background: rgba(43,138,156,0.12); color: var(--pm-teal); }
+
+/* ---- section header theme (fixes the empty white band) ---- */
+.section-page-header.section-page--placement { background: linear-gradient(135deg, #0F4252 0%, #2B8A9C 60%, #35B0C8 115%); }
+
+/* ---- obs monitor (ambient vitals display) ---- */
+.pm-monitor { background: #0a1417; border: 1px solid #16282d; border-radius: 14px;
+  padding: 12px 14px; margin: 0 0 1.5rem; box-shadow: 0 6px 22px rgba(0,0,0,0.18); }
+.pm-mon-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+  font-family: ui-monospace, Menlo, monospace; font-size: 0.7rem; letter-spacing: 1px; color: #5a8f97; text-transform: uppercase; }
+.pm-mon-mid { display: inline-flex; align-items: center; gap: 12px; }
+.pm-mon-dot { width: 8px; height: 8px; border-radius: 50%; background: #38e06a; display: inline-block;
+  margin-right: 7px; box-shadow: 0 0 7px #38e06a; animation: pmBlink 2.4s infinite; vertical-align: middle; }
+@keyframes pmBlink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+.pm-sound-btn { background: none; border: 1px solid #1d343a; color: #5a8f97; border-radius: 8px;
+  padding: 2px 9px; cursor: pointer; font-size: 0.95rem; line-height: 1; }
+.pm-sound-btn.on { color: #38e06a; border-color: #235a3a; }
+.pm-mon-body { display: flex; gap: 14px; flex-wrap: wrap; }
+.pm-mon-waves { flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.pm-wave { position: relative; height: 74px; }
+.pm-wave canvas { width: 100%; height: 100%; display: block; }
+.pm-wave-label { position: absolute; top: 3px; left: 6px; font-family: ui-monospace, monospace;
+  font-size: 0.66rem; letter-spacing: 1.5px; }
+.pm-mon-nums { flex: 1 1 190px; display: flex; flex-direction: column; gap: 8px; }
+.pm-vital { display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  border: 1px solid #16282d; border-radius: 10px; padding: 6px 13px; }
+.pm-v-label { font-family: ui-monospace, monospace; font-size: 0.66rem; letter-spacing: 1.5px; color: #7a9aa0; text-transform: uppercase; }
+.pm-v-num { font-family: ui-monospace, monospace; font-weight: 700; font-size: 2rem; line-height: 1; display: inline-block; transition: transform 0.1s ease; }
+.pm-v-num.pm-beat { transform: scale(1.09); }
+.pm-v-unit { font-family: ui-monospace, monospace; font-size: 0.7rem; color: #7a9aa0; margin-left: 4px; }
+.pm-hr-c .pm-v-num { color: #38e06a; text-shadow: 0 0 10px rgba(56,224,106,0.5); }
+.pm-spo2-c .pm-v-num { color: #37d6e6; text-shadow: 0 0 10px rgba(55,214,230,0.45); }
+.pm-nibp-c .pm-v-num { color: #f2f6f7; font-size: 1.5rem; }
+.pm-nibp-c .pm-v-num.pm-inflating { color: #e0a93c; }
+.pm-v-sub { color: #e0a93c; font-size: 0.72rem; font-family: ui-monospace, monospace; margin-left: 2px; }

@@ -53,6 +53,147 @@
       (conf > 0 ? segs(conf) : '') + '</span></a>';
   }
 
+  /* ---------- obs monitor (ambient vitals display) ---------- */
+  function monitorHtml() {
+    return '<div class="pm-monitor" aria-hidden="true">' +
+      '<div class="pm-mon-top"><span><span class="pm-mon-dot"></span>ParaMind monitor</span>' +
+      '<span class="pm-mon-mid"><span id="pmClock">--:--:--</span>' +
+      '<button type="button" class="pm-sound-btn" id="pmSound" aria-label="Toggle monitor sound"><i class="bi bi-volume-mute"></i></button></span></div>' +
+      '<div class="pm-mon-body">' +
+        '<div class="pm-mon-waves">' +
+          '<div class="pm-wave"><span class="pm-wave-label" style="color:#38e06a">ECG</span><canvas id="pmEcg"></canvas></div>' +
+          '<div class="pm-wave"><span class="pm-wave-label" style="color:#37d6e6">Pleth</span><canvas id="pmPleth"></canvas></div>' +
+        '</div>' +
+        '<div class="pm-mon-nums">' +
+          '<div class="pm-vital pm-hr-c"><span class="pm-v-label">HR</span><span><span class="pm-v-num" id="pmHR">78</span><span class="pm-v-unit">bpm</span></span></div>' +
+          '<div class="pm-vital pm-spo2-c"><span class="pm-v-label">SpO2</span><span><span class="pm-v-num" id="pmSpO2">98</span><span class="pm-v-unit">%</span></span></div>' +
+          '<div class="pm-vital pm-nibp-c"><span class="pm-v-label" id="pmNIBPlabel">NIBP</span><span><span class="pm-v-num" id="pmNIBP">118/79</span> <span class="pm-v-sub" id="pmNIBPmean">(92)</span></span></div>' +
+        '</div>' +
+      '</div></div>';
+  }
+
+  function startMonitor(root) {
+    var ecg = root.querySelector('#pmEcg'), pleth = root.querySelector('#pmPleth');
+    if (!ecg || !pleth) return;
+    var hrEl = root.querySelector('#pmHR'), spo2El = root.querySelector('#pmSpO2'),
+        nibpEl = root.querySelector('#pmNIBP'), nibpMean = root.querySelector('#pmNIBPmean'),
+        nibpLabel = root.querySelector('#pmNIBPlabel'), clock = root.querySelector('#pmClock'),
+        soundBtn = root.querySelector('#pmSound');
+
+    function fit(c) {
+      var dpr = window.devicePixelRatio || 1;
+      var w = c.clientWidth || 300, h = c.clientHeight || 74;
+      c.width = w * dpr; c.height = h * dpr;
+      var ctx = c.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return { c: c, ctx: ctx, w: w, h: h, lastX: null, lastY: null };
+    }
+    var E = fit(ecg), P = fit(pleth);
+    window.addEventListener('resize', function () {
+      var ne = fit(ecg), np = fit(pleth);
+      E.w = ne.w; E.h = ne.h; E.lastX = null; P.w = np.w; P.h = np.h; P.lastX = null;
+    });
+
+    var audioOn = false, actx = null;
+    soundBtn.addEventListener('click', function () {
+      audioOn = !audioOn;
+      soundBtn.classList.toggle('on', audioOn);
+      soundBtn.innerHTML = audioOn ? '<i class="bi bi-volume-up"></i>' : '<i class="bi bi-volume-mute"></i>';
+      if (audioOn) { try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); } catch (e) {} }
+    });
+    function beep() {
+      if (!audioOn || !actx || document.hidden) return;
+      try {
+        var o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime;
+        o.type = 'sine'; o.frequency.value = 880;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.05, t + 0.005);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+        o.connect(g); g.connect(actx.destination);
+        o.start(t); o.stop(t + 0.1);
+      } catch (e) {}
+    }
+
+    var hr = 78, spo2 = 98, t0 = performance.now(), lastPhase = 0, pxPerSec = 130;
+
+    function ecgY(p) {
+      return 0.08 * Math.exp(-Math.pow((p - 0.13) / 0.02, 2))
+        - 0.12 * Math.exp(-Math.pow((p - 0.185) / 0.008, 2))
+        + 1.0 * Math.exp(-Math.pow((p - 0.205) / 0.008, 2))
+        - 0.22 * Math.exp(-Math.pow((p - 0.235) / 0.01, 2))
+        + 0.18 * Math.exp(-Math.pow((p - 0.37) / 0.035, 2));
+    }
+    function plethY(p) {
+      var q = (p + 0.82) % 1;
+      return 0.62 * Math.exp(-Math.pow((q - 0.28) / 0.12, 2)) + 0.22 * Math.exp(-Math.pow((q - 0.6) / 0.14, 2));
+    }
+    function step(C, fn, color, amp, dt) {
+      var ctx = C.ctx, w = C.w, h = C.h, mid = h * 0.6, beatT = 60 / hr;
+      var phase = ((performance.now() - t0) / 1000 % beatT) / beatT;
+      var y = mid - fn(phase) * h * amp;
+      var nx = (C.lastX == null ? 0 : C.lastX) + pxPerSec * dt;
+      if (nx >= w) { nx = 0; C.lastX = null; C.lastY = null; }
+      ctx.clearRect(nx, 0, 16, h);
+      if (C.lastX != null) {
+        ctx.strokeStyle = color; ctx.lineWidth = 1.7; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(C.lastX, C.lastY); ctx.lineTo(nx, y); ctx.stroke();
+      }
+      C.lastX = nx; C.lastY = y;
+    }
+
+    var last = performance.now();
+    function frame(now) {
+      var dt = Math.min((now - last) / 1000, 0.05); last = now;
+      var beatT = 60 / hr, phase = ((now - t0) / 1000 % beatT) / beatT;
+      if (lastPhase < 0.205 && phase >= 0.205) {
+        beep();
+        hrEl.classList.add('pm-beat');
+        setTimeout(function () { hrEl.classList.remove('pm-beat'); }, 120);
+      }
+      lastPhase = phase;
+      step(E, ecgY, '#38e06a', 0.42, dt);
+      step(P, plethY, '#37d6e6', 0.5, dt);
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+    setInterval(function () {
+      hr += (Math.random() < 0.5 ? -1 : 1) * (Math.random() < 0.4 ? 2 : 1);
+      hr = Math.max(72, Math.min(86, hr));
+      spo2 = Math.max(96, Math.min(99, spo2 + (Math.random() < 0.5 ? -1 : 1)));
+      hrEl.textContent = hr; spo2El.textContent = spo2;
+    }, 3500);
+
+    function nibpReading() {
+      var sys = 110 + Math.floor(Math.random() * 16), dia = 70 + Math.floor(Math.random() * 14);
+      return { sys: sys, dia: dia, mean: Math.round(dia + (sys - dia) / 3) };
+    }
+    function cycleNibp() {
+      nibpLabel.textContent = 'NIBP \u25b2';
+      nibpEl.classList.add('pm-inflating');
+      var p = 90, target = 150 + Math.floor(Math.random() * 50);
+      var inf = setInterval(function () {
+        p += 14; nibpEl.textContent = p; nibpMean.textContent = 'mmHg';
+        if (p >= target) {
+          clearInterval(inf);
+          setTimeout(function () {
+            var r = nibpReading();
+            nibpEl.classList.remove('pm-inflating');
+            nibpEl.textContent = r.sys + '/' + r.dia;
+            nibpMean.textContent = '(' + r.mean + ')';
+            nibpLabel.textContent = 'NIBP';
+          }, 900);
+        }
+      }, 220);
+    }
+    setInterval(cycleNibp, 24000);
+
+    function tick() {
+      var d = new Date(), pad = function (n) { return (n < 10 ? '0' : '') + n; };
+      clock.textContent = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+    }
+    tick(); setInterval(tick, 1000);
+  }
+
   /* ---------- YEAR PAGE ---------- */
   function renderYear(root) {
     var year = parseInt(root.getAttribute('data-year'), 10) || 1;
@@ -80,6 +221,7 @@
       : list.length + ' frameworks \u00b7 none practised yet';
 
     root.innerHTML =
+      monitorHtml() +
       '<h2 class="pm-section-title">On placement \u2014 what the uni doesn\u2019t tell you</h2>' +
       '<p class="pm-sub">Honest advice on your shifts and how to cope.</p>' +
       '<div class="pm-advice-grid">' + adviceCards + '</div>' +
@@ -87,6 +229,8 @@
       '<h2 class="pm-section-title">Frameworks for ' + (window.PLACEMENT_YEARS[year] ? window.PLACEMENT_YEARS[year].label.toLowerCase() : 'this year') + '</h2>' +
       '<p class="pm-sub">' + summary + '</p>' +
       '<div class="pm-fw-list">' + list.map(fwRow).join('') + '</div>';
+
+    startMonitor(root);
   }
 
   /* ---------- LESSON PAGE ---------- */
