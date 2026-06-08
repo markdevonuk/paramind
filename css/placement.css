@@ -216,3 +216,24 @@
 .pm-takeaways { margin: 0.25rem 0 1.1rem; padding-left: 1.15rem; }
 .pm-takeaways li { margin: 0 0 0.4rem; line-height: 1.55; }
 .pm-takeaways li:last-child { margin-bottom: 0; }
+
+/* ---- advice card icon badges + open animation ---- */
+.pm-advice-icon {
+  flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, #2B8A9C, #35B0C8); color: #fff;
+  display: flex; align-items: center; justify-content: center; font-size: 1rem;
+  box-shadow: 0 2px 6px rgba(43,138,156,0.30);
+  transition: background 0.3s ease;
+}
+.pm-advice-label { flex: 1; }
+.pm-advice-card.is-open .pm-advice-icon {
+  background: linear-gradient(135deg, #2B8A9C, #5BC166);
+  animation: pmAdviceIconPop 0.4s ease;
+}
+@keyframes pmAdviceIconPop { 0% { transform: scale(1); } 40% { transform: scale(1.18) rotate(-6deg); } 100% { transform: scale(1); } }
+.pm-advice-card.is-open .pm-advice-body { animation: pmAdviceBodyIn 0.3s ease both; }
+@keyframes pmAdviceBodyIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .pm-advice-card.is-open .pm-advice-icon,
+  .pm-advice-card.is-open .pm-advice-body { animation: none; }
+}

@@ -601,45 +601,45 @@ window.PLACEMENT_FRAMEWORKS = [
 
 window.PLACEMENT_ADVICE = {
   1: [
-    { title: 'Before your shift', body: [
+    { title: 'Before your shift', icon: 'bi-bag-check', body: [
       'The nerves the night before are completely normal \u2014 every paramedic you\u2019ll ever meet had them too. Get the practical things sorted early: uniform and kit ready, route and start time checked, a proper meal and as much sleep as the nerves will allow. Arrive a little early, introduce yourself to your mentor and the crew, and go in with one honest expectation \u2014 you\u2019re there to learn, not to know everything. The pressure you\u2019re putting on yourself is almost always higher than the pressure anyone\u2019s putting on you.',
       'Dress smart. It\u2019s not a night out, so tuck your top in and clean your boots. Look professional and you\u2019ll act professional. Lose the excess jewellery, go bare below the elbow, and you\u2019ll be treated well. Try to \u201cbe an individual\u201d and it won\u2019t go down well.'
     ] },
-    { title: 'Your first few shifts', body: [
+    { title: 'Your first few shifts', icon: 'bi-binoculars', body: [
       'The first few shifts can feel like standing in a busy room where everyone\u2019s speaking a language you only half understand \u2014 and that\u2019s exactly how they\u2019re meant to feel. Your job at this stage isn\u2019t to perform, it\u2019s to watch: how the crew moves, how they talk to patients, how a scene gets read in the first thirty seconds. Find small ways to be useful, ask where you should stand, and let yourself be a beginner. Competence comes in layers, and nobody fitted them all on day one.',
       'Get in 30 minutes early every day. Find your truck and start going through every single cupboard and every single bag \u2014 you need to know what is in there and what it does. The quickest way to impress your mentor is, on a time-critical job, being able to immediately put your hand on a Russell chest seal.',
       'And bring treats. Not only will your mentor\u2019s eyes light up, but your crewmates\u2019 too. Never underestimate the power of Haribo.'
     ] },
-    { title: 'When a job gets to you', body: [
+    { title: 'When a job gets to you', icon: 'bi-chat-heart', body: [
       'Some jobs will stay with you longer than others, and that doesn\u2019t mean you\u2019re not cut out for this \u2014 it means you\u2019re human, and being affected by hard things is part of caring about them. Don\u2019t carry it alone or feel you have to look unshaken. Talk to your mentor, your crewmate, your university tutor, or someone you trust at home; saying it out loud is often what stops it sitting heavy. And if something keeps returning \u2014 your sleep, your mood, your appetite \u2014 treat that as a signal to reach out for proper support, not something to push through. The people around you would far rather you spoke up early.',
       'Talk\u2026 sharing the load is a real thing, and it works.'
     ] },
-    { title: 'Asking questions without feeling daft', body: [
+    { title: 'Asking questions without feeling daft', icon: 'bi-question-circle', body: [
       'Here\u2019s the thing nobody says often enough: asking questions is what good clinicians do, not what beginners do. Your mentor expects them \u2014 a placement where you ask nothing tends to worry them more than one where you ask plenty. Pick your moment (not mid-resus), jot the question down if now isn\u2019t the time, and try asking \u201cwhy\u201d as well as \u201cwhat,\u201d because the reasoning is the part that sticks. The only daft question is the one you sat on because you were too proud to ask.',
       'A really good mentor will admit when they don\u2019t know the answer, and they\u2019ll go and search for it with you. And then you\u2019ll quickly realise they aren\u2019t Superman or Superwoman \u2014 they\u2019re human, just like you.'
     ] }
   ],
   2: [
-    { title: 'Taking more of the lead', body: [
+    { title: 'Taking more of the lead', icon: 'bi-flag', body: [
       'Second year is where the training wheels start coming off \u2014 your mentor steps back a little and lets you run more of the call, and that gap they leave is meant to feel slightly uncomfortable. That discomfort is the work; it\u2019s what growth actually feels like. Take the assessment, voice your thinking out loud, commit to a plan \u2014 and let your mentor be the safety net they\u2019re there to be, rather than the driver. You\u2019ll get things wrong while you find your feet leading, and that\u2019s not a sign you\u2019ve stepped up too soon \u2014 it\u2019s the only way anyone ever does.',
       'Try this\u2026 repeat the patient\u2019s concerns, cover the history and observations, and explain your thinking and your idea for a plan \u2014 but at the end, add a few words to give your mentor the chance to step in if needed: \u201cIs there anything else you\u2019d like to ask, or any concerns you have that I may not have covered?\u201d'
     ] },
-    { title: 'Managing tiredness and shifts', body: [
+    { title: 'Managing tiredness and shifts', icon: 'bi-moon-stars', body: [
       'Shift work is one of the hardest parts of this job to get good at, and nobody really teaches it \u2014 you learn it the tired way. Protect your sleep like it\u2019s part of your kit: wind down properly after a late, get daylight and movement on your days off, and eat and drink regularly across a shift rather than running on fumes and a vending machine. Fatigue isn\u2019t a badge of toughness \u2014 it quietly blunts your judgement, and the culture that treats pushing through as strength has it backwards. Looking after the basics is what lets you do the job well, shift after shift.'
     ] },
-    { title: 'When you make a mistake', body: [
+    { title: 'When you make a mistake', icon: 'bi-bandaid', body: [
       'You will make mistakes \u2014 every clinician who has ever worked has \u2014 and what defines you isn\u2019t whether it happens but what you do next. The instinct to hide it or shrink is human, but the professional move is the opposite: own it, say it early, and report it through the proper channel so it can be learned from. A good service treats that as how care gets safer, not as a stick to beat you with. And go easy on yourself afterwards; carrying it quietly helps no one, so talk it through with your mentor and let it make you sharper rather than smaller.',
       'Look at the HCPC hearings and you\u2019ll see that no one gets struck off for an individual error. However, they will do for lying \u2014 or for squeezing someone\u2019s personal bits!'
     ] }
   ],
   3: [
-    { title: 'Becoming the decision-maker', body: [
+    { title: 'Becoming the decision-maker', icon: 'bi-compass', body: [
       'By third year the question quietly shifts from \u201cwhat would my mentor do?\u201d to \u201cwhat am I going to do?\u201d \u2014 and being the one the decision lands on is a different weight entirely. Learn to trust the reasoning you\u2019ve spent two years building, while holding it lightly enough to change your mind when the picture does. Confidence here isn\u2019t never being unsure; it\u2019s being able to act sensibly while you\u2019re unsure and keep reassessing. And knowing when to call for help is not a gap in your decision-making \u2014 it is good decision-making.'
     ] },
-    { title: 'Preparing for sign-off', body: [
+    { title: 'Preparing for sign-off', icon: 'bi-patch-check', body: [
       'Sign-off feels enormous from a distance and a lot more manageable once you break it into pieces \u2014 so start early and treat your portfolio as something you build week by week, not a panic in the final month. Use every shift as evidence: capture what you did, why you did it, and what you\u2019d change. Practise saying your clinical reasoning out loud, because being able to explain a decision is often what\u2019s really being assessed. And as the date nears, take the feedback you keep getting at face value \u2014 if the people signing you off think you\u2019re ready, it\u2019s worth believing them.'
     ] },
-    { title: 'Looking after yourself long-term', body: [
+    { title: 'Looking after yourself long-term', icon: 'bi-battery-charging', body: [
       'This is a career, not a sprint, and the habits you build now are the ones that decide whether you\u2019re still well and still enjoying it in ten years. Get good early at putting jobs down properly \u2014 debriefing, talking to people who get it, having a life that\u2019s fully yours when the uniform comes off. Notice your own warning signs the way you\u2019d notice a patient\u2019s, and treat protecting your wellbeing as part of being a competent clinician, not a luxury on top of it. The best paramedics aren\u2019t the ones who never feel the weight \u2014 they\u2019re the ones who\u2019ve learned how to carry it sustainably.'
     ] }
   ]

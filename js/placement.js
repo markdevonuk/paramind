@@ -217,9 +217,11 @@
         return '<p>' + esc(p) + '</p>';
       }).join('');
       var bid = 'adv-' + year + '-' + i;
+      var ic = (a && a.icon) ? a.icon : 'bi-chat-left-text';
       return '<div class="pm-advice-card is-expandable">' +
         '<button type="button" class="pm-advice-head" aria-expanded="false" aria-controls="' + bid + '">' +
-          '<span>' + esc(title) + '</span>' +
+          '<span class="pm-advice-icon"><i class="bi ' + ic + '" aria-hidden="true"></i></span>' +
+          '<span class="pm-advice-label">' + esc(title) + '</span>' +
           '<i class="bi bi-chevron-down pm-advice-chev" aria-hidden="true"></i>' +
         '</button>' +
         '<div class="pm-advice-body" id="' + bid + '" hidden>' + paras + '</div>' +
