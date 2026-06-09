@@ -43,6 +43,7 @@
         // Learn section
         learnNav: [
             { id: 'chat', href: 'chat.html', icon: 'bi-chat-dots', label: 'Chat with Hollie' },
+            { id: 'placement', href: 'placement.html', icon: 'bi-compass', label: 'On Placement', partialPro: true },
             { id: 'connections', href: 'connections.html', icon: 'bi-heart-pulse', label: 'A&P Connections', isPro: true },
             { id: 'ecg', href: 'ecg.html', icon: 'bi-activity', label: 'ECG Tool', isPro: true },
             { id: 'flashcards', href: 'flashcards.html', icon: 'bi-layers', label: 'Flash Cards', partialPro: true },
