@@ -185,6 +185,27 @@
       margin-top: 0.5rem;
     }
 
+    /* Pro-locked system cards (shown to free users only) */
+    .osce-card.locked .osce-card-name,
+    .osce-card.locked .osce-card-desc { opacity: 0.6; }
+    .osce-card.locked .osce-card-arrow { display: none; }
+    .osce-card.locked .osce-card-meta { display: none; }
+    .osce-card-pro {
+      position: absolute;
+      top: 0.9rem;
+      right: 1rem;
+      display: inline-flex;
+      align-items: center;
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      color: #1a1a2e;
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 0.18rem 0.5rem;
+      border-radius: 20px;
+    }
+
     /* Section intro */
     .osce-section-intro {
       border-left: 3px solid var(--color-teal);
@@ -1655,6 +1676,7 @@ auth.onAuthStateChanged(async (user) => {
       isPro = data.subscriptionStatus === 'active' || data.isPro === true;
     }
   } catch(e) { console.error('Pro check failed', e); }
+  if (typeof applySystemLocks === 'function') applySystemLocks();
 });
 </script>
 <script src="js/activity-logger.js"></script>
@@ -1890,7 +1912,7 @@ const SYSTEMS = [
     enabled: true
   },
   {
-    id: 'respiratory', slug: 'resp', label: 'Respiratory',
+    id: 'respiratory', slug: 'resp', label: 'Respiratory', pro: true,
     cardDesc:     'Lungs, airways, breath sounds, oxygenation.',
     examLabel:    'Respiratory Examination',
     examDesc:     'General overview, inspection, palpation, percussion, auscultation, special tests.',
@@ -1901,7 +1923,7 @@ const SYSTEMS = [
     enabled: true
   },
   {
-    id: 'abdominal', slug: 'abdo', label: 'Abdominal',
+    id: 'abdominal', slug: 'abdo', label: 'Abdominal', pro: true,
     cardDesc:     'Inspection, palpation, percussion, auscultation of the abdomen.',
     examLabel:    'Abdominal Examination',
     examDesc:     'General overview, inspection, auscultation, palpation, percussion, special tests.',
@@ -1912,7 +1934,7 @@ const SYSTEMS = [
     enabled: true
   },
   {
-    id: 'neurological', slug: 'neuro', label: 'Neurological',
+    id: 'neurological', slug: 'neuro', label: 'Neurological', pro: true,
     cardDesc:     'Cranial nerves, motor, sensory, coordination, GCS.',
     examLabel:    'Neurological Examination',
     examDesc:     'General overview, FAST test, cranial nerves I–XII grouped functionally.',
@@ -1926,6 +1948,29 @@ const SYSTEMS = [
 
 const SYSTEM_BY_ID   = Object.fromEntries(SYSTEMS.map(s => [s.id,   s]));
 const SYSTEM_BY_SLUG = Object.fromEntries(SYSTEMS.map(s => [s.slug, s]));
+
+/* Show the gold Pro pill + locked styling on the non-free system cards
+   for free users. Cardiovascular is the free taster. Pro users see no
+   lock or badge. Re-run whenever isPro is updated (onAuthStateChanged). */
+function applySystemLocks() {
+  SYSTEMS.forEach(function(s) {
+    if (!s.pro) return;                       // free systems never locked
+    const card = document.querySelector('.osce-card.' + s.slug);
+    if (!card) return;
+    const locked = !isPro;
+    card.classList.toggle('locked', locked);
+    let pill = card.querySelector('.osce-card-pro');
+    if (locked && !pill) {
+      pill = document.createElement('span');
+      pill.className = 'osce-card-pro';
+      pill.textContent = 'Pro';
+      card.appendChild(pill);
+    } else if (!locked && pill) {
+      pill.remove();
+    }
+  });
+}
+applySystemLocks();
 
 // Placeholder Section 2 + Section 4 arrays for the not-yet-authored
 // systems. Empty arrays are fine here — the home cards for these
@@ -2167,6 +2212,8 @@ function navigate(target, listId, idx) {
 function openSystem(systemId) {
   const sys = SYSTEM_BY_ID[systemId];
   if (!sys) return;
+  // Pro gate: Cardiovascular is the free taster; all other systems are Pro.
+  if (sys.pro && !isPro) { window.showUpgradeModal(); return; }
   currentSystem = systemId;
   renderSystemPage(systemId);
   renderModeSelectPage(systemId);
@@ -2478,6 +2525,9 @@ function renderResumePrompt(resumable) {
 function resumeSavedSession() {
   if (!pendingResumeDoc) return;
   const d = pendingResumeDoc.data;
+  // Pro gate: don't resume a session in a Pro system for a free user.
+  const rsys = SYSTEM_BY_ID[d.system];
+  if (rsys && rsys.pro && !isPro) { window.showUpgradeModal(); return; }
   examinerSession = {
     sessionId:      pendingResumeDoc.id,
     system:         d.system,
