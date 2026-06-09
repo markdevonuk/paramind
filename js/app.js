@@ -24,6 +24,7 @@ const TRUSTS = {
     "EEAST": "East of England Ambulance Service NHS Trust",
     "EMAS": "East Midlands Ambulance Service NHS Trust",
     "JAS": "States of Jersey Ambulance Service",
+    "LAS": "London Ambulance Service NHS Trust",
     "NEAS": "North East Ambulance Service NHS Foundation Trust",
     "NIAS": "Northern Ireland Ambulance Service",
     "NWAS": "North West Ambulance Service NHS Trust",
