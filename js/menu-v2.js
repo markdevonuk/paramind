@@ -53,6 +53,7 @@
         // Practise section
         practiseNav: [
             { id: 'scenarios', href: 'scenarios.html', icon: 'bi-mortarboard', label: 'Scenarios' },
+            { id: 'osce', href: 'osce-practice.html', icon: 'bi-clipboard2-check', label: 'OSCE Practice', partialPro: true },
             { id: 'arrest', href: 'arrest-scenarios.html', icon: 'bi-lightning-charge', label: 'Cardiac Arrest Sim', partialPro: true },
             { id: 'major-incident', href: 'major-incident.html', icon: 'bi-exclamation-triangle', label: 'Major Incident Training', isPro: true },
             { id: 'atmist', href: 'atmist.html', icon: 'bi-telephone-outbound', label: 'ATMIST', isPro: true },
@@ -115,11 +116,11 @@
             const isActive = item.id === currentPage ? ' active' : '';
             // Pro badge variants — only shown to free users:
             //   isPro:true       -> full gold "Pro" badge (locked tool)
-            //   partialPro:true  -> teal "+ Pro" badge (tool has Pro content inside)
+            //   partialPro:true  -> gold "Free (limited)" badge (tool has Pro content inside)
             let proBadge = '';
             if (!isPro) {
                 if (item.isPro)            proBadge = '<span class="pro-badge">Pro</span>';
-                else if (item.partialPro)  proBadge = '<span class="pro-badge partial">+ Pro</span>';
+                else if (item.partialPro)  proBadge = '<span class="pro-badge partial">Free (limited)</span>';
             }
             return `
                 <a class="menu-nav-item${isActive}" href="${item.href}" data-menu-id="${item.id}">
