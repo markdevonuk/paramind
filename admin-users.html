@@ -777,16 +777,29 @@
                 btn.innerHTML = orig;
             }
 
-            const withAddress = allUsers.filter(u => u.hasAddress);
+            // Free card is a Pro feature, so the relevant base is paid members (active subscribers).
+            // paidUsersList is loaded on page open via loadPaidUsers().
+            const paidTotal       = paidUsersList.length;
+            const paidWithAddress = paidUsersList.filter(u => u.hasAddress).length;
+            const allWithAddress  = allUsers.filter(u => u.hasAddress);
+
             const summary = document.getElementById('addressReportSummary');
             const exportBtn = document.getElementById('exportAddressesBtn');
 
-            if (withAddress.length === 0) {
+            if (allWithAddress.length === 0) {
                 summary.textContent = 'No users have added a delivery address yet.';
                 exportBtn.style.display = 'none';
             } else {
-                summary.innerHTML = '<strong>' + withAddress.length + '</strong> of <strong>' +
-                    allUsers.length + '</strong> users have added a delivery address.';
+                let msg = '<strong>' + paidWithAddress + '</strong> of <strong>' +
+                    paidTotal + '</strong> paid members have added a delivery address.';
+                // If anyone who is no longer a paid member still has an address on file,
+                // make that clear — the CSV exports every address on file.
+                if (allWithAddress.length !== paidWithAddress) {
+                    msg += ' <span class="text-muted">(' + allWithAddress.length +
+                        ' addresses on file in total, including lapsed / non-paid members — ' +
+                        'the CSV exports all of them.)</span>';
+                }
+                summary.innerHTML = msg;
                 exportBtn.style.display = '';
             }
         });
