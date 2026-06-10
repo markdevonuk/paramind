@@ -119,6 +119,24 @@
         </header>
 
         <main class="container">
+            <!-- Address Report (free-card delivery addresses) -->
+            <div class="user-table mb-4 p-3">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <h5 class="mb-1"><i class="bi bi-mailbox me-2"></i>Delivery Addresses</h5>
+                        <p class="text-muted mb-0" id="addressReportSummary">Run the report to count users who have added a delivery address.</p>
+                    </div>
+                    <div class="d-flex gap-2 align-items-center">
+                        <button id="runAddressReportBtn" class="btn btn-primary">
+                            <i class="bi bi-clipboard-data me-1"></i>Run Address Report
+                        </button>
+                        <button id="exportAddressesBtn" class="btn btn-outline-success" style="display:none;">
+                            <i class="bi bi-download me-1"></i>Download Addresses CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- User Tables -->
             <div class="user-table">
                 <div class="p-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -333,6 +351,21 @@
             out.isZeroPaid = out.subscriptionStatus === 'active'
                 && out.discountApplied
                 && out.discountAmount >= 499;
+
+            // Free-card delivery address (collected via pro-free-card.html, stored on the user doc).
+            // addressLine1 is the reliable "address on file" marker — same check the card page uses.
+            const fcr = u.freeCardRequest || {};
+            out.hasAddress = !!(fcr.addressLine1 && fcr.addressLine1.toString().trim());
+            out.address = {
+                firstName:    fcr.firstName    || out.firstName,
+                surname:      fcr.surname      || out.surname,
+                addressLine1: fcr.addressLine1 || '',
+                addressLine2: fcr.addressLine2 || '',
+                addressLine3: fcr.addressLine3 || '',
+                townCity:     fcr.townCity     || '',
+                postcode:     fcr.postcode     || ''
+            };
+
             return out;
         }
 
@@ -720,6 +753,69 @@
             }
             exportToCSV(allUsers, `paramind-all-users-${new Date().toISOString().split('T')[0]}.csv`, false);
         });
+
+        // ============================================
+        // ADDRESS REPORT (free-card delivery addresses)
+        // ============================================
+        document.getElementById('runAddressReportBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('runAddressReportBtn');
+            const orig = btn.innerHTML;
+            // Needs the full user set so no one is missed regardless of subscription state.
+            if (!allUsersLoaded) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Loading...';
+                try {
+                    await loadEveryone();
+                } catch (err) {
+                    console.error(err);
+                    alert('Failed to load users: ' + err.message);
+                    btn.disabled = false;
+                    btn.innerHTML = orig;
+                    return;
+                }
+                btn.disabled = false;
+                btn.innerHTML = orig;
+            }
+
+            const withAddress = allUsers.filter(u => u.hasAddress);
+            const summary = document.getElementById('addressReportSummary');
+            const exportBtn = document.getElementById('exportAddressesBtn');
+
+            if (withAddress.length === 0) {
+                summary.textContent = 'No users have added a delivery address yet.';
+                exportBtn.style.display = 'none';
+            } else {
+                summary.innerHTML = '<strong>' + withAddress.length + '</strong> of <strong>' +
+                    allUsers.length + '</strong> users have added a delivery address.';
+                exportBtn.style.display = '';
+            }
+        });
+
+        document.getElementById('exportAddressesBtn').addEventListener('click', () => {
+            const withAddress = allUsers.filter(u => u.hasAddress);
+            exportAddressesToCSV(withAddress, `paramind-addresses-${new Date().toISOString().split('T')[0]}.csv`);
+        });
+
+        function exportAddressesToCSV(users, filename) {
+            const headers = ['First Name','Surname','Address Line 1','Address Line 2','Address Line 3','Town/City','Postcode'];
+            const rows = users.map(user => {
+                const a = user.address || {};
+                const cells = [
+                    a.firstName, a.surname,
+                    a.addressLine1, a.addressLine2, a.addressLine3,
+                    a.townCity, a.postcode
+                ];
+                return cells.map(field => `"${(field || '').toString().replace(/"/g, '""')}"`).join(',');
+            });
+
+            const csv = [headers.join(','), ...rows].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
 
         // ============================================
         // REFRESH — re-loads whatever's already loaded
