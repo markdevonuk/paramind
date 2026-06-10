@@ -133,6 +133,9 @@
                         <button id="exportAddressesBtn" class="btn btn-outline-success" style="display:none;">
                             <i class="bi bi-download me-1"></i>Download Addresses CSV
                         </button>
+                        <button id="exportRemindersBtn" class="btn btn-outline-warning" style="display:none;">
+                            <i class="bi bi-bell me-1"></i>No-Address Reminder CSV
+                        </button>
                     </div>
                 </div>
             </div>
@@ -756,57 +759,36 @@
 
         // ============================================
         // ADDRESS REPORT (free-card delivery addresses)
+        // Scoped to current paid members (active subscribers) — the free
+        // card is a Pro feature. paidUsersList is loaded on page open.
         // ============================================
-        document.getElementById('runAddressReportBtn').addEventListener('click', async () => {
-            const btn = document.getElementById('runAddressReportBtn');
-            const orig = btn.innerHTML;
-            // Needs the full user set so no one is missed regardless of subscription state.
-            if (!allUsersLoaded) {
-                btn.disabled = true;
-                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Loading...';
-                try {
-                    await loadEveryone();
-                } catch (err) {
-                    console.error(err);
-                    alert('Failed to load users: ' + err.message);
-                    btn.disabled = false;
-                    btn.innerHTML = orig;
-                    return;
-                }
-                btn.disabled = false;
-                btn.innerHTML = orig;
-            }
+        document.getElementById('runAddressReportBtn').addEventListener('click', () => {
+            const paidTotal      = paidUsersList.length;
+            const withAddress    = paidUsersList.filter(u => u.hasAddress);
+            const withoutAddress = paidUsersList.filter(u => !u.hasAddress);
 
-            // Free card is a Pro feature, so the relevant base is paid members (active subscribers).
-            // paidUsersList is loaded on page open via loadPaidUsers().
-            const paidTotal       = paidUsersList.length;
-            const paidWithAddress = paidUsersList.filter(u => u.hasAddress).length;
-            const allWithAddress  = allUsers.filter(u => u.hasAddress);
+            const summary     = document.getElementById('addressReportSummary');
+            const exportBtn   = document.getElementById('exportAddressesBtn');
+            const reminderBtn = document.getElementById('exportRemindersBtn');
 
-            const summary = document.getElementById('addressReportSummary');
-            const exportBtn = document.getElementById('exportAddressesBtn');
+            summary.innerHTML = '<strong>' + withAddress.length + '</strong> of <strong>' +
+                paidTotal + '</strong> paid members have added a delivery address. ' +
+                '<span class="text-muted">(' + withoutAddress.length + ' have not.)</span>';
 
-            if (allWithAddress.length === 0) {
-                summary.textContent = 'No users have added a delivery address yet.';
-                exportBtn.style.display = 'none';
-            } else {
-                let msg = '<strong>' + paidWithAddress + '</strong> of <strong>' +
-                    paidTotal + '</strong> paid members have added a delivery address.';
-                // If anyone who is no longer a paid member still has an address on file,
-                // make that clear — the CSV exports every address on file.
-                if (allWithAddress.length !== paidWithAddress) {
-                    msg += ' <span class="text-muted">(' + allWithAddress.length +
-                        ' addresses on file in total, including lapsed / non-paid members — ' +
-                        'the CSV exports all of them.)</span>';
-                }
-                summary.innerHTML = msg;
-                exportBtn.style.display = '';
-            }
+            exportBtn.style.display   = withAddress.length    ? '' : 'none';
+            reminderBtn.style.display = withoutAddress.length ? '' : 'none';
         });
 
+        // Addresses CSV — current paid members who HAVE added a delivery address.
         document.getElementById('exportAddressesBtn').addEventListener('click', () => {
-            const withAddress = allUsers.filter(u => u.hasAddress);
+            const withAddress = paidUsersList.filter(u => u.hasAddress);
             exportAddressesToCSV(withAddress, `paramind-addresses-${new Date().toISOString().split('T')[0]}.csv`);
+        });
+
+        // Reminder CSV — current paid members who have NOT added an address.
+        document.getElementById('exportRemindersBtn').addEventListener('click', () => {
+            const withoutAddress = paidUsersList.filter(u => !u.hasAddress);
+            exportReminderListToCSV(withoutAddress, `paramind-address-reminders-${new Date().toISOString().split('T')[0]}.csv`);
         });
 
         function exportAddressesToCSV(users, filename) {
@@ -818,6 +800,24 @@
                     a.addressLine1, a.addressLine2, a.addressLine3,
                     a.townCity, a.postcode
                 ];
+                return cells.map(field => `"${(field || '').toString().replace(/"/g, '""')}"`).join(',');
+            });
+
+            const csv = [headers.join(','), ...rows].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+
+        // Reminder list — paid members with no address. Header names (firstName, email)
+        // are chosen to match the email-merge tool; surname is extra and ignored by it.
+        function exportReminderListToCSV(users, filename) {
+            const headers = ['firstName','surname','email'];
+            const rows = users.map(user => {
+                const cells = [user.firstName, user.surname, user.email];
                 return cells.map(field => `"${(field || '').toString().replace(/"/g, '""')}"`).join(',');
             });
 
