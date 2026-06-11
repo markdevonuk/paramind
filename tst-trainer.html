@@ -61,7 +61,7 @@
   .screen.active{display:flex;}
 
   .topbar{display:flex; align-items:center; justify-content:space-between;}
-  .brand{font-family:var(--font-display); font-weight:800; font-size:clamp(18px,3.4vmin,30px); letter-spacing:-.01em;}
+  .brand{font-family:var(--font-display); font-weight:800; font-size:clamp(18px,3.4vmin,30px); letter-spacing:-.01em; text-decoration:none; cursor:pointer;}
   .brand .p{color:var(--teal);} .brand .m{color:var(--green);}
   .mode-tag{
     font-family:var(--font-mono); font-size:clamp(9px,1.5vmin,13px); font-weight:600; letter-spacing:.12em;
@@ -218,7 +218,7 @@
   <!-- 1 · ATTRACT -->
   <div class="screen attract active" data-screen="start">
     <div class="topbar">
-      <div class="brand" id="resetTap"><span class="p">para</span><span class="m">mind</span></div>
+      <a href="https://paramind.co.uk" class="brand" id="resetTap"><span class="p">para</span><span class="m">mind</span></a>
       <div class="mode-tag"><span class="live-dot"></span>TST</div>
     </div>
     <div class="eyebrow">Ten Second Triage</div>
@@ -248,7 +248,7 @@
   <!-- 3 · CASUALTY -->
   <div class="screen casualty" data-screen="casualty">
     <div class="topbar">
-      <div class="brand"><span class="p">para</span><span class="m">mind</span></div>
+      <a href="https://paramind.co.uk" class="brand"><span class="p">para</span><span class="m">mind</span></a>
       <button class="quit-btn" data-quit aria-label="Quit">✕</button>
     </div>
     <div class="cas-meta">
@@ -272,7 +272,7 @@
   <!-- 4 · SUMMARY -->
   <div class="screen summary" data-screen="summary">
     <div class="topbar">
-      <div class="brand"><span class="p">para</span><span class="m">mind</span></div>
+      <a href="https://paramind.co.uk" class="brand"><span class="p">para</span><span class="m">mind</span></a>
       <div class="mode-tag">RESULT</div>
     </div>
     <div class="badge" id="badge">★ CLEAN SWEEP</div>
@@ -286,7 +286,7 @@
   <!-- LEARN (guided walkthrough) -->
   <div class="screen learn" data-screen="learn">
     <div class="topbar">
-      <div class="brand"><span class="p">para</span><span class="m">mind</span></div>
+      <a href="https://paramind.co.uk" class="brand"><span class="p">para</span><span class="m">mind</span></a>
       <button class="quit-btn" data-quit aria-label="Quit">✕</button>
     </div>
     <div class="cas-meta">
@@ -313,7 +313,7 @@
   <!-- LEARN summary -->
   <div class="screen learn-summary" data-screen="learnsummary">
     <div class="topbar">
-      <div class="brand"><span class="p">para</span><span class="m">mind</span></div>
+      <a href="https://paramind.co.uk" class="brand"><span class="p">para</span><span class="m">mind</span></a>
       <div class="mode-tag">LEARN · COMPLETE</div>
     </div>
     <div class="final-label">YOU CORRECTLY TRIAGED</div>
@@ -325,7 +325,7 @@
   <!-- TST algorithm card -->
   <div class="screen card" data-screen="card">
     <div class="topbar">
-      <div class="brand"><span class="p">para</span><span class="m">mind</span></div>
+      <a href="https://paramind.co.uk" class="brand"><span class="p">para</span><span class="m">mind</span></a>
       <button class="quit-btn" data-quit aria-label="Back">✕</button>
     </div>
     <div class="card-scroll">
@@ -764,9 +764,10 @@ const PARTNERS = {
 const toast=el('toast'); let toastTimer=null;
 function showToast(msg){ toast.textContent=msg; toast.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>toast.classList.remove('show'),1900); }
 function clearAllBests(){ try{ const ks=[]; for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&k.indexOf('pm_tsttrainer_best_')===0) ks.push(k); } ks.forEach(k=>localStorage.removeItem(k)); }catch(e){} }
-const resetTap=el('resetTap'); let lpTimer=null;
-function lpStart(){ clearTimeout(lpTimer); lpTimer=setTimeout(()=>{ clearAllBests(); showToast('Fastest time cleared'); }, 3000); }
+const resetTap=el('resetTap'); let lpTimer=null, lpFired=false;
+function lpStart(){ clearTimeout(lpTimer); lpFired=false; lpTimer=setTimeout(()=>{ lpFired=true; clearAllBests(); showToast('Fastest time cleared'); }, 3000); }
 function lpEnd(){ clearTimeout(lpTimer); }
+resetTap.addEventListener('click', function(e){ if(lpFired){ e.preventDefault(); lpFired=false; } });
 ['pointerdown','touchstart','mousedown'].forEach(ev=>resetTap.addEventListener(ev, lpStart));
 ['pointerup','pointerleave','pointercancel','touchend','touchcancel','mouseup','mouseleave'].forEach(ev=>resetTap.addEventListener(ev, lpEnd));
 
