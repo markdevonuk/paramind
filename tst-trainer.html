@@ -188,6 +188,24 @@
   .learn-summary{justify-content:center; align-items:center; text-align:center;}
   .learn-summary .topbar{position:absolute; top:4vmin; left:4.5vmin; right:4.5vmin;}
   .ls-score{font-family:var(--font-mono); font-weight:800; font-size:clamp(60px,14vmin,150px); color:var(--teal-light); text-shadow:0 0 6vmin rgba(61,164,184,.4); line-height:1; margin:1vmin 0;}
+  /* TST card */
+  .card-link{margin-top:2.6vmin; font-family:var(--font-mono); font-size:clamp(11px,1.6vmin,14px); letter-spacing:.06em; color:var(--ink-mute); background:transparent; border:none; border-bottom:1px solid var(--line-strong); padding:.6vmin .4vmin; cursor:pointer;}
+  .card-link:active{transform:scale(.98);}
+  .card{padding:4vmin 4.5vmin;}
+  .card .topbar{margin-bottom:1.6vmin;}
+  .card-scroll{flex:1; overflow:auto; display:flex; justify-content:center; align-items:flex-start;}
+  .tst-svg{width:100%; max-width:560px; height:auto;}
+  .card-foot{margin-top:1.4vmin; text-align:center; font-family:var(--font-mono); font-size:clamp(9px,1.4vmin,12px); letter-spacing:.06em; color:var(--ink-faint);}
+  .tstc-bx{fill:#101921;stroke:#2B8A9C;stroke-width:2;}
+  .tstc-pen{fill:#101921;stroke:#3DA4B8;stroke-width:2;}
+  .tstc-bxt{fill:#EAF1F6;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:19px;text-anchor:middle;}
+  .tstc-sub{fill:#7E8E9B;font-family:'DM Sans',sans-serif;font-size:11px;text-anchor:middle;}
+  .tstc-spine{stroke:#4B5965;stroke-width:6;fill:none;}
+  .tstc-yes{stroke:#3A4754;stroke-width:6;fill:none;}
+  .tstc-yn{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;}
+  .tstc-pt{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:26px;fill:#fff;text-anchor:middle;}
+  .tstc-dia{fill:rgba(43,138,156,.18);stroke:#3DA4B8;stroke-width:2;}
+  .tstc-diat{fill:#EAF1F6;font-family:'DM Sans',sans-serif;font-weight:700;font-size:13px;text-anchor:middle;}
   @media (prefers-reduced-motion:reduce){.sweep,.start-btn,.cas-card.slam,.cas-card.timeout,.live-dot{animation:none;}}
 </style>
 </head>
@@ -214,6 +232,7 @@
       <button class="choice-btn learn" id="learnBtn"><span class="choice-name">LEARN</span><span class="choice-sub">Guided walkthrough · no timer</span></button>
       <button class="choice-btn test" id="testBtn"><span class="choice-name">TEST</span><span class="choice-sub">Against the clock · keep your best time</span></button>
     </div>
+    <button class="card-link" id="cardBtn">View the TST algorithm card</button>
   </div>
 
   <!-- 2 · COUNTDOWN -->
@@ -301,6 +320,84 @@
     <div class="ls-score" id="lsScore">7 / 7</div>
     <div class="final-score" id="lsSub"></div>
     <button class="again-btn" id="learnBackBtn">BACK TO START</button>
+  </div>
+
+  <!-- TST algorithm card -->
+  <div class="screen card" data-screen="card">
+    <div class="topbar">
+      <div class="brand"><span class="p">para</span><span class="m">mind</span></div>
+      <button class="quit-btn" data-quit aria-label="Back">✕</button>
+    </div>
+    <div class="card-scroll">
+      <svg viewBox="0 0 600 985" class="tst-svg" role="img" aria-label="Ten Second Triage algorithm">
+        <defs><marker id="tstah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#7E8E9B"/></marker></defs>
+        <text x="300" y="34" text-anchor="middle" font-family="'Plus Jakarta Sans',sans-serif" font-weight="800" font-size="26" fill="#3DA4B8">Ten Second Triage</text>
+        <text x="300" y="56" text-anchor="middle" class="tstc-sub" font-size="12" letter-spacing="4">TST ALGORITHM</text>
+
+        <!-- NO spine -->
+        <path class="tstc-spine" d="M100,142 L100,254" marker-end="url(#tstah)"/>
+        <path class="tstc-spine" d="M100,318 L100,474" marker-end="url(#tstah)"/>
+        <path class="tstc-spine" d="M100,538 L100,794" marker-end="url(#tstah)"/>
+        <text x="112" y="194" class="tstc-yn" fill="#DC3545">✕</text><text x="128" y="194" class="tstc-yn" fill="#7E8E9B">NO</text>
+        <text x="112" y="400" class="tstc-yn" fill="#DC3545">✕</text><text x="128" y="400" class="tstc-yn" fill="#7E8E9B">NO</text>
+        <text x="112" y="668" class="tstc-yn" fill="#DC3545">✕</text><text x="128" y="668" class="tstc-yn" fill="#7E8E9B">NO</text>
+
+        <!-- Row 1: Walking -->
+        <rect class="tstc-bx" x="26" y="78" width="148" height="64" rx="12"/>
+        <text class="tstc-bxt" x="100" y="116">Walking</text>
+        <path class="tstc-yes" d="M174,110 L424,110" marker-end="url(#tstah)"/>
+        <text x="188" y="100" class="tstc-yn" fill="#5CB85C">✓ YES</text>
+        <rect x="430" y="83" width="150" height="54" rx="6" fill="#5CB85C"/>
+        <text class="tstc-pt" x="505" y="119">P3</text>
+
+        <!-- Row 2: Severe Bleeding -->
+        <rect class="tstc-bx" x="26" y="254" width="148" height="64" rx="12"/>
+        <text class="tstc-bxt" x="100" y="282" font-size="17">Severe</text><text class="tstc-bxt" x="100" y="304" font-size="17">Bleeding</text>
+        <path class="tstc-yes" d="M174,286 L242,286" marker-end="url(#tstah)"/>
+        <text x="184" y="276" class="tstc-yn" fill="#5CB85C">✓ YES</text>
+        <polygon class="tstc-dia" points="300,250 362,286 300,322 238,286"/>
+        <text class="tstc-diat" x="300" y="282" font-size="12">Pressure</text><text class="tstc-diat" x="300" y="298" font-size="10">Tourniquet · Packing</text>
+        <path class="tstc-yes" d="M362,286 L424,286" marker-end="url(#tstah)"/>
+        <rect x="430" y="259" width="150" height="54" rx="6" fill="#DC3545"/>
+        <text class="tstc-pt" x="505" y="295">P1</text>
+
+        <!-- Row 3: Talking -->
+        <rect class="tstc-bx" x="26" y="474" width="148" height="64" rx="12"/>
+        <text class="tstc-bxt" x="100" y="512">Talking</text>
+        <path class="tstc-yes" d="M174,506 L230,506" marker-end="url(#tstah)"/>
+        <text x="184" y="496" class="tstc-yn" fill="#5CB85C">✓ YES</text>
+        <rect class="tstc-pen" x="234" y="452" width="150" height="108" rx="12"/>
+        <text class="tstc-diat" x="309" y="486" font-weight="800" font-size="15">Penetrating</text>
+        <text class="tstc-diat" x="309" y="504" font-weight="800" font-size="15">Injury</text>
+        <text class="tstc-sub" x="309" y="528" font-size="11">Front or Back</text>
+        <path class="tstc-yes" d="M384,482 L424,460" marker-end="url(#tstah)"/>
+        <text x="392" y="450" class="tstc-yn" fill="#5CB85C">✓ YES</text>
+        <rect x="430" y="433" width="150" height="50" rx="6" fill="#DC3545"/>
+        <text class="tstc-pt" x="505" y="466">P1</text>
+        <path class="tstc-yes" d="M384,530 L424,534" marker-end="url(#tstah)"/>
+        <text x="392" y="556" class="tstc-yn" fill="#DC3545">✕ NO</text>
+        <rect x="430" y="509" width="150" height="50" rx="6" fill="#E67E22"/>
+        <text class="tstc-pt" x="505" y="542">P2</text>
+
+        <!-- Row 4: Breathing -->
+        <rect class="tstc-bx" x="26" y="794" width="148" height="64" rx="12"/>
+        <text class="tstc-bxt" x="100" y="822" font-size="18">Breathing</text>
+        <text class="tstc-sub" x="100" y="840">Open Airway if Able</text>
+        <path class="tstc-yes" d="M174,826 L242,826" marker-end="url(#tstah)"/>
+        <text x="184" y="816" class="tstc-yn" fill="#5CB85C">✓ YES</text>
+        <polygon class="tstc-dia" points="300,790 362,826 300,862 238,826"/>
+        <text class="tstc-diat" x="300" y="822" font-size="11">Place in</text><text class="tstc-diat" x="300" y="838" font-size="11">Recovery Position</text>
+        <path class="tstc-yes" d="M362,826 L424,826" marker-end="url(#tstah)"/>
+        <rect x="430" y="799" width="150" height="54" rx="6" fill="#DC3545"/>
+        <text class="tstc-pt" x="505" y="835">P1</text>
+        <path class="tstc-spine" d="M100,858 L100,910 L424,910" marker-end="url(#tstah)"/>
+        <text x="112" y="892" class="tstc-yn" fill="#DC3545">✕</text><text x="128" y="892" class="tstc-yn" fill="#7E8E9B">NO</text>
+        <rect x="430" y="886" width="150" height="48" rx="6" fill="#ADB5BD"/>
+        <text x="505" y="916" text-anchor="middle" font-family="'Plus Jakarta Sans',sans-serif" font-weight="800" font-size="15" fill="#16202a">Not Breathing</text>
+        <text x="505" y="958" text-anchor="middle" class="tstc-sub" font-size="11">CPR if Resources Allow</text>
+      </svg>
+    </div>
+    <div class="card-foot">Ten Second Triage — training reference</div>
   </div>
 
 </div>
@@ -643,6 +740,7 @@ el('testBtn').addEventListener('click', startChallenge);
 el('againBtn').addEventListener('click', resetToAttract);
 el('nextBtn').addEventListener('click', nextLearnPatient);
 el('learnBackBtn').addEventListener('click', resetToAttract);
+el('cardBtn').addEventListener('click', ()=>show('card'));
 priBtns.forEach(b=>b.addEventListener('click', ()=>handleAnswer(b.dataset.pri)));
 ynBtns.forEach(b=>b.addEventListener('click', ()=>answerStep(b.dataset.ans)));
 document.querySelectorAll('[data-quit]').forEach(b=>b.addEventListener('click', resetToAttract));
