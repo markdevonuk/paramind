@@ -209,6 +209,16 @@
   .legal-footer{position:absolute; bottom:2.6vmin; left:4.5vmin; right:4.5vmin; text-align:center; font-family:var(--font-mono); font-size:clamp(9px,1.3vmin,12px); letter-spacing:.04em; color:var(--ink-faint); line-height:1.5;}
   .legal-footer a{color:var(--ink-mute); text-decoration:none; border-bottom:1px solid var(--line-strong);}
   .legal-footer a:active{color:var(--teal-light);}
+  /* Oops modal — Learn mode, wrong answer */
+  .oops-modal{position:fixed; inset:0; z-index:60; display:none; align-items:center; justify-content:center; padding:6vmin; background:rgba(4,7,10,.74); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px);}
+  .oops-modal.show{display:flex;}
+  .oops-card{background:linear-gradient(180deg,var(--panel),var(--panel2)); border:1px solid var(--line-strong); border-top:4px solid var(--p1); border-radius:3vmin; padding:6vmin 5vmin 5vmin; max-width:560px; width:100%; text-align:center; box-shadow:0 2vmin 6vmin rgba(0,0,0,.6); animation:oopsPop .22s cubic-bezier(.2,.9,.3,1.25);}
+  .oops-title{font-family:var(--font-display); font-weight:800; font-size:clamp(34px,6vmin,60px); color:var(--p1); line-height:1;}
+  .oops-msg{font-family:var(--font-display); font-weight:700; font-size:clamp(18px,2.8vmin,26px); color:var(--ink); margin-top:2.4vmin;}
+  .oops-sub{font-family:var(--font-body); font-size:clamp(13px,1.9vmin,17px); color:var(--ink); opacity:.66; margin-top:1.4vmin;}
+  .oops-btn{font-family:var(--font-display); font-weight:800; font-size:clamp(16px,2.4vmin,22px); letter-spacing:.06em; color:#04181c; background:linear-gradient(180deg,var(--teal-light),var(--teal)); border:none; border-radius:1.8vmin; padding:2vmin 6vmin; cursor:pointer; margin-top:4vmin;}
+  .oops-btn:active{transform:scale(.97);}
+  @keyframes oopsPop{from{opacity:0; transform:scale(.92) translateY(2vmin);} to{opacity:1; transform:scale(1) translateY(0);}}
   @media (prefers-reduced-motion:reduce){.sweep,.start-btn,.cas-card.slam,.cas-card.timeout,.live-dot{animation:none;}}
 </style>
 </head>
@@ -216,6 +226,14 @@
 <div class="sweep"></div>
 <canvas id="fx"></canvas>
 <div id="toast" class="toast"></div>
+<div id="oopsModal" class="oops-modal">
+  <div class="oops-card">
+    <div class="oops-title">Oops!</div>
+    <div class="oops-msg">That wasn't the correct choice.</div>
+    <div class="oops-sub">The correct answer is shown in green.</div>
+    <button class="oops-btn" id="oopsBtn">GOT IT</button>
+  </div>
+</div>
 <div class="app">
 
   <!-- 1 · ATTRACT -->
@@ -603,7 +621,7 @@ function finish(){
   if(isRecord) celebrate();
 }
 
-function resetToAttract(){ clearTimeout(idleTimer); clearTimeout(lAdvTimer); cancelAnimationFrame(clockRAF); cancelAnimationFrame(ringRAF); stopFx(); show('start'); }
+function resetToAttract(){ clearTimeout(idleTimer); clearTimeout(lAdvTimer); cancelAnimationFrame(clockRAF); cancelAnimationFrame(ringRAF); stopFx(); hideOops(); show('start'); }
 
 /* ============ LEARN MODE — guided TST walkthrough, no timer ============ */
 const QUESTIONS = {
@@ -627,7 +645,7 @@ let learnRun=[], lIdx=0, lStep=0, lClean=true, lScore=0, lAdvTimer=null;
 const ynBtns = document.querySelectorAll('.yn-btn');
 
 function startLearn(){
-  clearTimeout(lAdvTimer); stopFx(); keepAwake(); goFullscreen();
+  clearTimeout(lAdvTimer); hideOops(); stopFx(); keepAwake(); goFullscreen();
   learnRun = drawRun(); lIdx=0; lScore=0;
   show('learn'); showLearnPatient(0);
 }
@@ -659,11 +677,19 @@ function answerStep(ans){
     if(btn.dataset.ans===correct) btn.classList.add('right');
     if(btn.dataset.ans===ans && !ok) btn.classList.add('wrong');
   });
-  lAdvTimer = setTimeout(()=>{
-    lStep++;
-    if(lStep < b.path.length) renderStep(); else revealTerminal();
-  }, ok ? 480 : 1150);
+  if(ok){
+    lAdvTimer = setTimeout(()=>advanceStep(b), 480);
+  } else {
+    showOops(()=>advanceStep(b));
+  }
 }
+let oopsCb=null;
+function advanceStep(b){
+  lStep++;
+  if(lStep < b.path.length) renderStep(); else revealTerminal();
+}
+function showOops(cb){ oopsCb=cb; el('oopsModal').classList.add('show'); }
+function hideOops(){ el('oopsModal').classList.remove('show'); oopsCb=null; }
 function revealTerminal(){
   const b = BRANCH[branchOf(learnRun[lIdx].id)];
   if(lClean) lScore++;
@@ -691,6 +717,7 @@ el('learnBackBtn').addEventListener('click', resetToAttract);
 el('cardBtn').addEventListener('click', ()=>show('card'));
 priBtns.forEach(b=>b.addEventListener('click', ()=>handleAnswer(b.dataset.pri)));
 ynBtns.forEach(b=>b.addEventListener('click', ()=>answerStep(b.dataset.ans)));
+el('oopsBtn').addEventListener('click', ()=>{ const cb=oopsCb; hideOops(); if(cb) cb(); });
 document.querySelectorAll('[data-quit]').forEach(b=>b.addEventListener('click', resetToAttract));
 
 /* ---- partner attribution via ?id= (e.g. ?id=FMS) ---- */
