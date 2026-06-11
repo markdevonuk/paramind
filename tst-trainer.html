@@ -219,6 +219,14 @@
   .oops-btn{font-family:var(--font-display); font-weight:800; font-size:clamp(16px,2.4vmin,22px); letter-spacing:.06em; color:#04181c; background:linear-gradient(180deg,var(--teal-light),var(--teal)); border:none; border-radius:1.8vmin; padding:2vmin 6vmin; cursor:pointer; margin-top:4vmin;}
   .oops-btn:active{transform:scale(.97);}
   @keyframes oopsPop{from{opacity:0; transform:scale(.92) translateY(2vmin);} to{opacity:1; transform:scale(1) translateY(0);}}
+  /* Partner gate */
+  .gate{justify-content:center; align-items:center; text-align:center;}
+  .gate .topbar{position:absolute; top:4vmin; left:4.5vmin; right:4.5vmin;}
+  .gate-body{display:flex; flex-direction:column; align-items:center; gap:2.2vmin; max-width:38ch;}
+  .gate-title{font-family:var(--font-display); font-weight:800; font-size:clamp(26px,5vmin,46px); line-height:1.1; letter-spacing:-.02em; color:var(--ink); margin:0;}
+  .gate-msg{font-family:var(--font-body); font-size:clamp(14px,2.1vmin,19px); line-height:1.55; color:var(--ink); opacity:.8; max-width:34ch; margin:0;}
+  .gate-cta{font-family:var(--font-mono); font-weight:600; font-size:clamp(15px,2.3vmin,20px); letter-spacing:.02em; color:#04181c; background:linear-gradient(180deg,var(--teal-light),var(--teal)); border-radius:1.6vmin; padding:1.8vmin 4vmin; text-decoration:none; margin-top:1vmin;}
+  .gate-cta:active{transform:scale(.98);}
   @media (prefers-reduced-motion:reduce){.sweep,.start-btn,.cas-card.slam,.cas-card.timeout,.live-dot{animation:none;}}
 </style>
 </head>
@@ -237,7 +245,7 @@
 <div class="app">
 
   <!-- 1 · ATTRACT -->
-  <div class="screen attract active" data-screen="start">
+  <div class="screen attract" data-screen="start">
     <div class="topbar">
       <a href="https://paramind.co.uk" class="brand" id="resetTap"><span class="p">para</span><span class="m">mind</span></a>
       <div class="mode-tag"><span class="live-dot"></span>TST</div>
@@ -303,6 +311,22 @@
     <div class="final-score" id="finalScore"></div>
     <div class="leaderline" id="leaderLine"></div>
     <button class="again-btn" id="againBtn">PLAY AGAIN</button>
+  </div>
+
+  <!-- PARTNER GATE (shown when no valid ?id= code) -->
+  <div class="screen gate" data-screen="gate">
+    <div class="topbar">
+      <a href="https://paramind.co.uk" class="brand"><span class="p">para</span><span class="m">mind</span></a>
+      <div class="mode-tag"><span class="live-dot"></span>TST</div>
+    </div>
+    <div class="gate-body">
+      <div class="eyebrow">Partner access</div>
+      <h1 class="gate-title">Available to partner organisations</h1>
+      <p class="gate-msg">The TST Trainer is provided to Paramind's partner organisations. Access is through the link supplied to your organisation.</p>
+      <p class="gate-msg">Interested in offering it to your team? We'd love to hear from you.</p>
+      <a class="gate-cta" href="mailto:hello@paramind.co.uk?subject=Paramind%20partnership%20enquiry">hello@paramind.co.uk</a>
+    </div>
+    <div class="legal-footer">© 2026 <a href="https://paramind.co.uk">Paramind</a>® · Registered UK trademark UK00004321918</div>
   </div>
 
   <!-- LEARN (guided walkthrough) -->
@@ -729,15 +753,17 @@ const PARTNERS = {
   // add future partners here, e.g.  ABC: 'Partner Full Name'
 };
 (function applyPartner(){
+  let name=null;
   try{
     const id = new URLSearchParams(location.search).get('id');
-    if(!id) return;
-    const name = PARTNERS[id.trim().toUpperCase()];
-    if(!name) return;
-    const line = el('partnerLine');
-    el('partnerName').textContent = name;
-    line.style.display = '';
-  }catch(e){}
+    if(id) name = PARTNERS[id.trim().toUpperCase()] || null;
+  }catch(e){ name=null; }
+  if(name){
+    try{ el('partnerName').textContent = name; el('partnerLine').style.display=''; }catch(e){}
+    show('start');
+  } else {
+    show('gate');
+  }
 })();
 
 /* ---- hidden leaderboard reset: long-press the logo on the start screen for 3 seconds ---- */
