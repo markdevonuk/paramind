@@ -152,8 +152,9 @@
     color:var(--ink); background:transparent; border:1.5px solid var(--teal); border-radius:2vmin; padding:2vmin 5.4vmin; cursor:pointer;}
 
   /* mode select */
-  .partner-line{font-family:var(--font-body); font-size:clamp(13px,2vmin,18px); color:var(--ink-mute); margin:-.5vmin 0 2.6vmin; max-width:30ch;}
-  .partner-line b{color:var(--teal-light); font-weight:700;}
+  .partner-line{display:flex; flex-direction:column; align-items:center; gap:.7vmin; margin:1.4vmin 0 3vmin; padding:1.8vmin 3.6vmin; border:1px solid rgba(61,164,184,.45); border-radius:1.8vmin; background:rgba(43,138,156,.12);}
+  .partner-label{font-family:var(--font-mono); font-size:clamp(9px,1.4vmin,12px); letter-spacing:.24em; text-transform:uppercase; color:var(--ink-mute);}
+  .partner-name{font-family:var(--font-display); font-weight:800; font-size:clamp(19px,3.2vmin,30px); color:var(--teal-light); letter-spacing:.01em; line-height:1.15; text-align:center;}
   .mode-choice{display:flex; flex-direction:column; gap:2vmin; width:min(88%,440px); margin-top:1vmin;}
   .choice-btn{font-family:var(--font-display); border:1.5px solid; border-radius:2.2vmin; padding:2.6vmin 3vmin; cursor:pointer; background:transparent; display:flex; flex-direction:column; align-items:center; gap:.5vmin; transition:transform .08s, background .15s;}
   .choice-btn:active{transform:scale(.98);}
@@ -204,7 +205,10 @@
     </div>
     <div class="eyebrow">Ten Second Triage</div>
     <h1 class="hero-title">TST<span class="big">Trainer</span></h1>
-    <div class="partner-line" id="partnerLine" style="display:none"></div>
+    <div class="partner-line" id="partnerLine" style="display:none">
+      <span class="partner-label">In partnership with</span>
+      <span class="partner-name" id="partnerName"></span>
+    </div>
     <p class="hero-sub">Learn the Ten Second Triage algorithm step by step, then test yourself against the clock.</p>
     <div class="mode-choice">
       <button class="choice-btn learn" id="learnBtn"><span class="choice-name">LEARN</span><span class="choice-sub">Guided walkthrough · no timer</span></button>
@@ -655,8 +659,7 @@ const PARTNERS = {
     const name = PARTNERS[id.trim().toUpperCase()];
     if(!name) return;
     const line = el('partnerLine');
-    line.innerHTML = 'in partnership with <b></b>';
-    line.querySelector('b').textContent = name;
+    el('partnerName').textContent = name;
     line.style.display = '';
   }catch(e){}
 })();
