@@ -5183,15 +5183,30 @@ exports.backfillStripePlan = onRequest(
 
         try {
           const sub = await stripe.subscriptions.retrieve(data.stripeSubscriptionId);
-          const priceId = sub?.items?.data?.[0]?.price?.id || null;
+          const price = sub?.items?.data?.[0]?.price || null;
+          const priceId = price?.id || null;
 
+          // Primary: Stripe's billing interval is the authoritative monthly/annual answer
+          // (covers legacy/grandfathered price IDs that aren't in PRICE_IDS).
+          // A 12-month interval_count is treated as annual for safety.
           let plan = null;
-          if (priceId === PRICE_IDS.monthly) plan = "monthly";
-          else if (priceId === PRICE_IDS.annual) plan = "annual";
+          const interval = price?.recurring?.interval || null;
+          const intervalCount = price?.recurring?.interval_count || 1;
+          if (interval === 'year' || (interval === 'month' && intervalCount >= 12)) {
+            plan = 'annual';
+          } else if (interval === 'month') {
+            plan = 'monthly';
+          }
+
+          // Backstop: if interval is missing, infer from amount — anything from £10 up
+          // is annual, below is monthly (per current and historical Paramind pricing).
+          if (!plan && typeof price?.unit_amount === 'number') {
+            plan = price.unit_amount >= 1000 ? 'annual' : 'monthly';
+          }
 
           if (!plan) {
             summary.skipped_unknownPrice++;
-            summary.details.push({ userId, email: data.email, reason: "unknown_price", priceId });
+            summary.details.push({ userId, email: data.email, reason: "unknown_price", priceId, interval });
             continue;
           }
 
