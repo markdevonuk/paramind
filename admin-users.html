@@ -368,9 +368,16 @@
                 paramedicRole: u.paramedicRole || '',
                 proSince: u.proSince || null
             };
-            // Billing plan: applePlan/googlePlan set by purchase verification functions;
-            // stripePlan not written by the backend yet (Phase B) so Stripe users show blank.
-            const rawPlan = (u.applePlan || u.googlePlan || u.stripePlan || '').toString().toLowerCase();
+            // Billing plan: applePlan/googlePlan written by purchase verification; stripePlan
+            // by the Stripe webhook + backfill. Fallback: derive from the stored product ID
+            // (paramind_pro_monthly / paramind_pro_annual) for app subscribers who purchased
+            // before the plan fields existed — same inference the backend verify functions use.
+            let rawPlan = (u.applePlan || u.googlePlan || u.stripePlan || '').toString().toLowerCase();
+            if (rawPlan !== 'monthly' && rawPlan !== 'annual') {
+                const pid = (u.appleProductId || u.googleProductId || '').toString().toLowerCase();
+                if (pid.includes('annual') || pid.includes('yearly')) rawPlan = 'annual';
+                else if (pid.includes('monthly')) rawPlan = 'monthly';
+            }
             out.plan = (rawPlan === 'monthly' || rawPlan === 'annual') ? rawPlan : '';
             // £0 promo flag (active + 100% discount on monthly = 499p)
             out.isZeroPaid = out.subscriptionStatus === 'active'
