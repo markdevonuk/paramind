@@ -368,6 +368,10 @@
                 paramedicRole: u.paramedicRole || '',
                 proSince: u.proSince || null
             };
+            // Billing plan: applePlan/googlePlan set by purchase verification functions;
+            // stripePlan not written by the backend yet (Phase B) so Stripe users show blank.
+            const rawPlan = (u.applePlan || u.googlePlan || u.stripePlan || '').toString().toLowerCase();
+            out.plan = (rawPlan === 'monthly' || rawPlan === 'annual') ? rawPlan : '';
             // £0 promo flag (active + 100% discount on monthly = 499p)
             out.isZeroPaid = out.subscriptionStatus === 'active'
                 && out.discountApplied
@@ -638,6 +642,11 @@
                     } else if (user.stripeSubscriptionId) {
                         platformBadge = '<span class="badge bg-primary">\u{1F4B3} Stripe</span>';
                     }
+                    // Plan badge: Monthly / Annual (shown when known; Stripe users blank until Phase B backfill)
+                    if (platformBadge && user.plan) {
+                        const planLabel = user.plan === 'annual' ? 'Annual' : 'Monthly';
+                        platformBadge += ' <span class="badge bg-light text-dark border">' + planLabel + '</span>';
+                    }
                 }
 
                 // Pro Since display
@@ -692,7 +701,7 @@
         // CSV EXPORT
         // ============================================
         function exportToCSV(users, filename, includeProSince = false) {
-            const headers = ['First Name','Surname','Email','Trust','Trust Full Name','Subscription Status','Platform'];
+            const headers = ['First Name','Surname','Email','Trust','Trust Full Name','Subscription Status','Platform','Plan'];
             if (includeProSince) headers.push('Pro Since');
             headers.push('Last Login','Joined Date');
 
@@ -710,7 +719,8 @@
                 const cells = [
                     user.firstName, user.surname, user.email, user.trust, user.trustFullName,
                     user.isZeroPaid ? 'free (£0 promo)' : user.subscriptionStatus,
-                    platform
+                    platform,
+                    user.plan === 'annual' ? 'Annual' : (user.plan === 'monthly' ? 'Monthly' : '')
                 ];
                 if (includeProSince) cells.push(proSinceIso);
                 cells.push(lastLogin, joinDate);
