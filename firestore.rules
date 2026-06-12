@@ -76,5 +76,48 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow write: if false;
     }
+
+    // Coroner's Court visit registrations (coroners-court.html)
+    // Public create-only with strict validation — server-enforced @swast.nhs.uk
+    // email check. Duplicate prevention: the page uses a deterministic doc ID
+    // (email + event), so a second create for the same email/event is denied
+    // because it would be an update. The confirmation-email Cloud Function
+    // writes via the Admin SDK, which bypasses these rules.
+    match /coronersCourtRegistrations/{regId} {
+      allow read: if isAdmin();
+      allow create: if
+        request.resource.data.keys().hasOnly([
+          'firstName', 'surname', 'position', 'specificRole', 'email',
+          'baseStation', 'eventSelected', 'registeredAt', 'confirmationEmailSent'
+        ]) &&
+        request.resource.data.firstName is string &&
+        request.resource.data.firstName.size() > 0 &&
+        request.resource.data.firstName.size() <= 60 &&
+        request.resource.data.surname is string &&
+        request.resource.data.surname.size() > 0 &&
+        request.resource.data.surname.size() <= 60 &&
+        request.resource.data.position in [
+          'Student paramedic', 'ECA', 'EAA', 'Technician',
+          'Paramedic', 'HQ staff', 'Other'
+        ] &&
+        request.resource.data.specificRole is string &&
+        request.resource.data.specificRole.size() <= 120 &&
+        (
+          !(request.resource.data.position in ['HQ staff', 'Other']) ||
+          request.resource.data.specificRole.size() > 0
+        ) &&
+        request.resource.data.email is string &&
+        request.resource.data.email.matches('[a-z0-9._%+-]+@swast\\.nhs\\.uk') &&
+        request.resource.data.baseStation is string &&
+        request.resource.data.baseStation.size() > 0 &&
+        request.resource.data.baseStation.size() <= 120 &&
+        request.resource.data.eventSelected in [
+          'July 28th 10:00 at Exeter Coroners Court (County Hall)',
+          'December 8th 10:00 at Derriford Coroners Court (Derriford)'
+        ] &&
+        request.resource.data.registeredAt == request.time &&
+        request.resource.data.confirmationEmailSent == false;
+      allow update, delete: if false;
+    }
   }
 }

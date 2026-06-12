@@ -4960,3 +4960,134 @@ exports.sendProWelcomeEmailOnUpgrade = onDocumentUpdated(
     }
   }
 );
+
+
+// ============================================
+// CORONER'S COURT VISIT — CONFIRMATION EMAIL
+// ============================================
+// Fires automatically when a registration document is created in
+// coronersCourtRegistrations/{regId} via coroners-court.html.
+// Sends the fixed confirmation email (text agreed with Mark) via Postmark
+// from hello@paramind.co.uk with a BCC to hello@paramind.co.uk.
+//
+// Policy (matches sendWelcomeEmailOnSignup):
+//   - Silent skip if confirmationEmailSent already true (dedupe)
+//   - Silent skip if missing firstName, email, or eventSelected
+//   - Log Postmark failures but DO NOT retry (function returns normally
+//     so Firestore doesn't trigger a retry)
+//   - On success, marks the doc confirmationEmailSent: true and writes
+//     an audit entry to emailSendLog (type: 'coronersCourt')
+
+exports.sendCoronersCourtConfirmation = onDocumentCreated(
+  {
+    document: 'coronersCourtRegistrations/{regId}',
+    secrets: ['POSTMARK_API_TOKEN'],
+    memory: '256MiB',
+    timeoutSeconds: 60,
+  },
+  async (event) => {
+    try {
+      const snap = event.data;
+      if (!snap) {
+        console.warn('[coronersCourt] No snapshot in event; skipping');
+        return;
+      }
+
+      const regId   = event.params.regId;
+      const regData = snap.data() || {};
+
+      // Dedupe — already sent
+      if (regData.confirmationEmailSent === true) {
+        console.log(`[coronersCourt] Registration ${regId} already confirmed; skipping`);
+        return;
+      }
+
+      const firstName     = String(regData.firstName || '').trim();
+      const email         = String(regData.email || '').trim();
+      const eventSelected = String(regData.eventSelected || '').trim();
+
+      if (!firstName || !email || !eventSelected) {
+        console.warn(`[coronersCourt] Registration ${regId} missing firstName, email, or eventSelected; skipping`);
+        return;
+      }
+
+      const subject = "Coroner's Court Visit — Registration Received";
+
+      // Fixed email body (exact wording agreed with Mark)
+      const fullBody =
+        `<p>Dear ${escapeEmailHtml(firstName)},</p>` +
+        `<p>Thank you for registering for ${escapeEmailHtml(eventSelected)}. ` +
+        `We will confirm your place as soon as possible. If for any reason you can no longer attend ` +
+        `please don't spoil it for someone else and let us know as places are strictly limited and ` +
+        `not everyone will be able to get a place.</p>` +
+        `<p>Thank you for taking your own time to attend this session, we really hope you find it useful.</p>` +
+        `<p>Regards<br>` +
+        `Mark Walker<br>` +
+        `Paramedic (Torquay)<br>` +
+        `christopher.walker2@swast.nhs.uk</p>`;
+
+      // Send via Postmark (any failure here is logged but not rethrown)
+      try {
+        const client = new postmark.ServerClient(process.env.POSTMARK_API_TOKEN);
+        const result = await client.sendEmail({
+          From: EMAIL_FROM,
+          To: email,
+          Bcc: 'hello@paramind.co.uk',
+          ReplyTo: EMAIL_REPLY_TO,
+          Subject: subject,
+          HtmlBody: wrapEmailHtml(fullBody, subject),
+          TextBody: htmlToText(fullBody),
+          MessageStream: 'outbound',
+        });
+
+        // Mark as sent so retries/duplicates skip
+        await snap.ref.update({
+          confirmationEmailSent: true,
+          confirmationEmailSentAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+
+        // Audit log
+        await db.collection('emailSendLog').add({
+          type: 'coronersCourt',
+          subject: subject,
+          totalRecipients: 1,
+          sent: 1,
+          failed: 0,
+          errors: [],
+          registrationId: regId,
+          recipientEmail: email,
+          eventSelected: eventSelected,
+          postmarkMessageId: result.MessageID || null,
+          sentAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+
+        console.log(`[coronersCourt] Sent confirmation to ${email} for registration ${regId} (msg ${result.MessageID})`);
+      } catch (sendErr) {
+        console.error(
+          `[coronersCourt] Postmark send FAILED for registration ${regId} (${email}):`,
+          sendErr.message || sendErr
+        );
+        // Log the failure but do NOT rethrow — no retry
+        try {
+          await db.collection('emailSendLog').add({
+            type: 'coronersCourt',
+            subject: subject,
+            totalRecipients: 1,
+            sent: 0,
+            failed: 1,
+            errors: [{ email: email, code: -1, message: String(sendErr.message || sendErr) }],
+            registrationId: regId,
+            recipientEmail: email,
+            eventSelected: eventSelected,
+            sentAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        } catch (logErr) {
+          console.error('[coronersCourt] Failed to write audit log:', logErr.message);
+        }
+      }
+    } catch (err) {
+      // Catch-all so we never throw from the trigger (preventing retries)
+      console.error('[coronersCourt] Unexpected error:', err);
+    }
+  }
+);

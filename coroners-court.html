@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Coroner's Court Visit | ParaMind</title>
+    <meta name="robots" content="noindex">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Menu CSS -->
+    <link rel="stylesheet" href="css/menu-v2.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <style>
+        /* Page-specific overrides */
+        body {
+            background: var(--color-gray-50);
+            color: var(--color-gray-700);
+        }
+
+        .page-content {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+
+        .page-content h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-content .subtitle {
+            color: var(--color-gray-500);
+            margin-bottom: 1.5rem;
+        }
+
+        .info-card, .form-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .info-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-gray-800);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-card h3 i {
+            color: var(--color-teal);
+        }
+
+        .info-card p {
+            color: var(--color-gray-600);
+            margin-bottom: 0.75rem;
+        }
+
+        .info-card p:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-card ul {
+            color: var(--color-gray-600);
+            padding-left: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .limited-note {
+            background: #FFF8E6;
+            border: 1px solid #F0DFA8;
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem;
+            color: #7A5C00;
+            font-size: 0.9rem;
+        }
+
+        .form-card label {
+            font-weight: 600;
+            color: var(--color-gray-800);
+            font-size: 0.9rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .form-card .form-control,
+        .form-card .form-select {
+            border-radius: var(--radius-md);
+        }
+
+        .form-card .form-control:focus,
+        .form-card .form-select:focus {
+            border-color: var(--color-teal);
+            box-shadow: 0 0 0 0.2rem rgba(43, 138, 156, 0.15);
+        }
+
+        .event-option {
+            border: 2px solid var(--color-gray-200, #e5e7eb);
+            border-radius: var(--radius-md);
+            padding: 0.9rem 1rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            transition: border-color 0.15s ease, background 0.15s ease;
+        }
+
+        .event-option:hover {
+            border-color: var(--color-teal);
+        }
+
+        .event-option.selected {
+            border-color: var(--color-teal);
+            background: rgba(43, 138, 156, 0.06);
+        }
+
+        .event-option input[type="radio"] {
+            margin-top: 0.25rem;
+            accent-color: var(--color-teal);
+        }
+
+        .event-option .event-title {
+            font-weight: 600;
+            color: var(--color-gray-800);
+        }
+
+        .event-option .event-venue {
+            font-size: 0.85rem;
+            color: var(--color-gray-500);
+        }
+
+        .submit-btn {
+            background: var(--color-teal);
+            color: #ffffff;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background: var(--color-bright-teal, #35B0C8);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(43, 138, 156, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+        }
+
+        .success-card {
+            display: none;
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 2rem 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .success-card i {
+            font-size: 2.5rem;
+            color: var(--color-green, #5BC166);
+        }
+
+        .success-card h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin: 0.75rem 0 0.5rem;
+        }
+
+        .success-card p {
+            color: var(--color-gray-600);
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+<nav class="member-navbar">
+    <div class="container">
+        <span class="brand-text">
+            <a class="navbar-brand" href="landing.html">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </a>
+        </span>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</nav>
+
+    <!-- Content -->
+    <main class="page-content">
+        <h1>Coroner's Court Visit</h1>
+        <p class="subtitle">An exclusive session for SWAST staff, hosted in partnership with HM Coroner's Service.</p>
+
+        <div class="info-card">
+            <h3><i class="bi bi-building"></i> About the Session</h3>
+            <p>Join us for a visit to a Coroner's Court and a talk from <strong>Philip Spinney, His Majesty's Senior Coroner for the County of Devon, Plymouth and Torbay coroner area</strong>, together with a Coroner's investigator.</p>
+            <p>The purpose of the session is to:</p>
+            <ul>
+                <li>Encourage closer working relationships with SWAST</li>
+                <li>Understand what coroners really need from us in our paperwork</li>
+                <li>Learn what happens if we get called to court</li>
+            </ul>
+            <p>There will be a Q&amp;A session too. Sessions last approximately <strong>2 hours</strong>.</p>
+            <div class="limited-note">
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                These are the only two dates available and, due to pressure on the Coroners, it is unlikely this event will be repeated. Places are strictly limited.
+            </div>
+        </div>
+
+        <div class="form-card" id="formCard">
+            <h3 style="font-size: 1rem; font-weight: 600; color: var(--color-gray-800); margin-bottom: 1rem;"><i class="bi bi-pencil-square" style="color: var(--color-teal);"></i> Register Your Interest</h3>
+
+            <div id="formError" class="alert alert-danger" style="display:none;" role="alert"></div>
+
+            <div class="mb-3">
+                <label for="firstName">First Name</label>
+                <input type="text" class="form-control" id="firstName" maxlength="60" autocomplete="given-name">
+            </div>
+
+            <div class="mb-3">
+                <label for="surname">Surname</label>
+                <input type="text" class="form-control" id="surname" maxlength="60" autocomplete="family-name">
+            </div>
+
+            <div class="mb-3">
+                <label for="position">Position</label>
+                <select class="form-select" id="position">
+                    <option value="" selected disabled>Select your position...</option>
+                    <option value="Student paramedic">Student paramedic</option>
+                    <option value="ECA">ECA</option>
+                    <option value="EAA">EAA</option>
+                    <option value="Technician">Technician</option>
+                    <option value="Paramedic">Paramedic</option>
+                    <option value="HQ staff">HQ staff</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="mb-3" id="specificRoleGroup" style="display:none;">
+                <label for="specificRole">Your specific role</label>
+                <input type="text" class="form-control" id="specificRole" maxlength="120" placeholder="e.g. Clinical Audit Officer">
+            </div>
+
+            <div class="mb-3">
+                <label for="email">Work Email Address</label>
+                <input type="email" class="form-control" id="email" maxlength="120" placeholder="your.name@swast.nhs.uk" autocomplete="email">
+                <div class="form-text">Must be your @swast.nhs.uk email address.</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="baseStation">Base Station / Relief</label>
+                <input type="text" class="form-control" id="baseStation" maxlength="120" placeholder="e.g. Torquay">
+            </div>
+
+            <div class="mb-3">
+                <label>Choose Your Date</label>
+                <div class="event-option" data-event="July 28th 10:00 at Exeter Coroners Court (County Hall)">
+                    <input type="radio" name="eventSelected" id="eventExeter" value="July 28th 10:00 at Exeter Coroners Court (County Hall)">
+                    <label for="eventExeter" style="cursor:pointer; margin:0; font-weight:400;">
+                        <div class="event-title">July 28th, 10:00</div>
+                        <div class="event-venue">Exeter Coroners Court (County Hall)</div>
+                    </label>
+                </div>
+                <div class="event-option" data-event="December 8th 10:00 at Derriford Coroners Court (Derriford)">
+                    <input type="radio" name="eventSelected" id="eventDerriford" value="December 8th 10:00 at Derriford Coroners Court (Derriford)">
+                    <label for="eventDerriford" style="cursor:pointer; margin:0; font-weight:400;">
+                        <div class="event-title">December 8th, 10:00</div>
+                        <div class="event-venue">Derriford Coroners Court (Derriford)</div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Hidden verification field — must remain empty -->
+            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"
+                   style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0;">
+            <div aria-hidden="true" style="position:absolute; left:-9999px;">
+                <label for="website">Leave this field empty</label>
+            </div>
+
+            <button type="button" class="submit-btn" id="submitBtn">Register</button>
+        </div>
+
+        <div class="success-card" id="successCard">
+            <i class="bi bi-check-circle-fill"></i>
+            <h2>Registration Received</h2>
+            <p id="successEventText"></p>
+            <p>A confirmation email is on its way to your SWAST inbox. We will confirm your place as soon as possible.</p>
+            <p style="font-size: 0.9rem; color: var(--color-gray-500);">If you can no longer attend, please let us know so your place can go to someone else.</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="page-footer">
+        <div class="footer-brand">
+            <span class="brand-para">para</span><span class="brand-mind">mind</span>
+        </div>
+        <div class="footer-links">
+            <a href="terms.html">Terms of Service</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="purpose.html">Intended Purpose</a>
+            <a href="sources.html">Sources &amp; Citations</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <p class="footer-copyright">&copy; 2026 Paramind. All rights reserved.</p>
+        <p class="footer-trademark" style="font-size: 0.85rem; color: var(--color-gray-500);">Paramind&#174; is a registered UK trade mark (UK00004321918).</p>
+    </footer>
+
+    <!-- App JS -->
+    <script src="js/app.js"></script>
+
+    <!-- Menu JS (loads the Firebase SDK — single source for the whole site) -->
+    <script src="js/menu-v2.js"></script>
+
+    <!-- Page JS -->
+    <script>
+        (function () {
+            'use strict';
+
+            // ============================================
+            // SHOW/HIDE "SPECIFIC ROLE" FIELD
+            // ============================================
+            var positionSelect    = document.getElementById('position');
+            var specificRoleGroup = document.getElementById('specificRoleGroup');
+
+            positionSelect.addEventListener('change', function () {
+                var needsRole = (this.value === 'HQ staff' || this.value === 'Other');
+                specificRoleGroup.style.display = needsRole ? 'block' : 'none';
+                if (!needsRole) document.getElementById('specificRole').value = '';
+            });
+
+            // ============================================
+            // EVENT OPTION CARDS (clicking the card selects the radio)
+            // ============================================
+            var eventOptions = document.querySelectorAll('.event-option');
+            eventOptions.forEach(function (option) {
+                option.addEventListener('click', function () {
+                    var radio = option.querySelector('input[type="radio"]');
+                    radio.checked = true;
+                    eventOptions.forEach(function (o) { o.classList.remove('selected'); });
+                    option.classList.add('selected');
+                });
+            });
+
+            // ============================================
+            // WAIT FOR FIREBASE (loaded by menu-v2.js)
+            // ============================================
+            function getFirestoreWhenReady(callback, attempts) {
+                attempts = attempts || 0;
+                if (typeof firebase !== 'undefined' &&
+                    firebase.apps && firebase.apps.length > 0 &&
+                    firebase.firestore) {
+                    callback(firebase.firestore());
+                    return;
+                }
+                if (attempts > 100) { // ~10 seconds
+                    callback(null);
+                    return;
+                }
+                setTimeout(function () { getFirestoreWhenReady(callback, attempts + 1); }, 100);
+            }
+
+            // ============================================
+            // VALIDATION + SUBMIT
+            // ============================================
+            var submitBtn = document.getElementById('submitBtn');
+            var formError = document.getElementById('formError');
+
+            function showError(message) {
+                formError.textContent = message;
+                formError.style.display = 'block';
+                formError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            function hideError() {
+                formError.style.display = 'none';
+            }
+
+            submitBtn.addEventListener('click', function () {
+                hideError();
+
+                // Honeypot — silently do nothing if filled (bot)
+                var honeypot = document.getElementById('website');
+                if (honeypot && honeypot.value.trim() !== '') {
+                    return;
+                }
+
+                var firstName    = document.getElementById('firstName').value.trim();
+                var surname      = document.getElementById('surname').value.trim();
+                var position     = document.getElementById('position').value;
+                var specificRole = document.getElementById('specificRole').value.trim();
+                var email        = document.getElementById('email').value.trim().toLowerCase();
+                var baseStation  = document.getElementById('baseStation').value.trim();
+                var eventRadio   = document.querySelector('input[name="eventSelected"]:checked');
+
+                // Field-by-field validation with clear messages
+                if (!firstName) { showError('Please enter your first name.'); return; }
+                if (!surname) { showError('Please enter your surname.'); return; }
+                if (!position) { showError('Please select your position.'); return; }
+                if ((position === 'HQ staff' || position === 'Other') && !specificRole) {
+                    showError('Please tell us your specific role.'); return;
+                }
+                if (!email) { showError('Please enter your work email address.'); return; }
+                if (!/^[a-z0-9._%+-]+@swast\.nhs\.uk$/.test(email)) {
+                    showError('Registration requires a SWAST email address ending in @swast.nhs.uk.'); return;
+                }
+                if (!baseStation) { showError('Please enter your base station or relief.'); return; }
+                if (!eventRadio) { showError('Please choose a date.'); return; }
+
+                var eventSelected = eventRadio.value;
+
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Registering...';
+
+                getFirestoreWhenReady(function (db) {
+                    if (!db) {
+                        showError('Sorry, we could not connect. Please check your internet connection and try again.');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Register';
+                        return;
+                    }
+
+                    // Deterministic document ID = one registration per email per event.
+                    // A second attempt for the same email + event is blocked by
+                    // Firestore security rules (create-only on this collection).
+                    var eventKey = eventSelected.indexOf('Exeter') !== -1 ? 'exeter-jul28' : 'derriford-dec8';
+                    var docId = email.replace(/[^a-z0-9@._+-]/g, '_') + '__' + eventKey;
+
+                    db.collection('coronersCourtRegistrations').doc(docId).set({
+                        firstName: firstName,
+                        surname: surname,
+                        position: position,
+                        specificRole: specificRole,
+                        email: email,
+                        baseStation: baseStation,
+                        eventSelected: eventSelected,
+                        registeredAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        confirmationEmailSent: false
+                    }).then(function () {
+                        document.getElementById('formCard').style.display = 'none';
+                        document.getElementById('successEventText').innerHTML =
+                            'You are registered for <strong>' + eventSelected.replace(/</g, '&lt;') + '</strong>.';
+                        var successCard = document.getElementById('successCard');
+                        successCard.style.display = 'block';
+                        successCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }).catch(function (err) {
+                        console.error('Registration failed:', err);
+                        if (err && err.code === 'permission-denied') {
+                            showError('This email address is already registered for this date. If you believe this is an error, please contact hello@paramind.co.uk.');
+                        } else {
+                            showError('Sorry, something went wrong. Please try again, or contact hello@paramind.co.uk if the problem continues.');
+                        }
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Register';
+                    });
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

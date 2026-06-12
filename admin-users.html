@@ -140,6 +140,21 @@
                 </div>
             </div>
 
+            <!-- Coroner's Court Visit Registrations (coroners-court.html) -->
+            <div class="user-table mb-4 p-3">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <h5 class="mb-1"><i class="bi bi-building me-2"></i>Coroner's Court Registrations</h5>
+                        <p class="text-muted mb-0" id="coronersCourtSummary">Loading count...</p>
+                    </div>
+                    <div class="d-flex gap-2 align-items-center">
+                        <button id="exportCoronersBtn" class="btn btn-outline-success">
+                            <i class="bi bi-download me-1"></i>Export Registrations CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- User Tables -->
             <div class="user-table">
                 <div class="p-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -277,7 +292,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getFirestore, collection, getDocs, doc, deleteDoc, query, where } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, getDocs, doc, deleteDoc, query, where, getCountFromServer } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
         import { firebaseConfig } from './js/firebase-config.js';
 
         // Initialize Firebase
@@ -323,6 +338,9 @@
 
             // Load paid users by default (cheap)
             await loadPaidUsers();
+
+            // Load Coroner's Court registration count (cheap aggregate query)
+            loadCoronersCourtCount();
         });
 
         // ============================================
@@ -829,6 +847,72 @@
             link.click();
             URL.revokeObjectURL(link.href);
         }
+
+        // ============================================
+        // CORONER'S COURT REGISTRATIONS (coroners-court.html)
+        // Count shown on load; CSV export fetches full docs on demand.
+        // ============================================
+        async function loadCoronersCourtCount() {
+            const summary = document.getElementById('coronersCourtSummary');
+            try {
+                const snap = await getCountFromServer(collection(db, 'coronersCourtRegistrations'));
+                const count = snap.data().count;
+                summary.textContent = count === 1
+                    ? '1 registration received.'
+                    : `${count} registrations received.`;
+            } catch (err) {
+                console.error('Coroners Court count failed:', err);
+                summary.textContent = 'Could not load count.';
+            }
+        }
+
+        document.getElementById('exportCoronersBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('exportCoronersBtn');
+            const orig = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-download me-1"></i>Exporting...';
+            try {
+                const snapshot = await getDocs(collection(db, 'coronersCourtRegistrations'));
+                const regs = snapshot.docs.map(d => d.data());
+
+                if (regs.length === 0) {
+                    alert('No registrations to export yet.');
+                    return;
+                }
+
+                const headers = ['First Name','Surname','Position','Specific Role','Email','Base Station/Relief','Event','Registered At','Confirmation Email Sent'];
+                const rows = regs.map(r => {
+                    let registeredAt = '';
+                    if (r.registeredAt && typeof r.registeredAt.toDate === 'function') {
+                        registeredAt = r.registeredAt.toDate().toISOString();
+                    }
+                    const cells = [
+                        r.firstName, r.surname, r.position, r.specificRole,
+                        r.email, r.baseStation, r.eventSelected, registeredAt,
+                        r.confirmationEmailSent === true ? 'Yes' : 'No'
+                    ];
+                    return cells.map(field => `"${(field || '').toString().replace(/"/g, '""')}"`).join(',');
+                });
+
+                const csv = [headers.join(','), ...rows].join('\n');
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `paramind-coroners-court-${new Date().toISOString().split('T')[0]}.csv`;
+                link.click();
+                URL.revokeObjectURL(link.href);
+
+                // Refresh the count while we're here
+                document.getElementById('coronersCourtSummary').textContent =
+                    regs.length === 1 ? '1 registration received.' : `${regs.length} registrations received.`;
+            } catch (err) {
+                console.error('Coroners Court export failed:', err);
+                alert('Export failed: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = orig;
+            }
+        });
 
         // ============================================
         // REFRESH — re-loads whatever's already loaded
