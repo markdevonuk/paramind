@@ -357,6 +357,9 @@ case "checkout.session.completed": {
         const updateData = {
             stripeSubscriptionId: session.subscription,
             subscriptionStatus: "active",
+            // Billing plan ('monthly' | 'annual') — set by createCheckoutSession metadata.
+            // Displayed in admin-users.html; default to monthly if metadata is ever missing.
+            stripePlan: session.metadata.plan === 'annual' ? 'annual' : 'monthly',
         };
 
         // If there was a discount, store it AND retrieve the promo code name
@@ -5088,6 +5091,129 @@ exports.sendCoronersCourtConfirmation = onDocumentCreated(
     } catch (err) {
       // Catch-all so we never throw from the trigger (preventing retries)
       console.error('[coronersCourt] Unexpected error:', err);
+    }
+  }
+);
+
+// ============================================
+// ADMIN: BACKFILL stripePlan (one-off)
+// ============================================
+// Populates `stripePlan` ('monthly' | 'annual') on existing Stripe web
+// subscribers so admin-users.html can display their billing plan. New Stripe
+// subscriptions get this automatically via the checkout.session.completed
+// webhook; this tool covers everyone who subscribed before that change.
+//
+// How it works: for each active user with a stripeSubscriptionId, retrieve
+// the subscription from Stripe and map its price ID against PRICE_IDS.
+// Subscriptions on an unrecognised price (e.g. legacy/manual) are reported
+// but NOT written — no guessing.
+//
+// Safety:
+//   - Gated to a single admin UID (same as backfillProSince)
+//   - Idempotent: skips any user that already has `stripePlan`
+//   - Dry-run by default: only writes to Firestore when dryRun === false
+//
+// Trigger (after deploy) from a browser console while logged in at paramind.co.uk:
+//
+//   const t = await firebase.auth().currentUser.getIdToken();
+//   const r = await fetch(
+//     "https://europe-west2-paramind-64b8e.cloudfunctions.net/backfillStripePlan",
+//     {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json", Authorization: `Bearer ${t}` },
+//       body: JSON.stringify({ dryRun: true })   // set to false to actually write
+//     }
+//   );
+//   console.log(await r.json());
+
+exports.backfillStripePlan = onRequest(
+  { cors: true, secrets: ["STRIPE_SECRET_KEY"] },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+      // 1) Auth + admin gate
+      const uid = await verifyAuth(req);
+      if (uid !== BACKFILL_ADMIN_UID) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+
+      // dryRun defaults to true; only `false` actually writes
+      const dryRun = req.body?.dryRun !== false;
+
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+        apiVersion: "2023-10-16",
+      });
+
+      // 2) Pull all currently-active users; filter to Stripe in code
+      const snap = await db
+        .collection("users")
+        .where("subscriptionStatus", "==", "active")
+        .get();
+
+      const summary = {
+        dryRun,
+        scanned: snap.size,
+        wouldUpdate: 0,
+        updated: 0,
+        skipped_alreadySet: 0,
+        skipped_notStripe: 0,
+        skipped_unknownPrice: 0,
+        errors: 0,
+        details: [],
+      };
+
+      for (const doc of snap.docs) {
+        const userId = doc.id;
+        const data = doc.data();
+
+        // Stripe users only — Apple/Google already have applePlan/googlePlan
+        if (!data.stripeSubscriptionId) {
+          summary.skipped_notStripe++;
+          continue;
+        }
+
+        // Idempotent: skip if stripePlan already set
+        if (data.stripePlan) {
+          summary.skipped_alreadySet++;
+          continue;
+        }
+
+        try {
+          const sub = await stripe.subscriptions.retrieve(data.stripeSubscriptionId);
+          const priceId = sub?.items?.data?.[0]?.price?.id || null;
+
+          let plan = null;
+          if (priceId === PRICE_IDS.monthly) plan = "monthly";
+          else if (priceId === PRICE_IDS.annual) plan = "annual";
+
+          if (!plan) {
+            summary.skipped_unknownPrice++;
+            summary.details.push({ userId, email: data.email, reason: "unknown_price", priceId });
+            continue;
+          }
+
+          if (dryRun) {
+            summary.wouldUpdate++;
+            summary.details.push({ userId, email: data.email, plan, dryRun: true });
+          } else {
+            await doc.ref.update({ stripePlan: plan });
+            summary.updated++;
+            summary.details.push({ userId, email: data.email, plan, written: true });
+          }
+        } catch (subErr) {
+          summary.errors++;
+          summary.details.push({ userId, email: data.email, reason: "stripe_error", message: subErr.message });
+        }
+      }
+
+      console.log("backfillStripePlan summary:", JSON.stringify({ ...summary, details: undefined }));
+      return res.status(200).json(summary);
+    } catch (error) {
+      console.error("backfillStripePlan error:", error);
+      return res.status(500).json({ error: error.message });
     }
   }
 );
