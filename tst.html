@@ -145,6 +145,17 @@
   .leaderline{margin-top:1.4vmin; font-family:var(--font-mono); font-size:clamp(11px,1.6vmin,14px); letter-spacing:.08em; color:var(--ink-faint);}
   .leaderline.record{color:var(--green-light); font-weight:600; text-shadow:0 0 2.4vmin rgba(92,184,92,.45);}
   #fx{position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none;}
+  /* gold shockwave — plays only when you ALSO set the fastest time */
+  .shockwave{position:fixed; inset:0; z-index:0; pointer-events:none; display:none; align-items:center; justify-content:center;}
+  .shockwave.go{display:flex;}
+  .shockwave .ring{position:absolute; width:14vmin; height:14vmin; border-radius:50%; border:0.55vmin solid #FFD56B; opacity:0;}
+  .shockwave.go .ring{animation:shock 1.5s cubic-bezier(.15,.6,.3,1) forwards;}
+  .shockwave.go .ring:nth-child(2){animation-delay:.22s;}
+  .shockwave.go .ring:nth-child(3){animation-delay:.44s;}
+  @keyframes shock{0%{transform:scale(.2); opacity:.85;} 70%{opacity:.45;} 100%{transform:scale(9); opacity:0;}}
+  .leaderline.record.champion{animation:champPulse .9s ease-in-out 2;}
+  @keyframes champPulse{0%,100%{transform:scale(1); text-shadow:0 0 2.4vmin rgba(92,184,92,.45);} 50%{transform:scale(1.12); text-shadow:0 0 3.4vmin rgba(255,213,107,.85);}}
+  @media (prefers-reduced-motion:reduce){.shockwave.go .ring,.leaderline.record.champion{animation:none;}}
   #resetTap{-webkit-touch-callout:none;}
   .toast{position:fixed; left:50%; bottom:8vmin; transform:translateX(-50%) translateY(1.2vmin); z-index:60; opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease; font-family:var(--font-mono); font-size:clamp(12px,1.8vmin,16px); letter-spacing:.05em; color:var(--ink); background:var(--panel); border:1px solid var(--line-strong); border-radius:1.4vmin; padding:1.4vmin 2.6vmin;}
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
@@ -157,6 +168,7 @@
 <body>
 <div class="sweep"></div>
 <canvas id="fx"></canvas>
+<div id="shockwave" class="shockwave" aria-hidden="true"><span class="ring"></span><span class="ring"></span><span class="ring"></span></div>
 <div id="toast" class="toast"></div>
 <div class="app">
 
@@ -361,7 +373,18 @@ function celebrate(){
   fxBurst(fx.width*0.3, fx.height*0.28); fxBurst(fx.width*0.7, fx.height*0.24);
   cancelAnimationFrame(fxRAF); fxRAF=requestAnimationFrame(fxFrame);
 }
-function stopFx(){ cancelAnimationFrame(fxRAF); fxRAF=null; fxParticles=[]; if(fxCtx) fxCtx.clearRect(0,0,fx.width,fx.height); }
+/* extra gold shockwave — fires only when this run is also the fastest today */
+function celebrateFastest(){
+  if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const sw=el('shockwave');
+  if(sw){ sw.classList.remove('go'); void sw.offsetWidth; sw.classList.add('go'); }
+  const line=el('leaderLine');
+  if(line){ line.classList.remove('champion'); void line.offsetWidth; line.classList.add('champion'); }
+}
+function stopFx(){ cancelAnimationFrame(fxRAF); fxRAF=null; fxParticles=[]; if(fxCtx) fxCtx.clearRect(0,0,fx.width,fx.height);
+  const sw=el('shockwave'); if(sw) sw.classList.remove('go');
+  const line=el('leaderLine'); if(line) line.classList.remove('champion');
+}
 
 /* ============ FLOW ============ */
 function startChallenge(){
@@ -474,7 +497,8 @@ function finish(){
     line.textContent = best!==null ? 'FASTEST CLEAN RUN TODAY · '+fmt(best) : 'BE THE FIRST CLEAN RUN TODAY';
   }
   show('summary');
-  if(isRecord) celebrate();
+  if(clean) celebrate();
+  if(isRecord) celebrateFastest();
   clearTimeout(idleTimer);
   idleTimer=setTimeout(resetToAttract, 30000); // auto-return for the next visitor
 }
