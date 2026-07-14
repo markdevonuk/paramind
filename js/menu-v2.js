@@ -57,7 +57,7 @@
             { id: 'osce', href: 'osce-practice.html', icon: 'bi-clipboard2-check', label: 'OSCE Practice', partialPro: true },
             { id: 'arrest', href: 'arrest-scenarios.html', icon: 'bi-lightning-charge', label: 'Cardiac Arrest Sim', partialPro: true },
             { id: 'major-incident', href: 'major-incident.html', icon: 'bi-exclamation-triangle', label: 'Major Incident Training', isPro: true },
-            { id: 'atmist', href: 'atmist.html', icon: 'bi-telephone-outbound', label: 'ATMIST', isPro: true },
+            { id: 'atmist', href: 'atmist.html', icon: 'bi-telephone-outbound', label: 'ATMIST/SBAR', isPro: true },
             { id: 'differentials', href: 'differentials.html', icon: 'bi-clipboard2-pulse', label: 'Differentials' },
             { id: 'interview', href: 'interview.html', icon: 'bi-mic', label: 'Interview Prep', isPro: true }
         ],
