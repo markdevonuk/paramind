@@ -563,6 +563,71 @@
             font-weight: 600;
         }
         
+        /* Handover Format Toggle (ATMIST / SBAR) */
+        .format-toggle-wrap {
+            margin-bottom: 1.25rem;
+        }
+        
+        .format-toggle-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--color-gray-600);
+            margin-bottom: 0.5rem;
+        }
+        
+        .format-toggle-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+        
+        .format-toggle-btn {
+            display: block;
+            cursor: pointer;
+        }
+        
+        .format-toggle-btn input {
+            display: none;
+        }
+        
+        .format-toggle-btn span {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.15rem;
+            padding: 0.75rem;
+            background: var(--color-white);
+            border: 2px solid var(--color-gray-200);
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--color-gray-700);
+            text-align: center;
+            transition: all var(--transition-fast);
+        }
+        
+        .format-toggle-btn span small {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--color-gray-500);
+        }
+        
+        .format-toggle-btn:hover span {
+            border-color: var(--color-gray-400);
+        }
+        
+        .format-toggle-btn input:checked + span {
+            background: linear-gradient(135deg, #2B8A9C 0%, #24707f 100%);
+            border-color: #2B8A9C;
+            color: white;
+        }
+        
+        .format-toggle-btn input:checked + span small {
+            color: rgba(255, 255, 255, 0.85);
+        }
+        
         /* Type-Specific Hints Box */
         .type-specific-hints {
             margin-top: 1rem;
@@ -932,6 +997,21 @@
         <form id="atmistForm">
             <div class="atmist-form-card">
                 
+                <!-- Handover Format Toggle -->
+                <div class="format-toggle-wrap">
+                    <label class="format-toggle-label">Handover Format</label>
+                    <div class="format-toggle-grid">
+                        <label class="format-toggle-btn">
+                            <input type="radio" name="handoverFormat" value="atmist" checked>
+                            <span>ATMIST <small>Pre-alert / trauma handover</small></span>
+                        </label>
+                        <label class="format-toggle-btn">
+                            <input type="radio" name="handoverFormat" value="sbar">
+                            <span>SBAR <small>Referral / escalation</small></span>
+                        </label>
+                    </div>
+                </div>
+                
                 <!-- Pre-Alert Details -->
                 <div class="atmist-section prealert-section">
                     <div class="atmist-section-header">
@@ -1152,6 +1232,15 @@
                     <textarea class="atmist-input" id="treatmentDetails" placeholder="Additional treatment details: e.g., Morphine 5mg IV, Ondansetron 4mg IV, Left leg immobilised with vacuum splint"></textarea>
                 </div>
                 
+                <!-- R - Recommendation (SBAR only) -->
+                <div class="atmist-section" id="recommendationSection" style="display: none;">
+                    <div class="atmist-section-header">
+                        <span class="atmist-badge" style="background: #2B8A9C;">R</span>
+                        <h3>Recommendation <small>what you're requesting</small></h3>
+                    </div>
+                    <textarea class="atmist-input" id="recommendation" placeholder="e.g., Requesting senior review on arrival, resus team standby, bed in majors, or advice on ongoing management" rows="2"></textarea>
+                </div>
+                
             </div>
             
             <!-- Generate Button -->
@@ -1165,7 +1254,7 @@
         <div class="handover-output mt-4" id="handoverOutput">
             <div class="handover-output-header">
                 <i class="bi bi-telephone-outbound"></i>
-                <h3>Your Pre-Alert Script</h3>
+                <h3 id="handoverOutputTitle">Your Pre-Alert Script</h3>
             </div>
             <div class="handover-script" id="handoverScript">
                 <!-- AI-generated script will appear here -->
@@ -1792,6 +1881,13 @@
                 });
             });
             
+            // Handover format toggle handler (ATMIST / SBAR)
+            document.querySelectorAll('input[name="handoverFormat"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    updateHandoverFormat(this.value);
+                });
+            });
+            
             // Initialize with default type (medical)
             updateTypeSpecificContent('medical');
             
@@ -1861,6 +1957,18 @@
             });
         }
         
+        // Toggle between ATMIST and SBAR handover formats
+        function updateHandoverFormat(format) {
+            const isSbar = format === 'sbar';
+            document.getElementById('recommendationSection').style.display = isSbar ? 'block' : 'none';
+            document.getElementById('generateBtn').innerHTML = isSbar
+                ? '<i class="bi bi-clipboard-pulse"></i> Generate SBAR Handover'
+                : '<i class="bi bi-telephone-outbound"></i> Generate Pre-Alert Script';
+            document.getElementById('handoverOutputTitle').textContent = isSbar
+                ? 'Your SBAR Handover'
+                : 'Your Pre-Alert Script';
+        }
+        
         // ==================== FORM SUBMISSION ====================
         
         async function handleFormSubmit(e) {
@@ -1877,6 +1985,7 @@
             const eta = document.getElementById('eta').value.trim();
             const destination = document.getElementById('destination').value.trim();
             const prealertType = document.querySelector('input[name="prealertType"]:checked').value;
+            const handoverFormat = document.querySelector('input[name="handoverFormat"]:checked').value;
             
             // Format pre-alert type for display
             const prealertTypeDisplay = {
@@ -1917,7 +2026,8 @@
                 },
                 additionalSigns: document.getElementById('additionalSigns').value,
                 treatments: [],
-                treatmentDetails: document.getElementById('treatmentDetails').value
+                treatmentDetails: document.getElementById('treatmentDetails').value,
+                recommendation: document.getElementById('recommendation').value
             };
             
             // Collect checked treatments
@@ -1936,8 +2046,10 @@
             generateBtn.innerHTML = '<span class="loading-spinner"></span> Generating...';
             
             try {
-                // Build prompt for AI
-                const prompt = buildATMISTPrompt(formData);
+                // Build prompt for AI (ATMIST or SBAR)
+                const prompt = handoverFormat === 'sbar'
+                    ? buildSBARPrompt(formData)
+                    : buildATMISTPrompt(formData);
                 
                 // Call your existing chat API endpoint
                 const response = await callChatAPI(prompt);
@@ -1954,9 +2066,9 @@
                 
                 alert('Error generating handover. Please try again.');
             } finally {
-                // Reset button
+                // Reset button (label follows the selected format)
                 generateBtn.disabled = false;
-                generateBtn.innerHTML = '<i class="bi bi-telephone-outbound"></i> Generate Pre-Alert Script';
+                updateHandoverFormat(handoverFormat);
             }
         }
         
@@ -2109,6 +2221,103 @@
         }
         
         // ==================== PROMPT BUILDER ====================
+        
+        function buildSBARPrompt(data) {
+            let vitalsString = '';
+            if (data.vitals.rr) vitalsString += `RR: ${data.vitals.rr}, `;
+            if (data.vitals.spo2) vitalsString += `SpO2: ${data.vitals.spo2}%, `;
+            if (data.vitals.hr) vitalsString += `HR: ${data.vitals.hr}, `;
+            if (data.vitals.bp) vitalsString += `BP: ${data.vitals.bp}, `;
+            if (data.vitals.temp) vitalsString += `Temp: ${data.vitals.temp}°C, `;
+            if (data.vitals.gcs) vitalsString += `GCS: ${data.vitals.gcs}, `;
+            if (data.vitals.bm) vitalsString += `BM: ${data.vitals.bm}, `;
+            if (data.vitals.pain) vitalsString += `Pain: ${data.vitals.pain}/10, `;
+            
+            let treatmentsString = data.treatments.join(', ');
+            if (data.treatmentDetails) {
+                treatmentsString += treatmentsString ? '. ' + data.treatmentDetails : data.treatmentDetails;
+            }
+            
+            // Build the opening line
+            let openingLine = `Hi, it's ${data.crewName}`;
+            if (data.callSign) {
+                openingLine += ` on ambulance ${data.callSign}`;
+            }
+            openingLine += `, I'd like to hand over / refer a patient.`;
+            
+            // Reuse the type-specific key details so nothing entered is lost
+            let typeSpecificInfo = buildTypeSpecificInfo(data.prealertType, data.typeSpecificData);
+            
+            return `You are helping a UK paramedic practise a structured handover or referral using the SBAR format (Situation, Background, Assessment, Recommendation). SBAR is used for referrals and escalation — for example ringing a GP, a specialty registrar for advice, a mental health team, or the clinical desk. Based on the following patient information, create TWO things:
+
+1. A clear, professional SBAR script they can practise saying over the phone or in person. Write it as natural speech, formatted with a clear paragraph for each SBAR component. Keep it concise but complete.
+
+=== CRITICAL INSTRUCTION - YOU MUST OBEY ===
+DO NOT make up, embellish, invent, or assume ANY clinical information.
+- ONLY use the exact information provided by the user
+- If a field is empty or says "Not specified", either skip it or say "unknown"
+- DO NOT invent vital signs, symptoms, findings, history, or treatments
+- DO NOT add clinical details that were not provided
+- DO NOT assume what medications were given if not stated
+- DO NOT fabricate examination findings
+- CRITICALLY: DO NOT invent the Recommendation. If no recommendation/request was provided, leave R brief or state the request is unclear, and flag it in the TIPS as the key gap - a paramedic must know what they are actually asking for.
+- If information is missing, the script should reflect that gap - this is a learning opportunity
+- The TIPS section should highlight what information was missing
+
+This is a clinical training tool. Fabricating information teaches bad habits and is dangerous.
+===========================================
+
+Use UK clinical language. Use "working impression" (NOT "working diagnosis" or "hypothesis").
+
+=== KEY DETAILS (weave into the appropriate SBAR sections) ===
+${typeSpecificInfo}
+=============================================================
+
+HANDOVER DETAILS:
+- Clinician name: ${data.crewName}
+- Ambulance call sign: ${data.callSign || 'Not specified'}
+- Context/type: ${data.prealertTypeDisplay}
+- Destination/receiving team: ${data.destination || 'Not specified'}
+
+PATIENT INFORMATION - USE ONLY THIS DATA, DO NOT ADD ANYTHING:
+- Age: ${data.age || 'NOT PROVIDED'} ${data.gender || ''}
+- Time of onset: ${data.time || 'NOT PROVIDED'}
+- Presenting complaint / what happened: ${data.mechanism || 'NOT PROVIDED'}
+- History, findings & relevant PMHx/allergies/meds: ${data.injuries || 'NOT PROVIDED'}
+- Observations: ${vitalsString || 'NOT PROVIDED'} ${data.additionalSigns || ''}
+- Treatment given so far: ${treatmentsString || 'NOT PROVIDED'}
+- Recommendation / what they are requesting: ${data.recommendation || 'NOT PROVIDED'}
+
+Map the data to SBAR like this:
+- S - SITUATION: Who is calling, who the patient is (age/sex), and the presenting complaint - the one-line reason for the call.
+- B - BACKGROUND: Relevant history, PMHx, allergies, medications, time of onset, and any treatment given so far.
+- A - ASSESSMENT: Current observations and the clinician's working impression / degree of concern.
+- R - RECOMMENDATION: Exactly what is being requested (advice, review, admission, referral acceptance). Use ONLY the recommendation provided - do not invent one.
+
+REMEMBER:
+1. Use ALL information provided, mapped to the correct SBAR section
+2. Do not invent anything - missing information = gap to highlight in tips
+3. The Recommendation must come from the user, never fabricated
+
+Format your response EXACTLY like this:
+[SCRIPT]
+"${openingLine}"
+
+**S - Situation:** [Who you are, patient age/sex, and the one-line reason for the call]
+
+**B - Background:** [Relevant history, PMHx, allergies, medications, onset, treatment given]
+
+**A - Assessment:** [Observations and your working impression / level of concern]
+
+**R - Recommendation:** [Exactly what you are requesting - only if provided]
+[/SCRIPT]
+
+[TIPS]
+- (If no recommendation was provided, make this the first tip: be clear about what you are actually asking for)
+- (Highlight any other missing information that would matter for a safe referral)
+- (Other specific improvements)
+[/TIPS]`;
+        }
         
         function buildATMISTPrompt(data) {
             let vitalsString = '';
@@ -2407,6 +2616,10 @@ DO NOT invent any of these if not provided - highlight as missing in tips instea
             // Reset to medical type and update the content
             document.querySelector('input[name="prealertType"][value="medical"]').checked = true;
             updateTypeSpecificContent('medical');
+            
+            // Reset handover format back to ATMIST
+            document.querySelector('input[name="handoverFormat"][value="atmist"]').checked = true;
+            updateHandoverFormat('atmist');
             
             // Re-populate crew name
             if (userProfile?.firstName) {
