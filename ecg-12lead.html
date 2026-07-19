@@ -29,6 +29,10 @@
         .ecg-page { min-height: 100vh; background: var(--color-gray-50); }
         .ecg-container { max-width: 900px; margin: 0 auto; padding: 1rem; padding-bottom: 3rem; }
 
+        .ecg-header { text-align: center; padding: 1.5rem 0; }
+        .ecg-header h1 { font-size: 1.75rem; margin-bottom: 0.5rem; }
+        .ecg-header p { color: var(--color-gray-600); margin: 0; }
+
         .ecg12-preview-banner {
             background: #FFF8E1; border: 1px solid #FFE082; color: #7A5C00;
             border-radius: var(--radius-md); padding: 0.6rem 0.9rem;
@@ -38,16 +42,16 @@
         /* Record picker */
         .ecg12-picker { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
         .ecg12-pick-btn {
-            border: 1.5px solid var(--color-gray-300, #DEE2E6); background: #fff;
+            border: 1.5px solid var(--color-gray-300); background: #fff;
             border-radius: var(--radius-md); padding: 0.5rem 0.9rem;
-            font-size: 0.85rem; font-weight: 500; cursor: pointer; color: var(--color-gray-700, #495057);
+            font-size: 0.85rem; font-weight: 500; cursor: pointer; color: var(--color-gray-700);
             font-family: inherit;
         }
         .ecg12-pick-btn.active { border-color: var(--color-teal); color: var(--color-teal); background: #F0FAFB; }
 
         /* Territory legend */
         .ecg12-legend { display: flex; flex-wrap: wrap; gap: 0.75rem 1rem; justify-content: center;
-            font-size: 0.72rem; color: var(--color-gray-600, #6C757D); margin: 0.75rem 0 0.25rem; }
+            font-size: 0.72rem; color: var(--color-gray-600); margin: 0.75rem 0 0.25rem; }
         .ecg12-legend span { display: inline-flex; align-items: center; gap: 0.3rem; }
         .ecg12-legend i { width: 11px; height: 11px; border-radius: 3px; border: 0.5px solid rgba(0,0,0,0.2); display: inline-block; }
 
@@ -56,10 +60,10 @@
             overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .ecg12-viewer-head { padding: 0.65rem 0.9rem; border-bottom: 1px solid #F1F3F5;
             display: flex; align-items: center; justify-content: space-between; }
-        .ecg12-viewer-head .title { font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; color: var(--color-gray-800, #343A40); }
-        .ecg12-tag { font-size: 0.72rem; color: var(--color-gray-500, #ADB5BD); }
+        .ecg12-viewer-head .title { font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; color: var(--color-gray-800); }
+        .ecg12-tag { font-size: 0.72rem; color: var(--color-gray-500); }
         .ecg12-stage { padding: 0.6rem; }
-        .ecg12-hintbar { padding: 0.55rem 0.9rem; border-top: 1px solid #F1F3F5; font-size: 0.78rem; color: var(--color-gray-600, #6C757D); margin: 0; }
+        .ecg12-hintbar { padding: 0.55rem 0.9rem; border-top: 1px solid #F1F3F5; font-size: 0.78rem; color: var(--color-gray-600); margin: 0; }
 
         /* Overview grid */
         .ecg12-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; }
@@ -78,13 +82,13 @@
         .ecg12-nav-btn.next { justify-content: flex-end; }
         .ecg12-nav-btn .mini { display: inline-block; width: 36px; height: 22px; border-radius: 2px; overflow: hidden; border: 0.5px solid; }
         .ecg12-nav-btn .mini canvas { width: 36px; height: 22px; display: block; }
-        .ecg12-btn-plain { font-size: 0.8rem; padding: 0.3rem 0.7rem; background: #fff; border: 1px solid #E9ECEF; border-radius: var(--radius-md); cursor: pointer; font-family: inherit; color: var(--color-gray-700, #495057); }
+        .ecg12-btn-plain { font-size: 0.8rem; padding: 0.3rem 0.7rem; background: #fff; border: 1px solid #E9ECEF; border-radius: var(--radius-md); cursor: pointer; font-family: inherit; color: var(--color-gray-700); }
         .ecg12-chip { font-size: 0.78rem; font-weight: 600; padding: 0.2rem 0.7rem; border-radius: var(--radius-md); }
 
         /* Record info */
         .ecg12-info { margin-top: 1rem; background: #fff; border: 1px solid #E9ECEF; border-radius: var(--radius-lg); padding: 0.9rem; }
-        .ecg12-info h2 { font-size: 0.95rem; font-weight: 600; margin: 0 0 0.35rem; color: var(--color-gray-800, #343A40); }
-        .ecg12-info .meta { font-size: 0.82rem; color: var(--color-gray-600, #6C757D); }
+        .ecg12-info h2 { font-size: 0.95rem; font-weight: 600; margin: 0 0 0.35rem; color: var(--color-gray-800); }
+        .ecg12-info .meta { font-size: 0.82rem; color: var(--color-gray-600); }
     </style>
 </head>
 <body>
@@ -107,12 +111,10 @@
     <div class="ecg-page">
         <div class="ecg-container">
 
-            <h1 style="font-size:1.4rem;font-weight:700;color:var(--color-gray-800,#343A40);margin-bottom:0.25rem;">
-                12-Lead Viewer
-            </h1>
-            <p style="color:var(--color-gray-600,#6C757D);font-size:0.9rem;margin-bottom:1rem;">
-                Tap a lead to zoom in. Leads are grouped by cardiac territory, matching your Paramind ECG card.
-            </p>
+            <div class="ecg-header">
+                <h1>12-Lead Viewer</h1>
+                <p>Tap a lead to zoom in. Leads are grouped by cardiac territory, matching your Paramind ECG card.</p>
+            </div>
 
             <div class="ecg12-preview-banner">
                 <i class="bi bi-info-circle me-1"></i>
@@ -145,7 +147,27 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="member-footer">
+        <div class="container">
+            <div class="footer-brand">
+                <span class="brand-text">
+                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
+                </span>
+            </div>
+            <div class="footer-links">
+                <a href="terms.html">Terms of Service</a>
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="purpose.html">Intended Purpose</a>
+                <a href="sources.html">Sources &amp; Citations</a>
+                <a href="contact.html">Contact</a>
+            </div>
+            <p class="footer-copyright">&copy; 2026 Paramind. All rights reserved.</p>
+            <p class="footer-trademark" style="font-size: 0.85rem; color: var(--color-gray-500);">Paramind&#174; is a registered UK trade mark (UK00004321918).</p>
+        </div>
+    </footer>
+
+    <!-- ==================== SCRIPTS ==================== -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- ===== 12-Lead Viewer engine (self-contained) ===== -->
