@@ -550,8 +550,14 @@ function loadEverything(){
         show('start');
     }).catch(function(err){
         console.error('Quiz load failed:', err);
-        notice('Something<span class="big">went wrong</span>',
-               'We could not load the quiz just then. Please try again in a moment.');
+        var code = (err && err.code) ? err.code : 'unknown';
+        if (code === 'permission-denied'){
+            notice('Not quite<span class="big">set up yet</span>',
+                   'Firestore is refusing to read the quiz collections. The security rules for quizzes, quizAttempts and quizScores still need deploying. (permission-denied)');
+        } else {
+            notice('Something<span class="big">went wrong</span>',
+                   'We could not load the quiz just then. Please try again in a moment. (' + code + ')');
+        }
     });
 }
 
