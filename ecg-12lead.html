@@ -30,6 +30,35 @@
         .ecg-page { min-height: 100vh; background: var(--color-gray-50); }
         .ecg-container { max-width: 900px; margin: 0 auto; padding: 1rem; padding-bottom: 3rem; }
 
+        /* Learn / Practise mode toggle */
+        .ecg12-modes { display: flex; gap: 0.4rem; background: var(--color-gray-100);
+            border-radius: var(--radius-md); padding: 0.25rem; margin-bottom: 1rem; }
+        .ecg12-mode-btn { flex: 1; padding: 0.55rem 0.9rem; border: none; background: transparent;
+            border-radius: var(--radius-sm); font-family: inherit; font-size: 0.88rem; font-weight: 600;
+            color: var(--color-gray-600); cursor: pointer; }
+        .ecg12-mode-btn.active { background: #fff; color: var(--color-teal); box-shadow: var(--shadow-sm); }
+
+        /* Self-mark buttons (Got it / Nearly / Missed it) */
+        .rois-selfmark { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
+        .rois-selfmark-btn { flex: 1; padding: 0.7rem 0.5rem; border-radius: var(--radius-md);
+            border: 1.5px solid var(--color-gray-200); background: #fff; cursor: pointer;
+            font-family: inherit; font-size: 0.85rem; font-weight: 600; color: var(--color-gray-700);
+            display: flex; flex-direction: column; align-items: center; gap: 0.25rem; }
+        .rois-selfmark-btn i { font-size: 1.1rem; }
+        .rois-selfmark-got:hover, .rois-selfmark-got:active { border-color: #22c55e; color: #16a34a; background: rgba(34,197,94,0.06); }
+        .rois-selfmark-nearly:hover, .rois-selfmark-nearly:active { border-color: #f59e0b; color: #d97706; background: rgba(245,158,11,0.06); }
+        .rois-selfmark-missed:hover, .rois-selfmark-missed:active { border-color: #ef4444; color: #dc2626; background: rgba(239,68,68,0.06); }
+
+        /* Self-mark tag (used in the summary breakdown) */
+        .rois-selfmark-tag { font-size: 0.8rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: var(--radius-full);
+            display: inline-flex; align-items: center; gap: 0.3rem; margin-left: auto; }
+        .rois-selfmark-tag.rois-selfmark-got { background: rgba(34,197,94,0.15); color: #16a34a; }
+        .rois-selfmark-tag.rois-selfmark-nearly { background: rgba(245,158,11,0.15); color: #d97706; }
+        .rois-selfmark-tag.rois-selfmark-missed { background: rgba(239,68,68,0.15); color: #dc2626; }
+
+        /* 'Nearly' indicator state (rois.css has correct/incorrect, not nearly) */
+        .indicator-nearly { background: rgba(245,158,11,0.15); color: #f59e0b; border-color: #f59e0b; }
+
         .ecg-header { text-align: center; padding: 1.5rem 0; }
         .ecg-header h1 { font-size: 1.75rem; margin-bottom: 0.5rem; }
         .ecg-header p { color: var(--color-gray-600); margin: 0; }
@@ -148,6 +177,11 @@
 
             <div class="ecg12-picker" id="ecg12Picker"></div>
 
+            <div class="ecg12-modes" id="ecg12Modes">
+                <button class="ecg12-mode-btn active" id="ecg12ModeLearn">Learn</button>
+                <button class="ecg12-mode-btn" id="ecg12ModePractise">Practise</button>
+            </div>
+
             <div class="ecg12-viewer">
                 <div class="ecg12-viewer-head">
                     <span class="title"><i class="bi bi-activity"></i> <span id="ecg12ViewerTitle">12-lead</span></span>
@@ -178,6 +212,11 @@
                 </div>
             </div>
 
+            <div class="ecg12-practise" id="ecg12Practise" style="display:none; margin-top:1.25rem;">
+                <div class="ecg12-teach-title">Practise &mdash; walk the four steps, then mark yourself</div>
+                <div id="ecg12RoisEngine"></div>
+            </div>
+
         </div>
     </div>
 
@@ -203,6 +242,9 @@
 
     <!-- ==================== SCRIPTS ==================== -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ROIS self-assessment engine (self-contained, reusable) -->
+    <script src="js/rois-engine.js"></script>
 
     <!-- ===== 12-Lead Viewer engine (self-contained) ===== -->
     <script>
@@ -425,6 +467,48 @@
             });
         }
 
+        // ---- Learn / Practise mode ----
+        var mode = 'learn';   // 'learn' | 'practise'
+
+        function applyMode() {
+            var teach = document.getElementById('ecg12Teach');
+            var prac = document.getElementById('ecg12Practise');
+            var learnBtn = document.getElementById('ecg12ModeLearn');
+            var pracBtn = document.getElementById('ecg12ModePractise');
+            learnBtn.classList.toggle('active', mode === 'learn');
+            pracBtn.classList.toggle('active', mode === 'practise');
+            if (!current) { teach.style.display = 'none'; prac.style.display = 'none'; return; }
+            if (mode === 'learn') {
+                teach.style.display = 'block';
+                prac.style.display = 'none';
+            } else {
+                teach.style.display = 'none';
+                prac.style.display = 'block';
+                startPractise();
+            }
+        }
+
+        function nextRecord() {
+            if (!library || !current) return;
+            var ids = library.records;
+            var idx = ids.findIndex(function (r) { return r.id === current.meta.id; });
+            var next = ids[(idx + 1) % ids.length];
+            loadRecord(next);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function startPractise() {
+            if (!current || typeof RoisEngine === 'undefined') return;
+            RoisEngine.start({
+                container: document.getElementById('ecg12RoisEngine'),
+                labels: (library && library.roisLabels) || null,
+                rois: current.meta.rois || {},
+                recordLabel: current.meta.label,
+                onNext: nextRecord
+                // onComplete / onStepMarked left unwired until CPD (stage 4)
+            });
+        }
+
         // ---- Load a record ----
         function loadRecord(meta) {
             document.querySelectorAll('.ecg12-pick-btn').forEach(function (b) { b.classList.remove('active'); });
@@ -448,6 +532,7 @@
                     if (meta.territory) bits.push('territory: ' + meta.territory);
                     document.getElementById('ecg12InfoMeta').textContent = bits.join('  \u00b7  ');
                     renderTeaching(meta);
+                    applyMode();
                 })
                 .catch(function () {
                     hint.textContent = 'Could not load this record.';
@@ -475,7 +560,12 @@
                 });
         }
 
-        document.addEventListener('DOMContentLoaded', initPicker);
+        function initModes() {
+            document.getElementById('ecg12ModeLearn').onclick = function () { mode = 'learn'; applyMode(); };
+            document.getElementById('ecg12ModePractise').onclick = function () { mode = 'practise'; applyMode(); };
+        }
+
+        document.addEventListener('DOMContentLoaded', function () { initModes(); initPicker(); });
     })();
     </script>
 
