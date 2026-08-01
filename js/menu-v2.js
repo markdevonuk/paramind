@@ -59,7 +59,8 @@
             { id: 'major-incident', href: 'major-incident.html', icon: 'bi-exclamation-triangle', label: 'Major Incident Training', isPro: true },
             { id: 'atmist', href: 'atmist.html', icon: 'bi-telephone-outbound', label: 'ATMIST/SBAR', isPro: true },
             { id: 'differentials', href: 'differentials.html', icon: 'bi-clipboard2-pulse', label: 'Differentials' },
-            { id: 'interview', href: 'interview.html', icon: 'bi-mic', label: 'Interview Prep', isPro: true }
+            { id: 'interview', href: 'interview.html', icon: 'bi-mic', label: 'Interview Prep', isPro: true },
+            { id: 'quizmonth', href: 'quiz-month.html', icon: 'bi-trophy', label: 'Quiz of the Month' }
         ],
         // Reflect section
         reflectNav: [
@@ -84,6 +85,7 @@
         if (path.includes('reflect.html'))  return '';
 
         if (path.includes('landing')) return 'home';
+        if (path.includes('quiz-month')) return 'quizmonth';
         if (path.includes('chat')) return 'chat';
         if (path.includes('arrest-scenarios')) return 'arrest';
         if (path.includes('scenarios')) return 'scenarios';
