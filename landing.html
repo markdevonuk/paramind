@@ -216,6 +216,20 @@
             0%, 100% { transform: scale(1);    opacity: 1;    }
             50%      { transform: scale(1.18); opacity: 0.75; }
         }
+        /* Quiz of the Month — same pill shape, trophy gold, sits beside What's new.
+           Icon does not pulse; one pulsing pill in the hero is enough. */
+        .quiz-pill {
+            margin-left: 0.5rem;
+            border-color: #d97706;
+            color: #b45309;
+            box-shadow: 0 2px 6px rgba(217, 119, 6, 0.10);
+        }
+        .quiz-pill:hover {
+            background: linear-gradient(135deg, #d97706, #f59e0b);
+            color: #FFFFFF;
+            box-shadow: 0 6px 14px rgba(217, 119, 6, 0.28);
+        }
+        .quiz-pill i { animation: none; }
         .upgrade-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; position: relative; z-index: 1; }
         .upgrade-icon {
             width: 44px; height: 44px; border-radius: 10px;
@@ -357,6 +371,10 @@
             <a href="whatsnew.html" class="whatsnew-pill page-load-5" aria-label="See what's new">
                 <i class="bi bi-megaphone"></i>
                 <span>What's new</span>
+            </a>
+            <a href="quiz-month.html" class="whatsnew-pill quiz-pill page-load-5" aria-label="Play the Quiz of the Month">
+                <i class="bi bi-trophy"></i>
+                <span>Quiz of the Month</span>
             </a>
         </div>
 
