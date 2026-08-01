@@ -16,13 +16,14 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/rois.css">
 
     <style>
         /* ===== 12-Lead Viewer — page-specific styles ===== */
@@ -89,6 +90,30 @@
         .ecg12-info { margin-top: 1rem; background: #fff; border: 1px solid #E9ECEF; border-radius: var(--radius-lg); padding: 0.9rem; }
         .ecg12-info h2 { font-size: 0.95rem; font-weight: 600; margin: 0 0 0.35rem; color: var(--color-gray-800); }
         .ecg12-info .meta { font-size: 0.82rem; color: var(--color-gray-600); }
+
+        /* Learn-mode teaching panel (ROIS text below the viewer) */
+        .ecg12-teach { margin-top: 1.25rem; }
+        .ecg12-teach-title { font-size: 0.78rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.5px; color: var(--color-gray-500); margin-bottom: 0.75rem; }
+        .ecg12-rois-row { display: flex; gap: 0.85rem; align-items: flex-start;
+            background: #fff; border: 1px solid #E9ECEF; border-radius: var(--radius-lg);
+            padding: 0.9rem 1rem; margin-bottom: 0.6rem; box-shadow: var(--shadow-sm); }
+        .ecg12-rois-badge { width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+            background: linear-gradient(135deg, var(--color-teal), #237282); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 700; }
+        .ecg12-rois-body { flex: 1; }
+        .ecg12-rois-step { font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.5px; color: var(--color-gray-500); margin-bottom: 0.15rem; }
+        .ecg12-rois-text { font-size: 0.9rem; color: var(--color-gray-800); line-height: 1.5; margin: 0; }
+
+        /* Findings summary */
+        .ecg12-findings { margin-top: 0.9rem; background: #F0FAFB; border: 1px solid #B8E4EB;
+            border-radius: var(--radius-lg); padding: 0.9rem 1rem; }
+        .ecg12-findings .lbl { font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.5px; color: var(--color-teal); margin-bottom: 0.4rem; }
+        .ecg12-findings ul { margin: 0; padding-left: 1.1rem; }
+        .ecg12-findings li { font-size: 0.9rem; color: var(--color-gray-800); margin-bottom: 0.2rem; }
     </style>
 </head>
 <body>
@@ -142,6 +167,15 @@
             <div class="ecg12-info" id="ecg12Info" style="display:none;">
                 <h2 id="ecg12InfoLabel"></h2>
                 <div class="meta" id="ecg12InfoMeta"></div>
+            </div>
+
+            <div class="ecg12-teach" id="ecg12Teach" style="display:none;">
+                <div class="ecg12-teach-title">Reading it with ROIS</div>
+                <div id="ecg12RoisRows"></div>
+                <div class="ecg12-findings" id="ecg12Findings" style="display:none;">
+                    <div class="lbl">Findings</div>
+                    <ul id="ecg12FindingsList"></ul>
+                </div>
             </div>
 
         </div>
@@ -201,6 +235,49 @@
 
         var library = null;
         var current = null;   // { meta, leads: {name: [samples]}, fs }
+        var ROIS_LABELS = { R:'Rate & Rhythm', O:'Origin', I:'Intervals', S:'ST segment & T waves' };
+
+        // ---- Learn-mode teaching panel ----
+        function renderTeaching(meta) {
+            var teach = document.getElementById('ecg12Teach');
+            var rowsEl = document.getElementById('ecg12RoisRows');
+            rowsEl.innerHTML = '';
+            var rois = meta.rois || {};
+            ['R','O','I','S'].forEach(function (letter) {
+                var text = rois[letter] || '';
+                var row = document.createElement('div');
+                row.className = 'ecg12-rois-row';
+                var badge = document.createElement('div');
+                badge.className = 'ecg12-rois-badge';
+                badge.textContent = letter;
+                var body = document.createElement('div');
+                body.className = 'ecg12-rois-body';
+                var step = document.createElement('div');
+                step.className = 'ecg12-rois-step';
+                step.textContent = (library && library.roisLabels && library.roisLabels[letter]) || ROIS_LABELS[letter];
+                var p = document.createElement('p');
+                p.className = 'ecg12-rois-text';
+                p.textContent = text;
+                body.appendChild(step); body.appendChild(p);
+                row.appendChild(badge); row.appendChild(body);
+                rowsEl.appendChild(row);
+            });
+
+            var findEl = document.getElementById('ecg12Findings');
+            var listEl = document.getElementById('ecg12FindingsList');
+            listEl.innerHTML = '';
+            if (meta.findings && meta.findings.length) {
+                meta.findings.forEach(function (f) {
+                    var li = document.createElement('li');
+                    li.textContent = f;
+                    listEl.appendChild(li);
+                });
+                findEl.style.display = 'block';
+            } else {
+                findEl.style.display = 'none';
+            }
+            teach.style.display = 'block';
+        }
 
         // ---- Lead derivation: store 8, derive 4 ----
         function deriveLeads(stored) {
@@ -370,6 +447,7 @@
                     if (meta.age) bits.push(meta.age + (meta.sex ? ' ' + meta.sex : ''));
                     if (meta.territory) bits.push('territory: ' + meta.territory);
                     document.getElementById('ecg12InfoMeta').textContent = bits.join('  \u00b7  ');
+                    renderTeaching(meta);
                 })
                 .catch(function () {
                     hint.textContent = 'Could not load this record.';
