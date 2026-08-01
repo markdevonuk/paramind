@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Quiz of the Month - Admin - Paramind</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        body { background-color: #f8f9fa; }
+
+        .admin-header {
+            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .q-block {
+            background: white;
+            border-radius: 12px;
+            border-left: 4px solid #dee2e6;
+            padding: 1.25rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            margin-bottom: 1rem;
+        }
+        .q-block.done { border-left-color: #28a745; }
+
+        .q-num {
+            font-weight: 700;
+            color: #283593;
+            font-size: 1.05rem;
+        }
+
+        .opt-row { display: flex; align-items: center; gap: .6rem; margin-bottom: .5rem; }
+        .opt-row .form-check { margin: 0; flex-shrink: 0; }
+        .opt-row .opt-key { font-weight: 700; width: 1.2rem; color: #6c757d; }
+
+        .policy-warning {
+            background: #fff3cd;
+            border: 1px solid #ffecb5;
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            font-size: .92rem;
+        }
+
+        .status-pill {
+            display: inline-block;
+            padding: .25rem .75rem;
+            border-radius: 999px;
+            font-size: .8rem;
+            font-weight: 600;
+        }
+        .status-pill.draft { background: #e9ecef; color: #495057; }
+        .status-pill.published { background: #d1e7dd; color: #0f5132; }
+        .status-pill.none { background: #f8d7da; color: #842029; }
+
+        .access-denied, .loading-spinner {
+            display: flex; align-items: center; justify-content: center;
+            min-height: 100vh; flex-direction: column; text-align: center;
+        }
+        .access-denied i { font-size: 4rem; color: #dc3545; margin-bottom: 1rem; }
+
+        #adminContent { display: none; }
+        code.mono { font-size: .85rem; }
+    </style>
+</head>
+<body>
+
+    <!-- Access Denied -->
+    <div id="accessDenied" class="access-denied" style="display:none;">
+        <i class="bi bi-shield-lock"></i>
+        <h2>Access Denied</h2>
+        <p class="text-muted">You don't have permission to access this page.</p>
+        <a href="chat.html" class="btn btn-primary">Back to Chat</a>
+    </div>
+
+    <!-- Loading -->
+    <div id="loadingScreen" class="loading-spinner">
+        <div class="text-center">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p>Verifying admin access...</p>
+        </div>
+    </div>
+
+    <!-- Admin Content -->
+    <div id="adminContent">
+        <header class="admin-header">
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <h1><i class="bi bi-trophy me-2"></i>Quiz of the Month</h1>
+                        <p class="mb-0 opacity-75">Write and publish the monthly quiz</p>
+                    </div>
+                    <div>
+                        <span id="adminEmail" class="me-3"></span>
+                        <a href="admin.html" class="btn btn-outline-light btn-sm me-2">
+                            <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                        </a>
+                        <button id="logoutBtn" class="btn btn-light btn-sm">
+                            <i class="bi bi-box-arrow-right me-1"></i>Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="container pb-5">
+
+            <div class="policy-warning">
+                <strong><i class="bi bi-exclamation-triangle-fill me-1"></i>Content policy</strong> —
+                questions must stay on recognition, interpretation and understanding.
+                No drug names, no doses, no treatment or management guidance. JRCALC and trust
+                guidelines are the reference for management, not Paramind.
+            </div>
+
+            <!-- Month selector -->
+            <div class="panel">
+                <div class="row g-3 align-items-end">
+                    <div class="col-sm-4">
+                        <label class="form-label fw-semibold" for="monthPicker">Month</label>
+                        <input type="month" class="form-control" id="monthPicker">
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="form-label fw-semibold" for="titleInput">Title (optional)</label>
+                        <input type="text" class="form-control" id="titleInput" placeholder="e.g. August 2026">
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="mb-1"><small class="text-muted">Status</small></div>
+                        <span class="status-pill none" id="statusPill">Not created</span>
+                        <span class="ms-2 text-muted small" id="entryCount"></span>
+                    </div>
+                </div>
+                <hr>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-outline-secondary btn-sm" id="loadBtn">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Load month
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" id="clearBtn">
+                        <i class="bi bi-eraser me-1"></i>Clear form
+                    </button>
+                    <div class="ms-auto d-flex gap-2">
+                        <button class="btn btn-secondary btn-sm" id="saveDraftBtn">
+                            <i class="bi bi-save me-1"></i>Save draft
+                        </button>
+                        <button class="btn btn-success btn-sm" id="publishBtn">
+                            <i class="bi bi-broadcast me-1"></i>Publish
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm" id="unpublishBtn">
+                            <i class="bi bi-eye-slash me-1"></i>Unpublish
+                        </button>
+                    </div>
+                </div>
+                <div class="mt-3" id="saveFeedback"></div>
+            </div>
+
+            <!-- JSON import -->
+            <div class="panel">
+                <label class="form-label fw-semibold" for="jsonBox">
+                    Paste questions as JSON
+                    <small class="text-muted fw-normal">— faster than typing 60 fields on an iPad</small>
+                </label>
+                <textarea class="form-control mono" id="jsonBox" rows="6" spellcheck="false"
+                          placeholder='[{"id":"q1","cat":"Anatomy &amp; Physiology","q":"…","o":["A","B","C","D"],"c":0,"ex":"…"}, … 10 items]'></textarea>
+                <div class="d-flex gap-2 mt-2 flex-wrap">
+                    <button class="btn btn-primary btn-sm" id="importBtn">
+                        <i class="bi bi-box-arrow-in-down me-1"></i>Import into form
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" id="exportBtn">
+                        <i class="bi bi-box-arrow-up me-1"></i>Export form as JSON
+                    </button>
+                </div>
+                <div class="mt-2" id="jsonFeedback"></div>
+            </div>
+
+            <!-- Question editors -->
+            <div id="questionEditors"></div>
+
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs }
+            from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { firebaseConfig } from './js/firebase-config.js';
+
+        const app  = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db   = getFirestore(app);
+
+        const ADMIN_EMAILS = ['markdevon@gmail.com'];
+        const TOTAL_QUESTIONS = 10;
+        const KEYS = ['A','B','C','D'];
+
+        /* ==================== ACCESS CONTROL ==================== */
+        onAuthStateChanged(auth, (user) => {
+            if (!user) { window.location.href = 'login.html'; return; }
+            if (ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('adminContent').style.display = 'block';
+                document.getElementById('adminEmail').textContent = user.email;
+                buildEditors();
+                const d = new Date();
+                document.getElementById('monthPicker').value =
+                    d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+                loadMonth();
+            } else {
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('accessDenied').style.display = 'flex';
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'login.html';
+        });
+
+        /* ==================== FORM BUILD ==================== */
+        function buildEditors(){
+            const wrap = document.getElementById('questionEditors');
+            let html = '';
+            for (let i = 0; i < TOTAL_QUESTIONS; i++){
+                let opts = '';
+                for (let o = 0; o < 4; o++){
+                    opts +=
+                      '<div class="opt-row">' +
+                        '<div class="form-check">' +
+                          '<input class="form-check-input" type="radio" name="correct'+i+'" id="c'+i+'_'+o+'" value="'+o+'">' +
+                        '</div>' +
+                        '<span class="opt-key">'+KEYS[o]+'</span>' +
+                        '<input type="text" class="form-control form-control-sm" id="o'+i+'_'+o+'" placeholder="Option '+KEYS[o]+'">' +
+                      '</div>';
+                }
+                html +=
+                  '<div class="q-block" id="qb'+i+'">' +
+                    '<div class="d-flex justify-content-between align-items-center mb-2">' +
+                      '<span class="q-num">Question '+(i+1)+'</span>' +
+                      '<input type="text" class="form-control form-control-sm w-auto" id="cat'+i+'" placeholder="Category">' +
+                    '</div>' +
+                    '<textarea class="form-control form-control-sm mb-2" id="q'+i+'" rows="2" placeholder="Question text"></textarea>' +
+                    opts +
+                    '<textarea class="form-control form-control-sm mt-2" id="ex'+i+'" rows="2" placeholder="Explanation (shown in the review after the quiz)"></textarea>' +
+                  '</div>';
+            }
+            wrap.innerHTML = html;
+            for (let i = 0; i < TOTAL_QUESTIONS; i++){
+                document.getElementById('q'+i).addEventListener('input', () => markBlock(i));
+                for (let o = 0; o < 4; o++){
+                    document.getElementById('o'+i+'_'+o).addEventListener('input', () => markBlock(i));
+                    document.getElementById('c'+i+'_'+o).addEventListener('change', () => markBlock(i));
+                }
+            }
+        }
+
+        function markBlock(i){
+            const q = readQuestion(i);
+            document.getElementById('qb'+i).classList.toggle('done', isComplete(q));
+        }
+
+        function isComplete(q){
+            if (!q) return false;
+            if (!q.q || !q.q.trim()) return false;
+            if (q.c === null || q.c === undefined) return false;
+            for (let o = 0; o < 4; o++){ if (!q.o[o] || !q.o[o].trim()) return false; }
+            return true;
+        }
+
+        function readQuestion(i){
+            const o = [];
+            for (let k = 0; k < 4; k++) o.push(document.getElementById('o'+i+'_'+k).value.trim());
+            const picked = document.querySelector('input[name="correct'+i+'"]:checked');
+            return {
+                id  : 'q' + (i+1),
+                cat : document.getElementById('cat'+i).value.trim(),
+                q   : document.getElementById('q'+i).value.trim(),
+                o   : o,
+                c   : picked ? parseInt(picked.value, 10) : null,
+                ex  : document.getElementById('ex'+i).value.trim()
+            };
+        }
+
+        function writeQuestion(i, q){
+            document.getElementById('cat'+i).value = q.cat || '';
+            document.getElementById('q'+i).value   = q.q   || '';
+            document.getElementById('ex'+i).value  = q.ex  || '';
+            for (let o = 0; o < 4; o++){
+                document.getElementById('o'+i+'_'+o).value = (q.o && q.o[o]) ? q.o[o] : '';
+            }
+            const sel = document.querySelector('input[name="correct'+i+'"][value="'+q.c+'"]');
+            const all = document.querySelectorAll('input[name="correct'+i+'"]');
+            all.forEach(r => { r.checked = false; });
+            if (sel) sel.checked = true;
+            markBlock(i);
+        }
+
+        function readAll(){
+            const out = [];
+            for (let i = 0; i < TOTAL_QUESTIONS; i++) out.push(readQuestion(i));
+            return out;
+        }
+
+        function clearForm(){
+            for (let i = 0; i < TOTAL_QUESTIONS; i++){
+                writeQuestion(i, { cat:'', q:'', o:['','','',''], c:null, ex:'' });
+            }
+        }
+
+        /* ==================== FEEDBACK ==================== */
+        function say(elId, msg, kind){
+            const box = document.getElementById(elId);
+            box.className = 'alert alert-' + (kind || 'secondary') + ' py-2 mb-0';
+            box.textContent = msg;
+            if (kind === 'success'){
+                setTimeout(() => { box.className = ''; box.textContent = ''; }, 4000);
+            }
+        }
+
+        /* ==================== LOAD / SAVE ==================== */
+        function monthId(){ return document.getElementById('monthPicker').value; }
+
+        async function loadMonth(){
+            const id = monthId();
+            if (!id) return;
+            clearForm();
+            document.getElementById('titleInput').value = '';
+            setStatus('none');
+            document.getElementById('entryCount').textContent = '';
+
+            try {
+                const snap = await getDoc(doc(db, 'quizzes', id));
+                if (snap.exists()){
+                    const d = snap.data();
+                    document.getElementById('titleInput').value = d.title || '';
+                    setStatus(d.status || 'draft');
+                    if (Array.isArray(d.questions)){
+                        for (let i = 0; i < TOTAL_QUESTIONS; i++){
+                            if (d.questions[i]) writeQuestion(i, d.questions[i]);
+                        }
+                    }
+                    say('saveFeedback', 'Loaded ' + id + '.', 'secondary');
+                } else {
+                    say('saveFeedback', 'No quiz saved for ' + id + ' yet.', 'secondary');
+                }
+                // How many people have played this month
+                const entries = await getDocs(collection(db, 'quizScores', id, 'entries'));
+                document.getElementById('entryCount').textContent =
+                    entries.size + (entries.size === 1 ? ' entry' : ' entries');
+            } catch (err){
+                console.error(err);
+                say('saveFeedback', 'Could not load that month: ' + err.message, 'danger');
+            }
+        }
+
+        function setStatus(s){
+            const pill = document.getElementById('statusPill');
+            pill.className = 'status-pill ' + (s === 'published' ? 'published' : s === 'draft' ? 'draft' : 'none');
+            pill.textContent = s === 'published' ? 'Published' : s === 'draft' ? 'Draft' : 'Not created';
+        }
+
+        async function save(status){
+            const id = monthId();
+            if (!id){ say('saveFeedback', 'Pick a month first.', 'danger'); return; }
+
+            const questions = readAll();
+            if (status === 'published'){
+                for (let i = 0; i < TOTAL_QUESTIONS; i++){
+                    if (!isComplete(questions[i])){
+                        say('saveFeedback', 'Question ' + (i+1) + ' is not finished — every question needs text, four options and a correct answer before you can publish.', 'danger');
+                        document.getElementById('qb'+i).scrollIntoView({ behavior:'smooth', block:'center' });
+                        return;
+                    }
+                }
+            }
+
+            const payload = {
+                monthId : id,
+                title   : document.getElementById('titleInput').value.trim() || id,
+                status  : status,
+                questions : questions,
+                updatedAt : new Date().toISOString()
+            };
+
+            try {
+                await setDoc(doc(db, 'quizzes', id), payload, { merge:true });
+                setStatus(status);
+                say('saveFeedback', status === 'published' ? 'Published — it is live now.' : 'Draft saved.', 'success');
+            } catch (err){
+                console.error(err);
+                say('saveFeedback', 'Save failed: ' + err.message, 'danger');
+            }
+        }
+
+        async function unpublish(){
+            const id = monthId();
+            if (!id) return;
+            if (!confirm('Take ' + id + ' off the site? Anyone part-way through will keep their attempt.')) return;
+            try {
+                await updateDoc(doc(db, 'quizzes', id), { status:'draft' });
+                setStatus('draft');
+                say('saveFeedback', 'Unpublished — back to draft.', 'success');
+            } catch (err){
+                console.error(err);
+                say('saveFeedback', 'Could not unpublish: ' + err.message, 'danger');
+            }
+        }
+
+        /* ==================== JSON IMPORT / EXPORT ==================== */
+        function importJson(){
+            const raw = document.getElementById('jsonBox').value.trim();
+            if (!raw){ say('jsonFeedback', 'Nothing to import.', 'danger'); return; }
+            let parsed;
+            try { parsed = JSON.parse(raw); }
+            catch (err){ say('jsonFeedback', 'That is not valid JSON: ' + err.message, 'danger'); return; }
+
+            if (!Array.isArray(parsed)){ say('jsonFeedback', 'Expected an array of questions.', 'danger'); return; }
+            if (parsed.length !== TOTAL_QUESTIONS){
+                say('jsonFeedback', 'Expected exactly ' + TOTAL_QUESTIONS + ' questions, found ' + parsed.length + '.', 'danger');
+                return;
+            }
+            for (let i = 0; i < parsed.length; i++){
+                const q = parsed[i];
+                if (!q || typeof q.q !== 'string' || !Array.isArray(q.o) || q.o.length !== 4 ||
+                    typeof q.c !== 'number' || q.c < 0 || q.c > 3){
+                    say('jsonFeedback', 'Question ' + (i+1) + ' is malformed. Each needs q, four options in o, and c as 0–3.', 'danger');
+                    return;
+                }
+            }
+            for (let i = 0; i < TOTAL_QUESTIONS; i++) writeQuestion(i, parsed[i]);
+            say('jsonFeedback', 'Imported ' + TOTAL_QUESTIONS + ' questions into the form. Nothing is saved until you hit Save draft or Publish.', 'success');
+        }
+
+        function exportJson(){
+            document.getElementById('jsonBox').value = JSON.stringify(readAll(), null, 2);
+            say('jsonFeedback', 'Form exported into the box above.', 'success');
+        }
+
+        /* ==================== LISTENERS ==================== */
+        document.getElementById('loadBtn').addEventListener('click', loadMonth);
+        document.getElementById('monthPicker').addEventListener('change', loadMonth);
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            if (confirm('Clear the form? Anything unsaved is lost.')) clearForm();
+        });
+        document.getElementById('saveDraftBtn').addEventListener('click', () => save('draft'));
+        document.getElementById('publishBtn').addEventListener('click', () => save('published'));
+        document.getElementById('unpublishBtn').addEventListener('click', unpublish);
+        document.getElementById('importBtn').addEventListener('click', importJson);
+        document.getElementById('exportBtn').addEventListener('click', exportJson);
+    </script>
+</body>
+</html>

@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>Quiz of the Month | Paramind</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/menu-v2.css">
+
+<style>
+/* ==================================================================
+   QUIZ OF THE MONTH  ·  dark "event" surface (styling scoped to this page)
+   Visual language lifted from tst.html — terminal grid, radar sweep,
+   ring timer, run clock, mono numerics.
+   ================================================================== */
+:root{
+  --qm-teal:#2B8A9C; --qm-teal-light:#3DA4B8;
+  --qm-green:#5CB85C; --qm-green-light:#72C772;
+  --qm-red:#DC3545; --qm-amber:#E67E22; --qm-gold:#FFD56B;
+  --qm-bg:#080C11; --qm-panel:#101921; --qm-panel2:#0E161D;
+  --qm-line:rgba(255,255,255,0.07); --qm-line-strong:rgba(255,255,255,0.14);
+  --qm-ink:#EAF1F6; --qm-ink-mute:#9FB3C0; --qm-ink-faint:#6C808F;
+  --qm-display:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+  --qm-body:'DM Sans',sans-serif;
+  --qm-mono:'JetBrains Mono',ui-monospace,monospace;
+}
+
+/* ---- page shell: override the light site chrome, this page only ---- */
+html,body{height:100%;}
+body.qm-page{
+  background:radial-gradient(130% 70% at 50% -8%, #11202b 0%, var(--qm-bg) 58%);
+  color:var(--qm-ink);
+  font-family:var(--qm-body);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+}
+body.qm-page .member-navbar{
+  background:rgba(8,12,17,.82);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--qm-line);
+  position:relative; z-index:20;
+}
+body.qm-page .member-navbar .navbar-brand{text-decoration:none;}
+body.qm-page .brand-para{color:var(--qm-teal);}
+body.qm-page .brand-mind{color:var(--qm-green);}
+body.qm-page .hamburger-btn span{background-color:#EAF1F6;}
+body.qm-page .hamburger-btn:hover{background-color:rgba(61,164,184,.16);}
+
+/* ---- ambient grid + radar sweep ---- */
+.qm-grid{
+  content:""; position:fixed; inset:0; pointer-events:none; opacity:.45; z-index:0;
+  background-image:linear-gradient(var(--qm-line) 1px,transparent 1px),linear-gradient(90deg,var(--qm-line) 1px,transparent 1px);
+  background-size:4.2vmin 4.2vmin;
+  -webkit-mask-image:radial-gradient(82% 60% at 50% 32%,#000 38%,transparent 100%);
+  mask-image:radial-gradient(82% 60% at 50% 32%,#000 38%,transparent 100%);
+}
+.qm-sweep{
+  position:fixed; left:-30%; right:-30%; top:-30%; height:160%; pointer-events:none; opacity:.45; z-index:0;
+  background:conic-gradient(from 0deg at 50% 0%, transparent 300deg, rgba(43,138,156,.24) 350deg, transparent 360deg);
+  animation:qmSpin 7s linear infinite;
+}
+@keyframes qmSpin{to{transform:rotate(360deg);}}
+
+#qmFx{position:fixed; inset:0; width:100%; height:100%; z-index:1; pointer-events:none;}
+.qm-shock{position:fixed; inset:0; z-index:1; pointer-events:none; display:none; align-items:center; justify-content:center;}
+.qm-shock.go{display:flex;}
+.qm-shock .ring{position:absolute; width:14vmin; height:14vmin; border-radius:50%; border:.55vmin solid var(--qm-gold); opacity:0;}
+.qm-shock.go .ring{animation:qmShock 1.5s cubic-bezier(.15,.6,.3,1) forwards;}
+.qm-shock.go .ring:nth-child(2){animation-delay:.22s;}
+.qm-shock.go .ring:nth-child(3){animation-delay:.44s;}
+@keyframes qmShock{0%{transform:scale(.2); opacity:.85;}70%{opacity:.45;}100%{transform:scale(9); opacity:0;}}
+
+/* ---- screen system ---- */
+.qm-app{position:relative; z-index:2; height:calc(100dvh - var(--header-height)); width:100%; max-width:760px; margin:0 auto;}
+.qm-screen{position:absolute; inset:0; padding:3.4vmin 4.5vmin; display:none; flex-direction:column;}
+.qm-screen.active{display:flex;}
+.qm-screen.scrolls{overflow-y:auto; -webkit-overflow-scrolling:touch;}
+.qm-centre{justify-content:center; align-items:center; text-align:center;}
+
+.qm-tag{
+  font-family:var(--qm-mono); font-size:clamp(9px,1.5vmin,13px); font-weight:600; letter-spacing:.14em;
+  color:var(--qm-teal-light); border:1px solid rgba(61,164,184,.35); border-radius:999px;
+  padding:.6vmin 1.4vmin; background:rgba(43,138,156,.08); text-transform:uppercase;
+}
+.qm-eyebrow{font-family:var(--qm-mono); font-size:clamp(10px,1.7vmin,14px); letter-spacing:.3em; color:var(--qm-ink-mute); text-transform:uppercase;}
+
+/* ---- attract ---- */
+.qm-title{
+  font-family:var(--qm-display); font-weight:800; line-height:.95; letter-spacing:-.025em;
+  font-size:clamp(34px,8vmin,86px); margin:2vmin 0 1.4vmin;
+}
+.qm-title .big{display:block; color:var(--qm-teal-light); text-shadow:0 0 5vmin rgba(61,164,184,.35);}
+.qm-sub{color:var(--qm-ink-mute); font-size:clamp(13px,2vmin,19px); max-width:26ch; margin:0 auto 3.4vmin; line-height:1.5;}
+.qm-btn{
+  font-family:var(--qm-display); font-weight:800; font-size:clamp(18px,3.2vmin,30px); letter-spacing:.02em;
+  color:#04181c; background:linear-gradient(180deg,var(--qm-teal-light),var(--qm-teal)); border:none;
+  border-radius:2.2vmin; padding:2.4vmin 6.4vmin; cursor:pointer; animation:qmBeckon 2.4s ease-out infinite;
+}
+.qm-btn:disabled{opacity:.55; animation:none; cursor:default;}
+@keyframes qmBeckon{
+  0%{box-shadow:0 0 0 0 rgba(61,164,184,.55),0 1.6vmin 5vmin rgba(43,138,156,.4);}
+  70%{box-shadow:0 0 0 3vmin rgba(61,164,184,0),0 1.6vmin 5vmin rgba(43,138,156,.4);}
+  100%{box-shadow:0 0 0 0 rgba(61,164,184,0),0 1.6vmin 5vmin rgba(43,138,156,.4);}
+}
+.qm-ghost{
+  font-family:var(--qm-display); font-weight:700; font-size:clamp(14px,2.2vmin,20px);
+  color:var(--qm-ink); background:transparent; border:1.5px solid var(--qm-teal); border-radius:1.8vmin;
+  padding:1.6vmin 4vmin; cursor:pointer;
+}
+.qm-ghost.subtle{border-color:var(--qm-line-strong); color:var(--qm-ink-mute);}
+.qm-btn-row{display:flex; gap:1.6vmin; flex-wrap:wrap; justify-content:center; margin-top:3.4vmin;}
+
+/* opt-in tickbox */
+.qm-optin{
+  display:flex; align-items:center; gap:1.4vmin; margin-top:2.6vmin;
+  font-family:var(--qm-mono); font-size:clamp(10px,1.6vmin,13px); letter-spacing:.06em;
+  color:var(--qm-ink-mute); cursor:pointer; text-align:left;
+}
+.qm-optin input{width:2.2vmin; height:2.2vmin; min-width:17px; min-height:17px; accent-color:var(--qm-teal-light); cursor:pointer;}
+
+.qm-rules{
+  position:absolute; bottom:3vmin; left:4.5vmin; right:4.5vmin; display:flex; justify-content:space-between; gap:1vmin;
+  font-family:var(--qm-mono); font-size:clamp(8px,1.35vmin,12px); letter-spacing:.1em; color:var(--qm-ink-faint);
+}
+
+/* ---- countdown ---- */
+.qm-ring-big{position:relative; width:44vmin; height:44vmin; max-width:280px; max-height:280px;}
+.qm-ring-big svg{width:100%; height:100%; transform:rotate(-90deg);}
+.qm-ring-big .track{fill:none; stroke:rgba(255,255,255,.06); stroke-width:8;}
+.qm-ring-big .prog{fill:none; stroke:var(--qm-teal-light); stroke-width:8; stroke-linecap:round; filter:drop-shadow(0 0 10px rgba(61,164,184,.6));}
+.qm-count-num{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-family:var(--qm-display); font-weight:800; font-size:22vmin; color:#fff; text-shadow:0 0 6vmin rgba(61,164,184,.5);}
+
+/* ---- question screen ---- */
+.qm-meta{display:flex; align-items:center; gap:2vmin; margin-bottom:1.6vmin; flex-shrink:0;}
+.qm-ring10{position:relative; width:13vmin; height:13vmin; max-width:88px; max-height:88px; flex-shrink:0;}
+.qm-ring10 svg{width:100%; height:100%; transform:rotate(-90deg);}
+.qm-ring10 .t{fill:none; stroke:rgba(255,255,255,.08); stroke-width:7;}
+.qm-ring10 .p{fill:none; stroke:var(--qm-teal-light); stroke-width:7; stroke-linecap:round; transition:stroke .2s;}
+.qm-ring10.low .p{stroke:var(--qm-red); filter:drop-shadow(0 0 8px rgba(220,53,69,.6));}
+.qm-ring10 .sec{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-family:var(--qm-mono); font-weight:800; font-size:4.4vmin; color:#fff;}
+.qm-index{font-family:var(--qm-mono); font-weight:700; font-size:clamp(12px,1.9vmin,17px); color:var(--qm-ink-mute); letter-spacing:.08em;}
+.qm-index b{color:var(--qm-ink);}
+.qm-clock{margin-left:auto; font-family:var(--qm-mono); font-weight:800; font-size:clamp(17px,2.8vmin,26px); color:var(--qm-teal-light); letter-spacing:.04em;}
+
+.qm-card{
+  background:linear-gradient(180deg,var(--qm-panel),var(--qm-panel2)); border:1px solid var(--qm-line);
+  border-radius:2.4vmin; padding:3vmin 3.2vmin; position:relative; overflow:hidden; flex-shrink:0;
+}
+.qm-card::before{content:""; position:absolute; left:0; top:0; bottom:0; width:.7vmin; background:var(--qm-teal); opacity:.7;}
+.qm-card.slam{animation:qmSlam .3s cubic-bezier(.2,.9,.25,1);}
+@keyframes qmSlam{from{opacity:0; transform:scale(.96) translateY(1.2vmin);}to{opacity:1; transform:none;}}
+.qm-card.timeout{animation:qmShake .4s; border-color:var(--qm-red);}
+@keyframes qmShake{0%,100%{transform:translateX(0);}25%{transform:translateX(-1vmin);}75%{transform:translateX(1vmin);}}
+.qm-cat{font-family:var(--qm-mono); font-size:clamp(9px,1.4vmin,12px); letter-spacing:.16em; color:var(--qm-ink-faint); text-transform:uppercase; margin-bottom:1.2vmin;}
+.qm-q{font-family:var(--qm-body); font-weight:500; font-size:clamp(17px,2.9vmin,32px); line-height:1.34; color:var(--qm-ink);}
+
+.qm-options{display:flex; flex-direction:column; gap:1.3vmin; margin-top:2vmin;}
+.qm-opt{
+  display:flex; align-items:center; gap:2vmin; width:100%; text-align:left;
+  font-family:var(--qm-body); font-weight:500; font-size:clamp(14px,2.2vmin,22px); line-height:1.3;
+  color:var(--qm-ink); background:rgba(255,255,255,.03); border:1.5px solid var(--qm-line-strong);
+  border-radius:1.8vmin; padding:2vmin 2.4vmin; cursor:pointer;
+  transition:transform .08s, background .12s, border-color .12s;
+}
+.qm-opt:active{transform:scale(.985);}
+.qm-opt .key{
+  font-family:var(--qm-mono); font-weight:800; font-size:clamp(12px,1.9vmin,17px); color:var(--qm-teal-light);
+  border:1px solid rgba(61,164,184,.4); border-radius:.8vmin; padding:.4vmin 1.1vmin; flex-shrink:0;
+}
+.qm-opt.right{background:rgba(92,184,92,.2); border-color:var(--qm-green); color:#fff;}
+.qm-opt.right .key{color:#fff; border-color:var(--qm-green);}
+.qm-opt.wrong{background:rgba(220,53,69,.2); border-color:var(--qm-red); color:#fff;}
+.qm-opt.wrong .key{color:#fff; border-color:var(--qm-red);}
+.qm-opt:disabled{cursor:default;}
+
+/* ---- summary ---- */
+.qm-badge{font-family:var(--qm-mono); font-weight:800; font-size:clamp(11px,1.8vmin,15px); letter-spacing:.2em;
+  padding:1.2vmin 2.4vmin; border-radius:999px; margin-bottom:2.6vmin;}
+.qm-badge.clean{color:#04181c; background:linear-gradient(180deg,var(--qm-green-light),var(--qm-green));}
+.qm-badge.miss{color:var(--qm-ink); background:rgba(255,255,255,.06); border:1px solid var(--qm-line-strong);}
+.qm-final-label{font-family:var(--qm-mono); letter-spacing:.28em; font-size:clamp(10px,1.6vmin,14px); color:var(--qm-ink-mute); margin-bottom:1vmin;}
+.qm-final-time{font-family:var(--qm-mono); font-weight:800; font-size:clamp(56px,13vmin,150px); color:var(--qm-teal-light);
+  text-shadow:0 0 6vmin rgba(61,164,184,.4); line-height:1;}
+.qm-final-score{margin-top:2vmin; font-family:var(--qm-display); font-weight:700; font-size:clamp(18px,2.9vmin,28px);}
+.qm-final-score .ok{color:var(--qm-green);} .qm-final-score .bad{color:var(--qm-amber);}
+.qm-rankline{margin-top:1.4vmin; font-family:var(--qm-mono); font-size:clamp(11px,1.6vmin,14px); letter-spacing:.08em; color:var(--qm-ink-faint);}
+.qm-rankline.record{color:var(--qm-green-light); font-weight:700; text-shadow:0 0 2.4vmin rgba(92,184,92,.45);}
+.qm-rankline.record.champion{animation:qmChamp .9s ease-in-out 2;}
+@keyframes qmChamp{0%,100%{transform:scale(1);}50%{transform:scale(1.1); text-shadow:0 0 3.4vmin rgba(255,213,107,.85);}}
+.qm-penalty{margin-top:1vmin; font-family:var(--qm-mono); font-size:clamp(10px,1.5vmin,13px); color:var(--qm-ink-faint); letter-spacing:.06em;}
+
+/* ---- leaderboard ---- */
+.qm-head{display:flex; align-items:center; justify-content:space-between; gap:2vmin; margin-bottom:2.4vmin; flex-shrink:0;}
+.qm-head h2{font-family:var(--qm-display); font-weight:800; font-size:clamp(20px,3.4vmin,32px); letter-spacing:-.02em; margin:0;}
+.qm-select{
+  font-family:var(--qm-mono); font-size:clamp(10px,1.6vmin,14px); color:var(--qm-ink);
+  background:var(--qm-panel); border:1px solid var(--qm-line-strong); border-radius:1.2vmin;
+  padding:1vmin 1.6vmin; cursor:pointer;
+}
+.qm-board{display:flex; flex-direction:column; gap:1vmin;}
+.qm-row{
+  display:flex; align-items:center; gap:1.8vmin; background:var(--qm-panel); border:1px solid var(--qm-line);
+  border-radius:1.4vmin; padding:1.6vmin 2vmin;
+}
+.qm-row.me{border-color:var(--qm-teal); background:rgba(43,138,156,.14);}
+.qm-row .rank{font-family:var(--qm-mono); font-weight:800; font-size:clamp(13px,2vmin,18px); color:var(--qm-ink-faint); min-width:3.4ch;}
+.qm-row.gold .rank{color:var(--qm-gold);}
+.qm-row .who{flex:1; min-width:0;}
+.qm-row .nm{font-family:var(--qm-display); font-weight:700; font-size:clamp(13px,2vmin,19px); color:var(--qm-ink);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.qm-row .sub{font-family:var(--qm-mono); font-size:clamp(9px,1.4vmin,12px); letter-spacing:.1em; color:var(--qm-ink-faint); text-transform:uppercase;}
+.qm-row .tm{font-family:var(--qm-mono); font-weight:800; font-size:clamp(13px,2.1vmin,19px); color:var(--qm-teal-light);}
+.qm-row .sc{font-family:var(--qm-mono); font-size:clamp(9px,1.4vmin,12px); color:var(--qm-ink-faint); margin-left:.6vmin;}
+.qm-empty{font-family:var(--qm-mono); font-size:clamp(11px,1.7vmin,14px); color:var(--qm-ink-faint); letter-spacing:.08em; text-align:center; padding:6vmin 0;}
+
+/* ---- review ---- */
+.qm-review-item{background:var(--qm-panel); border:1px solid var(--qm-line); border-left:.6vmin solid var(--qm-red);
+  border-radius:1.4vmin; padding:2.2vmin 2.4vmin; margin-bottom:1.4vmin;}
+.qm-review-item.ok{border-left-color:var(--qm-green);}
+.qm-review-item .rq{font-family:var(--qm-body); font-weight:500; font-size:clamp(13px,2vmin,19px); color:var(--qm-ink); margin-bottom:1.2vmin;}
+.qm-review-item .ra{font-family:var(--qm-mono); font-size:clamp(10px,1.5vmin,13px); letter-spacing:.05em; margin-bottom:.7vmin;}
+.qm-review-item .ra.good{color:var(--qm-green-light);}
+.qm-review-item .ra.bad{color:var(--qm-red);}
+.qm-review-item .rx{font-family:var(--qm-body); font-size:clamp(12px,1.8vmin,16px); line-height:1.45; color:var(--qm-ink-mute);}
+
+/* ---- gate / notices ---- */
+.qm-note{font-family:var(--qm-body); font-size:clamp(14px,2.1vmin,20px); color:var(--qm-ink-mute); max-width:32ch; line-height:1.55; margin:0 auto;}
+.qm-spinner{width:5vmin; height:5vmin; min-width:34px; min-height:34px; border:3px solid rgba(255,255,255,.12);
+  border-top-color:var(--qm-teal-light); border-radius:50%; animation:qmSpin2 .9s linear infinite;}
+@keyframes qmSpin2{to{transform:rotate(360deg);}}
+
+@media (prefers-reduced-motion:reduce){
+  .qm-sweep,.qm-btn,.qm-card.slam,.qm-card.timeout,.qm-shock.go .ring,.qm-rankline.record.champion{animation:none;}
+}
+</style>
+</head>
+<body class="qm-page">
+
+<div class="qm-grid"></div>
+<div class="qm-sweep"></div>
+<canvas id="qmFx"></canvas>
+<div id="qmShock" class="qm-shock" aria-hidden="true"><span class="ring"></span><span class="ring"></span><span class="ring"></span></div>
+
+<!-- ==================== NAV ==================== -->
+<nav class="member-navbar">
+    <div class="container">
+        <span class="brand-text">
+            <a class="navbar-brand" href="landing.html">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </a>
+        </span>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</nav>
+
+<div class="qm-app">
+
+    <!-- 0 · LOADING -->
+    <div class="qm-screen qm-centre active" data-screen="loading">
+        <div class="qm-spinner"></div>
+        <div class="qm-eyebrow" style="margin-top:3vmin;">Loading</div>
+    </div>
+
+    <!-- 0b · SIGN IN REQUIRED -->
+    <div class="qm-screen qm-centre" data-screen="signin">
+        <div class="qm-tag">Quiz of the Month</div>
+        <h1 class="qm-title" style="margin-top:3vmin;">Sign in<span class="big">to play</span></h1>
+        <p class="qm-note">One attempt per person, so we need to know who you are. Free and Pro members can both play.</p>
+        <div class="qm-btn-row">
+            <a class="qm-ghost" href="login.html">Sign in</a>
+            <a class="qm-ghost subtle" href="register.html">Create an account</a>
+        </div>
+    </div>
+
+    <!-- 0c · NOTICE (no quiz published / attempt already used) -->
+    <div class="qm-screen qm-centre" data-screen="notice">
+        <div class="qm-tag" id="noticeTag">Quiz of the Month</div>
+        <h1 class="qm-title" style="margin-top:3vmin;" id="noticeTitle"></h1>
+        <p class="qm-note" id="noticeBody"></p>
+        <div class="qm-btn-row">
+            <button class="qm-ghost" id="noticeBoardBtn">See the leaderboard</button>
+            <a class="qm-ghost subtle" href="practise.html">Back to Practise</a>
+        </div>
+    </div>
+
+    <!-- 1 · ATTRACT -->
+    <div class="qm-screen qm-centre" data-screen="start">
+        <div class="qm-tag" id="startTag">Quiz of the Month</div>
+        <h1 class="qm-title">Quiz of the<span class="big" id="startMonth">Month</span></h1>
+        <p class="qm-sub">Ten questions. Ten seconds each. One attempt only — fastest clean run tops the board.</p>
+        <button class="qm-btn" id="startBtn">START</button>
+        <label class="qm-optin">
+            <input type="checkbox" id="showNameChk" checked>
+            <span>Show my first name on the leaderboard</span>
+        </label>
+        <div class="qm-btn-row" style="margin-top:2vmin;">
+            <button class="qm-ghost subtle" id="startBoardBtn">Leaderboard</button>
+        </div>
+        <div class="qm-rules"><span>10 QUESTIONS</span><span>10s EACH</span><span>WRONG = +10s</span></div>
+    </div>
+
+    <!-- 2 · COUNTDOWN -->
+    <div class="qm-screen qm-centre" data-screen="count">
+        <div class="qm-eyebrow" style="margin-bottom:3vmin;">Get ready</div>
+        <div class="qm-ring-big">
+            <svg viewBox="0 0 230 230">
+                <circle class="track" cx="115" cy="115" r="100"></circle>
+                <circle class="prog" id="countProg" cx="115" cy="115" r="100"></circle>
+            </svg>
+            <div class="qm-count-num" id="countNum">3</div>
+        </div>
+    </div>
+
+    <!-- 3 · QUESTION -->
+    <div class="qm-screen" data-screen="quiz">
+        <div class="qm-meta">
+            <div class="qm-ring10" id="ring10">
+                <svg viewBox="0 0 96 96">
+                    <circle class="t" cx="48" cy="48" r="42"></circle>
+                    <circle class="p" id="ringProg" cx="48" cy="48" r="42"></circle>
+                </svg>
+                <div class="sec" id="ringSec">10</div>
+            </div>
+            <div class="qm-index">QUESTION <b id="qNum">01</b> / 10</div>
+            <div class="qm-clock" id="runClock">00:00.0</div>
+        </div>
+        <div class="qm-card" id="qCard">
+            <div class="qm-cat" id="qCat"></div>
+            <p class="qm-q" id="qText"></p>
+        </div>
+        <div class="qm-options" id="qOptions"></div>
+    </div>
+
+    <!-- 4 · SUMMARY -->
+    <div class="qm-screen qm-centre" data-screen="summary">
+        <div class="qm-badge" id="sumBadge"></div>
+        <div class="qm-final-label">YOUR TIME</div>
+        <div class="qm-final-time" id="sumTime">00:00.0</div>
+        <div class="qm-final-score" id="sumScore"></div>
+        <div class="qm-rankline" id="sumRank"></div>
+        <div class="qm-penalty" id="sumPenalty"></div>
+        <div class="qm-btn-row">
+            <button class="qm-ghost" id="sumBoardBtn">Leaderboard</button>
+            <button class="qm-ghost subtle" id="sumReviewBtn">Review answers</button>
+        </div>
+    </div>
+
+    <!-- 5 · LEADERBOARD -->
+    <div class="qm-screen scrolls" data-screen="board">
+        <div class="qm-head">
+            <h2>Leaderboard</h2>
+            <select class="qm-select" id="boardMonth"></select>
+        </div>
+        <div class="qm-board" id="boardList"></div>
+        <div class="qm-btn-row" style="margin-bottom:2vmin;">
+            <button class="qm-ghost subtle" id="boardBackBtn">Back</button>
+        </div>
+    </div>
+
+    <!-- 6 · REVIEW -->
+    <div class="qm-screen scrolls" data-screen="review">
+        <div class="qm-head">
+            <h2>Your answers</h2>
+            <span class="qm-tag" id="reviewTag"></span>
+        </div>
+        <div id="reviewList"></div>
+        <div class="qm-btn-row" style="margin-bottom:2vmin;">
+            <button class="qm-ghost subtle" id="reviewBackBtn">Back</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- Menu JS (also loads the Firebase compat SDK for this page) -->
+<script src="js/menu-v2.js"></script>
+
+<script>
+(function(){
+'use strict';
+
+/* ==================== CONSTANTS ==================== */
+var QUESTION_SECONDS = 10;
+var PENALTY_MS       = 10000;   // wrong or timed out
+var FLASH_MS         = 320;     // reveal pause — NOT charged to the runner
+var TOTAL_QUESTIONS  = 10;
+var BOARD_LIMIT      = 50;
+var COUNT_CIRC       = 2 * Math.PI * 100;
+var RING_CIRC        = 2 * Math.PI * 42;
+var KEYS             = ['A','B','C','D'];
+
+/* ==================== STATE ==================== */
+var db = null, uid = null;
+var profile   = { firstName:null, role:null, trust:null };
+var monthId   = currentMonthId();
+var quiz      = null;      // { monthId, title, questions:[...] }
+var order     = [];        // answers recorded in play order
+var qIdx = 0, correctCount = 0, totalMs = 0;
+var qStart = 0, runStart = 0;
+var clockRAF = null, ringRAF = null, answered = false;
+var myScore = null;        // { totalMs, correct } once written
+var boardCache = {};
+
+/* ==================== SMALL HELPERS ==================== */
+function el(id){ return document.getElementById(id); }
+function show(name){
+    var all = document.querySelectorAll('.qm-screen');
+    for (var i=0;i<all.length;i++){
+        all[i].classList.toggle('active', all[i].dataset.screen === name);
+        if (all[i].dataset.screen === name) all[i].scrollTop = 0;
+    }
+}
+function fmt(ms){
+    var t = Math.max(0, ms);
+    var m = Math.floor(t/60000);
+    var s = Math.floor((t%60000)/1000);
+    var d = Math.floor((t%1000)/100);
+    return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+'.'+d;
+}
+function currentMonthId(){
+    var d = new Date();
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+}
+function monthLabel(id){
+    var names = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    var bits = String(id).split('-');
+    var mi = parseInt(bits[1],10) - 1;
+    if (isNaN(mi) || !names[mi]) return id;
+    return names[mi]+' '+bits[0];
+}
+function roleLabel(r){
+    if (r === 'student')    return 'Student Paramedic';
+    if (r === 'nqp')        return 'NQP';
+    if (r === 'registered') return 'Paramedic';
+    return '';
+}
+function esc(s){
+    return String(s == null ? '' : s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function notice(title, body, tag){
+    el('noticeTitle').innerHTML = title;
+    el('noticeBody').textContent = body;
+    el('noticeTag').textContent = tag || 'Quiz of the Month';
+    show('notice');
+}
+
+/* ==================== WAIT FOR FIREBASE (loaded by menu-v2.js) ==================== */
+function waitForFirebase(cb){
+    var t = Date.now();
+    (function check(){
+        if (typeof firebase !== 'undefined' && firebase.auth && firebase.firestore &&
+            firebase.apps && firebase.apps.length > 0) { cb(true); return; }
+        if (Date.now() - t > 12000) { cb(false); return; }
+        setTimeout(check, 200);
+    })();
+}
+
+/* ==================== BOOT ==================== */
+waitForFirebase(function(ready){
+    if (!ready){
+        notice('Something<span class="big">went wrong</span>',
+               'We could not reach Paramind just then. Check your connection and reload the page.');
+        return;
+    }
+    db = firebase.firestore();
+    firebase.auth().onAuthStateChanged(function(user){
+        if (!user){ show('signin'); return; }
+        uid = user.uid;
+        loadEverything();
+    });
+});
+
+function loadEverything(){
+    Promise.all([
+        db.collection('users').doc(uid).get(),
+        // The rules only expose a quiz once it is published, so a draft month
+        // comes back as permission-denied. That is the expected "not live yet"
+        // case, not an error — swallow it and fall through to the notice.
+        db.collection('quizzes').doc(monthId).get().catch(function(){ return { exists:false }; }),
+        db.collection('quizScores').doc(monthId).collection('entries').doc(uid).get(),
+        db.collection('quizAttempts').doc(monthId).collection('entries').doc(uid).get()
+    ]).then(function(res){
+        var uDoc = res[0], qDoc = res[1], sDoc = res[2], aDoc = res[3];
+
+        if (uDoc.exists){
+            var u = uDoc.data() || {};
+            profile.firstName = u.firstName || null;
+            profile.role      = u.paramedicRole || null;
+            profile.trust     = (u.trust && u.trust !== 'NONE') ? u.trust : null;
+        }
+
+        var published = qDoc.exists && (qDoc.data() || {}).status === 'published';
+        if (published){
+            quiz = qDoc.data();
+            quiz.monthId = monthId;
+        }
+
+        el('startMonth').textContent = monthLabel(monthId);
+        el('startTag').textContent   = monthLabel(monthId);
+
+        // Already finished this month — straight to their result.
+        if (sDoc.exists){
+            var s = sDoc.data() || {};
+            myScore = { totalMs: s.totalMs, correct: s.correct };
+            renderSummaryFromScore(s);
+            return;
+        }
+        // Started but never finished — the attempt is spent.
+        if (aDoc.exists){
+            notice('Attempt<span class="big">used</span>',
+                   'You have already started this month\u2019s quiz. Everyone gets one go, so this one is done \u2014 come back next month.');
+            return;
+        }
+        // Nothing published yet.
+        if (!published){
+            notice('Next quiz<span class="big">coming soon</span>',
+                   'This month\u2019s quiz has not gone live yet. Previous months are still there to look through.');
+            return;
+        }
+        if (!quiz.questions || quiz.questions.length !== TOTAL_QUESTIONS){
+            notice('Next quiz<span class="big">coming soon</span>',
+                   'This month\u2019s quiz is still being finished off. Previous months are still there to look through.');
+            return;
+        }
+        show('start');
+    }).catch(function(err){
+        console.error('Quiz load failed:', err);
+        notice('Something<span class="big">went wrong</span>',
+               'We could not load the quiz just then. Please try again in a moment.');
+    });
+}
+
+/* ==================== FLOW: START ==================== */
+el('startBtn').addEventListener('click', function(){
+    var btn = el('startBtn');
+    btn.disabled = true;
+    btn.textContent = 'STARTING…';
+
+    // Claim the attempt FIRST. Create-only rules mean a second claim is refused,
+    // so refreshing out of a bad run does not buy another go.
+    db.collection('quizAttempts').doc(monthId).collection('entries').doc(uid)
+      .set({ uid: uid, startedAt: firebase.firestore.FieldValue.serverTimestamp() })
+      .then(function(){
+          btn.disabled = false;
+          btn.textContent = 'START';
+          beginCountdown();
+      })
+      .catch(function(err){
+          console.error('Attempt claim failed:', err);
+          btn.disabled = false;
+          btn.textContent = 'START';
+          notice('Attempt<span class="big">used</span>',
+                 'It looks like this attempt has already been started. Everyone gets one go.');
+      });
+});
+
+function beginCountdown(){
+    show('count');
+    var n = 3;
+    (function step(){
+        el('countNum').textContent = n > 0 ? n : 'GO';
+        var dur = 760, t0 = performance.now();
+        (function tick(now){
+            var f = Math.min(1, ((now || performance.now()) - t0) / dur);
+            el('countProg').style.strokeDasharray  = COUNT_CIRC;
+            el('countProg').style.strokeDashoffset = (COUNT_CIRC * f).toFixed(1);
+            if (f < 1) requestAnimationFrame(tick);
+            else if (n > 0){ n--; step(); }
+            else beginRun();
+        })(performance.now());
+    })();
+}
+
+function beginRun(){
+    show('quiz');
+    qIdx = 0; correctCount = 0; totalMs = 0; order = [];
+    runStart = performance.now();
+    startClock();
+    showQuestion(0);
+}
+
+function startClock(){
+    (function loop(){
+        el('runClock').textContent = fmt(performance.now() - runStart);
+        clockRAF = requestAnimationFrame(loop);
+    })();
+}
+
+/* ==================== FLOW: QUESTION ==================== */
+function showQuestion(i){
+    answered = false;
+    var q = quiz.questions[i];
+
+    el('qNum').textContent = String(i+1).padStart(2,'0');
+    el('qCat').textContent = q.cat || '';
+    el('qText').textContent = q.q;
+
+    var card = el('qCard');
+    card.classList.remove('timeout','slam');
+    void card.offsetWidth;
+    card.classList.add('slam');
+
+    var wrap = el('qOptions');
+    wrap.innerHTML = '';
+    for (var o = 0; o < q.o.length; o++){
+        var b = document.createElement('button');
+        b.className = 'qm-opt';
+        b.dataset.opt = String(o);
+        b.innerHTML = '<span class="key">'+KEYS[o]+'</span><span>'+esc(q.o[o])+'</span>';
+        b.addEventListener('click', onAnswer);
+        wrap.appendChild(b);
+    }
+
+    qStart = performance.now();
+    startRing();
+}
+
+function startRing(){
+    el('ring10').classList.remove('low');
+    var t0 = performance.now();
+    (function loop(now){
+        var elapsed   = ((now || performance.now()) - t0) / 1000;
+        var remaining = Math.max(0, QUESTION_SECONDS - elapsed);
+        var f = Math.min(1, elapsed / QUESTION_SECONDS);
+        el('ringProg').style.strokeDasharray  = RING_CIRC;
+        el('ringProg').style.strokeDashoffset = (RING_CIRC * f).toFixed(1);
+        el('ringSec').textContent = Math.ceil(remaining);
+        if (remaining <= 3) el('ring10').classList.add('low');
+        if (remaining <= 0){ handleAnswer(null); return; }
+        ringRAF = requestAnimationFrame(loop);
+    })(performance.now());
+}
+
+function onAnswer(e){
+    handleAnswer(parseInt(e.currentTarget.dataset.opt, 10));
+}
+
+function handleAnswer(chosen){
+    if (answered) return;
+    answered = true;
+
+    // Stop the per-question clock at the tap. The reveal flash that follows is
+    // deliberately not charged to the runner.
+    var taken = Math.min(QUESTION_SECONDS * 1000, performance.now() - qStart);
+    cancelAnimationFrame(ringRAF);
+
+    var q = quiz.questions[qIdx];
+    var isCorrect = (chosen !== null && chosen === q.c);
+    var btns = document.querySelectorAll('#qOptions .qm-opt');
+
+    for (var i=0;i<btns.length;i++) btns[i].disabled = true;
+
+    if (chosen === null){
+        el('qCard').classList.add('timeout');
+        el('ringSec').textContent = '0';
+        if (btns[q.c]) btns[q.c].classList.add('right');
+    } else {
+        btns[chosen].classList.add(isCorrect ? 'right' : 'wrong');
+        if (!isCorrect && btns[q.c]) btns[q.c].classList.add('right');
+    }
+
+    if (isCorrect){ correctCount++; totalMs += taken; }
+    else { totalMs += PENALTY_MS; }
+
+    order.push({ id:q.id, chosen:chosen, correct:isCorrect, takenMs:taken });
+
+    setTimeout(function(){
+        qIdx++;
+        if (qIdx >= TOTAL_QUESTIONS) finishRun();
+        else showQuestion(qIdx);
+    }, FLASH_MS);
+}
+
+/* ==================== FLOW: FINISH ==================== */
+function finishRun(){
+    cancelAnimationFrame(clockRAF);
+    var showName = el('showNameChk').checked;
+    var payload = {
+        firstName : showName ? (profile.firstName || null) : null,
+        role      : profile.role  || null,
+        trust     : profile.trust || null,
+        correct   : correctCount,
+        totalMs   : Math.round(totalMs),
+        showName  : showName,
+        completedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    myScore = { totalMs: payload.totalMs, correct: payload.correct };
+
+    db.collection('quizScores').doc(monthId).collection('entries').doc(uid)
+      .set(payload)
+      .catch(function(err){ console.error('Score write failed:', err); })
+      .then(function(){ renderSummary(payload.totalMs, payload.correct, true); });
+}
+
+function renderSummaryFromScore(s){
+    renderSummary(s.totalMs, s.correct, false);
+}
+
+function renderSummary(ms, correct, isFresh){
+    var clean  = (correct === TOTAL_QUESTIONS);
+    var missed = TOTAL_QUESTIONS - correct;
+
+    var badge = el('sumBadge');
+    if (clean){ badge.className = 'qm-badge clean'; badge.textContent = '\u2605 CLEAN SWEEP'; }
+    else { badge.className = 'qm-badge miss'; badge.textContent = missed + (missed === 1 ? ' MISS' : ' MISSES'); }
+
+    el('sumTime').textContent = fmt(ms);
+    el('sumScore').innerHTML = clean
+        ? '<span class="ok">10 / 10</span> correct'
+        : '<span class="bad">'+correct+' / 10</span> correct';
+    el('sumPenalty').textContent = missed > 0
+        ? 'Includes ' + (missed*10) + 's of penalties'
+        : 'No penalties';
+    el('sumReviewBtn').style.display = order.length ? '' : 'none';
+
+    show('summary');
+
+    // Rank against the month, then celebrate if it earned it.
+    loadBoard(monthId).then(function(rows){
+        var rank = 0;
+        for (var i=0;i<rows.length;i++){ if (rows[i].uid === uid){ rank = i+1; break; } }
+        var line = el('sumRank');
+        line.classList.remove('record','champion');
+        if (rank === 1){
+            line.classList.add('record');
+            line.textContent = '\uD83C\uDFC6 FASTEST TIME THIS MONTH';
+        } else if (rank > 0 && rank <= 10){
+            line.classList.add('record');
+            line.textContent = 'YOU ARE #' + rank + ' THIS MONTH';
+        } else if (rank > 0){
+            line.textContent = 'YOU ARE #' + rank + ' THIS MONTH';
+        } else {
+            line.textContent = '';
+        }
+        if (isFresh && rank > 0 && rank <= 10) celebrate();
+        if (isFresh && rank === 1){
+            var sw = el('qmShock');
+            sw.classList.remove('go'); void sw.offsetWidth; sw.classList.add('go');
+            line.classList.add('champion');
+        }
+    }).catch(function(){ /* leaderboard is decoration here — never block the result */ });
+}
+
+/* ==================== LEADERBOARD ==================== */
+function loadBoard(id){
+    if (boardCache[id]) return Promise.resolve(boardCache[id]);
+    return db.collection('quizScores').doc(id).collection('entries')
+             .orderBy('totalMs','asc').limit(BOARD_LIMIT).get()
+             .then(function(snap){
+                 var rows = [];
+                 snap.forEach(function(d){
+                     var v = d.data() || {};
+                     rows.push({
+                         uid: d.id,
+                         firstName: v.showName ? v.firstName : null,
+                         role: v.role, trust: v.trust,
+                         correct: v.correct, totalMs: v.totalMs
+                     });
+                 });
+                 boardCache[id] = rows;
+                 return rows;
+             });
+}
+
+function renderBoard(id){
+    var list = el('boardList');
+    list.innerHTML = '<div class="qm-empty">Loading…</div>';
+    loadBoard(id).then(function(rows){
+        if (!rows.length){
+            list.innerHTML = '<div class="qm-empty">No times yet. Be the first.</div>';
+            return;
+        }
+        var html = '';
+        var shown = Math.min(10, rows.length);
+        for (var i=0;i<shown;i++){
+            html += rowHTML(rows[i], i+1);
+        }
+        // If they finished outside the top ten, pin their own row underneath.
+        var mine = -1;
+        for (var j=0;j<rows.length;j++){ if (rows[j].uid === uid){ mine = j; break; } }
+        if (mine >= shown){
+            html += '<div class="qm-empty" style="padding:2vmin 0;">· · ·</div>' + rowHTML(rows[mine], mine+1);
+        }
+        list.innerHTML = html;
+    }).catch(function(err){
+        console.error('Board load failed:', err);
+        list.innerHTML = '<div class="qm-empty">Could not load the leaderboard.</div>';
+    });
+}
+
+function rowHTML(r, rank){
+    var sub = [];
+    if (r.role)  sub.push(roleLabel(r.role));
+    if (r.trust) sub.push(r.trust);
+    var cls = 'qm-row' + (r.uid === uid ? ' me' : '') + (rank === 1 ? ' gold' : '');
+    return '<div class="'+cls+'">' +
+             '<span class="rank">'+rank+'</span>' +
+             '<span class="who">' +
+               '<span class="nm">'+esc(r.firstName || 'Anonymous')+'</span>' +
+               (sub.length ? '<span class="sub">'+esc(sub.join(' · '))+'</span>' : '') +
+             '</span>' +
+             '<span><span class="tm">'+fmt(r.totalMs)+'</span><span class="sc">'+r.correct+'/10</span></span>' +
+           '</div>';
+}
+
+function openBoard(){
+    var sel = el('boardMonth');
+    if (sel.options.length){ renderBoard(sel.value); show('board'); return; }
+    // Equality-only query: no composite index needed, and the collection only
+    // ever grows by twelve documents a year. Sorting happens here.
+    db.collection('quizzes').where('status','==','published').get()
+      .then(function(snap){
+          var ids = [];
+          snap.forEach(function(d){ ids.push(d.id); });
+          ids.sort().reverse();
+          if (ids.indexOf(monthId) === -1 && quiz) ids.unshift(monthId);
+          if (!ids.length) ids = [monthId];
+          sel.innerHTML = '';
+          ids.forEach(function(id){
+              var o = document.createElement('option');
+              o.value = id; o.textContent = monthLabel(id);
+              sel.appendChild(o);
+          });
+          sel.value = ids.indexOf(monthId) >= 0 ? monthId : ids[0];
+          renderBoard(sel.value);
+          show('board');
+      })
+      .catch(function(err){
+          console.error('Archive load failed:', err);
+          var o = document.createElement('option');
+          o.value = monthId; o.textContent = monthLabel(monthId);
+          sel.innerHTML = ''; sel.appendChild(o);
+          renderBoard(monthId);
+          show('board');
+      });
+}
+
+/* ==================== REVIEW ==================== */
+function openReview(){
+    if (!order.length || !quiz) return;
+    el('reviewTag').textContent = correctCount + ' / 10';
+    var html = '';
+    for (var i=0;i<order.length;i++){
+        var a = order[i];
+        var q = quiz.questions[i];
+        var chosenTxt = (a.chosen === null) ? 'Ran out of time' : (KEYS[a.chosen] + ' \u2014 ' + q.o[a.chosen]);
+        html += '<div class="qm-review-item'+(a.correct ? ' ok' : '')+'">' +
+                  '<div class="rq">'+(i+1)+'. '+esc(q.q)+'</div>' +
+                  '<div class="ra '+(a.correct ? 'good' : 'bad')+'">Your answer: '+esc(chosenTxt)+'</div>' +
+                  (a.correct ? '' : '<div class="ra good">Correct: '+KEYS[q.c]+' \u2014 '+esc(q.o[q.c])+'</div>') +
+                  (q.ex ? '<div class="rx">'+esc(q.ex)+'</div>' : '') +
+                '</div>';
+    }
+    el('reviewList').innerHTML = html;
+    show('review');
+}
+
+/* ==================== FIREWORKS ==================== */
+var fx = el('qmFx'), fxCtx = fx.getContext('2d');
+var FX_COLORS = ['#3DA4B8','#5CB85C','#72C772','#2B8A9C','#FFFFFF','#FFD56B'];
+var fxParticles = [], fxRAF = null, fxStopAt = 0;
+
+function fxResize(){ fx.width = window.innerWidth; fx.height = window.innerHeight; }
+window.addEventListener('resize', fxResize);
+
+function fxBurst(x,y){
+    var n = 40 + Math.floor(Math.random()*22);
+    var col = FX_COLORS[Math.floor(Math.random()*FX_COLORS.length)];
+    for (var i=0;i<n;i++){
+        var a = (Math.PI*2*i/n) + Math.random()*0.2, sp = 2 + Math.random()*4.4;
+        fxParticles.push({ x:x, y:y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp, life:1, size:1.5+Math.random()*1.8, color:col });
+    }
+}
+function fxFrame(){
+    fxCtx.clearRect(0,0,fx.width,fx.height);
+    for (var i=0;i<fxParticles.length;i++){
+        var p = fxParticles[i];
+        p.vy += 0.06; p.vx *= 0.99; p.vy *= 0.99; p.x += p.vx; p.y += p.vy; p.life -= 0.012;
+        if (p.life > 0){
+            fxCtx.globalAlpha = Math.max(0,p.life);
+            fxCtx.fillStyle = p.color;
+            fxCtx.beginPath(); fxCtx.arc(p.x,p.y,p.size,0,Math.PI*2); fxCtx.fill();
+        }
+    }
+    fxCtx.globalAlpha = 1;
+    fxParticles = fxParticles.filter(function(p){ return p.life > 0; });
+    if (performance.now() < fxStopAt && Math.random() < 0.15){
+        fxBurst(fx.width*(0.18+Math.random()*0.64), fx.height*(0.16+Math.random()*0.34));
+    }
+    if (performance.now() < fxStopAt || fxParticles.length) fxRAF = requestAnimationFrame(fxFrame);
+    else { fxCtx.clearRect(0,0,fx.width,fx.height); fxRAF = null; }
+}
+function celebrate(){
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    fxResize();
+    fxStopAt = performance.now() + 5000;
+    fxBurst(fx.width*0.3, fx.height*0.28);
+    fxBurst(fx.width*0.7, fx.height*0.24);
+    cancelAnimationFrame(fxRAF);
+    fxRAF = requestAnimationFrame(fxFrame);
+}
+function stopFx(){
+    cancelAnimationFrame(fxRAF); fxRAF = null; fxParticles = [];
+    if (fxCtx) fxCtx.clearRect(0,0,fx.width,fx.height);
+    el('qmShock').classList.remove('go');
+}
+
+/* ==================== LISTENERS ==================== */
+el('startBoardBtn').addEventListener('click', openBoard);
+el('noticeBoardBtn').addEventListener('click', openBoard);
+el('sumBoardBtn').addEventListener('click', openBoard);
+el('sumReviewBtn').addEventListener('click', openReview);
+el('reviewBackBtn').addEventListener('click', function(){ show('summary'); });
+el('boardMonth').addEventListener('change', function(){ renderBoard(this.value); });
+el('boardBackBtn').addEventListener('click', function(){
+    stopFx();
+    if (myScore) show('summary');
+    else if (quiz) show('start');
+    else show('notice');
+});
+
+})();
+</script>
+</body>
+</html>
