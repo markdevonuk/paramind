@@ -291,7 +291,7 @@ var CSS = `
   padding:.45rem .8rem;border-radius:.375rem;cursor:pointer;transition:all 200ms ease;white-space:nowrap}
 .rv-layers button.rv-on{background:#fff;color:#2B8A9C;box-shadow:0 1px 2px rgba(0,0,0,.08)}
 
-.rv-stage{padding:.25rem .25rem 0;background:#fff}
+.rv-stage{padding:.4rem .25rem .1rem;background:#fff;max-width:760px;margin:0 auto}
 .rv-heart{display:block;width:100%;height:auto}
 .rv-layer{transition:opacity 350ms ease}
 .rv-heart.rv-hide-flow .rv-flow{opacity:0}
@@ -358,6 +358,9 @@ var CSS = `
   .rv-layers{width:100%}
   .rv-layers button{flex:1;text-align:center;padding:.5rem .3rem;font-size:.78rem}
   .rv-picker button{flex:1 1 45%;font-size:.8rem;padding:.5rem .6rem}
+  .rv-controls .rv-layers{flex:1 1 100%}
+  .rv-controls .rv-sep{display:none}
+  .rv-stage{padding:.25rem 0 0}
   .rv-mon-head{gap:.3rem}
   .rv-lead{font-size:.65rem}
 }`;
@@ -508,22 +511,6 @@ var UI = '<div class="rv-root">' +
   '<div class="rv-card">' +
     '<div class="rv-head">' +
       '<div><h3 class="rv-title" id="rv_title"></h3><p class="rv-sub" id="rv_subtitle"></p></div>' +
-      '<div class="rv-layers" id="rv_layerToggle">' +
-        '<button data-layer="flow">Blood flow</button>' +
-        '<button data-layer="elec">Electrical</button>' +
-        '<button data-layer="both" class="rv-on">Both</button>' +
-      '</div>' +
-    '</div>' +
-    '<div class="rv-stage">' + SVG_MARKUP + '</div>' +
-    '<div class="rv-comm">' +
-      '<div class="rv-side"><span class="rv-chip" id="rv_chip">—</span><span class="rv-count" id="rv_count"></span></div>' +
-      '<p class="rv-text" id="rv_textOut"></p>' +
-    '</div>' +
-    '<div class="rv-steps">' +
-      '<button class="rv-step-btn" id="rv_prev">‹ Back</button>' +
-      '<div class="rv-mid"><div class="rv-dots" id="rv_dots"></div>' +
-        '<span class="rv-hint">replaying — press Next when ready</span></div>' +
-      '<button class="rv-step-btn rv-primary" id="rv_next">Next ›</button>' +
     '</div>' +
     '<div class="rv-alert" id="rv_alert"></div>' +
     '<div class="rv-monitor">' +
@@ -540,7 +527,25 @@ var UI = '<div class="rv-root">' +
         '<g id="rv_waveLabels" font-family="ui-monospace,monospace" font-size="12" fill="#8f8fae"></g>' +
       '</svg>' +
     '</div>' +
+    '<div class="rv-stage">' + SVG_MARKUP + '</div>' +
+    '<div class="rv-comm">' +
+      '<div class="rv-side"><span class="rv-chip" id="rv_chip">—</span><span class="rv-count" id="rv_count"></span></div>' +
+      '<p class="rv-text" id="rv_textOut"></p>' +
+    '</div>' +
+    '<div class="rv-steps">' +
+      '<button class="rv-step-btn" id="rv_prev">‹ Back</button>' +
+      '<div class="rv-mid"><div class="rv-dots" id="rv_dots"></div>' +
+        '<span class="rv-hint">replaying — press Next when ready</span></div>' +
+      '<button class="rv-step-btn rv-primary" id="rv_next">Next ›</button>' +
+    '</div>' +
     '<div class="rv-controls">' +
+      '<span class="rv-cap">Show</span>' +
+      '<div class="rv-layers" id="rv_layerToggle">' +
+        '<button data-layer="flow">Blood flow</button>' +
+        '<button data-layer="elec">Electrical</button>' +
+        '<button data-layer="both" class="rv-on">Both</button>' +
+      '</div>' +
+      '<span class="rv-sep"></span>' +
       '<span class="rv-cap">Replay speed</span>' +
       '<button class="rv-btn" data-speed="1">Fast</button>' +
       '<button class="rv-btn rv-on" data-speed="0.35">Normal</button>' +
@@ -924,7 +929,8 @@ function buildFib(){
 function fitViewBox(){
   if(!el.heart) return;
   var narrow = el.heart.clientWidth < 560;
-  el.heart.setAttribute('viewBox', narrow ? '186 26 640 700' : '0 0 1000 720');
+  /* viewBoxes cropped to the drawing's real bounds — no wasted margin */
+  el.heart.setAttribute('viewBox', narrow ? '186 118 628 566' : '52 46 916 636');
   el.labels.style.display = (narrow || !el.labelBtn.classList.contains('rv-on')) ? 'none' : '';
 }
 
