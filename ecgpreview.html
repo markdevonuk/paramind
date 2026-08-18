@@ -1,0 +1,2531 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  ecg-preview.html  —  PUBLIC REVIEW COPY of ecg-v2.html
+  ============================================================================
+  This is a copy of ecg-v2.html with ONE line removed: the js/pro-guard.js
+  script tag. That means anyone with the link can view this page without
+  signing in and without a Pro subscription.
+
+  ecg-v2.html itself is UNCHANGED and still Pro-only.
+
+  Because this is a copy, it does NOT update itself. Whenever ecg-v2.html
+  changes, this file has to be re-made from it. It also carries a noindex
+  tag so Google does not list it.
+
+  Delete this file when the review round is over.
+  ============================================================================
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>ECG Rhythm Generator | Paramind</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Menu CSS -->
+    <link rel="stylesheet" href="css/menu-v2.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        /* ECG Page Specific Styles */
+        .ecg-page {
+            min-height: 100vh;
+            background: var(--color-gray-50);
+        }
+        
+        .ecg-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1rem;
+            padding-bottom: 2rem;
+        }
+        
+        .ecg-header {
+            text-align: center;
+            padding: 1.5rem 0;
+        }
+        
+        .ecg-header h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .ecg-header p {
+            color: var(--color-gray-600);
+            margin: 0;
+        }
+        
+        
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--color-teal);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .back-link:hover {
+            color: var(--color-teal-dark);
+        }
+        
+        /* Mode Toggle Buttons */
+        .mode-toggle {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .mode-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: 2px solid var(--color-gray-200);
+            background: var(--color-white);
+            color: var(--color-gray-600);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .mode-btn:hover {
+            border-color: var(--color-teal);
+            color: var(--color-teal);
+        }
+        
+        .mode-btn.active {
+            background: var(--color-teal);
+            border-color: var(--color-teal);
+            color: white;
+        }
+        
+        /* ECG Monitor Card */
+        .ecg-monitor-card {
+            background: #1a1a2e;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            margin-bottom: 1.5rem;
+        }
+        
+        .monitor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            background: #252542;
+            border-bottom: 1px solid #3d3d5a;
+        }
+        
+        .monitor-lead {
+            color: #888;
+            font-size: 0.9rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .monitor-hr {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .hr-icon {
+            animation: pulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        .monitor-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .monitor-btn {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .monitor-btn-play {
+            background: #22c55e;
+            color: white;
+        }
+        
+        .monitor-btn-pause {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .monitor-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
+        /* No Pulse Indicator */
+        .no-pulse-indicator {
+            background: rgba(245, 158, 11, 0.2);
+            border: 2px solid #f59e0b;
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem;
+            margin: 0 1rem 1rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            animation: pulseBlink 1s ease-in-out infinite;
+        }
+        
+        .no-pulse-indicator i {
+            color: #f59e0b;
+            font-size: 1.25rem;
+        }
+        
+        .no-pulse-indicator span {
+            color: #fbbf24;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        @keyframes pulseBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .ecg-canvas-container {
+            padding: 1rem;
+        }
+        
+        #ecgCanvas {
+            width: 100%;
+            border-radius: var(--radius-md);
+            display: block;
+        }
+        
+        /* Emergency Warning Banner */
+        .emergency-banner {
+            background: rgba(220, 38, 38, 0.2);
+            border: 2px solid #dc2626;
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin: 1rem;
+            text-align: center;
+            animation: emergencyPulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes emergencyPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .emergency-banner span {
+            color: #fca5a5;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        
+        /* Rhythm Selector Grid */
+        .rhythm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .rhythm-btn {
+            padding: 0.875rem 1rem;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--color-gray-200);
+            background: var(--color-white);
+            text-align: left;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--color-gray-700);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .rhythm-btn::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--rhythm-color, var(--color-gray-300));
+        }
+        
+        .rhythm-btn:hover {
+            border-color: var(--rhythm-color, var(--color-teal));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .rhythm-btn.active {
+            border-color: var(--rhythm-color, var(--color-teal));
+            background: linear-gradient(135deg, rgba(43, 138, 156, 0.05) 0%, rgba(92, 184, 92, 0.05) 100%);
+        }
+        
+        .rhythm-btn .emergency-icon {
+            margin-left: 0.25rem;
+        }
+        
+        .rhythm-btn.emergency {
+            background: rgba(220, 38, 38, 0.05);
+        }
+        
+        /* Rate Slider Card */
+        .rate-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .rate-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: var(--color-gray-700);
+        }
+        
+        .rate-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            color: var(--color-teal);
+        }
+        
+        .rate-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--color-gray-200);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        .rate-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--color-teal);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(43, 138, 156, 0.4);
+        }
+        
+        .rate-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--color-teal);
+            cursor: pointer;
+            border: none;
+        }
+        
+        .rate-range {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--color-gray-500);
+        }
+        
+        /* Info Card */
+        .info-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .info-card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .info-card .description {
+            color: var(--color-gray-600);
+            margin-bottom: 1.25rem;
+            line-height: 1.6;
+        }
+        
+        .info-card h3 {
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            color: var(--color-gray-700);
+        }
+        
+        .features-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .features-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+            color: var(--color-gray-600);
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+        
+        .features-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .features-list .check-icon {
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        /* Quiz Mode Styles */
+        .quiz-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .quiz-score {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .quiz-score-badge {
+            display: inline-block;
+            background: var(--color-teal);
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+        }
+        
+        .quiz-question {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--color-gray-800);
+        }
+        
+        .quiz-select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--color-gray-200);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            background: var(--color-white);
+        }
+        
+        .quiz-select:focus {
+            outline: none;
+            border-color: var(--color-teal);
+        }
+        
+        .quiz-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .quiz-btn {
+            flex: 1;
+            padding: 0.875rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .quiz-btn-primary {
+            background: var(--color-teal);
+            color: white;
+        }
+        
+        .quiz-btn-primary:hover:not(:disabled) {
+            background: var(--color-teal-dark);
+        }
+        
+        .quiz-btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .quiz-btn-secondary {
+            background: var(--color-gray-200);
+            color: var(--color-gray-700);
+        }
+        
+        .quiz-btn-secondary:hover {
+            background: var(--color-gray-300);
+        }
+        
+        /* Quiz Result */
+        .quiz-result {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+        }
+        
+        .quiz-result.correct {
+            background: rgba(34, 197, 94, 0.1);
+            border: 2px solid #22c55e;
+        }
+        
+        .quiz-result.incorrect {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid #ef4444;
+        }
+        
+        .quiz-result-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .quiz-result.correct .quiz-result-icon {
+            color: #22c55e;
+        }
+        
+        .quiz-result.incorrect .quiz-result-icon {
+            color: #ef4444;
+        }
+        
+        .quiz-answer-reveal {
+            background: var(--color-gray-50);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        
+        .quiz-answer-reveal h4 {
+            color: var(--color-gray-500);
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .quiz-answer-reveal .answer {
+            color: #22c55e;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        /* Final Results Screen */
+        .final-results-container {
+            text-align: center;
+            padding: 1rem 0;
+        }
+        
+        .final-results-title {
+            font-size: 1.75rem;
+            color: var(--color-gray-800);
+            margin-bottom: 1.5rem;
+        }
+        
+        .final-score-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-green) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 8px 30px rgba(43, 138, 156, 0.3);
+        }
+        
+        .final-score-percent {
+            font-size: 3rem;
+            font-weight: 700;
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .final-score-text {
+            font-size: 1.2rem;
+            color: var(--color-gray-700);
+            margin-bottom: 0.5rem;
+        }
+        
+        .final-score-message {
+            font-size: 1.1rem;
+            color: var(--color-gray-500);
+            margin-bottom: 1rem;
+        }
+        
+        /* Info Banner */
+        .info-banner {
+            background: linear-gradient(135deg, rgba(43, 138, 156, 0.1) 0%, rgba(92, 184, 92, 0.1) 100%);
+            border: 1px solid rgba(43, 138, 156, 0.2);
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+        
+        .info-banner i {
+            color: var(--color-teal);
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        
+        .info-banner p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--color-gray-600);
+        }
+
+        /* Work in progress note (same look as the info banner, amber) */
+        .wip-note {
+            background: rgba(245, 158, 11, 0.10);
+            border: 1px solid rgba(245, 158, 11, 0.30);
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+
+        .wip-note i {
+            color: #b45309;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .wip-note p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--color-gray-600);
+        }
+
+        /* Footer Disclaimer */
+        .ecg-footer {
+            text-align: center;
+            padding: 1.5rem 0;
+            color: var(--color-gray-500);
+            font-size: 0.85rem;
+        }
+        
+        .ecg-footer i {
+            margin-right: 0.25rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .rhythm-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .mode-toggle {
+                flex-direction: column;
+            }
+            
+            .mode-btn {
+                width: 100%;
+            }
+        }
+
+        /* ==================== GUIDED TOUR ==================== */
+        .tour-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 9000;
+        }
+        .tour-overlay.active { display: block; }
+
+        .tour-spotlight {
+            position: absolute;
+            border-radius: 12px;
+            box-shadow: 0 0 0 4000px rgba(0,0,0,0.55);
+            transition: all 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+            pointer-events: none;
+        }
+
+        .tour-tooltip {
+            position: absolute;
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 16px 18px 14px;
+            width: min(320px, calc(100vw - 32px));
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+            z-index: 9001;
+            animation: tourFadeIn 0.3s ease;
+        }
+        .tour-tooltip-arrow {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: #FFFFFF;
+            transform: rotate(45deg);
+            box-shadow: -2px -2px 4px rgba(0,0,0,0.05);
+        }
+        .tour-tooltip-arrow.arrow-top { top: -7px; left: 28px; }
+        .tour-tooltip-arrow.arrow-bottom { bottom: -7px; left: 28px; }
+
+        .tour-tooltip-step {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+        .tour-step-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark, #237282));
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .tour-step-label {
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--color-gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .tour-tooltip h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--color-gray-900);
+            margin: 0 0 4px;
+        }
+        .tour-tooltip p {
+            font-size: 0.82rem;
+            line-height: 1.5;
+            color: var(--color-gray-600);
+            margin: 0 0 12px;
+        }
+        .tour-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .tour-skip-btn {
+            background: none;
+            border: none;
+            color: var(--color-gray-500);
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 4px 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: color 0.2s;
+        }
+        .tour-skip-btn:hover { color: var(--color-gray-700); }
+        .tour-next-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark, #237282));
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.2s ease;
+        }
+        .tour-next-btn:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .tour-next-btn:active { transform: scale(0.97); }
+
+        .tour-dots { display: flex; gap: 5px; align-items: center; }
+        .tour-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-gray-300);
+            transition: all 0.2s ease;
+        }
+        .tour-dot.active {
+            background: var(--color-teal);
+            width: 18px;
+            border-radius: 3px;
+        }
+        .tour-dot.done { background: var(--color-teal); }
+
+        @keyframes tourFadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Welcome splash */
+        .tour-welcome {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 9002;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .tour-welcome.active { display: flex; }
+        .tour-welcome-card {
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 28px 24px 22px;
+            max-width: 340px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: tourFadeIn 0.35s ease;
+        }
+        .tour-welcome-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(43,138,156,0.12), rgba(92,184,92,0.1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin: 0 auto 12px;
+        }
+        .tour-welcome-card h3 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--color-gray-900);
+            margin: 0 0 6px;
+        }
+        .tour-welcome-card p {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: var(--color-gray-600);
+            margin: 0 0 18px;
+        }
+        .tour-welcome-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .tour-start-btn {
+            width: 100%;
+            padding: 11px 20px;
+            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark, #237282));
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .tour-start-btn:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .tour-dismiss-btn {
+            background: none;
+            border: none;
+            color: var(--color-gray-500);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 8px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: color 0.2s;
+        }
+        .tour-dismiss-btn:hover { color: var(--color-gray-700); }
+    </style>
+</head>
+
+<body class="ecg-page">
+   <!-- ==================== NAVIGATION ==================== -->
+<nav class="member-navbar">
+    <div class="container">
+        <span class="brand-text">
+            <a class="navbar-brand" href="landing.html">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </a>
+        </span>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</nav>
+
+    <div class="ecg-container">
+        <!-- Header -->
+        <div class="ecg-header">
+            <h1>🫀 ECG Rhythm Generator</h1>
+            <p>Interactive ECG learning tool for paramedics</p>
+        </div>
+        
+        <!-- Work in progress note — shown while the mode buttons are hidden -->
+        <div class="wip-note">
+            <i class="bi bi-cone-striped"></i>
+            <p>Work in progress — I'm building a new way of teaching ECG rhythms and would love your honest opinion on it.</p>
+        </div>
+
+        <!-- Mode Toggle -->
+        <!-- TEMPORARILY HIDDEN while the page is out for review.
+             To bring the three buttons back exactly as they were, delete
+             style="display: none;" from the line below, and delete the
+             setMode('visual') line at the end of DOMContentLoaded. -->
+        <div class="mode-toggle" style="display: none;">
+            <button class="mode-btn active" id="learnModeBtn" onclick="setMode('learn')">
+                <i class="bi bi-display me-2"></i>Simple View
+            </button>
+            <button class="mode-btn" id="visualModeBtn" onclick="setMode('visual')">
+                <i class="bi bi-book me-2"></i>Learn Mode
+            </button>
+            <button class="mode-btn" id="quizModeBtn" onclick="setMode('quiz')">
+                <i class="bi bi-patch-question me-2"></i>Test Yourself
+            </button>
+        </div>
+        
+        <!-- Quiz Score (hidden by default) -->
+        <div class="quiz-score" id="quizScore" style="display: none;">
+            <span class="quiz-score-badge">
+                Question <span id="questionNumber">1</span> of 25 | 
+                Score: <span id="scoreCorrect">0</span>/<span id="scoreTotal">0</span>
+            </span>
+        </div>
+        
+        <!-- ECG Monitor -->
+        <div class="ecg-monitor-card" id="mainMonitorCard">
+            <div class="monitor-header">
+                <span class="monitor-lead">Lead II</span>
+                <div class="monitor-hr" id="monitorHR" style="color: #22c55e;">
+                    <span class="hr-icon">♥</span>
+                    <span id="hrValue">75</span> BPM
+                </div>
+                <div class="monitor-controls">
+                    <button class="monitor-btn monitor-btn-pause" id="playPauseBtn" onclick="togglePlayPause()">
+                        <i class="bi bi-pause-fill"></i> Pause
+                    </button>
+                </div>
+            </div>
+            <div class="ecg-canvas-container">
+                <canvas id="ecgCanvas" width="800" height="200"></canvas>
+            </div>
+            <!-- No Pulse Indicator (for PEA and pulseless VT) -->
+            <div class="no-pulse-indicator" id="noPulseIndicator" style="display: none;">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>No pulse detected</span>
+            </div>
+            <!-- Emergency Banner (hidden by default) -->
+            <div class="emergency-banner" id="emergencyBanner" style="display: none;">
+                <span>⚠️ EMERGENCY RHYTHM - IMMEDIATE INTERVENTION REQUIRED</span>
+            </div>
+        </div>
+        
+        <!-- Learn Mode Content -->
+        <div id="learnContent">
+            <!-- Rhythm Selector -->
+            <div class="rhythm-grid" id="rhythmGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+            
+            <!-- Rate Slider -->
+            <div class="rate-card" id="rateCard">
+                <div class="rate-label">
+                    <span>Adjust Heart Rate</span>
+                    <span class="rate-value"><span id="rateValue">75</span> BPM</span>
+                </div>
+                <input type="range" class="rate-slider" id="rateSlider" min="60" max="100" value="75" oninput="updateRate(this.value)">
+                <div class="rate-range">
+                    <span id="rateMin">60 BPM</span>
+                    <span id="rateMax">100 BPM</span>
+                </div>
+            </div>
+            
+            <!-- Rhythm Info -->
+            <div class="info-card" id="infoCard">
+                <h2 id="rhythmTitle" style="color: #22c55e;">Normal Sinus Rhythm</h2>
+                <p class="description" id="rhythmDescription">Regular rhythm with consistent P waves before each QRS complex. Rate 60-100 bpm.</p>
+                <h3><i class="bi bi-list-check me-2"></i>Key Features</h3>
+                <ul class="features-list" id="featuresList">
+                    <!-- Populated by JavaScript -->
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Learn Mode Content (rhythm visuals) -->
+        <div id="visualContent" style="display: none;"></div>
+
+        <!-- Quiz Mode Content -->
+        <div id="quizContent" style="display: none;">
+            <div class="quiz-card">
+                <!-- Quiz Question State -->
+                <div id="quizQuestion">
+                    <h3 class="quiz-question">🤔 What rhythm is this?</h3>
+                    <select class="quiz-select" id="quizAnswer">
+                        <option value="">Select a rhythm...</option>
+                        <!-- Populated by JavaScript -->
+                    </select>
+                    <div class="quiz-buttons">
+                        <button class="quiz-btn quiz-btn-primary" id="checkAnswerBtn" onclick="checkAnswer()" disabled>
+                            Check Answer
+                        </button>
+                        <button class="quiz-btn quiz-btn-secondary" onclick="setMode('learn')">
+                            Exit Quiz
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Quiz Result State -->
+                <div id="quizResult" style="display: none;">
+                    <div class="quiz-result" id="quizResultBox">
+                        <div class="quiz-result-icon" id="quizResultIcon">✅</div>
+                        <div class="quiz-result-text" id="quizResultText">Correct!</div>
+                    </div>
+                    <div class="quiz-answer-reveal">
+                        <h4>The correct answer was:</h4>
+                        <div class="answer" id="correctAnswerText">Normal Sinus Rhythm</div>
+                    </div>
+                    <div class="quiz-answer-reveal">
+                        <p id="quizExplanation"></p>
+                    </div>
+                    <div class="quiz-buttons">
+                        <button class="quiz-btn quiz-btn-primary" onclick="nextQuestion()">
+                            Next Question →
+                        </button>
+                        <button class="quiz-btn quiz-btn-secondary" onclick="setMode('learn')">
+                            Exit Quiz
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Final Results State -->
+                <div id="quizFinalResults" style="display: none;">
+                    <div class="final-results-container">
+                        <h2 class="final-results-title">🎉 Quiz Complete!</h2>
+                        <div class="final-score-circle">
+                            <span class="final-score-percent" id="finalPercent">0%</span>
+                        </div>
+                        <p class="final-score-text">You got <span id="finalCorrect">0</span> out of 25 correct</p>
+                        <p class="final-score-message" id="finalMessage">Keep practising!</p>
+                        <div class="quiz-buttons" style="margin-top: 1.5rem;">
+                            <button class="quiz-btn quiz-btn-primary" onclick="restartQuiz()">
+                                🔄 Try Again
+                            </button>
+                            <button class="quiz-btn quiz-btn-secondary" onclick="setMode('learn')">
+                                📚 Back to Learn
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="ecg-footer">
+            <p><i class="bi bi-shield-check"></i> For educational purposes only - not for clinical decision-making</p>
+            <p><i class="bi bi-exclamation-circle"></i> These are simplified, single-lead examples only. Real ECGs can vary significantly in presentation across different leads, patients, and clinical contexts. Deeper learning and supervised clinical practice are essential for safe ECG interpretation.</p>
+        </div>
+    </div>
+
+    <!-- ==================== GUIDED TOUR ==================== -->
+
+    <!-- Welcome splash -->
+    <div class="tour-welcome" id="tourWelcome">
+        <div class="tour-welcome-card">
+            <div class="tour-welcome-icon">🫀</div>
+            <h3>Welcome to ECG Rhythm Generator</h3>
+            <p>Learn to recognise common ECG rhythms with an animated monitor, detailed clinical notes, and a quiz to test your knowledge.</p>
+            <div class="tour-welcome-btns">
+                <button class="tour-start-btn" id="tourStartBtn">
+                    Show me around <i class="bi bi-arrow-right"></i>
+                </button>
+                <button class="tour-dismiss-btn" id="tourDismissBtn">
+                    I'll explore on my own
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step-by-step overlay -->
+    <div class="tour-overlay" id="tourOverlay">
+        <div class="tour-spotlight" id="tourSpotlight"></div>
+        <div class="tour-tooltip" id="tourTooltip">
+            <div class="tour-tooltip-arrow arrow-top" id="tourArrow"></div>
+            <div class="tour-tooltip-step">
+                <div class="tour-step-num" id="tourStepNum">1</div>
+                <div class="tour-step-label" id="tourStepLabel">Step 1 of 5</div>
+            </div>
+            <h4 id="tourTitle"></h4>
+            <p id="tourDesc"></p>
+            <div class="tour-actions">
+                <button class="tour-skip-btn" id="tourSkipBtn">Skip tour</button>
+                <div class="tour-dots" id="tourDots"></div>
+                <button class="tour-next-btn" id="tourNextBtn">
+                    Next <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== FOOTER ==================== -->
+<footer class="member-footer">
+    <div class="container">
+        <div class="footer-brand">
+            <span class="brand-text">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </span>
+        </div>
+        <div class="footer-links">
+            <a href="terms.html">Terms of Service</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="purpose.html">Intended Purpose</a>
+            <a href="sources.html">Sources &amp; Citations</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <p class="footer-copyright">&copy; 2026 Paramind. All rights reserved.</p>
+        <p class="footer-trademark" style="font-size: 0.85rem; color: var(--color-gray-500);">Paramind&#174; is a registered UK trade mark (UK00004321918).</p>
+    </div>
+</footer>
+
+
+    <!-- ==================== SCRIPTS ==================== -->
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- ECG PAGE SCRIPT -->
+    <script>
+        // ==================== ECG RHYTHM DATA ====================
+        const rhythms = {
+            normalSinus: {
+                name: "Normal Sinus Rhythm",
+                description: "Regular rhythm with consistent P waves before each QRS complex. Rate 60-100 bpm.",
+                keyFeatures: ["Regular R-R intervals", "P wave before each QRS", "Normal PR interval (0.12-0.20s)", "Narrow QRS (<0.12s)"],
+                defaultRate: 75,
+                minRate: 60,
+                maxRate: 100,
+                color: "#22c55e"
+            },
+            sinusBradycardia: {
+                name: "Sinus Bradycardia",
+                description: "Normal sinus rhythm but rate below 60 bpm. May be normal in athletes or during sleep.",
+                keyFeatures: ["Regular rhythm", "Rate < 60 bpm", "Normal P waves", "Normal PR and QRS"],
+                defaultRate: 45,
+                minRate: 30,
+                maxRate: 59,
+                color: "#3b82f6"
+            },
+            sinusTachycardia: {
+                name: "Sinus Tachycardia",
+                description: "Normal sinus rhythm but rate above 100 bpm. Often a response to pain, anxiety, fever, or hypovolaemia.",
+                keyFeatures: ["Regular rhythm", "Rate > 100 bpm", "Normal P waves", "Normal PR and QRS"],
+                defaultRate: 120,
+                minRate: 101,
+                maxRate: 180,
+                color: "#f59e0b"
+            },
+            sinusArrhythmia: {
+                name: "Sinus Arrhythmia",
+                description: "Normal variant where heart rate increases with inspiration and decreases with expiration. Common in young, fit individuals.",
+                keyFeatures: ["Rate varies with breathing", "P wave before each QRS", "Normal PR and QRS", "Benign — no treatment needed"],
+                defaultRate: 70,
+                minRate: 55,
+                maxRate: 90,
+                color: "#22c55e"
+            },
+            atrialFibrillation: {
+                name: "Atrial Fibrillation",
+                description: "Chaotic atrial activity with irregular ventricular response. No discernible P waves.",
+                keyFeatures: ["Irregularly irregular rhythm", "No P waves (fibrillatory baseline)", "Variable R-R intervals", "Narrow QRS usually"],
+                defaultRate: 90,
+                minRate: 40,
+                maxRate: 180,
+                color: "#ef4444"
+            },
+            atrialFlutter: {
+                name: "Atrial Flutter",
+                description: "Organised atrial activity at ~300 bpm with characteristic 'sawtooth' flutter waves.",
+                keyFeatures: ["Regular or regularly irregular", "Sawtooth flutter waves", "Atrial rate ~300 bpm", "Variable AV block (2:1, 3:1, 4:1)"],
+                defaultRate: 150,
+                minRate: 75,
+                maxRate: 150,
+                color: "#f97316"
+            },
+            svt: {
+                name: "Supraventricular Tachycardia (SVT)",
+                description: "Rapid regular rhythm originating from above the ventricles. Characterised by sudden onset and offset.",
+                keyFeatures: ["Regular narrow complex", "Rate 150-250 bpm", "P waves often hidden", "Sudden onset/offset"],
+                defaultRate: 180,
+                minRate: 150,
+                maxRate: 250,
+                color: "#f59e0b"
+            },
+            ventricularTachycardia: {
+                name: "Ventricular Tachycardia (VT)",
+                description: "Life-threatening rhythm arising from the ventricles. Wide QRS complexes at a rapid rate. Shockable rhythm if pulseless.",
+                keyFeatures: ["Wide QRS (>0.12s)", "Rate typically 150-250 bpm", "No P waves visible", "AV dissociation may be present"],
+                defaultRate: 180,
+                minRate: 100,
+                maxRate: 250,
+                color: "#dc2626",
+                emergency: true
+            },
+            torsadesDePointes: {
+                name: "Torsades de Pointes",
+                description: "Polymorphic VT with characteristic 'twisting of the points' pattern. Associated with prolonged QT interval.",
+                keyFeatures: ["Twisting QRS axis", "Spindle-shaped amplitude", "Associated with long QT", "Polymorphic QRS morphology"],
+                defaultRate: 200,
+                minRate: 150,
+                maxRate: 300,
+                color: "#dc2626"
+            },
+            ventricularFibrillation: {
+                name: "Ventricular Fibrillation (VF)",
+                description: "CARDIAC ARREST RHYTHM. Chaotic ventricular activity with no cardiac output. Shockable rhythm.",
+                keyFeatures: ["Chaotic, irregular waveform", "No identifiable QRS", "No pulse", "SHOCKABLE RHYTHM"],
+                defaultRate: 0,
+                minRate: 0,
+                maxRate: 0,
+                color: "#dc2626",
+                emergency: true
+            },
+            asystole: {
+                name: "Asystole",
+                description: "CARDIAC ARREST RHYTHM. Flat line with no electrical activity. Non-shockable rhythm.",
+                keyFeatures: ["Flat line", "No QRS complexes", "No pulse", "NON-SHOCKABLE RHYTHM"],
+                defaultRate: 0,
+                minRate: 0,
+                maxRate: 0,
+                color: "#dc2626",
+                emergency: true
+            },
+            pea: {
+                name: "Pulseless Electrical Activity (PEA)",
+                description: "CARDIAC ARREST RHYTHM. Organised electrical activity but no pulse. Non-shockable rhythm.",
+                keyFeatures: ["Any organised rhythm", "NO PULSE despite rhythm", "Non-shockable", "Consider reversible causes"],
+                defaultRate: 60,
+                minRate: 20,
+                maxRate: 100,
+                color: "#dc2626",
+                emergency: true
+            },
+            firstDegreeBlock: {
+                name: "First Degree Heart Block",
+                description: "Prolonged PR interval (>0.20s) but all P waves conducted. Usually benign.",
+                keyFeatures: ["PR interval > 0.20s", "All P waves conducted", "Regular rhythm", "1:1 P:QRS relationship"],
+                defaultRate: 70,
+                minRate: 50,
+                maxRate: 100,
+                color: "#8b5cf6"
+            },
+            secondDegreeMobitz1: {
+                name: "Second Degree Block (Mobitz I)",
+                description: "Progressive PR prolongation until a beat is dropped (Wenckebach). Usually at AV node level.",
+                keyFeatures: ["Progressive PR prolongation", "Dropped QRS after longest PR", "Grouped beating pattern", "Usually narrow QRS"],
+                defaultRate: 60,
+                minRate: 40,
+                maxRate: 80,
+                color: "#8b5cf6"
+            },
+            secondDegreeMobitz2: {
+                name: "Second Degree Block (Mobitz II)",
+                description: "Intermittent non-conducted P waves without PR prolongation. Higher risk of progression to complete block.",
+                keyFeatures: ["Constant PR interval", "Sudden dropped QRS", "May have wide QRS", "Higher risk than Mobitz I"],
+                defaultRate: 50,
+                minRate: 30,
+                maxRate: 70,
+                color: "#8b5cf6"
+            },
+            thirdDegreeBlock: {
+                name: "Third Degree (Complete) Heart Block",
+                description: "Complete AV dissociation. Atria and ventricles beat independently. May cause syncope.",
+                keyFeatures: ["AV dissociation", "Regular P waves (faster)", "Regular QRS (slower)", "No relationship between P and QRS"],
+                defaultRate: 35,
+                minRate: 20,
+                maxRate: 50,
+                color: "#8b5cf6"
+            },
+            junctionalRhythm: {
+                name: "Junctional Rhythm",
+                description: "Rhythm originating from the AV junction. No normal P waves — may see inverted P waves before, during, or after QRS.",
+                keyFeatures: ["Narrow QRS complex", "Rate 40-60 bpm", "Absent or inverted P waves", "Regular rhythm"],
+                defaultRate: 50,
+                minRate: 40,
+                maxRate: 60,
+                color: "#06b6d4"
+            },
+            wpw: {
+                name: "Wolff-Parkinson-White (WPW)",
+                description: "Pre-excitation syndrome with accessory pathway. Short PR, delta wave, wide QRS. AVOID adenosine and verapamil in AF with WPW.",
+                keyFeatures: ["Short PR interval (<0.12s)", "Delta wave (slurred QRS upstroke)", "Wide QRS complex", "AVOID AV nodal blockers in AF"],
+                defaultRate: 80,
+                minRate: 60,
+                maxRate: 100,
+                color: "#f97316"
+            },
+            pvcs: {
+                name: "Premature Ventricular Complexes (PVCs)",
+                description: "Early wide QRS beats arising from the ventricles, interrupting normal sinus rhythm. Usually benign if isolated.",
+                keyFeatures: ["Wide, bizarre QRS morphology", "Compensatory pause after PVC", "No preceding P wave for PVC", "Normal beats between PVCs"],
+                defaultRate: 72,
+                minRate: 60,
+                maxRate: 100,
+                color: "#f59e0b"
+            },
+            pacs: {
+                name: "Premature Atrial Complexes (PACs)",
+                description: "Early beats arising from ectopic atrial focus. P wave morphology differs from sinus P waves. Usually benign.",
+                keyFeatures: ["Early P wave with different shape", "Narrow QRS usually follows", "Incomplete compensatory pause", "Common and usually benign"],
+                defaultRate: 75,
+                minRate: 60,
+                maxRate: 100,
+                color: "#f59e0b"
+            },
+            hyperkalaemia: {
+                name: "Hyperkalaemia Pattern",
+                description: "ECG changes caused by dangerously high potassium. Progressive: tall peaked T waves → widened QRS → sine wave → potential cardiac arrest if not treated.",
+                keyFeatures: ["Tall, peaked T waves", "Widened QRS complex", "Flattened/absent P waves"],
+                defaultRate: 65,
+                minRate: 40,
+                maxRate: 80,
+                color: "#dc2626"
+            },
+            stemi: {
+                name: "ST-Elevation (STEMI Pattern)",
+                description: "ST-segment elevation indicating acute myocardial infarction. IMMEDIATE catheter lab activation. Look for reciprocal ST depression.",
+                keyFeatures: ["ST elevation ≥1mm in 2+ contiguous leads", "Reciprocal ST depression", "May have pathological Q waves", "TIME-CRITICAL — activate cath lab"],
+                defaultRate: 85,
+                minRate: 50,
+                maxRate: 120,
+                color: "#dc2626",
+                emergency: true
+            },
+            longQT: {
+                name: "Long QT Syndrome",
+                description: "Prolonged QT interval increasing risk of Torsades de Pointes. QTc upper limit: >0.45s in men, >0.47s in women (Bazett formula). Can be congenital or drug-induced (amiodarone, ondansetron, etc).",
+                keyFeatures: ["QTc > 0.45s men / > 0.47s women", "Risk of Torsades de Pointes", "May be drug-induced", "T wave may be broad/notched"],
+                defaultRate: 65,
+                minRate: 50,
+                maxRate: 90,
+                color: "#a855f7"
+            },
+            lbbb: {
+                name: "Left Bundle Branch Block (LBBB)",
+                description: "Conduction delay in the left bundle branch. In V1, produces a small r wave followed by a deep broad S wave (rS pattern), with a discordant positive T wave. New LBBB in the context of chest pain should be treated as a STEMI equivalent.",
+                keyFeatures: ["Wide QRS (≥0.12s)", "rS pattern in V1 — small r, deep broad S", "No septal Q waves in lateral leads", "Discordant T waves (opposite direction to QRS)"],
+                defaultRate: 70,
+                minRate: 40,
+                maxRate: 100,
+                color: "#f97316"
+            },
+            rbbb: {
+                name: "Right Bundle Branch Block (RBBB)",
+                description: "Conduction delay in the right bundle branch. In V2, produces a small r wave, a deep S wave, then a tall R' prime — the classic RSR' or 'rabbit ears' pattern. Often an incidental finding but can indicate structural heart disease.",
+                keyFeatures: ["Wide QRS (≥0.12s)", "RSR' pattern in V1/V2 — small r, S, tall R' prime", "Wide S waves in lateral leads (I, V6)", "Discordant inverted T wave"],
+                defaultRate: 70,
+                minRate: 40,
+                maxRate: 100,
+                color: "#f97316"
+            }
+        };
+        
+        // ==================== STATE VARIABLES ====================
+        let currentMode = 'learn';
+        let selectedRhythm = 'normalSinus';
+        let heartRate = 75;
+        let isPlaying = true;
+        let time = 0;
+        let animationId = null;
+        
+        // Quiz state
+        let quizRhythm = null;
+        let score = { correct: 0, total: 0 };
+        let quizRhythms = [];
+        let currentQuizIndex = 0;
+        
+        // Canvas context
+        let canvas, ctx;
+        
+        // Total number of rhythms (calculated dynamically)
+        const totalRhythms = Object.keys(rhythms).length;
+        
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            canvas = document.getElementById('ecgCanvas');
+            ctx = canvas.getContext('2d');
+            
+            initRhythmGrid();
+            initQuizDropdown();
+            updateRhythmDisplay();
+            animate();
+            
+            document.getElementById('quizAnswer').addEventListener('change', function() {
+                document.getElementById('checkAnswerBtn').disabled = !this.value;
+            });
+
+            // TEMPORARY while the mode buttons are hidden: open straight into
+            // Learn Mode, since that is the part that is out for review.
+            // Delete this one line to go back to landing on Simple View.
+            setMode('visual');
+        });
+        
+        // ==================== RHYTHM GRID ====================
+        function initRhythmGrid() {
+            const grid = document.getElementById('rhythmGrid');
+            grid.innerHTML = '';
+            
+            Object.entries(rhythms).forEach(([key, rhythm]) => {
+                const btn = document.createElement('button');
+                btn.className = `rhythm-btn ${key === selectedRhythm ? 'active' : ''} ${rhythm.emergency ? 'emergency' : ''}`;
+                btn.style.setProperty('--rhythm-color', rhythm.color);
+                btn.innerHTML = `${rhythm.name}${rhythm.emergency ? ' <span class="emergency-icon">⚠️</span>' : ''}`;
+                btn.onclick = () => selectRhythm(key);
+                btn.id = `rhythm-${key}`;
+                grid.appendChild(btn);
+            });
+        }
+        
+        // ==================== QUIZ DROPDOWN ====================
+        function initQuizDropdown() {
+            const select = document.getElementById('quizAnswer');
+            Object.entries(rhythms).forEach(([key, rhythm]) => {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = rhythm.name;
+                select.appendChild(option);
+            });
+        }
+        
+        // ==================== MODE SWITCHING ====================
+        function setMode(mode) {
+            currentMode = mode;
+            
+            document.getElementById('learnModeBtn').classList.toggle('active', mode === 'learn');
+            document.getElementById('visualModeBtn').classList.toggle('active', mode === 'visual');
+            document.getElementById('quizModeBtn').classList.toggle('active', mode === 'quiz');
+            
+            document.getElementById('learnContent').style.display = mode === 'learn' ? 'block' : 'none';
+            document.getElementById('quizContent').style.display = mode === 'quiz' ? 'block' : 'none';
+            document.getElementById('quizScore').style.display = mode === 'quiz' ? 'block' : 'none';
+            document.getElementById('visualContent').style.display = mode === 'visual' ? 'block' : 'none';
+            
+            // The rhythm visuals bring their own monitor, so hide the main one in that mode
+            document.getElementById('mainMonitorCard').style.display = mode === 'visual' ? 'none' : 'block';
+            document.getElementById('monitorHR').style.display = mode === 'learn' ? 'flex' : 'none';
+            
+            if (mode === 'visual') {
+                document.getElementById('emergencyBanner').style.display = 'none';
+                // built the first time it is opened, then reused
+                RhythmVisual.mount(document.getElementById('visualContent'));
+            } else if (mode === 'quiz') {
+                document.getElementById('emergencyBanner').style.display = 'none';
+                startQuiz();
+            } else {
+                updateRhythmDisplay();
+            }
+        }
+        
+        // ==================== RHYTHM SELECTION ====================
+        function selectRhythm(rhythmKey) {
+            document.querySelectorAll('.rhythm-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`rhythm-${rhythmKey}`).classList.add('active');
+            
+            selectedRhythm = rhythmKey;
+            const rhythm = rhythms[rhythmKey];
+            heartRate = rhythm.defaultRate;
+            
+            updateRhythmDisplay();
+        }
+        
+        function updateRhythmDisplay() {
+            const rhythm = rhythms[selectedRhythm];
+            
+            document.getElementById('rhythmTitle').textContent = rhythm.name;
+            document.getElementById('rhythmTitle').style.color = rhythm.color;
+            document.getElementById('rhythmDescription').textContent = rhythm.description;
+            
+            const featuresList = document.getElementById('featuresList');
+            featuresList.innerHTML = rhythm.keyFeatures.map(feature => 
+                `<li><i class="bi bi-check-circle-fill check-icon" style="color: ${rhythm.color}"></i>${feature}</li>`
+            ).join('');
+            
+            const rateCard = document.getElementById('rateCard');
+            if (rhythm.minRate === rhythm.maxRate || rhythm.minRate === 0) {
+                rateCard.style.display = 'none';
+            } else {
+                rateCard.style.display = 'block';
+                const slider = document.getElementById('rateSlider');
+                slider.min = rhythm.minRate;
+                slider.max = rhythm.maxRate;
+                slider.value = heartRate;
+                document.getElementById('rateValue').textContent = heartRate;
+                document.getElementById('rateMin').textContent = rhythm.minRate + ' BPM';
+                document.getElementById('rateMax').textContent = rhythm.maxRate + ' BPM';
+            }
+            
+            document.getElementById('hrValue').textContent = heartRate || '--';
+            document.getElementById('monitorHR').style.color = rhythm.color;
+            
+            const banner = document.getElementById('emergencyBanner');
+            banner.style.display = rhythm.emergency ? 'block' : 'none';
+            
+            const noPulseIndicator = document.getElementById('noPulseIndicator');
+            if (selectedRhythm === 'pea' || selectedRhythm === 'ventricularTachycardia') {
+                noPulseIndicator.style.display = 'flex';
+            } else {
+                noPulseIndicator.style.display = 'none';
+            }
+        }
+        
+        function updateRate(value) {
+            heartRate = parseInt(value);
+            document.getElementById('rateValue').textContent = heartRate;
+            document.getElementById('hrValue').textContent = heartRate;
+        }
+        
+        // ==================== QUIZ FUNCTIONS ====================
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+        
+        function startQuiz() {
+            score = { correct: 0, total: 0 };
+            currentQuizIndex = 0;
+            quizRhythms = shuffleArray(Object.keys(rhythms));
+            document.getElementById('quizFinalResults').style.display = 'none';
+            showCurrentQuestion();
+        }
+        
+        function showCurrentQuestion() {
+            quizRhythm = quizRhythms[currentQuizIndex];
+            
+            document.getElementById('quizQuestion').style.display = 'block';
+            document.getElementById('quizResult').style.display = 'none';
+            document.getElementById('quizFinalResults').style.display = 'none';
+            document.getElementById('quizAnswer').value = '';
+            document.getElementById('checkAnswerBtn').disabled = true;
+            
+            document.getElementById('questionNumber').textContent = currentQuizIndex + 1;
+            document.getElementById('emergencyBanner').style.display = 'none';
+            
+            const noPulseIndicator = document.getElementById('noPulseIndicator');
+            if (quizRhythm === 'pea' || quizRhythm === 'ventricularTachycardia') {
+                noPulseIndicator.style.display = 'flex';
+            } else {
+                noPulseIndicator.style.display = 'none';
+            }
+            
+            updateScoreDisplay();
+        }
+        
+        function checkAnswer() {
+            const userAnswer = document.getElementById('quizAnswer').value;
+            const isCorrect = userAnswer === quizRhythm;
+            
+            score.total++;
+            if (isCorrect) score.correct++;
+            updateScoreDisplay();
+            
+            document.getElementById('quizQuestion').style.display = 'none';
+            document.getElementById('quizResult').style.display = 'block';
+            
+            const resultBox = document.getElementById('quizResultBox');
+            const resultIcon = document.getElementById('quizResultIcon');
+            const resultText = document.getElementById('quizResultText');
+            
+            if (isCorrect) {
+                resultBox.className = 'quiz-result correct';
+                resultIcon.textContent = '✅';
+                resultText.textContent = 'Correct!';
+            } else {
+                resultBox.className = 'quiz-result incorrect';
+                resultIcon.textContent = '❌';
+                resultText.textContent = 'Incorrect';
+            }
+            
+            document.getElementById('correctAnswerText').textContent = rhythms[quizRhythm].name;
+            document.getElementById('quizExplanation').textContent = rhythms[quizRhythm].description;
+            
+            const nextBtn = document.querySelector('#quizResult .quiz-btn-primary');
+            if (currentQuizIndex >= quizRhythms.length - 1) {
+                nextBtn.textContent = 'See Results →';
+            } else {
+                nextBtn.textContent = 'Next Question →';
+            }
+        }
+        
+        function nextQuestion() {
+            currentQuizIndex++;
+            if (currentQuizIndex >= quizRhythms.length) {
+                showFinalResults();
+            } else {
+                showCurrentQuestion();
+            }
+        }
+        
+        function showFinalResults() {
+            const percent = Math.round((score.correct / totalRhythms) * 100);
+            
+            document.getElementById('quizQuestion').style.display = 'none';
+            document.getElementById('quizResult').style.display = 'none';
+            document.getElementById('quizScore').style.display = 'none';
+            document.getElementById('noPulseIndicator').style.display = 'none';
+            
+            document.getElementById('quizFinalResults').style.display = 'block';
+            document.getElementById('finalPercent').textContent = percent + '%';
+            document.getElementById('finalCorrect').textContent = score.correct;
+            
+            let message;
+            if (percent === 100) {
+                message = '🌟 Perfect! You\'re an ECG expert!';
+            } else if (percent >= 85) {
+                message = '🎯 Excellent work! Nearly there!';
+            } else if (percent >= 70) {
+                message = '👍 Good job! Keep practising!';
+            } else if (percent >= 50) {
+                message = '📚 Getting there! Review the tricky ones.';
+            } else {
+                message = '💪 Keep learning! Practice makes perfect.';
+            }
+            document.getElementById('finalMessage').textContent = message;
+        }
+        
+        function restartQuiz() {
+            document.getElementById('quizScore').style.display = 'block';
+            startQuiz();
+        }
+        
+        function updateScoreDisplay() {
+            document.getElementById('scoreCorrect').textContent = score.correct;
+            document.getElementById('scoreTotal').textContent = score.total;
+        }
+        
+        // ==================== PLAY/PAUSE ====================
+        function togglePlayPause() {
+            isPlaying = !isPlaying;
+            const btn = document.getElementById('playPauseBtn');
+            
+            if (isPlaying) {
+                btn.innerHTML = '<i class="bi bi-pause-fill"></i> Pause';
+                btn.className = 'monitor-btn monitor-btn-pause';
+            } else {
+                btn.innerHTML = '<i class="bi bi-play-fill"></i> Play';
+                btn.className = 'monitor-btn monitor-btn-play';
+            }
+        }
+        
+        // ==================== ECG ANIMATION ====================
+        function animate() {
+            if (isPlaying) {
+                time += 0.05;
+            }
+            drawECG();
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        function drawECG() {
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, width, height);
+            
+            drawGrid(width, height);
+            
+            const currentRhythm = currentMode === 'quiz' ? quizRhythm : selectedRhythm;
+            const currentRate = currentMode === 'quiz' ? rhythms[quizRhythm]?.defaultRate || 75 : heartRate;
+            
+            if (!currentRhythm) return;
+            
+            const points = generateWaveform(currentRhythm, currentRate, width);
+            const waveColor = currentMode === 'quiz' ? '#22c55e' : rhythms[selectedRhythm].color;
+            
+            ctx.strokeStyle = waveColor;
+            ctx.lineWidth = 2;
+            ctx.shadowColor = waveColor;
+            ctx.shadowBlur = 4;
+            ctx.beginPath();
+            
+            points.forEach((point, i) => {
+                if (i === 0) {
+                    ctx.moveTo(point.x, point.y);
+                } else {
+                    ctx.lineTo(point.x, point.y);
+                }
+            });
+            
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+        
+        function drawGrid(width, height) {
+            ctx.strokeStyle = '#2d2d4a';
+            ctx.lineWidth = 0.5;
+            
+            for (let x = 0; x < width; x += 4) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < height; y += 4) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+            
+            ctx.strokeStyle = '#3d3d5a';
+            ctx.lineWidth = 1;
+            
+            for (let x = 0; x < width; x += 20) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < height; y += 20) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+        }
+        
+        function generateWaveform(rhythm, rate, width) {
+            const points = [];
+            const baselineY = 100;
+            const pixelsPerSecond = 100;
+            const beatInterval = rate > 0 ? (60 / rate) * pixelsPerSecond : 1000;
+            
+            let afBeatPositions = [];
+            if (rhythm === 'atrialFibrillation') {
+                const patternLength = 800;
+                const intervals = [45, 70, 55, 90, 40, 85, 60, 75, 50, 95, 65, 80];
+                let pos = 0;
+                for (let i = 0; pos < patternLength * 3; i++) {
+                    afBeatPositions.push(pos);
+                    pos += intervals[i % intervals.length];
+                }
+            }
+            
+            for (let x = 0; x < width; x++) {
+                const adjustedX = x + (time * pixelsPerSecond * 0.5);
+                let y = baselineY;
+                
+                if (rhythm === 'ventricularFibrillation') {
+                    // Incommensurate frequencies produce chaotic but smooth undulations
+                    // No Math.random() per pixel — that gives static, not VF
+                    const vfEnvelope = 1 + 0.35 * Math.sin(adjustedX * 0.013); // slow amplitude waxing/waning
+                    y = baselineY + vfEnvelope * (
+                        Math.sin(adjustedX * 0.31) * 26 +   // ~5 Hz primary chaos
+                        Math.sin(adjustedX * 0.19) * 18 +   // ~3 Hz lower undulation
+                        Math.sin(adjustedX * 0.47) * 12 +   // ~7.5 Hz higher flutter
+                        Math.sin(adjustedX * 0.27) * 14     // ~4.3 Hz mid-component
+                    );
+                } else if (rhythm === 'asystole') {
+                    // Near-flat with occasional gentle agonal bumps at irregular intervals
+                    // Two bumps per long cycle at different spacings — never dead flat
+                    const agonalCycle = adjustedX % 380;
+                    let agonalBump = 0;
+                    if (agonalCycle >= 0 && agonalCycle < 30) {
+                        agonalBump = -Math.sin((agonalCycle / 30) * Math.PI) * 7;
+                    } else if (agonalCycle >= 210 && agonalCycle < 235) {
+                        agonalBump = -Math.sin(((agonalCycle - 210) / 25) * Math.PI) * 4;
+                    }
+                    y = baselineY + agonalBump + Math.sin(adjustedX * 0.04) * 1.2;
+                } else if (rhythm === 'atrialFibrillation') {
+                    const patternLength = 800;
+                    const posInPattern = adjustedX % patternLength;
+                    
+                    let minDist = Infinity;
+                    let beatPhase = 0;
+                    for (const beatPos of afBeatPositions) {
+                        const dist = posInPattern - beatPos;
+                        if (Math.abs(dist) < Math.abs(minDist)) {
+                            minDist = dist;
+                            if (dist >= 0 && dist < 50) {
+                                beatPhase = dist / 50;
+                            } else {
+                                beatPhase = -1;
+                            }
+                        }
+                    }
+                    
+                    y = generateAFBeat(beatPhase, baselineY);
+                } else if (rhythm === 'torsadesDePointes') {
+                    // Torsades de Pointes — wide complexes that twist polarity with waxing/waning amplitude
+                    const tdpRate = 250; // ~250 bpm
+                    const complexInterval = (60 / tdpRate) * pixelsPerSecond;
+                    const tdpCyclePos = (adjustedX % complexInterval) / complexInterval;
+                    
+                    // Spindle envelope — amplitude waxes and wanes over ~2-3 seconds
+                    const spindlePeriod = 250; // pixels for one full spindle cycle
+                    const spindlePhase = (adjustedX % spindlePeriod) / spindlePeriod;
+                    const envelope = Math.sin(spindlePhase * Math.PI) * 55 + 8;
+                    
+                    // Polarity twist — complexes gradually flip from upright to inverted
+                    const twistPhase = Math.sin(adjustedX * 0.006);
+                    
+                    // Generate wide QRS-like complexes (not smooth sine)
+                    if (tdpCyclePos < 0.15) {
+                        // Sharp Q-like downstroke
+                        y = baselineY + Math.sin((tdpCyclePos / 0.15) * Math.PI) * (envelope * 0.15) * twistPhase;
+                    } else if (tdpCyclePos >= 0.15 && tdpCyclePos < 0.40) {
+                        // Main wide QRS deflection
+                        const qrsPhase = (tdpCyclePos - 0.15) / 0.25;
+                        y = baselineY - Math.sin(qrsPhase * Math.PI) * envelope * twistPhase;
+                    } else if (tdpCyclePos >= 0.40 && tdpCyclePos < 0.60) {
+                        // S-wave / return
+                        const sPhase = (tdpCyclePos - 0.40) / 0.20;
+                        y = baselineY + Math.sin(sPhase * Math.PI) * (envelope * 0.3) * twistPhase;
+                    } else {
+                        // Brief baseline between complexes
+                        y = baselineY + (Math.random() - 0.5) * 2;
+                    }
+                } else if (rhythm === 'sinusArrhythmia') {
+                    // Rate varies cyclically (simulating breathing)
+                    const breathCycle = Math.sin(adjustedX * 0.003) * 0.3;
+                    const variedInterval = beatInterval * (1 + breathCycle);
+                    let cyclePos = (adjustedX % variedInterval) / variedInterval;
+                    y = generatePQRST('normalSinus', cyclePos, baselineY, adjustedX, variedInterval);
+                } else {
+                    let cyclePos = (adjustedX % beatInterval) / beatInterval;
+                    y = generatePQRST(rhythm, cyclePos, baselineY, adjustedX, beatInterval);
+                }
+                
+                points.push({ x, y: Math.max(20, Math.min(180, y)) });
+            }
+            
+            return points;
+        }
+        
+        function generateAFBeat(phase, baselineY) {
+            if (phase < 0 || phase > 1) {
+                return baselineY;
+            }
+            
+            let y = baselineY;
+            
+            if (phase >= 0.0 && phase < 0.1) {
+                y = baselineY + Math.sin((phase / 0.1) * Math.PI) * 4;
+            }
+            else if (phase >= 0.1 && phase < 0.25) {
+                y = baselineY - Math.sin(((phase - 0.1) / 0.15) * Math.PI) * 60;
+            }
+            else if (phase >= 0.25 && phase < 0.35) {
+                y = baselineY + Math.sin(((phase - 0.25) / 0.1) * Math.PI) * 10;
+            }
+            else if (phase >= 0.5 && phase < 0.85) {
+                y = baselineY - Math.sin(((phase - 0.5) / 0.35) * Math.PI) * 12;
+            }
+            else {
+                y = baselineY;
+            }
+            
+            return y;
+        }
+        
+        function generatePQRST(rhythm, cyclePos, baselineY, adjustedX, beatInterval) {
+            let y = baselineY;
+            
+            switch (rhythm) {
+                case 'normalSinus':
+                case 'sinusBradycardia':
+                case 'sinusTachycardia':
+                case 'pea':
+                    if (cyclePos >= 0.0 && cyclePos < 0.08) {
+                        y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
+                    }
+                    else if (cyclePos >= 0.16 && cyclePos < 0.18) {
+                        y = baselineY + Math.sin(((cyclePos - 0.16) / 0.02) * Math.PI) * 8;
+                    }
+                    else if (cyclePos >= 0.18 && cyclePos < 0.22) {
+                        y = baselineY - Math.sin(((cyclePos - 0.18) / 0.04) * Math.PI) * 60;
+                    }
+                    else if (cyclePos >= 0.22 && cyclePos < 0.26) {
+                        y = baselineY + Math.sin(((cyclePos - 0.22) / 0.04) * Math.PI) * 15;
+                    }
+                    else if (cyclePos >= 0.35 && cyclePos < 0.50) {
+                        y = baselineY - Math.sin(((cyclePos - 0.35) / 0.15) * Math.PI) * 15;
+                    }
+                    break;
+                    
+                case 'atrialFlutter':
+                    const flutterPeriod = 20;
+                    const flutterPos = (adjustedX % flutterPeriod) / flutterPeriod;
+                    
+                    let flutterWave;
+                    if (flutterPos < 0.7) {
+                        flutterWave = baselineY + 10 - (flutterPos / 0.7) * 20;
+                    } else {
+                        flutterWave = baselineY - 10 + ((flutterPos - 0.7) / 0.3) * 20;
+                    }
+                    
+                    y = flutterWave;
+                    
+                    if (cyclePos >= 0.18 && cyclePos < 0.21) {
+                        y = baselineY - Math.sin(((cyclePos - 0.18) / 0.03) * Math.PI) * 55;
+                    }
+                    else if (cyclePos >= 0.21 && cyclePos < 0.24) {
+                        y = baselineY + Math.sin(((cyclePos - 0.21) / 0.03) * Math.PI) * 10;
+                    }
+                    break;
+                    
+                case 'ventricularTachycardia':
+                    // Monomorphic VT: wide dome-shaped complex, no sharp QRS
+                    // sin^0.25 squashes the peak into a broad flat-topped dome with
+                    // smoothly curved edges — far more rounded than a plain sine arch
+                    if (cyclePos < 0.55) {
+                        const vtPhase = cyclePos / 0.55;
+                        const dome = Math.pow(Math.sin(vtPhase * Math.PI), 0.25);
+                        y = baselineY - dome * 62;
+                    } else if (cyclePos >= 0.60 && cyclePos < 0.85) {
+                        // Discordant T wave — broad, negative
+                        y = baselineY + Math.pow(Math.sin(((cyclePos - 0.60) / 0.25) * Math.PI), 0.5) * 18;
+                    }
+                    break;
+                    
+                case 'firstDegreeBlock':
+                    if (cyclePos >= 0.0 && cyclePos < 0.06) {
+                        y = baselineY - Math.sin((cyclePos / 0.06) * Math.PI) * 10;
+                    } else if (cyclePos >= 0.20 && cyclePos < 0.22) {
+                        y = baselineY + Math.sin(((cyclePos - 0.20) / 0.02) * Math.PI) * 8;
+                    } else if (cyclePos >= 0.22 && cyclePos < 0.26) {
+                        y = baselineY - Math.sin(((cyclePos - 0.22) / 0.04) * Math.PI) * 60;
+                    } else if (cyclePos >= 0.26 && cyclePos < 0.30) {
+                        y = baselineY + Math.sin(((cyclePos - 0.26) / 0.04) * Math.PI) * 15;
+                    } else if (cyclePos >= 0.40 && cyclePos < 0.55) {
+                        y = baselineY - Math.sin(((cyclePos - 0.40) / 0.15) * Math.PI) * 15;
+                    }
+                    break;
+                    
+                case 'thirdDegreeBlock':
+                    const pCycle = (adjustedX % 75) / 75;
+                    if (pCycle >= 0.0 && pCycle < 0.15) {
+                        y = baselineY - Math.sin((pCycle / 0.15) * Math.PI) * 10;
+                    }
+                    if (cyclePos >= 0.16 && cyclePos < 0.18) {
+                        y = baselineY + Math.sin(((cyclePos - 0.16) / 0.02) * Math.PI) * 8;
+                    } else if (cyclePos >= 0.18 && cyclePos < 0.24) {
+                        y = baselineY - Math.sin(((cyclePos - 0.18) / 0.06) * Math.PI) * 55;
+                    } else if (cyclePos >= 0.24 && cyclePos < 0.30) {
+                        y = baselineY + Math.sin(((cyclePos - 0.24) / 0.06) * Math.PI) * 15;
+                    } else if (cyclePos >= 0.45 && cyclePos < 0.60) {
+                        y = baselineY - Math.sin(((cyclePos - 0.45) / 0.15) * Math.PI) * 12;
+                    }
+                    break;
+                    
+                case 'svt':
+                    if (cyclePos >= 0.10 && cyclePos < 0.14) {
+                        y = baselineY + Math.sin(((cyclePos - 0.10) / 0.04) * Math.PI) * 6;
+                    } else if (cyclePos >= 0.14 && cyclePos < 0.20) {
+                        y = baselineY - Math.sin(((cyclePos - 0.14) / 0.06) * Math.PI) * 55;
+                    } else if (cyclePos >= 0.20 && cyclePos < 0.26) {
+                        y = baselineY + Math.sin(((cyclePos - 0.20) / 0.06) * Math.PI) * 12;
+                    } else if (cyclePos >= 0.40 && cyclePos < 0.55) {
+                        y = baselineY - Math.sin(((cyclePos - 0.40) / 0.15) * Math.PI) * 10;
+                    }
+                    break;
+                    
+                case 'secondDegreeMobitz1':
+                    const wenkeBeat = Math.floor((adjustedX / beatInterval) % 4);
+                    const prProlongation = wenkeBeat * 0.08; // 0.08 per beat gives clearly visible PR lengthening
+                    
+                    if (wenkeBeat < 3) {
+                        if (cyclePos >= 0.0 && cyclePos < 0.08) {
+                            y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
+                        } else if (cyclePos >= (0.16 + prProlongation) && cyclePos < (0.18 + prProlongation)) {
+                            y = baselineY + Math.sin(((cyclePos - 0.16 - prProlongation) / 0.02) * Math.PI) * 8;
+                        } else if (cyclePos >= (0.18 + prProlongation) && cyclePos < (0.22 + prProlongation)) {
+                            y = baselineY - Math.sin(((cyclePos - 0.18 - prProlongation) / 0.04) * Math.PI) * 60;
+                        } else if (cyclePos >= (0.22 + prProlongation) && cyclePos < (0.26 + prProlongation)) {
+                            y = baselineY + Math.sin(((cyclePos - 0.22 - prProlongation) / 0.04) * Math.PI) * 15;
+                        } else if (cyclePos >= (0.40 + prProlongation) && cyclePos < (0.56 + prProlongation)) {
+                            // T wave follows QRS so it doesn't collide as PR lengthens
+                            y = baselineY - Math.sin(((cyclePos - 0.40 - prProlongation) / 0.16) * Math.PI) * 15;
+                        }
+                    } else {
+                        if (cyclePos >= 0.0 && cyclePos < 0.08) {
+                            y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
+                        }
+                    }
+                    break;
+                    
+                case 'secondDegreeMobitz2':
+                    const mobitz2Beat = Math.floor((adjustedX / beatInterval) % 3);
+                    
+                    if (mobitz2Beat < 2) {
+                        if (cyclePos >= 0.0 && cyclePos < 0.08) {
+                            y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
+                        } else if (cyclePos >= 0.16 && cyclePos < 0.18) {
+                            y = baselineY + Math.sin(((cyclePos - 0.16) / 0.02) * Math.PI) * 8;
+                        } else if (cyclePos >= 0.18 && cyclePos < 0.24) {
+                            y = baselineY - Math.sin(((cyclePos - 0.18) / 0.06) * Math.PI) * 55;
+                        } else if (cyclePos >= 0.24 && cyclePos < 0.30) {
+                            y = baselineY + Math.sin(((cyclePos - 0.24) / 0.06) * Math.PI) * 15;
+                        } else if (cyclePos >= 0.40 && cyclePos < 0.55) {
+                            y = baselineY - Math.sin(((cyclePos - 0.40) / 0.15) * Math.PI) * 12;
+                        }
+                    } else {
+                        if (cyclePos >= 0.0 && cyclePos < 0.08) {
+                            y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
+                        }
+                    }
+                    break;
+                
+                // ===== NEW RHYTHM WAVEFORMS =====
+                    
+                case 'junctionalRhythm':
+                    // No P wave before QRS, possible inverted P after
+                    if (cyclePos >= 0.16 && cyclePos < 0.18) {
+                        y = baselineY + Math.sin(((cyclePos - 0.16) / 0.02) * Math.PI) * 8;
+                    } else if (cyclePos >= 0.18 && cyclePos < 0.22) {
+                        y = baselineY - Math.sin(((cyclePos - 0.18) / 0.04) * Math.PI) * 60;
+                    } else if (cyclePos >= 0.22 && cyclePos < 0.26) {
+                        y = baselineY + Math.sin(((cyclePos - 0.22) / 0.04) * Math.PI) * 15;
+                    } else if (cyclePos >= 0.28 && cyclePos < 0.34) {
+                        // Inverted P wave AFTER QRS (retrograde conduction)
+                        y = baselineY + Math.sin(((cyclePos - 0.28) / 0.06) * Math.PI) * 6;
+                    } else if (cyclePos >= 0.40 && cyclePos < 0.55) {
+                        y = baselineY - Math.sin(((cyclePos - 0.40) / 0.15) * Math.PI) * 15;
+                    }
+                    break;
+                    
+                case 'wpw':
+                    // Short PR + very prominent delta wave ramp + tall R + deep S
+                    if (cyclePos >= 0.0 && cyclePos < 0.06) {
+                        // Normal P wave
+                        y = baselineY - Math.sin((cyclePos / 0.06) * Math.PI) * 10;
+                    } else if (cyclePos >= 0.08 && cyclePos < 0.18) {
+                        // DELTA WAVE — wide, obvious gradual ramp (the key WPW feature)
+                        // Starts almost immediately after P wave (short PR)
+                        const deltaPos = (cyclePos - 0.08) / 0.10;
+                        y = baselineY - deltaPos * 25;
+                    } else if (cyclePos >= 0.18 && cyclePos < 0.23) {
+                        // Sharp R wave spike (starts from where delta ramp ended)
+                        const rPhase = (cyclePos - 0.18) / 0.05;
+                        y = baselineY - 25 - Math.sin(rPhase * Math.PI) * 40;
+                    } else if (cyclePos >= 0.23 && cyclePos < 0.32) {
+                        // Deep S wave below baseline
+                        const sPhase = (cyclePos - 0.23) / 0.09;
+                        if (sPhase < 0.4) {
+                            // Sharp drop through baseline to S wave trough
+                            y = baselineY + (sPhase / 0.4) * 25;
+                        } else {
+                            // Return from S wave
+                            y = baselineY + 25 * (1 - ((sPhase - 0.4) / 0.6));
+                        }
+                    } else if (cyclePos >= 0.45 && cyclePos < 0.62) {
+                        // T wave
+                        y = baselineY - Math.sin(((cyclePos - 0.45) / 0.17) * Math.PI) * 15;
+                    }
+                    break;
+                    
+                case 'pvcs':
+                    // PVCs — mostly normal sinus with occasional EARLY wide bizarre beats
+                    // Pattern: 3 normal beats, then 1 early PVC, then a compensatory pause
+                    const pvcSuperCycle = beatInterval * 4.5; // 3 normal + 1 early + full compensatory pause
+                    const pvcSuperPos = adjustedX % pvcSuperCycle;
+                    
+                    const pvcBeat1Start = 0;
+                    const pvcBeat2Start = beatInterval;
+                    const pvcBeat3Start = beatInterval * 2;
+                    const pvcEarlyStart = beatInterval * 2.5; // PVC arrives EARLY
+                    // Full compensatory pause fills until next super-cycle
+                    
+                    let pvcLocalPhase = -1;
+                    let isPVCBeat = false;
+                    
+                    if (pvcSuperPos >= pvcBeat1Start && pvcSuperPos < pvcBeat2Start) {
+                        pvcLocalPhase = (pvcSuperPos - pvcBeat1Start) / beatInterval;
+                    } else if (pvcSuperPos >= pvcBeat2Start && pvcSuperPos < pvcBeat3Start) {
+                        pvcLocalPhase = (pvcSuperPos - pvcBeat2Start) / beatInterval;
+                    } else if (pvcSuperPos >= pvcBeat3Start && pvcSuperPos < pvcEarlyStart) {
+                        pvcLocalPhase = (pvcSuperPos - pvcBeat3Start) / beatInterval;
+                    } else if (pvcSuperPos >= pvcEarlyStart && pvcSuperPos < pvcEarlyStart + beatInterval) {
+                        pvcLocalPhase = (pvcSuperPos - pvcEarlyStart) / beatInterval;
+                        isPVCBeat = true;
+                    }
+                    
+                    if (pvcLocalPhase >= 0 && pvcLocalPhase <= 1) {
+                        if (isPVCBeat) {
+                            // PVC — wide, bizarre, no P wave, tall, with inverted T after
+                            if (pvcLocalPhase >= 0.05 && pvcLocalPhase < 0.18) {
+                                // Wide tall R wave
+                                y = baselineY - Math.sin(((pvcLocalPhase - 0.05) / 0.13) * Math.PI) * 75;
+                            } else if (pvcLocalPhase >= 0.18 && pvcLocalPhase < 0.32) {
+                                // Deep wide S wave
+                                y = baselineY + Math.sin(((pvcLocalPhase - 0.18) / 0.14) * Math.PI) * 30;
+                            } else if (pvcLocalPhase >= 0.36 && pvcLocalPhase < 0.56) {
+                                // Inverted (opposite direction) T wave
+                                y = baselineY + Math.sin(((pvcLocalPhase - 0.36) / 0.20) * Math.PI) * 14;
+                            }
+                        } else {
+                            // Normal sinus beat
+                            if (pvcLocalPhase >= 0.0 && pvcLocalPhase < 0.08) {
+                                y = baselineY - Math.sin((pvcLocalPhase / 0.08) * Math.PI) * 10;
+                            } else if (pvcLocalPhase >= 0.16 && pvcLocalPhase < 0.18) {
+                                y = baselineY + Math.sin(((pvcLocalPhase - 0.16) / 0.02) * Math.PI) * 8;
+                            } else if (pvcLocalPhase >= 0.18 && pvcLocalPhase < 0.22) {
+                                y = baselineY - Math.sin(((pvcLocalPhase - 0.18) / 0.04) * Math.PI) * 60;
+                            } else if (pvcLocalPhase >= 0.22 && pvcLocalPhase < 0.26) {
+                                y = baselineY + Math.sin(((pvcLocalPhase - 0.22) / 0.04) * Math.PI) * 15;
+                            } else if (pvcLocalPhase >= 0.35 && pvcLocalPhase < 0.50) {
+                                y = baselineY - Math.sin(((pvcLocalPhase - 0.35) / 0.15) * Math.PI) * 15;
+                            }
+                        }
+                    }
+                    break;
+                    
+                case 'pacs':
+                    // PACs — mostly normal sinus with occasional EARLY beats
+                    // Pattern: 3 normal beats, then 1 early PAC, then a pause
+                    // We use a longer super-cycle to create the irregular timing
+                    const pacSuperCycle = beatInterval * 4.3; // 3 normal + 1 early + pause
+                    const pacSuperPos = adjustedX % pacSuperCycle;
+                    
+                    // Beat positions within the super-cycle
+                    const pacBeat1Start = 0;
+                    const pacBeat2Start = beatInterval;
+                    const pacBeat3Start = beatInterval * 2;
+                    const pacEarlyStart = beatInterval * 2.65; // PAC arrives EARLY
+                    // Then a pause until the next super-cycle starts
+                    
+                    let pacLocalPhase = -1;
+                    let isPACBeat = false;
+                    
+                    if (pacSuperPos >= pacBeat1Start && pacSuperPos < pacBeat2Start) {
+                        pacLocalPhase = (pacSuperPos - pacBeat1Start) / beatInterval;
+                    } else if (pacSuperPos >= pacBeat2Start && pacSuperPos < pacBeat3Start) {
+                        pacLocalPhase = (pacSuperPos - pacBeat2Start) / beatInterval;
+                    } else if (pacSuperPos >= pacBeat3Start && pacSuperPos < pacEarlyStart) {
+                        pacLocalPhase = (pacSuperPos - pacBeat3Start) / beatInterval;
+                    } else if (pacSuperPos >= pacEarlyStart && pacSuperPos < pacEarlyStart + beatInterval) {
+                        pacLocalPhase = (pacSuperPos - pacEarlyStart) / beatInterval;
+                        isPACBeat = true;
+                    }
+                    
+                    if (pacLocalPhase >= 0 && pacLocalPhase <= 1) {
+                        if (isPACBeat) {
+                            // PAC beat — slightly different (taller/sharper) P wave, normal QRS
+                            if (pacLocalPhase >= 0.0 && pacLocalPhase < 0.06) {
+                                y = baselineY - Math.sin((pacLocalPhase / 0.06) * Math.PI) * 14;
+                            } else if (pacLocalPhase >= 0.14 && pacLocalPhase < 0.16) {
+                                y = baselineY + Math.sin(((pacLocalPhase - 0.14) / 0.02) * Math.PI) * 8;
+                            } else if (pacLocalPhase >= 0.16 && pacLocalPhase < 0.20) {
+                                y = baselineY - Math.sin(((pacLocalPhase - 0.16) / 0.04) * Math.PI) * 60;
+                            } else if (pacLocalPhase >= 0.20 && pacLocalPhase < 0.24) {
+                                y = baselineY + Math.sin(((pacLocalPhase - 0.20) / 0.04) * Math.PI) * 15;
+                            } else if (pacLocalPhase >= 0.33 && pacLocalPhase < 0.48) {
+                                y = baselineY - Math.sin(((pacLocalPhase - 0.33) / 0.15) * Math.PI) * 14;
+                            }
+                        } else {
+                            // Normal sinus beat
+                            if (pacLocalPhase >= 0.0 && pacLocalPhase < 0.08) {
+                                y = baselineY - Math.sin((pacLocalPhase / 0.08) * Math.PI) * 10;
+                            } else if (pacLocalPhase >= 0.16 && pacLocalPhase < 0.18) {
+                                y = baselineY + Math.sin(((pacLocalPhase - 0.16) / 0.02) * Math.PI) * 8;
+                            } else if (pacLocalPhase >= 0.18 && pacLocalPhase < 0.22) {
+                                y = baselineY - Math.sin(((pacLocalPhase - 0.18) / 0.04) * Math.PI) * 60;
+                            } else if (pacLocalPhase >= 0.22 && pacLocalPhase < 0.26) {
+                                y = baselineY + Math.sin(((pacLocalPhase - 0.22) / 0.04) * Math.PI) * 15;
+                            } else if (pacLocalPhase >= 0.35 && pacLocalPhase < 0.50) {
+                                y = baselineY - Math.sin(((pacLocalPhase - 0.35) / 0.15) * Math.PI) * 15;
+                            }
+                        }
+                    }
+                    break;
+                    
+                case 'hyperkalaemia':
+                    // Widened QRS + very tall peaked T waves + flattened P
+                    if (cyclePos >= 0.0 && cyclePos < 0.05) {
+                        // Flattened, barely visible P wave
+                        y = baselineY - Math.sin((cyclePos / 0.05) * Math.PI) * 3;
+                    } else if (cyclePos >= 0.12 && cyclePos < 0.16) {
+                        // Wide Q onset
+                        y = baselineY + Math.sin(((cyclePos - 0.12) / 0.04) * Math.PI) * 10;
+                    } else if (cyclePos >= 0.16 && cyclePos < 0.26) {
+                        // Wide QRS — takes longer than normal
+                        y = baselineY - Math.sin(((cyclePos - 0.16) / 0.10) * Math.PI) * 50;
+                    } else if (cyclePos >= 0.26 && cyclePos < 0.34) {
+                        // Wide S wave
+                        y = baselineY + Math.sin(((cyclePos - 0.26) / 0.08) * Math.PI) * 18;
+                    } else if (cyclePos >= 0.37 && cyclePos < 0.54) {
+                        // Very tall, peaked, narrow T wave (tent-shaped) — the hallmark sign
+                        const tPos = (cyclePos - 0.37) / 0.17;
+                        y = baselineY - Math.pow(Math.sin(tPos * Math.PI), 1.5) * 55;
+                    }
+                    break;
+                    
+                case 'stemi':
+                    // Normal QRS with ST elevation and possible Q waves
+                    if (cyclePos >= 0.0 && cyclePos < 0.08) {
+                        y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
+                    } else if (cyclePos >= 0.14 && cyclePos < 0.16) {
+                        // Pathological Q wave
+                        y = baselineY + Math.sin(((cyclePos - 0.14) / 0.02) * Math.PI) * 15;
+                    } else if (cyclePos >= 0.16 && cyclePos < 0.20) {
+                        y = baselineY - Math.sin(((cyclePos - 0.16) / 0.04) * Math.PI) * 60;
+                    } else if (cyclePos >= 0.20 && cyclePos < 0.24) {
+                        y = baselineY + Math.sin(((cyclePos - 0.20) / 0.04) * Math.PI) * 12;
+                    } else if (cyclePos >= 0.24 && cyclePos < 0.55) {
+                        // ST elevation — stays elevated above baseline
+                        const stBase = baselineY - 18;
+                        if (cyclePos < 0.35) {
+                            // ST segment — elevated plateau
+                            y = stBase;
+                        } else {
+                            // Elevated T wave merging with ST segment
+                            y = stBase - Math.sin(((cyclePos - 0.35) / 0.20) * Math.PI) * 12;
+                        }
+                    }
+                    break;
+                    
+                case 'longQT':
+                    // Normal PQRS but prolonged QT with broad T wave
+                    if (cyclePos >= 0.0 && cyclePos < 0.08) {
+                        y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
+                    } else if (cyclePos >= 0.16 && cyclePos < 0.18) {
+                        y = baselineY + Math.sin(((cyclePos - 0.16) / 0.02) * Math.PI) * 8;
+                    } else if (cyclePos >= 0.18 && cyclePos < 0.22) {
+                        y = baselineY - Math.sin(((cyclePos - 0.18) / 0.04) * Math.PI) * 60;
+                    } else if (cyclePos >= 0.22 && cyclePos < 0.26) {
+                        y = baselineY + Math.sin(((cyclePos - 0.22) / 0.04) * Math.PI) * 15;
+                    } else if (cyclePos >= 0.32 && cyclePos < 0.70) {
+                        // Very broad, prolonged T wave (the long QT)
+                        const tPos = (cyclePos - 0.32) / 0.38;
+                        y = baselineY - Math.sin(tPos * Math.PI) * 18;
+                        // Add slight notch in T wave (common in long QT)
+                        if (tPos > 0.4 && tPos < 0.6) {
+                            y += Math.sin(((tPos - 0.4) / 0.2) * Math.PI) * 4;
+                        }
+                    }
+                    break;
+
+                case 'lbbb':
+                    // LBBB — V1 representation (rS pattern)
+                    // Small r up, deep broad S down, broad positive discordant T
+                    if (cyclePos >= 0.0 && cyclePos < 0.08) {
+                        // Normal P wave
+                        y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
+                    } else if (cyclePos >= 0.16 && cyclePos < 0.21) {
+                        // Small r wave — slight upward deflection
+                        y = baselineY - Math.sin(((cyclePos - 0.16) / 0.05) * Math.PI) * 14;
+                    } else if (cyclePos >= 0.21 && cyclePos < 0.38) {
+                        // Deep broad S wave — the dominant downward deflection
+                        y = baselineY + Math.sin(((cyclePos - 0.21) / 0.17) * Math.PI) * 55;
+                    } else if (cyclePos >= 0.44 && cyclePos < 0.66) {
+                        // Broad positive discordant T wave (opposite to the negative QRS)
+                        y = baselineY - Math.sin(((cyclePos - 0.44) / 0.22) * Math.PI) * 20;
+                    }
+                    break;
+
+                case 'rbbb':
+                    // RBBB — V2 representation
+                    // Small r up, deep S down, tall sharp R' prime up, inverted discordant T down
+                    if (cyclePos >= 0.0 && cyclePos < 0.08) {
+                        // Normal P wave
+                        y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
+                    } else if (cyclePos >= 0.16 && cyclePos < 0.22) {
+                        // Small r wave — upward
+                        y = baselineY - Math.sin(((cyclePos - 0.16) / 0.06) * Math.PI) * 28;
+                    } else if (cyclePos >= 0.22 && cyclePos < 0.31) {
+                        // Deep S wave — downward
+                        y = baselineY + Math.sin(((cyclePos - 0.22) / 0.09) * Math.PI) * 38;
+                    } else if (cyclePos >= 0.31 && cyclePos < 0.42) {
+                        // Tall R' prime — sharp prominent upward deflection (taller than initial r)
+                        y = baselineY - Math.sin(((cyclePos - 0.31) / 0.11) * Math.PI) * 65;
+                    } else if (cyclePos >= 0.42 && cyclePos < 0.48) {
+                        // Return to baseline
+                        y = baselineY + Math.sin(((cyclePos - 0.42) / 0.06) * Math.PI) * 8;
+                    } else if (cyclePos >= 0.52 && cyclePos < 0.70) {
+                        // Discordant inverted T wave — downward (opposite to R' which was positive)
+                        y = baselineY + Math.sin(((cyclePos - 0.52) / 0.18) * Math.PI) * 18;
+                    }
+                    break;
+                    
+                default:
+                    if (cyclePos >= 0.0 && cyclePos < 0.08) {
+                        y = baselineY - Math.sin((cyclePos / 0.08) * Math.PI) * 10;
+                    } else if (cyclePos >= 0.16 && cyclePos < 0.18) {
+                        y = baselineY + Math.sin(((cyclePos - 0.16) / 0.02) * Math.PI) * 8;
+                    } else if (cyclePos >= 0.18 && cyclePos < 0.22) {
+                        y = baselineY - Math.sin(((cyclePos - 0.18) / 0.04) * Math.PI) * 60;
+                    } else if (cyclePos >= 0.22 && cyclePos < 0.26) {
+                        y = baselineY + Math.sin(((cyclePos - 0.22) / 0.04) * Math.PI) * 15;
+                    } else if (cyclePos >= 0.35 && cyclePos < 0.50) {
+                        y = baselineY - Math.sin(((cyclePos - 0.35) / 0.15) * Math.PI) * 15;
+                    }
+            }
+            
+            return y;
+        }
+        
+    // ==================== GUIDED TOUR ====================
+    const TOUR_STEPS = [
+        {
+            target: '.mode-toggle',
+            title: 'Three ways to study',
+            desc: 'Simple View is the live ECG monitor. Learn Mode walks you through what the heart is doing to produce each rhythm. Test Yourself is a 25-question quiz.'
+        },
+        {
+            target: '.ecg-monitor-card',
+            title: 'ECG Monitor',
+            desc: 'A live animated ECG trace. Watch the waveform draw in real-time, see the heart rate update, and pause at any point to study the pattern.'
+        },
+        {
+            target: '.rhythm-btn',
+            title: 'Rhythm Selector',
+            desc: 'Tap any rhythm to load it on the monitor. Covers 25 rhythms from Normal Sinus to cardiac arrest patterns — colour-coded by severity.'
+        },
+        {
+            target: '#rateCard',
+            title: 'Heart Rate Slider',
+            desc: 'Drag to adjust the BPM and see how the ECG trace changes. Each rhythm has its own clinically appropriate rate range.'
+        },
+        {
+            target: '#rhythmTitle',
+            title: 'Clinical Info',
+            desc: 'Detailed notes for each rhythm including a description and key diagnostic features — written for paramedic-level practice.'
+        }
+    ];
+
+    const tour = {
+        step: 0,
+        overlay: document.getElementById('tourOverlay'),
+        spotlight: document.getElementById('tourSpotlight'),
+        tooltip: document.getElementById('tourTooltip'),
+        arrow: document.getElementById('tourArrow'),
+        title: document.getElementById('tourTitle'),
+        desc: document.getElementById('tourDesc'),
+        stepNum: document.getElementById('tourStepNum'),
+        stepLabel: document.getElementById('tourStepLabel'),
+        dots: document.getElementById('tourDots'),
+        nextBtn: document.getElementById('tourNextBtn'),
+        skipBtn: document.getElementById('tourSkipBtn'),
+        welcome: document.getElementById('tourWelcome'),
+        startBtn: document.getElementById('tourStartBtn'),
+        dismissBtn: document.getElementById('tourDismissBtn')
+    };
+
+    function initTour() {
+        // TEMPORARY, tied to the hidden mode buttons above.
+        // All five tour steps point at the Simple View monitor and the mode
+        // buttons. While those are hidden and the page opens on Learn Mode,
+        // the tour would spotlight empty space, so it is switched off.
+        // This needs no undoing: the moment the mode buttons are visible
+        // again, offsetParent stops being null and the tour runs as before.
+        var modeToggle = document.querySelector('.mode-toggle');
+        if (!modeToggle || modeToggle.offsetParent === null) return;
+
+        try {
+            if (localStorage.getItem('ecg_tourDone')) return;
+        } catch (e) {}
+
+        tour.welcome.classList.add('active');
+
+        tour.startBtn.addEventListener('click', () => {
+            tour.welcome.classList.remove('active');
+            startTour();
+        });
+
+        tour.dismissBtn.addEventListener('click', () => {
+            tour.welcome.classList.remove('active');
+            markTourDone();
+        });
+    }
+
+    function startTour() {
+        tour.step = 0;
+        tour.overlay.classList.add('active');
+
+        tour.dots.innerHTML = TOUR_STEPS.map((_, i) =>
+            `<div class="tour-dot ${i === 0 ? 'active' : ''}" data-dot="${i}"></div>`
+        ).join('');
+
+        tour.nextBtn.addEventListener('click', nextTourStep);
+        tour.skipBtn.addEventListener('click', endTour);
+
+        tour.overlay.addEventListener('click', (e) => {
+            if (e.target === tour.overlay || e.target === tour.spotlight) {
+                e.stopPropagation();
+            }
+        });
+
+        showTourStep(0);
+    }
+
+    function showTourStep(idx) {
+        const step = TOUR_STEPS[idx];
+        const targetEl = document.querySelector(step.target);
+        if (!targetEl) { nextTourStep(); return; }
+
+        // Hide spotlight and tooltip while we scroll/reposition
+        tour.spotlight.style.transition = 'none';
+        tour.spotlight.style.top = '-9999px';
+        tour.tooltip.style.visibility = 'hidden';
+
+        // Check if the target is already fully visible in the viewport
+        const preRect = targetEl.getBoundingClientRect();
+        const inView = preRect.top >= 0 && preRect.bottom <= window.innerHeight;
+
+        if (!inView) {
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // If no scroll needed, position almost immediately; otherwise wait for scroll to finish
+        const delay = inView ? 60 : 550;
+
+        setTimeout(() => {
+            // Update text content
+            tour.stepNum.textContent = idx + 1;
+            tour.stepLabel.textContent = `Step ${idx + 1} of ${TOUR_STEPS.length}`;
+            tour.title.textContent = step.title;
+            tour.desc.textContent = step.desc;
+
+            // Last step changes button text
+            if (idx === TOUR_STEPS.length - 1) {
+                tour.nextBtn.innerHTML = 'Get started <i class="bi bi-check-lg"></i>';
+            } else {
+                tour.nextBtn.innerHTML = 'Next <i class="bi bi-arrow-right"></i>';
+            }
+
+            // Update dots
+            tour.dots.querySelectorAll('.tour-dot').forEach((dot, i) => {
+                dot.classList.remove('active', 'done');
+                if (i < idx) dot.classList.add('done');
+                if (i === idx) dot.classList.add('active');
+            });
+
+            // Now get the final position after scroll has settled
+            const rect = targetEl.getBoundingClientRect();
+            const pad = 6;
+
+            // Position spotlight around target
+            tour.spotlight.style.top = (rect.top - pad) + 'px';
+            tour.spotlight.style.left = (rect.left - pad) + 'px';
+            tour.spotlight.style.width = (rect.width + pad * 2) + 'px';
+            tour.spotlight.style.height = (rect.height + pad * 2) + 'px';
+            // Re-enable smooth transitions for future movements
+            void tour.spotlight.offsetWidth;
+            tour.spotlight.style.transition = 'all 0.35s cubic-bezier(0.32, 0.72, 0, 1)';
+
+            // Animate tooltip in
+            tour.tooltip.style.visibility = 'visible';
+            tour.tooltip.style.animation = 'none';
+            void tour.tooltip.offsetWidth;
+            tour.tooltip.style.animation = 'tourFadeIn 0.3s ease';
+
+            // Position tooltip below or above the spotlight
+            const spotBottom = rect.bottom + pad;
+            const spaceBelow = window.innerHeight - spotBottom;
+            const tooltipHeight = 200;
+
+            if (spaceBelow > tooltipHeight + 20) {
+                tour.tooltip.style.top = (spotBottom + 12) + 'px';
+                tour.tooltip.style.bottom = 'auto';
+                tour.arrow.className = 'tour-tooltip-arrow arrow-top';
+            } else {
+                tour.tooltip.style.top = 'auto';
+                tour.tooltip.style.bottom = (window.innerHeight - rect.top + pad + 12) + 'px';
+                tour.arrow.className = 'tour-tooltip-arrow arrow-bottom';
+            }
+
+            // Centre tooltip horizontally, clamped to screen
+            let tooltipLeft = rect.left + rect.width / 2 - 160;
+            tooltipLeft = Math.max(16, Math.min(tooltipLeft, window.innerWidth - 336));
+            tour.tooltip.style.left = tooltipLeft + 'px';
+
+            // Point arrow at target centre
+            const arrowLeft = Math.max(20, Math.min(rect.left + rect.width / 2 - tooltipLeft - 7, 280));
+            tour.arrow.style.left = arrowLeft + 'px';
+        }, delay);
+    }
+
+    function nextTourStep() {
+        tour.step++;
+        if (tour.step >= TOUR_STEPS.length) {
+            endTour();
+        } else {
+            showTourStep(tour.step);
+        }
+    }
+
+    function endTour() {
+        tour.overlay.classList.remove('active');
+        markTourDone();
+    }
+
+    function markTourDone() {
+        try { localStorage.setItem('ecg_tourDone', '1'); } catch (e) {}
+    }
+
+    // Kick off tour after a tiny delay to let the page settle
+    setTimeout(initTour, 400);
+
+    </script>
+    
+    <!-- Standardised script loading -->
+    <script src="js/rhythm-visual.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/menu-v2.js"></script>
+    <script src="js/activity-logger.js"></script>
+    <script src="js/upgrade-modal.js"></script>
+</body>
+</html>
