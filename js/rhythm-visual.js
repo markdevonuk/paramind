@@ -37,6 +37,14 @@ var SVG_MARKUP = `<svg class="rv-heart" id="rv_heart" viewBox="0 0 1000 720" xml
             <path d="M 306 264 C 342 248 388 258 398 292 C 406 316 404 342 396 362 C 368 376 328 374 310 360 C 298 342 296 286 306 264 Z"/>
             <path d="M 490 320 C 504 286 558 274 598 290 C 622 314 622 358 608 380 C 582 394 530 396 504 382 C 490 364 486 344 490 320 Z"/>
           </clipPath>
+          <clipPath id="rv_rvMass">
+            <path d="M 316 370 C 308 442 324 510 352 560 C 376 600 416 626 452 634
+                     C 462 560 466 470 462 372 C 420 362 356 362 316 370 Z"/>
+          </clipPath>
+          <clipPath id="rv_lvMass">
+            <path d="M 470 372 C 476 470 480 560 470 650 C 510 630 552 590 578 540
+                     C 610 476 622 420 614 366 C 566 356 508 360 470 372 Z"/>
+          </clipPath>
           <clipPath id="rv_ventMass">
             <path d="M 316 370 C 308 442 324 510 352 560 C 380 606 430 638 470 650
                      C 510 630 552 590 578 540 C 610 476 622 420 614 366
@@ -183,14 +191,14 @@ var SVG_MARKUP = `<svg class="rv-heart" id="rv_heart" viewBox="0 0 1000 720" xml
             <path class="cseg" data-seg="atria" d="M 330 258 C 298 280 282 314 284 340" stroke="var(--elec-bright)" stroke-width="7"/>
             <path class="cseg" data-seg="atria" d="M 330 258 C 420 234 556 246 620 278" stroke="var(--elec-bright)" stroke-width="7"/>
             <path class="cseg" data-seg="his"  d="M 478 370 C 480 388 482 398 484 412" stroke="var(--elec-bright)" stroke-width="8"/>
-            <path class="cseg" data-seg="bundles" d="M 484 412 C 478 470 470 540 462 596" stroke="var(--elec-bright)" stroke-width="6.5"/>
-            <path class="cseg" data-seg="bundles" d="M 484 412 C 492 470 498 546 502 606" stroke="var(--elec-bright)" stroke-width="6.5"/>
-            <path class="cseg" data-seg="purkinje" d="M 462 596 C 430 590 396 560 372 518 C 348 476 336 434 336 396" stroke="var(--elec-bright)" stroke-width="5"/>
-            <path class="cseg" data-seg="purkinje" d="M 502 606 C 534 592 562 558 580 514 C 598 468 602 424 598 394" stroke="var(--elec-bright)" stroke-width="5"/>
+            <path class="cseg" data-seg="rbb" d="M 484 412 C 478 470 470 540 462 596" stroke="var(--elec-bright)" stroke-width="6.5"/>
+            <path class="cseg" data-seg="lbb" d="M 484 412 C 492 470 498 546 502 606" stroke="var(--elec-bright)" stroke-width="6.5"/>
+            <path class="cseg" data-seg="purkR" d="M 462 596 C 430 590 396 560 372 518 C 348 476 336 434 336 396" stroke="var(--elec-bright)" stroke-width="5"/>
+            <path class="cseg" data-seg="purkL" d="M 502 606 C 534 592 562 558 580 514 C 598 468 602 424 598 394" stroke="var(--elec-bright)" stroke-width="5"/>
           </g>
           <!-- ===== VT only: ectopic focus and its slow cell-to-cell wavefront ===== -->
           <g id="rv_ectopicLayer" style="display:none">
-            <g clip-path="url(#rv_ventMass)">
+            <g id="rv_waveClip" clip-path="url(#rv_ventMass)">
               <circle id="rv_waveFill" cx="604" cy="556" r="0" fill="#FF9F1C" opacity="0.22"/>
               <circle id="rv_waveRing" cx="604" cy="556" r="0" fill="none" stroke="var(--elec-bright)" stroke-width="7" opacity="0.85"/>
             </g>
@@ -210,6 +218,10 @@ var SVG_MARKUP = `<svg class="rv-heart" id="rv_heart" viewBox="0 0 1000 720" xml
 
           <circle id="rv_saNode" cx="330" cy="258" r="13" fill="var(--elec)" stroke="#fff" stroke-width="3"/>
           <circle id="rv_avNode" cx="478" cy="368" r="12" fill="var(--elec)" stroke="#fff" stroke-width="3"/>
+          <g id="rv_branchBlock" style="display:none" fill="none" stroke-linecap="round">
+            <path id="rv_branchCross1" stroke="#fff" stroke-width="10"/>
+            <path id="rv_branchCross2" stroke="#C0392B" stroke-width="5.5"/>
+          </g>
           <!-- drawn AFTER the nodes so it sits on top when conduction is blocked -->
           <g id="rv_avBlock" style="display:none" fill="none" stroke-linecap="round">
             <path d="M 466 356 L 490 380 M 490 356 L 466 380" stroke="#fff" stroke-width="10"/>
@@ -719,6 +731,84 @@ RHYTHMS.push(makeBlock({
   note:'<b>Narrow and fast and regular points at the doorway or above it.</b> Wide and fast points below it. That single question — narrow or wide — is doing most of the work when you meet a tachycardia.'
 }));
 
+/* ==========================================================================
+   3c. BUNDLE BRANCH BLOCKS
+   One of the two staircases below the doorway is out of action, so that
+   ventricle has to be reached the long way — through muscle. These are the
+   only two entries that show a chest lead, because that is where the
+   pattern actually lives.
+   ========================================================================== */
+function makeBBB(o){
+  return {
+    key:o.key, name:o.name, title:o.title, sub:o.sub, danger:false,
+    rate:70, drive:'sinus', atrialRate:null,
+    squeeze:1, fillFactor:0.95, dyssync:0.055,
+    pulse:'PULSE: 70, regular', alert:o.alert || null,
+    stripLabel:'LEAD V1 — where bundle branch block shows itself',
+    ecg:o.ecg, marks:[[0.30,'WIDE QRS']],
+    wave:o.wave, branchBlock:o.branchBlock,
+    timing:{
+      atriaDepol:[0,0.105], avDelay:[0.105,0.19], his:[0.19,0.235],
+      rbb:o.rbb, lbb:o.lbb, purkR:o.purkR, purkL:o.purkL,
+      wave:o.waveWin,
+      atriaSqueeze:[0.05,0.20], ventSqueeze:[0.28,0.68],
+      eject:[0.36,0.62], fill:[[0.00,0.19],[0.72,1.00]]
+    },
+    steps:o.steps, note:o.note
+  };
+}
+
+RHYTHMS.push(makeBBB({
+  key:'rbbb', name:'Right Bundle Branch Block (RBBB)',
+  title:'Right Bundle Branch Block', sub:'The right-hand staircase is closed. The right ventricle waits.',
+  /* left branch and left Purkinje work normally; the right side never lights */
+  lbb:[0.21,0.27], purkL:[0.25,0.33], rbb:[], purkR:[],
+  branchBlock:'M 457 528 L 479 550 M 479 528 L 457 550',
+  wave:{ cx:462, cy:452, clip:'rv_rvMass', r:300 },
+  waveWin:[0.30,0.62],
+  ecg:function(p){
+    return gauss(p,0.055,0.017,0.15)          /* P */
+         + gauss(p,0.245,0.008,0.22)          /* r  */
+         + gauss(p,0.275,0.011,-0.45)         /* S  */
+         + gauss(p,0.320,0.016,0.78)          /* R' — the second rabbit ear */
+         + gauss(p,0.560,0.050,-0.26);        /* discordant inverted T */
+  },
+  steps:[
+    {chip:'Staircase closed', at:[0.00,0.25], html:'Everything above the doorway is <b>completely normal</b> — the boss fires, the doorman passes it on. But one of the two staircases below him is out of action: the <b>right bundle branch</b>. Watch — the impulse can only go down the left.'},
+    {chip:'Left side on time', at:[0.21,0.34], html:'The <b>left ventricle is reached the proper way</b>, down its own staircase and out along its motorway, exactly on schedule. Nothing wrong with that side at all.'},
+    {chip:'The long way round', at:[0.30,0.62], html:'<b>The right ventricle has to be reached the long way.</b> The impulse crosses the septum and spreads through muscle, hand to hand — the same slow crawl you saw in VT, just on one side only.'},
+    {chip:'So the QRS is wide', at:[0.20,0.62], html:'The ECG records both activations end to end: one on time, one late. Stitch them together and the complex is <b>wide — 0.12 s or more</b>. A wide QRS always means somebody was reached the long way round.'},
+    {chip:'Rabbit ears', at:[0.24,0.40], html:'That late right ventricle writes a <b>second upward spike</b> after the first — the <b>RSR&rsquo; pattern</b>, or "rabbit ears". This is why we have switched to <b>V1</b>: on a Lead II rhythm strip all you would see is "wide".'},
+    {chip:'So what?', at:[0.00,1.00], html:'RBBB is <b>often an incidental finding</b> in an otherwise well person, though it can point to strain or disease on the right side of the heart. On its own it is not an emergency — but it does tell you the wiring is not intact.'}
+  ],
+  note:'<b>Right or left, the principle is identical:</b> one staircase is shut, so one ventricle is reached through muscle instead of down the motorway. That delay is the whole reason the QRS is wide.'
+}));
+
+RHYTHMS.push(makeBBB({
+  key:'lbbb', name:'Left Bundle Branch Block (LBBB)',
+  title:'Left Bundle Branch Block', sub:'The left-hand staircase is closed — and it is the bigger side.',
+  alert:'⚠️ NEW LBBB WITH CHEST PAIN IS TREATED AS A STEMI EQUIVALENT',
+  rbb:[0.21,0.27], purkR:[0.25,0.33], lbb:[], purkL:[],
+  branchBlock:'M 489 534 L 511 556 M 511 534 L 489 556',
+  wave:{ cx:480, cy:452, clip:'rv_lvMass', r:320 },
+  waveWin:[0.30,0.66],
+  ecg:function(p){
+    return gauss(p,0.055,0.017,0.15)          /* P */
+         + gauss(p,0.243,0.008,0.18)          /* small r */
+         + gauss(p,0.300,0.026,-0.92)         /* deep, broad S */
+         + gauss(p,0.575,0.055,0.32);         /* discordant positive T */
+  },
+  steps:[
+    {chip:'Staircase closed', at:[0.00,0.25], html:'Same story, other side. Boss and doorman are fine, but the <b>left bundle branch</b> is out of action. The impulse can only go down the <b>right</b> staircase.'},
+    {chip:'Right side on time', at:[0.21,0.34], html:'The <b>right ventricle</b> gets the message normally, down its own staircase, on schedule.'},
+    {chip:'The long way round', at:[0.30,0.66], html:'<b>Now the left ventricle has to be reached through muscle</b> — and it is the big one, with the thick wall. So the crawl takes even longer than it does in RBBB.'},
+    {chip:'Wide QRS', at:[0.20,0.66], html:'On time, then late, recorded end to end — a <b>wide QRS, 0.12 s or more</b>. The left ventricle being activated last and slowly is also why the T wave points the opposite way to the QRS (<b>discordance</b>).'},
+    {chip:'What V1 shows', at:[0.22,0.42], html:'In <b>V1</b> you get a small r wave followed by a <b>deep, broad S wave</b> — the rS pattern — with the T wave pointing upwards, away from the QRS.'},
+    {chip:'Why this one matters', at:[0.00,1.00], html:'<b>LBBB scrambles the ECG.</b> Because the left ventricle is depolarising abnormally, its repolarisation is abnormal too — so the ST segments cannot be read the usual way. That is why <b>a new LBBB in someone with chest pain is treated as a STEMI equivalent</b>: you cannot rule the STEMI out, so you do not try.'}
+  ],
+  note:'<b>The mirror image of RBBB, with one crucial difference.</b> RBBB is often incidental. New LBBB with chest pain changes what you do — because it hides the very thing you are looking for.'
+}));
+
 RHYTHMS.push({
   key:'block3', name:'Third Degree (Complete) Heart Block', danger:true,
   title:'Third Degree — Complete Heart Block', sub:'The door is locked. Downstairs runs on a backup generator.',
@@ -834,7 +924,7 @@ var UI = '<div class="rv-root">' +
       '</svg>' +
       '<div class="rv-jump">' +
         '<button id="rv_prev" aria-label="Previous step">‹</button>' +
-        '<button id="rv_next" class="rv-primary">Next ›</button>' +
+        '<button id="rv_next" class="rv-primary">Next step ›</button>' +
       '</div>' +
     '</div>' +
     '<div class="rv-stage">' + SVG_MARKUP + '</div>' +
@@ -880,7 +970,8 @@ function mount(container){
    'heart','saNode','avNode','avBlock','ectopicLayer','waveFill','waveRing','focusNode',
    'focusGlow','vtLabels','raGroup','laGroup','rvGroup','lvGroup','labels','elecLabels','lblAv',
    'lblHis','lblPurk','particles','elecLayer','flowLayer',
-   'focusName','focusSub','blockName','atrialChaos','circuit','circuitPath','circuitDot']
+   'focusName','focusSub','blockName','atrialChaos','circuit','circuitPath','circuitDot',
+   'waveClip','branchBlock','branchCross1','branchCross2']
     .forEach(function(k){ el[k] = id('rv_'+k); });
 
   /* the SVG uses class names for the two layers — scope them here */
@@ -935,9 +1026,16 @@ function buildParticles(){
 }
 
 function buildPicker(){
-  /* Normal Sinus Rhythm sits first — it is the reference every other
-     rhythm is compared against. */
-  el.select.innerHTML = RHYTHMS.map(function(r){
+  /* listed A-Z so a rhythm is easy to find; the engine looks them up by key,
+     so this ordering is display-only. The page still opens on sinus rhythm. */
+  /* sinus rhythm is pinned first — it is the reference every other rhythm is
+     compared against; everything else is listed A-Z so it is easy to find */
+  var sorted = RHYTHMS.slice().sort(function(a,b){
+    if(a.key === 'nsr') return -1;
+    if(b.key === 'nsr') return 1;
+    return a.name.localeCompare(b.name, 'en');
+  });
+  el.select.innerHTML = sorted.map(function(r){
     return '<option value="'+r.key+'">'+r.name+'</option>';
   }).join('');
   el.select.addEventListener('change', function(){ load(this.value); });
@@ -959,6 +1057,7 @@ function load(key){
 
   el.subtitle.textContent = R.sub;
   el.hr.textContent       = R.rate ? R.rate : '--';
+  el.lead.textContent     = R.stripLabel || 'LEAD II — RHYTHM STRIP';
   el.pulse.innerHTML      = R.noOutput || R.key === 'vt'
       ? 'PULSE: <b>' + R.pulse.replace('PULSE: ','') + '</b>' : R.pulse;
   el.alert.style.display  = R.alert ? 'block' : 'none';
@@ -971,10 +1070,31 @@ function load(key){
 
   var ect = R.drive === 'ectopic';
   var hasBlock = asWins(R.timing.blocked).length > 0;
-  el.ectopicLayer.style.display = ect ? '' : 'none';
   el.avBlock.style.display      = (ect || hasBlock) ? '' : 'none';
   el.vtLabels.style.display     = ect ? '' : 'none';
   el.atrialChaos.style.display = R.atrialChaos ? '' : 'none';
+
+  /* the wavefront layer is shared by VT, complete block and the bundle blocks */
+  var wantsWave = ect || !!R.wave;
+  el.ectopicLayer.style.display = wantsWave ? '' : 'none';
+  el.focusNode.style.display = ect ? '' : 'none';
+  el.focusGlow.style.display = ect ? '' : 'none';
+  if(R.wave){
+    el.waveClip.setAttribute('clip-path', 'url(#' + (R.wave.clip || 'rv_ventMass') + ')');
+    [el.waveFill, el.waveRing].forEach(function(c){
+      c.setAttribute('cx', R.wave.cx); c.setAttribute('cy', R.wave.cy);
+    });
+  } else {
+    el.waveClip.setAttribute('clip-path', 'url(#rv_ventMass)');
+    [el.waveFill, el.waveRing].forEach(function(c){
+      c.setAttribute('cx', 604); c.setAttribute('cy', 556);
+    });
+  }
+  el.branchBlock.style.display = R.branchBlock ? '' : 'none';
+  if(R.branchBlock){
+    el.branchCross1.setAttribute('d', R.branchBlock);
+    el.branchCross2.setAttribute('d', R.branchBlock);
+  }
   el.circuit.style.display     = R.circuit ? '' : 'none';
   if(R.circuit){
     el.circuitPath.setAttribute('d', R.circuit.d);
@@ -990,7 +1110,8 @@ function load(key){
   el.lblPurk.style.opacity = (R.drive === 'sinus') ? 1 : 0.32;
 
   /* fades are authored in milliseconds so they look the same at any rate */
-  fade = { atria:260/vCycle, his:150/vCycle, bundles:150/vCycle, purkinje:190/vCycle };
+  fade = { atria:260/vCycle, his:150/vCycle, rbb:150/vCycle, lbb:150/vCycle,
+           purkR:190/vCycle, purkL:190/vCycle };
   flashSpan = 95 / vCycle;
 
   /* steps may declare their window in milliseconds instead of a fraction */
@@ -1090,7 +1211,14 @@ function draw(){
 
   /* ---------------- electrical ---------------- */
   if(R.drive === 'sinus'){
-    var WIN = { atria:T.atriaDepol, his:T.his, bundles:T.bundles, purkinje:T.purkinje };
+    /* the two bundle branches and the two Purkinje fans can be driven
+       separately (that is all a bundle branch block is); anything that does
+       not care just inherits the shared window */
+    var WIN = { atria:T.atriaDepol, his:T.his,
+                rbb:  T.rbb   !== undefined ? T.rbb   : T.bundles,
+                lbb:  T.lbb   !== undefined ? T.lbb   : T.bundles,
+                purkR:T.purkR !== undefined ? T.purkR : T.purkinje,
+                purkL:T.purkL !== undefined ? T.purkL : T.purkinje };
     segs.forEach(function(s){
       var st = segState(p, WIN[s.seg], fade[s.seg]);
       s.el.style.strokeDashoffset = s.len * (1 - st.drawn);
@@ -1108,6 +1236,16 @@ function draw(){
     el.avNode.style.filter = (hold||fire||stuck) ? 'url(#rv_glow)' : 'none';
     el.avNode.style.opacity = 1;
     el.avBlock.style.opacity = stuck ? 1 : 0;      /* the red cross on a dropped beat */
+
+    /* a bundle branch block still spreads a wavefront — just late, and only
+       into the ventricle whose staircase is out of action */
+    if(R.wave){
+      var sp = progW(p, T.wave), rr2 = sp * (R.wave.r || 300);
+      el.waveFill.setAttribute('r', rr2); el.waveRing.setAttribute('r', rr2);
+      el.waveFill.style.opacity = 0.24 * (1 - Math.max(0,(p - asWins(T.wave)[0][1])/0.3));
+      el.waveRing.style.opacity = (sp > 0 && sp < 1) ? 0.8 : 0;
+      el.waveRing.style.filter = 'url(#rv_glow)';
+    }
 
   } else if(R.drive === 'ectopic'){
     segs.forEach(function(s){
