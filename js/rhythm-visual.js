@@ -141,7 +141,34 @@ var SVG_MARKUP = `<svg class="rv-heart" id="rv_heart" viewBox="0 0 1000 720" xml
         </g>
 
         <!-- ---------- valves ---------- -->
-        <g id="rv_valves" stroke-linecap="round" fill="none" filter="url(#rv_softShadow)">
+        <!-- ============ CORONARY ARTERIES (STEMI only) ============
+               The heart's own supply, drawn on the surface of the muscle.
+               Hidden unless a rhythm asks for them. -->
+          <g id="rv_coronaryLayer" style="display:none">
+            <path id="rv_territory" fill="#111827" opacity="0.30" stroke="#F87171" stroke-width="2.5" stroke-dasharray="9 6"/>
+            <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <!-- each vessel gets a pale halo so it reads on top of any chamber -->
+              <!-- left anterior descending: down the front of the septum -->
+              <path d="M 508 408 C 502 434 492 474 486 522 C 482 562 478 600 476 628" stroke="#FFF3F1" stroke-width="17"/>
+              <path d="M 508 408 C 502 434 492 474 486 522 C 482 562 478 600 476 628" stroke="#6E1A14" stroke-width="12"/>
+              <path d="M 508 408 C 502 434 492 474 486 522 C 482 562 478 600 476 628" stroke="#E8564A" stroke-width="6.5"/>
+              <!-- circumflex: round the left ventricle -->
+              <path d="M 512 404 C 546 396 578 412 596 444 C 610 472 612 502 608 530" stroke="#FFF3F1" stroke-width="15"/>
+              <path d="M 512 404 C 546 396 578 412 596 444 C 610 472 612 502 608 530" stroke="#6E1A14" stroke-width="11"/>
+              <path d="M 512 404 C 546 396 578 412 596 444 C 610 472 612 502 608 530" stroke="#E8564A" stroke-width="6"/>
+              <!-- right coronary: along the right groove and round the bottom -->
+              <path d="M 496 404 C 458 388 408 384 370 396 C 338 408 320 440 318 478 C 316 522 330 562 354 592" stroke="#FFF3F1" stroke-width="15"/>
+              <path d="M 496 404 C 458 388 408 384 370 396 C 338 408 320 440 318 478 C 316 522 330 562 354 592" stroke="#6E1A14" stroke-width="11"/>
+              <path d="M 496 404 C 458 388 408 384 370 396 C 338 408 320 440 318 478 C 316 522 330 562 354 592" stroke="#E8564A" stroke-width="6"/>
+            </g>
+            <g id="rv_clot" style="display:none">
+              <circle id="rv_clotDot" r="14" fill="#1f2937" stroke="#fff" stroke-width="3.5"/>
+              <text id="rv_clotLabel" font-family="Plus Jakarta Sans, sans-serif" font-size="13" font-weight="700"
+                    fill="#7f1d1d" stroke="#fff" stroke-width="3.5" stroke-linejoin="round" style="paint-order:stroke"></text>
+            </g>
+          </g>
+
+          <g id="rv_valves" stroke-linecap="round" fill="none" filter="url(#rv_softShadow)">
           <g class="valve" data-valve="tricuspid">
             <path class="v-shut" d="M 344 362 L 371 378 M 400 362 L 373 378" stroke="#FFF7F2" stroke-width="6"/>
             <path class="v-open" d="M 344 362 L 350 392 M 400 362 L 394 392" stroke="#FFF7F2" stroke-width="6"/>
@@ -554,17 +581,28 @@ function makeBlock(o){
   var qw = o.qrsWidth || 9;
 
   var atriaDepol = [], atriaSq = [], avHold = [], his = [], bundles = [],
-      purkinje = [], ventSq = [], eject = [], fill = [], blocked = [], marks = [];
+      purkinje = [], ventSq = [], eject = [], fill = [], blocked = [], marks = [],
+      waveWins = [];
   var through = 0;
 
   o.beats.forEach(function(b, i){
     var t0 = starts[i], pr = b.pr * 1000, gap = (b.gap || beatMs);
-    if(!o.noP){
+    if(!o.noP && !b.pvc){
       atriaDepol.push([F(t0),      F(t0 + 90)]);
       atriaSq.push(   [F(t0 + 40), F(t0 + 200)]);
     }
-    if(b.conducted){
+    if(b.pvc){
+      /* a ventricular ectopic: nothing comes from above, it just goes off
+         in the muscle and spreads the slow way */
       through++;
+      waveWins.push([F(t0),      F(t0 + 240)]);
+      ventSq.push(  [F(t0 + 30), F(t0 + 380)]);
+      eject.push(   [F(t0 + 90), F(t0 + 330)]);
+      fill.push(    [F(t0 + 400), F(t0 + 400 + gap * 0.45)]);
+      marks.push([t0 + 90, 'PVC']);
+    } else if(b.conducted){
+      through++;
+      if(b.pac){ waveWins.push([F(t0), F(t0 + 110)]); marks.push([t0 + 45, 'PAC']); }
       avHold.push(  [F(t0 + 90),      F(t0 + pr - 40)]);
       his.push(     [F(t0 + pr - 40), F(t0 + pr + 10)]);
       bundles.push( [F(t0 + pr - 20), F(t0 + pr + 40)]);
@@ -597,7 +635,13 @@ function makeBlock(o){
         if(o.baseline) mv += o.baseline(mm);
         o.beats.forEach(function(b, i){
           var t0 = starts[i], pr = b.pr * 1000;
-          if(!o.noP) mv += gauss(mm, t0 + 45, 16, 0.16);      /* P wave */
+          if(b.pvc){
+            mv += gauss(mm, t0 + 85, qw * 2.5, -1.00);        /* broad ectopic complex */
+            mv += gauss(mm, t0 + 300, 55, 0.36);              /* discordant T */
+            return;
+          }
+          if(!o.noP) mv += b.pac ? gauss(mm, t0 + 40, 10, 0.21)   /* odd-shaped early P */
+                                 : gauss(mm, t0 + 45, 16, 0.16);
           if(b.conducted){
             mv += gauss(mm, t0 + pr + 22, qw * 0.8, -0.09);   /* Q */
             mv += gauss(mm, t0 + pr + 42, qw,        1.00);   /* R */
@@ -608,8 +652,10 @@ function makeBlock(o){
       }
       return mv;
     },
-    marks:[],
-    timing:{ atriaDepol:atriaDepol, avDelay:avHold, his:his, bundles:bundles,
+    marks:o.waveMarks || [],
+    wave:o.wave || null,
+    timing:{ wave:waveWins,
+             atriaDepol:atriaDepol, avDelay:avHold, his:his, bundles:bundles,
              purkinje:purkinje, atriaSqueeze:atriaSq, ventSqueeze:ventSq,
              eject:eject, fill:fill, blocked:blocked },
     steps:o.steps, note:o.note
@@ -809,6 +855,157 @@ RHYTHMS.push(makeBBB({
   note:'<b>The mirror image of RBBB, with one crucial difference.</b> RBBB is often incidental. New LBBB with chest pain changes what you do — because it hides the very thing you are looking for.'
 }));
 
+/* ==========================================================================
+   3d. STEMI
+   The only entry that uses the coronary arteries. Before the heart feeds
+   anybody else it feeds itself — block one of its own supply pipes and the
+   muscle downstream starts to die. Which artery is blocked changes as the
+   steps progress, so the same picture teaches both anterior and inferior.
+   ========================================================================== */
+RHYTHMS.push({
+  key:'stemi', name:'ST-Elevation (STEMI Pattern)', danger:true,
+  title:'ST Elevation — STEMI', sub:'The heart feeds itself first. Block one of its own pipes and that muscle starts to die.',
+  rate:75, drive:'sinus', atrialRate:null,
+  squeeze:0.8, fillFactor:0.9, dyssync:0.05,
+  pulse:'PULSE: 75, regular', alert:'⚠️ TIME-CRITICAL — the territory is on a clock from the moment it blocks',
+  stripLabel:'LEAD V3 — a chest lead looking at the front of the heart',
+  coronaries:true, hideLabels:true,
+  occlusions:{
+    lad:{ name:'LAD blocked', clot:[492,472], label:[512,452],
+          territory:'M 452 380 C 458 470 456 546 450 606 C 460 636 466 650 470 654 C 508 628 548 578 572 516 C 546 486 506 462 476 452 C 464 430 456 402 452 380 Z' },
+    rca:{ name:'RCA blocked', clot:[344,418], label:[168,404],
+          territory:'M 330 512 C 340 566 370 610 412 634 C 440 650 462 656 472 654 C 508 632 544 592 564 546 C 520 566 470 574 420 566 C 382 560 352 538 330 512 Z' }
+  },
+  ecg:function(p){
+    return gauss(p,0.055,0.017,0.13)      /* P */
+         + gauss(p,0.243,0.008,-0.06)     /* q */
+         + gauss(p,0.262,0.010,0.70)      /* R */
+         + gauss(p,0.288,0.010,-0.16)     /* S */
+         + gauss(p,0.400,0.085,0.62);     /* the domed, elevated ST-T */
+  },
+  marks:[[0.40,'ST ELEVATION']],
+  timing:{
+    atriaDepol:[0,0.11], avDelay:[0.11,0.20], his:[0.20,0.245],
+    bundles:[0.225,0.27], purkinje:[0.255,0.335],
+    atriaSqueeze:[0.05,0.21], ventSqueeze:[0.27,0.60],
+    eject:[0.32,0.56], fill:[[0.00,0.20],[0.66,1.00]]
+  },
+  steps:[
+    {chip:'Feeds itself first', at:[0.32,0.56], html:'<b>Before the heart feeds anyone else, it feeds itself.</b> The coronary arteries are the <b>very first branches off the aorta</b> — you can see them here, running over the outside of the muscle. Everything else in the body is served after they are.'},
+    {chip:'A pipe blocks', at:[0.00,1.00], occlude:'lad', html:'<b>A clot lodges in one of them.</b> Here it is the <b>LAD</b>, the artery running down the front. Everything downstream of that point loses its supply the instant it blocks — that is the shaded territory.'},
+    {chip:'Starving muscle', at:[0.27,0.60], occlude:'lad', html:'<b>Muscle without a blood supply cannot work, and then starts to die.</b> Watch that region: it is still being told to contract, it simply cannot do it properly. This is what "time is muscle" means — the territory is on a clock from the moment it blocked.'},
+    {chip:'Injured cells leak', at:[0.30,0.62], occlude:'lad', html:'<b>Injured cells cannot hold their charge properly between beats.</b> That leaves a current flowing across the heart when there should be none — and the ECG has no way to describe that except by <b>lifting the baseline between the QRS and the T wave</b>.'},
+    {chip:'ST elevation', at:[0.30,0.58], occlude:'lad', html:'<b>That lift is the ST elevation.</b> Look at the strip: the segment after the QRS does not come back to the baseline, it stays up and domes over into the T wave. This is a chest lead looking at the <b>front</b> of the heart, which is exactly the wall the LAD feeds.'},
+    {chip:'Which artery?', at:[0.00,1.00], occlude:'rca', html:'<b>The leads tell you which pipe.</b> Watch the clot move: block the <b>RCA</b> instead and a different territory starves — the <b>bottom</b> of the heart, which shows up in the inferior leads (II, III, aVF). Front wall means LAD; bottom wall usually means RCA.'},
+    {chip:'Why that matters', at:[0.00,1.00], occlude:'rca', html:'<b>And it is not just about location.</b> In most people the RCA also supplies the <b>AV node</b> — the doorman. So an inferior MI often arrives <b>with a bradycardia or a heart block</b>, which is why those rhythms and this one turn up in the same patient.'}
+  ],
+  note:'<b>This is the one where the drawing does the most work.</b> Everything else in this list is about the route an impulse takes. This is about the plumbing that keeps the muscle alive — and the ECG changes because the muscle is injured, not because the wiring is.'
+});
+
+/* ==========================================================================
+   3e. THE SINUS VARIANTS, THE JUNCTIONAL ESCAPE AND THE EXTRA BEATS
+   All built on the same pattern factory, so PR and QRS stay a fixed number
+   of milliseconds however fast or slow the heart is going — which is what
+   makes the width comparisons honest.
+   ========================================================================== */
+RHYTHMS.push(makeBlock({
+  key:'sbrady', name:'Sinus Bradycardia',
+  title:'Sinus Bradycardia', sub:'The boss is calling the moves slowly. Everything else is normal.',
+  atrialRate:45, pulse:'PULSE: 45, regular',
+  beats:[{pr:0.16, conducted:true}],
+  steps:[
+    {chip:'Same route', atMs:[0,420], html:'<b>Nothing here is broken.</b> Boss fires, doorman passes it on, both staircases and the motorway all work perfectly. Watch it: this is the normal sequence, exactly as you saw in sinus rhythm.'},
+    {chip:'Just slower', atMs:[0,1333], html:'<b>The only difference is how often the boss calls a move</b> — fewer than 60 times a minute. The P wave, the PR interval and the QRS are all completely normal widths. Only the gaps between beats have grown.'},
+    {chip:'A long quiet bit', atMs:[700,1333], html:'<b>Look at the size of the quiet bit.</b> Diastole is enormous — so the ventricles fill beautifully, and the coronary arteries get a long, generous supply. A slow heart is a well-fed heart.'},
+    {chip:'When it is fine', atMs:[0,1333], html:'This is <b>normal in fit people and during sleep</b>. A trained athlete may sit in the forties all day quite happily, because each beat is moving so much blood that the total output is still fine.'},
+    {chip:'When it is not', atMs:[0,1333], html:'It matters when the <b>patient cannot compensate</b> — when the rate is so slow that output falls despite the big beats. That is why you treat the patient in front of you, not the number.'}
+  ],
+  note:'<b>Rate on its own tells you very little.</b> The same 45 bpm is unremarkable in a marathon runner and an emergency in someone pale and clammy.'
+}));
+
+RHYTHMS.push(makeBlock({
+  key:'stachy', name:'Sinus Tachycardia',
+  title:'Sinus Tachycardia', sub:'The boss calling the moves fast — usually for a very good reason.',
+  atrialRate:120, pulse:'PULSE: 120, regular',
+  beats:[{pr:0.15, conducted:true}],
+  steps:[
+    {chip:'Same route', atMs:[0,300], html:'<b>Again, nothing is broken.</b> The impulse takes exactly the normal route — SA node, doorman, staircases, motorway. Every P wave has a QRS and the widths are all normal.'},
+    {chip:'Just faster', atMs:[0,500], html:'<b>The boss is simply calling moves more often</b> — over 100 a minute. Notice the P waves are still there before every QRS, which is what separates this from the fast rhythms that are not sinus.'},
+    {chip:'The quiet bit shrinks', atMs:[280,500], html:'<b>Speeding up eats the quiet bit, not the busy bit.</b> The QRS and T take the same time as ever; it is <b>diastole</b> that gets squeezed. Less filling time per beat, and less coronary supply.'},
+    {chip:'It is a symptom', atMs:[0,500], html:'<b>Sinus tachycardia is almost never the problem itself.</b> It is the heart responding to something else — pain, fear, fever, blood loss, hypoxia. The rhythm is doing its job; something else is wrong.'},
+    {chip:'So what?', atMs:[0,500], html:'Which means the useful question is never "how do I slow this down", it is <b>"what is it responding to?"</b> Find that and the rate looks after itself.'}
+  ],
+  note:'<b>Sinus tachycardia is the messenger.</b> Every other fast rhythm in this list is the problem; this one is telling you about a problem somewhere else.'
+}));
+
+RHYTHMS.push(makeBlock({
+  key:'sarr', name:'Sinus Arrhythmia',
+  title:'Sinus Arrhythmia', sub:'The rate rising and falling with the breath. Completely normal.',
+  atrialRate:75, pulse:'PULSE: 75, varies with breathing',
+  beats:[{gap:720,pr:0.16,conducted:true},{gap:820,pr:0.16,conducted:true},
+         {gap:880,pr:0.16,conducted:true},{gap:780,pr:0.16,conducted:true}],
+  steps:[
+    {chip:'Every beat normal', atMs:[0,420], html:'<b>Take each beat on its own and it is perfect.</b> P wave, normal PR, narrow QRS, all from the SA node by the usual route. Nothing is out of place.'},
+    {chip:'But the gaps move', atMs:[0,3200], html:'<b>Now look at the gaps.</b> They lengthen and shorten in a smooth, repeating way — not randomly, the way atrial fibrillation does, but gently, like a wave.'},
+    {chip:'Breathing does it', atMs:[0,3200], html:'<b>That wave is the breath.</b> Breathing in briefly speeds the heart up; breathing out slows it down. It is the vagus nerve adjusting the SA node, moment to moment.'},
+    {chip:'Not AF', atMs:[0,3200], html:'<b>This is the one irregular rhythm you should not worry about.</b> The giveaway is that every beat still has a normal P wave in front of it, and the change is gradual — AF has no P waves and no pattern at all.'},
+    {chip:'So what?', atMs:[0,3200], html:'<b>Common and benign</b>, especially in children and young adults, and a sign of a responsive nervous system. Recognising it saves the patient an unnecessary worry.'}
+  ],
+  note:'<b>Irregular does not automatically mean atrial fibrillation.</b> Look for the P waves and for a pattern — this one has both.'
+}));
+
+RHYTHMS.push(makeBlock({
+  key:'junctional', name:'Junctional Rhythm',
+  title:'Junctional Rhythm', sub:'The boss has gone quiet, so the doorman starts calling the moves.',
+  atrialRate:50, noP:true, saQuiet:true, pulse:'PULSE: 50, regular',
+  beats:[{pr:0.16, conducted:true}],
+  baseline:function(ms){ return gauss(ms % 1200, 110, 17, -0.10); },   /* retrograde P */
+  steps:[
+    {chip:'Boss goes quiet', atMs:[0,300], html:'<b>The SA node has stopped calling moves</b> — look at it, grey and silent. In a heart with no backup that would be the end of it. But the conducting system has backups all the way down.'},
+    {chip:'Doorman steps up', atMs:[0,500], html:'<b>So the AV node takes the job on itself.</b> The doorway has its own built-in rate of about 40 to 60, and with nothing arriving from above, it simply starts firing on its own.'},
+    {chip:'Narrow QRS', atMs:[150,600], html:'<b>Everything below the doorway is untouched</b> — both staircases, the whole motorway. So the ventricles are activated the proper way and the <b>QRS is narrow</b>. This is a backup, but a tidy one.'},
+    {chip:'Backwards P waves', atMs:[0,1200], html:'<b>The atria get activated backwards.</b> Because the impulse starts at the doorway, it travels up into the atria as well as down — so any P wave is <b>inverted</b>, and sits right next to the QRS instead of comfortably before it.'},
+    {chip:'So what?', atMs:[0,1200], html:'<b>A junctional rhythm is a safety net doing its job.</b> It is slow, and there is no atrial kick, so output is lower than normal — but compare it with complete block: here the backup is high in the system, narrow and reliable, not a desperate one down in the muscle.'}
+  ],
+  note:'<b>The heart has pacemakers all the way down.</b> SA node about 60-100, AV junction 40-60, ventricular muscle 20-40. Each takes over only when everything above it has gone quiet — and the lower you go, the slower and less reliable it gets.'
+}));
+
+RHYTHMS.push(makeBlock({
+  key:'pvc', name:'Premature Ventricular Complexes (PVCs)',
+  title:'Premature Ventricular Complexes', sub:'A gatecrasher from downstairs, arriving before it was asked.',
+  atrialRate:75, pulse:'PULSE: 72 with an occasional early beat',
+  wave:{ cx:560, cy:520, clip:'rv_ventMass', r:320 },
+  beats:[{gap:800,pr:0.16,conducted:true},{gap:800,pr:0.16,conducted:true},
+         {gap:520,pvc:true},{gap:1080,pr:0.16,conducted:true}],
+  steps:[
+    {chip:'Two normal beats', atMs:[0,1200], html:'<b>Start with the ordinary.</b> Two normal beats: P wave, normal PR, narrow QRS, all coming down from the boss by the usual route.'},
+    {chip:'Something gatecrashes', atMs:[1600,2100], showMarks:true, html:'<b>Then a beat arrives that nobody upstairs asked for.</b> A patch of ventricular muscle fires off on its own, <b>early</b> — before the next order was due. No P wave in front of it, because it did not come from the atria.'},
+    {chip:'Wide and ugly', atMs:[1600,2200], html:'<b>And it looks completely different.</b> It started in muscle, so it spreads <b>hand to hand</b> instead of down the motorway — wide, tall and pointing the opposite way to the normal beats. Exactly the same mechanism as VT, just one beat of it.'},
+    {chip:'Then a pause', atMs:[2120,3200], html:'<b>Then a pause.</b> The next order from upstairs arrives while the ventricles are still recovering, so it finds them unavailable — and everything waits until the one after that. Patients often feel the pause, not the extra beat.'},
+    {chip:'Back to normal', atMs:[2120,3200], html:'<b>And then it carries straight on as if nothing happened.</b> That is the pattern to recognise: normal, normal, odd one, pause, normal.'},
+    {chip:'So what?', atMs:[0,3200], html:'<b>Very common, and usually harmless</b> in an otherwise well heart. They matter more when they are frequent, when they come in runs, or when the patient has chest pain — because the same muscle that fires one of these can fire a run of VT.'}
+  ],
+  note:'<b>A PVC is a single beat of VT.</b> Same origin, same slow spread, same wide complex — it just stops after one. That is why a run of them gets your attention.'
+}));
+
+RHYTHMS.push(makeBlock({
+  key:'pac', name:'Premature Atrial Complexes (PACs)',
+  title:'Premature Atrial Complexes', sub:'A gatecrasher from upstairs — early, but polite about it.',
+  atrialRate:75, pulse:'PULSE: 75 with an occasional early beat',
+  wave:{ cx:560, cy:320, clip:'rv_atriaClip', r:220 },
+  beats:[{gap:800,pr:0.16,conducted:true},{gap:800,pr:0.16,conducted:true},
+         {gap:500,pr:0.16,conducted:true,pac:true},{gap:1100,pr:0.16,conducted:true}],
+  steps:[
+    {chip:'Two normal beats', atMs:[0,1200], html:'<b>Two ordinary beats to set the scene</b> — each one starting at the SA node and taking the usual route down.'},
+    {chip:'Somewhere else fires', atMs:[1600,2000], showMarks:true, html:'<b>Then a different part of the atria fires early.</b> Watch where the wave starts — not at the boss, but somewhere else upstairs entirely. It still produces a P wave, but a <b>differently shaped</b> one, because it is spreading from the wrong place.'},
+    {chip:'But it uses the door', atMs:[1700,2200], html:'<b>Crucially, it still goes through the doorway.</b> Down the His bundle, both staircases, out along the motorway — the normal route. So the <b>QRS looks completely normal and narrow</b>.'},
+    {chip:'A small pause', atMs:[2160,3200], html:'<b>Then a short pause.</b> The early beat resets the SA node, so the next beat starts its timing afresh. The pause is <b>shorter</b> than the one after a PVC — a genuinely useful way to tell them apart.'},
+    {chip:'PAC or PVC?', atMs:[0,3200], html:'<b>The QRS answers it.</b> Early with a <b>narrow</b> QRS and an odd P wave = it came from upstairs, a PAC. Early with a <b>wide</b> QRS and no P at all = it came from downstairs, a PVC.'},
+    {chip:'So what?', atMs:[0,3200], html:'<b>Extremely common and usually of no consequence.</b> Worth knowing mainly so you can recognise them and not mistake an irregular pulse for something more sinister — though frequent PACs can be the opening act for atrial fibrillation.'}
+  ],
+  note:'<b>Early beats are named by where they start, not by how early they are.</b> Upstairs gives you a narrow QRS; downstairs gives you a wide one. That single question sorts them.'
+}));
+
 RHYTHMS.push({
   key:'block3', name:'Third Degree (Complete) Heart Block', danger:true,
   title:'Third Degree — Complete Heart Block', sub:'The door is locked. Downstairs runs on a backup generator.',
@@ -971,7 +1168,8 @@ function mount(container){
    'focusGlow','vtLabels','raGroup','laGroup','rvGroup','lvGroup','labels','elecLabels','lblAv',
    'lblHis','lblPurk','particles','elecLayer','flowLayer',
    'focusName','focusSub','blockName','atrialChaos','circuit','circuitPath','circuitDot',
-   'waveClip','branchBlock','branchCross1','branchCross2']
+   'waveClip','branchBlock','branchCross1','branchCross2',
+   'coronaryLayer','territory','clot','clotDot','clotLabel']
     .forEach(function(k){ el[k] = id('rv_'+k); });
 
   /* the SVG uses class names for the two layers — scope them here */
@@ -1090,6 +1288,9 @@ function load(key){
       c.setAttribute('cx', 604); c.setAttribute('cy', 556);
     });
   }
+  el.coronaryLayer.style.display = R.coronaries ? '' : 'none';
+  if(R.hideLabels){ el.labels.style.display = 'none'; el.elecLabels.style.display = 'none'; }
+  else            { el.elecLabels.style.display = ''; }
   el.branchBlock.style.display = R.branchBlock ? '' : 'none';
   if(R.branchBlock){
     el.branchCross1.setAttribute('d', R.branchBlock);
@@ -1367,6 +1568,27 @@ function draw(){
     el.hi.setAttribute('x', h1);
     el.hi.setAttribute('width', Math.max(2, h2-h1));
   }
+  /* which artery is blocked can change from step to step, so the same
+     picture can teach both an anterior and an inferior MI */
+  if(R.coronaries){
+    var occ = (R.occlusions && R.steps[stepIndex].occlude)
+            ? R.occlusions[R.steps[stepIndex].occlude] : null;
+    if(occ){
+      el.territory.style.display = '';
+      el.territory.setAttribute('d', occ.territory);
+      el.territory.style.opacity = 0.22 + 0.12*Math.abs(Math.sin(uiT/520));
+      el.clot.style.display = '';
+      el.clotDot.setAttribute('cx', occ.clot[0]);
+      el.clotDot.setAttribute('cy', occ.clot[1]);
+      el.clotLabel.setAttribute('x', occ.label[0]);
+      el.clotLabel.setAttribute('y', occ.label[1]);
+      el.clotLabel.textContent = occ.name;
+    } else {
+      el.territory.style.display = 'none';
+      el.clot.style.display = 'none';
+    }
+  }
+
   el.pmarks.style.display = R.steps[stepIndex].showMarks ? '' : 'none';
 
   setText(stepIndex);
@@ -1413,7 +1635,7 @@ function fitViewBox(){
   var narrow = el.heart.clientWidth < 560;
   /* viewBoxes cropped to the drawing's real bounds — no wasted margin */
   el.heart.setAttribute('viewBox', narrow ? '186 118 628 566' : '52 46 916 636');
-  el.labels.style.display = narrow ? 'none' : '';
+  el.labels.style.display = (narrow || (R && R.hideLabels)) ? 'none' : '';
 }
 
 /* ------------------------------------------------------------ controls */
