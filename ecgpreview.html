@@ -3,17 +3,33 @@
   ============================================================================
   ecg-preview.html  —  PUBLIC REVIEW COPY of ecg-v2.html
   ============================================================================
-  This is a copy of ecg-v2.html with ONE line removed: the js/pro-guard.js
-  script tag. That means anyone with the link can view this page without
-  signing in and without a Pro subscription.
+  This started as a copy of ecg-v2.html. It now differs from it in SIX ways,
+  all deliberate, all confined to this file:
 
-  ecg-v2.html itself is UNCHANGED and still Pro-only.
+    1. The js/pro-guard.js script tag is removed, so anyone with the link can
+       view this page without signing in and without a Pro subscription.
+    2. A <meta name="robots" content="noindex, nofollow"> tag, so Google does
+       not list an unlisted review page.
+    3. A .wip-note block of CSS, plus the amber work-in-progress note that
+       sits where the mode buttons used to be.
+    4. The .mode-toggle div carries style="display: none;", hiding the
+       Simple View / Learn Mode / Test Yourself buttons.
+    5. setMode('visual') at the end of DOMContentLoaded, so the page opens
+       straight into Learn Mode.
+    6. initTour() returns early while the mode buttons are hidden, because all
+       five of its steps point at things that are not on screen here.
 
-  Because this is a copy, it does NOT update itself. Whenever ecg-v2.html
-  changes, this file has to be re-made from it. It also carries a noindex
-  tag so Google does not list it.
+  ecg-v2.html is the real Pro page and is UNAFFECTED by all of the above. It
+  still has its three buttons, still opens on Simple View, still runs its
+  tour, and is still behind the Pro gate.
 
-  Delete this file when the review round is over.
+  IMPORTANT: this file does not update itself. js/rhythm-visual.js is shared,
+  so Learn Mode changes land here automatically — but any edit made inside
+  ecg-v2.html has to be brought across by hand, with the six changes above
+  re-applied afterwards.
+
+  Delete this file when the review round is over, so the Pro content is not
+  left sitting there unlocked.
   ============================================================================
 -->
 <html lang="en">
@@ -910,7 +926,7 @@
         <!-- Header -->
         <div class="ecg-header">
             <h1>🫀 ECG Rhythm Generator</h1>
-            <p>Interactive ECG learning tool for paramedics</p>
+            <p>Interactive ECG learning tool for paramedics and students</p>
         </div>
         
         <!-- Work in progress note — shown while the mode buttons are hidden -->
