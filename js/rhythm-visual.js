@@ -194,12 +194,14 @@ var SVG_MARKUP = `<svg class="rv-heart" id="rv_heart" viewBox="0 0 1000 720" xml
             <circle id="rv_focusNode" cx="604" cy="556" r="11" fill="#E8890C" stroke="#fff" stroke-width="3"/>
           </g>
           <!-- ===== VT only: the AV node is bypassed / blocked ===== -->
-          <g id="rv_avBlock" style="display:none" stroke="#C0392B" stroke-width="4.5" stroke-linecap="round">
-            <path d="M 462 352 L 480 370 M 480 352 L 462 370"/>
-          </g>
 
           <circle id="rv_saNode" cx="330" cy="258" r="13" fill="var(--elec)" stroke="#fff" stroke-width="3"/>
           <circle id="rv_avNode" cx="478" cy="368" r="12" fill="var(--elec)" stroke="#fff" stroke-width="3"/>
+          <!-- drawn AFTER the nodes so it sits on top when conduction is blocked -->
+          <g id="rv_avBlock" style="display:none" fill="none" stroke-linecap="round">
+            <path d="M 466 356 L 490 380 M 490 356 L 466 380" stroke="#fff" stroke-width="10"/>
+            <path d="M 466 356 L 490 380 M 490 356 L 466 380" stroke="#C0392B" stroke-width="5.5"/>
+          </g>
         </g>
 
         <!-- ---------- chamber names, set inside the chambers ---------- -->
@@ -240,10 +242,10 @@ var SVG_MARKUP = `<svg class="rv-heart" id="rv_heart" viewBox="0 0 1000 720" xml
 
         <g id="rv_vtLabels" style="display:none;paint-order:stroke" font-family="Plus Jakarta Sans, sans-serif"
            font-size="13" font-weight="700" fill="#A82F39" stroke="#fff" stroke-width="3.5" stroke-linejoin="round">
-          <text x="700" y="600">Irritable focus</text>
-          <text x="700" y="618" font-size="11" font-weight="500" fill="#6C757D">firing on its own</text>
+          <text id="rv_focusName" x="700" y="600">Irritable focus</text>
+          <text id="rv_focusSub" x="700" y="618" font-size="11" font-weight="500" fill="#6C757D">firing on its own</text>
           <path d="M 694 594 L 622 566" stroke="#C0392B" stroke-width="1.3" fill="none" stroke-dasharray="3 3"/>
-          <text x="494" y="352" font-size="12">AV node bypassed</text>
+          <text id="rv_blockName" x="494" y="352" font-size="12">AV node bypassed</text>
         </g>
 
         <g class="layer elec-layer" id="rv_elecLabels" font-family="Plus Jakarta Sans, sans-serif" font-size="13" font-weight="700"
@@ -272,13 +274,12 @@ var CSS = `
   --muscle:#F2D5D1; --muscle-dark:#D6A49E; --muscle-deep:#E4B9B3;
   --elec:#E8890C; --elec-bright:#FFC93C; --elec-dim:#DCC7A4;
   --label:#495057; --gray-500:#ADB5BD; --gray-600:#6C757D}
-.rv-picker{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.25rem}
-.rv-picker button{border:1px solid #DEE2E6;background:#fff;color:#495057;font:inherit;font-size:.88rem;
-  font-weight:600;padding:.55rem 1rem;border-radius:.6rem;cursor:pointer;transition:all 160ms ease}
-.rv-picker button:hover{border-color:#2B8A9C;color:#2B8A9C}
-.rv-picker button.rv-on{background:#2B8A9C;border-color:#2B8A9C;color:#fff}
-.rv-picker button.rv-danger.rv-on,.rv-picker button.rv-danger.rv-on:hover{background:#C0392B;border-color:#C0392B;color:#fff}
-.rv-picker button.rv-danger:hover{border-color:#C0392B;color:#C0392B}
+.rv-select{font:inherit;font-size:1.02rem;font-weight:700;color:#212529;background:#fff;
+  border:1px solid #DEE2E6;border-radius:.5rem;padding:.5rem 2.4rem .5rem .75rem;cursor:pointer;
+  max-width:100%;appearance:none;-webkit-appearance:none;transition:border-color 150ms ease;
+  background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236C757D' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right .8rem center}
+.rv-select:hover,.rv-select:focus{border-color:#2B8A9C;outline:none}
 
 .rv-card{background:#fff;border:1px solid #E9ECEF;border-radius:.75rem;box-shadow:0 4px 6px -1px rgba(0,0,0,.06);
   overflow:hidden;margin-bottom:1.25rem}
@@ -354,10 +355,12 @@ var CSS = `
   .rv-steps{flex-wrap:wrap;gap:.6rem}
   .rv-step-btn{flex:1 1 40%;padding:.6rem .5rem}
   .rv-mid{order:3;flex-basis:100%}
-  .rv-head{flex-direction:column;align-items:flex-start}
+  .rv-head{flex-direction:column;align-items:stretch}
+  .rv-head>div{width:100%}
   .rv-layers{width:100%}
   .rv-layers button{flex:1;text-align:center;padding:.5rem .3rem;font-size:.78rem}
   .rv-picker button{flex:1 1 45%;font-size:.8rem;padding:.5rem .6rem}
+  .rv-select{width:100%}
   .rv-controls .rv-layers{flex:1 1 100%}
   .rv-controls .rv-sep{display:none}
   .rv-stage{padding:.25rem 0 0}
@@ -385,7 +388,7 @@ var RHYTHMS = [
   marks:[[0.055,'P'],[0.264,'QRS'],[0.560,'T']],
   timing:{ atriaDepol:[0,0.11], avDelay:[0.11,0.20], his:[0.20,0.245], bundles:[0.225,0.27],
            purkinje:[0.255,0.335], atriaSqueeze:[0.05,0.21], ventSqueeze:[0.27,0.60],
-           eject:[0.32,0.56], fill:[0.66,1.00] },
+           eject:[0.32,0.56], fill:[[0.00,0.20],[0.66,1.00]] },
   steps:[
     {chip:'P wave',    at:[0.000,0.110], html:'<b>The SA node fires.</b> The impulse spreads across both atria — that is the <b>P wave</b>. The atria squeeze the last of the blood down into the ventricles.'},
     {chip:'PR segment',at:[0.110,0.222], html:'<b>The AV node deliberately holds the impulse</b> for about 0.1 s. That pause is what gives the ventricles time to fill — it is the flat line between the P wave and the QRS.'},
@@ -395,7 +398,7 @@ var RHYTHMS = [
     {chip:'T wave',    at:[0.440,0.660], html:'<b>The ventricles repolarise</b> — resetting electrically, ready to go again. That is the <b>T wave</b>.'},
     {chip:'Diastole',  at:[0.660,1.000], html:'<b>Diastole.</b> Everything relaxes, the AV valves open and the ventricles refill. The coronary arteries get their own blood supply now — which is why a very fast rate is bad news for the heart itself.'}
   ],
-  note:'<b>This is the reference.</b> Every rhythm below reuses this exact drawing — same chambers, same valves, same vessels. Only the electrics change.'
+  note:null
 },
 
 {
@@ -408,14 +411,14 @@ var RHYTHMS = [
   atrialEcg:function(q){ return gauss(q,0.06,0.018,0.11); },
   marks:[[0.26,'WIDE QRS']],
   timing:{ ectopic:[0,0.07], wave:[0.03,0.52], atriaSqueeze:[0.05,0.21],
-           ventSqueeze:[0.16,0.62], eject:[0.26,0.56], fill:[0.74,1.00] },
+           ventSqueeze:[0.16,0.62], eject:[0.26,0.56], fill:[[0.00,0.14],[0.74,1.00]] },
   steps:[
     {chip:'Focus fires', at:[0.00,0.10], html:'<b>No SA node involved.</b> A patch of irritable ventricular muscle — often scarred or ischaemic — depolarises on its own, and it does it <b>faster than the SA node</b>, so it takes over the whole heart.'},
     {chip:'Slow spread', at:[0.03,0.52], html:'<b>This is the whole problem.</b> The impulse started in muscle, not in the conducting system, so it has to crawl <b>cell to cell</b> across the ventricles. The Purkinje network — the motorway — is bypassed.'},
     {chip:'Wide QRS',    at:[0.06,0.55], html:'Because depolarisation takes so much longer, the complex is <b>wide (&gt;0.12 s — more than 3 small squares)</b>. Same paper speed as sinus rhythm: switch back and compare the width yourself.'},
     {chip:'Poor squeeze',at:[0.16,0.62], html:'The ventricles are no longer squeezed as one unit — one side is still contracting as the other finishes. An <b>uncoordinated squeeze moves far less blood</b>, even though the muscle is working hard.'},
     {chip:'No filling',  at:[0.74,1.00], html:'At <b>180 bpm there is almost no diastole</b>. The ventricles barely refill before the next beat, and with the atria dissociated there is no atrial kick either. Little blood in means little blood out.'},
-    {chip:'AV dissoc.',  at:[0.00,1.00], html:'<b>The SA node has not stopped</b> — look at it, still firing at its own rate, quite independently. Those P waves are on the strip, buried in the wide complexes (arrowed). That is <b>AV dissociation</b>.'},
+    {chip:'AV dissoc.',  at:[0.00,1.00], showMarks:true, html:'<b>The SA node has not stopped</b> — look at it, still firing at its own rate, quite independently. Those P waves are on the strip, buried in the wide complexes (arrowed). That is <b>AV dissociation</b>.'},
     {chip:'Why it kills',at:[0.00,1.00], html:'Fast rate + poor filling + uncoordinated squeeze = <b>stroke volume can collapse</b>. The patient may have a pulse, or none at all — which is why you always check. <b>Pulseless VT is a shockable rhythm.</b>'}
   ],
   note:'<b>Nothing anatomical changed.</b> The ECG changed because the <i>electrical path</i> changed — that is the whole point of these visuals.'
@@ -478,7 +481,7 @@ var RHYTHMS = [
   marks:[[0.055,'P'],[0.264,'QRS'],[0.560,'T']],
   timing:{ atriaDepol:[0,0.11], avDelay:[0.11,0.20], his:[0.20,0.245], bundles:[0.225,0.27],
            purkinje:[0.255,0.335], atriaSqueeze:[0.05,0.21], ventSqueeze:[0.27,0.60],
-           eject:[0.32,0.56], fill:[0.66,1.00] },
+           eject:[0.32,0.56], fill:[[0.00,0.20],[0.66,1.00]] },
   steps:[
     {chip:'Electrics fine', at:[0.000,0.335], html:'<b>Watch the electrical layer — it is completely normal.</b> SA node, the AV node pause, down the bundle branches, out through the Purkinje fibres. Exactly the sequence you saw in sinus rhythm.'},
     {chip:'Looks like a rhythm', at:[0.240,0.400], html:'So the monitor shows <b>organised complexes</b>. P wave, narrow QRS, T wave. On the trace alone you would call this a perfusing rhythm and move on.'},
@@ -488,29 +491,226 @@ var RHYTHMS = [
   ],
   note:'<b>This is why we say "treat the patient, not the monitor".</b> PEA is the one arrest rhythm where the screen actively misleads you.'
 }
+
 ];
+
+/* ==========================================================================
+   3b. HEART BLOCKS
+   All four are stories about one thing: the AV node, the doorway between
+   the top of the heart and the bottom. Rather than write out a dozen
+   timing windows by hand, makeBlock() builds them from a simple list of
+   beats — each with its own PR interval, and either conducted or dropped.
+   ========================================================================== */
+function makeBlock(o){
+  var beatMs    = 60000 / o.atrialRate;
+  var patternMs = o.beats.length * beatMs;
+  var F  = function(ms){ return ms / patternMs; };
+  var qw = o.qrsWidth || 9;
+
+  var atriaDepol = [], atriaSq = [], avHold = [], his = [], bundles = [],
+      purkinje = [], ventSq = [], eject = [], fill = [], blocked = [], marks = [];
+  var through = 0;
+
+  o.beats.forEach(function(b, i){
+    var t0 = i * beatMs, pr = b.pr * 1000;
+    atriaDepol.push([F(t0),      F(t0 + 90)]);
+    atriaSq.push(   [F(t0 + 40), F(t0 + 200)]);
+    if(b.conducted){
+      through++;
+      avHold.push(  [F(t0 + 90),      F(t0 + pr - 40)]);
+      his.push(     [F(t0 + pr - 40), F(t0 + pr + 10)]);
+      bundles.push( [F(t0 + pr - 20), F(t0 + pr + 40)]);
+      purkinje.push([F(t0 + pr + 20), F(t0 + pr + 110)]);
+      ventSq.push(  [F(t0 + pr + 40), F(t0 + pr + 360)]);
+      eject.push(   [F(t0 + pr + 110), F(t0 + pr + 320)]);
+      fill.push(    [F(t0 + pr + 380), F(t0 + pr + 380 + beatMs * 0.45)]);
+    } else {
+      avHold.push( [F(t0 + 90),  F(t0 + 250)]);
+      blocked.push([F(t0 + 250), F(t0 + beatMs * 0.92)]);
+      marks.push([t0 + 45, 'no QRS']);
+    }
+  });
+
+  var vRate = Math.round(through * 60000 / patternMs);
+
+  return {
+    key:o.key, name:o.name, title:o.title, sub:o.sub, danger:!!o.danger,
+    rate:vRate, cycleMs:patternMs, drive:'sinus', atrialRate:null,
+    squeeze:1, fillFactor:1, dyssync:0,
+    pulse:'PULSE: ' + vRate + ' — atria firing at ' + o.atrialRate,
+    alert:o.alert || null,
+    marksMs:marks,
+    ecgTime:function(ms){
+      var m = ((ms % patternMs) + patternMs) % patternMs, mv = 0, k, mm;
+      for(k = -1; k <= 1; k++){
+        mm = m + k * patternMs;
+        o.beats.forEach(function(b, i){
+          var t0 = i * beatMs, pr = b.pr * 1000;
+          mv += gauss(mm, t0 + 45, 16, 0.16);                 /* P wave */
+          if(b.conducted){
+            mv += gauss(mm, t0 + pr + 22, qw * 0.8, -0.09);   /* Q */
+            mv += gauss(mm, t0 + pr + 42, qw,        1.00);   /* R */
+            mv += gauss(mm, t0 + pr + 70, qw,       -0.24);   /* S */
+            mv += gauss(mm, t0 + pr + 300, 44,       0.30);   /* T */
+          }
+        });
+      }
+      return mv;
+    },
+    marks:[],
+    timing:{ atriaDepol:atriaDepol, avDelay:avHold, his:his, bundles:bundles,
+             purkinje:purkinje, atriaSqueeze:atriaSq, ventSqueeze:ventSq,
+             eject:eject, fill:fill, blocked:blocked },
+    steps:o.steps, note:o.note
+  };
+}
+
+RHYTHMS.push(makeBlock({
+  key:'block1', name:'First Degree Heart Block',
+  title:'First Degree Heart Block', sub:'Everyone gets through — the doorman is just slow.',
+  atrialRate:70,
+  beats:[{pr:0.30, conducted:true}],
+  steps:[
+    {chip:'The doorway', atMs:[0,200], html:'Picture the <b>AV node as a doorway</b> between the top of the heart and the bottom, with a doorman checking everyone through. In a normal heart he is brisk. Here the atria fire perfectly normally — watch the P wave.'},
+    {chip:'A slow doorman', atMs:[90,320], html:'<b>This doorman is slow.</b> He is not turning anyone away — he simply takes his time. On the strip that shows as a <b>long flat gap between the P wave and the QRS</b>: a PR interval over <b>0.20 s</b>, more than one big square.'},
+    {chip:'Nobody refused', atMs:[300,430], html:'<b>Every P wave still gets a QRS.</b> Late, but never missing. That one-to-one relationship is what makes this first degree rather than second.'},
+    {chip:'Normal squeeze', atMs:[340,700], html:'Once the message arrives, the ventricles behave normally — a proper coordinated squeeze, a normal pulse. The patient usually feels nothing at all.'},
+    {chip:'So what?', atMs:[0,857], html:'On its own this is <b>usually harmless</b> and needs no treatment. It matters as a clue: the doorway is not as quick as it once was. Worth noting, particularly alongside other findings.'}
+  ],
+  note:'<b>The doorway analogy runs through all four blocks.</b> First degree is a slow doorman. Next comes one who tires, then a broken floor beneath him, then a locked door.'
+}));
+
+RHYTHMS.push(makeBlock({
+  key:'block2a', name:'Second Degree Block (Mobitz I)',
+  title:'Second Degree Block — Mobitz I (Wenckebach)', sub:'The doorman gets tired, misses one, then has a rest.',
+  atrialRate:80,
+  beats:[{pr:0.16, conducted:true}, {pr:0.26, conducted:true},
+         {pr:0.36, conducted:true}, {pr:0.36, conducted:false}],
+  steps:[
+    {chip:'Fresh', atMs:[0,420], html:'<b>Beat one — the doorman is fresh.</b> The first message goes through quickly. Normal PR interval, nothing to see yet.'},
+    {chip:'Tiring', atMs:[750,1200], html:'<b>Beat two — he is starting to tire.</b> Same queue, but he takes noticeably longer. The gap before this QRS is <b>wider than the last one</b>.'},
+    {chip:'Struggling', atMs:[1500,2000], html:'<b>Beat three — slower still.</b> Longer again. You can watch the gap stretching before each QRS — that stretching <i>is</i> the diagnosis.'},
+    {chip:'Dropped', atMs:[2250,3000], showMarks:true, html:'<b>Beat four — he cannot manage it at all.</b> A P wave arrives, the AV node blocks it, and <b>nothing follows</b>. No QRS. That is the dropped beat, arrowed on the strip.'},
+    {chip:'Then a rest', atMs:[0,3000], html:'<b>Missing that beat gives him a rest.</b> The next P conducts quickly again and the whole thing repeats: <b>longer, longer, longer, drop</b>. That repeating group is what gives Wenckebach its clustered look.'},
+    {chip:'So what?', atMs:[0,3000], html:'The fault is at the <b>doorway itself</b> — the AV node. It is often benign, often temporary, and rarely deteriorates without warning. Usually watched rather than treated.'}
+  ],
+  note:'<b>Longer, longer, longer, drop — then repeat.</b> If you can see the PR stretching before the missing beat, it is Mobitz I.'
+}));
+
+RHYTHMS.push(makeBlock({
+  key:'block2b', name:'Second Degree Block (Mobitz II)',
+  title:'Second Degree Block — Mobitz II', sub:'No warning at all. The floor beyond the doorman gives way.',
+  atrialRate:75, qrsWidth:13, danger:true,
+  alert:'⚠️ CAN PROGRESS TO COMPLETE BLOCK WITHOUT WARNING',
+  beats:[{pr:0.16, conducted:true}, {pr:0.16, conducted:true}, {pr:0.16, conducted:false}],
+  steps:[
+    {chip:'Rock steady', atMs:[0,520], html:'<b>Watch the gap before the QRS.</b> The doorman here is not tiring — every message that gets through takes <b>exactly the same time</b>. The PR interval is constant.'},
+    {chip:'Steady again', atMs:[800,1320], html:'<b>Identical again.</b> No stretching, no build-up, nothing to warn you. If you were only watching the PR interval you would think everything was fine.'},
+    {chip:'Then nothing', atMs:[1600,2400], showMarks:true, html:'<b>And then a beat simply vanishes.</b> A P wave arrives and no QRS follows it — with no change in the PR beforehand. It came out of nowhere.'},
+    {chip:'Why it differs', atMs:[0,2400], html:'<b>The doorman is fine. The floor beyond him is not.</b> The fault sits <i>below</i> the AV node, in the bundle branches — like floorboards that hold, and hold, and then one gives way with no creak first. That is also why these QRS complexes often look <b>wider</b> than normal.'},
+    {chip:'The danger', atMs:[0,2400], html:'Because nothing builds up to it, there is <b>no warning before it gets worse</b>. Mobitz II can go from dropping the occasional beat to blocking everything. It is treated far more seriously than Mobitz I.'}
+  ],
+  note:'<b>Mobitz I stretches before it drops. Mobitz II just drops.</b> That single difference is why one is watched and the other is worried about.'
+}));
+
+RHYTHMS.push({
+  key:'block3', name:'Third Degree (Complete) Heart Block', danger:true,
+  title:'Third Degree — Complete Heart Block', sub:'The door is locked. Downstairs runs on a backup generator.',
+  rate:35, drive:'ectopic', atrialRate:75,
+  squeeze:0.9, fillFactor:0.85, dyssync:0.06,
+  pulse:'PULSE: 35 — atria firing at 75',
+  alert:'⚠️ UNSTABLE — a backup pacemaker can fail without warning',
+  labels:{ focus:'Backup pacemaker', focusSub:'the ventricles going it alone', block:'AV node blocked' },
+  ecg:function(p){ return gauss(p,0.10,0.016,1.00) + gauss(p,0.25,0.032,-0.32); },
+  atrialEcg:function(q){ return gauss(q,0.06,0.018,0.13); },
+  marks:[],
+  timing:{ ectopic:[0,0.05], wave:[0.02,0.30], atriaSqueeze:[0.05,0.21],
+           ventSqueeze:[0.06,0.42], eject:[0.12,0.36], fill:[[0.50,1.00]] },
+  steps:[
+    {chip:'Still knocking', at:[0.00,0.30], html:'<b>The SA node has not stopped.</b> Watch the top of the heart — the atria are firing away perfectly normally, at their own steady rate. Those P waves are all over the strip.'},
+    {chip:'Door locked', at:[0.00,1.00], showMarks:true, html:'<b>But nothing gets through.</b> Not slow like first degree, not intermittent like Mobitz — the doorway is shut and <b>locked</b>. Every single message from the atria stops dead at the AV node.'},
+    {chip:'Backup generator', at:[0.00,0.30], html:'<b>The ventricles will not simply stop.</b> Somewhere below the block, a cell starts firing on its own — a <b>backup generator</b> kicking in. It is slow and it is crude, but it keeps something happening.'},
+    {chip:'Slow and wide', at:[0.04,0.45], html:'Because it starts in the muscle instead of the conducting system, it has to spread <b>cell to cell</b> — so the QRS is <b>wide</b>, and the rate is typically only <b>20–40</b>.'},
+    {chip:'Out of step', at:[0.00,1.00], showMarks:true, html:'<b>Nothing links the two.</b> The P waves march at their rate, the QRS complexes plod along at theirs, and they simply pass through each other. No P wave has any relationship to any QRS — that is <b>complete AV dissociation</b>.'},
+    {chip:'So what?', at:[0.00,1.00], html:'<b>A backup generator was never built to run the house.</b> A rate in the thirties with no atrial kick means poor output — which is why these patients faint, and why this one is an emergency.'}
+  ],
+  note:'<b>All four blocks, one doorway.</b> Slow doorman, tiring doorman, broken floor, locked door. The ECG changes each time because the impulse takes a different journey — nothing about the heart itself has changed.'
+});
+
 
 /* ==========================================================================
    4. ENGINE
    ========================================================================== */
-var W = 900, BASE = 118, SCALE = 70, HOLD_MS = 900, PAPER_MS = 2400;
+var W = 900, BASE = 118, SCALE = 70, HOLD_MS = 900, PAPER_MS = 3200;
 
 var root, el = {}, R, particles = [], segs = [], valveEls = {};
 var vCycle, aCycle, stripMs, anchorBeat;
-var phase = 0, atrialPhase = 0, freeT = 0;
+var phase = 0, atrialPhase = 0, freeT = 0, fade = {}, flashSpan = 0.1;
 var speed = 0.35, stepIndex = 0, anim = null, last = 0, shownIndex = -1, started = false;
 
 function id(x){ return document.getElementById(x); }
 function ramp(p,a,b){ if(p<=a) return 0; if(p>=b) return 1; var t=(p-a)/(b-a); return t*t*(3-2*t); }
 function bump(p,a,b){ if(b<=a || p<a || p>b) return 0; return Math.sin(((p-a)/(b-a))*Math.PI); }
-function inWin(p,w){ return p>=w[0] && p<=w[1]; }
 function clamp(v){ return Math.max(0,Math.min(1,v)); }
 
+/* --------------------------------------------------------------------------
+   WINDOW HELPERS
+   A rhythm's timings used to be a single window like [0.27, 0.60]. The heart
+   blocks need several per cycle (three conducted beats and one dropped, say),
+   so every timing may now be EITHER one window or a list of them. These
+   helpers accept both.
+   -------------------------------------------------------------------------- */
+function asWins(w){
+  if(!w) return [];
+  return (typeof w[0] === 'number') ? [w] : w;
+}
+function inAnyW(p, w){
+  var L = asWins(w);
+  for(var i=0;i<L.length;i++) if(p >= L[i][0] && p <= L[i][1]) return true;
+  return false;
+}
+function bumpW(p, w){                      /* 0 -> 1 -> 0, strongest window wins */
+  var L = asWins(w), m = 0, v;
+  for(var i=0;i<L.length;i++){ v = bump(p, L[i][0], L[i][1]); if(v > m) m = v; }
+  return m;
+}
+function progW(p, w){                      /* progress through the CURRENT window */
+  var L = asWins(w), out = 0;
+  for(var i=0;i<L.length;i++) if(p >= L[i][0]) out = ramp(p, L[i][0], L[i][1]);
+  return out;
+}
+function gate(p, w, lead, tail){           /* valve-style open/shut envelope */
+  var L = asWins(w), m = 0, v;
+  for(var i=0;i<L.length;i++){
+    v = ramp(p, L[i][0]-lead, L[i][0]+lead) - ramp(p, L[i][1], L[i][1]+tail);
+    if(v > m) m = v;
+  }
+  return m;
+}
+function pulseW(p, w, span){               /* a decaying flash at each window start */
+  var L = asWins(w), m = 0, v;
+  for(var i=0;i<L.length;i++){
+    if(p >= L[i][0] && p < L[i][0] + span){ v = 1 - (p - L[i][0]) / span; if(v > m) m = v; }
+  }
+  return m;
+}
+/* how far a conduction segment is drawn, and how bright, across all its windows */
+function segState(p, w, fade){
+  var L = asWins(w), drawn = 0, op = 0, o, d;
+  for(var i=0;i<L.length;i++){
+    if(p < L[i][0]) continue;
+    d = ramp(p, L[i][0], L[i][1]);
+    o = p < L[i][1] ? 1 : Math.max(0, 1 - (p - L[i][1]) / fade);
+    if(o >= op){ op = o; drawn = d; }
+  }
+  return { drawn:drawn, op:op };
+}
+
 var UI = '<div class="rv-root">' +
-  '<div class="rv-picker" id="rv_picker"></div>' +
-  '<div class="rv-card">' +
+    '<div class="rv-card">' +
     '<div class="rv-head">' +
-      '<div><h3 class="rv-title" id="rv_title"></h3><p class="rv-sub" id="rv_subtitle"></p></div>' +
+      '<div><select class="rv-select" id="rv_select" aria-label="Choose a rhythm"></select>' +
+      '<p class="rv-sub" id="rv_subtitle"></p></div>' +
     '</div>' +
     '<div class="rv-alert" id="rv_alert"></div>' +
     '<div class="rv-monitor">' +
@@ -545,13 +745,6 @@ var UI = '<div class="rv-root">' +
         '<button data-layer="elec">Electrical</button>' +
         '<button data-layer="both" class="rv-on">Both</button>' +
       '</div>' +
-      '<span class="rv-sep"></span>' +
-      '<span class="rv-cap">Replay speed</span>' +
-      '<button class="rv-btn" data-speed="1">Fast</button>' +
-      '<button class="rv-btn rv-on" data-speed="0.35">Normal</button>' +
-      '<button class="rv-btn" data-speed="0.12">Slow</button>' +
-      '<span class="rv-sep"></span>' +
-      '<button class="rv-btn rv-on" id="rv_labelBtn">Labels on</button>' +
     '</div>' +
     '<div class="rv-legend">' +
       '<span><i class="rv-dot" style="background:#4C86C6"></i> Deoxygenated blood</span>' +
@@ -574,11 +767,12 @@ function mount(container){
 
   container.innerHTML = UI;
 
-  ['picker','title','subtitle','layerToggle','chip','count','textOut','dots','prev','next','alert',
+  ['select','subtitle','layerToggle','chip','count','textOut','dots','prev','next','alert',
    'lead','pulse','hr','ecgSvg','grid','hi','trace','sweep','dot','pmarks','waveLabels','note',
-   'labelBtn','heart','saNode','avNode','avBlock','ectopicLayer','waveFill','waveRing','focusNode',
+   'heart','saNode','avNode','avBlock','ectopicLayer','waveFill','waveRing','focusNode',
    'focusGlow','vtLabels','raGroup','laGroup','rvGroup','lvGroup','labels','elecLabels','lblAv',
-   'lblHis','lblPurk','particles','elecLayer','flowLayer']
+   'lblHis','lblPurk','particles','elecLayer','flowLayer',
+   'focusName','focusSub','blockName']
     .forEach(function(k){ el[k] = id('rv_'+k); });
 
   /* the SVG uses class names for the two layers — scope them here */
@@ -633,24 +827,21 @@ function buildParticles(){
 }
 
 function buildPicker(){
-  el.picker.innerHTML = RHYTHMS.map(function(r){
-    return '<button data-key="'+r.key+'"'+(r.danger?' class="rv-danger"':'')+'>'+r.name+'</button>';
+  /* Normal Sinus Rhythm sits first — it is the reference every other
+     rhythm is compared against. */
+  el.select.innerHTML = RHYTHMS.map(function(r){
+    return '<option value="'+r.key+'">'+r.name+'</option>';
   }).join('');
-  el.picker.addEventListener('click', function(e){
-    var b = e.target.closest('button'); if(!b) return;
-    load(b.getAttribute('data-key'));
-  });
+  el.select.addEventListener('change', function(){ load(this.value); });
 }
 
 /* ---------------------------------------------------------------- load */
 function load(key){
   R = RHYTHMS.filter(function(r){ return r.key === key; })[0];
 
-  [].forEach.call(el.picker.querySelectorAll('button'), function(b){
-    b.classList.toggle('rv-on', b.getAttribute('data-key') === key);
-  });
+  el.select.value = key;
 
-  vCycle  = R.rate ? 60000 / R.rate : PAPER_MS;
+  vCycle  = R.cycleMs ? R.cycleMs : (R.rate ? 60000 / R.rate : PAPER_MS);
   aCycle  = R.atrialRate ? 60000 / R.atrialRate : null;
   /* The strip always shows the SAME amount of time, whatever the rate.
      That is what makes a wide QRS genuinely look wide next to a narrow
@@ -658,25 +849,40 @@ function load(key){
   stripMs = PAPER_MS;
   anchorBeat = R.freeRun ? 0 : Math.max(0, Math.floor((PAPER_MS / vCycle) / 2));
 
-  el.title.textContent    = R.title;
   el.subtitle.textContent = R.sub;
   el.hr.textContent       = R.rate ? R.rate : '--';
   el.pulse.innerHTML      = R.noOutput || R.key === 'vt'
       ? 'PULSE: <b>' + R.pulse.replace('PULSE: ','') + '</b>' : R.pulse;
   el.alert.style.display  = R.alert ? 'block' : 'none';
   el.alert.textContent    = R.alert || '';
-  el.note.innerHTML       = R.note;
+  el.note.innerHTML       = R.note || '';
+  el.note.style.display   = R.note ? '' : 'none';
   el.hi.setAttribute('fill', R.danger ? '#f87171' : '#22c55e');
   el.hi.style.display     = R.freeRun ? 'none' : '';
   el.trace.setAttribute('stroke', '#22c55e');
 
   var ect = R.drive === 'ectopic';
+  var hasBlock = asWins(R.timing.blocked).length > 0;
   el.ectopicLayer.style.display = ect ? '' : 'none';
-  el.avBlock.style.display      = ect ? '' : 'none';
+  el.avBlock.style.display      = (ect || hasBlock) ? '' : 'none';
   el.vtLabels.style.display     = ect ? '' : 'none';
+  if(R.labels){
+    el.focusName.textContent = R.labels.focus;
+    el.focusSub.textContent  = R.labels.focusSub;
+    el.blockName.textContent = R.labels.block;
+  }
   el.lblAv.style.display        = ect ? 'none' : '';
   el.lblHis.style.opacity  = (R.drive === 'sinus') ? 1 : 0.32;
   el.lblPurk.style.opacity = (R.drive === 'sinus') ? 1 : 0.32;
+
+  /* fades are authored in milliseconds so they look the same at any rate */
+  fade = { atria:260/vCycle, his:150/vCycle, bundles:150/vCycle, purkinje:190/vCycle };
+  flashSpan = 95 / vCycle;
+
+  /* steps may declare their window in milliseconds instead of a fraction */
+  R.steps.forEach(function(st){
+    if(st.atMs) st.at = [st.atMs[0]/vCycle, st.atMs[1]/vCycle];
+  });
 
   buildStrip();
   el.dots.innerHTML = R.steps.map(function(){ return '<i></i>'; }).join('');
@@ -710,8 +916,15 @@ function buildStrip(){
     return '<text x="'+(((anchorBeat+m[0])*vCycle/stripMs)*W).toFixed(0)+'" y="186" text-anchor="middle">'+m[1]+'</text>';
   }).join('');
 
-  /* arrows over dissociated P waves (VT only) */
+  /* arrows over particular points on the trace */
   var marks = '';
+  if(R.marksMs){
+    R.marksMs.forEach(function(m){
+      var mx = (m[0]/stripMs)*W, my = BASE - ecgAtMs(m[0])*SCALE;
+      marks += '<path d="M '+mx.toFixed(1)+' '+(my-26).toFixed(1)+' l -5 -9 l 10 0 z" fill="#facc15" opacity="0.95"/>' +
+               '<text x="'+mx.toFixed(1)+'" y="'+(my-40).toFixed(1)+'" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11" fill="#facc15">'+m[1]+'</text>';
+    });
+  }
   if(aCycle){
     for(var k=0; k*aCycle < stripMs; k++){
       var t = k*aCycle + 0.06*aCycle, px = (t/stripMs)*W, py = BASE - ecgAtMs(t)*SCALE;
@@ -761,23 +974,23 @@ function draw(){
   /* ---------------- electrical ---------------- */
   if(R.drive === 'sinus'){
     var WIN = { atria:T.atriaDepol, his:T.his, bundles:T.bundles, purkinje:T.purkinje };
-    var FADE = { atria:0.36, his:0.38, bundles:0.40, purkinje:0.50 };
     segs.forEach(function(s){
-      var w = WIN[s.seg], op = 0;
-      s.el.style.strokeDashoffset = s.len * (1 - ramp(p, w[0], w[1]));
-      if(p >= w[0]) op = p < w[1] ? 1 : Math.max(0, 1-(p-w[1])/Math.max(0.001, FADE[s.seg]-w[1]));
-      s.el.style.opacity = op;
-      s.el.style.filter = op > 0.15 ? 'url(#rv_glow)' : 'none';
+      var st = segState(p, WIN[s.seg], fade[s.seg]);
+      s.el.style.strokeDashoffset = s.len * (1 - st.drawn);
+      s.el.style.opacity = st.op;
+      s.el.style.filter = st.op > 0.15 ? 'url(#rv_glow)' : 'none';
     });
-    var sa = Math.max(0, 1 - p/0.09);
+    var sa = pulseW(p, T.atriaDepol, flashSpan);
     el.saNode.setAttribute('r', 13 + sa*7);
     el.saNode.setAttribute('fill', sa > 0.1 ? '#FFC93C' : '#E8890C');
     el.saNode.style.filter = sa > 0.1 ? 'url(#rv_glow)' : 'none';
-    var hold = inWin(p, T.avDelay), fire = inWin(p, T.his);
+
+    var hold = inAnyW(p, T.avDelay), fire = inAnyW(p, T.his), stuck = inAnyW(p, T.blocked);
     el.avNode.setAttribute('r', fire ? 18 : 12);
-    el.avNode.setAttribute('fill', (hold||fire) ? '#FFC93C' : '#E8890C');
-    el.avNode.style.filter = (hold||fire) ? 'url(#rv_glow)' : 'none';
+    el.avNode.setAttribute('fill', stuck ? '#C0392B' : ((hold||fire) ? '#FFC93C' : '#E8890C'));
+    el.avNode.style.filter = (hold||fire||stuck) ? 'url(#rv_glow)' : 'none';
     el.avNode.style.opacity = 1;
+    el.avBlock.style.opacity = stuck ? 1 : 0;      /* the red cross on a dropped beat */
 
   } else if(R.drive === 'ectopic'){
     segs.forEach(function(s){
@@ -796,13 +1009,14 @@ function draw(){
     el.avNode.setAttribute('fill', '#B0A89C');
     el.avNode.style.filter = 'none';
     el.avNode.style.opacity = 0.85;
+    el.avBlock.style.opacity = 1;
 
-    var spread = ramp(p, T.wave[0], T.wave[1]), rr = spread*340;
+    var spread = progW(p, T.wave), rr = spread*340;
     el.waveFill.setAttribute('r', rr); el.waveRing.setAttribute('r', rr);
-    el.waveFill.style.opacity = 0.24 * (1 - Math.max(0,(p-T.wave[1])/0.3));
+    el.waveFill.style.opacity = 0.24 * (1 - Math.max(0,(p - asWins(T.wave)[0][1])/0.3));
     el.waveRing.style.opacity = (spread>0 && spread<1) ? 0.85 : 0;
     el.waveRing.style.filter = 'url(#rv_glow)';
-    var fp = Math.max(0, 1 - p/0.08);
+    var fp = pulseW(p, T.ectopic, flashSpan);
     el.focusNode.setAttribute('r', 11 + fp*8);
     el.focusNode.setAttribute('fill', fp > 0.1 ? '#FFC93C' : '#C0392B');
     el.focusGlow.setAttribute('r', 16 + fp*22);
@@ -831,7 +1045,7 @@ function draw(){
   fibLayer.style.display = (R.drive === 'fibrillation') ? '' : 'none';
 
   /* ---------------- mechanical ---------------- */
-  var aSq = bump(atrialPhase, T.atriaSqueeze[0], T.atriaSqueeze[1]) * R.squeeze;
+  var aSq = bumpW(atrialPhase, T.atriaSqueeze) * R.squeeze;
   el.raGroup.style.transform = 'scale(' + (1 - aSq*0.055) + ')';
   el.laGroup.style.transform = 'scale(' + (1 - aSq*0.055) + ')';
 
@@ -843,26 +1057,21 @@ function draw(){
     el.rvGroup.style.transform = 'scale(' + (1 - rvSq) + ')';
     el.lvGroup.style.transform = 'scale(' + (1 - lvSq) + ')';
   } else {
-    rvSq = bump(p, T.ventSqueeze[0], T.ventSqueeze[1]) * R.squeeze;
-    lvSq = bump(p - R.dyssync, T.ventSqueeze[0], T.ventSqueeze[1]) * R.squeeze;
+    rvSq = bumpW(p, T.ventSqueeze) * R.squeeze;
+    lvSq = bumpW(p - R.dyssync, T.ventSqueeze) * R.squeeze;
     el.rvGroup.style.transform = 'scale(' + (1 - rvSq*0.07) + ')';
     el.lvGroup.style.transform = 'scale(' + (1 - lvSq*0.075) + ')';
   }
 
   /* ---------------- valves ---------------- */
-  if(T.ventSqueeze[1] > T.ventSqueeze[0]){
-    var s0 = T.ventSqueeze[0], s1 = T.ventSqueeze[1];
-    var avOpen = 1 - ramp(p, s0-0.01, s0+0.03) + ramp(p, s1, s1+0.06);
-    setValve('tricuspid', clamp(avOpen)); setValve('mitral', clamp(avOpen));
-    var sl = ramp(p, T.eject[0]-0.02, T.eject[0]+0.02) - ramp(p, T.eject[1], T.eject[1]+0.06);
-    setValve('pulmonary', clamp(sl)); setValve('aortic', clamp(sl));
-  } else {
-    setValve('tricuspid',1); setValve('mitral',1); setValve('pulmonary',0); setValve('aortic',0);
-  }
+  var shut = gate(p, T.ventSqueeze, 0.012, 0.04);       /* AV valves shut during systole */
+  setValve('tricuspid', clamp(1 - shut)); setValve('mitral', clamp(1 - shut));
+  var sl = gate(p, T.eject, 0.012, 0.04);               /* outflow valves open on ejection */
+  setValve('pulmonary', clamp(sl)); setValve('aortic', clamp(sl));
 
   /* ---------------- blood ---------------- */
-  var fillP  = (ramp(p, T.fill[0], T.fill[1]) + ramp(p,0,0.20)*0.35) * R.fillFactor;
-  var ejectP = ramp(p, T.eject[0], T.eject[1]) * (R.fillFactor < 1 ? 0.55 : 1);
+  var fillP  = progW(p, T.fill) * R.fillFactor;
+  var ejectP = progW(p, T.eject) * (R.fillFactor < 1 ? 0.55 : 1);
   particles.forEach(function(pt){
     var prog = (pt.when === 'fill' ? fillP : ejectP);
     var f = (prog + pt.offset) % 1;
@@ -885,7 +1094,7 @@ function draw(){
     el.hi.setAttribute('x', h1);
     el.hi.setAttribute('width', Math.max(2, h2-h1));
   }
-  el.pmarks.style.display = (R.steps[stepIndex].chip === 'AV dissoc.') ? '' : 'none';
+  el.pmarks.style.display = R.steps[stepIndex].showMarks ? '' : 'none';
 
   setText(stepIndex);
 }
@@ -931,7 +1140,7 @@ function fitViewBox(){
   var narrow = el.heart.clientWidth < 560;
   /* viewBoxes cropped to the drawing's real bounds — no wasted margin */
   el.heart.setAttribute('viewBox', narrow ? '186 118 628 566' : '52 46 916 636');
-  el.labels.style.display = (narrow || !el.labelBtn.classList.contains('rv-on')) ? 'none' : '';
+  el.labels.style.display = narrow ? 'none' : '';
 }
 
 /* ------------------------------------------------------------ controls */
@@ -944,21 +1153,6 @@ function wireControls(){
     b.classList.add('rv-on');
     el.heart.classList.toggle('rv-hide-flow', b.getAttribute('data-layer') === 'elec');
     el.heart.classList.toggle('rv-hide-elec', b.getAttribute('data-layer') === 'flow');
-  });
-  [].forEach.call(document.querySelectorAll('[data-speed]'), function(b){
-    b.addEventListener('click', function(){
-      [].forEach.call(document.querySelectorAll('[data-speed]'), function(x){ x.classList.remove('rv-on'); });
-      b.classList.add('rv-on');
-      speed = parseFloat(b.getAttribute('data-speed'));
-      startStep();
-    });
-  });
-  el.labelBtn.addEventListener('click', function(){
-    var on = this.classList.toggle('rv-on');
-    el.elecLabels.style.display = on ? '' : 'none';
-    el.vtLabels.style.display = (on && R.drive === 'ectopic') ? '' : 'none';
-    this.textContent = on ? 'Labels on' : 'Labels off';
-    fitViewBox();
   });
   buildFib();
 }
