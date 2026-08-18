@@ -33,6 +33,10 @@ var SVG_MARKUP = `<svg class="rv-heart" id="rv_heart" viewBox="0 0 1000 720" xml
           <filter id="rv_softShadow" x="-40%" y="-40%" width="180%" height="180%">
             <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.25"/>
           </filter>
+          <clipPath id="rv_atriaClip">
+            <path d="M 306 264 C 342 248 388 258 398 292 C 406 316 404 342 396 362 C 368 376 328 374 310 360 C 298 342 296 286 306 264 Z"/>
+            <path d="M 490 320 C 504 286 558 274 598 290 C 622 314 622 358 608 380 C 582 394 530 396 504 382 C 490 364 486 344 490 320 Z"/>
+          </clipPath>
           <clipPath id="rv_ventMass">
             <path d="M 316 370 C 308 442 324 510 352 560 C 380 606 430 638 470 650
                      C 510 630 552 590 578 540 C 610 476 622 420 614 366
@@ -194,6 +198,15 @@ var SVG_MARKUP = `<svg class="rv-heart" id="rv_heart" viewBox="0 0 1000 720" xml
             <circle id="rv_focusNode" cx="604" cy="556" r="11" fill="#E8890C" stroke="#fff" stroke-width="3"/>
           </g>
           <!-- ===== VT only: the AV node is bypassed / blocked ===== -->
+
+          <!-- ===== atrial fibrillation: chaotic wavelets upstairs ===== -->
+          <g id="rv_atrialChaos" style="display:none" clip-path="url(#rv_atriaClip)"></g>
+
+          <!-- ===== re-entry circuit (flutter, SVT) ===== -->
+          <g id="rv_circuit" style="display:none">
+            <path id="rv_circuitPath" fill="none" stroke="#E8890C" stroke-width="8" stroke-linecap="round" opacity="0.42" stroke-dasharray="14 9"/>
+            <circle id="rv_circuitDot" r="10" fill="#FFC93C" stroke="#fff" stroke-width="3"/>
+          </g>
 
           <circle id="rv_saNode" cx="330" cy="258" r="13" fill="var(--elec)" stroke="#fff" stroke-width="3"/>
           <circle id="rv_avNode" cx="478" cy="368" r="12" fill="var(--elec)" stroke="#fff" stroke-width="3"/>
@@ -519,8 +532,12 @@ var RHYTHMS = [
    beats — each with its own PR interval, and either conducted or dropped.
    ========================================================================== */
 function makeBlock(o){
-  var beatMs    = 60000 / o.atrialRate;
-  var patternMs = o.beats.length * beatMs;
+  var beatMs = o.atrialRate ? 60000 / o.atrialRate : 0;
+  /* each beat may carry its own gap, which is what makes atrial fibrillation
+     irregularly irregular; blocks just use the same gap every time */
+  var starts = [], run = 0;
+  o.beats.forEach(function(b){ starts.push(run); run += (b.gap || beatMs); });
+  var patternMs = run;
   var F  = function(ms){ return ms / patternMs; };
   var qw = o.qrsWidth || 9;
 
@@ -529,9 +546,11 @@ function makeBlock(o){
   var through = 0;
 
   o.beats.forEach(function(b, i){
-    var t0 = i * beatMs, pr = b.pr * 1000;
-    atriaDepol.push([F(t0),      F(t0 + 90)]);
-    atriaSq.push(   [F(t0 + 40), F(t0 + 200)]);
+    var t0 = starts[i], pr = b.pr * 1000, gap = (b.gap || beatMs);
+    if(!o.noP){
+      atriaDepol.push([F(t0),      F(t0 + 90)]);
+      atriaSq.push(   [F(t0 + 40), F(t0 + 200)]);
+    }
     if(b.conducted){
       through++;
       avHold.push(  [F(t0 + 90),      F(t0 + pr - 40)]);
@@ -540,10 +559,10 @@ function makeBlock(o){
       purkinje.push([F(t0 + pr + 20), F(t0 + pr + 110)]);
       ventSq.push(  [F(t0 + pr + 40), F(t0 + pr + 360)]);
       eject.push(   [F(t0 + pr + 110), F(t0 + pr + 320)]);
-      fill.push(    [F(t0 + pr + 380), F(t0 + pr + 380 + beatMs * 0.45)]);
+      fill.push(    [F(t0 + pr + 380), F(t0 + pr + 380 + gap * 0.45)]);
     } else {
       avHold.push( [F(t0 + 90),  F(t0 + 250)]);
-      blocked.push([F(t0 + 250), F(t0 + beatMs * 0.92)]);
+      blocked.push([F(t0 + 250), F(t0 + gap * 0.92)]);
       marks.push([t0 + 45, 'no QRS']);
     }
   });
@@ -553,17 +572,20 @@ function makeBlock(o){
   return {
     key:o.key, name:o.name, title:o.title, sub:o.sub, danger:!!o.danger,
     rate:vRate, cycleMs:patternMs, drive:'sinus', atrialRate:null,
-    squeeze:1, fillFactor:1, dyssync:0,
-    pulse:'PULSE: ' + vRate + ' — atria firing at ' + o.atrialRate,
+    squeeze:1, dyssync:0,
+    pulse:o.pulse || ('PULSE: ' + vRate + ' — atria firing at ' + o.atrialRate),
     alert:o.alert || null,
+    circuit:o.circuit || null, atrialChaos:!!o.atrialChaos, saQuiet:!!o.saQuiet,
+    fillFactor:o.fillFactor || 1,
     marksMs:marks,
     ecgTime:function(ms){
       var m = ((ms % patternMs) + patternMs) % patternMs, mv = 0, k, mm;
       for(k = -1; k <= 1; k++){
         mm = m + k * patternMs;
+        if(o.baseline) mv += o.baseline(mm);
         o.beats.forEach(function(b, i){
-          var t0 = i * beatMs, pr = b.pr * 1000;
-          mv += gauss(mm, t0 + 45, 16, 0.16);                 /* P wave */
+          var t0 = starts[i], pr = b.pr * 1000;
+          if(!o.noP) mv += gauss(mm, t0 + 45, 16, 0.16);      /* P wave */
           if(b.conducted){
             mv += gauss(mm, t0 + pr + 22, qw * 0.8, -0.09);   /* Q */
             mv += gauss(mm, t0 + pr + 42, qw,        1.00);   /* R */
@@ -630,6 +652,73 @@ RHYTHMS.push(makeBlock({
   note:'<b>Mobitz I stretches before it drops. Mobitz II just drops.</b> That single difference is why one is watched and the other is worried about.'
 }));
 
+RHYTHMS.push(makeBlock({
+  key:'af', name:'Atrial Fibrillation',
+  title:'Atrial Fibrillation', sub:'Everyone in the room shouting at the doorman at once.',
+  noP:true, saQuiet:true, atrialChaos:true, fillFactor:0.8,
+  pulse:'PULSE: irregularly irregular',
+  beats:[{gap:620,pr:0.16,conducted:true},{gap:840,pr:0.16,conducted:true},
+         {gap:500,pr:0.16,conducted:true},{gap:700,pr:0.16,conducted:true},
+         {gap:540,pr:0.16,conducted:true}],
+  baseline:function(ms){
+    return 0.020*Math.sin(2*Math.PI*ms/83)  + 0.016*Math.sin(2*Math.PI*ms/47 + 1.2)
+         + 0.013*Math.sin(2*Math.PI*ms/29 + 2.4) + 0.011*Math.sin(2*Math.PI*ms/113 + 0.6);
+  },
+  steps:[
+    {chip:'Chaos upstairs', atMs:[0,900], html:'<b>There is no boss any more.</b> Instead of the SA node calling one clean move, hundreds of little pockets all over the atria are firing off at random. Watch them flicker — nobody upstairs is in charge.'},
+    {chip:'So no P waves',  atMs:[0,1600], html:'With no single organised atrial contraction there is <b>no P wave to find</b>. All that is left is a wobbling baseline — the <b>fibrillatory line</b> between the complexes.'},
+    {chip:'Doorman swamped',atMs:[0,3200], html:'<b>The doorman is being shouted at from every direction at once.</b> He blocks most of it, and lets someone through whenever he happens to be ready — which is at <b>completely unpredictable</b> moments.'},
+    {chip:'Irregularly irregular', atMs:[0,3200], html:'Look at the gaps between the QRS complexes: <b>no two the same, and no pattern to them</b>. That is what <b>irregularly irregular</b> means, and it is exactly what you feel at the wrist.'},
+    {chip:'Lost the kick',  atMs:[1460,2660], html:'Below the doorway everything is normal, so the <b>QRS stays narrow</b>. But the atria are only quivering, so there is no atrial squeeze — you lose the <b>atrial kick</b>, roughly the last fifth of ventricular filling.'},
+    {chip:'So what?',       atMs:[0,3200], html:'Two things matter. The rate can run away with itself, and blood sitting still in a quivering atrium <b>can clot</b> — which is why AF matters far beyond the pulse you can feel.'}
+  ],
+  note:'<b>Compare AF with VF.</b> Both are chaos — but AF is chaos upstairs, where the doorman shields the ventricles from it, so the patient walks around with it. VF is the same chaos downstairs with nothing to shield anything, and it is an arrest.'
+}));
+
+RHYTHMS.push(makeBlock({
+  key:'flutter', name:'Atrial Flutter',
+  title:'Atrial Flutter', sub:'One impulse stuck on a roundabout, lapping at 300 a minute.',
+  noP:true, saQuiet:true, fillFactor:0.85,
+  pulse:'PULSE: 150, regular',
+  circuit:{ d:'M 350 264 C 382 264 404 288 404 314 C 404 342 382 366 350 366 C 318 366 296 342 296 314 C 296 288 318 264 350 264 Z', periodMs:200 },
+  beats:[{gap:400,pr:0.16,conducted:true},{gap:400,pr:0.16,conducted:true},
+         {gap:400,pr:0.16,conducted:true},{gap:400,pr:0.16,conducted:true},
+         {gap:400,pr:0.16,conducted:true},{gap:400,pr:0.16,conducted:true},
+         {gap:400,pr:0.16,conducted:true},{gap:400,pr:0.16,conducted:true}],
+  baseline:function(ms){
+    var x = (ms % 200) / 200;                       /* one lap = 200 ms = 300/min */
+    return 0.28 * (x < 0.75 ? (0.5 - x/0.75) : (-0.5 + (x-0.75)/0.25));
+  },
+  steps:[
+    {chip:'The roundabout', atMs:[0,800], html:'<b>Not scattered like AF — one impulse, going in circles.</b> It has found a loop in the right atrium and it is lapping it about <b>300 times a minute</b>. Watch the dot going round.'},
+    {chip:'Sawtooth',       atMs:[0,1200], html:'<b>Every lap writes a wave on the ECG.</b> Because the laps are identical and relentless, they run together into the classic <b>sawtooth</b>. There is no flat baseline anywhere on this strip.'},
+    {chip:'Doorman filters',atMs:[0,800], html:'<b>300 a minute is far too many to pass on.</b> The AV node refuses most of them and typically lets through <b>every second lap</b> — 2:1 conduction. The doorman is the only reason this patient is not in trouble.'},
+    {chip:'Regular at 150', atMs:[0,3200], html:'Because he filters at a <b>fixed ratio</b>, the ventricles fire regularly — usually bang on <b>150</b>. Any regular narrow tachycardia sitting at almost exactly 150 should make you look hard for flutter waves.'},
+    {chip:'Hidden waves',   atMs:[800,1600], html:'The flutter waves <b>do not stop underneath the QRS</b> — they are simply buried by it. Look in the gaps between complexes and you can count them marching straight through.'},
+    {chip:'So what?',       atMs:[0,3200], html:'Same clot risk as AF. And the ratio can change without warning — if the doorman starts letting through <b>every</b> lap, the ventricular rate doubles to around 300.'}
+  ],
+  note:'<b>AF and flutter are the same problem organised differently.</b> AF is a crowd all shouting at once; flutter is one voice going round in a perfect circle. Both are handled by the same doorman.'
+}));
+
+RHYTHMS.push(makeBlock({
+  key:'svt', name:'Supraventricular Tachycardia (SVT)',
+  title:'Supraventricular Tachycardia', sub:'The message caught in a revolving door at the AV node.',
+  noP:true, saQuiet:true, fillFactor:0.55,
+  pulse:'PULSE: 180, regular',
+  circuit:{ d:'M 478 336 C 498 336 514 350 514 370 C 514 390 498 404 478 404 C 458 404 442 390 442 370 C 442 350 458 336 478 336 Z', periodMs:333 },
+  beats:[{gap:333,pr:0.16,conducted:true},{gap:333,pr:0.16,conducted:true},
+         {gap:333,pr:0.16,conducted:true},{gap:333,pr:0.16,conducted:true}],
+  steps:[
+    {chip:'Revolving door', atMs:[0,400], html:'<b>A message reaches the doorway and never leaves it.</b> Instead of passing through once, it gets caught in what is effectively a <b>revolving door</b> at the AV node, going round and round. Watch the loop spinning.'},
+    {chip:'A copy each lap',atMs:[0,1332], html:'<b>Every time it comes round, it sends another order downstairs.</b> One lap, one beat. That is why the rate is so fast and so <b>metronomically regular</b> — it is a machine, not a decision.'},
+    {chip:'Narrow QRS',     atMs:[150,520], html:'Everything <b>below</b> the doorway is completely normal — both staircases and the whole motorway are working perfectly. So the ventricles are activated the proper way and the <b>QRS stays narrow</b>. The fault is entirely at the door.'},
+    {chip:'Where are the Ps?', atMs:[0,1332], html:'The atria are being activated <b>backwards</b> from the doorway, at almost the same moment as the ventricles. So any P wave is <b>buried inside the QRS</b> — usually you simply cannot see one.'},
+    {chip:'On like a switch', atMs:[0,1332], html:'Loops like this <b>start and stop abruptly</b>. Patients describe it beginning in an instant, which is a genuinely useful part of the history — this does not build up the way sinus tachycardia does.'},
+    {chip:'So what?',       atMs:[0,1332], html:'At this rate there is <b>very little filling time</b>, so output falls even though every beat is normal. Anything that makes the doorman briefly refuse everything — a vagal manoeuvre, for instance — can break the loop and let the boss upstairs take charge again.'}
+  ],
+  note:'<b>Narrow and fast and regular points at the doorway or above it.</b> Wide and fast points below it. That single question — narrow or wide — is doing most of the work when you meet a tachycardia.'
+}));
+
 RHYTHMS.push({
   key:'block3', name:'Third Degree (Complete) Heart Block', danger:true,
   title:'Third Degree — Complete Heart Block', sub:'The door is locked. Downstairs runs on a backup generator.',
@@ -662,7 +751,7 @@ var W = 900, BASE = 118, SCALE = 70, HOLD_MS = 900, PAPER_MS = 3200;
 
 var root, el = {}, R, particles = [], segs = [], valveEls = {};
 var vCycle, aCycle, stripMs, anchorBeat;
-var phase = 0, atrialPhase = 0, freeT = 0, fade = {}, flashSpan = 0.1;
+var phase = 0, atrialPhase = 0, freeT = 0, uiT = 0, fade = {}, flashSpan = 0.1;
 var speed = 0.35, stepIndex = 0, anim = null, last = 0, shownIndex = -1, started = false;
 
 function id(x){ return document.getElementById(x); }
@@ -791,7 +880,7 @@ function mount(container){
    'heart','saNode','avNode','avBlock','ectopicLayer','waveFill','waveRing','focusNode',
    'focusGlow','vtLabels','raGroup','laGroup','rvGroup','lvGroup','labels','elecLabels','lblAv',
    'lblHis','lblPurk','particles','elecLayer','flowLayer',
-   'focusName','focusSub','blockName']
+   'focusName','focusSub','blockName','atrialChaos','circuit','circuitPath','circuitDot']
     .forEach(function(k){ el[k] = id('rv_'+k); });
 
   /* the SVG uses class names for the two layers — scope them here */
@@ -885,6 +974,12 @@ function load(key){
   el.ectopicLayer.style.display = ect ? '' : 'none';
   el.avBlock.style.display      = (ect || hasBlock) ? '' : 'none';
   el.vtLabels.style.display     = ect ? '' : 'none';
+  el.atrialChaos.style.display = R.atrialChaos ? '' : 'none';
+  el.circuit.style.display     = R.circuit ? '' : 'none';
+  if(R.circuit){
+    el.circuitPath.setAttribute('d', R.circuit.d);
+    circuitLen = el.circuitPath.getTotalLength();
+  }
   if(R.labels){
     el.focusName.textContent = R.labels.focus;
     el.focusSub.textContent  = R.labels.focusSub;
@@ -982,6 +1077,9 @@ function loop(now){
 
   if(aCycle) atrialPhase = (atrialPhase + (dt*speed)/aCycle) % 1;
   else       atrialPhase = phase;
+  /* the atria never pause while you read, so chaos and circuits run on their
+     own continuous clock rather than the stepped one */
+  uiT += dt * speed;
 
   draw();
   requestAnimationFrame(loop);
@@ -1000,9 +1098,9 @@ function draw(){
       s.el.style.filter = st.op > 0.15 ? 'url(#rv_glow)' : 'none';
     });
     var sa = pulseW(p, T.atriaDepol, flashSpan);
-    el.saNode.setAttribute('r', 13 + sa*7);
-    el.saNode.setAttribute('fill', sa > 0.1 ? '#FFC93C' : '#E8890C');
-    el.saNode.style.filter = sa > 0.1 ? 'url(#rv_glow)' : 'none';
+    el.saNode.setAttribute('r', R.saQuiet ? 11 : 13 + sa*7);
+    el.saNode.setAttribute('fill', R.saQuiet ? '#B0A89C' : (sa > 0.1 ? '#FFC93C' : '#E8890C'));
+    el.saNode.style.filter = (!R.saQuiet && sa > 0.1) ? 'url(#rv_glow)' : 'none';
 
     var hold = inAnyW(p, T.avDelay), fire = inAnyW(p, T.his), stuck = inAnyW(p, T.blocked);
     el.avNode.setAttribute('r', fire ? 18 : 12);
@@ -1062,6 +1160,24 @@ function draw(){
     el.avNode.setAttribute('r', 11); el.avNode.setAttribute('fill', '#B0A89C'); el.avNode.style.filter = 'none';
   }
   fibLayer.style.display = (R.drive === 'fibrillation') ? '' : 'none';
+
+  /* ---- atrial fibrillation wavelets ---- */
+  if(R.atrialChaos){
+    for(i=0;i<AFIB.length;i++){
+      var a = AFIB[i];
+      var amp = 0.5 + 0.5*Math.sin(2*Math.PI*uiT/a.per + a.ph);
+      a.node.setAttribute('r', 3 + amp*8);
+      a.node.style.opacity = 0.2 + amp*0.55;
+    }
+  }
+
+  /* ---- re-entry circuit: one impulse going round and round ---- */
+  if(R.circuit && circuitLen){
+    var q = el.circuitPath.getPointAtLength(((uiT % R.circuit.periodMs) / R.circuit.periodMs) * circuitLen);
+    el.circuitDot.setAttribute('cx', q.x);
+    el.circuitDot.setAttribute('cy', q.y);
+    el.circuitDot.style.filter = 'url(#rv_glow)';
+  }
 
   /* ---------------- mechanical ---------------- */
   var aSq = bumpW(atrialPhase, T.atriaSqueeze) * R.squeeze;
@@ -1134,8 +1250,8 @@ function setText(i){
   });
 }
 
-/* --------------------------------------------- VF wavelets (built once) */
-var FIB = [], fibLayer;
+/* ------------------------------- wavelets and circuits (built once) */
+var FIB = [], fibLayer, AFIB = [], circuitLen = 0;
 function buildFib(){
   fibLayer = document.createElementNS('http://www.w3.org/2000/svg','g');
   fibLayer.setAttribute('clip-path','url(#rv_ventMass)');
