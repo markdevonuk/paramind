@@ -283,10 +283,10 @@ var CSS = `
 
 .rv-card{background:#fff;border:1px solid #E9ECEF;border-radius:.75rem;box-shadow:0 4px 6px -1px rgba(0,0,0,.06);
   overflow:hidden;margin-bottom:1.25rem}
-.rv-head{padding:.9rem 1.1rem;border-bottom:1px solid #E9ECEF;display:flex;flex-wrap:wrap;gap:.75rem;
-  align-items:center;justify-content:space-between}
+.rv-head{padding:.9rem 1.1rem;border-bottom:1px solid #E9ECEF;display:flex;flex-direction:column;
+  align-items:center;text-align:center;gap:.15rem}
 .rv-title{font-weight:700;font-size:1rem;margin:0}
-.rv-sub{font-size:.82rem;color:#6C757D;margin:.15rem 0 0}
+.rv-sub{font-size:.85rem;color:#6C757D;margin:.3rem 0 0;text-align:center}
 .rv-layers{display:flex;background:#F1F3F5;border-radius:.5rem;padding:.25rem;gap:.25rem}
 .rv-layers button{border:0;background:transparent;font:inherit;font-size:.82rem;font-weight:600;color:#6C757D;
   padding:.45rem .8rem;border-radius:.375rem;cursor:pointer;transition:all 200ms ease;white-space:nowrap}
@@ -298,13 +298,13 @@ var CSS = `
 .rv-heart.rv-hide-flow .rv-flow{opacity:0}
 .rv-heart.rv-hide-elec .rv-elec{opacity:0}
 
-.rv-comm{display:flex;gap:.85rem;align-items:flex-start;padding:.9rem 1.1rem;border-top:1px solid #E9ECEF;
-  background:#fff;min-height:104px}
-.rv-side{flex:0 0 auto;display:flex;flex-direction:column;gap:.3rem;align-items:center}
+.rv-comm{display:flex;flex-direction:column;gap:.55rem;align-items:center;text-align:center;
+  padding:.95rem 1.1rem;border-top:1px solid #E9ECEF;background:#fff;min-height:104px}
+.rv-side{display:flex;flex-direction:row;gap:.6rem;align-items:center;justify-content:center}
 .rv-chip{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.7rem;font-weight:600;padding:.32rem .55rem;
   border-radius:.375rem;background:#FFF4E5;color:#8A5A00;min-width:100px;text-align:center}
 .rv-count{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.68rem;color:#ADB5BD;font-weight:600}
-.rv-text{margin:0;font-size:.95rem;line-height:1.5;color:#495057}
+.rv-text{margin:0;font-size:.98rem;line-height:1.55;color:#495057;max-width:74ch}
 .rv-text b{color:#212529}
 
 .rv-steps{display:flex;align-items:center;gap:.6rem;justify-content:center;padding:.5rem 1.1rem;
@@ -331,8 +331,16 @@ var CSS = `
   border:1px solid rgba(255,255,255,.22);background:rgba(26,26,46,.82);color:#cfd3e6;
   padding:.42rem .62rem;transition:all 150ms ease}
 .rv-jump button:hover{border-color:#22c55e;color:#fff}
-.rv-jump button.rv-primary{background:#2B8A9C;border-color:#2B8A9C;color:#fff;padding:.42rem .85rem}
-.rv-jump button.rv-primary:hover{background:#3DA4B8;border-color:#3DA4B8}
+.rv-jump button.rv-primary{background:#3DA4B8;border-color:#5BC0D4;color:#fff;font-size:.88rem;
+  padding:.5rem 1.05rem;animation:rv-pulse 1.9s ease-out infinite}
+.rv-jump button.rv-primary:hover{background:#5BC0D4;border-color:#8AD8E6;animation:none}
+/* glow + brighten only — never move the button, or it becomes hard to tap */
+@keyframes rv-pulse{
+  0%   {box-shadow:0 0 0 0 rgba(91,192,212,.85); background:#3DA4B8}
+  55%  {box-shadow:0 0 0 12px rgba(91,192,212,0); background:#5BC0D4}
+  100% {box-shadow:0 0 0 0 rgba(91,192,212,0);   background:#3DA4B8}
+}
+@media (prefers-reduced-motion:reduce){ .rv-jump button.rv-primary{animation:none} }
 .rv-mon-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;gap:.75rem;flex-wrap:wrap}
 .rv-lead{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.72rem;color:#888;letter-spacing:.05em}
 .rv-mon-right{display:flex;gap:1rem;align-items:center}
@@ -358,15 +366,13 @@ var CSS = `
 
 /* ---------- phones ---------- */
 @media (max-width:640px){
-  .rv-comm{flex-direction:column;gap:.5rem;min-height:0}
-  .rv-side{flex-direction:row;gap:.5rem;align-items:center}
-  .rv-text{font-size:.9rem}
+  .rv-comm{gap:.45rem;min-height:0;padding:.8rem .9rem}
+  .rv-text{font-size:.92rem}
   /* on a phone the strip is short, so keep the buttons small and let the
      trace show through behind them */
   .rv-jump{right:.45rem;bottom:.4rem;gap:.3rem}
   .rv-jump button{padding:.36rem .55rem;font-size:.76rem;background:rgba(26,26,46,.62)}
   .rv-jump button.rv-primary{padding:.36rem .7rem;background:rgba(43,138,156,.92)}
-  .rv-head{flex-direction:column;align-items:stretch}
   .rv-head>div{width:100%}
   .rv-layers{width:100%}
   .rv-layers button{flex:1;text-align:center;padding:.5rem .3rem;font-size:.78rem}
