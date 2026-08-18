@@ -307,14 +307,14 @@ var CSS = `
 .rv-text{margin:0;font-size:.95rem;line-height:1.5;color:#495057}
 .rv-text b{color:#212529}
 
-.rv-steps{display:flex;align-items:center;gap:1rem;justify-content:space-between;padding:.7rem 1.1rem;
+.rv-steps{display:flex;align-items:center;gap:.6rem;justify-content:center;padding:.5rem 1.1rem;
   background:#fff;border-top:1px solid #E9ECEF}
 .rv-step-btn{border:1px solid #DEE2E6;background:#fff;color:#495057;font:inherit;font-size:.88rem;font-weight:600;
   padding:.5rem 1.1rem;border-radius:.5rem;cursor:pointer;transition:all 150ms ease}
 .rv-step-btn:hover{border-color:#2B8A9C;color:#2B8A9C}
 .rv-step-btn.rv-primary{background:#2B8A9C;border-color:#2B8A9C;color:#fff}
 .rv-step-btn.rv-primary:hover{background:#237282;border-color:#237282;color:#fff}
-.rv-mid{flex:1;display:flex;flex-direction:column;align-items:center;gap:.35rem}
+.rv-mid{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;justify-content:center}
 .rv-hint{font-size:.72rem;color:#ADB5BD;text-align:center}
 .rv-dots{display:flex;gap:.4rem;justify-content:center}
 .rv-dots i{width:9px;height:9px;border-radius:50%;background:#DEE2E6;display:block;transition:all 200ms ease}
@@ -323,7 +323,16 @@ var CSS = `
 
 .rv-alert{background:#7f1d1d;color:#fff;font-size:.85rem;font-weight:700;padding:.55rem 1.1rem;
   letter-spacing:.02em;display:none}
-.rv-monitor{background:#1a1a2e;padding:.75rem 1.1rem 1rem}
+.rv-monitor{background:#1a1a2e;padding:.75rem 1.1rem 1rem;position:relative}
+/* Back / Next float over the bottom-right of the trace, so they stay within
+   reach of the animation instead of sitting below the text. */
+.rv-jump{position:absolute;right:.9rem;bottom:.75rem;display:flex;gap:.35rem;z-index:3}
+.rv-jump button{font:inherit;font-size:.82rem;font-weight:700;border-radius:.45rem;cursor:pointer;
+  border:1px solid rgba(255,255,255,.22);background:rgba(26,26,46,.82);color:#cfd3e6;
+  padding:.42rem .62rem;transition:all 150ms ease}
+.rv-jump button:hover{border-color:#22c55e;color:#fff}
+.rv-jump button.rv-primary{background:#2B8A9C;border-color:#2B8A9C;color:#fff;padding:.42rem .85rem}
+.rv-jump button.rv-primary:hover{background:#3DA4B8;border-color:#3DA4B8}
 .rv-mon-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;gap:.75rem;flex-wrap:wrap}
 .rv-lead{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.72rem;color:#888;letter-spacing:.05em}
 .rv-mon-right{display:flex;gap:1rem;align-items:center}
@@ -352,9 +361,11 @@ var CSS = `
   .rv-comm{flex-direction:column;gap:.5rem;min-height:0}
   .rv-side{flex-direction:row;gap:.5rem;align-items:center}
   .rv-text{font-size:.9rem}
-  .rv-steps{flex-wrap:wrap;gap:.6rem}
-  .rv-step-btn{flex:1 1 40%;padding:.6rem .5rem}
-  .rv-mid{order:3;flex-basis:100%}
+  /* on a phone the strip is short, so keep the buttons small and let the
+     trace show through behind them */
+  .rv-jump{right:.45rem;bottom:.4rem;gap:.3rem}
+  .rv-jump button{padding:.36rem .55rem;font-size:.76rem;background:rgba(26,26,46,.62)}
+  .rv-jump button.rv-primary{padding:.36rem .7rem;background:rgba(43,138,156,.92)}
   .rv-head{flex-direction:column;align-items:stretch}
   .rv-head>div{width:100%}
   .rv-layers{width:100%}
@@ -377,7 +388,7 @@ function gauss(x, c, w, a){ var d = (x - c) / w; return a * Math.exp(-0.5 * d * 
 var RHYTHMS = [
 {
   key:'nsr', name:'Normal Sinus Rhythm', danger:false,
-  title:'Normal Sinus Rhythm', sub:'The baseline — everything else is a departure from this.',
+  title:'Normal Sinus Rhythm', sub:'The reference — a well-run relay, every order in its proper order.',
   rate:75, beats:3, drive:'sinus', atrialRate:null,
   squeeze:1, fillFactor:1, dyssync:0,
   pulse:'PULSE: strong, regular', alert:null,
@@ -390,20 +401,20 @@ var RHYTHMS = [
            purkinje:[0.255,0.335], atriaSqueeze:[0.05,0.21], ventSqueeze:[0.27,0.60],
            eject:[0.32,0.56], fill:[[0.00,0.20],[0.66,1.00]] },
   steps:[
-    {chip:'P wave',    at:[0.000,0.110], html:'<b>The SA node fires.</b> The impulse spreads across both atria — that is the <b>P wave</b>. The atria squeeze the last of the blood down into the ventricles.'},
-    {chip:'PR segment',at:[0.110,0.222], html:'<b>The AV node deliberately holds the impulse</b> for about 0.1 s. That pause is what gives the ventricles time to fill — it is the flat line between the P wave and the QRS.'},
-    {chip:'PR → QRS',  at:[0.222,0.260], html:'Released. The impulse drops into the <b>bundle of His</b> and splits down the left and right <b>bundle branches</b>.'},
-    {chip:'QRS',       at:[0.260,0.340], html:'<b>The Purkinje fibres fire both ventricles almost at once</b> — fast and coordinated, so the QRS is <b>narrow (&lt;0.12 s)</b>. The ventricles contract from the apex upwards.'},
-    {chip:'ST segment',at:[0.340,0.440], html:'<b>Ejection.</b> The pulmonary and aortic valves are open — blood leaves for the lungs and the body. This is the pulse you feel.'},
-    {chip:'T wave',    at:[0.440,0.660], html:'<b>The ventricles repolarise</b> — resetting electrically, ready to go again. That is the <b>T wave</b>.'},
-    {chip:'Diastole',  at:[0.660,1.000], html:'<b>Diastole.</b> Everything relaxes, the AV valves open and the ventricles refill. The coronary arteries get their own blood supply now — which is why a very fast rate is bad news for the heart itself.'}
+    {chip:'P wave',    at:[0.000,0.110], html:'<b>The boss calls the move.</b> The SA node fires first, every single time, and the order sweeps across both upstairs rooms — that is the <b>P wave</b>. The atria squeeze the last of the blood down into the ventricles.'},
+    {chip:'PR segment',at:[0.110,0.222], html:'<b>The doorman holds everyone at the door</b> for about 0.1 s. The pause is deliberate: it buys the rooms downstairs time to finish filling. On the strip it is the flat line between the P wave and the QRS.'},
+    {chip:'PR → QRS',  at:[0.222,0.260], html:'Released. The order drops into the <b>bundle of His</b> — the stairwell — and splits down two staircases, the left and right <b>bundle branches</b>.'},
+    {chip:'QRS',       at:[0.260,0.340], html:'<b>The Purkinje fibres are the motorway.</b> They deliver the order to every corner of both ventricles almost at once, so the squeeze is perfectly coordinated and the QRS is <b>narrow (&lt;0.12 s)</b>.'},
+    {chip:'ST segment',at:[0.340,0.440], html:'<b>Ejection.</b> The outflow valves are open and blood leaves for the lungs and the body. This is the pulse you feel.'},
+    {chip:'T wave',    at:[0.440,0.660], html:'<b>The crew resets.</b> The ventricles repolarise, ready for the next order — that is the <b>T wave</b>.'},
+    {chip:'Diastole',  at:[0.660,1.000], html:'<b>Diastole — the quiet bit.</b> Everything relaxes, the AV valves open and the ventricles refill. The heart&rsquo;s own coronary arteries are only fed now, which is why a very fast rate starves the heart itself.'}
   ],
   note:null
 },
 
 {
   key:'vt', name:'Ventricular Tachycardia', danger:true,
-  title:'Ventricular Tachycardia', sub:'One irritable patch of ventricular muscle has taken over.',
+  title:'Ventricular Tachycardia', sub:'A rogue voice in the basement, shouting orders faster than the boss.',
   rate:180, beats:7, drive:'ectopic', atrialRate:75,
   squeeze:0.85, fillFactor:0.40, dyssync:0.11,
   pulse:'PULSE: weak or absent', alert:'⚠️ SHOCKABLE IF PULSELESS — always check for a pulse',
@@ -413,20 +424,20 @@ var RHYTHMS = [
   timing:{ ectopic:[0,0.07], wave:[0.03,0.52], atriaSqueeze:[0.05,0.21],
            ventSqueeze:[0.16,0.62], eject:[0.26,0.56], fill:[[0.00,0.14],[0.74,1.00]] },
   steps:[
-    {chip:'Focus fires', at:[0.00,0.10], html:'<b>No SA node involved.</b> A patch of irritable ventricular muscle — often scarred or ischaemic — depolarises on its own, and it does it <b>faster than the SA node</b>, so it takes over the whole heart.'},
-    {chip:'Slow spread', at:[0.03,0.52], html:'<b>This is the whole problem.</b> The impulse started in muscle, not in the conducting system, so it has to crawl <b>cell to cell</b> across the ventricles. The Purkinje network — the motorway — is bypassed.'},
-    {chip:'Wide QRS',    at:[0.06,0.55], html:'Because depolarisation takes so much longer, the complex is <b>wide (&gt;0.12 s — more than 3 small squares)</b>. Same paper speed as sinus rhythm: switch back and compare the width yourself.'},
-    {chip:'Poor squeeze',at:[0.16,0.62], html:'The ventricles are no longer squeezed as one unit — one side is still contracting as the other finishes. An <b>uncoordinated squeeze moves far less blood</b>, even though the muscle is working hard.'},
-    {chip:'No filling',  at:[0.74,1.00], html:'At <b>180 bpm there is almost no diastole</b>. The ventricles barely refill before the next beat, and with the atria dissociated there is no atrial kick either. Little blood in means little blood out.'},
-    {chip:'AV dissoc.',  at:[0.00,1.00], showMarks:true, html:'<b>The SA node has not stopped</b> — look at it, still firing at its own rate, quite independently. Those P waves are on the strip, buried in the wide complexes (arrowed). That is <b>AV dissociation</b>.'},
-    {chip:'Why it kills',at:[0.00,1.00], html:'Fast rate + poor filling + uncoordinated squeeze = <b>stroke volume can collapse</b>. The patient may have a pulse, or none at all — which is why you always check. <b>Pulseless VT is a shockable rhythm.</b>'}
+    {chip:'Rogue voice', at:[0.00,0.10], html:'<b>Nobody asked the boss.</b> A patch of irritable ventricular muscle — often scarred or ischaemic — starts shouting its own orders, and it shouts <b>faster than the SA node</b>. The heart follows whoever is loudest.'},
+    {chip:'Hand to hand',at:[0.03,0.52], html:'<b>And it is not using the motorway.</b> The order began in muscle rather than in the conducting system, so it has to be passed <b>hand to hand</b>, cell to cell, across the ventricles. The Purkinje network sits there unused.'},
+    {chip:'Wide QRS',    at:[0.06,0.55], html:'Passing it hand to hand takes far longer than the motorway would, and the ECG records every millisecond of it — so the complex is <b>wide (&gt;0.12 s, more than 3 small squares)</b>. Same paper speed as sinus: switch back and compare.'},
+    {chip:'Out of time', at:[0.16,0.62], html:'<b>Like a rowing crew out of time.</b> One side is still pulling as the other finishes, so the ventricles never squeeze as one unit. Plenty of effort, far less blood moved.'},
+    {chip:'No quiet bit',at:[0.74,1.00], html:'At <b>180 bpm there is barely any quiet bit left</b>. The ventricles hardly refill before the next order arrives, and with the atria out of the loop there is no atrial kick either. Little in means little out.'},
+    {chip:'AV dissoc.',  at:[0.00,1.00], showMarks:true, html:'<b>The boss upstairs never stopped.</b> Look at the SA node — still firing at its own steady rate, still sending orders nobody downstairs is listening to. Those P waves are on the strip, buried in the wide complexes (arrowed). That is <b>AV dissociation</b>.'},
+    {chip:'Why it kills',at:[0.00,1.00], html:'Too fast, badly filled, out of time — <b>stroke volume can collapse</b>. The patient may have a pulse, or none at all, which is why you always check. <b>Pulseless VT is a shockable rhythm.</b>'}
   ],
-  note:'<b>Nothing anatomical changed.</b> The ECG changed because the <i>electrical path</i> changed — that is the whole point of these visuals.'
+  note:'<b>Same building, same plumbing.</b> Nothing anatomical changed — one voice in the wrong place, taking the wrong route, and the ECG changes completely.'
 },
 
 {
   key:'vf', name:'Ventricular Fibrillation', danger:true,
-  title:'Ventricular Fibrillation', sub:'A cardiac arrest rhythm — no organised activity at all.',
+  title:'Ventricular Fibrillation', sub:'Everybody shouting at once, so nobody moves.',
   rate:0, beats:0, freeRun:true, drive:'fibrillation', atrialRate:null,
   squeeze:0, fillFactor:0, dyssync:0, noOutput:true,
   pulse:'PULSE: none', alert:'⚠️ CARDIAC ARREST — SHOCKABLE RHYTHM',
@@ -437,18 +448,18 @@ var RHYTHMS = [
   marks:[],
   timing:{ atriaSqueeze:[0,0], ventSqueeze:[0,0], eject:[0,0], fill:[0,0] },
   steps:[
-    {chip:'Many foci',   html:'<b>Not one focus — countless.</b> Sites all over the ventricular muscle are depolarising at once and re-entering in loops, in no order whatsoever. Watch them: nothing takes charge.'},
-    {chip:'No QRS',      html:'With no coordinated depolarisation there is <b>nothing to measure</b>. No P wave, no QRS, no T wave — just a chaotic, irregular waveform of varying amplitude.'},
-    {chip:'Quivering',   html:'The ventricles <b>quiver, they do not contract</b>. Individual fibres are shortening at random moments, so the chamber never squeezes as a unit. It looks busy and achieves nothing.'},
-    {chip:'No output',   html:'Look at the blood — <b>none of it is moving</b>. No cardiac output, no pulse. The coronary arteries stop being perfused too, so the heart muscle itself deteriorates every second this continues.'},
-    {chip:'Shockable',   html:'<b>This is a shockable rhythm.</b> A defibrillation depolarises the whole myocardium at once so every cell is refractory together — which gives the heart&rsquo;s own pacemaker a chance to restart an organised sequence.'}
+    {chip:'Everyone shouts', html:'<b>Not one rogue voice — hundreds.</b> Sites all over the ventricular muscle are firing at once and looping back on themselves, every one shouting a different order. Nobody is in charge of anything.'},
+    {chip:'Nothing to read', html:'With no single order to follow there is <b>nothing to measure</b>. No P wave, no QRS, no T wave — just a chaotic, irregular line of varying height.'},
+    {chip:'Quivering',       html:'<b>Every fibre obeys a different shout</b>, so the muscle quivers instead of contracting. Watch it: frantic, busy, and achieving absolutely nothing.'},
+    {chip:'No output',       html:'Look at the blood — <b>none of it is moving</b>. No output, no pulse. The coronary arteries stop being fed as well, so the muscle itself is deteriorating every second this continues.'},
+    {chip:'Shock = silence', html:'<b>A shock is how you get silence in the room.</b> Defibrillation depolarises the whole myocardium at once so every cell falls quiet together — and in that silence the boss upstairs gets a chance to be heard again. <b>This is a shockable rhythm.</b>'}
   ],
-  note:'<b>VF and VT sit next to each other for a reason.</b> Both come from the ventricles, both are shockable — the difference is that VT still has an organised (if useless) sequence, and VF has none at all.'
+  note:'<b>VT and VF sit side by side for a reason.</b> Both come from the ventricles, both are shockable. VT still has one voice giving orders, however useless. VF has hundreds, and no order at all.'
 },
 
 {
   key:'asystole', name:'Asystole', danger:true,
-  title:'Asystole', sub:'A cardiac arrest rhythm — no electrical activity to speak of.',
+  title:'Asystole', sub:'Nobody is shouting anything. The building has gone quiet.',
   rate:0, beats:0, freeRun:true, drive:'silent', atrialRate:null,
   squeeze:0, fillFactor:0, dyssync:0, noOutput:true,
   pulse:'PULSE: none', alert:'⚠️ CARDIAC ARREST — NON-SHOCKABLE RHYTHM',
@@ -460,17 +471,17 @@ var RHYTHMS = [
   marks:[],
   timing:{ atriaSqueeze:[0,0], ventSqueeze:[0,0], eject:[0,0], fill:[0,0] },
   steps:[
-    {chip:'Nothing fires', html:'<b>Nothing is firing.</b> No SA node, no AV node, no ectopic focus anywhere. Compare it with sinus rhythm — the conducting system is all still there, it is simply silent.'},
-    {chip:'No contraction',html:'No electrical signal means <b>no contraction</b>. The muscle has nothing to respond to, so the chambers do not move and no blood goes anywhere.'},
-    {chip:'Never flat',    html:'<b>A true flat line is rare.</b> There is nearly always some baseline wander, and occasional <b>agonal complexes</b> — watch the trace and you will see one drift past. That is why you confirm asystole properly rather than trusting one glance.'},
-    {chip:'Not shockable', html:'<b>This is a non-shockable rhythm.</b> Defibrillation works by reorganising chaotic electrical activity — here there is no electrical activity to reorganise, so there is nothing for a shock to do.'}
+    {chip:'Silence',      html:'<b>Nothing at all.</b> No boss, no doorman, not even a rogue voice in the basement. Compare it with sinus rhythm — the wiring is all still there, it has simply stopped being used.'},
+    {chip:'No orders',    html:'No order means <b>no contraction</b>. The muscle has nothing to respond to, so nothing moves and no blood goes anywhere.'},
+    {chip:'Never flat',   html:'<b>Even an empty building creaks.</b> A true flat line is rare — there is nearly always baseline wander and the occasional <b>agonal complex</b>. Watch the trace and one drifts past. That is why asystole is confirmed properly rather than on one glance.'},
+    {chip:'Nothing to silence', html:'<b>Shouting "quiet!" at an empty room achieves nothing.</b> A shock works by silencing chaos so order can return — here there is no activity to silence. <b>Non-shockable.</b>'}
   ],
-  note:'<b>Worth knowing:</b> VF left untreated deteriorates into asystole as the myocardium runs out of energy. They are two points on the same decline, which is why the first is shockable and the second is not.'
+  note:'<b>VF left untreated becomes asystole</b> as the muscle runs out of energy — the shouting fades to silence. Two points on the same decline, which is why the first is shockable and the second is not.'
 },
 
 {
   key:'pea', name:'Pulseless Electrical Activity', danger:true,
-  title:'Pulseless Electrical Activity (PEA)', sub:'The electrics are working. The pump is not.',
+  title:'Pulseless Electrical Activity (PEA)', sub:'The orders arrive perfectly. Nobody downstairs acts on them.',
   rate:60, beats:3, drive:'sinus', atrialRate:null,
   squeeze:0.10, fillFactor:0.06, dyssync:0, noOutput:true,
   pulse:'PULSE: none', alert:'⚠️ CARDIAC ARREST — NON-SHOCKABLE RHYTHM',
@@ -483,13 +494,13 @@ var RHYTHMS = [
            purkinje:[0.255,0.335], atriaSqueeze:[0.05,0.21], ventSqueeze:[0.27,0.60],
            eject:[0.32,0.56], fill:[[0.00,0.20],[0.66,1.00]] },
   steps:[
-    {chip:'Electrics fine', at:[0.000,0.335], html:'<b>Watch the electrical layer — it is completely normal.</b> SA node, the AV node pause, down the bundle branches, out through the Purkinje fibres. Exactly the sequence you saw in sinus rhythm.'},
-    {chip:'Looks like a rhythm', at:[0.240,0.400], html:'So the monitor shows <b>organised complexes</b>. P wave, narrow QRS, T wave. On the trace alone you would call this a perfusing rhythm and move on.'},
-    {chip:'Pump fails',     at:[0.270,0.600], html:'<b>Now watch the ventricles.</b> The signal arrives, but the muscle barely moves. The electrical instruction is fine — the mechanical response to it is not.'},
-    {chip:'No output',      at:[0.320,0.560], html:'So <b>almost no blood moves</b>. Organised electrical activity, no meaningful cardiac output, <b>no pulse</b>.'},
-    {chip:'Clinical, not ECG', at:[0.660,1.000], html:'<b>PEA cannot be diagnosed from the monitor</b> — the monitor looks reassuring. The only way to find it is to <b>feel for a pulse</b>. Non-shockable, and the priority is finding the reversible cause.'}
+    {chip:'Orders sent',  at:[0.000,0.335], html:'<b>Watch the electrics — everything is textbook.</b> Boss fires, doorman pauses, the order goes down both staircases and out along the motorway. Exactly the sequence you saw in sinus rhythm.'},
+    {chip:'Looks fine',   at:[0.240,0.400], html:'So the monitor shows <b>organised complexes</b>. P wave, narrow QRS, T wave. On the trace alone you would call this a perfusing rhythm and move on.'},
+    {chip:'Nobody acts',  at:[0.270,0.600], html:'<b>But nobody downstairs is acting on them.</b> Watch the ventricles — the order arrives and the muscle barely moves. The instruction is perfect; the response to it is not.'},
+    {chip:'No output',    at:[0.320,0.560], html:'So <b>almost no blood moves</b>. Organised electrical activity, no meaningful output, <b>no pulse</b>.'},
+    {chip:'Feel for it',  at:[0.660,1.000], html:'<b>The monitor shows the orders being sent — not whether anyone obeyed them.</b> PEA cannot be spotted on the screen. The only way to find it is to <b>feel for a pulse</b>. Non-shockable, and the priority is the reversible cause.'}
   ],
-  note:'<b>This is why we say "treat the patient, not the monitor".</b> PEA is the one arrest rhythm where the screen actively misleads you.'
+  note:'<b>This is why we say treat the patient, not the monitor.</b> PEA is the one arrest rhythm where the screen actively reassures you.'
 }
 
 ];
@@ -726,6 +737,10 @@ var UI = '<div class="rv-root">' +
         '<g id="rv_pmarks"></g>' +
         '<g id="rv_waveLabels" font-family="ui-monospace,monospace" font-size="12" fill="#8f8fae"></g>' +
       '</svg>' +
+      '<div class="rv-jump">' +
+        '<button id="rv_prev" aria-label="Previous step">‹</button>' +
+        '<button id="rv_next" class="rv-primary">Next ›</button>' +
+      '</div>' +
     '</div>' +
     '<div class="rv-stage">' + SVG_MARKUP + '</div>' +
     '<div class="rv-comm">' +
@@ -733,10 +748,8 @@ var UI = '<div class="rv-root">' +
       '<p class="rv-text" id="rv_textOut"></p>' +
     '</div>' +
     '<div class="rv-steps">' +
-      '<button class="rv-step-btn" id="rv_prev">‹ Back</button>' +
       '<div class="rv-mid"><div class="rv-dots" id="rv_dots"></div>' +
         '<span class="rv-hint">replaying — press Next when ready</span></div>' +
-      '<button class="rv-step-btn rv-primary" id="rv_next">Next ›</button>' +
     '</div>' +
     '<div class="rv-controls">' +
       '<span class="rv-cap">Show</span>' +
