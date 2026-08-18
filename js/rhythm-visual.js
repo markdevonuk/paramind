@@ -243,6 +243,20 @@ var SVG_MARKUP = `<svg class="rv-heart" id="rv_heart" viewBox="0 0 1000 720" xml
             <circle id="rv_circuitDot" r="10" fill="#FFC93C" stroke="#fff" stroke-width="3"/>
           </g>
 
+          <!-- ===== WPW: an accessory pathway bypassing the AV node ===== -->
+          <g id="rv_accessory" style="display:none">
+            <path d="M 392 348 C 366 362 360 384 368 408" fill="none" stroke="#FFF" stroke-width="15" stroke-linecap="round"/>
+            <path d="M 392 348 C 366 362 360 384 368 408" fill="none" stroke="#C4B5FD" stroke-width="9" stroke-linecap="round"/>
+            <path class="cseg" data-seg="acc" d="M 392 348 C 366 362 360 384 368 408" fill="none"
+                  stroke="#7C3AED" stroke-width="9" stroke-linecap="round"/>
+            <text x="352" y="336" text-anchor="end" font-family="Plus Jakarta Sans, sans-serif" font-size="12.5"
+                  font-weight="700" fill="#5B21B6" stroke="#fff" stroke-width="3.5" stroke-linejoin="round"
+                  style="paint-order:stroke">Accessory pathway</text>
+            <text x="352" y="352" text-anchor="end" font-family="Plus Jakarta Sans, sans-serif" font-size="11"
+                  font-weight="500" fill="#6C757D" stroke="#fff" stroke-width="3.5" stroke-linejoin="round"
+                  style="paint-order:stroke">the side door</text>
+          </g>
+
           <circle id="rv_saNode" cx="330" cy="258" r="13" fill="var(--elec)" stroke="#fff" stroke-width="3"/>
           <circle id="rv_avNode" cx="478" cy="368" r="12" fill="var(--elec)" stroke="#fff" stroke-width="3"/>
           <g id="rv_branchBlock" style="display:none" fill="none" stroke-linecap="round">
@@ -1006,6 +1020,101 @@ RHYTHMS.push(makeBlock({
   note:'<b>Early beats are named by where they start, not by how early they are.</b> Upstairs gives you a narrow QRS; downstairs gives you a wide one. That single question sorts them.'
 }));
 
+/* ==========================================================================
+   3f. WPW, LONG QT AND TORSADES — the last three
+   ========================================================================== */
+RHYTHMS.push({
+  key:'wpw', name:'Wolff-Parkinson-White (WPW)',
+  title:'Wolff-Parkinson-White', sub:'Born with a side door that bypasses the doorman completely.',
+  rate:75, drive:'sinus', atrialRate:null, danger:false,
+  squeeze:1, fillFactor:1, dyssync:0,
+  pulse:'PULSE: 75, regular',
+  accessory:true,
+  wave:{ cx:392, cy:432, clip:'rv_ventMass', r:300 },
+  ecg:function(p){
+    return gauss(p,0.055,0.017,0.15)      /* P */
+         + gauss(p,0.196,0.030,0.34)      /* delta — the slurred early upstroke */
+         + gauss(p,0.262,0.012,0.85)      /* R, once the normal route catches up */
+         + gauss(p,0.294,0.010,-0.18)     /* S */
+         + gauss(p,0.560,0.048,0.26);     /* T */
+  },
+  marks:[[0.198,'DELTA WAVE']],
+  timing:{
+    atriaDepol:[0,0.10], acc:[0.09,0.16], avDelay:[0.10,0.19], his:[0.19,0.235],
+    bundles:[0.215,0.26], purkinje:[0.245,0.325],
+    wave:[0.15,0.33],
+    atriaSqueeze:[0.05,0.21], ventSqueeze:[0.24,0.60],
+    eject:[0.30,0.56], fill:[[0.00,0.20],[0.66,1.00]]
+  },
+  steps:[
+    {chip:'A side door', at:[0.00,0.12], html:'<b>Almost every heart has exactly one way down.</b> Some people are born with an extra strand of muscle joining atrium straight to ventricle — <b>an accessory pathway</b>. A side door, and the doorman has no idea it exists.'},
+    {chip:'Nobody checks it', at:[0.09,0.20], html:'<b>The doorman&rsquo;s entire job is to hold each impulse for about 0.1 s.</b> The side door does nothing of the kind — the impulse walks straight through into the ventricle. That is why the <b>PR interval is short</b>.'},
+    {chip:'The delta wave', at:[0.15,0.28], html:'<b>But it arrives in the wrong place.</b> It lands in muscle rather than on the motorway, so it starts spreading <b>hand to hand</b> — slowly. That sluggish start is the <b>delta wave</b>: the slurred, lazy upstroke at the beginning of the QRS.'},
+    {chip:'The proper route catches up', at:[0.19,0.34], html:'<b>Meanwhile the real impulse has taken the proper route</b> — doorway, staircases, motorway — and once it arrives it activates everything at full speed and takes over. So the rest of the complex looks normal. What you are looking at is <b>two beats fused into one</b>.'},
+    {chip:'The signature', at:[0.05,0.34], html:'<b>Short PR, delta wave, slightly wide QRS.</b> The three go together and they come from the same cause: something got there early, by the wrong road.'},
+    {chip:'Why it matters', at:[0.00,1.00], html:'<b>On a normal day this causes no trouble at all.</b> The danger is if the atria start fibrillating. The doorman would normally protect the ventricles by refusing most of that chaos — but <b>the side door refuses nothing</b>, so the ventricles can be driven dangerously fast.'}
+  ],
+  note:'<b>Everything about WPW follows from one fact:</b> there is a second way in, and it has no doorman. Early arrival gives the short PR, arriving into muscle gives the delta wave, and no filtering is what makes it dangerous.'
+});
+
+RHYTHMS.push({
+  key:'longqt', name:'Long QT Syndrome',
+  title:'Long QT', sub:'The reset takes far too long — and that leaves a window open.',
+  rate:65, drive:'sinus', atrialRate:null, danger:false,
+  squeeze:1, fillFactor:1, dyssync:0,
+  pulse:'PULSE: 65, regular',
+  alert:null,
+  ecg:function(p){
+    return gauss(p,0.050,0.016,0.15)      /* P */
+         + gauss(p,0.222,0.007,-0.08)     /* Q */
+         + gauss(p,0.240,0.010,0.95)      /* R */
+         + gauss(p,0.264,0.009,-0.20)     /* S */
+         + gauss(p,0.560,0.085,0.26);     /* a long, late, broad T */
+  },
+  marks:[[0.240,'QRS'],[0.560,'LONG T']],
+  timing:{
+    atriaDepol:[0,0.10], avDelay:[0.10,0.18], his:[0.18,0.22],
+    bundles:[0.20,0.245], purkinje:[0.23,0.30],
+    atriaSqueeze:[0.05,0.20], ventSqueeze:[0.25,0.66],
+    eject:[0.30,0.60], fill:[[0.00,0.18],[0.74,1.00]]
+  },
+  steps:[
+    {chip:'Squeeze is normal', at:[0.18,0.32], html:'<b>Getting the message out is completely normal here.</b> Boss, doorman, staircases, motorway — the QRS is narrow and everything about the contraction is as it should be.'},
+    {chip:'The reset is not', at:[0.32,0.80], html:'<b>The problem is the reset.</b> After every squeeze the ventricles have to recharge before they can go again — that is the T wave. Here it takes <b>far longer than it should</b>. Look how late and how broad that T wave is.'},
+    {chip:'Measuring it', at:[0.20,0.72], html:'<b>The QT interval runs from the start of the QRS to the end of the T.</b> It should take up roughly the first half of the gap between beats. When it stretches well beyond that, the heart is spending most of its time recharging.'},
+    {chip:'A window left open', at:[0.42,0.72], html:'<b>And a long reset leaves a vulnerable window.</b> During that stretch some cells have recovered and some have not. An extra beat landing right there — <b>on the T wave</b> — finds the ventricles half ready and half not.'},
+    {chip:'What that starts', at:[0.42,0.80], html:'<b>That is how torsades begins.</b> The impulse cannot spread evenly through muscle that is half recovered, so it starts circling instead. Switch to <b>Torsades de Pointes</b> next and you will see what it turns into.'},
+    {chip:'Causes', at:[0.00,1.00], html:'<b>Some people are born with it</b>, and it can also be caused by <b>certain medicines, or by low potassium or magnesium</b>. It is worth spotting precisely because of what it can turn into.'}
+  ],
+  note:'<b>Long QT is not dangerous in itself — it is dangerous because of what it allows.</b> A long reset is an open door for the rhythm in the next entry.'
+});
+
+RHYTHMS.push({
+  key:'torsades', name:'Torsades de Pointes',
+  title:'Torsades de Pointes', sub:'Twisting of the points — the rogue voice will not stand still.',
+  rate:0, beats:0, freeRun:true, drive:'fibrillation', atrialRate:null, danger:true,
+  squeeze:0, fillFactor:0, dyssync:0, noOutput:true,
+  pulse:'PULSE: weak or absent',
+  alert:'⚠️ A FORM OF VT — can stop on its own, or degenerate into VF',
+  circuit:{ d:'M 470 430 C 530 430 566 478 566 528 C 566 578 530 620 470 620 C 410 620 374 578 374 528 C 374 478 410 430 470 430 Z', periodMs:1500 },
+  ecgTime:function(ms){
+    var fast = Math.sin(2*Math.PI*ms/250);
+    fast = (fast < 0 ? -1 : 1) * Math.pow(Math.abs(fast), 0.45);   /* sharpen it up */
+    return 0.95 * fast * Math.sin(2*Math.PI*ms/1500);              /* the twist */
+  },
+  marks:[],
+  timing:{ atriaSqueeze:[0,0], ventSqueeze:[0,0], eject:[0,0], fill:[0,0] },
+  steps:[
+    {chip:'A kind of VT', html:'<b>This is ventricular tachycardia</b> — it comes from the ventricles, it is fast, and the complexes are wide. But where ordinary VT has one rogue voice shouting from one spot, this one <b>will not stand still</b>.'},
+    {chip:'The focus moves', html:'<b>The activation keeps rotating.</b> Watch the loop turning: the point the impulse comes from is travelling around the ventricles rather than staying put, so <b>every beat is shaped differently from the last</b>.'},
+    {chip:'Twisting the points', html:'<b>That is what you are seeing on the strip.</b> The complexes grow, shrink, flip over and grow again, so the whole trace appears to twist around the baseline. <b>Torsades de pointes</b> — French for "twisting of the points".'},
+    {chip:'Where it came from', html:'<b>It usually starts on the back of a long QT.</b> A beat lands on the T wave while the ventricles are half recovered, the impulse cannot cross evenly, and it starts circling instead. Look at <b>Long QT</b> if you want to see the setup.'},
+    {chip:'No useful output', html:'<b>At this rate, twisting like this, the ventricles are not filling or emptying properly.</b> The pulse is usually weak or absent, which is what makes this an arrest rhythm rather than a curiosity.'},
+    {chip:'What it does next', html:'<b>Torsades often stops on its own</b> — bursts of it come and go, which is why some patients describe repeated collapses and recoveries. But it can also <b>degenerate into VF</b>, and then it stops being self-limiting altogether.'}
+  ],
+  note:'<b>The last three entries are one story.</b> A long reset leaves a window, a beat lands in that window, and the impulse starts circling — twisting, then possibly fibrillating. Long QT, torsades, VF.'
+});
+
 RHYTHMS.push({
   key:'block3', name:'Third Degree (Complete) Heart Block', danger:true,
   title:'Third Degree — Complete Heart Block', sub:'The door is locked. Downstairs runs on a backup generator.',
@@ -1169,7 +1278,7 @@ function mount(container){
    'lblHis','lblPurk','particles','elecLayer','flowLayer',
    'focusName','focusSub','blockName','atrialChaos','circuit','circuitPath','circuitDot',
    'waveClip','branchBlock','branchCross1','branchCross2',
-   'coronaryLayer','territory','clot','clotDot','clotLabel']
+   'coronaryLayer','territory','clot','clotDot','clotLabel','accessory']
     .forEach(function(k){ el[k] = id('rv_'+k); });
 
   /* the SVG uses class names for the two layers — scope them here */
@@ -1289,6 +1398,7 @@ function load(key){
     });
   }
   el.coronaryLayer.style.display = R.coronaries ? '' : 'none';
+  el.accessory.style.display = R.accessory ? '' : 'none';
   if(R.hideLabels){ el.labels.style.display = 'none'; el.elecLabels.style.display = 'none'; }
   else            { el.elecLabels.style.display = ''; }
   el.branchBlock.style.display = R.branchBlock ? '' : 'none';
@@ -1311,7 +1421,7 @@ function load(key){
   el.lblPurk.style.opacity = (R.drive === 'sinus') ? 1 : 0.32;
 
   /* fades are authored in milliseconds so they look the same at any rate */
-  fade = { atria:260/vCycle, his:150/vCycle, rbb:150/vCycle, lbb:150/vCycle,
+  fade = { atria:260/vCycle, his:150/vCycle, acc:200/vCycle, rbb:150/vCycle, lbb:150/vCycle,
            purkR:190/vCycle, purkL:190/vCycle };
   flashSpan = 95 / vCycle;
 
@@ -1418,6 +1528,7 @@ function draw(){
     var WIN = { atria:T.atriaDepol, his:T.his,
                 rbb:  T.rbb   !== undefined ? T.rbb   : T.bundles,
                 lbb:  T.lbb   !== undefined ? T.lbb   : T.bundles,
+                acc:  T.acc,
                 purkR:T.purkR !== undefined ? T.purkR : T.purkinje,
                 purkL:T.purkL !== undefined ? T.purkL : T.purkinje };
     segs.forEach(function(s){
