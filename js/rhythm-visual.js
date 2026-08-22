@@ -471,7 +471,7 @@ function vnoise(t, step){
 var RHYTHMS = [
 {
   key:'nsr', name:'Normal Sinus Rhythm', danger:false,
-  title:'Normal Sinus Rhythm', sub:'The reference — a well-run relay, every order in its proper order.',
+  title:'Normal Sinus Rhythm', sub:'The reference — every train away on time, by the proper route.',
   rate:75, beats:3, drive:'sinus', atrialRate:null,
   squeeze:1, fillFactor:1, dyssync:0,
   pulse:'PULSE: strong, regular', alert:null,
@@ -484,12 +484,12 @@ var RHYTHMS = [
            purkinje:[0.255,0.335], atriaSqueeze:[0.05,0.21], ventSqueeze:[0.27,0.60],
            eject:[0.32,0.56], fill:[[0.00,0.20],[0.66,1.00]] },
   steps:[
-    {chip:'P wave',    at:[0.000,0.110], html:'<b>The boss calls the move.</b> The SA node fires first, every single time, and the order sweeps across both upstairs rooms — that is the <b>P wave</b>. The atria squeeze the last of the blood down into the ventricles.'},
-    {chip:'PR segment',at:[0.110,0.222], html:'<b>The doorman holds everyone at the door</b> for about 0.1 s. The pause is deliberate: it buys the rooms downstairs time to finish filling. On the strip it is the flat line between the P wave and the QRS.'},
-    {chip:'PR → QRS',  at:[0.222,0.260], html:'Released. The order drops into the <b>bundle of His</b> — the stairwell — and splits down two staircases, the left and right <b>bundle branches</b>.'},
-    {chip:'QRS',       at:[0.260,0.340], html:'<b>The Purkinje fibres are the motorway.</b> They deliver the order to every corner of both ventricles almost at once, so the squeeze is perfectly coordinated and the QRS is <b>narrow (&lt;0.12 s)</b>.'},
+    {chip:'P wave',    at:[0.000,0.110], html:'<b>The signal box calls the departure.</b> The SA node fires first, every single time, and the order sweeps across both atria — the upper station — and that is the <b>P wave</b>. The atria squeeze the last of the blood down into the ventricles.'},
+    {chip:'PR segment',at:[0.110,0.222], html:'<b>Held at the junction.</b> The AV node keeps the order at a red signal for about 0.1 s. The pause is deliberate: it buys the ventricles below time to finish filling. On the strip it is the flat line between the P wave and the QRS.'},
+    {chip:'PR → QRS',  at:[0.222,0.260], html:'<b>Cleared.</b> The order drops into the <b>bundle of His</b> — the line down from the junction — and splits onto two branch lines, the left and right <b>bundle branches</b>.'},
+    {chip:'QRS',       at:[0.260,0.340], html:'<b>The Purkinje fibres are the fast track</b>, running to every platform in the lower station. They deliver the order to every corner of both ventricles almost at once, so the squeeze is perfectly coordinated and the QRS is <b>narrow (&lt;0.12 s)</b>.'},
     {chip:'ST segment',at:[0.340,0.440], html:'<b>Ejection.</b> The outflow valves are open and blood leaves for the lungs and the body. This is the pulse you feel.'},
-    {chip:'T wave',    at:[0.440,0.660], html:'<b>The crew resets.</b> The ventricles repolarise, ready for the next order — that is the <b>T wave</b>.'},
+    {chip:'T wave',    at:[0.440,0.660], html:'<b>The signals reset.</b> The ventricles repolarise, ready for the next order — that is the <b>T wave</b>.'},
     {chip:'Diastole',  at:[0.660,1.000], html:'<b>Diastole — the quiet bit.</b> Everything relaxes, the AV valves open and the ventricles refill. The heart&rsquo;s own coronary arteries are only fed now, which is why a very fast rate starves the heart itself.'}
   ],
   note:null
@@ -692,47 +692,47 @@ function makeBlock(o){
 
 RHYTHMS.push(makeBlock({
   key:'block1', name:'First Degree Heart Block',
-  title:'First Degree Heart Block', sub:'Everyone gets through — the doorman is just slow.',
+  title:'First Degree Heart Block', sub:'Every train gets through. The junction is just slow to clear.',
   atrialRate:70,
   beats:[{pr:0.30, conducted:true}],
   steps:[
-    {chip:'The doorway', atMs:[0,200], html:'Picture the <b>AV node as a doorway</b> between the top of the heart and the bottom, with a doorman checking everyone through. In a normal heart he is brisk. Here the atria fire perfectly normally — watch the P wave.'},
-    {chip:'A slow doorman', atMs:[90,320], html:'<b>This doorman is slow.</b> He is not turning anyone away — he simply takes his time. On the strip that shows as a <b>long flat gap between the P wave and the QRS</b>: a PR interval over <b>0.20 s</b>, more than one big square.'},
+    {chip:'The junction', atMs:[0,200], html:'Picture the <b>AV node as a junction</b> — the one point where everything from the top of the heart passes down to the bottom, and where every impulse is deliberately held at a red signal for a moment. In a normal heart that signal clears briskly. Here the atria fire perfectly normally — watch the P wave.'},
+    {chip:'Held too long', atMs:[90,320], html:'<b>This signal takes its time.</b> Nothing is being turned back — every train still departs, it simply sits at the red for longer. On the strip that shows as a <b>long flat gap between the P wave and the QRS</b>: a PR interval over <b>0.20 s</b>, more than one big square.'},
     {chip:'Nobody refused', atMs:[300,430], html:'<b>Every P wave still gets a QRS.</b> Late, but never missing. That one-to-one relationship is what makes this first degree rather than second.'},
-    {chip:'Normal squeeze', atMs:[340,700], html:'Once the message arrives, the ventricles behave normally — a proper coordinated squeeze, a normal pulse. The patient usually feels nothing at all.'},
-    {chip:'So what?', atMs:[0,857], html:'On its own this is <b>usually harmless</b> and needs no treatment. It matters as a clue: the doorway is not as quick as it once was. Worth noting, particularly alongside other findings.'}
+    {chip:'Normal squeeze', atMs:[340,700], html:'Once the order is through, the rest of the journey is entirely normal — down both branch lines and out along the fast track. A proper coordinated squeeze, a normal pulse. The patient usually feels nothing at all.'},
+    {chip:'So what?', atMs:[0,857], html:'On its own this is <b>usually harmless</b> and needs no treatment. It matters as a clue: the junction is not clearing as quickly as it once did. Worth noting, particularly alongside other findings.'}
   ],
-  note:'<b>The doorway analogy runs through all four blocks.</b> First degree is a slow doorman. Next comes one who tires, then a broken floor beneath him, then a locked door.'
+  note:'<b>One junction explains all four blocks.</b> First degree holds every train too long. Then a signalman who tires, then failing track just beyond him, then a junction closed altogether.'
 }));
 
 RHYTHMS.push(makeBlock({
   key:'block2a', name:'Second Degree Block (Mobitz I)',
-  title:'Second Degree Block — Mobitz I (Wenckebach)', sub:'The doorman gets tired, misses one, then has a rest.',
+  title:'Second Degree Block — Mobitz I (Wenckebach)', sub:'The signalman tires, misses one, then gets his rest.',
   atrialRate:80,
   beats:[{pr:0.16, conducted:true}, {pr:0.26, conducted:true},
          {pr:0.36, conducted:true}, {pr:0.36, conducted:false}],
   steps:[
-    {chip:'Fresh', atMs:[0,420], html:'<b>Beat one.</b> The <b>AV node</b> is the doorway between the top of the heart and the bottom — picture a doorman checking each impulse through. Right now he is fresh, so the first message passes quickly and the PR interval is normal.'},
-    {chip:'Tiring', atMs:[750,1200], html:'<b>Beat two — he is starting to tire.</b> Same queue, but he takes noticeably longer. The gap before this QRS is <b>wider than the last one</b>.'},
+    {chip:'Fresh', atMs:[0,420], html:'<b>Beat one.</b> The <b>AV node</b> is the junction — the single point where everything from the top of the heart passes down to the bottom, held at a red signal for a moment on the way. The signalman is fresh, so this one clears quickly and the PR interval is normal.'},
+    {chip:'Tiring', atMs:[750,1200], html:'<b>Beat two — he is starting to tire.</b> Same queue, but it sits at the red noticeably longer. The gap before this QRS is <b>wider than the last one</b>.'},
     {chip:'Struggling', atMs:[1500,2000], html:'<b>Beat three — slower still.</b> Longer again. You can watch the gap stretching before each QRS — that stretching <i>is</i> the diagnosis.'},
-    {chip:'Dropped', atMs:[2250,3000], showMarks:true, html:'<b>Beat four — he cannot manage it at all.</b> A P wave arrives, the AV node blocks it, and <b>nothing follows</b>. No QRS. That is the dropped beat, arrowed on the strip.'},
-    {chip:'Then a rest', atMs:[0,3000], html:'<b>Missing that beat gives him a rest.</b> The next P conducts quickly again and the whole thing repeats: <b>longer, longer, longer, drop</b>. That repeating group is what gives Wenckebach its clustered look.'},
-    {chip:'So what?', atMs:[0,3000], html:'The fault is at the <b>doorway itself</b> — the AV node. It is often benign, often temporary, and rarely deteriorates without warning. Usually watched rather than treated.'}
+    {chip:'Dropped', atMs:[2250,3000], showMarks:true, html:'<b>Beat four — he cannot clear it at all.</b> A P wave arrives, the junction holds it, and <b>nothing follows</b>. No QRS. That is the dropped beat, arrowed on the strip.'},
+    {chip:'Then a rest', atMs:[0,3000], html:'<b>Missing that one gives him his rest.</b> The next P clears quickly again and the whole thing repeats: <b>longer, longer, longer, drop</b>. That repeating group is what gives Wenckebach its clustered look.'},
+    {chip:'So what?', atMs:[0,3000], html:'The fault is at the <b>junction itself</b> — the AV node. It is often benign, often temporary, and rarely deteriorates without warning. Usually watched rather than treated.'}
   ],
   note:'<b>Longer, longer, longer, drop — then repeat.</b> If you can see the PR stretching before the missing beat, it is Mobitz I.'
 }));
 
 RHYTHMS.push(makeBlock({
   key:'block2b', name:'Second Degree Block (Mobitz II)',
-  title:'Second Degree Block — Mobitz II', sub:'No warning at all. The floor beyond the doorman gives way.',
+  title:'Second Degree Block — Mobitz II', sub:'No warning at all. The track beyond the junction is failing.',
   atrialRate:75, qrsWidth:13, danger:true,
   alert:'⚠️ CAN PROGRESS TO COMPLETE BLOCK WITHOUT WARNING',
   beats:[{pr:0.16, conducted:true}, {pr:0.16, conducted:true}, {pr:0.16, conducted:false}],
   steps:[
-    {chip:'Rock steady', atMs:[0,520], html:'<b>Watch the gap before each QRS.</b> That gap is the <b>AV node</b> at work — the doorway between the top of the heart and the bottom, with a doorman checking each impulse through. He is not tiring here: every message that gets through takes <b>exactly the same time</b>.'},
+    {chip:'Rock steady', atMs:[0,520], html:'<b>Watch the gap before each QRS.</b> That gap is the <b>AV node</b> at work — the junction where everything from the top of the heart is held at a red signal before passing to the bottom. Nobody is tiring here: every train that gets through waits <b>exactly the same time</b>.'},
     {chip:'Steady again', atMs:[800,1320], html:'<b>Identical again.</b> No stretching, no build-up, nothing to warn you. If you were only watching the PR interval you would think everything was fine.'},
-    {chip:'Then nothing', atMs:[1600,2400], showMarks:true, html:'<b>And then a beat simply vanishes.</b> A P wave arrives and no QRS follows it — with no change in the PR beforehand. It came out of nowhere.'},
-    {chip:'Why it differs', atMs:[0,2400], html:'<b>The doorman is fine. The floor beyond him is not.</b> The fault sits <i>below</i> the AV node, in the bundle branches — like floorboards that hold, and hold, and then one gives way with no creak first. That is also why these QRS complexes often look <b>wider</b> than normal.'},
+    {chip:'Then nothing', atMs:[1600,2400], showMarks:true, html:'<b>And then a train simply never arrives.</b> A P wave comes and no QRS follows it — with no change in the PR beforehand. It came out of nowhere.'},
+    {chip:'Why it differs', atMs:[0,2400], html:'<b>The junction is fine. The track past it is not.</b> The fault sits <i>below</i> the AV node, in the <b>bundle branches</b> — the two lines carrying the order down to the left and right ventricles. Rails that hold, and hold, and then one fails with no warning creak first. That is also why these QRS complexes often look <b>wider</b> than normal.'},
     {chip:'The danger', atMs:[0,2400], html:'Because nothing builds up to it, there is <b>no warning before it gets worse</b>. Mobitz II can go from dropping the occasional beat to blocking everything. It is treated far more seriously than Mobitz I.'}
   ],
   note:'<b>Mobitz I stretches before it drops. Mobitz II just drops.</b> That single difference is why one is watched and the other is worried about.'
@@ -1166,7 +1166,7 @@ RHYTHMS.push({
 
 RHYTHMS.push({
   key:'block3', name:'Third Degree (Complete) Heart Block', danger:true,
-  title:'Third Degree — Complete Heart Block', sub:'The door is locked. Downstairs runs on a backup generator.',
+  title:'Third Degree — Complete Heart Block', sub:'The junction is closed. The lower station runs its own timetable.',
   rate:35, drive:'ectopic', atrialRate:75,
   squeeze:0.9, fillFactor:0.85, dyssync:0.06,
   pulse:'PULSE: 35 — atria firing at 75',
@@ -1178,14 +1178,14 @@ RHYTHMS.push({
   timing:{ ectopic:[0,0.05], wave:[0.02,0.30], atriaSqueeze:[0.05,0.21],
            ventSqueeze:[0.06,0.42], eject:[0.12,0.36], fill:[[0.50,1.00]] },
   steps:[
-    {chip:'Still knocking', at:[0.00,0.30], html:'<b>The SA node has not stopped.</b> Watch the top of the heart — the atria are firing away perfectly normally, at their own steady rate. Those P waves are all over the strip.'},
-    {chip:'Door locked', at:[0.00,1.00], showMarks:true, html:'<b>But nothing gets through.</b> The <b>AV node</b> — the only doorway between the top of the heart and the bottom — is shut and locked. Not slow, not intermittent: <b>every single</b> impulse from the atria stops dead there.'},
-    {chip:'Backup generator', at:[0.00,0.30], html:'<b>The ventricles will not simply stop.</b> Somewhere below the block, a cell starts firing on its own — a <b>backup generator</b> kicking in. It is slow and it is crude, but it keeps something happening.'},
-    {chip:'Slow and wide', at:[0.04,0.45], html:'Because it starts in the muscle instead of the conducting system, it has to spread <b>cell to cell</b> — so the QRS is <b>wide</b>, and the rate is typically only <b>20–40</b>.'},
+    {chip:'Still sending', at:[0.00,0.30], html:'<b>The signal box is still sending.</b> The SA node has not stopped: watch the top of the heart and the atria are firing away perfectly normally, at their own steady rate. Those P waves are all over the strip.'},
+    {chip:'Junction closed', at:[0.00,1.00], showMarks:true, html:'<b>But nothing gets through.</b> The <b>AV node</b> — the one junction between the top of the heart and the bottom — is closed. Not slow, not intermittent: <b>every single</b> impulse from the atria stops dead there.'},
+    {chip:'A local box', at:[0.00,0.30], html:'<b>The ventricles will not simply stop.</b> Somewhere below the block a cell starts firing on its own, like a <b>local signal box</b> running its own timetable once the line from above goes dead. Slow and crude, but it keeps something moving.'},
+    {chip:'Slow and wide', at:[0.04,0.45], html:'Because it starts in the muscle instead of the conducting system, the order has to be walked along the sleepers <b>cell to cell</b> rather than run down the fast track — so the QRS is <b>wide</b>, and the rate is typically only <b>20–40</b>.'},
     {chip:'Out of step', at:[0.00,1.00], showMarks:true, html:'<b>Nothing links the two.</b> The P waves march at their rate, the QRS complexes plod along at theirs, and they simply pass through each other. No P wave has any relationship to any QRS — that is <b>complete AV dissociation</b>.'},
-    {chip:'So what?', at:[0.00,1.00], html:'<b>A backup generator was never built to run the house.</b> A rate in the thirties with no atrial kick means poor output — which is why these patients faint, and why this one is an emergency.'}
+    {chip:'So what?', at:[0.00,1.00], html:'<b>A local box was never meant to run the whole line.</b> A rate in the thirties with no atrial kick means poor output — which is why these patients faint, and why this one is an emergency.'}
   ],
-  note:'<b>All four blocks, one doorway.</b> Slow doorman, tiring doorman, broken floor, locked door. The ECG changes each time because the impulse takes a different journey — nothing about the heart itself has changed.'
+  note:'<b>All four blocks, one junction.</b> Held too long, a signalman who tires, failing track beyond him, a junction closed altogether. The ECG changes each time because the impulse takes a different journey — nothing about the heart itself has changed.'
 });
 
 
