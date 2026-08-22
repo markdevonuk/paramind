@@ -497,7 +497,7 @@ var RHYTHMS = [
 
 {
   key:'vt', name:'Ventricular Tachycardia', danger:true,
-  title:'Ventricular Tachycardia', sub:'A rogue voice in the basement, shouting orders faster than the boss.',
+  title:'Ventricular Tachycardia', sub:'A departure nobody authorised, running faster than the signal box.',
   rate:180, beats:7, drive:'ectopic', atrialRate:75,
   squeeze:0.85, fillFactor:0.40, dyssync:0.11,
   pulse:'PULSE: weak or absent', alert:'⚠️ SHOCKABLE IF PULSELESS — always check for a pulse',
@@ -507,20 +507,20 @@ var RHYTHMS = [
   timing:{ ectopic:[0,0.07], wave:[0.03,0.52], atriaSqueeze:[0.05,0.21],
            ventSqueeze:[0.16,0.62], eject:[0.26,0.56], fill:[[0.00,0.14],[0.74,1.00]] },
   steps:[
-    {chip:'Rogue voice', at:[0.00,0.10], html:'<b>Nobody asked the boss.</b> A patch of irritable ventricular muscle — often scarred or ischaemic — starts shouting its own orders, and it shouts <b>faster than the SA node</b>. The heart follows whoever is loudest.'},
-    {chip:'Hand to hand',at:[0.03,0.52], html:'<b>And it is not using the motorway.</b> The order began in muscle rather than in the conducting system, so it has to be passed <b>hand to hand</b>, cell to cell, across the ventricles. The Purkinje network sits there unused.'},
+    {chip:'Rogue departure', at:[0.00,0.10], html:'<b>Nobody authorised this.</b> A patch of irritable ventricular muscle — often scarred or ischaemic — starts sending its own departures, and it sends them <b>faster than the SA node</b>. The heart follows whichever timetable is quicker.'},
+    {chip:'Hand to hand',at:[0.03,0.52], html:'<b>And it is not using the fast track.</b> The order began in muscle rather than in the conducting system, so it has to be walked along the sleepers <b>cell to cell</b> across the ventricles. The Purkinje network sits there unused.'},
     {chip:'Wide QRS',    at:[0.06,0.55], html:'Passing it hand to hand takes far longer than the conducting fibres would, and the ECG records every millisecond of it — so the complex is <b>wide (&gt;0.12 s, more than 3 small squares)</b>. Every strip in this section runs at the same speed, so you can compare that width against a normal one.'},
-    {chip:'Out of time', at:[0.16,0.62], html:'<b>Like a rowing crew out of time.</b> One side is still pulling as the other finishes, so the ventricles never squeeze as one unit. Plenty of effort, far less blood moved.'},
+    {chip:'Out of time', at:[0.16,0.62], html:'<b>Nothing moves together.</b> One side is still contracting as the other finishes, so the ventricles never squeeze as one unit. Plenty of effort, far less blood moved.'},
     {chip:'No quiet bit',at:[0.74,1.00], html:'At <b>180 bpm there is barely any quiet bit left</b>. The ventricles hardly refill before the next order arrives, and with the atria out of the loop there is no atrial kick either. Little in means little out.'},
-    {chip:'AV dissoc.',  at:[0.00,1.00], showMarks:true, html:'<b>The boss upstairs never stopped.</b> Look at the SA node — still firing at its own steady rate, still sending orders nobody downstairs is listening to. Those P waves are on the strip, buried in the wide complexes (arrowed). That is <b>AV dissociation</b>.'},
+    {chip:'AV dissoc.',  at:[0.00,1.00], showMarks:true, html:'<b>The signal box never stopped.</b> Look at the SA node — still sending at its own steady rate, still issuing orders nobody in the lower station is listening to. Those P waves are on the strip, buried in the wide complexes (arrowed). That is <b>AV dissociation</b>.'},
     {chip:'Why it kills',at:[0.00,1.00], html:'Too fast, badly filled, out of time — <b>stroke volume can collapse</b>. The patient may have a pulse, or none at all, which is why you always check. <b>Pulseless VT is a shockable rhythm.</b>'}
   ],
-  note:'<b>Same building, same plumbing.</b> Nothing anatomical changed — one voice in the wrong place, taking the wrong route, and the ECG changes completely.'
+  note:'<b>Same track, same plumbing.</b> Nothing anatomical changed — one departure from the wrong place, taking the wrong route, and the ECG changes completely.'
 },
 
 {
   key:'vf', name:'Ventricular Fibrillation', danger:true,
-  title:'Ventricular Fibrillation', sub:'Everybody shouting at once, so nobody moves.',
+  title:'Ventricular Fibrillation', sub:'Everything departing at once, so nothing gets anywhere.',
   rate:0, beats:0, freeRun:true, drive:'fibrillation', atrialRate:null,
   squeeze:0, fillFactor:0, dyssync:0, noOutput:true,
   pulse:'PULSE: none', alert:'⚠️ CARDIAC ARREST — SHOCKABLE RHYTHM',
@@ -531,18 +531,18 @@ var RHYTHMS = [
   marks:[],
   timing:{ atriaSqueeze:[0,0], ventSqueeze:[0,0], eject:[0,0], fill:[0,0] },
   steps:[
-    {chip:'Everyone shouts', html:'<b>Not one rogue voice — hundreds.</b> Sites all over the ventricular muscle are firing at once and looping back on themselves, every one shouting a different order. Nobody is in charge of anything.'},
+    {chip:'All at once', html:'<b>Not one rogue departure — hundreds.</b> Sites all over the ventricular muscle are firing at once and looping back on themselves, every one sending a different order. Nothing is in charge of anything.'},
     {chip:'Nothing to read', html:'With no single order to follow there is <b>nothing to measure</b>. No P wave, no QRS, no T wave — just a chaotic, irregular line of varying height.'},
-    {chip:'Quivering',       html:'<b>Every fibre obeys a different shout</b>, so the muscle quivers instead of contracting. Watch it: frantic, busy, and achieving absolutely nothing.'},
+    {chip:'Quivering',       html:'<b>Every fibre is following a different order</b>, so the muscle quivers instead of contracting. Watch it: frantic, busy, and achieving absolutely nothing.'},
     {chip:'No output',       html:'Look at the blood — <b>none of it is moving</b>. No output, no pulse. The coronary arteries stop being fed as well, so the muscle itself is deteriorating every second this continues.'},
-    {chip:'Shock = silence', html:'<b>A shock is how you get silence in the room.</b> Defibrillation depolarises the whole myocardium at once so every cell falls quiet together — and in that silence the heart&rsquo;s own pacemaker, the <b>SA node</b>, gets a chance to take charge again. <b>This is a shockable rhythm.</b>'}
+    {chip:'Shock = reset', html:'<b>A shock stops the whole network at once.</b> Defibrillation depolarises the entire myocardium together so every cell falls quiet at the same moment — and in that stillness the heart&rsquo;s own signal box, the <b>SA node</b>, gets a chance to take charge again. <b>This is a shockable rhythm.</b>'}
   ],
-  note:'<b>VT and VF sit side by side for a reason.</b> Both come from the ventricles, both are shockable. VT still has one voice giving orders, however useless. VF has hundreds, and no order at all.'
+  note:'<b>VT and VF sit side by side for a reason.</b> Both come from the ventricles, both are shockable. VT still runs one timetable, however useless. VF has hundreds, and no timetable at all.'
 },
 
 {
   key:'asystole', name:'Asystole', danger:true,
-  title:'Asystole', sub:'Nobody is shouting anything. The building has gone quiet.',
+  title:'Asystole', sub:'Every signal dark. Nothing is being sent at all.',
   rate:0, beats:0, freeRun:true, drive:'silent', atrialRate:null,
   squeeze:0, fillFactor:0, dyssync:0, noOutput:true,
   pulse:'PULSE: none', alert:'⚠️ CARDIAC ARREST — NON-SHOCKABLE RHYTHM',
@@ -556,15 +556,15 @@ var RHYTHMS = [
   steps:[
     {chip:'Silence',      html:'<b>Nothing at all.</b> Nothing is firing anywhere — not the <b>SA node</b> at the top, not the <b>AV node</b> in the middle, not even a rogue patch of ventricular muscle. The wiring is all still physically there; it has simply stopped being used.'},
     {chip:'No orders',    html:'No order means <b>no contraction</b>. The muscle has nothing to respond to, so nothing moves and no blood goes anywhere.'},
-    {chip:'Never flat',   html:'<b>Even an empty building creaks.</b> A true flat line is rare — there is nearly always baseline wander and the occasional <b>agonal complex</b>. Watch the trace and one drifts past. That is why asystole is confirmed properly rather than on one glance.'},
-    {chip:'Nothing to silence', html:'<b>Shouting "quiet!" at an empty room achieves nothing.</b> A shock works by silencing chaos so order can return — here there is no activity to silence. <b>Non-shockable.</b>'}
+    {chip:'Never flat',   html:'<b>Even a dead network drifts.</b> A true flat line is rare — there is nearly always baseline wander and the occasional <b>agonal complex</b>. Watch the trace and one drifts past. That is why asystole is confirmed properly rather than on one glance.'},
+    {chip:'Nothing to silence', html:'<b>You cannot clear a line that is already empty.</b> A shock works by stopping chaos so order can return — here there is no activity to stop. <b>Non-shockable.</b>'}
   ],
-  note:'<b>VF left untreated becomes asystole</b> as the muscle runs out of energy — the shouting fades to silence. Two points on the same decline, which is why the first is shockable and the second is not.'
+  note:'<b>VF left untreated becomes asystole</b> as the muscle runs out of energy — the chaos fades to nothing. Two points on the same decline, which is why the first is shockable and the second is not.'
 },
 
 {
   key:'pea', name:'Pulseless Electrical Activity', danger:true,
-  title:'Pulseless Electrical Activity (PEA)', sub:'The orders arrive perfectly. Nobody downstairs acts on them.',
+  title:'Pulseless Electrical Activity (PEA)', sub:'The departure board is perfect. Look out of the window — nothing is moving.',
   rate:60, beats:3, drive:'sinus', atrialRate:null,
   squeeze:0.10, fillFactor:0.06, dyssync:0, noOutput:true,
   pulse:'PULSE: none', alert:'⚠️ CARDIAC ARREST — NON-SHOCKABLE RHYTHM',
@@ -579,9 +579,9 @@ var RHYTHMS = [
   steps:[
     {chip:'Orders sent',  at:[0.000,0.335], html:'<b>Watch the electrics — everything is textbook.</b> The <b>SA node</b> fires, the <b>AV node</b> holds the impulse for a moment, then it drops down the <b>bundle branches</b> and spreads out through the <b>Purkinje fibres</b>. This is the normal sequence, exactly as it should be.'},
     {chip:'Looks fine',   at:[0.240,0.400], html:'So the monitor shows <b>organised complexes</b>. P wave, narrow QRS, T wave. On the trace alone you would call this a perfusing rhythm and move on.'},
-    {chip:'Nobody acts',  at:[0.270,0.600], html:'<b>But nobody downstairs is acting on them.</b> Watch the ventricles — the order arrives and the muscle barely moves. The instruction is perfect; the response to it is not.'},
+    {chip:'Nobody acts',  at:[0.270,0.600], html:'<b>But nothing is actually moving.</b> Watch the ventricles — the order arrives and the muscle barely responds. The instruction is perfect; the response to it is not.'},
     {chip:'No output',    at:[0.320,0.560], html:'So <b>almost no blood moves</b>. Organised electrical activity, no meaningful output, <b>no pulse</b>.'},
-    {chip:'Feel for it',  at:[0.660,1.000], html:'<b>The monitor shows the orders being sent — not whether anyone obeyed them.</b> PEA cannot be spotted on the screen. The only way to find it is to <b>feel for a pulse</b>. Non-shockable, and the priority is the reversible cause.'}
+    {chip:'Feel for it',  at:[0.660,1.000], html:'<b>The monitor shows the departure board, not the platform.</b> PEA cannot be spotted on the screen. The only way to find it is to <b>feel for a pulse</b>. Non-shockable, and the priority is the reversible cause.'}
   ],
   note:'<b>This is why we say treat the patient, not the monitor.</b> PEA is the one arrest rhythm where the screen actively reassures you.'
 }
@@ -590,7 +590,7 @@ var RHYTHMS = [
 
 /* ==========================================================================
    3b. HEART BLOCKS
-   All four are stories about one thing: the AV node, the doorway between
+   All four are stories about one thing: the AV node, the junction between
    the top of the heart and the bottom. Rather than write out a dozen
    timing windows by hand, makeBlock() builds them from a simple list of
    beats — each with its own PR interval, and either conducted or dropped.
@@ -740,7 +740,7 @@ RHYTHMS.push(makeBlock({
 
 RHYTHMS.push(makeBlock({
   key:'af', name:'Atrial Fibrillation',
-  title:'Atrial Fibrillation', sub:'Everyone in the room shouting at the doorman at once.',
+  title:'Atrial Fibrillation', sub:'Every signal in the upper station firing at random.',
   noP:true, saQuiet:true, atrialChaos:true, fillFactor:0.8,
   pulse:'PULSE: irregularly irregular',
   /* A longer strip than the other rhythms, because the diagnosis of AF is
@@ -760,19 +760,19 @@ RHYTHMS.push(makeBlock({
     return 0.046*vnoise(ms, 56) + 0.026*vnoise(ms + 1700, 26);
   },
   steps:[
-    {chip:'Chaos upstairs', atMs:[0,1340], html:'<b>There is no boss any more.</b> Instead of the SA node calling one clean move, hundreds of little pockets all over the atria are firing off at random. Watch them flicker — nobody upstairs is in charge.'},
+    {chip:'Chaos upstairs', atMs:[0,1340], html:'<b>There is no signal box any more.</b> Instead of the SA node calling one clean departure, hundreds of little pockets all over the atria are firing off at random. Watch them flicker — nothing upstairs is in charge.'},
     {chip:'So no P waves',  atMs:[0,2430], html:'With no single organised atrial contraction there is <b>no P wave to find</b>. All that is left is a wobbling baseline — the <b>fibrillatory line</b> between the complexes.'},
-    {chip:'Doorman swamped',atMs:[0,6400], html:'<b>The AV node is swamped.</b> That doorway between the atria and the ventricles is being shouted at from every direction at once. It blocks most of what arrives and lets an impulse through <b>whenever it happens to be ready</b> — at completely unpredictable moments.'},
+    {chip:'Junction swamped',atMs:[0,6400], html:'<b>The AV node is swamped.</b> That junction between the atria and the ventricles is being hit from every direction at once. It holds most of what arrives and clears an impulse through <b>whenever it happens to be ready</b> — at completely unpredictable moments.'},
     {chip:'Irregularly irregular', atMs:[0,6400], html:'Look at the gaps between the QRS complexes: <b>no two the same, and no pattern to them</b>. That is what <b>irregularly irregular</b> means, and it is exactly what you feel at the wrist.'},
-    {chip:'Lost the kick',  atMs:[2050,2760], html:'Below the doorway everything is normal, so the <b>QRS stays narrow</b>. But the atria are only quivering, so there is no atrial squeeze — you lose the <b>atrial kick</b>, roughly the last fifth of ventricular filling.'},
+    {chip:'Lost the kick',  atMs:[2050,2760], html:'Below the junction everything is normal, so the <b>QRS stays narrow</b>. But the atria are only quivering, so there is no atrial squeeze — you lose the <b>atrial kick</b>, roughly the last fifth of ventricular filling.'},
     {chip:'So what?',       atMs:[0,6400], html:'Two things matter. The rate can run away with itself, and blood sitting still in a quivering atrium <b>can clot</b> — which is why AF matters far beyond the pulse you can feel.'}
   ],
-  note:'<b>Compare AF with VF.</b> Both are chaos — but AF is chaos upstairs, where the doorman shields the ventricles from it, so the patient walks around with it. VF is the same chaos downstairs with nothing to shield anything, and it is an arrest.'
+  note:'<b>Compare AF with VF.</b> Both are chaos — but AF is chaos in the upper station, where the junction shields the ventricles from it, so the patient walks around with it. VF is the same chaos in the lower station with nothing to shield anything, and it is an arrest.'
 }));
 
 RHYTHMS.push(makeBlock({
   key:'flutter', name:'Atrial Flutter',
-  title:'Atrial Flutter', sub:'One impulse stuck on a roundabout, lapping at 300 a minute.',
+  title:'Atrial Flutter', sub:'One impulse stuck on a loop line, lapping at 300 a minute.',
   noP:true, saQuiet:true, fillFactor:0.85,
   pulse:'PULSE: 150, regular',
   circuit:{ d:'M 350 264 C 382 264 404 288 404 314 C 404 342 382 366 350 366 C 318 366 296 342 296 314 C 296 288 318 264 350 264 Z', periodMs:200 },
@@ -785,38 +785,38 @@ RHYTHMS.push(makeBlock({
     return 0.28 * (x < 0.75 ? (0.5 - x/0.75) : (-0.5 + (x-0.75)/0.25));
   },
   steps:[
-    {chip:'The roundabout', atMs:[0,800], html:'<b>Not scattered like AF — one impulse, going in circles.</b> It has found a loop in the right atrium and it is lapping it about <b>300 times a minute</b>. Watch the dot going round.'},
+    {chip:'The loop line', atMs:[0,800], html:'<b>Not scattered like AF — one impulse, going round in circles.</b> It has found a loop in the right atrium and it is lapping it about <b>300 times a minute</b>. Watch the dot going round.'},
     {chip:'Sawtooth',       atMs:[0,1200], html:'<b>Every lap writes a wave on the ECG.</b> Because the laps are identical and relentless, they run together into the classic <b>sawtooth</b>. There is no flat baseline anywhere on this strip.'},
-    {chip:'Doorman filters',atMs:[0,800], html:'<b>300 a minute is far too many to pass on.</b> The <b>AV node</b> — the doorway between the atria and the ventricles — refuses most of them and typically lets through <b>every second lap</b>: 2:1 conduction. That filtering is the only reason this patient is not in serious trouble.'},
+    {chip:'Junction filters',atMs:[0,800], html:'<b>300 a minute is far too many to pass on.</b> The <b>AV node</b> — the junction between the atria and the ventricles — holds most of them and typically clears <b>every second lap</b>: 2:1 conduction. That filtering is the only reason this patient is not in serious trouble.'},
     {chip:'Regular at 150', atMs:[0,3200], html:'Because he filters at a <b>fixed ratio</b>, the ventricles fire regularly — usually bang on <b>150</b>. Any regular narrow tachycardia sitting at almost exactly 150 should make you look hard for flutter waves.'},
     {chip:'Hidden waves',   atMs:[800,1600], html:'The flutter waves <b>do not stop underneath the QRS</b> — they are simply buried by it. Look in the gaps between complexes and you can count them marching straight through.'},
-    {chip:'So what?',       atMs:[0,3200], html:'Same clot risk as AF. And the ratio can change without warning — if the doorman starts letting through <b>every</b> lap, the ventricular rate doubles to around 300.'}
+    {chip:'So what?',       atMs:[0,3200], html:'Same clot risk as AF. And the ratio can change without warning — if the junction starts clearing <b>every</b> lap, the ventricular rate doubles to around 300.'}
   ],
-  note:'<b>AF and flutter are the same problem organised differently.</b> AF is a crowd all shouting at once; flutter is one voice going round in a perfect circle. Both are handled by the same doorman.'
+  note:'<b>AF and flutter are the same problem organised differently.</b> AF is every signal firing at random; flutter is one impulse going round a perfect circle. Both are filtered by the same junction.'
 }));
 
 RHYTHMS.push(makeBlock({
   key:'svt', name:'Supraventricular Tachycardia (SVT)',
-  title:'Supraventricular Tachycardia', sub:'The message caught in a revolving door at the AV node.',
+  title:'Supraventricular Tachycardia', sub:'One order caught going round a loop at the AV node, lapping 150 times a minute.',
   noP:true, saQuiet:true, fillFactor:0.55,
   pulse:'PULSE: 180, regular',
   circuit:{ d:'M 478 336 C 498 336 514 350 514 370 C 514 390 498 404 478 404 C 458 404 442 390 442 370 C 442 350 458 336 478 336 Z', periodMs:333 },
   beats:[{gap:333,pr:0.16,conducted:true},{gap:333,pr:0.16,conducted:true},
          {gap:333,pr:0.16,conducted:true},{gap:333,pr:0.16,conducted:true}],
   steps:[
-    {chip:'Revolving door', atMs:[0,400], html:'<b>A message reaches the doorway and never leaves it.</b> Instead of passing through once, it gets caught in what is effectively a <b>revolving door</b> at the AV node, going round and round. Watch the loop spinning.'},
-    {chip:'A copy each lap',atMs:[0,1332], html:'<b>Every time it comes round, it sends another order downstairs.</b> One lap, one beat. That is why the rate is so fast and so <b>metronomically regular</b> — it is a machine, not a decision.'},
-    {chip:'Narrow QRS',     atMs:[150,520], html:'Everything <b>below</b> the doorway is completely normal — both staircases and the whole motorway are working perfectly. So the ventricles are activated the proper way and the <b>QRS stays narrow</b>. The fault is entirely at the door.'},
-    {chip:'Where are the Ps?', atMs:[0,1332], html:'The atria are being activated <b>backwards</b> from the doorway, at almost the same moment as the ventricles. So any P wave is <b>buried inside the QRS</b> — usually you simply cannot see one.'},
+    {chip:'Stuck in a loop', atMs:[0,400], html:'<b>An order reaches the junction and never leaves it.</b> Instead of passing through once, it gets caught going round and round a <b>loop through the AV node</b>. Watch the loop spinning.'},
+    {chip:'A copy each lap',atMs:[0,1332], html:'<b>Every time it comes round, it sends another order down the line.</b> One lap, one beat. That is why the rate is so fast and so <b>metronomically regular</b> — it is a machine, not a decision.'},
+    {chip:'Narrow QRS',     atMs:[150,520], html:'Everything <b>below</b> the junction is completely normal — both branch lines and the whole fast track are working perfectly. So the ventricles are activated the proper way and the <b>QRS stays narrow</b>. The fault is entirely at the junction.'},
+    {chip:'Where are the Ps?', atMs:[0,1332], html:'The atria are being activated <b>backwards</b> from the junction, at almost the same moment as the ventricles. So any P wave is <b>buried inside the QRS</b> — usually you simply cannot see one.'},
     {chip:'On like a switch', atMs:[0,1332], html:'Loops like this <b>start and stop abruptly</b>. Patients describe it beginning in an instant, which is a genuinely useful part of the history — this does not build up the way sinus tachycardia does.'},
-    {chip:'So what?',       atMs:[0,1332], html:'At this rate there is <b>very little filling time</b>, so output falls even though every beat is normal. Anything that makes the doorman briefly refuse everything — a vagal manoeuvre, for instance — can break the loop and let the boss upstairs take charge again.'}
+    {chip:'So what?',       atMs:[0,1332], html:'At this rate there is <b>very little filling time</b>, so output falls even though every beat is normal. Anything that makes the junction briefly hold everything — a vagal manoeuvre, for instance — can break the loop and let the signal box upstairs take charge again.'}
   ],
-  note:'<b>Narrow and fast and regular points at the doorway or above it.</b> Wide and fast points below it. That single question — narrow or wide — is doing most of the work when you meet a tachycardia.'
+  note:'<b>Narrow and fast and regular points at the junction or above it.</b> Wide and fast points below it. That single question — narrow or wide — is doing most of the work when you meet a tachycardia.'
 }));
 
 /* ==========================================================================
    3c. BUNDLE BRANCH BLOCKS
-   One of the two staircases below the doorway is out of action, so that
+   One of the two branch lines below the junction is out of action, so that
    ventricle has to be reached the long way — through muscle. These are the
    only two entries that show a chest lead, because that is where the
    pattern actually lives.
@@ -843,7 +843,7 @@ function makeBBB(o){
 
 RHYTHMS.push(makeBBB({
   key:'rbbb', name:'Right Bundle Branch Block (RBBB)',
-  title:'Right Bundle Branch Block', sub:'The right-hand staircase is closed. The right ventricle waits.',
+  title:'Right Bundle Branch Block', sub:'The right-hand branch line is closed. The right ventricle waits.',
   /* left branch and left Purkinje work normally; the right side never lights */
   lbb:[0.21,0.27], purkL:[0.25,0.33], rbb:[], purkR:[],
   branchBlock:'M 457 528 L 479 550 M 479 528 L 457 550',
@@ -857,19 +857,19 @@ RHYTHMS.push(makeBBB({
          + gauss(p,0.585,0.055,-0.28);        /* discordant inverted T */
   },
   steps:[
-    {chip:'Staircase closed', at:[0.00,0.25], html:'<b>Everything above is completely normal.</b> The <b>SA node</b> fires and the <b>AV node</b> passes the impulse on. Below that, the conducting system splits into two branches, one heading to each ventricle — and here the <b>right branch is out of action</b>. Watch: the impulse can only travel down the left.'},
-    {chip:'Left side on time', at:[0.21,0.34], html:'The <b>left ventricle is reached the proper way</b>, down its own staircase and out along its motorway, exactly on schedule. Nothing wrong with that side at all.'},
+    {chip:'Branch closed', at:[0.00,0.25], html:'<b>Everything above is completely normal.</b> The <b>SA node</b> fires and the <b>AV node</b> passes the impulse on. Below that, the conducting system splits into two branches, one heading to each ventricle — and here the <b>right branch is out of action</b>. Watch: the impulse can only travel down the left.'},
+    {chip:'Left side on time', at:[0.21,0.34], html:'The <b>left ventricle is reached the proper way</b>, down its own branch line and out along the fast track, exactly on schedule. Nothing wrong with that side at all.'},
     {chip:'The long way round', at:[0.30,0.62], html:'<b>The right ventricle has to be reached the long way.</b> The impulse crosses the septum and spreads through muscle, <b>cell to cell</b> — far slower than the conducting fibres it should have used, because muscle was never designed to carry signals quickly.'},
     {chip:'So the QRS is wide', at:[0.20,0.62], html:'The ECG records both activations end to end: one on time, one late. Stitch them together and the complex is <b>wide — 0.12 s or more</b>. A wide QRS always means somebody was reached the long way round.'},
     {chip:'Rabbit ears', at:[0.24,0.40], html:'That late right ventricle writes a <b>second upward spike</b> after the first — the <b>RSR&rsquo; pattern</b>, or "rabbit ears". This is why we have switched to <b>V1</b>: on a Lead II rhythm strip all you would see is "wide".'},
     {chip:'So what?', at:[0.00,1.00], html:'RBBB is <b>often an incidental finding</b> in an otherwise well person, though it can point to strain or disease on the right side of the heart. On its own it is not an emergency — but it does tell you the wiring is not intact.'}
   ],
-  note:'<b>Right or left, the principle is identical:</b> one staircase is shut, so one ventricle is reached through muscle instead of down the motorway. That delay is the whole reason the QRS is wide.'
+  note:'<b>Right or left, the principle is identical:</b> one branch line is shut, so one ventricle is reached through muscle instead of down the fast track. That delay is the whole reason the QRS is wide.'
 }));
 
 RHYTHMS.push(makeBBB({
   key:'lbbb', name:'Left Bundle Branch Block (LBBB)',
-  title:'Left Bundle Branch Block', sub:'The left-hand staircase is closed — and it is the bigger side.',
+  title:'Left Bundle Branch Block', sub:'The left-hand branch line is closed — and it is the bigger side.',
   alert:'⚠️ NEW LBBB WITH CHEST PAIN IS TREATED AS A STEMI EQUIVALENT',
   rbb:[0.21,0.27], purkR:[0.25,0.33], lbb:[], purkL:[],
   branchBlock:'M 489 534 L 511 556 M 511 534 L 489 556',
@@ -882,7 +882,7 @@ RHYTHMS.push(makeBBB({
          + gauss(p,0.590,0.058,0.34);         /* discordant positive T */
   },
   steps:[
-    {chip:'Staircase closed', at:[0.00,0.25], html:'<b>The SA node and the AV node are working perfectly.</b> The problem sits below them. The conducting system splits into a branch for each ventricle, and here the <b>left branch is out of action</b> — so the impulse can only travel down the right.'},
+    {chip:'Branch closed', at:[0.00,0.25], html:'<b>The SA node and the AV node are working perfectly.</b> The problem sits below them. The conducting system splits into a branch for each ventricle, and here the <b>left branch is out of action</b> — so the impulse can only travel down the right.'},
     {chip:'Right side on time', at:[0.21,0.34], html:'The <b>right ventricle</b> is reached normally, down its own branch and out through its Purkinje fibres, exactly on schedule.'},
     {chip:'The long way round', at:[0.30,0.66], html:'<b>Now the left ventricle has to be reached through muscle</b> — and it is the big one, with the thick wall. So the crawl takes even longer than it would on the other side.'},
     {chip:'Wide QRS', at:[0.20,0.66], html:'On time, then late, recorded end to end — a <b>wide QRS, 0.12 s or more</b>. The left ventricle being activated last and slowly is also why the T wave points the opposite way to the QRS (<b>discordance</b>).'},
@@ -934,7 +934,7 @@ RHYTHMS.push({
     {chip:'Injured cells leak', at:[0.30,0.62], occlude:'lad', html:'<b>Injured cells cannot hold their charge properly between beats.</b> That leaves a current flowing across the heart when there should be none — and the ECG has no way to describe that except by <b>lifting the baseline between the QRS and the T wave</b>.'},
     {chip:'ST elevation', at:[0.30,0.58], occlude:'lad', html:'<b>That lift is the ST elevation.</b> Look at the strip: the segment after the QRS does not come back to the baseline, it stays up and domes over into the T wave. This is a chest lead looking at the <b>front</b> of the heart, which is exactly the wall the LAD feeds.'},
     {chip:'Which artery?', at:[0.00,1.00], occlude:'rca', html:'<b>The leads tell you which pipe.</b> Watch the clot move: block the <b>RCA</b> instead and a different territory starves — the <b>bottom</b> of the heart, which shows up in the inferior leads (II, III, aVF). Front wall means LAD; bottom wall usually means RCA.'},
-    {chip:'Why that matters', at:[0.00,1.00], occlude:'rca', html:'<b>And it is not just about location.</b> In most people the RCA also supplies the <b>AV node</b> — the doorman. So an inferior MI often arrives <b>with a bradycardia or a heart block</b>, which is why those rhythms and this one turn up in the same patient.'}
+    {chip:'Why that matters', at:[0.00,1.00], occlude:'rca', html:'<b>And it is not just about location.</b> In most people the RCA also supplies the <b>AV node</b> — the junction. So an inferior MI often arrives <b>with a bradycardia or a heart block</b>, which is why those rhythms and this one turn up in the same patient.'}
   ],
   note:'<b>This is the one where the drawing does the most work.</b> Everything else in this list is about the route an impulse takes. This is about the plumbing that keeps the muscle alive — and the ECG changes because the muscle is injured, not because the wiring is.'
 });
@@ -947,12 +947,12 @@ RHYTHMS.push({
    ========================================================================== */
 RHYTHMS.push(makeBlock({
   key:'sbrady', name:'Sinus Bradycardia',
-  title:'Sinus Bradycardia', sub:'The boss is calling the moves slowly. Everything else is normal.',
+  title:'Sinus Bradycardia', sub:'The signal box running a slower timetable. Everything else is normal.',
   atrialRate:45, pulse:'PULSE: 45, regular',
   beats:[{pr:0.16, conducted:true}],
   steps:[
     {chip:'Same route', atMs:[0,420], html:'<b>Nothing here is broken.</b> The <b>SA node</b> fires, the <b>AV node</b> holds the impulse briefly, then it runs down the <b>bundle branches</b> and out through the <b>Purkinje fibres</b> — the normal route, working perfectly.'},
-    {chip:'Just slower', atMs:[0,1333], html:'<b>The only difference is how often the boss calls a move</b> — fewer than 60 times a minute. The P wave, the PR interval and the QRS are all completely normal widths. Only the gaps between beats have grown.'},
+    {chip:'Just slower', atMs:[0,1333], html:'<b>The only difference is how often the signal box calls a departure</b> — fewer than 60 times a minute. The P wave, the PR interval and the QRS are all completely normal widths. Only the gaps between beats have grown.'},
     {chip:'A long quiet bit', atMs:[700,1333], html:'<b>Look at the size of the quiet bit.</b> Diastole is enormous — so the ventricles fill beautifully, and the coronary arteries get a long, generous supply. A slow heart is a well-fed heart.'},
     {chip:'When it is fine', atMs:[0,1333], html:'This is <b>normal in fit people and during sleep</b>. A trained athlete may sit in the forties all day quite happily, because each beat is moving so much blood that the total output is still fine.'},
     {chip:'When it is not', atMs:[0,1333], html:'It matters when the <b>patient cannot compensate</b> — when the rate is so slow that output falls despite the big beats. That is why you treat the patient in front of you, not the number.'}
@@ -962,12 +962,12 @@ RHYTHMS.push(makeBlock({
 
 RHYTHMS.push(makeBlock({
   key:'stachy', name:'Sinus Tachycardia',
-  title:'Sinus Tachycardia', sub:'The boss calling the moves fast — usually for a very good reason.',
+  title:'Sinus Tachycardia', sub:'The signal box running fast — usually for a very good reason.',
   atrialRate:120, pulse:'PULSE: 120, regular',
   beats:[{pr:0.15, conducted:true}],
   steps:[
-    {chip:'Same route', atMs:[0,300], html:'<b>Again, nothing is broken.</b> The impulse takes exactly the normal route — SA node, doorman, staircases, motorway. Every P wave has a QRS and the widths are all normal.'},
-    {chip:'Just faster', atMs:[0,500], html:'<b>The boss is simply calling moves more often</b> — over 100 a minute. Notice the P waves are still there before every QRS, which is what separates this from the fast rhythms that are not sinus.'},
+    {chip:'Same route', atMs:[0,300], html:'<b>Again, nothing is broken.</b> The impulse takes exactly the normal route — SA node, junction, branch lines, fast track. Every P wave has a QRS and the widths are all normal.'},
+    {chip:'Just faster', atMs:[0,500], html:'<b>The signal box is simply calling departures more often</b> — over 100 a minute. Notice the P waves are still there before every QRS, which is what separates this from the fast rhythms that are not sinus.'},
     {chip:'The quiet bit shrinks', atMs:[280,500], html:'<b>Speeding up eats the quiet bit, not the busy bit.</b> The QRS and T take the same time as ever; it is <b>diastole</b> that gets squeezed. Less filling time per beat, and less coronary supply.'},
     {chip:'It is a symptom', atMs:[0,500], html:'<b>Sinus tachycardia is almost never the problem itself.</b> It is the heart responding to something else — pain, fear, fever, blood loss, hypoxia. The rhythm is doing its job; something else is wrong.'},
     {chip:'So what?', atMs:[0,500], html:'Which means the useful question is never "how do I slow this down", it is <b>"what is it responding to?"</b> Find that and the rate looks after itself.'}
@@ -990,7 +990,7 @@ RHYTHMS.push(makeBlock({
          {gap:830,pr:0.16,conducted:true},{gap:690,pr:0.16,conducted:true}],
   extraMarks:[[472,'short gap'],[3552,'long gap']],
   steps:[
-    {chip:'Every beat normal', atMs:[0,540], html:'<b>Take each beat on its own and it is perfect.</b> P wave, normal PR, narrow QRS, all from the SA node by the usual route. Nothing is out of place.'},
+    {chip:'Every beat normal', atMs:[0,540], html:'<b>Take each beat on its own and it is perfect.</b> P wave, normal PR, narrow QRS, all from the SA node — the signal box — by the usual route. Nothing is out of place.'},
     {chip:'But the gaps move', atMs:[0,6400], showMarks:true, html:'<b>Now look at the gaps.</b> They lengthen and shorten in a smooth, repeating way — not randomly, the way atrial fibrillation does, but gently, like a wave.'},
     {chip:'Breathing does it', atMs:[0,6400], html:'<b>That wave is the breath.</b> Breathing in briefly speeds the heart up; breathing out slows it down. It is the vagus nerve adjusting the SA node, moment to moment.'},
     {chip:'Not AF', atMs:[0,6400], html:'<b>This is the one irregular rhythm you should not worry about.</b> The giveaway is that every beat still has a normal P wave in front of it, and the change is gradual — AF has no P waves and no pattern at all.'},
@@ -1001,15 +1001,15 @@ RHYTHMS.push(makeBlock({
 
 RHYTHMS.push(makeBlock({
   key:'junctional', name:'Junctional Rhythm',
-  title:'Junctional Rhythm', sub:'The boss has gone quiet, so the doorman starts calling the moves.',
+  title:'Junctional Rhythm', sub:'The signal box has gone quiet, so the junction starts sending.',
   atrialRate:50, noP:true, saQuiet:true, pulse:'PULSE: 50, regular',
   beats:[{pr:0.16, conducted:true}],
   baseline:function(ms){ return gauss(ms % 1200, 110, 17, -0.10); },   /* retrograde P */
   steps:[
-    {chip:'Boss goes quiet', atMs:[0,300], html:'<b>The SA node has stopped calling moves</b> — look at it, grey and silent. In a heart with no backup that would be the end of it. But the conducting system has backups all the way down.'},
-    {chip:'Doorman steps up', atMs:[0,500], html:'<b>So the AV node takes the job on itself.</b> The doorway has its own built-in rate of about 40 to 60, and with nothing arriving from above, it simply starts firing on its own.'},
-    {chip:'Narrow QRS', atMs:[150,600], html:'<b>Everything below the doorway is untouched</b> — both staircases, the whole motorway. So the ventricles are activated the proper way and the <b>QRS is narrow</b>. This is a backup, but a tidy one.'},
-    {chip:'Backwards P waves', atMs:[0,1200], html:'<b>The atria get activated backwards.</b> Because the impulse starts at the doorway, it travels up into the atria as well as down — so any P wave is <b>inverted</b>, and sits right next to the QRS instead of comfortably before it.'},
+    {chip:'Signal box quiet', atMs:[0,300], html:'<b>The SA node has stopped sending</b> — look at it, grey and silent. In a heart with no backup that would be the end of it. But the conducting system has backups all the way down.'},
+    {chip:'Junction steps up', atMs:[0,500], html:'<b>So the AV node takes the job on itself.</b> The junction has its own built-in rate of about 40 to 60, and with nothing arriving from above, it simply starts sending on its own.'},
+    {chip:'Narrow QRS', atMs:[150,600], html:'<b>Everything below the junction is untouched</b> — both branch lines, the whole fast track. So the ventricles are activated the proper way and the <b>QRS is narrow</b>. This is a backup, but a tidy one.'},
+    {chip:'Backwards P waves', atMs:[0,1200], html:'<b>The atria get activated backwards.</b> Because the impulse starts at the junction, it travels up into the atria as well as down — so any P wave is <b>inverted</b>, and sits right next to the QRS instead of comfortably before it.'},
     {chip:'So what?', atMs:[0,1200], html:'<b>A junctional rhythm is a safety net doing its job.</b> It is slow and there is no atrial kick, so output is lower than normal. But the <b>higher up the system a backup sits, the better it is</b> — this one is at the AV node, so it still uses the normal conducting fibres below, which is why the QRS is narrow and the rate is 40-60 rather than 20-40.'}
   ],
   note:'<b>The heart has pacemakers all the way down.</b> SA node about 60-100, AV junction 40-60, ventricular muscle 20-40. Each takes over only when everything above it has gone quiet — and the lower you go, the slower and less reliable it gets.'
@@ -1017,16 +1017,16 @@ RHYTHMS.push(makeBlock({
 
 RHYTHMS.push(makeBlock({
   key:'pvc', name:'Premature Ventricular Complexes (PVCs)',
-  title:'Premature Ventricular Complexes', sub:'A gatecrasher from downstairs, arriving before it was asked.',
+  title:'Premature Ventricular Complexes', sub:'A departure nobody booked, straight out of the lower station.',
   atrialRate:75, pulse:'PULSE: 72 with an occasional early beat',
   wave:{ cx:560, cy:520, clip:'rv_ventMass', r:320 },
   beats:[{gap:800,pr:0.16,conducted:true},{gap:800,pr:0.16,conducted:true},
          {gap:520,pvc:true},{gap:1080,pr:0.16,conducted:true}],
   steps:[
     {chip:'Two normal beats', atMs:[0,1200], html:'<b>Start with the ordinary.</b> Two normal beats: P wave, normal PR interval, narrow QRS — each one starting at the <b>SA node</b> and travelling down by the usual route.'},
-    {chip:'Something gatecrashes', atMs:[1600,2100], showMarks:true, html:'<b>Then a beat arrives that nobody upstairs asked for.</b> A patch of ventricular muscle fires off on its own, <b>early</b> — before the next order was due. No P wave in front of it, because it did not come from the atria.'},
+    {chip:'Unbooked departure', atMs:[1600,2100], showMarks:true, html:'<b>Then a beat arrives that nobody upstairs asked for.</b> A patch of ventricular muscle fires off on its own, <b>early</b> — before the next order was due. No P wave in front of it, because it did not come from the atria.'},
     {chip:'Wide and ugly', atMs:[1600,2200], html:'<b>And it looks completely different.</b> It started in muscle, so it has to spread <b>cell to cell</b> instead of running down the fast conducting fibres — wide, tall and pointing the opposite way to the normal beats. This is exactly the mechanism behind ventricular tachycardia; a PVC is a single beat of it.'},
-    {chip:'Then a pause', atMs:[2120,3200], html:'<b>Then a pause.</b> The next order from upstairs arrives while the ventricles are still recovering, so it finds them unavailable — and everything waits until the one after that. Patients often feel the pause, not the extra beat.'},
+    {chip:'Then a pause', atMs:[2120,3200], html:'<b>Then a pause.</b> The next order from the signal box arrives while the ventricles are still recovering, so it finds them unavailable — and everything waits until the one after that. Patients often feel the pause, not the extra beat.'},
     {chip:'Back to normal', atMs:[2120,3200], html:'<b>And then it carries straight on as if nothing happened.</b> That is the pattern to recognise: normal, normal, odd one, pause, normal.'},
     {chip:'So what?', atMs:[0,3200], html:'<b>Very common, and usually harmless</b> in an otherwise well heart. They matter more when they are frequent, when they come in runs, or when the patient has chest pain — because the same muscle that fires one of these can fire a run of VT.'}
   ],
@@ -1035,20 +1035,20 @@ RHYTHMS.push(makeBlock({
 
 RHYTHMS.push(makeBlock({
   key:'pac', name:'Premature Atrial Complexes (PACs)',
-  title:'Premature Atrial Complexes', sub:'A gatecrasher from upstairs — early, but polite about it.',
+  title:'Premature Atrial Complexes', sub:'A departure nobody booked — early, but from the right end of the line.',
   atrialRate:75, pulse:'PULSE: 75 with an occasional early beat',
   wave:{ cx:560, cy:320, clip:'rv_atriaClip', r:220 },
   beats:[{gap:800,pr:0.16,conducted:true},{gap:800,pr:0.16,conducted:true},
          {gap:500,pr:0.16,conducted:true,pac:true},{gap:1100,pr:0.16,conducted:true}],
   steps:[
     {chip:'Two normal beats', atMs:[0,1200], html:'<b>Two ordinary beats to set the scene</b> — each one starting at the SA node and taking the usual route down.'},
-    {chip:'Somewhere else fires', atMs:[1600,2000], showMarks:true, html:'<b>Then a different part of the atria fires early.</b> Watch where the wave starts — not at the boss, but somewhere else upstairs entirely. It still produces a P wave, but a <b>differently shaped</b> one, because it is spreading from the wrong place.'},
+    {chip:'Somewhere else fires', atMs:[1600,2000], showMarks:true, html:'<b>Then a different part of the atria fires early.</b> Watch where the wave starts — not at the signal box, but somewhere else in the upper station entirely. It still produces a P wave, but a <b>differently shaped</b> one, because it is spreading from the wrong place.'},
     {chip:'But it uses the door', atMs:[1700,2200], html:'<b>Crucially, it still goes through the normal route.</b> Down through the <b>AV node</b>, into the bundle of His, out along both bundle branches and through the Purkinje fibres. So the <b>QRS looks completely normal and narrow</b>.'},
     {chip:'A small pause', atMs:[2160,3200], html:'<b>Then a short pause.</b> The early beat resets the SA node, so the next beat starts its timing afresh. The pause is <b>shorter</b> than the one after a PVC — a genuinely useful way to tell them apart.'},
-    {chip:'PAC or PVC?', atMs:[0,3200], html:'<b>The QRS answers it.</b> Early with a <b>narrow</b> QRS and an odd P wave = it came from upstairs, a PAC. Early with a <b>wide</b> QRS and no P at all = it came from downstairs, a PVC.'},
+    {chip:'PAC or PVC?', atMs:[0,3200], html:'<b>The QRS answers it.</b> Early with a <b>narrow</b> QRS and an odd P wave = it came from above the junction, a PAC. Early with a <b>wide</b> QRS and no P at all = it came from below it, a PVC.'},
     {chip:'So what?', atMs:[0,3200], html:'<b>Extremely common and usually of no consequence.</b> Worth knowing mainly so you can recognise them and not mistake an irregular pulse for something more sinister — though frequent PACs can be the opening act for atrial fibrillation.'}
   ],
-  note:'<b>Early beats are named by where they start, not by how early they are.</b> Upstairs gives you a narrow QRS; downstairs gives you a wide one. That single question sorts them.'
+  note:'<b>Early beats are named by where they start, not by how early they are.</b> Above the junction gives you a narrow QRS; below it gives you a wide one. That single question sorts them.'
 }));
 
 /* ==========================================================================
@@ -1056,7 +1056,7 @@ RHYTHMS.push(makeBlock({
    ========================================================================== */
 RHYTHMS.push({
   key:'wpw', name:'Wolff-Parkinson-White (WPW)',
-  title:'Wolff-Parkinson-White', sub:'Born with a side door that bypasses the doorman completely.',
+  title:'Wolff-Parkinson-White', sub:'Born with a back line that bypasses the junction completely.',
   rate:75, drive:'sinus', atrialRate:null, danger:false,
   squeeze:1, fillFactor:1, dyssync:0,
   pulse:'PULSE: 75, regular',
@@ -1078,14 +1078,14 @@ RHYTHMS.push({
     eject:[0.30,0.56], fill:[[0.00,0.20],[0.66,1.00]]
   },
   steps:[
-    {chip:'A side door', at:[0.00,0.12], html:'<b>Almost every heart has exactly one way down.</b> Everything from the atria must pass through the <b>AV node</b> — the single doorway between the top of the heart and the bottom, which deliberately holds each impulse for a moment. Some people are born with an extra strand of muscle joining atrium straight to ventricle: an <b>accessory pathway</b>. A side door, and the AV node has no idea it is there.'},
+    {chip:'A back line', at:[0.00,0.12], html:'<b>Almost every heart has exactly one way down.</b> Everything from the atria must pass through the <b>AV node</b> — the single junction between the top of the heart and the bottom, which deliberately holds each impulse at a red signal for a moment. Some people are born with an extra strand of muscle joining atrium straight to ventricle: an <b>accessory pathway</b>. An old line round the back of the junction, and the AV node has no idea it is there.'},
     {chip:'Nobody checks it', at:[0.09,0.20], html:'<b>The AV node&rsquo;s entire job is to hold each impulse for about 0.1 s.</b> The accessory pathway does nothing of the kind — the impulse walks straight through into the ventricle. That is why the <b>PR interval is short</b>.'},
     {chip:'The delta wave', at:[0.15,0.28], html:'<b>But it arrives in the wrong place.</b> It lands in ordinary muscle rather than on the fast conducting fibres, so it has to spread <b>cell to cell</b> — slowly. That sluggish start is the <b>delta wave</b>: the slurred, lazy upstroke at the beginning of the QRS.'},
     {chip:'The proper route catches up', at:[0.19,0.34], html:'<b>Meanwhile the impulse has also taken the proper route</b> — through the AV node, down the bundle branches and out along the Purkinje fibres — and once it arrives it activates everything at full speed and takes over. So the rest of the complex looks normal. You are looking at <b>two beats fused into one</b>.'},
-    {chip:'The signature', at:[0.05,0.34], html:'<b>Short PR, delta wave, slightly wide QRS.</b> The three go together and they come from the same cause: something got there early, by the wrong road.'},
-    {chip:'Why it matters', at:[0.00,1.00], html:'<b>On a normal day this causes no trouble at all.</b> The danger is if the atria start fibrillating. The AV node would normally protect the ventricles by refusing most of that chaos — but <b>the side door refuses nothing</b>, so the ventricles can be driven dangerously fast.'}
+    {chip:'The signature', at:[0.05,0.34], html:'<b>Short PR, delta wave, slightly wide QRS.</b> The three go together and they come from the same cause: something got there early, by the wrong line.'},
+    {chip:'Why it matters', at:[0.00,1.00], html:'<b>On a normal day this causes no trouble at all.</b> The danger is if the atria start fibrillating. The AV node would normally protect the ventricles by holding most of that chaos — but <b>the back line holds nothing</b>, so the ventricles can be driven dangerously fast.'}
   ],
-  note:'<b>Everything about WPW follows from one fact:</b> there is a second way in, and it has no doorman. Early arrival gives the short PR, arriving into muscle gives the delta wave, and no filtering is what makes it dangerous.'
+  note:'<b>Everything about WPW follows from one fact:</b> there is a second way in, and it has no signal on it. Early arrival gives the short PR, arriving into muscle gives the delta wave, and no filtering is what makes it dangerous.'
 });
 
 RHYTHMS.push({
@@ -1110,19 +1110,19 @@ RHYTHMS.push({
     eject:[0.30,0.60], fill:[[0.00,0.18],[0.74,1.00]]
   },
   steps:[
-    {chip:'Squeeze is normal', at:[0.18,0.32], html:'<b>Getting the message out is completely normal here.</b> SA node, AV node, bundle branches, Purkinje fibres — the impulse takes the proper route, the QRS is narrow, and the contraction is exactly as it should be.'},
+    {chip:'Squeeze is normal', at:[0.18,0.32], html:'<b>Getting the message out is completely normal here.</b> SA node, junction, branch lines, fast track — the impulse takes the proper route, the QRS is narrow, and the contraction is exactly as it should be.'},
     {chip:'The reset is not', at:[0.32,0.80], html:'<b>The problem is the reset.</b> After every squeeze the ventricles have to recharge before they can go again — that is the T wave. Here it takes <b>far longer than it should</b>. Look how late and how broad that T wave is.'},
     {chip:'Measuring it', at:[0.20,0.72], html:'<b>The QT interval runs from the start of the QRS to the end of the T.</b> It should take up roughly the first half of the gap between beats. When it stretches well beyond that, the heart is spending most of its time recharging.'},
     {chip:'A window left open', at:[0.42,0.72], html:'<b>And a long reset leaves a vulnerable window.</b> During that stretch some cells have recovered and some have not. An extra beat landing right there — <b>on the T wave</b> — finds the ventricles half ready and half not.'},
     {chip:'What that starts', at:[0.42,0.80], html:'<b>That is how torsades begins.</b> The impulse cannot spread evenly through muscle that is half recovered, so it starts circling instead — producing a fast, twisting rhythm called <b>torsades de pointes</b>, which has its own entry in this list.'},
     {chip:'Causes', at:[0.00,1.00], html:'<b>Some people are born with it</b>, and it can also be caused by <b>certain medicines, or by low potassium or magnesium</b>. It is worth spotting precisely because of what it can turn into.'}
   ],
-  note:'<b>Long QT is not dangerous in itself — it is dangerous because of what it allows.</b> A long reset is an open door for the rhythm in the next entry.'
+  note:'<b>Long QT is not dangerous in itself — it is dangerous because of what it allows.</b> A long reset leaves the line open for the rhythm in the next entry.'
 });
 
 RHYTHMS.push({
   key:'torsades', name:'Torsades de Pointes',
-  title:'Torsades de Pointes', sub:'Twisting of the points — the rogue voice will not stand still.',
+  title:'Torsades de Pointes', sub:'Twisting of the points — the rogue departure will not stay in one place.',
   rate:0, beats:0, freeRun:true, drive:'fibrillation', atrialRate:null, danger:true,
   squeeze:0, fillFactor:0, dyssync:0, noOutput:true,
   pulse:'PULSE: weak or absent',
@@ -1154,7 +1154,7 @@ RHYTHMS.push({
   marks:[],
   timing:{ atriaSqueeze:[0,0], ventSqueeze:[0,0], eject:[0,0], fill:[0,0] },
   steps:[
-    {chip:'A kind of VT', html:'<b>This is ventricular tachycardia</b> — it comes from the ventricles, it is fast, and the complexes are wide. But where ordinary VT has one rogue voice shouting from one spot, this one <b>will not stand still</b>.'},
+    {chip:'A kind of VT', html:'<b>This is ventricular tachycardia</b> — it comes from the ventricles, it is fast, and the complexes are wide. But where ordinary VT has one rogue departure from one spot, this one <b>will not stay still</b>.'},
     {chip:'The focus moves', html:'<b>The activation keeps rotating.</b> Watch the loop turning: the point the impulse comes from is travelling around the ventricles rather than staying put, so <b>every beat is shaped differently from the last</b>.'},
     {chip:'Twisting the points', html:'<b>That is what you are seeing on the strip.</b> The complexes grow, shrink, flip over and grow again, so the whole trace appears to twist around the baseline. <b>Torsades de pointes</b> — French for "twisting of the points".'},
     {chip:'Where it came from', html:'<b>It usually starts on the back of a long QT.</b> If the ventricles take too long to recharge after each beat, a stray impulse can land while some cells have recovered and some have not. It cannot cross evenly, so it starts circling instead. <b>Long QT</b> has its own entry here if you want to see the setup.'},
@@ -1607,7 +1607,7 @@ function draw(){
     el.avBlock.style.opacity = stuck ? 1 : 0;      /* the red cross on a dropped beat */
 
     /* a bundle branch block still spreads a wavefront — just late, and only
-       into the ventricle whose staircase is out of action */
+       into the ventricle whose branch line is out of action */
     if(R.wave){
       var sp = progW(p, T.wave), rr2 = sp * (R.wave.r || 300);
       el.waveFill.setAttribute('r', rr2); el.waveRing.setAttribute('r', rr2);
