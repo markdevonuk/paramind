@@ -143,6 +143,31 @@ body.qm-page .hamburger-btn:hover{background-color:rgba(61,164,184,.16);}
   font-family:var(--qm-mono); font-size:clamp(8px,1.35vmin,12px); letter-spacing:.1em; color:var(--qm-ink-faint);
 }
 
+/* ---- prize banner (hidden unless a prize is set for the month) ---- */
+.qm-prize{
+  display:none; max-width:34ch; margin:0 auto 2.6vmin; padding:1.8vmin 2.6vmin;
+  background:rgba(255,213,107,.07); border:1px solid rgba(255,213,107,.34); border-radius:1.8vmin;
+  text-align:center;
+}
+.qm-prize.on{display:block;}
+.qm-prize .plabel{
+  font-family:var(--qm-mono); font-size:clamp(8px,1.35vmin,12px); letter-spacing:.24em;
+  color:var(--qm-gold); text-transform:uppercase; margin-bottom:.9vmin;
+}
+.qm-prize .ptext{
+  font-family:var(--qm-display); font-weight:700; font-size:clamp(14px,2.3vmin,22px);
+  line-height:1.35; color:var(--qm-ink);
+}
+.qm-prize .pterms{
+  margin-top:1vmin; font-family:var(--qm-body); font-size:clamp(10px,1.55vmin,14px);
+  line-height:1.45; color:var(--qm-ink-mute);
+}
+.qm-prize .plink{
+  display:inline-block; margin-top:1.1vmin; font-family:var(--qm-mono);
+  font-size:clamp(9px,1.4vmin,12px); letter-spacing:.1em; text-transform:uppercase;
+  color:var(--qm-teal-light); text-decoration:underline; text-underline-offset:.3vmin;
+}
+
 /* ---- countdown ---- */
 .qm-ring-big{position:relative; width:44vmin; height:44vmin; max-width:280px; max-height:280px;}
 .qm-ring-big svg{width:100%; height:100%; transform:rotate(-90deg);}
@@ -302,6 +327,7 @@ body.qm-page .hamburger-btn:hover{background-color:rgba(61,164,184,.16);}
         <div class="qm-tag" id="noticeTag">Quiz of the Month</div>
         <h1 class="qm-title" style="margin-top:3vmin;" id="noticeTitle"></h1>
         <p class="qm-note" id="noticeBody"></p>
+        <div class="qm-prize" id="prizeNotice"><div class="plabel">This month’s prize</div><div class="ptext"></div><div class="pterms"></div><a class="plink" href="quiz-terms.html">Prize terms</a></div>
         <div class="qm-btn-row">
             <button class="qm-ghost" id="noticeBoardBtn">See the leaderboard</button>
             <a class="qm-ghost subtle" href="practise.html">Back to Practise</a>
@@ -313,6 +339,7 @@ body.qm-page .hamburger-btn:hover{background-color:rgba(61,164,184,.16);}
         <div class="qm-tag" id="startTag">Quiz of the Month</div>
         <h1 class="qm-title">Quiz of the<span class="big" id="startMonth">Month</span></h1>
         <p class="qm-sub">Ten questions. Ten seconds each. One attempt only — fastest clean run tops the board.</p>
+        <div class="qm-prize" id="prizeStart"><div class="plabel">This month’s prize</div><div class="ptext"></div><div class="pterms"></div><a class="plink" href="quiz-terms.html">Prize terms</a></div>
         <button class="qm-btn" id="startBtn">START</button>
         <label class="qm-optin">
             <input type="checkbox" id="showNameChk" checked>
@@ -376,6 +403,7 @@ body.qm-page .hamburger-btn:hover{background-color:rgba(61,164,184,.16);}
             <h2>Leaderboard</h2>
             <select class="qm-select" id="boardMonth"></select>
         </div>
+        <div class="qm-prize" id="prizeBoard"><div class="plabel">This month’s prize</div><div class="ptext"></div><div class="pterms"></div><a class="plink" href="quiz-terms.html">Prize terms</a></div>
         <div class="qm-board" id="boardList"></div>
         <div class="qm-btn-row" style="margin-bottom:2vmin;">
             <button class="qm-ghost subtle" id="boardBackBtn">Back</button>
@@ -424,6 +452,7 @@ var qStart = 0, runStart = 0;
 var clockRAF = null, ringRAF = null, answered = false;
 var myScore = null;        // { totalMs, correct } once written
 var boardCache = {};
+var prizeByMonth = {};   // monthId -> quiz doc, for the prize banner
 
 /* ==================== SMALL HELPERS ==================== */
 function el(id){ return document.getElementById(id); }
@@ -463,6 +492,18 @@ function esc(s){
         .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
         .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
+function renderPrize(which, data){
+    var box = el('prize' + which);
+    if (!box) return;
+    var prize = (data && data.prize) ? String(data.prize).trim() : '';
+    if (!prize){ box.classList.remove('on'); return; }
+    box.querySelector('.ptext').textContent  = prize;
+    var terms = (data && data.prizeTerms) ? String(data.prizeTerms).trim() : '';
+    box.querySelector('.pterms').textContent = terms;
+    box.querySelector('.pterms').style.display = terms ? '' : 'none';
+    box.classList.add('on');
+}
+
 function notice(title, body, tag){
     el('noticeTitle').innerHTML = title;
     el('noticeBody').textContent = body;
@@ -520,6 +561,11 @@ function loadEverything(){
             quiz = qDoc.data();
             quiz.monthId = monthId;
         }
+        // Prize details live on the quiz doc. The banner is only ever populated
+        // from a published month — a draft is not visible to players at all.
+        prizeByMonth[monthId] = published ? qDoc.data() : null;
+        renderPrize('Start',  prizeByMonth[monthId]);
+        renderPrize('Notice', prizeByMonth[monthId]);
 
         el('startMonth').textContent = monthLabel(monthId);
         el('startTag').textContent   = monthLabel(monthId);
@@ -797,6 +843,18 @@ function loadBoard(id){
 function renderBoard(id){
     var list = el('boardList');
     list.innerHTML = '<div class="qm-empty">Loading…</div>';
+
+    // Show the prize that was on offer for whichever month is being viewed.
+    if (Object.prototype.hasOwnProperty.call(prizeByMonth, id)){
+        renderPrize('Board', prizeByMonth[id]);
+    } else {
+        el('prizeBoard').classList.remove('on');
+        db.collection('quizzes').doc(id).get().then(function(d){
+            var data = (d.exists && (d.data() || {}).status === 'published') ? d.data() : null;
+            prizeByMonth[id] = data;
+            if (el('boardMonth').value === id) renderPrize('Board', data);
+        }).catch(function(){ prizeByMonth[id] = null; });
+    }
     loadBoard(id).then(function(rows){
         if (!rows.length){
             list.innerHTML = '<div class="qm-empty">No times yet. Be the first.</div>';
