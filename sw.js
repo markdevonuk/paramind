@@ -4,7 +4,7 @@
    This file enables offline functionality and caching
 */
 
-const CACHE_NAME = 'paramind-v34';
+const CACHE_NAME = 'paramind-v35';
 
 // Files to cache for offline use
 // Add your main pages and essential assets here
@@ -25,6 +25,7 @@ const ASSETS_TO_CACHE = [
   '/css/menu-v2.css',
   '/js/app.js',
   '/js/menu-v2.js',
+  '/js/rhythm-visual.js',
   '/images/icons/icon-192x192.png',
   '/images/icons/icon-512x512.png',
   '/manifest.json'
