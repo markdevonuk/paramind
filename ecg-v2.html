@@ -872,14 +872,20 @@
         </div>
         
         <!-- Mode Toggle -->
+        <!-- Learn Mode is the landing view, so its button comes first and starts
+             active. Test Yourself is hidden while the quiz is being rethought —
+             delete style="display: none;" from that button to bring it back.
+             NOTE: the internal names are historical. 'learn' is Simple ECG views
+             and 'visual' is Learn Mode; the ids match the old names, not the
+             labels, so leave them alone unless you rename them everywhere. -->
         <div class="mode-toggle">
-            <button class="mode-btn active" id="learnModeBtn" onclick="setMode('learn')">
-                <i class="bi bi-display me-2"></i>Simple View
-            </button>
-            <button class="mode-btn" id="visualModeBtn" onclick="setMode('visual')">
+            <button class="mode-btn active" id="visualModeBtn" onclick="setMode('visual')">
                 <i class="bi bi-book me-2"></i>Learn Mode
             </button>
-            <button class="mode-btn" id="quizModeBtn" onclick="setMode('quiz')">
+            <button class="mode-btn" id="learnModeBtn" onclick="setMode('learn')">
+                <i class="bi bi-display me-2"></i>Simple ECG views
+            </button>
+            <button class="mode-btn" id="quizModeBtn" onclick="setMode('quiz')" style="display: none;">
                 <i class="bi bi-patch-question me-2"></i>Test Yourself
             </button>
         </div>
@@ -1360,6 +1366,10 @@
             document.getElementById('quizAnswer').addEventListener('change', function() {
                 document.getElementById('checkAnswerBtn').disabled = !this.value;
             });
+
+            // Open on Learn Mode. Change 'visual' to 'learn' here to land on
+            // Simple ECG views instead.
+            setMode('visual');
         });
         
         // ==================== RHYTHM GRID ====================
@@ -2308,6 +2318,16 @@
     };
 
     function initTour() {
+        // The tour was written for the old page: its first step says there are
+        // three ways to study and describes the quiz, and its remaining four
+        // steps point at the Simple ECG views monitor, rhythm grid and rate
+        // slider. None of that is on screen now the page opens on Learn Mode,
+        // so the tour is held back until it is rewritten to match.
+        // It restores itself: if the page ever lands on Simple ECG views again,
+        // that monitor is visible and the tour runs exactly as before.
+        var monitor = document.getElementById('mainMonitorCard');
+        if (!monitor || monitor.offsetParent === null) return;
+
         try {
             if (localStorage.getItem('ecg_tourDone')) return;
         } catch (e) {}
