@@ -868,21 +868,24 @@
         <!-- Header -->
         <div class="ecg-header">
             <h1>🫀 ECG Rhythm Generator</h1>
-            <p>Interactive ECG learning tool for paramedics</p>
-        </div>
-        
-        <!-- Info Banner -->
-        <div class="info-banner">
-            <i class="bi bi-info-circle-fill"></i>
-            <p>Practice identifying common ECG rhythms. Use <strong>Learn Mode</strong> to study each rhythm, or <strong>Test Yourself</strong> to check your knowledge.</p>
+            <p>Interactive ECG learning tool for paramedics and students</p>
         </div>
         
         <!-- Mode Toggle -->
+        <!-- Learn Mode is the landing view, so its button comes first and starts
+             active. Test Yourself is hidden while the quiz is being rethought —
+             delete style="display: none;" from that button to bring it back.
+             NOTE: the internal names are historical. 'learn' is Simple ECG views
+             and 'visual' is Learn Mode; the ids match the old names, not the
+             labels, so leave them alone unless you rename them everywhere. -->
         <div class="mode-toggle">
-            <button class="mode-btn active" id="learnModeBtn" onclick="setMode('learn')">
+            <button class="mode-btn active" id="visualModeBtn" onclick="setMode('visual')">
                 <i class="bi bi-book me-2"></i>Learn Mode
             </button>
-            <button class="mode-btn" id="quizModeBtn" onclick="setMode('quiz')">
+            <button class="mode-btn" id="learnModeBtn" onclick="setMode('learn')">
+                <i class="bi bi-display me-2"></i>Simple ECG views
+            </button>
+            <button class="mode-btn" id="quizModeBtn" onclick="setMode('quiz')" style="display: none;">
                 <i class="bi bi-patch-question me-2"></i>Test Yourself
             </button>
         </div>
@@ -896,7 +899,7 @@
         </div>
         
         <!-- ECG Monitor -->
-        <div class="ecg-monitor-card">
+        <div class="ecg-monitor-card" id="mainMonitorCard">
             <div class="monitor-header">
                 <span class="monitor-lead">Lead II</span>
                 <div class="monitor-hr" id="monitorHR" style="color: #22c55e;">
@@ -954,6 +957,9 @@
             </div>
         </div>
         
+        <!-- Learn Mode Content (rhythm visuals) -->
+        <div id="visualContent" style="display: none;"></div>
+
         <!-- Quiz Mode Content -->
         <div id="quizContent" style="display: none;">
             <div class="quiz-card">
@@ -1023,7 +1029,6 @@
         <div class="ecg-footer">
             <p><i class="bi bi-shield-check"></i> For educational purposes only - not for clinical decision-making</p>
             <p><i class="bi bi-exclamation-circle"></i> These are simplified, single-lead examples only. Real ECGs can vary significantly in presentation across different leads, patients, and clinical contexts. Deeper learning and supervised clinical practice are essential for safe ECG interpretation.</p>
-            <p>Part of the Paramind Learning Platform</p>
         </div>
     </div>
 
@@ -1361,6 +1366,10 @@
             document.getElementById('quizAnswer').addEventListener('change', function() {
                 document.getElementById('checkAnswerBtn').disabled = !this.value;
             });
+
+            // Open on Learn Mode. Change 'visual' to 'learn' here to land on
+            // Simple ECG views instead.
+            setMode('visual');
         });
         
         // ==================== RHYTHM GRID ====================
@@ -1395,15 +1404,23 @@
             currentMode = mode;
             
             document.getElementById('learnModeBtn').classList.toggle('active', mode === 'learn');
+            document.getElementById('visualModeBtn').classList.toggle('active', mode === 'visual');
             document.getElementById('quizModeBtn').classList.toggle('active', mode === 'quiz');
             
             document.getElementById('learnContent').style.display = mode === 'learn' ? 'block' : 'none';
             document.getElementById('quizContent').style.display = mode === 'quiz' ? 'block' : 'none';
             document.getElementById('quizScore').style.display = mode === 'quiz' ? 'block' : 'none';
+            document.getElementById('visualContent').style.display = mode === 'visual' ? 'block' : 'none';
             
+            // The rhythm visuals bring their own monitor, so hide the main one in that mode
+            document.getElementById('mainMonitorCard').style.display = mode === 'visual' ? 'none' : 'block';
             document.getElementById('monitorHR').style.display = mode === 'learn' ? 'flex' : 'none';
             
-            if (mode === 'quiz') {
+            if (mode === 'visual') {
+                document.getElementById('emergencyBanner').style.display = 'none';
+                // built the first time it is opened, then reused
+                RhythmVisual.mount(document.getElementById('visualContent'));
+            } else if (mode === 'quiz') {
                 document.getElementById('emergencyBanner').style.display = 'none';
                 startQuiz();
             } else {
@@ -2257,8 +2274,8 @@
     const TOUR_STEPS = [
         {
             target: '.mode-toggle',
-            title: 'Learn & Test Modes',
-            desc: 'Switch between Learn Mode to study each rhythm at your own pace, or Test Yourself with a 25-question quiz on all the rhythms.'
+            title: 'Three ways to study',
+            desc: 'Simple View is the live ECG monitor. Learn Mode walks you through what the heart is doing to produce each rhythm. Test Yourself is a 25-question quiz.'
         },
         {
             target: '.ecg-monitor-card',
@@ -2301,6 +2318,16 @@
     };
 
     function initTour() {
+        // The tour was written for the old page: its first step says there are
+        // three ways to study and describes the quiz, and its remaining four
+        // steps point at the Simple ECG views monitor, rhythm grid and rate
+        // slider. None of that is on screen now the page opens on Learn Mode,
+        // so the tour is held back until it is rewritten to match.
+        // It restores itself: if the page ever lands on Simple ECG views again,
+        // that monitor is visible and the tour runs exactly as before.
+        var monitor = document.getElementById('mainMonitorCard');
+        if (!monitor || monitor.offsetParent === null) return;
+
         try {
             if (localStorage.getItem('ecg_tourDone')) return;
         } catch (e) {}
@@ -2449,6 +2476,7 @@
     </script>
     
     <!-- Standardised script loading -->
+    <script src="js/rhythm-visual.js"></script>
     <script src="js/app.js"></script>
     <script src="js/menu-v2.js"></script>
     <script src="js/pro-guard.js"></script>
