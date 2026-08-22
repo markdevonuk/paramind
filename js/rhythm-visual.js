@@ -359,7 +359,7 @@ var CSS = `
 .rv-layers button.rv-on{background:#fff;color:#2B8A9C;box-shadow:0 1px 2px rgba(0,0,0,.08)}
 
 .rv-stage{padding:.4rem .25rem .1rem;background:#fff;max-width:760px;margin:0 auto}
-.rv-heart{display:block;width:100%;height:auto}
+.rv-heart{display:block;width:100%;height:auto;cursor:pointer}
 .rv-layer{transition:opacity 350ms ease}
 .rv-heart.rv-hide-flow .rv-flow{opacity:0}
 .rv-heart.rv-hide-elec .rv-elec{opacity:0}
@@ -1197,7 +1197,11 @@ var W = 900, BASE = 118, SCALE = 70, HOLD_MS = 900, PAPER_MS = 3200;
 var root, el = {}, R, particles = [], segs = [], valveEls = {};
 var vCycle, aCycle, stripMs, anchorBeat;
 var phase = 0, atrialPhase = 0, freeT = 0, uiT = 0, fade = {}, flashSpan = 0.1;
-var speed = 0.35, stepIndex = 0, anim = null, last = 0, shownIndex = -1, started = false;
+/* ANIMATION SPEED. Every moving thing reads this one number: how fast a step
+   plays out, the blood particles, the atrial flicker, the free-running traces
+   and the UI pulsing. It was 0.35; halved to 0.175 so there is time to watch
+   what is happening. Put it back to 0.35 to restore the original pace. */
+var speed = 0.175, stepIndex = 0, anim = null, last = 0, shownIndex = -1, started = false;
 
 function id(x){ return document.getElementById(x); }
 function ramp(p,a,b){ if(p<=a) return 0; if(p>=b) return 1; var t=(p-a)/(b-a); return t*t*(3-2*t); }
@@ -1805,6 +1809,10 @@ function fitViewBox(){
 /* ------------------------------------------------------------ controls */
 function wireControls(){
   el.next.addEventListener('click', function(){ goStep(stepIndex+1); });
+  /* The heart itself is a second Next button. People watch the animation, not
+     the button below it, so tapping what they are already looking at moves
+     them on. The Next button is unchanged and still does exactly the same. */
+  el.heart.addEventListener('click', function(){ goStep(stepIndex+1); });
   el.prev.addEventListener('click', function(){ goStep(stepIndex-1); });
   el.layerToggle.addEventListener('click', function(e){
     var b = e.target.closest('button'); if(!b) return;
