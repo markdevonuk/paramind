@@ -10,8 +10,25 @@ var SHORT_ANSWER_CATEGORIES = [
     { id: 'respiratory',    name: 'Respiratory',        icon: 'bi-lungs',            colour: '#0DCAF0' },
     { id: 'neurological',   name: 'Neurological',       icon: 'bi-activity',         colour: '#6F42C1' },
     { id: 'sepsis',         name: 'Sepsis & infection', icon: 'bi-thermometer-half', colour: '#FD7E14' },
-    { id: 'trauma',         name: 'Trauma',             icon: 'bi-bandaid',          colour: '#198754' }
+    { id: 'trauma',         name: 'Trauma',             icon: 'bi-bandaid',          colour: '#198754' },
+    { id: 'law',            name: 'Law, ethics & professional practice', icon: 'bi-journal-check', colour: '#2B8A9C' }
 ];
+
+/* Model answer headings. Topics not listed here use the default clinical headings
+ * (Presentation / Mechanism / Physiology / Signs / Linking it together). */
+var SHORT_ANSWER_SECTION_LABELS = {
+    law: [
+        ['presentation', 'The situation'],
+        ['mechanism',    'The principle'],
+        ['physiology',   'How it applies here'],
+        ['signs',        'What you would do and why'],
+        ['linking',      'Linking it together']
+    ]
+};
+
+var SHORT_ANSWER_MODEL_INTROS = {
+    law: 'Notice how it moves from the situation, through the principle and how it applies, to what you would do and why.'
+};
 
 var SHORT_ANSWER_CASES = [
     {
@@ -2357,6 +2374,476 @@ var SHORT_ANSWER_CASES = [
                 "physiology": "Chronic hypertension means his tissues are accustomed to a much higher perfusion pressure, so 118/72 may be functionally hypotensive. Reduced beta-adrenergic responsiveness and conduction system changes blunt his ability to mount a tachycardia, while stiffened arteries and limited cardiac reserve reduce his capacity to compensate in other ways.",
                 "signs": "He therefore looks deceptively stable: a normal-looking pulse and pressure, with a raised respiratory rate as one of the few objective clues. Rib fractures occur more readily and carry a higher risk of contusion and later pneumonia.",
                 "linking": "Interpreting his numbers against his own baseline rather than a standard chart is what reveals the problem — which is why standard triage thresholds under-triage older patients."
+            }
+        }
+    },
+    {
+        "id": "sa-le-01",
+        "category": "law",
+        "title": "Refusing to go to hospital",
+        "stem": "A 46-year-old man with diabetes was found drowsy and has recovered after his blood glucose was corrected. He now says he feels fine and refuses to travel to hospital. He knows where he is, understands what you are telling him and explains clearly why he wants to stay at home.",
+        "intro": {
+            "question": "How do you decide whether this man can refuse to go to hospital?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Adults are assumed to have capacity unless there is evidence otherwise",
+                "Capacity is decided for this particular decision, at this particular time",
+                "He must be able to understand the information, retain it, weigh it up, and communicate his decision",
+                "If he can do all four, he can refuse even if you think the decision is unwise"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "A man who has recovered from a low blood glucose is refusing transport, and appears to understand his situation.",
+                "mechanism": "The Mental Capacity Act 2005 starts from the assumption that adults have capacity. Capacity is decision-specific and time-specific, and an unwise decision is not evidence of a lack of capacity.",
+                "physiology": "He needs to be able to understand the information relevant to the decision, retain it long enough to use it, weigh it up, and communicate his choice.",
+                "signs": "Give him clear information about the risks of staying at home, check his understanding, and document what you told him and how he responded.",
+                "linking": "If he meets all four parts of the test, refusing is his right, even if you disagree with it."
+            }
+        },
+        "advanced": {
+            "question": "Explain how you would assess capacity under the Mental Capacity Act 2005, and what you would document.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Principle 1: capacity is assumed unless established otherwise, and principle 3 states an unwise decision does not itself indicate incapacity",
+                "Principle 2: all practicable steps must be taken to support the person to decide before concluding they cannot",
+                "The two-stage test: (a) is there an impairment of, or disturbance in, the functioning of the mind or brain, and (b) does it mean the person is unable to make this decision",
+                "The functional test has four elements: understand, retain, use or weigh, and communicate the decision",
+                "Capacity is decision- and time-specific, so it may fluctuate — relevant after hypoglycaemia",
+                "Capacity is assessed on the balance of probabilities by the person proposing the intervention",
+                "Documentation should record the information given, the risks explained, how each element of the test was satisfied, and the person's own words"
+            ],
+            "bonusPoints": [
+                "In Scotland the Adults with Incapacity (Scotland) Act 2000 applies; Northern Ireland has the Mental Capacity Act (Northern Ireland) 2016. Relevant HCPC standards include obtaining informed consent and keeping accurate records."
+            ],
+            "modelAnswer": {
+                "presentation": "A man who has recovered from hypoglycaemia is declining transport and appears lucid, so his capacity to make this specific decision must be assessed.",
+                "mechanism": "Under the Mental Capacity Act 2005, capacity is presumed, all practicable support must be given, and an unwise decision does not by itself demonstrate incapacity.",
+                "physiology": "The two-stage test asks first whether there is an impairment or disturbance of the mind or brain, and second whether that means he cannot make this decision. Functionally, he must understand, retain, use or weigh the information, and communicate his decision. Capacity after hypoglycaemia can fluctuate, so timing matters.",
+                "signs": "Give clear information about the specific risks of remaining at home, including what should prompt him to call again and who is with him. Check understanding by asking him to explain it back. Assess on the balance of probabilities and involve him fully.",
+                "linking": "Record the information given, how each element of the test was met, his own words and any safety-netting — because the record is what shows the decision was made lawfully."
+            }
+        }
+    },
+    {
+        "id": "sa-le-02",
+        "category": "law",
+        "title": "Nobody to ask",
+        "stem": "A 71-year-old woman is found unconscious at home following a collapse. She cannot communicate. There is no family present, no advance decision and no one holding power of attorney.",
+        "intro": {
+            "question": "On what basis can you provide care to an unconscious patient who cannot consent?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "She cannot understand, weigh or communicate a decision, so she lacks capacity for it at this time",
+                "Care can be given in her best interests under the Mental Capacity Act 2005",
+                "It should be the least restrictive option that meets her needs",
+                "Any wishes, beliefs or values she is known to hold should be taken into account where they can be found"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "An unconscious woman needs care but cannot consent, and there is nobody available to speak for her.",
+                "mechanism": "The Mental Capacity Act allows action in a person's best interests when they lack capacity to decide for themselves.",
+                "physiology": "Being unconscious, she cannot understand, weigh or communicate a decision, so she lacks capacity for it at this time.",
+                "signs": "Provide the care she needs in her best interests, choosing the least restrictive option that still meets her needs, and take account of any wishes or beliefs she is known to hold.",
+                "linking": "Best interests is not simply what you think is clinically best — it includes her as a person, as far as that can be known."
+            }
+        },
+        "advanced": {
+            "question": "Explain how a best interests decision is made under the Mental Capacity Act 2005, and the limits of that authority.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Section 4 requires a structured best interests process, not simply a clinical judgement",
+                "Consider whether the person is likely to regain capacity and whether the decision can wait",
+                "Encourage participation as far as possible, even where capacity is absent",
+                "Take into account past and present wishes and feelings, beliefs and values, and any written statement",
+                "Consult others where practicable and appropriate — family, carers, an attorney or a court-appointed deputy",
+                "Choose the least restrictive option in terms of the person's rights and freedom of action (principle 5)",
+                "Best interests does not authorise treatment contrary to a valid and applicable advance decision to refuse treatment, and section 5 protects those acting reasonably in the person's best interests"
+            ],
+            "bonusPoints": [
+                "An Independent Mental Capacity Advocate may be required for serious decisions where there is nobody to consult, though this is rarely practicable in an emergency; restraint requires the additional conditions in section 6 (necessity and proportionality)."
+            ],
+            "modelAnswer": {
+                "presentation": "An unconscious patient with no advance decision, attorney or family present requires urgent care.",
+                "mechanism": "Where a person lacks capacity, section 4 of the Mental Capacity Act requires a structured best interests decision rather than a purely clinical one.",
+                "physiology": "Consider whether she may regain capacity and whether the decision can wait — in an emergency it usually cannot. Encourage participation as far as she is able, take account of any known past and present wishes, beliefs and values, and consult anyone appropriate if practicable.",
+                "signs": "Provide necessary care using the least restrictive option consistent with her needs, and look for any evidence of prior wishes, such as a written statement. Section 5 protects you when acting reasonably in her best interests.",
+                "linking": "That authority has limits: it does not override a valid and applicable advance decision, and any restraint must be both necessary and proportionate."
+            }
+        }
+    },
+    {
+        "id": "sa-le-03",
+        "category": "law",
+        "title": "\"Don't tell my wife\"",
+        "stem": "A 52-year-old man tells you privately that he has been having blackouts for months and has not told anyone, including the DVLA. He drives a school minibus twice a week. He asks you to keep it to yourself.",
+        "intro": {
+            "question": "Why might it be justified to share this information even though he asked you not to?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Confidentiality is an important professional duty, but it is not absolute",
+                "Information can be shared without consent where there is a risk of serious harm to others",
+                "Driving with untreated blackouts creates a real risk to passengers and the public",
+                "He should first be encouraged to inform the DVLA himself, and told what you intend to do and why"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "A patient has disclosed blackouts in confidence and drives a minibus carrying children.",
+                "mechanism": "Confidentiality is a core professional duty, but it can be overridden where disclosure is necessary to prevent serious harm to others.",
+                "physiology": "Driving with unexplained blackouts puts passengers and other road users at risk, and the risk is ongoing.",
+                "signs": "Explain why it matters, encourage him to tell the DVLA and stop driving until assessed, and be honest that if he does not, the information may need to be shared. Share only what is necessary, with the right person.",
+                "linking": "Keeping his confidence entirely would protect his privacy at the cost of other people's safety, which is where the duty gives way."
+            }
+        },
+        "advanced": {
+            "question": "Explain the professional and legal basis for breaching confidentiality in the public interest, and how you would approach it.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Confidentiality arises from the common law duty of confidence, data protection law (UK GDPR and the Data Protection Act 2018) and professional standards",
+                "HCPC standards require registrants to respect confidentiality but permit disclosure where required or justified",
+                "Disclosure without consent may be justified where it is necessary to prevent a risk of serious harm to the patient or others, and the benefit outweighs the loss of trust",
+                "The person should normally be told what will be shared, with whom and why, unless doing so would increase risk",
+                "Consent should be sought first, and the person encouraged to make the disclosure themselves — here, to notify the DVLA",
+                "Disclosure should be proportionate: the minimum necessary information, to the appropriate person or body",
+                "The decision and its reasoning must be documented, and advice sought from a manager or Caldicott Guardian where time allows"
+            ],
+            "bonusPoints": [
+                "Some disclosures are required by law rather than discretionary, e.g. under counter-terrorism legislation or by court order; GMC driving and DVLA guidance is a useful benchmark for the reasoning."
+            ],
+            "modelAnswer": {
+                "presentation": "A patient has disclosed recurrent blackouts in confidence and continues to drive a minibus, having not informed the DVLA.",
+                "mechanism": "The duty of confidence is grounded in common law, data protection law and HCPC standards, but it is not absolute: disclosure can be justified where necessary to prevent serious harm.",
+                "physiology": "The risk is to identifiable third parties — his passengers and other road users — and it is current and foreseeable. The public interest in preventing that harm can outweigh the interest in maintaining confidentiality.",
+                "signs": "Seek his consent first and encourage him to notify the DVLA himself, explaining why. Tell him honestly what you would share, with whom and why. Share the minimum necessary with the appropriate body, and seek advice from a manager or Caldicott Guardian if time allows.",
+                "linking": "Document the reasoning, not just the outcome — a justified disclosure is one that is necessary, proportionate and transparent, and the record is what demonstrates that."
+            }
+        }
+    },
+    {
+        "id": "sa-le-04",
+        "category": "law",
+        "title": "Something isn't right at home",
+        "stem": "You attend a 3-year-old with a minor burn to the hand. The explanation keeps changing, the child is withdrawn, and you notice several bruises of different ages. The parents are reluctant for you to examine the child and do not want a hospital visit.",
+        "intro": {
+            "question": "What are your responsibilities when you are concerned a child may be at risk?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "The child's welfare comes first, and safeguarding is everyone's responsibility",
+                "Concerns must be shared with the right people, following local safeguarding procedures",
+                "You do not need to be certain, and it is not your job to investigate or decide what happened",
+                "Record exactly what you saw and heard, using the words that were actually said"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Features of the presentation raise safeguarding concerns about a young child.",
+                "mechanism": "The child's welfare is paramount, and safeguarding is a shared professional responsibility, not something to be left to others.",
+                "physiology": "Inconsistent explanations, bruising of different ages and a withdrawn child are recognised concerns, and reluctance to attend hospital adds to them.",
+                "signs": "Raise a safeguarding referral through your local procedure, share your concerns with the receiving team, and make a clear factual record of what you saw and what was said, using the exact words used.",
+                "linking": "You don't need proof — you need a reasonable concern, because deciding what happened is the safeguarding team's job, not yours."
+            }
+        },
+        "advanced": {
+            "question": "Explain your safeguarding responsibilities in this case, including the legal and professional framework and what you would document.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "The Children Act 1989 and 2004 establish that the child's welfare is paramount and place duties on agencies to co-operate to safeguard children",
+                "Working Together to Safeguard Children sets out the multi-agency framework and expectations for referral",
+                "HCPC standards require registrants to report concerns about safety and to act in the best interests of service users",
+                "The threshold for referral is reasonable concern, not proof; suspicion does not require certainty",
+                "Consent is not required to share information where a child may be at risk of significant harm",
+                "Record objectively: what was seen, its site and appearance, who said what in their own words, who was present, and the time — without speculation or conclusions",
+                "Concerns should be escalated to the receiving clinician and via the local safeguarding route, with a named referral"
+            ],
+            "bonusPoints": [
+                "Consider other children in the household; the child's own voice should be recorded where they speak; delay in seeking care and injuries inconsistent with developmental stage are recognised indicators."
+            ],
+            "modelAnswer": {
+                "presentation": "A 3-year-old with a burn, inconsistent explanations, bruising of different ages, a withdrawn presentation and parental reluctance to attend hospital.",
+                "mechanism": "Under the Children Acts 1989 and 2004 the child's welfare is paramount, and agencies must co-operate to safeguard children. HCPC standards require registrants to report concerns about safety.",
+                "physiology": "The threshold for acting is reasonable concern, not proof, and information can be shared without consent where a child may be at risk of significant harm. Several recognised indicators are present together.",
+                "signs": "Make a safeguarding referral through the local route and hand over concerns explicitly to the receiving clinician, so nothing relies on being inferred from the notes. Consider whether other children live in the household.",
+                "linking": "Document objectively — the site and appearance of injuries, who said what in their own words, who was present and the timings — because your record may be the earliest contemporaneous account anyone has."
+            }
+        }
+    },
+    {
+        "id": "sa-le-05",
+        "category": "law",
+        "title": "A 15-year-old who wants to be seen alone",
+        "stem": "A 15-year-old girl has called about a health concern and asks that you do not tell her parents. She is articulate and appears to understand her situation. Her mother is in the next room and has not been told why the ambulance was called.",
+        "intro": {
+            "question": "Can a 15-year-old consent to her own care without her parents being told?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Young people under 16 can consent for themselves if they have enough understanding and maturity to make the decision (Gillick competence)",
+                "This is judged for the particular decision, not by age alone",
+                "If she is competent, she can also expect the same confidentiality as an adult",
+                "She should still be encouraged to involve a parent or trusted adult, and safeguarding concerns always take priority"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "A 15-year-old wants care without her parents being informed.",
+                "mechanism": "A young person under 16 can consent to their own care if they have sufficient understanding and maturity to grasp what is involved — Gillick competence.",
+                "physiology": "Competence is assessed for this specific decision, taking account of her understanding of the issue and its consequences, not simply her age.",
+                "signs": "Assess and record her understanding, encourage her to involve a parent or another trusted adult, and respect her confidentiality if she is competent and there is no safeguarding concern.",
+                "linking": "Competence gives her the same confidentiality as an adult — but if you are worried she is at risk, safeguarding always comes first."
+            }
+        },
+        "advanced": {
+            "question": "Explain the legal position on consent and confidentiality for under-16s, and how safeguarding interacts with it.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Gillick v West Norfolk and Wisbech AHA (1985) established that a child under 16 can consent if they have sufficient understanding and intelligence to understand fully what is proposed",
+                "Competence is decision-specific: a greater degree of understanding is needed for more serious or complex decisions",
+                "A competent young person is owed the same duty of confidentiality as an adult",
+                "The Fraser guidelines apply specifically to contraceptive and sexual health advice and treatment",
+                "At 16 and 17, the Family Law Reform Act 1969 allows consent to treatment as if an adult; the position on refusal is more complex and may be overridden by the court",
+                "Young people should be encouraged, but not compelled, to involve parents or another trusted adult",
+                "Confidentiality is not absolute: where there is risk of significant harm, safeguarding duties take precedence and information must be shared appropriately"
+            ],
+            "bonusPoints": [
+                "In Scotland the Age of Legal Capacity (Scotland) Act 1991 governs this area; document the basis on which competence was judged, not just the conclusion."
+            ],
+            "modelAnswer": {
+                "presentation": "A 15-year-old is seeking care and asking that her parents are not told.",
+                "mechanism": "Following Gillick, a child under 16 may consent if they have sufficient understanding and intelligence to understand fully what is proposed. Competence is decision-specific, so more complex or serious decisions require greater understanding.",
+                "physiology": "If she is competent for this decision, she is owed the same duty of confidentiality as an adult. The Fraser guidelines would apply specifically if the issue concerned contraception or sexual health.",
+                "signs": "Assess and record the basis of her competence, not just the conclusion. Encourage her to involve a parent or another trusted adult, without compelling her, and explain the limits of confidentiality honestly.",
+                "linking": "Those limits are the safeguarding ones: if she is at risk of significant harm, the duty to protect her overrides her request, and the reasoning for either course must be documented."
+            }
+        }
+    },
+    {
+        "id": "sa-le-06",
+        "category": "law",
+        "title": "A card in the drawer",
+        "stem": "An 84-year-old man with advanced illness has collapsed at home. His daughter produces a signed and witnessed document in which he refuses specific interventions if he loses capacity. She says he was clear about his wishes.",
+        "intro": {
+            "question": "What is an advance decision, and how does it affect the care you give?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "An advance decision is a way for someone with capacity to refuse specific interventions in the future, for when they can no longer decide",
+                "If it is valid and applies to the situation, it has the same legal force as a refusal made at the time",
+                "That means it must be followed, even if others disagree",
+                "If there is genuine doubt about whether it is valid or applies, care should continue while that is clarified"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "A man who now lacks capacity has an advance decision refusing specific interventions.",
+                "mechanism": "Under the Mental Capacity Act, an advance decision made with capacity is legally binding if it is valid and applicable to the situation that has arisen.",
+                "physiology": "It carries the same weight as a contemporaneous refusal, so if it applies, it must be followed rather than treated as a preference.",
+                "signs": "Check that it is his, that it applies to this situation, and that nothing suggests he has changed his mind. If there is genuine doubt, continue care while that is resolved.",
+                "linking": "Respecting it is respecting the decision he made when he could make it — not deciding on his behalf now."
+            }
+        },
+        "advanced": {
+            "question": "Explain the requirements for a valid and applicable advance decision, and how it differs from a DNACPR form.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Sections 24–26 of the Mental Capacity Act 2005 govern advance decisions to refuse treatment",
+                "The person must have been 18 or over and have had capacity when making it, and it must specify the treatment being refused",
+                "It is not valid if the person has withdrawn it, has since given someone authority to make that decision, or has acted inconsistently with it",
+                "It is not applicable if the circumstances described have not arisen, or the treatment is not the one specified",
+                "An advance decision refusing life-sustaining treatment must additionally be in writing, signed and witnessed, and state that it applies even if life is at risk",
+                "A valid and applicable advance decision is legally binding and overrides a best interests decision",
+                "A DNACPR form is a clinical recommendation about one intervention, not a legally binding refusal by the patient, though it should be respected and taken into account"
+            ],
+            "bonusPoints": [
+                "An attorney under a health and welfare LPA, if registered and given that authority, may also refuse life-sustaining treatment; in doubt, provide care while the position is clarified. ReSPECT forms record recommendations and preferences, not binding refusals."
+            ],
+            "modelAnswer": {
+                "presentation": "A signed, witnessed document refusing specific interventions has been produced for a man who now lacks capacity.",
+                "mechanism": "Sections 24–26 of the Mental Capacity Act make an advance decision binding where it is both valid and applicable. It must have been made at 18 or over, with capacity, and must specify the treatment refused.",
+                "physiology": "Validity fails if he withdrew it, later gave an attorney authority over the decision, or has acted inconsistently with it. Applicability fails if the circumstances or the treatment are not those specified. Where it refuses life-sustaining treatment, it must also be in writing, signed, witnessed and state that it applies even if life is at risk.",
+                "signs": "Check those requirements against the document in front of you and against what the family describe. If it is valid and applicable, follow it; if there is genuine doubt, continue care while it is clarified.",
+                "linking": "A DNACPR or ReSPECT form is a clinical recommendation about a specific intervention, whereas a valid advance decision is the patient's own legally binding refusal — which is why it overrides a best interests decision."
+            }
+        }
+    },
+    {
+        "id": "sa-le-07",
+        "category": "law",
+        "title": "Something went wrong",
+        "stem": "During a call, you realise a significant error has been made in the care given to a patient. The patient is now stable, and nobody else has noticed. Your crewmate suggests saying nothing because \"no harm was done\".",
+        "intro": {
+            "question": "What should you do when an error has been made in a patient's care?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Patients are entitled to be told when something has gone wrong in their care — the duty of candour",
+                "The error should be reported through the organisation's incident reporting system",
+                "Being open allows problems to be learned from, rather than repeated",
+                "Covering up an error is a serious professional failing, regardless of whether harm resulted"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "An error has occurred, the patient is unharmed so far, and a colleague suggests keeping quiet.",
+                "mechanism": "The professional duty of candour requires being open and honest with patients when something goes wrong, and HCPC standards require registrants to report concerns and be honest and trustworthy.",
+                "physiology": "The absence of obvious harm does not remove the duty, because harm may still emerge and the patient is entitled to know.",
+                "signs": "Tell the patient what happened and apologise, hand over the information to the receiving clinician, and complete an incident report so it can be reviewed.",
+                "linking": "Openness is what allows a system to learn from errors, while concealment turns a mistake into a much more serious professional failing."
+            }
+        },
+        "advanced": {
+            "question": "Explain the duty of candour and your professional obligations following a clinical error, including why concealment is treated so seriously.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "The professional duty of candour requires openness and honesty with patients when something goes wrong with their care",
+                "There is also a statutory duty of candour on organisations, triggered where a notifiable safety incident causes specified harm",
+                "HCPC standards require registrants to be honest and trustworthy, to report concerns about safety, and to deal openly with service users",
+                "Obligations include telling the patient promptly, apologising, explaining what is known, and reporting through the incident system",
+                "An apology is not an admission of legal liability",
+                "Reporting supports organisational learning and system-level improvement, rather than individual blame",
+                "Concealment compounds the original error, damages public trust, obstructs learning and may itself constitute misconduct with fitness to practise consequences"
+            ],
+            "bonusPoints": [
+                "Accurate, contemporaneous records are part of this duty; concerns about a colleague's conduct should be raised through the appropriate route, with protections for those who raise them."
+            ],
+            "modelAnswer": {
+                "presentation": "A significant error has occurred, the patient appears stable, and a colleague proposes not disclosing it.",
+                "mechanism": "The professional duty of candour requires being open and honest with patients when something goes wrong. A statutory duty also applies to organisations where a notifiable safety incident causes specified harm, and HCPC standards require honesty and the reporting of safety concerns.",
+                "physiology": "Apparent absence of harm does not extinguish the duty; harm may yet emerge, and the patient's entitlement to know does not depend on outcome.",
+                "signs": "Tell the patient promptly what happened, apologise — which is not an admission of legal liability — explain what is known, hand over clearly to the receiving clinician, and submit an incident report so the system can learn.",
+                "linking": "Concealment is treated more seriously than the error itself because it removes the chance to learn, damages public trust and can amount to misconduct in its own right."
+            }
+        }
+    },
+    {
+        "id": "sa-le-08",
+        "category": "law",
+        "title": "Outside your scope",
+        "stem": "A student paramedic on placement with you is asked by a relative to carry out a task they have not been signed off for. The student is confident, the task would save time, and you are busy with another patient.",
+        "intro": {
+            "question": "Why does it matter to work only within your scope of practice?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Your scope of practice is what you have been trained, assessed and authorised to do",
+                "Working outside it risks patient safety, because competence has not been demonstrated",
+                "HCPC standards require registrants to practise within their scope and to seek help when needed",
+                "Supervisors are responsible for ensuring students are appropriately supervised and not asked to work beyond their competence"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "A student is being asked to perform a task they have not been assessed as competent to carry out.",
+                "mechanism": "HCPC standards require registrants to practise only within their scope of practice and to refer or seek help when a task is outside it.",
+                "physiology": "The student's confidence is not the same as demonstrated competence, and time pressure does not change what they are authorised to do.",
+                "signs": "Explain politely to the relative why the task will be done differently, carry it out yourself or arrange appropriate support, and use it as a teaching point with the student.",
+                "linking": "Scope of practice exists to protect patients, and supervision is your responsibility as well as the student's."
+            }
+        },
+        "advanced": {
+            "question": "Explain the professional responsibilities around scope of practice, delegation and supervision.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "HCPC Standards of Conduct, Performance and Ethics require registrants to keep within their scope of practice and refer on when a task is beyond it",
+                "Scope reflects training, assessment, authorisation by the employer and maintained competence, and can change over time",
+                "Competence is evidenced through assessment and sign-off, not self-assessed confidence",
+                "A registrant delegating a task remains accountable for the decision to delegate, including whether it was appropriate and adequately supervised",
+                "The person carrying out the task is accountable for their own actions and must decline tasks beyond their competence",
+                "Practice guidance and local policy define what students may do and the level of supervision required",
+                "Pressure of time, staffing or patient or relative expectation does not justify working beyond scope"
+            ],
+            "bonusPoints": [
+                "Registrants must also maintain competence through CPD and can be called to account for practising beyond scope even where no harm resulted; employers' vicarious liability does not remove individual professional accountability."
+            ],
+            "modelAnswer": {
+                "presentation": "A student is asked to perform a task they have not been signed off for, under time pressure and with limited supervision available.",
+                "mechanism": "HCPC standards require registrants to work within their scope of practice and to refer on where a task lies beyond it. Scope is defined by training, assessment, employer authorisation and maintained competence.",
+                "physiology": "Confidence is not evidence of competence, and local practice guidance sets out what a student may do and the supervision required. Neither relative expectation nor time pressure alters that.",
+                "signs": "Decline the task on the student's behalf, explain briefly and courteously why, perform or arrange it appropriately yourself, and debrief with the student afterwards so the boundary is understood rather than resented.",
+                "linking": "Accountability sits in both places: the student is accountable for their own actions, and you remain accountable for the decision to delegate and for the supervision you provided."
+            }
+        }
+    },
+    {
+        "id": "sa-le-09",
+        "category": "law",
+        "title": "A post you'd rather not have seen",
+        "stem": "A colleague posts on social media about an unusual call from their shift. No name or address is given, but the post mentions the town, the time of day, the type of incident and the patient's approximate age. It has been shared widely.",
+        "intro": {
+            "question": "Why can a social media post like this breach confidentiality even without naming the patient?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Confidentiality covers any information from which a patient could be identified, not just their name",
+                "Small details combined — place, time, age and the type of incident — can be enough to identify someone locally",
+                "Patients must be able to trust that what happens on a call is not shared publicly",
+                "Posts like this can also damage public confidence in the profession and breach HCPC standards"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "A colleague has posted identifiable details about a call on social media.",
+                "mechanism": "Confidentiality applies to any information from which a patient might be identified, and HCPC standards require registrants to keep information confidential and to behave in a way that maintains public confidence.",
+                "physiology": "A town, a time, an incident type and an age can together identify someone in a small community, even with no name given.",
+                "signs": "Raise it with the colleague directly if appropriate, and escalate through the proper route if it is not addressed, because the post is still public.",
+                "linking": "Anonymity is not just the absence of a name — it's whether anyone could work out who is being described."
+            }
+        },
+        "advanced": {
+            "question": "Explain the professional standards governing social media use, and the responsibilities of a colleague who sees such a post.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "HCPC Standards of Conduct, Performance and Ethics apply to conduct outside as well as inside work, including online",
+                "Confidential information includes anything from which a patient could be identified, directly or in combination — the \"jigsaw\" effect",
+                "Content remains confidential even if a post is deleted, restricted to \"friends\" or shared in a closed group",
+                "Registrants must maintain public confidence in the profession; derogatory or disrespectful content can affect fitness to practise",
+                "Data protection law also applies to personal data processed in this way",
+                "There is a duty to raise concerns where a colleague's conduct puts confidentiality, safety or public trust at risk",
+                "Concerns should be raised first with the individual where safe and appropriate, then escalated through local procedures if not resolved"
+            ],
+            "bonusPoints": [
+                "Registrants have been referred to fitness to practise proceedings over social media posts; protections exist for those who raise concerns in good faith."
+            ],
+            "modelAnswer": {
+                "presentation": "A colleague's social media post describes a call in enough detail to risk identifying the patient.",
+                "mechanism": "HCPC standards apply to conduct online as well as at work. Confidential information is anything from which a patient could be identified, and identification often arises from combining details rather than from a name — the jigsaw effect.",
+                "physiology": "Town, time, incident type and approximate age together may readily identify someone locally. Deleting the post or limiting its audience does not undo the disclosure, and wide sharing increases the risk. Data protection law also applies.",
+                "signs": "Raise it with the colleague first where that is safe and appropriate, since the quickest way to limit harm is removal of the post, and escalate through local procedures if it is not addressed.",
+                "linking": "The duty to raise concerns exists precisely because confidentiality and public trust are collective, not individual — staying silent leaves the breach in place."
+            }
+        }
+    },
+    {
+        "id": "sa-le-10",
+        "category": "law",
+        "title": "A colleague you're worried about",
+        "stem": "Over several weeks you have noticed a colleague arriving late, smelling of alcohol on two occasions, and making uncharacteristic errors with documentation. They are a friend, and they ask you not to say anything because they are going through a difficult divorce.",
+        "intro": {
+            "question": "What should you do when you are worried a colleague's conduct may put patients at risk?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Patient safety comes before loyalty to a colleague or friend",
+                "HCPC standards require registrants to report concerns about safety",
+                "Concerns should be raised through the appropriate route, usually with a manager, rather than dealt with informally and left there",
+                "Raising a concern is not the same as making an accusation, and the colleague can also be supported"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "A colleague and friend shows signs that may affect their fitness to work safely, and has asked you to say nothing.",
+                "mechanism": "HCPC standards require registrants to report concerns about safety, and patient safety takes priority over personal loyalty.",
+                "physiology": "Repeated lateness, alcohol on the breath and uncharacteristic errors together raise a reasonable concern about patient safety, whatever the underlying cause.",
+                "signs": "Raise it with your manager through the proper route, encourage your colleague to seek support, and record what you observed factually.",
+                "linking": "Raising a concern isn't a betrayal — it's what allows your colleague to be supported before someone is harmed."
+            }
+        },
+        "advanced": {
+            "question": "Explain the professional duty to raise concerns, how you would do so, and the protections that exist for those who raise them.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "HCPC Standards of Conduct, Performance and Ethics require registrants to report concerns about safety, including concerns about colleagues",
+                "The duty applies where there is a reasonable concern; it is not necessary to have proof or to have investigated",
+                "Concerns should normally be raised first with a line manager or through the employer's local procedure, and escalated if not acted upon",
+                "Serious or unresolved concerns may be raised with the regulator or another appropriate body",
+                "Records should be factual and contemporaneous: what was observed, when, and what was said",
+                "The Public Interest Disclosure Act 1998 provides protection from detriment for qualifying protected disclosures made in the public interest",
+                "Health concerns may be managed supportively, including occupational health referral; a health condition does not remove the duty to act where patients may be at risk"
+            ],
+            "bonusPoints": [
+                "Failing to raise concerns can itself be a fitness to practise issue; being a friend does not create a competing professional duty."
+            ],
+            "modelAnswer": {
+                "presentation": "A colleague and friend shows a pattern of behaviour that may affect their ability to practise safely, and has asked for your silence.",
+                "mechanism": "HCPC standards require registrants to report concerns about safety, including about colleagues. The threshold is reasonable concern, not proof, and it is not your role to investigate.",
+                "physiology": "Repeated lateness, alcohol on the breath and uncharacteristic documentation errors form a pattern rather than an isolated event, and the potential consequences fall on patients.",
+                "signs": "Raise it with your line manager or through the employer's procedure, escalating if it is not acted upon, and record factually what you observed and when. Encourage your colleague towards support, which may include occupational health.",
+                "linking": "Protections such as the Public Interest Disclosure Act exist because raising concerns is expected, not optional — and failing to raise them can itself become a fitness to practise matter."
             }
         }
     }

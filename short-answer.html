@@ -383,7 +383,7 @@
 
                 <div class="sa-model">
                     <h3>Model answer</h3>
-                    <p class="sa-model-intro">Notice how it moves from the presentation, through the mechanism and physiology, to the signs, and then ties them together.</p>
+                    <p class="sa-model-intro" id="modelAnswerIntro"></p>
                     <div id="modelAnswer" data-explain="longpress"></div>
                 </div>
 
@@ -443,6 +443,10 @@
             ['signs',        'Signs'],
             ['linking',      'Linking it together']
         ];
+        var DEFAULT_MODEL_INTRO = 'Notice how it moves from the presentation, through the mechanism and physiology, to the signs, and then ties them together.';
+        // Some topics (e.g. law and ethics) use their own headings — see js/short-answer-data.js
+        var SECTION_LABELS = (typeof SHORT_ANSWER_SECTION_LABELS !== 'undefined') ? SHORT_ANSWER_SECTION_LABELS : {};
+        var MODEL_INTROS    = (typeof SHORT_ANSWER_MODEL_INTROS !== 'undefined') ? SHORT_ANSWER_MODEL_INTROS : {};
         var LEVEL_NAMES = { intro: 'Introduction', advanced: 'Advanced' };
         var LEVEL_HINTS = {
             intro:    'First-year questions, about 100 words',
@@ -717,7 +721,9 @@
 
             // Model answer — only ever shown after a marked attempt
             var ma = k[level].modelAnswer;
-            $('modelAnswer').innerHTML = MODEL_SECTIONS.map(function (s) {
+            var sections = SECTION_LABELS[k.category] || MODEL_SECTIONS;
+            $('modelAnswerIntro').textContent = MODEL_INTROS[k.category] || DEFAULT_MODEL_INTRO;
+            $('modelAnswer').innerHTML = sections.map(function (s) {
                 return '<div class="sa-model-section"><div class="sa-model-label">' + s[1] + '</div>' +
                     '<div class="sa-model-text">' + esc(ma[s[0]]) + '</div></div>';
             }).join('');
