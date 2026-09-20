@@ -6,10 +6,11 @@
  * Content policy: no drug names, doses, treatment or management.
  */
 var SHORT_ANSWER_CATEGORIES = [
-    { id: 'cardiovascular', name: 'Cardiovascular',      icon: 'bi-heart-pulse',  colour: '#DC3545' },
-    { id: 'respiratory',    name: 'Respiratory',         icon: 'bi-lungs',        colour: '#0DCAF0' },
-    { id: 'neurological',   name: 'Neurological',        icon: 'bi-activity',     colour: '#6F42C1' },
-    { id: 'sepsis',         name: 'Sepsis & infection',  icon: 'bi-thermometer-half', colour: '#FD7E14' }
+    { id: 'cardiovascular', name: 'Cardiovascular',     icon: 'bi-heart-pulse',      colour: '#DC3545' },
+    { id: 'respiratory',    name: 'Respiratory',        icon: 'bi-lungs',            colour: '#0DCAF0' },
+    { id: 'neurological',   name: 'Neurological',       icon: 'bi-activity',         colour: '#6F42C1' },
+    { id: 'sepsis',         name: 'Sepsis & infection', icon: 'bi-thermometer-half', colour: '#FD7E14' },
+    { id: 'trauma',         name: 'Trauma',             icon: 'bi-bandaid',          colour: '#198754' }
 ];
 
 var SHORT_ANSWER_CASES = [
@@ -1886,6 +1887,476 @@ var SHORT_ANSWER_CASES = [
                 "physiology": "Within the vegetation, bacteria are shielded from immune cells and multiply. Organisms are shed into the blood intermittently, while the vegetation itself progressively damages the valve and can shed fragments downstream.",
                 "signs": "Intermittent bacteraemia produces prolonged, relapsing fever, sweats and malaise. Valve damage causes the new murmur. Small emboli and immune complex deposition produce splinter haemorrhages and similar peripheral signs; right-sided lesions embolise to the lungs, left-sided ones systemically.",
                 "linking": "A protected reservoir of bacteria on a valve explains all three elements — the long fever, the changing murmur and the distant signs in the fingers."
+            }
+        }
+    },
+    {
+        "id": "sa-tr-01",
+        "category": "trauma",
+        "title": "Normal blood pressure after significant blood loss",
+        "stem": "A 24-year-old man came off his motorbike at speed. He has an obvious open lower leg fracture and abdominal tenderness. HR 118, BP 124/96, RR 24, and his hands are cool with a capillary refill of 3 seconds. He is anxious.",
+        "intro": {
+            "question": "Why can a young person who has lost a lot of blood still have a normal blood pressure?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "When blood is lost, the body compensates to keep blood pressure up",
+                "The heart beats faster to maintain the amount of blood pumped each minute",
+                "Blood vessels in the skin and limbs narrow, which keeps the pressure up and sends blood to vital organs",
+                "Young, fit people compensate very well, so blood pressure may stay normal until they have lost a lot — then it falls quickly"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "A fast pulse, fast breathing, cool hands, slow capillary refill and anxiety after significant trauma suggest blood loss, even though his blood pressure reads normally.",
+                "mechanism": "He is bleeding from his leg and possibly inside his abdomen.",
+                "physiology": "As blood volume falls, the body speeds the heart up and narrows blood vessels in the skin and limbs to keep blood pressure up and protect the vital organs.",
+                "signs": "That compensation explains his fast pulse, cool hands and slow refill. His anxiety reflects the stress response and reduced blood flow to the brain.",
+                "linking": "A normal blood pressure here is a sign of successful compensation, not of safety — and in a fit young man it can fail suddenly."
+            }
+        },
+        "advanced": {
+            "question": "Explain the compensatory mechanisms in haemorrhagic shock and why blood pressure is a late sign. Link this to his narrowed pulse pressure.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Blood loss reduces venous return and preload, lowering stroke volume (Frank–Starling)",
+                "Baroreceptors in the carotid sinus and aortic arch detect reduced stretch and increase sympathetic outflow",
+                "Sympathetic activation increases heart rate and contractility, maintaining cardiac output (CO = HR × SV)",
+                "Arteriolar vasoconstriction raises systemic vascular resistance, maintaining mean arterial pressure and diverting blood from skin, muscle and gut to brain and heart",
+                "Vasoconstriction raises diastolic pressure while stroke volume falls, so pulse pressure narrows — an earlier sign than a falling systolic",
+                "Fluid shifts from the interstitium into capillaries, and RAAS and ADH conserve salt and water",
+                "Systolic pressure falls only once compensation is overwhelmed, typically after around 30% volume loss — and decompensation can then be rapid"
+            ],
+            "bonusPoints": [
+                "Catecholamines cause anxiety and agitation; ongoing hypoperfusion drives anaerobic metabolism, lactate production and acidosis."
+            ],
+            "modelAnswer": {
+                "presentation": "Tachycardia, tachypnoea, cool peripheries, delayed capillary refill, anxiety and a narrow pulse pressure (124/96) after high-energy trauma indicate compensated haemorrhagic shock.",
+                "mechanism": "Blood loss from his open fracture and possible intra-abdominal injury has reduced circulating volume.",
+                "physiology": "Reduced venous return lowers preload and stroke volume. Baroreceptors detect the fall and increase sympathetic outflow, raising heart rate and contractility to preserve cardiac output, while arteriolar vasoconstriction raises systemic vascular resistance and redistributes flow away from skin, muscle and gut. RAAS and ADH conserve salt and water, and fluid shifts from the interstitium into the capillaries.",
+                "signs": "Vasoconstriction raises diastolic pressure while a falling stroke volume lowers systolic pressure, narrowing his pulse pressure — an earlier warning than hypotension. Cool, slow-refilling skin shows where flow has been sacrificed, and catecholamines explain his anxiety.",
+                "linking": "In a fit young adult these mechanisms hold blood pressure up until roughly a third of volume is lost, which is why waiting for hypotension means waiting too long."
+            }
+        }
+    },
+    {
+        "id": "sa-tr-02",
+        "category": "trauma",
+        "title": "A crushed chest",
+        "stem": "A 63-year-old man was crushed between a vehicle and a wall. A segment of his left chest wall moves inwards when he breathes in. RR 32, SpO₂ 88%, and breathing is clearly painful.",
+        "intro": {
+            "question": "Why does part of his chest move the wrong way when he breathes, and why is his oxygen low?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Several ribs are broken in more than one place, so a section of chest wall is no longer connected to the rest",
+                "That section is pulled inwards by the pressure change when he breathes in, instead of moving out with the chest",
+                "This makes breathing much less efficient, and the pain stops him taking deep breaths",
+                "The lung underneath is also bruised, so oxygen cannot pass into the blood as well"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "A section of chest wall moving inwards on inspiration, with fast, painful breathing and low oxygen, indicates a flail chest.",
+                "mechanism": "The crush has broken several ribs in more than one place, freeing a segment of the chest wall.",
+                "physiology": "During inspiration the pressure inside the chest falls, so instead of moving outwards, the free segment is pulled inwards. Breathing becomes much less efficient, and pain limits how deeply he can breathe.",
+                "signs": "The paradoxical movement is visible, his breathing is fast, and his oxygen is low, worsened by bruising of the lung underneath.",
+                "linking": "The broken chest wall and the bruised lung beneath it both reduce the oxygen reaching his blood."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of flail chest and pulmonary contusion, and why hypoxaemia develops.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Fractures of three or more consecutive ribs in two or more places create a free-floating segment",
+                "Normally the chest wall moves outwards during inspiration as intrapleural pressure falls; a flail segment is drawn inwards instead — paradoxical movement",
+                "This reduces the efficiency of ventilation and increases the work of breathing",
+                "Pain causes splinting, reduced tidal volume and impaired cough, promoting atelectasis and retained secretions",
+                "The underlying lung is contused: alveolar haemorrhage and oedema impair gas exchange",
+                "Contused alveoli are perfused but poorly ventilated, causing V/Q mismatch and shunt, so SpO₂ falls",
+                "Contusion typically worsens over the first 24–48 hours, and elderly patients have less reserve"
+            ],
+            "bonusPoints": [
+                "Associated injuries are common — pneumothorax, haemothorax and, with high energy, cardiac or great vessel injury."
+            ],
+            "modelAnswer": {
+                "presentation": "Paradoxical movement of a left chest segment, tachypnoea, hypoxaemia and pain on breathing after a crush injury indicate a flail chest with underlying pulmonary contusion.",
+                "mechanism": "Multiple ribs are fractured in more than one place, creating a segment mechanically separated from the rest of the chest wall.",
+                "physiology": "During inspiration, intrapleural pressure falls and the free segment is drawn inwards rather than moving out, so it contributes nothing to inflation and increases the work of breathing. Pain causes splinting, lowering tidal volume and impairing cough. Beneath it, the lung is contused: haemorrhage and oedema fill alveoli, which remain perfused but poorly ventilated, creating shunt and V/Q mismatch.",
+                "signs": "The visible paradox reflects the mechanical defect; the hypoxaemia largely reflects the contusion. His respiratory rate rises to compensate.",
+                "linking": "The flail segment explains the mechanics and the contusion explains the gas exchange — and because contusion evolves over 24–48 hours, he is likely to get worse before better."
+            }
+        }
+    },
+    {
+        "id": "sa-tr-03",
+        "category": "trauma",
+        "title": "A pelvic injury",
+        "stem": "A 78-year-old woman was struck by a car. She has pain in her pelvis and groin, her legs lie in an unusual position, and she is deteriorating: HR 126, BP 88/60, with no external bleeding visible.",
+        "intro": {
+            "question": "Why can a pelvic fracture cause life-threatening bleeding that you cannot see?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "The pelvis has a rich blood supply, with many veins and arteries close to the bone",
+                "The bones themselves also bleed heavily when broken",
+                "Blood collects inside the pelvis and abdomen, where there is a large space, so nothing is visible outside",
+                "Several litres can be lost internally, so the patient can go into shock without any obvious bleeding"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Pelvic pain, abnormal leg position, a fast pulse and low blood pressure with no visible bleeding suggest a pelvic fracture with internal blood loss.",
+                "mechanism": "The impact has fractured her pelvis and torn blood vessels around it.",
+                "physiology": "The pelvis is surrounded by a network of veins and arteries, and broken bone surfaces bleed heavily. The space inside the pelvis and abdomen can hold several litres of blood.",
+                "signs": "She has lost enough blood to become shocked — fast pulse and low blood pressure — yet nothing shows on the outside.",
+                "linking": "With a pelvic injury the bleeding is hidden, so the mechanism and her observations matter more than what you can see."
+            }
+        },
+        "advanced": {
+            "question": "Explain why pelvic fractures cause major haemorrhage and why the bleeding is occult.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "The pelvis is surrounded by an extensive presacral and paravesical venous plexus and branches of the internal iliac artery",
+                "Displaced fracture fragments shear these vessels, and cancellous bone surfaces themselves bleed persistently",
+                "Most bleeding is venous and low pressure, but occurs from many sites simultaneously",
+                "Disruption of the pelvic ring increases the potential volume of the pelvic space, so tamponade is lost and bleeding continues",
+                "Blood accumulates in the retroperitoneum and pelvis, which can hold several litres, so there is no external sign",
+                "Ongoing loss produces progressive haemorrhagic shock, with compensation eventually failing",
+                "Older patients are at higher risk because of fragile bone, calcified vessels and less physiological reserve"
+            ],
+            "bonusPoints": [
+                "Movement of the pelvis can disrupt early clot and worsen bleeding; lateral compression, anteroposterior compression and vertical shear cause different patterns."
+            ],
+            "modelAnswer": {
+                "presentation": "Pelvic and groin pain with abnormal leg position and progressive shock, without visible blood loss, in an older pedestrian indicates pelvic fracture with major haemorrhage.",
+                "mechanism": "The impact has disrupted the pelvic ring. Displaced fragments shear the venous plexus and branches of the internal iliac artery, and the fractured cancellous bone surfaces bleed continuously.",
+                "physiology": "Most of the bleeding is venous and low pressure, but it comes from many sites at once and does not readily stop. Disruption of the ring enlarges the potential pelvic volume, so the tamponade effect that would normally limit bleeding is lost. Blood collects in the retroperitoneum and pelvis, which can accommodate litres.",
+                "signs": "Progressive tachycardia and hypotension reflect continuing internal loss, with nothing visible externally. Her age reduces the reserve available to compensate.",
+                "linking": "A pelvic fracture is a bleeding injury as much as a bony one — which is why mechanism and observations, not visible blood, drive suspicion."
+            }
+        }
+    },
+    {
+        "id": "sa-tr-04",
+        "category": "trauma",
+        "title": "A broken thigh bone",
+        "stem": "A 30-year-old man fell 4 metres from scaffolding. His right thigh is swollen and deformed and the leg looks shortened and rotated. HR 112, BP 116/88. Two days later in hospital he becomes confused and breathless with a petechial rash.",
+        "intro": {
+            "question": "Why can a broken femur cause significant blood loss and a shortened, rotated leg?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "The femur is a large bone with a rich blood supply, and the surrounding muscle can hold a lot of blood",
+                "A litre or more can be lost into the thigh without any external bleeding",
+                "Strong thigh muscles pull on the broken ends, dragging them past each other",
+                "This shortens the leg and rotates it, and the swelling comes from the blood and injured tissue"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "A swollen, deformed, shortened and rotated thigh after a fall, with a fast pulse, suggests a femoral shaft fracture with blood loss.",
+                "mechanism": "The force of the fall has broken the shaft of his femur.",
+                "physiology": "The bone has a rich blood supply and the thigh muscles form a large space that can hold a litre or more of blood without anything showing outside.",
+                "signs": "The swelling is blood and injured tissue. The powerful thigh muscles contract and pull the broken ends past one another, shortening and rotating the leg. His pulse rises as he compensates for the blood lost.",
+                "linking": "The size of the bone and the strength of the muscles around it explain both the blood loss and the deformity."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of fat embolism syndrome after a long bone fracture and link it to his later confusion, breathlessness and rash.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Fracture of a long bone disrupts marrow and the venous sinusoids within it",
+                "Raised intramedullary pressure forces marrow fat globules into the venous circulation (mechanical theory)",
+                "Fat emboli lodge in the pulmonary capillaries, causing mechanical obstruction and V/Q mismatch",
+                "Free fatty acids released by lipase action cause inflammatory injury to the alveolar-capillary membrane (biochemical theory), increasing permeability",
+                "The result is hypoxaemia and breathlessness, typically 24–72 hours after injury",
+                "Emboli reaching the cerebral circulation cause confusion, agitation and reduced consciousness",
+                "Dermal capillary occlusion causes a petechial rash, classically over the upper chest, axillae and conjunctivae"
+            ],
+            "bonusPoints": [
+                "The classic triad is respiratory distress, neurological change and petechial rash; the delay distinguishes it from pulmonary embolism from DVT, which usually occurs later still."
+            ],
+            "modelAnswer": {
+                "presentation": "Confusion, breathlessness and a petechial rash developing two days after a femoral shaft fracture fit fat embolism syndrome.",
+                "mechanism": "The fracture disrupted the marrow and its venous sinusoids. Raised pressure within the medullary cavity forced fat globules into the venous circulation, and free fatty acids were released as that fat was broken down.",
+                "physiology": "Fat emboli lodge in pulmonary capillaries, obstructing flow and creating V/Q mismatch, while free fatty acids injure the alveolar-capillary membrane and increase permeability. Emboli passing into the systemic circulation obstruct cerebral and dermal capillaries. The biochemical component takes time to develop, explaining the characteristic 24–72 hour delay.",
+                "signs": "Impaired gas exchange causes breathlessness and hypoxaemia; cerebral microemboli cause confusion and agitation; occlusion of dermal capillaries produces the petechial rash, typically over the upper chest and axillae.",
+                "linking": "One fracture explains all three features, and the delay is the clue — this is not the moment of injury, but the consequence of marrow contents entering the circulation."
+            }
+        }
+    },
+    {
+        "id": "sa-tr-05",
+        "category": "trauma",
+        "title": "A scald across the chest and arm",
+        "stem": "A 4-year-old pulled a pan of boiling water onto himself 20 minutes ago. The skin over his chest and right arm is red, blistered and very painful, with some areas that are pale, dry and painless.",
+        "intro": {
+            "question": "Why do burns cause swelling and fluid loss, and why are the deepest areas the least painful?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Heat damages the skin and the tiny blood vessels underneath",
+                "Damaged vessels leak fluid into the tissues, causing swelling, and fluid is also lost through the damaged skin surface",
+                "Losing fluid from the circulation can lower blood pressure, especially in a small child",
+                "Deep burns destroy the nerve endings in the skin, so those areas feel less pain than shallower burns"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "A scald with red, blistered, painful areas and some pale, dry, painless areas shows burns of different depths.",
+                "mechanism": "Boiling water has damaged the skin and the small blood vessels beneath it.",
+                "physiology": "Damaged vessels become leaky, so fluid moves out of the circulation into the tissues, and more is lost through the damaged skin surface.",
+                "signs": "That fluid shift causes swelling and can lower blood pressure, which matters more in a small child because they have less blood volume. Painful, blistered areas still have working nerve endings, while the pale, dry, painless areas are deeper, where nerve endings have been destroyed.",
+                "linking": "Less pain here means more damage, not less — and fluid loss is the main early danger."
+            }
+        },
+        "advanced": {
+            "question": "Explain the fluid shift after a significant burn and the basis for assessing burn depth clinically.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Thermal injury causes direct cell damage and releases inflammatory mediators (histamine, prostaglandins, bradykinin, cytokines)",
+                "These increase capillary permeability, both locally and, in large burns, systemically",
+                "Protein-rich fluid leaks into the interstitium, reducing plasma volume and plasma oncotic pressure, worsening the shift (burn shock)",
+                "Fluid is also lost by evaporation through skin that has lost its barrier function",
+                "Hypovolaemia develops over hours, distinguishing it from haemorrhagic shock, which is immediate",
+                "Superficial partial-thickness burns are moist, blistered, blanching and very painful, as nerve endings are intact",
+                "Full-thickness burns are dry, leathery, non-blanching and painless because nerve endings are destroyed; depth may be mixed and can evolve"
+            ],
+            "bonusPoints": [
+                "Children have a higher surface area to weight ratio, so they lose relatively more fluid and heat; hypothermia is a real risk during assessment."
+            ],
+            "modelAnswer": {
+                "presentation": "A mixed-depth scald with blistered, painful areas and pale, dry, painless areas in a small child carries a significant risk of fluid loss.",
+                "mechanism": "Heat has damaged cells directly and triggered release of inflammatory mediators including histamine, prostaglandins, bradykinin and cytokines.",
+                "physiology": "These mediators increase capillary permeability, allowing protein-rich fluid into the interstitium. Loss of plasma protein lowers oncotic pressure, drawing still more fluid out. The skin's barrier function is lost, so evaporative losses continue. Plasma volume falls over hours rather than instantly, which is why burn shock is delayed compared with haemorrhage.",
+                "signs": "Swelling reflects the interstitial shift. Blistered, blanching, painful areas retain viable nerve endings and are partial thickness; pale, dry, painless areas are full thickness, where nerve endings have been destroyed. His small size means proportionally greater losses.",
+                "linking": "Depth is judged by appearance and sensation together, and painless skin is a warning of deeper injury, not a reassurance."
+            }
+        }
+    },
+    {
+        "id": "sa-tr-06",
+        "category": "trauma",
+        "title": "Trapped under machinery",
+        "stem": "A 47-year-old man has been trapped under a heavy machine with his legs compressed for three hours. He is alert and his observations are stable while trapped. The rescue team are close to freeing him.",
+        "intro": {
+            "question": "Why can someone who looks stable while trapped become very unwell shortly after being freed?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "While the limb is crushed, blood flow to that muscle is blocked and the muscle is damaged",
+                "Damaged muscle releases chemicals, including potassium, into the tissue, but they are trapped there while the pressure is on",
+                "When the pressure is released, blood flows again and washes those chemicals into the circulation all at once",
+                "A sudden rise in potassium can cause dangerous heart rhythms, and fluid shifting into the damaged limb can drop the blood pressure"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "A patient who looks stable after three hours of crush injury can deteriorate rapidly on release.",
+                "mechanism": "The pressure has cut off blood flow to his leg muscles and damaged them.",
+                "physiology": "Damaged muscle cells leak their contents, including potassium and other chemicals, into the surrounding tissue. While the limb is compressed, those substances stay where they are.",
+                "signs": "Once the weight is lifted, blood flows again and carries them into the circulation. A sudden rise in potassium can trigger dangerous heart rhythms, and large amounts of fluid move into the injured limb, lowering his blood pressure.",
+                "linking": "He is stable because the damage is contained — the danger comes at the moment it's released."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of crush syndrome and reperfusion injury.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Sustained compression causes ischaemia and direct pressure necrosis of skeletal muscle",
+                "Ischaemic myocytes lose ATP-dependent membrane pump function, so sodium and water enter cells and potassium leaks out",
+                "Muscle breakdown (rhabdomyolysis) releases potassium, myoglobin, phosphate, urate and creatine kinase into the interstitium",
+                "On release, restored perfusion washes these into the systemic circulation, causing hyperkalaemia with risk of arrhythmia and cardiac arrest",
+                "Myoglobin is filtered by the kidneys, causing tubular obstruction and injury, particularly if the patient is hypovolaemic — acute kidney injury",
+                "Massive fluid sequestration into damaged muscle causes hypovolaemia and hypotension",
+                "Reperfusion generates reactive oxygen species and inflammatory mediators, extending tissue injury and contributing to systemic effects"
+            ],
+            "bonusPoints": [
+                "Metabolic acidosis worsens hyperkalaemia by shifting potassium out of cells; compartment syndrome may develop in the reperfused limb."
+            ],
+            "modelAnswer": {
+                "presentation": "A patient compressed for three hours who is stable while trapped is at high risk of deterioration on extrication — crush syndrome.",
+                "mechanism": "Sustained compression causes both ischaemia and direct pressure necrosis of skeletal muscle.",
+                "physiology": "Without ATP, membrane pumps fail: sodium and water enter cells while potassium leaves. Muscle breakdown releases potassium, myoglobin, phosphate and other cell contents into the interstitium, where they remain trapped. When perfusion is restored, they are washed into the systemic circulation, while fluid simultaneously sequesters into the damaged muscle. Reperfusion also generates reactive oxygen species that extend the injury.",
+                "signs": "A sudden potassium load risks arrhythmia and cardiac arrest. Fluid shifting into the limb causes hypovolaemia and hypotension. Filtered myoglobin obstructs and damages renal tubules, causing acute kidney injury, especially if he is already volume depleted.",
+                "linking": "His stability is a function of the limb being isolated from the circulation, which is why the moment of release, not the moment of injury, is the critical point."
+            }
+        }
+    },
+    {
+        "id": "sa-tr-07",
+        "category": "trauma",
+        "title": "Cold, acidotic and bleeding",
+        "stem": "A 35-year-old woman with multiple injuries after a fall has been extricated from a cold hillside over 90 minutes. Her temperature is 34.2 °C, she is oozing from every puncture site, and her lactate is 7.",
+        "intro": {
+            "question": "Why does becoming cold make bleeding worse in a badly injured patient?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Blood clotting depends on enzymes and platelets that work best at normal body temperature",
+                "When the body cools, these work much more slowly, so clots form poorly",
+                "Poor clotting means continued bleeding, which causes more blood loss and more cooling",
+                "Blood loss also causes acid to build up in the body, which further impairs clotting — the three problems feed each other"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "A cold, bleeding, acidotic trauma patient is showing the classic combination that makes major trauma so dangerous.",
+                "mechanism": "Blood loss, exposure on the hillside and prolonged extrication have all cooled her.",
+                "physiology": "Clotting depends on enzymes and platelets that work properly only near normal body temperature. As she cools, they slow, so clot formation is impaired.",
+                "signs": "She oozes from every puncture site because her blood is not clotting well. Poor perfusion has produced a high lactate, and that acidity impairs clotting further.",
+                "linking": "Cold, acid and poor clotting each make the others worse, which is why she keeps bleeding."
+            }
+        },
+        "advanced": {
+            "question": "Explain the \"lethal triad\" of trauma and how hypothermia, acidosis and coagulopathy reinforce each other.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Haemorrhage, exposure, and infusion of cool fluids reduce core temperature; reduced perfusion also lowers heat production",
+                "Coagulation enzyme activity is temperature dependent and falls markedly below about 35 °C; platelet function and aggregation are also impaired",
+                "Hypoperfusion causes anaerobic metabolism, raising lactate and producing metabolic acidosis",
+                "Acidosis further impairs coagulation factor function, particularly the factor Xa/Va complex, and reduces fibrinogen availability",
+                "Trauma-induced coagulopathy also involves activation of protein C, endothelial injury, fibrinogen consumption and hyperfibrinolysis — it begins early, before dilution",
+                "Impaired clotting increases bleeding, worsening hypoperfusion, acidosis and heat loss — a self-reinforcing cycle",
+                "Acidosis and hypothermia also depress myocardial contractility and increase arrhythmia risk"
+            ],
+            "bonusPoints": [
+                "Dilution from large-volume fluid and consumption of clotting factors add to the coagulopathy; each element is easier to prevent than to correct."
+            ],
+            "modelAnswer": {
+                "presentation": "Hypothermia at 34.2 °C, oozing from puncture sites and a lactate of 7 after prolonged extrication describe the lethal triad of trauma.",
+                "mechanism": "Haemorrhage and prolonged exposure on a cold hillside have reduced her core temperature, while blood loss has reduced tissue perfusion.",
+                "physiology": "Coagulation is an enzymatic cascade and slows markedly as temperature falls below about 35 °C; platelet function is impaired too. Hypoperfusion forces anaerobic metabolism, raising lactate and producing a metabolic acidosis, which further impairs clotting factor function and reduces fibrinogen availability. Trauma itself also activates protein C and promotes fibrinolysis, so coagulopathy begins early rather than simply from dilution.",
+                "signs": "Impaired clotting causes oozing from every puncture site. Continued bleeding worsens hypoperfusion and acidosis and accelerates cooling, closing the loop. Both cold and acidosis also depress myocardial performance.",
+                "linking": "Each element worsens the other two, so the picture deteriorates faster than any single problem would explain — which is why preventing cooling matters so much."
+            }
+        }
+    },
+    {
+        "id": "sa-tr-08",
+        "category": "trauma",
+        "title": "Increasing pain in a plastered arm",
+        "stem": "A 17-year-old had a forearm fracture immobilised yesterday. He now has severe, worsening pain, far more than expected, and pain when his fingers are gently straightened. His fingers are pink and his radial pulse is present.",
+        "intro": {
+            "question": "Why can a limb be in danger from compartment syndrome even though the pulse is still present?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Muscles are held in compartments wrapped in tough tissue that cannot stretch",
+                "Swelling or bleeding inside a compartment raises the pressure within it",
+                "The raised pressure squashes the small vessels that supply the muscle, so the muscle is starved of blood even though the main artery is still open",
+                "This is why pain is severe and worse on stretching the muscle, while the pulse can still be felt"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Severe, worsening pain after a forearm fracture, with pain on passive stretch, despite pink fingers and a present pulse, suggests compartment syndrome.",
+                "mechanism": "Bleeding and swelling from the fracture have raised the pressure inside one of the forearm's muscle compartments.",
+                "physiology": "Each compartment is wrapped in tough tissue that cannot expand, so pressure builds. That pressure collapses the small vessels feeding the muscle, even though the larger artery running through is still open.",
+                "signs": "The starved muscle causes severe pain, worse when it is stretched. The pulse and pink fingers are misleading, because the problem is at small vessel level.",
+                "linking": "Waiting for a missing pulse means waiting until the muscle is already dying."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of acute compartment syndrome and why distal pulses are usually preserved.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Muscles lie in compartments bounded by inelastic fascia and bone",
+                "Bleeding, oedema or external constriction raise intracompartmental pressure",
+                "Once pressure approaches capillary perfusion pressure, capillary flow ceases while arterial inflow continues",
+                "Ischaemic muscle becomes oedematous, further raising compartment pressure — a vicious cycle",
+                "Perfusion depends on the difference between diastolic pressure and compartment pressure, so hypotension worsens it",
+                "Systolic arterial pressure greatly exceeds compartment pressure, so distal pulses are typically preserved until very late",
+                "Early signs are pain out of proportion and pain on passive stretch; paraesthesia follows nerve ischaemia, with paralysis and pulselessness as late, often irreversible, findings"
+            ],
+            "bonusPoints": [
+                "Irreversible muscle damage begins within hours; a circumferential cast can contribute to the problem, and unconscious patients cannot report the key symptom."
+            ],
+            "modelAnswer": {
+                "presentation": "Escalating pain out of proportion with pain on passive stretch after a forearm fracture, with preserved pulses and perfusion, indicates acute compartment syndrome.",
+                "mechanism": "Fracture-related bleeding and oedema have increased the volume within a fascial compartment that cannot expand.",
+                "physiology": "As intracompartmental pressure rises towards capillary perfusion pressure, capillary flow stops while arterial inflow continues. The ischaemic muscle swells further, raising pressure again. Perfusion depends on the gradient between diastolic pressure and compartment pressure, so any hypotension worsens the ischaemia.",
+                "signs": "Because systolic pressure in the main artery far exceeds compartment pressure, the radial pulse remains palpable and the fingers stay pink. Ischaemic muscle produces severe pain, worst when stretched. Sensory changes follow as nerves become ischaemic, and pulselessness and paralysis appear only late.",
+                "linking": "The problem is at capillary level, not arterial — which is exactly why a normal pulse is reassuring in the wrong way."
+            }
+        }
+    },
+    {
+        "id": "sa-tr-09",
+        "category": "trauma",
+        "title": "A child who looks well after a fall",
+        "stem": "A 5-year-old fell from a first-floor window. He is alert but quiet, HR 156, RR 34, BP 100/70, with cool hands and capillary refill of 3 seconds. His abdomen is distended.",
+        "intro": {
+            "question": "Why can a child look relatively well after serious injury and then deteriorate suddenly?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Children compensate for blood loss very effectively, mainly by increasing their heart rate",
+                "They can keep their blood pressure normal even after losing a large proportion of their blood volume",
+                "So a normal blood pressure does not mean they are not seriously injured",
+                "When compensation finally fails it does so suddenly, and they can deteriorate very quickly"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "A quiet child with a fast pulse and breathing, cool hands, delayed capillary refill and a distended abdomen after a significant fall is concerning, despite a normal-looking blood pressure.",
+                "mechanism": "He is likely bleeding inside his abdomen.",
+                "physiology": "Children compensate for blood loss efficiently by raising their heart rate and narrowing blood vessels, which keeps their blood pressure up.",
+                "signs": "His tachycardia, cool hands and slow refill show that compensation is already working hard. Being quiet and withdrawn is itself a warning sign in a child.",
+                "linking": "Because children hold their blood pressure up until late, the pulse, skin and behaviour tell you far more than the blood pressure does."
+            }
+        },
+        "advanced": {
+            "question": "Explain the physiological differences that allow children to compensate for hypovolaemia, and why decompensation is abrupt.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Children have a limited capacity to increase stroke volume, so cardiac output depends heavily on heart rate",
+                "They mount a vigorous tachycardia and intense peripheral vasoconstriction, efficiently maintaining systemic vascular resistance",
+                "As a result systolic blood pressure is often maintained until 30–45% of blood volume is lost",
+                "Circulating volume per kilogram is higher, but total volume is small, so a modest absolute loss is proportionally large",
+                "Earlier signs are tachycardia, tachypnoea, cool peripheries, prolonged capillary refill and behavioural change (quiet, poor interaction)",
+                "Once compensation fails, there is little reserve, so hypotension is sudden and cardiac arrest can follow rapidly",
+                "Children also lose heat quickly because of a high surface area to weight ratio, worsening coagulopathy"
+            ],
+            "bonusPoints": [
+                "Solid organ injury is more likely because the abdominal wall is thinner and the ribs more compliant; ribs may not fracture despite serious underlying injury."
+            ],
+            "modelAnswer": {
+                "presentation": "Marked tachycardia, tachypnoea, cool peripheries, delayed refill, abdominal distension and a subdued child after a significant fall indicate compensated shock with likely intra-abdominal bleeding.",
+                "mechanism": "Blood loss into the abdomen has reduced circulating volume, which in a child of this size is small in absolute terms.",
+                "physiology": "Children have limited capacity to increase stroke volume, so they defend cardiac output by increasing heart rate, combined with intense peripheral vasoconstriction that maintains systemic vascular resistance. This keeps systolic pressure normal until a large proportion of volume — often 30–45% — has been lost.",
+                "signs": "His blood pressure therefore looks acceptable, while his tachycardia, skin findings and quietness reveal the compensation. Behavioural change reflects reduced cerebral perfusion and distress.",
+                "linking": "Because a child's compensation is so effective, normal blood pressure is an unreliable reassurance — and when that compensation fails, there is almost no reserve left, so collapse is abrupt."
+            }
+        }
+    },
+    {
+        "id": "sa-tr-10",
+        "category": "trauma",
+        "title": "An older patient after a fall",
+        "stem": "An 82-year-old man fell down six steps. He has chest wall tenderness and a tender abdomen. HR 84, BP 118/72, RR 22. His usual blood pressure recorded at his GP is 168/90.",
+        "intro": {
+            "question": "Why might serious injury be missed in an older person whose observations look normal?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Older people often have high blood pressure normally, so a \"normal\" reading can actually be low for them",
+                "The ageing heart cannot speed up as effectively, so the pulse may not rise much despite blood loss",
+                "Signs of shock are therefore much less obvious than in a younger person",
+                "Their bodies also have less reserve, so they tolerate injury and blood loss far less well"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Chest and abdominal tenderness after a fall in an 82-year-old, with a blood pressure of 118/72 when his usual reading is 168/90, is more worrying than it first looks.",
+                "mechanism": "He may be bleeding from his chest or abdomen.",
+                "physiology": "His usual blood pressure is much higher, so this reading represents a significant drop for him. The ageing heart also cannot increase its rate as effectively, so tachycardia may be absent.",
+                "signs": "His observations appear normal, but relative to his own baseline his blood pressure has fallen and his breathing rate has risen.",
+                "linking": "Normal numbers can hide serious injury in older people, so their usual readings and the mechanism matter as much as the observations themselves."
+            }
+        },
+        "advanced": {
+            "question": "Explain the physiological changes of ageing that mask shock after trauma.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Long-standing hypertension means a \"normal\" blood pressure may represent relative hypotension and inadequate organ perfusion",
+                "Reduced beta-adrenergic responsiveness and conduction system changes blunt the tachycardic response to hypovolaemia",
+                "Arterial stiffening reduces the ability to compensate by altering vascular tone",
+                "Reduced cardiac reserve limits any increase in cardiac output",
+                "Reduced respiratory reserve, chest wall stiffness and reduced renal reserve limit compensation further",
+                "Rib fractures occur with lesser force and cause greater morbidity, with higher risk of contusion and pneumonia",
+                "Baseline cognitive change can mask or mimic the confusion of hypoperfusion, and anticoagulation increases bleeding risk"
+            ],
+            "bonusPoints": [
+                "A raised respiratory rate and a raised lactate may be the earliest objective signs; triage tools based on standard vital sign thresholds under-triage older patients."
+            ],
+            "modelAnswer": {
+                "presentation": "Chest wall and abdominal tenderness after a fall, with observations that look normal but a blood pressure well below his usual 168/90, suggests occult injury in an older patient.",
+                "mechanism": "Falls generate enough force in older people to cause significant chest and intra-abdominal injury, including bleeding.",
+                "physiology": "Chronic hypertension means his tissues are accustomed to a much higher perfusion pressure, so 118/72 may be functionally hypotensive. Reduced beta-adrenergic responsiveness and conduction system changes blunt his ability to mount a tachycardia, while stiffened arteries and limited cardiac reserve reduce his capacity to compensate in other ways.",
+                "signs": "He therefore looks deceptively stable: a normal-looking pulse and pressure, with a raised respiratory rate as one of the few objective clues. Rib fractures occur more readily and carry a higher risk of contusion and later pneumonia.",
+                "linking": "Interpreting his numbers against his own baseline rather than a standard chart is what reveals the problem — which is why standard triage thresholds under-triage older patients."
             }
         }
     }
