@@ -376,6 +376,105 @@
 
 
         /* ==================== ASSESSMENT BUTTONS ==================== */
+        /* Go deeper (on the back of the card) */
+        .deeper-wrap {
+            text-align: center;
+            margin: 1rem 0 1.25rem;   /* bottom margin keeps clear of "Tap to flip back" */
+            flex-shrink: 0;
+        }
+        .deeper-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.25rem;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: inherit;
+        }
+        .fc-deep-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(20, 40, 45, 0.5);
+            padding: 1rem;
+        }
+        .fc-deep-overlay.open {
+            display: flex;
+        }
+        .fc-deep-modal {
+            background: #fff;
+            border-radius: 18px;
+            width: 100%;
+            max-width: 560px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+        }
+        .fc-deep-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--color-gray-200, #E9ECEF);
+        }
+        .fc-deep-head img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .fc-deep-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            line-height: 1.2;
+        }
+        .fc-deep-tag {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--color-teal);
+        }
+        .fc-deep-close {
+            margin-left: auto;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #f1f3f5;
+            border-radius: 8px;
+            font-size: 1.3rem;
+            line-height: 1;
+            cursor: pointer;
+        }
+        .fc-deep-body {
+            padding: 16px;
+            overflow-y: auto;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--color-gray-700, #495057);
+        }
+        .fc-deep-snip {
+            background: #f0f9fb;
+            border-left: 3px solid var(--color-teal);
+            padding: 10px 12px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            margin-bottom: 14px;
+        }
+        .fc-deep-body h1, .fc-deep-body h2, .fc-deep-body h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin: 1rem 0 0.5rem;
+        }
+
         .assess-prompt {
             font-size: 0.85rem;
             color: var(--color-teal);
@@ -742,9 +841,32 @@
                         <div class="face-label">Answer</div>
                         <div class="card-correct-option" id="cardCorrectOption"></div>
                         <div class="card-explanation" id="cardExplanation" data-explain="longpress"></div>
+                        <div class="deeper-wrap">
+                            <button type="button" class="deeper-btn" id="deeperBtn">
+                                <i class="bi bi-mortarboard"></i> Go deeper, Hollie!
+                            </button>
+                        </div>
                         <div class="tap-hint"><i class="bi bi-arrow-counterclockwise"></i> Tap to flip back</div>
                     </div>
 
+                </div>
+            </div>
+
+            <!-- Go deeper popup -->
+            <div class="fc-deep-overlay" id="deepOverlay">
+                <div class="fc-deep-modal" role="dialog" aria-modal="true" aria-labelledby="deepTitle">
+                    <div class="fc-deep-head">
+                        <img src="images/hollie.png" alt="Hollie">
+                        <div>
+                            <div class="fc-deep-title" id="deepTitle">Going deeper</div>
+                            <div class="fc-deep-tag">Advanced · Level 5–6</div>
+                        </div>
+                        <button type="button" class="fc-deep-close" id="deepClose" aria-label="Close">&times;</button>
+                    </div>
+                    <div class="fc-deep-body">
+                        <div class="fc-deep-snip" id="deepSnip"></div>
+                        <div id="deepAnswer"></div>
+                    </div>
                 </div>
             </div>
 
@@ -1329,6 +1451,16 @@
                 this.classList.toggle('flipped');
             });
 
+            // Go deeper
+            document.getElementById('deeperBtn').addEventListener('click', function (e) {
+                e.stopPropagation();   // don't flip the card
+                goDeeper();
+            });
+            document.getElementById('deepClose').addEventListener('click', closeDeeper);
+            document.getElementById('deepOverlay').addEventListener('click', function (e) {
+                if (e.target === this) closeDeeper();
+            });
+
             // Assessment buttons
             document.getElementById('btnAgain').addEventListener('click', function () { recordAnswer('again'); });
             document.getElementById('btnHard').addEventListener('click',  function () { recordAnswer('hard');  });
@@ -1344,6 +1476,110 @@
             // Auth init
             initPage();
         });
+
+        // ==================== GO DEEPER ====================
+        var DEEPER_SYSTEM_PROMPT = [
+            'You are Hollie, an experienced UK paramedic and educator. The learner is revising with a multiple-choice flash card and wants to go deeper, at university Level 5–6 depth. Using the card\'s question, correct answer and short explanation as your starting point:',
+            '1. Explain the underlying mechanism at cellular and molecular, tissue and organ, and whole-body level, where relevant.',
+            '2. Walk through it as a chain of cause and effect.',
+            '3. Link it to the signs, symptoms and observations a paramedic would see, and explain why each appears.',
+            '4. Where it helps, briefly explain why the other options are wrong.',
+            '5. Define key terms briefly the first time you use them.',
+            '6. Finish with a short "Linking it together" paragraph.',
+            '',
+            'If the card is about professional practice, law, ethics, terminology or an assessment framework rather than physiology, go deeper on the principles, reasoning and real-world application instead.',
+            '',
+            'Keep your warm, encouraging tone, but prioritise accuracy and depth. You may use short subheadings. Aim for 300–450 words. Use UK spelling and terminology.',
+            '',
+            'This is for education only. Do not discuss medicines, drug actions, treatments or management. If they come up, remind the learner to refer to JRCalc and their trust guidelines.'
+        ].join('\n');
+
+        var deeperRequestId = 0;
+
+        function escapeDeep(t) {
+            return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function closeDeeper() {
+            deeperRequestId++;   // ignore any answer still streaming in
+            document.getElementById('deepOverlay').classList.remove('open');
+            document.getElementById('deepAnswer').innerHTML = '';
+        }
+
+        async function goDeeper() {
+            var card = state.cards[state.cardIndex];
+            if (!card) return;
+            var myId = ++deeperRequestId;
+
+            var correctText = (card.options && typeof card.correct === 'number')
+                ? card.options[card.correct] : (card.answer || '');
+            var answerEl = document.getElementById('deepAnswer');
+            document.getElementById('deepSnip').textContent = card.front;
+            answerEl.innerHTML = '<p>Hollie is thinking&hellip;</p>';
+            document.getElementById('deepOverlay').classList.add('open');
+
+            var message = 'Flash card question: ' + card.front + '\n';
+            if (card.options) {
+                card.options.forEach(function (opt, i) {
+                    message += OPTION_LABELS[i] + ') ' + opt + '\n';
+                });
+            }
+            message += 'Correct answer: ' + correctText + '\n' +
+                'Card explanation: ' + (card.explanation || '') + '\n\n' +
+                'Please take this further for me at university Level 5-6.';
+
+            try {
+                var user = firebase.auth().currentUser;
+                if (!user) throw new Error('Not signed in');
+                var token = await user.getIdToken();
+                var cfg = (window.paramind && window.paramind.CONFIG && window.paramind.CONFIG.api) || {};
+                var response = await fetch(cfg.baseUrl + cfg.chat, {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: message,
+                        conversationHistory: [],
+                        systemPromptAddendum: DEEPER_SYSTEM_PROMPT
+                    })
+                });
+                if (!response.ok) {
+                    throw new Error(response.status === 429 ? 'LIMIT_REACHED' : 'Request failed');
+                }
+
+                var reader = response.body.getReader();
+                var decoder = new TextDecoder();
+                var full = '';
+                while (true) {
+                    var chunk = await reader.read();
+                    if (chunk.done) break;
+                    var lines = decoder.decode(chunk.value, { stream: true }).split('\n');
+                    for (var i = 0; i < lines.length; i++) {
+                        if (lines[i].indexOf('data: ') !== 0) continue;
+                        try {
+                            var data = JSON.parse(lines[i].slice(6));
+                            if (data.type === 'chunk') {
+                                full += data.content;
+                                if (myId === deeperRequestId) {
+                                    answerEl.innerHTML = escapeDeep(full).replace(/\n/g, '<br>');
+                                }
+                            } else if (data.type === 'error') {
+                                throw new Error(data.error);
+                            }
+                        } catch (err) { /* skip partial JSON */ }
+                    }
+                }
+                if (myId === deeperRequestId) {
+                    answerEl.innerHTML = (typeof marked !== 'undefined')
+                        ? marked.parse(full)
+                        : escapeDeep(full).replace(/\n/g, '<br>');
+                }
+            } catch (err) {
+                if (myId !== deeperRequestId) return;
+                answerEl.innerHTML = (err.message === 'LIMIT_REACHED')
+                    ? '<p>You\'ve used all your free messages for today. Your limit resets at midnight.</p>'
+                    : '<p style="color:#dc2626;">Sorry, I couldn\'t go deeper just now. Please try again.</p>';
+            }
+        }
 
         // ==================== EXPLAINER TOGGLE ====================
         function toggleExplainer() {
