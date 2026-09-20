@@ -6,7 +6,8 @@
  * Content policy: no drug names, doses, treatment or management.
  */
 var SHORT_ANSWER_CATEGORIES = [
-    { id: 'cardiovascular', name: 'Cardiovascular', icon: 'bi-heart-pulse', colour: '#DC3545' }
+    { id: 'cardiovascular', name: 'Cardiovascular', icon: 'bi-heart-pulse', colour: '#DC3545' },
+    { id: 'respiratory',    name: 'Respiratory',    icon: 'bi-lungs',      colour: '#0DCAF0' }
 ];
 
 var SHORT_ANSWER_CASES = [
@@ -473,6 +474,476 @@ var SHORT_ANSWER_CASES = [
                 "physiology": "Driven by arterial pressure, blood tracks along the aorta within the false lumen. As it extends, the false lumen can compress or shear off the openings of branch arteries — including the subclavian, carotid, renal, spinal and iliac arteries.",
                 "signs": "Tearing of the aortic wall causes sudden, severe pain, felt in the back as the dissection extends. Reduced flow into one subclavian artery lowers the blood pressure in that arm. Compromise of arteries to the leg or spinal cord explains his numbness.",
                 "linking": "His signs depend on which branches the false lumen reaches — so a single tear can present as chest pain, a pulse deficit and a neurological symptom at the same time."
+            }
+        }
+    },
+    {
+        "id": "sa-rs-01",
+        "category": "respiratory",
+        "title": "Wheeze in asthma",
+        "stem": "A 19-year-old woman with known asthma became breathless after running for a bus on a cold morning. She has a widespread expiratory wheeze, RR 26 and can speak in short sentences.",
+        "intro": {
+            "question": "Why does an asthma attack cause wheeze and make it hard to breathe out?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "In asthma the airways are sensitive and react to triggers such as cold air and exercise",
+                "The muscle around the airways tightens, the lining swells and more mucus is made, so the airways narrow",
+                "Air forced through narrowed airways makes the whistling sound of a wheeze",
+                "Airways naturally narrow further when breathing out, so air gets trapped and breathing out is hardest"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Breathlessness and wheeze after exercise in cold air, in someone with asthma, suggests an asthma attack.",
+                "mechanism": "Cold air and exercise triggered her sensitive airways to react.",
+                "physiology": "The muscle around her airways has tightened, the lining has swollen and extra mucus has been produced, so the airways are narrower.",
+                "signs": "Air squeezing through narrow airways makes a wheeze. Airways get even narrower when breathing out, so air is harder to push out and she breathes fast to keep up.",
+                "linking": "Narrowed airways explain both the wheeze and why breathing out is the hardest part."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of an acute asthma attack and link it to her expiratory wheeze and raised respiratory rate.",
+            "wordGuide": 150,
+            "markingPoints": [
+                "Asthma is chronic airway inflammation with airway hyperresponsiveness",
+                "Triggers (cold, dry air and exercise) provoke mast cell degranulation and inflammatory mediator release, e.g. histamine and leukotrienes",
+                "This causes bronchial smooth muscle contraction (bronchoconstriction), mucosal oedema and mucus hypersecretion",
+                "Airway resistance rises sharply as radius falls (resistance is proportional to 1/r⁴)",
+                "During expiration, rising intrathoracic pressure compresses the narrowed airways, limiting airflow and causing air trapping",
+                "Turbulent flow through narrowed airways produces the expiratory wheeze",
+                "Increased work of breathing and V/Q mismatch drive the raised respiratory rate"
+            ],
+            "bonusPoints": [
+                "Air trapping causes hyperinflation, flattening the diaphragm and making breathing less efficient."
+            ],
+            "modelAnswer": {
+                "presentation": "Exercise- and cold-triggered breathlessness with widespread expiratory wheeze, tachypnoea and short sentences indicates an acute asthma exacerbation.",
+                "mechanism": "Her airways are chronically inflamed and hyperresponsive. Cold, dry air during exercise triggers mast cells to release mediators such as histamine and leukotrienes.",
+                "physiology": "These cause bronchoconstriction, mucosal oedema and mucus hypersecretion, all reducing airway radius. Because resistance is proportional to 1/r⁴, small reductions in radius greatly increase resistance. During expiration, rising intrathoracic pressure compresses already narrowed airways, limiting outflow and trapping air.",
+                "signs": "Turbulent airflow through narrowed airways produces the wheeze, loudest on expiration. Increased airway resistance raises the work of breathing, and uneven ventilation creates V/Q mismatch, both driving her raised respiratory rate. Needing to breathe fast limits her to short sentences.",
+                "linking": "Inflammation narrows her airways; narrowed airways explain the wheeze, the air trapping and the effort she needs to breathe."
+            }
+        }
+    },
+    {
+        "id": "sa-rs-02",
+        "category": "respiratory",
+        "title": "Swelling and breathlessness after a sting",
+        "stem": "A 34-year-old man was stung by a wasp 10 minutes ago. He has a widespread raised red rash, swollen lips and a hoarse voice, and is wheezy. HR 124, BP 84/48.",
+        "intro": {
+            "question": "Why has a wasp sting caused a rash, swelling, wheeze and low blood pressure?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "His immune system has overreacted to the sting (a severe allergic reaction, anaphylaxis)",
+                "Immune cells release chemicals such as histamine throughout the body",
+                "These make blood vessels widen and leak, causing the rash, the swelling and a fall in blood pressure",
+                "They also tighten the airways, causing wheeze, and swelling around the throat causes the hoarse voice"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "A rash, swollen lips, hoarse voice, wheeze and low blood pressure minutes after a sting suggest anaphylaxis.",
+                "mechanism": "His immune system has massively overreacted to the wasp venom.",
+                "physiology": "Immune cells release chemicals like histamine all over his body. These widen blood vessels, make them leaky and tighten the airways.",
+                "signs": "Wide, leaky vessels cause the red rash, the swelling of his lips and throat, and low blood pressure, with his heart racing to compensate. Tight airways cause the wheeze, and throat swelling makes his voice hoarse.",
+                "linking": "One chemical release affects his skin, airway, breathing and circulation at the same time."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of anaphylaxis and link it to his airway, breathing and circulation findings.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Prior sensitisation has produced IgE antibodies bound to mast cells and basophils",
+                "Re-exposure to the allergen cross-links IgE, triggering rapid, widespread degranulation",
+                "Mediators released include histamine, tryptase, leukotrienes and prostaglandins",
+                "Vasodilation and increased capillary permeability cause fluid to shift out of the circulation, producing distributive shock (hypotension with compensatory tachycardia)",
+                "Fluid leak into tissues causes angioedema, including of the lips and larynx, explaining the hoarse voice and airway threat",
+                "Bronchial smooth muscle contraction and mucosal oedema cause bronchospasm and wheeze",
+                "Cutaneous vasodilation and leak cause the urticarial rash and flushing"
+            ],
+            "bonusPoints": [
+                "Up to a third of circulating volume can shift out of the vessels within minutes; reduced venous return lowers preload and cardiac output."
+            ],
+            "modelAnswer": {
+                "presentation": "Rapid-onset urticaria, lip swelling, hoarseness, wheeze, tachycardia and hypotension after a sting indicate anaphylaxis affecting airway, breathing and circulation.",
+                "mechanism": "Previous exposure sensitised him, producing IgE antibodies that sit on mast cells and basophils. On re-exposure, venom cross-links this IgE, triggering sudden, widespread degranulation.",
+                "physiology": "Released mediators — histamine, tryptase, leukotrienes and prostaglandins — cause systemic vasodilation and increased capillary permeability, so large volumes of fluid shift into the tissues. Venous return and preload fall, reducing cardiac output. The same mediators contract bronchial smooth muscle and cause mucosal oedema.",
+                "signs": "Vasodilation and fluid loss from the circulation cause distributive shock: hypotension with a compensatory tachycardia. Tissue fluid produces angioedema of the lips and larynx, making his voice hoarse and threatening his airway. Bronchospasm causes wheeze. Skin vasodilation and leak cause the urticarial rash.",
+                "linking": "A single immune trigger releases mediators that act everywhere at once, which is why anaphylaxis threatens airway, breathing and circulation together."
+            }
+        }
+    },
+    {
+        "id": "sa-rs-03",
+        "category": "respiratory",
+        "title": "Chest infection",
+        "stem": "A 76-year-old woman has had a cough with green sputum for three days. She is hot to touch (38.9 °C), RR 28, SpO₂ 91%, HR 108. There are coarse crackles and bronchial breathing over her right lower zone.",
+        "intro": {
+            "question": "Why does pneumonia cause crackles, a high temperature and low oxygen levels?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "An infection in the lung causes inflammation, and the air sacs fill with fluid and pus",
+                "Air bubbling through fluid in the air sacs and small airways makes crackles",
+                "Oxygen can't get into the blood through air sacs full of fluid, so oxygen levels fall and she breathes faster",
+                "The body's immune response to the infection causes the high temperature, and the heart speeds up"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Cough with green sputum, fever, fast breathing, low oxygen and crackles on one side suggest pneumonia.",
+                "mechanism": "An infection has taken hold in part of her right lung.",
+                "physiology": "The inflammation fills the air sacs in that area with fluid and pus, so that part of the lung can't take in air properly.",
+                "signs": "Air moving through fluid causes crackles. Less working lung means less oxygen gets into her blood, so SpO₂ falls and she breathes faster. Her immune response causes the fever and a faster heart rate.",
+                "linking": "Infected, fluid-filled air sacs explain both the chest sounds and her low oxygen."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of lobar pneumonia and link it to her hypoxaemia, crackles, bronchial breathing and fever.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Bacterial infection triggers an inflammatory response in the alveoli",
+                "Alveoli fill with inflammatory exudate — fluid, neutrophils and debris (consolidation)",
+                "Perfused but unventilated alveoli create a V/Q mismatch (shunt), lowering arterial oxygen",
+                "Hypoxaemia and increased work of breathing stimulate a raised respiratory rate",
+                "Crackles occur as air moves through fluid-filled small airways and alveoli open",
+                "Consolidated lung transmits sound from the large airways well, producing bronchial breathing",
+                "Cytokines (e.g. IL-1, IL-6) act on the hypothalamus to raise the temperature set-point, causing fever; tachycardia reflects fever, sepsis and hypoxaemia"
+            ],
+            "bonusPoints": [
+                "Hypoxic pulmonary vasoconstriction partly redirects blood away from consolidated lung but cannot fully correct the shunt; the illness may progress to sepsis."
+            ],
+            "modelAnswer": {
+                "presentation": "Productive cough, fever, tachypnoea, tachycardia, low SpO₂ and focal crackles with bronchial breathing indicate right lower lobe pneumonia.",
+                "mechanism": "Bacteria in the alveoli trigger an inflammatory response. Alveoli fill with exudate of fluid, neutrophils and debris — consolidation.",
+                "physiology": "Consolidated alveoli are still perfused but no longer ventilated, creating a shunt: blood passes them without picking up oxygen, lowering arterial oxygen. Hypoxic pulmonary vasoconstriction diverts some flow away but cannot fully compensate. Cytokines such as IL-1 and IL-6 reset the hypothalamic temperature set-point.",
+                "signs": "Hypoxaemia and stiffer lungs drive a raised respiratory rate. Air moving through fluid and airways opening produce crackles. Solid, consolidated lung conducts sound from the bronchi more efficiently than aerated lung, giving bronchial breathing. The raised set-point causes fever, and fever, hypoxaemia and the systemic response raise her heart rate.",
+                "linking": "Consolidation explains the local chest signs and the hypoxaemia, while the systemic inflammatory response explains the fever and tachycardia."
+            }
+        }
+    },
+    {
+        "id": "sa-rs-04",
+        "category": "respiratory",
+        "title": "Sudden chest pain in a tall young man",
+        "stem": "A tall, slim 21-year-old man developed sudden sharp left-sided chest pain and breathlessness while sitting at his desk. Air entry is reduced on the left, and the left side sounds more resonant on percussion. SpO₂ 95%, RR 22.",
+        "intro": {
+            "question": "What has happened to his lung, and why are the breath sounds quieter on that side?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Air has leaked into the space between the lung and the chest wall (a pneumothorax)",
+                "Tall, slim young men can have small weak air blisters on the lung that burst without injury",
+                "The lung partly collapses because it is no longer held against the chest wall",
+                "Less air moves in and out of the collapsed lung, so breath sounds are quieter, and air in the chest makes it sound more hollow when tapped"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Sudden sharp one-sided chest pain and breathlessness in a tall, slim young man suggest a spontaneous pneumothorax.",
+                "mechanism": "A small weak blister on the surface of his lung has burst, letting air into the space around the lung.",
+                "physiology": "The lung normally stays inflated because it's held against the chest wall. With air in that space, the lung partly collapses.",
+                "signs": "The collapsed lung moves less air, so breath sounds are quieter on that side. Air in the chest makes it sound more hollow (resonant) when tapped. Pain comes from the irritated lining of the lung.",
+                "linking": "Air in the wrong place lets the lung collapse, explaining the quiet breath sounds and breathlessness."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of a primary spontaneous pneumothorax and link it to his clinical signs.",
+            "wordGuide": 150,
+            "markingPoints": [
+                "Primary spontaneous pneumothorax typically affects tall, thin young males, often from rupture of apical subpleural blebs",
+                "Normally negative intrapleural pressure keeps the lung expanded against the chest wall",
+                "Air entering the pleural space abolishes the negative pressure, and the lung's elastic recoil causes it to collapse",
+                "The collapsed lung is poorly ventilated, causing V/Q mismatch; young, healthy lungs usually compensate, so SpO₂ may be near normal",
+                "Reduced ventilation of the affected lung causes reduced air entry and breath sounds",
+                "Air in the pleural space causes hyper-resonance on percussion",
+                "Irritation of the parietal pleura causes sharp, pleuritic pain"
+            ],
+            "bonusPoints": [
+                "Blebs at the apex are exposed to more negative pleural pressure in tall individuals, increasing the risk of rupture."
+            ],
+            "modelAnswer": {
+                "presentation": "Sudden pleuritic chest pain and breathlessness at rest with reduced air entry and hyper-resonance on one side in a tall, slim young man indicate a primary spontaneous pneumothorax.",
+                "mechanism": "Small subpleural blebs at the lung apex have ruptured, allowing air into the pleural space. In tall individuals the apex is exposed to more negative pleural pressure, increasing this risk.",
+                "physiology": "The lung is normally held expanded by negative intrapleural pressure. When air enters the pleural space, that pressure is lost and the lung's elastic recoil collapses it. The collapsed portion is poorly ventilated, creating V/Q mismatch, but healthy young lungs often compensate, keeping SpO₂ close to normal.",
+                "signs": "Reduced ventilation gives reduced air entry and quieter breath sounds. Air between lung and chest wall produces hyper-resonance on percussion. Parietal pleural irritation causes sharp, pleuritic pain.",
+                "linking": "Loss of negative pleural pressure explains the collapse, and air in the pleural space explains the percussion and auscultation findings."
+            }
+        }
+    },
+    {
+        "id": "sa-rs-05",
+        "category": "respiratory",
+        "title": "Tingling fingers when anxious",
+        "stem": "A 27-year-old woman is very anxious after a stressful phone call. She is breathing fast (RR 34), says her lips and fingers are tingling, and her hands are cramping. SpO₂ 99%.",
+        "intro": {
+            "question": "Why does breathing too fast make her fingers and lips tingle and her hands cramp?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Anxiety has made her breathe much faster and deeper than her body needs",
+                "She is breathing out too much carbon dioxide, so its level in the blood falls",
+                "Less carbon dioxide makes the blood more alkaline",
+                "This reduces the calcium available to nerves and muscles, making them over-excitable, which causes tingling and cramping"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Fast breathing, tingling lips and fingers and hand cramps after a stressful event suggest anxiety-related hyperventilation.",
+                "mechanism": "Anxiety has made her breathe faster and deeper than her body needs.",
+                "physiology": "She is blowing off too much carbon dioxide, so her blood becomes more alkaline. This lowers the calcium available to her nerves and muscles.",
+                "signs": "Nerves become over-excitable, causing tingling around the mouth and in the fingers. Muscles in her hands cramp. Her SpO₂ is normal because the problem is carbon dioxide, not oxygen.",
+                "linking": "Breathing off too much carbon dioxide explains all her symptoms."
+            }
+        },
+        "advanced": {
+            "question": "Explain the physiology linking hyperventilation to her paraesthesia and carpopedal spasm.",
+            "wordGuide": 150,
+            "markingPoints": [
+                "Anxiety drives alveolar ventilation beyond metabolic need",
+                "Excess CO₂ elimination lowers PaCO₂ (hypocapnia)",
+                "Falling CO₂ reduces carbonic acid and hydrogen ions, raising pH — respiratory alkalosis",
+                "In alkalosis, more calcium binds to albumin, lowering ionised (free) calcium",
+                "Low ionised calcium increases neuronal excitability, causing perioral and peripheral paraesthesia",
+                "Increased neuromuscular excitability causes muscle spasm, e.g. carpopedal spasm",
+                "SpO₂ is normal because oxygenation is not the problem"
+            ],
+            "bonusPoints": [
+                "Hypocapnia causes cerebral vasoconstriction, which can cause light-headedness; organic causes of tachypnoea must be excluded before attributing it to anxiety."
+            ],
+            "modelAnswer": {
+                "presentation": "Tachypnoea with perioral and digital paraesthesia and carpopedal spasm, normal SpO₂ and an emotional trigger suggest hyperventilation with respiratory alkalosis.",
+                "mechanism": "Anxiety increases alveolar ventilation beyond what her metabolism requires, so CO₂ is removed faster than it is produced.",
+                "physiology": "PaCO₂ falls. Less CO₂ means less carbonic acid and fewer hydrogen ions, so pH rises — a respiratory alkalosis. In alkalosis, albumin binds more calcium, lowering the ionised fraction that stabilises nerve and muscle membranes.",
+                "signs": "Reduced ionised calcium lowers the threshold for depolarisation, so peripheral and perioral nerves fire spontaneously, causing tingling. Increased neuromuscular excitability produces carpopedal spasm. Hypocapnic cerebral vasoconstriction can add light-headedness. SpO₂ is 99% because oxygenation is normal.",
+                "linking": "Her symptoms come from what she is losing — CO₂ — and its effect on pH and calcium, not from a lack of oxygen."
+            }
+        }
+    },
+    {
+        "id": "sa-rs-06",
+        "category": "respiratory",
+        "title": "Drowsy with a chest infection and COPD",
+        "stem": "A 71-year-old man with severe COPD has had a chest infection for four days. His family say he has become drowsy and confused today. He has a headache, warm peripheries and a bounding pulse. RR 26, SpO₂ 84%.",
+        "intro": {
+            "question": "Why might a flare-up of COPD make him drowsy and confused?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "COPD damages the lungs so they can't move air in and out efficiently",
+                "The chest infection makes this worse, so he can't breathe out enough carbon dioxide",
+                "Carbon dioxide builds up in his blood",
+                "High carbon dioxide affects the brain, making him drowsy, confused and headachy"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Drowsiness, confusion and headache during a chest infection in someone with severe COPD suggest a build-up of carbon dioxide.",
+                "mechanism": "His damaged lungs already struggle, and the infection has made them worse.",
+                "physiology": "He can't breathe out enough carbon dioxide, so it builds up in his blood. Oxygen levels also fall.",
+                "signs": "High carbon dioxide affects his brain, causing drowsiness, confusion and headache. It also widens blood vessels, making his hands warm and his pulse bounding.",
+                "linking": "His lungs can't get rid of carbon dioxide, and the build-up is what's affecting his brain."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of hypercapnic respiratory failure in an exacerbation of COPD and link it to his neurological and circulatory signs.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "COPD causes airflow limitation from airway inflammation and narrowing, and alveolar destruction in emphysema",
+                "Infection increases airway resistance and mucus, worsening V/Q mismatch and alveolar hypoventilation",
+                "Respiratory muscles are disadvantaged by hyperinflation and tire, reducing effective ventilation",
+                "CO₂ elimination falls, so PaCO₂ rises (type 2 respiratory failure)",
+                "Rising CO₂ causes respiratory acidosis",
+                "Hypercapnia and acidosis depress the CNS, causing drowsiness and confusion (CO₂ narcosis)",
+                "CO₂ is a vasodilator: cerebral vasodilation causes headache, and peripheral vasodilation causes warm peripheries and a bounding pulse"
+            ],
+            "bonusPoints": [
+                "Chronic compensation (renal bicarbonate retention) may be present, but an acute rise overwhelms it, lowering pH; a flapping tremor is another sign of hypercapnia."
+            ],
+            "modelAnswer": {
+                "presentation": "Drowsiness, confusion, headache, warm peripheries, a bounding pulse and low SpO₂ during an infective exacerbation of severe COPD suggest hypercapnic (type 2) respiratory failure.",
+                "mechanism": "COPD causes chronic airflow limitation and, in emphysema, loss of alveolar surface. Infection adds airway inflammation and mucus, raising resistance and worsening V/Q mismatch.",
+                "physiology": "Hyperinflation flattens the diaphragm, putting the respiratory muscles at a mechanical disadvantage; as they fatigue, alveolar ventilation falls. CO₂ elimination can no longer match production, so PaCO₂ rises. Even with chronic renal bicarbonate retention, an acute rise lowers pH — a respiratory acidosis.",
+                "signs": "Hypercapnia and acidosis depress the central nervous system, producing drowsiness and confusion. CO₂ is a potent vasodilator: cerebral vasodilation causes headache, and peripheral vasodilation causes warm hands and a bounding pulse. Low SpO₂ reflects the accompanying hypoxaemia.",
+                "linking": "Falling ventilation leads to rising CO₂, and CO₂'s effects on the brain and blood vessels explain his neurological and circulatory signs."
+            }
+        }
+    },
+    {
+        "id": "sa-rs-07",
+        "category": "respiratory",
+        "title": "Sudden breathlessness after surgery",
+        "stem": "A 62-year-old woman had a hip replacement 10 days ago. She has become suddenly breathless with sharp right-sided chest pain on breathing in. HR 116, RR 30, SpO₂ 89%, BP 104/70. Her chest sounds clear.",
+        "intro": {
+            "question": "Why might a blood clot in the lungs cause sudden breathlessness and low oxygen, even though her chest sounds clear?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "After surgery and reduced mobility, a clot can form in a leg vein and travel to the lungs (pulmonary embolism)",
+                "The clot blocks blood flow to part of the lung",
+                "Air still reaches that part of the lung, but no blood is there to pick up oxygen, so oxygen levels fall",
+                "Her airways and air sacs aren't affected, so the chest sounds clear; she breathes fast and her heart speeds up to compensate"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Sudden breathlessness, pleuritic chest pain, a fast heart rate and low oxygen with a clear chest after hip surgery suggest a pulmonary embolism.",
+                "mechanism": "Surgery and reduced movement led to a clot forming, which travelled to her lungs.",
+                "physiology": "The clot blocks blood flow to part of her lung. Air still gets there, but no blood is passing to collect oxygen.",
+                "signs": "Her oxygen level falls, so she breathes fast and her heart speeds up. The chest sounds clear because the problem is in the blood vessels, not the airways.",
+                "linking": "A clear chest with low oxygen fits a blockage in the lung's blood supply."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of pulmonary embolism and link it to her hypoxaemia, pleuritic pain, tachycardia and clear chest.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Post-operative immobility and surgery (Virchow's triad) predispose to DVT, which embolises to the pulmonary arteries",
+                "The embolus obstructs pulmonary blood flow, so ventilated alveoli are no longer perfused (increased dead space)",
+                "Blood is redirected to other regions, causing V/Q mismatch and hypoxaemia",
+                "Hypoxaemia and stimulation of lung receptors drive tachypnoea",
+                "Distal lung tissue may infarct, irritating the pleura and causing pleuritic pain",
+                "Raised pulmonary vascular resistance increases right ventricular afterload; RV strain can reduce left-sided filling and cardiac output, with compensatory tachycardia",
+                "Airways and alveoli are not primarily affected, so the chest is often clear on auscultation"
+            ],
+            "bonusPoints": [
+                "A massive PE can cause obstructive shock and cardiac arrest; tachypnoea often lowers PaCO₂."
+            ],
+            "modelAnswer": {
+                "presentation": "Sudden breathlessness, pleuritic chest pain, tachycardia, tachypnoea and hypoxaemia with a clear chest 10 days after hip surgery indicate a pulmonary embolism.",
+                "mechanism": "Surgery and immobility satisfy Virchow's triad, promoting deep vein thrombosis. A thrombus has broken off and lodged in her pulmonary arterial tree.",
+                "physiology": "Alveoli beyond the blockage are ventilated but not perfused, increasing dead space. Blood diverted to other lung regions over-perfuses them relative to ventilation, so V/Q mismatch lowers arterial oxygen. Obstruction raises pulmonary vascular resistance and right ventricular afterload; a strained right ventricle can reduce left-sided filling and cardiac output.",
+                "signs": "Hypoxaemia and lung receptor stimulation cause tachypnoea. Infarction of distal lung irritates the pleura, causing pain on inspiration. Reduced output and hypoxaemia drive a compensatory tachycardia; her BP is still maintained. Because the airways and alveoli themselves are unaffected, the chest sounds clear.",
+                "linking": "PE is a perfusion problem, not a ventilation one — which is why she is hypoxic and breathless with a clear chest."
+            }
+        }
+    },
+    {
+        "id": "sa-rs-08",
+        "category": "respiratory",
+        "title": "Deteriorating after a chest injury",
+        "stem": "A 40-year-old motorcyclist has a left-sided chest injury. Over 10 minutes he has become increasingly breathless and distressed. There is no air entry on the left, his neck veins are distended, HR 140, BP 78/50, SpO₂ 82%. His trachea is deviated to the right.",
+        "intro": {
+            "question": "What is a tension pneumothorax, and why does it cause low blood pressure as well as breathing problems?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Air leaks into the space around the lung with each breath but can't escape (a one-way valve)",
+                "Pressure builds up in that side of the chest and the lung collapses completely, so there is no air entry",
+                "The rising pressure pushes the heart and main blood vessels towards the other side",
+                "This squashes the large veins returning blood to the heart, so the heart can't fill, blood pressure falls and neck veins swell"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Worsening breathlessness, no air entry on one side, swollen neck veins, low blood pressure and a shifted windpipe after a chest injury suggest a tension pneumothorax.",
+                "mechanism": "A lung injury is letting air into the space around the lung with every breath, but it can't get out.",
+                "physiology": "Pressure keeps rising on that side, so the lung collapses completely and the heart and main vessels are pushed across.",
+                "signs": "No air entry on the left and low oxygen come from the collapsed lung. The squashed veins can't return blood to the heart, so blood pressure falls, his heart races and his neck veins swell. The windpipe is pushed to the other side.",
+                "linking": "Trapped, rising pressure stops both breathing and blood returning to the heart."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of tension pneumothorax and why it causes obstructive shock. Link your answer to his signs.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "A one-way valve lets air enter the pleural space on inspiration but not leave on expiration",
+                "Intrapleural pressure rises progressively and becomes positive",
+                "The ipsilateral lung collapses completely, causing absent breath sounds and hypoxaemia",
+                "Rising pressure causes mediastinal shift towards the opposite side (tracheal deviation is a late sign)",
+                "The shift and raised intrathoracic pressure compress and kink the great veins, impairing venous return",
+                "Reduced preload lowers stroke volume and cardiac output — obstructive shock, with hypotension and compensatory tachycardia",
+                "Impaired venous return raises the JVP (may be absent if hypovolaemic)"
+            ],
+            "bonusPoints": [
+                "The contralateral lung is also compressed, worsening hypoxaemia; tachycardia and hypoxia typically precede tracheal deviation."
+            ],
+            "modelAnswer": {
+                "presentation": "Progressive breathlessness after chest trauma with absent left air entry, hypoxaemia, raised JVP, tachycardia, hypotension and tracheal deviation to the right indicate a left tension pneumothorax.",
+                "mechanism": "Injured lung tissue acts as a one-way valve: air enters the pleural space on each inspiration but cannot leave on expiration.",
+                "physiology": "Intrapleural pressure rises with each breath until it is positive. The left lung collapses completely and the mediastinum is pushed to the right, compressing the right lung too. Raised intrathoracic pressure and mediastinal shift compress and kink the vena cavae, reducing venous return. Falling preload lowers stroke volume and cardiac output — obstructive shock.",
+                "signs": "A collapsed lung gives absent air entry and hypoxaemia. Obstructed venous return distends the neck veins and causes hypotension with compensatory tachycardia. Tracheal deviation away from the affected side is a late sign of mediastinal shift.",
+                "linking": "It is the rising pressure — not the collapsed lung alone — that kills, because it stops blood returning to the heart."
+            }
+        }
+    },
+    {
+        "id": "sa-rs-09",
+        "category": "respiratory",
+        "title": "A quiet chest in severe asthma",
+        "stem": "A 16-year-old with asthma has been struggling to breathe for hours. She is exhausted, can only manage single words, and her chest is now almost silent on auscultation. RR 12, HR 134, SpO₂ 88%.",
+        "intro": {
+            "question": "Why is a quiet chest and a slowing breathing rate a very worrying sign in someone having an asthma attack?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Her airways are so narrow that very little air is moving in or out",
+                "With little air moving, there is not enough airflow to make a wheeze, so the chest goes quiet",
+                "After hours of hard work her breathing muscles are exhausted, so her breathing rate is slowing",
+                "Carbon dioxide builds up and oxygen falls, and she may be close to respiratory arrest"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Exhaustion, single words, a near-silent chest and a slowing breathing rate after hours of asthma suggest a life-threatening attack.",
+                "mechanism": "Her airways have become so narrow that hardly any air can move through them.",
+                "physiology": "A wheeze needs air flowing through narrowed airways. When almost no air moves, the wheeze disappears. Her breathing muscles are tiring after hours of work.",
+                "signs": "The chest goes quiet, her breathing rate falls from exhaustion, and oxygen levels drop while carbon dioxide rises. Her heart races to compensate.",
+                "linking": "A quiet chest here doesn't mean she's getting better — it means very little air is moving, and she may stop breathing."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of life-threatening asthma and why a silent chest and falling respiratory rate indicate imminent respiratory arrest.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Severe bronchoconstriction, mucosal oedema and mucus plugging critically narrow the airways",
+                "Expiratory airflow limitation causes air trapping and dynamic hyperinflation",
+                "Hyperinflation flattens the diaphragm and increases the work of breathing",
+                "Airflow becomes too low to generate turbulent flow, so wheeze disappears (silent chest)",
+                "Prolonged high work of breathing leads to respiratory muscle fatigue and a falling respiratory rate",
+                "Alveolar hypoventilation causes rising PaCO₂ and worsening hypoxaemia; a normal or rising CO₂ is ominous",
+                "Hypoxaemia and acidosis progress towards respiratory then cardiac arrest"
+            ],
+            "bonusPoints": [
+                "Hyperinflation raises intrathoracic pressure, reducing venous return; pulsus paradoxus may be present, and confusion or drowsiness indicates rising CO₂."
+            ],
+            "modelAnswer": {
+                "presentation": "Exhaustion, single words, a silent chest, a falling respiratory rate, tachycardia and hypoxaemia after prolonged symptoms indicate life-threatening asthma.",
+                "mechanism": "Bronchoconstriction, oedema and mucus plugging have narrowed her airways so severely that airflow is critically limited, especially on expiration.",
+                "physiology": "Air trapping causes dynamic hyperinflation, flattening the diaphragm and greatly increasing the work of breathing. After hours of this, the respiratory muscles fatigue. As ventilation falls, CO₂ is no longer cleared: early in an attack PaCO₂ is usually low from tachypnoea, so a normal or rising CO₂ signals failure. Hypoxaemia worsens and acidosis develops.",
+                "signs": "Airflow is too low to create turbulence, so the wheeze disappears — a silent chest. The falling respiratory rate reflects exhaustion, not improvement. Hypoxaemia and sympathetic drive keep her heart rate high. Raised intrathoracic pressure can reduce venous return, sometimes causing pulsus paradoxus.",
+                "linking": "Silence and a slowing rate mean the airways and muscles are failing together — the final stage before respiratory arrest."
+            }
+        }
+    },
+    {
+        "id": "sa-rs-10",
+        "category": "respiratory",
+        "title": "Headache and a normal SpO₂ in a smoky house",
+        "stem": "A couple were found drowsy at home in winter with an old gas fire running. Both have headaches and nausea, and one is confused. The pulse oximeter reads 99% on both of them.",
+        "intro": {
+            "question": "How does carbon monoxide starve the body of oxygen, and why might the pulse oximeter still read normal?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Carbon monoxide sticks to haemoglobin in red blood cells far more strongly than oxygen does",
+                "This leaves less haemoglobin free to carry oxygen, so the tissues and brain are starved of oxygen",
+                "The brain is very sensitive to low oxygen, causing headache, nausea, drowsiness and confusion",
+                "A standard pulse oximeter can't tell haemoglobin carrying carbon monoxide from haemoglobin carrying oxygen, so it can read falsely normal"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Headache, nausea, drowsiness and confusion in two people sharing a home with an old gas fire suggest carbon monoxide poisoning.",
+                "mechanism": "Carbon monoxide from the faulty fire has been breathed in and has attached to their red blood cells.",
+                "physiology": "It binds to haemoglobin far more strongly than oxygen, so less oxygen can be carried to the tissues.",
+                "signs": "The brain is starved of oxygen, causing headache, nausea, drowsiness and confusion. A standard pulse oximeter reads haemoglobin carrying carbon monoxide as if it were carrying oxygen, so it shows a falsely reassuring 99%.",
+                "linking": "They are short of oxygen at tissue level even though the monitor looks normal — so the reading can't be trusted here."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of carbon monoxide poisoning, including its effect on the oxygen–haemoglobin dissociation curve, and why SpO₂ is unreliable.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Carbon monoxide binds haemoglobin with around 200–250 times the affinity of oxygen, forming carboxyhaemoglobin (COHb)",
+                "This reduces the oxygen-carrying capacity of the blood",
+                "CO shifts the oxygen–haemoglobin dissociation curve to the left, so remaining haemoglobin releases oxygen less readily to the tissues",
+                "CO also impairs cellular respiration by binding cytochrome oxidase in mitochondria",
+                "Tissue hypoxia affects the brain and heart first, causing headache, nausea, confusion and reduced consciousness",
+                "Standard two-wavelength pulse oximeters cannot distinguish COHb from oxyhaemoglobin, so SpO₂ is falsely normal",
+                "PaO₂ (dissolved oxygen) may also be normal, so hypoxia is at the level of carriage and delivery, not lung gas exchange"
+            ],
+            "bonusPoints": [
+                "CO-oximetry measures COHb; multiple people from one household with similar symptoms is a key clue; delayed neurological effects can occur."
+            ],
+            "modelAnswer": {
+                "presentation": "Headache, nausea, drowsiness and confusion in two people from one home with an old gas fire, with falsely normal SpO₂, indicate carbon monoxide poisoning.",
+                "mechanism": "Incomplete combustion produces CO, which is inhaled and binds haemoglobin with roughly 200–250 times the affinity of oxygen, forming carboxyhaemoglobin.",
+                "physiology": "Less haemoglobin is available to carry oxygen, reducing oxygen content. CO also shifts the dissociation curve to the left, so the haemoglobin that does carry oxygen releases it less readily to the tissues. At cellular level, CO binds cytochrome oxidase, impairing mitochondrial respiration. Gas exchange in the lungs is normal, so PaO₂ can also look normal.",
+                "signs": "The brain and heart, with the highest oxygen demand, are affected first — causing headache, nausea, confusion and reduced consciousness. Two-wavelength pulse oximeters read COHb as oxyhaemoglobin, so SpO₂ shows a falsely reassuring 99%.",
+                "linking": "CO causes hypoxia in how oxygen is carried and delivered, not in how it enters the blood — which is exactly why the usual monitoring fails to show it."
             }
         }
     }
