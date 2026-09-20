@@ -1157,6 +1157,9 @@ ADVANCED LEVEL: The learner has chosen Advanced level (university Level 5–6). 
 
 Aim for 400–600 words for substantial questions. Short factual questions still get short answers. Keep your warm tone. Every rule above about treatment, medicines and management still applies in full.`;
 
+        // Set just before a "Go deeper" answer is finalised, so that answer
+        // (already at Advanced depth) doesn't offer "Go deeper" again.
+        let hideGoDeeperOnce = false;
         let learningLevel = 'intro';
         try {
             const savedLevel = localStorage.getItem('paramind_level') || localStorage.getItem('connections_level');
@@ -1558,11 +1561,17 @@ Output the JSON object now. No other text.`;
                     <i class="bi bi-emoji-smile"></i>
                     Make it simpler, Hollie!
                 </button>
+                ${(learningLevel === 'intro' && !hideGoDeeperOnce) ? `
+                <button class="simplify-btn" onclick="askHollieToGoDeeper()">
+                    <i class="bi bi-mortarboard"></i>
+                    Go deeper, Hollie!
+                </button>` : ''}
                 <button class="quiz-me-btn" onclick="askHollieToQuizMe()">
                     <i class="bi bi-lightbulb"></i>
                     Quiz me on this
                 </button>
             `;
+            hideGoDeeperOnce = false;
 
             // Find the LAST element belonging to this message (could be a tool card)
             // and insert actions after it. Otherwise insert after the message itself.
@@ -2284,6 +2293,115 @@ SIMPLIFY MODE: The learner just asked you to simplify your previous explanation.
             }
         }
 
+        // ==================== GO DEEPER (Introduction level only) ====================
+        // Mirrors askHollieToSimplify(), but re-explains the last topic at Advanced depth.
+        async function askHollieToGoDeeper() {
+            if (!lastAssistantResponse || chatState.isLoading) return;
+            
+            // Remove the action buttons
+            if (lastSimplifyBtnId) {
+                const btn = document.getElementById(lastSimplifyBtnId);
+                if (btn) btn.remove();
+                lastSimplifyBtnId = null;
+            }
+            
+            // Add user request message
+            addMessage('user', 'Go deeper please, Hollie! 🎓');
+            
+            // Create streaming message bubble
+            const aiMessageId = 'ai-msg-' + Date.now();
+            addStreamingMessage(aiMessageId);
+            
+            chatState.isLoading = true;
+            elements.sendBtn.disabled = true;
+
+            try {
+                const user = auth.currentUser;
+                if (!user) throw new Error('Not authenticated');
+                
+                const token = await user.getIdToken();
+                
+                const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.chatEndpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Can you take that further please? Explain it in more depth at university Level 5-6, building on what you just said.',
+                        conversationHistory: chatState.conversationHistory.slice(-6),
+                        systemPromptAddendum: HOLLIE_PROMPT_ADDENDUM + ADVANCED_LEVEL_ADDENDUM + `
+
+GO DEEPER MODE: The learner has read your previous explanation and wants to go deeper. Stay on the SAME topic and build on what you already said rather than repeating it.`,
+                        scenarioId: null,
+                        scenarioPrompt: null
+                    })
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 429) {
+                        throw new Error('LIMIT_REACHED');
+                    }
+                    throw new Error('Failed to send message');
+                }
+                
+                // Handle streaming response
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullMessage = '';
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const text = decoder.decode(value, { stream: true });
+                    const lines = text.split('\n');
+                    
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                
+                                if (data.type === 'chunk') {
+                                    fullMessage += data.content;
+                                    updateStreamingMessage(aiMessageId, fullMessage);
+                                } else if (data.type === 'error') {
+                                    throw new Error(data.error);
+                                }
+                            } catch (parseError) {
+                                // Skip invalid JSON lines
+                            }
+                        }
+                    }
+                }
+                
+                const messageDiv = document.getElementById(aiMessageId);
+                if (messageDiv) {
+                    const contentDiv = messageDiv.querySelector('.message-content');
+                    if (contentDiv) {
+                        contentDiv.innerHTML = formatMessage(fullMessage);
+                    }
+                }
+                
+                hideGoDeeperOnce = true;
+                finalizeStreamingMessage(aiMessageId, fullMessage);
+
+                // Update conversation history with clean text (markers stripped)
+                const parsedForHistory = parseHollieResponse(fullMessage);
+                chatState.conversationHistory.push({ role: 'user', content: 'Go deeper please!' });
+                chatState.conversationHistory.push({ role: 'assistant', content: parsedForHistory.cleanText });
+
+                lastAssistantResponse = fullMessage;
+                
+            } catch (error) {
+                removeStreamingMessage(aiMessageId);
+                handleChatError(error);
+            } finally {
+                chatState.isLoading = false;
+                elements.sendBtn.disabled = false;
+            }
+        }
+
         function removeStreamingMessage(messageId) {
             const messageDiv = document.getElementById(messageId);
             if (messageDiv) messageDiv.remove();
@@ -2323,6 +2441,7 @@ SIMPLIFY MODE: The learner just asked you to simplify your previous explanation.
 
         // Make functions global for onclick handlers
         window.askHollieToSimplify = askHollieToSimplify;
+        window.askHollieToGoDeeper = askHollieToGoDeeper;
         window.askHollieToQuizMe = askHollieToQuizMe;
         window.handleQuizAnswer = handleQuizAnswer;
 
