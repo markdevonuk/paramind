@@ -752,6 +752,12 @@
         .quiz-btn-secondary:hover { background: var(--color-gray-200); }
 
         /* Explanation */
+        /* Go deeper button row (button style comes from js/go-deeper.js) */
+        .go-deeper-row {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
         .explanation-card {
             margin-top: 16px;
             padding: 16px;
@@ -1363,6 +1369,11 @@ function renderPanels() {
                             <div class="info-card-mini card-low simplified"><h4><i class="bi bi-arrow-down-circle"></i> Low values</h4><div class="full-text">${m.low}</div><div class="simple-text">${m.simpleLow || m.low}</div></div>
                             <div class="info-card-mini card-road simplified"><h4><i class="bi bi-truck"></i> Why it matters on the road</h4><div class="full-text">${m.roadRelevance}</div><div class="simple-text">${m.simpleRoadRelevance || m.roadRelevance}</div></div>
                         </div>
+                        <div class="go-deeper-row">
+                            <button type="button" class="pgd-btn" onclick="event.stopPropagation(); goDeeperMarker('${m.id}')">
+                                <i class="bi bi-mortarboard"></i> Go deeper, Hollie!
+                            </button>
+                        </div>
                         
                     </div>
                 </div>
@@ -1649,6 +1660,11 @@ window.checkQuizAnswer = function() {
         <div class="explanation-card ${isCorrect ? 'explanation-correct' : 'explanation-wrong'}">
             <h4>${isCorrect ? '✅ Correct!' : '❌ Not quite'}</h4>
             ${s.explanation}
+            <div class="go-deeper-row">
+                <button type="button" class="pgd-btn" onclick="goDeeperQuiz()">
+                    <i class="bi bi-mortarboard"></i> Go deeper, Hollie!
+                </button>
+            </div>
         </div>`;
 
     // Swap button to Next
@@ -1659,6 +1675,56 @@ window.checkQuizAnswer = function() {
         selectedOption = null;
         renderQuestion();
     };
+};
+
+// ==================== GO DEEPER (uses shared js/go-deeper.js) ====================
+function plainText(html) {
+    const d = document.createElement('div');
+    d.innerHTML = html || '';
+    return (d.textContent || '').trim();
+}
+
+window.goDeeperMarker = function(id) {
+    const m = findMarker(id);
+    if (!m || !window.ParamindGoDeeper) return;
+    const val = sliderValues[m.id];
+    const flag = getFlag(m, val);
+    const message =
+        'Blood marker: ' + m.name + '\n' +
+        'Normal range: ' + formatVal(m.normalLow, m) + ' – ' + formatVal(m.normalHigh, m) + ' ' + m.unit + '\n' +
+        'Value the learner is currently looking at: ' + formatVal(val, m) + ' ' + m.unit + ' (' + flag + ')\n\n' +
+        'What it is: ' + plainText(m.whatIsIt) + '\n' +
+        'High values: ' + plainText(m.high) + '\n' +
+        'Low values: ' + plainText(m.low) + '\n' +
+        'Why it matters on the road: ' + plainText(m.roadRelevance);
+    ParamindGoDeeper.open({
+        snippet: m.name,
+        message: message,
+        context: 'The learner is studying a blood test marker in Paramind\'s Understanding Bloods tool.',
+        extra: 'Explain how the body normally regulates this marker, and the mechanisms that make it rise or fall. Where relevant, explain what it can and cannot tell a clinician, and common pitfalls in interpreting it.'
+    });
+};
+
+window.goDeeperQuiz = function() {
+    const s = quizOrder[quizIndex];
+    if (!s || !window.ParamindGoDeeper) return;
+    const bloods = Object.entries(s.bloods)
+        .filter(([key]) => key !== 'calcium_not_shown')
+        .map(([key, val]) => key + ': ' + val)
+        .join(', ');
+    const message =
+        'Scenario: ' + plainText(s.dispatch) + '\n' +
+        'Blood results: ' + bloods + '\n' +
+        'Question: ' + plainText(s.question) + '\n' +
+        'Options: ' + s.options.map(plainText).join(' | ') + '\n' +
+        'Correct answer: ' + plainText(s.options[s.correct]) + '\n' +
+        'Explanation given: ' + plainText(s.explanation);
+    ParamindGoDeeper.open({
+        snippet: plainText(s.question),
+        message: message,
+        context: 'The learner has just answered a blood-results scenario question in Paramind\'s Understanding Bloods tool.',
+        extra: 'Walk through how to interpret these results systematically, which results support the correct answer and why, and briefly why the other options are wrong.'
+    });
 };
 
 function renderFinalResults() {
@@ -1917,6 +1983,7 @@ setTimeout(initTour, 800);
 <script src="js/pro-guard.js"></script>
 <script src="js/app.js"></script>
 <script src="js/menu-v2.js"></script>
+<script src="js/go-deeper.js"></script>
     <script src="js/activity-logger.js"></script>
 <script src="js/upgrade-modal.js"></script>
 </body>
