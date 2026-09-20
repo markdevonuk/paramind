@@ -6,9 +6,10 @@
  * Content policy: no drug names, doses, treatment or management.
  */
 var SHORT_ANSWER_CATEGORIES = [
-    { id: 'cardiovascular', name: 'Cardiovascular', icon: 'bi-heart-pulse', colour: '#DC3545' },
-    { id: 'respiratory',    name: 'Respiratory',    icon: 'bi-lungs',      colour: '#0DCAF0' },
-    { id: 'neurological',   name: 'Neurological',   icon: 'bi-activity',   colour: '#6F42C1' }
+    { id: 'cardiovascular', name: 'Cardiovascular',      icon: 'bi-heart-pulse',  colour: '#DC3545' },
+    { id: 'respiratory',    name: 'Respiratory',         icon: 'bi-lungs',        colour: '#0DCAF0' },
+    { id: 'neurological',   name: 'Neurological',        icon: 'bi-activity',     colour: '#6F42C1' },
+    { id: 'sepsis',         name: 'Sepsis & infection',  icon: 'bi-thermometer-half', colour: '#FD7E14' }
 ];
 
 var SHORT_ANSWER_CASES = [
@@ -1415,6 +1416,476 @@ var SHORT_ANSWER_CASES = [
                 "physiology": "In an upper motor neurone lesion such as a stroke, the intact hemisphere still drives the upper facial nucleus, so forehead movement is preserved and only the lower face droops. In a lower motor neurone lesion, the final common pathway itself is affected, so every muscle it supplies is weak. In Bell's palsy, inflammation and oedema compress the nerve within the narrow facial canal, impairing conduction.",
                 "signs": "Her inability to wrinkle the forehead and close the eye localises the lesion to the nerve rather than the cortex. Loss of eye closure threatens the cornea.",
                 "linking": "The bilateral cortical supply to the forehead is what makes it the deciding sign — though a new facial droop still warrants urgent assessment."
+            }
+        }
+    },
+    {
+        "id": "sa-se-01",
+        "category": "sepsis",
+        "title": "Warm and flushed but shutting down",
+        "stem": "A 58-year-old man has had a cough and fever for three days. Today he is confused. He is flushed and warm to touch, HR 122, BP 88/52, RR 26, temperature 38.8 °C.",
+        "intro": {
+            "question": "Why can someone with sepsis be warm and flushed and still have a dangerously low blood pressure?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "In sepsis the body's response to infection spreads throughout the whole body, not just the infected part",
+                "Chemicals released in that response make blood vessels widen everywhere",
+                "Widened vessels mean the same amount of blood is filling a much bigger space, so blood pressure falls",
+                "Wide vessels near the skin make him look flushed and feel warm, while the heart speeds up to compensate"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Fever, confusion, a fast pulse, fast breathing and low blood pressure with warm, flushed skin suggest sepsis.",
+                "mechanism": "A chest infection has triggered a body-wide response rather than staying local.",
+                "physiology": "Chemicals released in that response widen blood vessels throughout the body, so the same volume of blood now has to fill a much larger space.",
+                "signs": "Blood pressure falls, and his heart speeds up to compensate. Wide skin vessels make him warm and flushed. Poor blood supply to the brain causes the confusion.",
+                "linking": "He looks warm because the vessels are wide, and that same widening is exactly why his blood pressure is low."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of sepsis and why it produces distributive shock with warm peripheries.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Pathogen components (e.g. endotoxin) are recognised by pattern recognition receptors, triggering an innate immune response",
+                "Release of pro-inflammatory cytokines (TNF-α, IL-1, IL-6) produces a dysregulated, systemic response",
+                "Endothelial activation and induction of nitric oxide cause widespread vasodilation, reducing systemic vascular resistance",
+                "Increased capillary permeability allows fluid to leak into the interstitium, reducing effective circulating volume",
+                "The combination produces distributive shock — hypotension with a normal or high cardiac output early, so peripheries stay warm",
+                "Compensatory tachycardia and tachypnoea occur; tachypnoea also compensates for developing metabolic acidosis",
+                "Reduced cerebral perfusion and inflammatory effects on the brain cause confusion; progression leads to cold, shut-down peripheries later"
+            ],
+            "bonusPoints": [
+                "Sepsis is defined as life-threatening organ dysfunction caused by a dysregulated host response to infection; myocardial depression can also occur."
+            ],
+            "modelAnswer": {
+                "presentation": "Fever, tachycardia, tachypnoea, hypotension and new confusion with warm, flushed skin, three days into a chest infection, indicate sepsis with distributive shock.",
+                "mechanism": "Components of the pathogen are recognised by innate immune receptors, triggering release of pro-inflammatory cytokines such as TNF-α, IL-1 and IL-6. In sepsis this response becomes dysregulated and systemic.",
+                "physiology": "Endothelial activation and nitric oxide production cause widespread vasodilation, lowering systemic vascular resistance. Increased capillary permeability lets fluid leak into the tissues, reducing effective circulating volume. Cardiac output is often normal or high early, so the problem is distribution rather than pump failure.",
+                "signs": "Low resistance explains hypotension despite warm, flushed peripheries. Tachycardia compensates for falling blood pressure, and tachypnoea reflects both the systemic response and developing metabolic acidosis. Reduced cerebral perfusion and inflammatory effects cause confusion.",
+                "linking": "Warm shock is still shock — perfusion pressure is failing even though the skin feels well perfused, and peripheries only shut down later."
+            }
+        }
+    },
+    {
+        "id": "sa-se-02",
+        "category": "sepsis",
+        "title": "Shivering with a high temperature",
+        "stem": "A 33-year-old woman with a urinary infection is shaking uncontrollably and says she feels freezing cold, yet her temperature is 39.2 °C and her skin is hot.",
+        "intro": {
+            "question": "Why does someone with a high temperature shiver and feel cold?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "The body has a \"set-point\" temperature that it tries to maintain, like a thermostat",
+                "Chemicals released during infection raise that set-point",
+                "The body now sees its normal temperature as too cold, so it shivers to make heat and narrows skin vessels to hold heat in",
+                "She feels cold even though she is hot, because her body is trying to reach a higher target"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Uncontrollable shivering and feeling cold with a temperature of 39.2 °C is a rigor.",
+                "mechanism": "Chemicals released in response to her urinary infection have raised her body's temperature set-point.",
+                "physiology": "Her body works like a thermostat. With the target raised, her current temperature is read as too low.",
+                "signs": "To close the gap, she shivers to generate heat and her skin vessels narrow to keep heat in, which is why she feels cold despite being hot to touch.",
+                "linking": "She isn't cold — her body has simply moved the goalposts and is working hard to reach them."
+            }
+        },
+        "advanced": {
+            "question": "Explain the physiology of fever and rigors, including the role of the hypothalamus.",
+            "wordGuide": 150,
+            "markingPoints": [
+                "Exogenous pyrogens (e.g. bacterial components) trigger release of endogenous pyrogens — cytokines such as IL-1, IL-6 and TNF-α",
+                "These act on the preoptic area of the anterior hypothalamus",
+                "They increase prostaglandin E2 production, which raises the thermoregulatory set-point",
+                "The body then behaves as if it is cold: cutaneous vasoconstriction reduces heat loss",
+                "Shivering — rapid involuntary muscle contraction — generates heat, producing a rigor",
+                "The subjective sensation of cold occurs because core temperature is below the new set-point",
+                "When the set-point falls again, the reverse occurs: vasodilation and sweating, so the patient feels hot and flushed"
+            ],
+            "bonusPoints": [
+                "Fever may aid host defence by impairing pathogen replication and enhancing immune function; rigors suggest bacteraemia."
+            ],
+            "modelAnswer": {
+                "presentation": "Rigors with a temperature of 39.2 °C and hot skin, during a urinary infection, show fever with an actively rising set-point.",
+                "mechanism": "Bacterial components act as exogenous pyrogens, prompting immune cells to release endogenous pyrogens — cytokines including IL-1, IL-6 and TNF-α.",
+                "physiology": "These cytokines act on the preoptic area of the anterior hypothalamus, increasing prostaglandin E2 and raising the thermoregulatory set-point. The hypothalamus compares core temperature with the new, higher target and finds it too low, so it activates heat-conserving and heat-generating responses.",
+                "signs": "Cutaneous vasoconstriction reduces heat loss, and shivering — rapid involuntary muscle contraction — generates heat, producing the rigor. She feels cold because her core temperature is below the new set-point, even though she is hot to touch.",
+                "linking": "Fever isn't loss of temperature control, it's controlled to a higher target — which is exactly why she shivers on the way up and sweats on the way down."
+            }
+        }
+    },
+    {
+        "id": "sa-se-03",
+        "category": "sepsis",
+        "title": "Confused and \"off legs\"",
+        "stem": "An 85-year-old woman is brought in by her daughter because she has been confused since yesterday and keeps falling. She has no cough and no pain. Temperature 37.1 °C, HR 96, BP 118/70. She has a urinary infection.",
+        "intro": {
+            "question": "Why might an older person with an infection be confused and falling rather than have an obvious fever?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Older people often have a weaker immune response, so they may not mount a fever",
+                "The ageing brain is more vulnerable, so infection anywhere in the body can cause confusion (delirium)",
+                "Confusion, falls and being \"off legs\" may be the only signs that something is wrong",
+                "This means infection can be easily missed if you only look for the classic signs"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "New confusion and falls in an 85-year-old with a urinary infection but no fever is a typical presentation of delirium.",
+                "mechanism": "An infection is present, but her body's response to it looks different from a younger person's.",
+                "physiology": "With age, the immune response is blunted, so a fever may not develop. The ageing brain has less reserve, so it is easily disturbed by illness elsewhere in the body.",
+                "signs": "Her confusion and falls are the way her infection is showing itself, and normal observations do not rule it out.",
+                "linking": "In older people, a change in behaviour may be the main sign of infection, so it deserves the same attention as a fever would."
+            }
+        },
+        "advanced": {
+            "question": "Explain why older adults with infection often present atypically, and the pathophysiology of delirium.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Immunosenescence blunts the febrile and inflammatory response, so temperature may be normal or low",
+                "Baseline temperature is often lower in older adults, so a \"normal\" reading may represent a relative rise",
+                "Reduced physiological reserve means illness presents as functional decline — falls, immobility, reduced intake",
+                "Delirium arises from systemic inflammation affecting the brain: cytokines cross a more permeable blood–brain barrier and activate microglia",
+                "Neurotransmitter disturbance, particularly reduced cholinergic and altered dopaminergic function, disrupts attention and cognition",
+                "Pre-existing cognitive impairment, sensory impairment and multiple conditions increase vulnerability",
+                "Delirium is typically acute in onset, fluctuating, and affects attention — distinguishing it from dementia"
+            ],
+            "bonusPoints": [
+                "Hypoactive delirium is more common in older adults and easily missed; delirium is associated with poorer outcomes, so recognising it matters."
+            ],
+            "modelAnswer": {
+                "presentation": "Acute confusion and falls in an 85-year-old with a urinary infection and near-normal observations illustrates atypical presentation with delirium.",
+                "mechanism": "Infection is present, but the response to it is altered by age. Immunosenescence blunts cytokine-driven fever, and her lower baseline temperature means 37.1 °C may already represent a relative rise.",
+                "physiology": "Systemic inflammation affects the brain: cytokines cross a more permeable blood–brain barrier and activate microglia, while neurotransmitter systems — particularly cholinergic — are disturbed. Attention and cognition, which depend on widespread network function, fail first. Reduced physiological reserve means small insults produce large functional effects.",
+                "signs": "Instead of fever and localising symptoms, she presents with acute, fluctuating confusion and falls. Observations that look reassuring do not exclude significant infection.",
+                "linking": "In frail older adults, the presentation is filtered through reduced reserve — so new confusion or a loss of function should be treated as a red flag for infection, not as \"just her age\"."
+            }
+        }
+    },
+    {
+        "id": "sa-se-04",
+        "category": "sepsis",
+        "title": "A hot, red leg",
+        "stem": "A 46-year-old man has a hot, red, swollen and painful left lower leg that has spread over two days from a small cut. The edge of the redness is clearly defined. Temperature 37.9 °C.",
+        "intro": {
+            "question": "Why does an infected wound become red, hot, swollen and painful?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Bacteria entering through the cut trigger an immune response in the skin",
+                "Blood vessels in the area widen and bring more blood, making the skin red and hot",
+                "Vessels also become leaky, so fluid moves into the tissue, causing swelling",
+                "Chemicals released and the pressure of the swelling stimulate pain nerves, so it hurts"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "A spreading, hot, red, swollen and painful leg after a small cut suggests a skin infection.",
+                "mechanism": "Bacteria have entered through the cut and are multiplying in the skin, triggering an immune response.",
+                "physiology": "That response widens local blood vessels and makes them leaky, so more blood and fluid reach the area.",
+                "signs": "Increased blood flow makes the skin red and hot. Fluid leaking into the tissue causes swelling. Inflammatory chemicals and the pressure of the swelling stimulate pain nerves. His mild fever shows the response is becoming systemic.",
+                "linking": "The four classic signs are all the same process — more blood and fluid arriving to fight the infection."
+            }
+        },
+        "advanced": {
+            "question": "Explain the inflammatory process underlying cellulitis and its cardinal signs.",
+            "wordGuide": 150,
+            "markingPoints": [
+                "Breach of the skin barrier allows bacteria, commonly streptococci or staphylococci, to enter the dermis and subcutaneous tissue",
+                "Pattern recognition receptors on resident immune cells trigger cytokine and chemokine release",
+                "Mediators such as histamine, prostaglandins and bradykinin cause arteriolar vasodilation — producing rubor (redness) and calor (heat)",
+                "Increased capillary permeability allows protein-rich exudate into the tissue, causing tumor (swelling)",
+                "Bradykinin and prostaglandins sensitise nociceptors, and tissue distension adds pressure, causing dolor (pain)",
+                "Chemotaxis recruits neutrophils, which migrate by diapedesis to the site",
+                "Systemic cytokine release raises the hypothalamic set-point, causing fever, and may progress to sepsis"
+            ],
+            "bonusPoints": [
+                "A sharply demarcated edge with more superficial involvement suggests erysipelas; lymphatic spread may cause tracking and tender lymph nodes."
+            ],
+            "modelAnswer": {
+                "presentation": "A spreading, sharply demarcated, hot, red, swollen and tender leg after a skin breach, with low-grade fever, describes cellulitis.",
+                "mechanism": "A small cut has breached the skin barrier, allowing bacteria — commonly streptococci or staphylococci — into the dermis and subcutaneous tissue.",
+                "physiology": "Resident immune cells recognise bacterial components and release cytokines and chemokines. Histamine, prostaglandins and bradykinin dilate local arterioles and increase capillary permeability, while chemotaxis recruits neutrophils that migrate out of the vessels into the tissue.",
+                "signs": "Vasodilation and increased blood flow cause redness and heat. Protein-rich exudate entering the tissue causes swelling. Bradykinin and prostaglandins sensitise pain receptors, and distension adds to the pain. Cytokines reaching the circulation raise the hypothalamic set-point, causing his fever.",
+                "linking": "Redness, heat, swelling and pain are the visible consequences of increased flow and permeability — and fever signals that the response is no longer confined to the leg."
+            }
+        }
+    },
+    {
+        "id": "sa-se-05",
+        "category": "sepsis",
+        "title": "A high lactate",
+        "stem": "A 62-year-old woman with abdominal sepsis has a lactate of 5.6 mmol/L. HR 128, BP 86/54, RR 28. Her hands are cool and her capillary refill is 4 seconds.",
+        "intro": {
+            "question": "Why does the lactate rise when someone is severely unwell with sepsis?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Cells normally make energy using oxygen",
+                "In sepsis, not enough oxygen reaches the tissues because blood pressure and blood flow are poor",
+                "Without enough oxygen, cells switch to a back-up way of making energy that produces lactate",
+                "Lactate builds up in the blood, so a high level is a warning sign that tissues aren't getting enough oxygen"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "A lactate of 5.6 mmol/L with low blood pressure, a fast pulse and cool, slow-refilling hands shows poorly perfused tissues.",
+                "mechanism": "Sepsis has reduced the blood pressure and the flow of blood reaching her tissues.",
+                "physiology": "Cells normally use oxygen to make energy. When oxygen delivery falls, they switch to a back-up process that produces lactate as a by-product.",
+                "signs": "Lactate accumulates in her blood. Her cool hands and slow capillary refill show that blood is being diverted away from the skin.",
+                "linking": "A rising lactate is a signal that the tissues are not getting the oxygen they need, which is why it's taken so seriously."
+            }
+        },
+        "advanced": {
+            "question": "Explain the mechanisms that raise lactate in sepsis, including causes other than tissue hypoxia.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Normally pyruvate from glycolysis enters the mitochondria for aerobic metabolism",
+                "When oxygen delivery is inadequate, pyruvate is converted to lactate to regenerate NAD⁺ and allow glycolysis to continue (anaerobic metabolism)",
+                "In sepsis, hypotension, microcirculatory dysfunction and microthrombi impair oxygen delivery despite a normal or high cardiac output",
+                "Mitochondrial dysfunction (\"cytopathic hypoxia\") means cells cannot use oxygen effectively even when it is delivered",
+                "Catecholamine-driven stimulation increases glycolysis and lactate production independent of hypoxia",
+                "Reduced hepatic clearance in shock and liver hypoperfusion raises lactate further",
+                "Lactate accumulation contributes to metabolic acidosis, driving compensatory tachypnoea; the level correlates with severity and outcome"
+            ],
+            "bonusPoints": [
+                "Lactate may remain raised after blood pressure improves, so trends matter more than single values."
+            ],
+            "modelAnswer": {
+                "presentation": "A lactate of 5.6 mmol/L with hypotension, tachycardia, tachypnoea, cool peripheries and delayed capillary refill indicates significant tissue hypoperfusion in abdominal sepsis.",
+                "mechanism": "Glycolysis produces pyruvate, which normally enters the mitochondria for aerobic metabolism. When that pathway cannot keep up, pyruvate is converted to lactate, regenerating NAD⁺ so glycolysis can continue.",
+                "physiology": "In sepsis several mechanisms act together. Hypotension, microcirculatory dysfunction and microthrombi impair oxygen delivery even when cardiac output is normal or high. Mitochondrial dysfunction limits oxygen use at cellular level. Catecholamine release accelerates glycolysis, producing lactate independently of hypoxia. Hepatic hypoperfusion reduces lactate clearance.",
+                "signs": "Lactate accumulates, contributing to a metabolic acidosis that drives her tachypnoea. Peripheral vasoconstriction produces cool hands and delayed capillary refill.",
+                "linking": "A raised lactate in sepsis is not simply \"not enough oxygen\" — it reflects delivery, use and clearance all failing together, which is why the trend is such a useful marker of severity."
+            }
+        }
+    },
+    {
+        "id": "sa-se-06",
+        "category": "sepsis",
+        "title": "Cold and shut down",
+        "stem": "An 80-year-old man with sepsis has deteriorated. He is now mottled and cold to the knees, HR 132 and thready, BP 72/40 despite fluid given in hospital, and he has passed no urine for eight hours.",
+        "intro": {
+            "question": "Why do the hands and feet become cold and mottled as sepsis gets worse, and why does the urine stop?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "As blood pressure falls further, the body tries to protect the vital organs",
+                "Blood vessels in the skin and limbs clamp down so blood is sent to the brain and heart instead",
+                "With less blood reaching the skin, it becomes cold, pale and mottled",
+                "The kidneys also receive less blood, so they make little or no urine"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Mottled, cold limbs, a thready fast pulse, very low blood pressure and no urine show sepsis progressing to shock.",
+                "mechanism": "His blood pressure has fallen beyond what his body can compensate for.",
+                "physiology": "To protect the brain and heart, the body narrows blood vessels in the skin, limbs and less essential organs, sending the remaining blood to where it matters most.",
+                "signs": "The skin becomes cold and mottled as its blood supply is sacrificed. The kidneys also lose blood flow, so urine production stops. His pulse is fast but weak because each beat pumps very little.",
+                "linking": "Cold, mottled skin and no urine are signs the body is rationing blood flow — a late and serious stage."
+            }
+        },
+        "advanced": {
+            "question": "Explain the progression from warm distributive shock to cold, decompensated septic shock, and link it to his mottling and anuria.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Early sepsis produces vasodilation with normal or increased cardiac output — warm, flushed peripheries",
+                "Ongoing capillary leak reduces effective circulating volume, and septic cardiomyopathy can depress myocardial function",
+                "As compensation fails, intense sympathetic activation causes peripheral vasoconstriction, redistributing flow to brain and heart",
+                "Reduced stroke volume with vasoconstriction produces a thready pulse and cold, mottled skin",
+                "Microcirculatory failure — microthrombi, endothelial injury, impaired capillary recruitment — means some capillary beds are bypassed entirely",
+                "Renal hypoperfusion reduces glomerular filtration; sustained hypoperfusion causes acute kidney injury and oliguria or anuria",
+                "Refractory hypotension despite fluid resuscitation defines decompensation, with progressive multi-organ dysfunction"
+            ],
+            "bonusPoints": [
+                "Mottling extending up the limb is associated with worse outcomes; anaerobic metabolism worsens acidosis, further depressing myocardial function."
+            ],
+            "modelAnswer": {
+                "presentation": "Mottling to the knees, a thready tachycardia, hypotension despite fluid and anuria indicate decompensated septic shock.",
+                "mechanism": "Early sepsis caused vasodilation with preserved cardiac output. Continued capillary leak has reduced effective circulating volume, and septic cardiomyopathy may have depressed contractility.",
+                "physiology": "As compensation fails, intense sympathetic activation constricts peripheral vessels to redirect flow to the brain and heart. At the same time the microcirculation fails: endothelial injury and microthrombi mean some capillary beds are bypassed, so tissues remain hypoxic even where flow exists. Renal perfusion pressure falls below the level needed for filtration.",
+                "signs": "Vasoconstriction with a low stroke volume produces cold, mottled skin and a thready pulse. Loss of glomerular filtration causes anuria and acute kidney injury. Hypotension persisting despite fluid marks decompensation.",
+                "linking": "The shift from warm to cold marks the point where compensation has been exhausted, and the failing organs — skin, then kidneys — show the order in which flow is being sacrificed."
+            }
+        }
+    },
+    {
+        "id": "sa-se-07",
+        "category": "sepsis",
+        "title": "Rapidly unwell without a spleen",
+        "stem": "A 38-year-old woman had her spleen removed after a road traffic collision two years ago. She became unwell this morning with fever and vomiting and has deteriorated within hours. Temperature 39.6 °C, HR 130, BP 84/50.",
+        "intro": {
+            "question": "Why can an infection become severe so quickly in someone who has had their spleen removed?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "The spleen filters the blood and helps remove certain bacteria",
+                "It is particularly important against bacteria with a protective outer capsule",
+                "Without a spleen, these bacteria are cleared much more slowly and can multiply rapidly in the blood",
+                "Infection can therefore become overwhelming within hours rather than days"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Fever, vomiting and rapid deterioration to hypotension within hours, in someone without a spleen, suggests overwhelming infection.",
+                "mechanism": "Bacteria have entered her bloodstream and are multiplying quickly.",
+                "physiology": "The spleen normally filters blood and removes bacteria, especially those with a protective capsule that makes them hard for the immune system to handle.",
+                "signs": "Without it, those bacteria are cleared far more slowly, so numbers rise rapidly. Her high temperature, fast pulse and low blood pressure show the infection is already affecting her whole body.",
+                "linking": "The missing spleen means she loses the early filtering step, which is why she can go from well to critically unwell in hours."
+            }
+        },
+        "advanced": {
+            "question": "Explain the immunological basis of overwhelming post-splenectomy infection.",
+            "wordGuide": 150,
+            "markingPoints": [
+                "The spleen filters blood, removing opsonised bacteria and damaged cells via splenic macrophages",
+                "It is the main site for clearing encapsulated organisms, e.g. Streptococcus pneumoniae, Neisseria meningitidis, Haemophilus influenzae type b",
+                "Polysaccharide capsules resist phagocytosis unless opsonised by antibody and complement",
+                "The spleen houses marginal zone B cells that generate rapid antibody responses to polysaccharide antigens",
+                "Asplenia reduces both filtration and this early antibody response, so bacteraemia escalates rapidly",
+                "Progression to septic shock can occur within hours, with a high mortality",
+                "Any fever in an asplenic patient must therefore be treated as potentially life-threatening"
+            ],
+            "bonusPoints": [
+                "Functional asplenia (e.g. sickle cell disease) carries the same risk; vaccination reduces but does not remove it."
+            ],
+            "modelAnswer": {
+                "presentation": "Fever, vomiting, tachycardia and hypotension developing within hours in an asplenic patient indicate possible overwhelming post-splenectomy infection.",
+                "mechanism": "Bacteria have reached the bloodstream. Normally the spleen would filter them out early.",
+                "physiology": "Splenic macrophages remove opsonised organisms from the circulation, and the spleen is the principal site for clearing encapsulated bacteria such as pneumococcus, meningococcus and Haemophilus influenzae type b. Their polysaccharide capsules resist phagocytosis unless coated with antibody and complement, and the spleen's marginal zone B cells generate exactly this rapid antipolysaccharide response. Without a spleen, both the filtration step and the early antibody response are lost.",
+                "signs": "Bacterial numbers rise unchecked, so the systemic inflammatory response and shock develop over hours rather than days — explaining her rapid decline.",
+                "linking": "Asplenia removes the immune system's early-warning filter, which is why any fever in these patients is treated as a time-critical emergency."
+            }
+        }
+    },
+    {
+        "id": "sa-se-08",
+        "category": "sepsis",
+        "title": "Pain out of proportion",
+        "stem": "A 55-year-old man has a swollen, tender right thigh two days after a minor graze. The skin looks dusky in places, the pain is far worse than the appearance suggests, and he is systemically unwell: HR 124, BP 96/58, temperature 38.7 °C.",
+        "intro": {
+            "question": "Why is pain that seems far worse than the skin looks a warning sign in a limb infection?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Some infections spread in the tissue layers deep under the skin rather than in the skin itself",
+                "The damage is therefore much greater than the surface appearance suggests",
+                "The infection destroys tissue and nerves, which causes severe pain early on",
+                "This type of infection spreads very quickly and makes people systemically unwell, so it must be recognised early"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Severe pain out of keeping with the skin's appearance, dusky patches and systemic illness after a minor graze is a warning picture.",
+                "mechanism": "The infection is spreading in the tissue layers beneath the skin, not just within it.",
+                "physiology": "Because the damage is deep, the skin can look relatively unremarkable while extensive tissue is being destroyed underneath.",
+                "signs": "Destruction of tissue and nerves causes pain far worse than expected. Dusky skin shows the blood supply is being lost. His fast pulse, low-ish blood pressure and fever show the infection is affecting his whole body.",
+                "linking": "When the pain doesn't match the appearance, it suggests the problem is deeper than it looks — and that needs urgent attention."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of necrotising soft tissue infection and why pain out of proportion, dusky skin and systemic toxicity occur.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Bacteria enter through a breach and spread along fascial planes, where there is little resistance to spread",
+                "Bacterial enzymes and toxins destroy fascia, fat and connective tissue, and spread is rapid",
+                "Thrombosis of perforating vessels causes ischaemia and necrosis of overlying skin — dusky discolouration, later blistering or crepitus",
+                "Early on, deep tissue destruction occurs while the skin still looks relatively normal, so pain is out of proportion to appearance",
+                "Progressive destruction of cutaneous nerves may later cause anaesthesia over the area",
+                "Toxin release (including superantigens in streptococcal infection) drives massive cytokine release and systemic toxicity",
+                "The result is rapidly progressive sepsis and shock, with high mortality if not recognised early"
+            ],
+            "bonusPoints": [
+                "Risk factors include diabetes, immunosuppression and peripheral vascular disease; the rate of progression is a key clue."
+            ],
+            "modelAnswer": {
+                "presentation": "Severe pain out of proportion to appearance, dusky skin and systemic toxicity after a minor graze are the classic warning features of a necrotising soft tissue infection.",
+                "mechanism": "Bacteria have entered through the graze and spread along fascial planes, which offer little resistance and poor barrier function.",
+                "physiology": "Bacterial enzymes and toxins destroy fascia, fat and connective tissue rapidly. Thrombosis of the perforating vessels that supply the skin produces ischaemia, so the overlying skin becomes dusky and may blister. Because the destruction begins deep, tissue damage far exceeds what is visible, producing pain out of proportion. Toxins, including streptococcal superantigens, trigger massive non-specific T-cell activation and cytokine release.",
+                "signs": "Severe early pain, dusky discolouration and rapid systemic deterioration with tachycardia, fever and falling blood pressure all follow. Later, destruction of cutaneous nerves can paradoxically reduce sensation.",
+                "linking": "The mismatch between how bad he feels and how the skin looks is the diagnostic clue, because the disease starts beneath what you can see."
+            }
+        }
+    },
+    {
+        "id": "sa-se-09",
+        "category": "sepsis",
+        "title": "Bleeding and clotting at the same time",
+        "stem": "A 67-year-old woman with severe sepsis is oozing from her cannula sites and has widespread bruising, yet her fingertips are dusky and cold. Her platelet count is low and her clotting times are prolonged.",
+        "intro": {
+            "question": "How can someone with severe sepsis be bleeding and forming clots at the same time?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Severe infection activates the body's clotting system throughout the blood vessels",
+                "Tiny clots form in the small vessels, blocking blood flow, which is why the fingertips are dusky and cold",
+                "Forming all those clots uses up the platelets and clotting factors",
+                "With those used up, the blood can no longer clot properly where it needs to, so she bleeds and bruises easily"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Oozing from cannula sites and bruising alongside dusky, cold fingertips in severe sepsis suggests clotting and bleeding happening together.",
+                "mechanism": "The severe infection has switched on clotting throughout her blood vessels rather than at one site.",
+                "physiology": "Tiny clots form in small vessels all over the body, and making them uses up her platelets and clotting factors faster than she can replace them.",
+                "signs": "Blocked small vessels reduce blood flow to the fingertips, making them dusky and cold. Depleted platelets and clotting factors mean she bleeds from puncture sites and bruises easily.",
+                "linking": "The bleeding is a consequence of the clotting, because the clotting has consumed the very things needed to stop bleeding."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of disseminated intravascular coagulation in sepsis and link it to her bleeding and ischaemic signs.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Inflammatory cytokines and endotoxin induce tissue factor expression on monocytes and endothelium",
+                "This activates the coagulation cascade systemically rather than locally",
+                "Widespread thrombin generation produces fibrin deposition and microthrombi throughout the microcirculation",
+                "Microthrombi impair perfusion, causing tissue ischaemia — dusky, cold digits and contributing to organ dysfunction",
+                "Natural anticoagulant pathways (antithrombin, protein C) are depleted and impaired, so coagulation is unchecked",
+                "Ongoing consumption depletes platelets and clotting factors (consumptive coagulopathy), prolonging clotting times",
+                "Secondary fibrinolysis further degrades clot, so bleeding occurs from puncture sites and into the skin"
+            ],
+            "bonusPoints": [
+                "Red cells can be sheared as they pass through fibrin strands, causing haemolysis; DIC is a marker of severity rather than a separate disease."
+            ],
+            "modelAnswer": {
+                "presentation": "Oozing cannula sites, widespread bruising, dusky cold digits, thrombocytopenia and prolonged clotting times in severe sepsis indicate disseminated intravascular coagulation.",
+                "mechanism": "Cytokines and endotoxin induce tissue factor on monocytes and endothelium, activating the coagulation cascade throughout the circulation rather than at a single site of injury.",
+                "physiology": "Widespread thrombin generation deposits fibrin in the microcirculation. At the same time, natural anticoagulant systems such as antithrombin and activated protein C are consumed and impaired, so there is little to restrain it. Continuous clot formation consumes platelets and clotting factors faster than they can be replaced, and secondary fibrinolysis breaks down the clot that does form.",
+                "signs": "Microthrombi obstruct small vessels, causing ischaemia in the fingertips and contributing to organ dysfunction. Consumption of platelets and factors prolongs clotting times and causes oozing and bruising.",
+                "linking": "Clotting and bleeding aren't contradictory here — the bleeding is caused by the clotting, once the body's clotting resources have been used up."
+            }
+        }
+    },
+    {
+        "id": "sa-se-10",
+        "category": "sepsis",
+        "title": "Fevers, a murmur and odd marks on the fingers",
+        "stem": "A 41-year-old man has had night sweats and fevers on and off for three weeks. You hear a murmur that his GP records did not mention, and there are small, dark splinter-like marks under a few fingernails. He has a history of injecting drug use.",
+        "intro": {
+            "question": "Why can an infection on a heart valve cause fevers over weeks and marks under the fingernails?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Bacteria can settle on a heart valve and grow there, forming an infected clump",
+                "Small amounts of bacteria are released into the blood over time, causing repeated fevers and night sweats",
+                "Small pieces of the clump can break off and travel in the blood",
+                "When they lodge in tiny blood vessels, such as those under the fingernails, they cause the small dark marks"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Weeks of fevers and night sweats, a new murmur and splinter marks under the nails suggest infection on a heart valve.",
+                "mechanism": "Bacteria have settled on a valve and formed an infected growth there.",
+                "physiology": "That growth releases bacteria into the bloodstream intermittently, and pieces of it can break off and travel wherever the blood takes them.",
+                "signs": "Intermittent release of bacteria causes recurring fevers and night sweats. Damage to the valve causes the new murmur. Fragments lodging in tiny vessels under the nails cause the splinter-like marks.",
+                "linking": "A valve infection keeps seeding the bloodstream, which is why the illness drags on for weeks and shows up in places far from the heart."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of infective endocarditis and link it to his prolonged fever, new murmur and peripheral signs.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Endothelial injury on a valve allows platelet and fibrin deposition, forming a sterile thrombus",
+                "Bacteraemia, e.g. from injecting drug use, allows organisms to adhere to and colonise that thrombus",
+                "Bacteria multiply within the vegetation, protected from immune cells and poorly penetrated by host defences",
+                "Intermittent release of organisms into the bloodstream produces persistent or recurring fever, sweats and malaise",
+                "Progressive valve destruction or regurgitation produces a new or changed murmur and can lead to heart failure",
+                "Fragments embolise: to the lungs from right-sided (often tricuspid) lesions in injecting drug use, and systemically from left-sided lesions",
+                "Microemboli and immune complex deposition cause peripheral signs — splinter haemorrhages, Janeway lesions, Osler's nodes, and haematuria from glomerular involvement"
+            ],
+            "bonusPoints": [
+                "Right-sided endocarditis is typical in injecting drug use and may present with recurrent chest infections from septic pulmonary emboli."
+            ],
+            "modelAnswer": {
+                "presentation": "Three weeks of fevers and night sweats, a new murmur and splinter haemorrhages in a man who injects drugs strongly suggest infective endocarditis.",
+                "mechanism": "Minor endothelial injury on a valve allows platelets and fibrin to deposit, forming a sterile thrombus. Bacteria entering the blood adhere to and colonise it, creating a vegetation.",
+                "physiology": "Within the vegetation, bacteria are shielded from immune cells and multiply. Organisms are shed into the blood intermittently, while the vegetation itself progressively damages the valve and can shed fragments downstream.",
+                "signs": "Intermittent bacteraemia produces prolonged, relapsing fever, sweats and malaise. Valve damage causes the new murmur. Small emboli and immune complex deposition produce splinter haemorrhages and similar peripheral signs; right-sided lesions embolise to the lungs, left-sided ones systemically.",
+                "linking": "A protected reservoir of bacteria on a valve explains all three elements — the long fever, the changing murmur and the distant signs in the fingers."
             }
         }
     }
