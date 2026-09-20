@@ -7,7 +7,8 @@
  */
 var SHORT_ANSWER_CATEGORIES = [
     { id: 'cardiovascular', name: 'Cardiovascular', icon: 'bi-heart-pulse', colour: '#DC3545' },
-    { id: 'respiratory',    name: 'Respiratory',    icon: 'bi-lungs',      colour: '#0DCAF0' }
+    { id: 'respiratory',    name: 'Respiratory',    icon: 'bi-lungs',      colour: '#0DCAF0' },
+    { id: 'neurological',   name: 'Neurological',   icon: 'bi-activity',   colour: '#6F42C1' }
 ];
 
 var SHORT_ANSWER_CASES = [
@@ -944,6 +945,476 @@ var SHORT_ANSWER_CASES = [
                 "physiology": "Less haemoglobin is available to carry oxygen, reducing oxygen content. CO also shifts the dissociation curve to the left, so the haemoglobin that does carry oxygen releases it less readily to the tissues. At cellular level, CO binds cytochrome oxidase, impairing mitochondrial respiration. Gas exchange in the lungs is normal, so PaO₂ can also look normal.",
                 "signs": "The brain and heart, with the highest oxygen demand, are affected first — causing headache, nausea, confusion and reduced consciousness. Two-wavelength pulse oximeters read COHb as oxyhaemoglobin, so SpO₂ shows a falsely reassuring 99%.",
                 "linking": "CO causes hypoxia in how oxygen is carried and delivered, not in how it enters the blood — which is exactly why the usual monitoring fails to show it."
+            }
+        }
+    },
+    {
+        "id": "sa-ne-01",
+        "category": "neurological",
+        "title": "Weakness down one side",
+        "stem": "A 74-year-old man was found by his wife at 08:00 unable to move his right arm and leg. His face droops on the right and his speech is slurred and muddled. He is fully awake. BP 178/96.",
+        "intro": {
+            "question": "Why does a stroke on one side of the brain cause weakness on the opposite side of the body?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "A stroke happens when the blood supply to part of the brain is blocked or bleeds, so that area is starved of oxygen",
+                "The nerve pathways that control movement cross over from one side of the brain to the other side of the body",
+                "So damage on the left side of the brain causes weakness on the right side of the body",
+                "Speech is usually controlled on the left side of the brain, so left-sided strokes often affect speech as well"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Sudden right-sided weakness, facial droop and muddled speech in an older man suggest a stroke affecting the left side of the brain.",
+                "mechanism": "Blood supply to part of his brain has been interrupted, so that area is starved of oxygen and glucose and stops working.",
+                "physiology": "The nerves controlling movement cross from one side of the brain to the opposite side of the body.",
+                "signs": "Damage on the left therefore causes weakness on his right arm, leg and face. Speech is usually controlled on the left, so his speech is affected too.",
+                "linking": "The side of the body affected tells you which side of the brain is in trouble."
+            }
+        },
+        "advanced": {
+            "question": "Explain why an occlusion of the left middle cerebral artery produces right-sided weakness and expressive difficulty, and why the deficit is contralateral.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Ischaemic stroke follows occlusion of a cerebral artery, most often by thrombus or embolus",
+                "Neurons deprived of oxygen and glucose fail within minutes; a surrounding penumbra is at risk but potentially salvageable",
+                "The middle cerebral artery supplies the lateral cortex, including the motor and sensory strips for the face and arm, and the language areas in the dominant hemisphere",
+                "Corticospinal (pyramidal) fibres decussate at the medulla, so motor control is contralateral",
+                "Left MCA territory damage therefore causes right facial, arm and leg weakness",
+                "Language is left-dominant in most people; involvement of Broca's area impairs expression, Wernicke's area impairs comprehension",
+                "The face and arm are affected more than the leg in MCA strokes because of the motor homunculus layout (the leg is supplied by the anterior cerebral artery)"
+            ],
+            "bonusPoints": [
+                "Raised blood pressure is common acutely and may help maintain perfusion of the penumbra; \"found down\" means the last known well time defines the window."
+            ],
+            "modelAnswer": {
+                "presentation": "Acute right hemiparesis, right facial weakness and dysarthric, muddled speech with preserved consciousness fit a left middle cerebral artery territory stroke.",
+                "mechanism": "An artery supplying the left lateral cortex has been occluded, usually by thrombus or embolus. Deprived of oxygen and glucose, neurons fail within minutes, with a surrounding penumbra at risk but still salvageable.",
+                "physiology": "The MCA supplies the motor and sensory strips serving the face and arm, and the language areas of the dominant hemisphere. Corticospinal fibres decussate in the medulla, so each hemisphere controls the opposite side of the body.",
+                "signs": "Left-sided damage therefore produces right-sided weakness, affecting face and arm more than leg, because the leg area lies in anterior cerebral artery territory. Involvement of the left-sided language areas explains his difficulty producing clear, meaningful speech. His raised blood pressure is a common acute response.",
+                "linking": "Knowing the artery's territory and where the motor fibres cross lets you predict the pattern of deficit — and read the pattern backwards to the vessel involved."
+            }
+        }
+    },
+    {
+        "id": "sa-ne-02",
+        "category": "neurological",
+        "title": "Confused after a fit",
+        "stem": "A 28-year-old woman with known epilepsy had a witnessed generalised seizure lasting two minutes. It has stopped. She is now drowsy, confused and doesn't remember what happened. She bit her tongue.",
+        "intro": {
+            "question": "Why is she drowsy and confused after her seizure has stopped?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "A seizure is a burst of abnormal, excessive electrical activity across the brain",
+                "This uses up a huge amount of the brain's energy and oxygen very quickly",
+                "Afterwards the brain needs time to recover and restore its normal chemistry (the post-ictal phase)",
+                "During that recovery she is drowsy and confused, and won't remember the seizure because memory isn't laid down during it"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Drowsiness, confusion and no memory of a witnessed seizure, with a bitten tongue, describe the post-ictal phase.",
+                "mechanism": "A seizure is a sudden burst of abnormal electrical activity spreading across the brain.",
+                "physiology": "That activity uses huge amounts of energy and oxygen in a short time and disturbs the brain's normal chemistry.",
+                "signs": "Afterwards the brain needs time to recover, so she is drowsy and confused. Memories aren't formed during a seizure, so she can't remember it. Her tongue was bitten by the jaw muscles contracting.",
+                "linking": "The confusion isn't a new problem — it's the brain recovering from the electrical storm."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of a generalised tonic-clonic seizure and the post-ictal state.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Seizures arise from an imbalance between excitation (largely glutamate) and inhibition (largely GABA)",
+                "A hypersynchronous discharge of neurons spreads through the cortex and across both hemispheres",
+                "Loss of consciousness follows involvement of both hemispheres and reticular activating pathways",
+                "Sustained motor cortex discharge produces the tonic phase, followed by intermittent inhibition producing the clonic phase",
+                "Massive neuronal activity raises cerebral metabolic demand sharply, depleting ATP and glucose, and produces lactate",
+                "Post-ictally, neuronal exhaustion, neurotransmitter depletion and active inhibition suppress cortical function, causing drowsiness and confusion",
+                "Memory encoding fails during the seizure, so there is amnesia for the event; tongue biting results from involuntary masseter contraction"
+            ],
+            "bonusPoints": [
+                "Transient lactic acidosis is common; autonomic activation can cause tachycardia and hypertension during the seizure."
+            ],
+            "modelAnswer": {
+                "presentation": "A witnessed two-minute generalised seizure followed by drowsiness, confusion, amnesia and tongue biting is a typical tonic-clonic seizure with a post-ictal phase.",
+                "mechanism": "Seizures reflect a loss of balance between excitatory glutamatergic and inhibitory GABAergic activity, allowing a hypersynchronous neuronal discharge to spread through the cortex and across both hemispheres.",
+                "physiology": "Bilateral hemispheric involvement abolishes consciousness. Sustained discharge to the motor cortex causes the tonic phase; rhythmic inhibition interrupting it produces the clonic phase. Neuronal firing at this rate massively increases cerebral metabolic demand, depleting ATP and glucose and generating lactate.",
+                "signs": "Afterwards, exhausted neurons, depleted neurotransmitters and active inhibitory mechanisms suppress cortical function, producing the post-ictal drowsiness and confusion. Because encoding of new memory cannot occur during the discharge, she has no recall. Involuntary masseter contraction caused the tongue bite.",
+                "linking": "The post-ictal state is the metabolic and neurochemical bill for the seizure — which is why it improves steadily rather than suddenly."
+            }
+        }
+    },
+    {
+        "id": "sa-ne-03",
+        "category": "neurological",
+        "title": "Sweaty, shaky and confused",
+        "stem": "A 44-year-old man with diabetes has been unwell and eating very little today. He is pale, sweaty and shaking, and is confused and aggressive. Blood glucose is 2.4 mmol/L.",
+        "intro": {
+            "question": "Why does a low blood glucose cause both sweating and shaking, and confusion?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "The brain relies almost entirely on glucose for fuel and cannot store it",
+                "When glucose falls, brain cells can't work properly, causing confusion and behaviour changes",
+                "The body detects the low glucose and releases stress hormones such as adrenaline to raise it",
+                "Those hormones cause sweating, shaking, pallor and a fast heart rate"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Sweating, shaking, pallor, confusion and aggression with a glucose of 2.4 mmol/L indicate hypoglycaemia.",
+                "mechanism": "He has eaten very little, so his blood glucose has fallen too low.",
+                "physiology": "The brain depends almost entirely on glucose and can't store it, so it starts to fail quickly. The body also releases stress hormones to try to raise the glucose.",
+                "signs": "The struggling brain causes confusion and out-of-character aggression. The stress hormones cause the sweating, shaking, pallor and fast heart rate.",
+                "linking": "His symptoms come from two things at once — a brain short of fuel, and the body's emergency response to fix it."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of hypoglycaemia, distinguishing the autonomic and neuroglycopenic features.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "The brain depends almost exclusively on glucose, cannot store it, and relies on a continuous supply across the blood–brain barrier",
+                "As glucose falls, counter-regulatory hormones are released — glucagon, then adrenaline, cortisol and growth hormone",
+                "Sympathoadrenal activation produces the autonomic features: sweating, tremor, pallor, tachycardia, anxiety and hunger",
+                "Neuroglycopenia is the direct effect of glucose deprivation on neurons, causing confusion, altered behaviour, slurred speech, focal deficits and reduced consciousness",
+                "Autonomic symptoms usually appear first, but warning can be lost in long-standing diabetes (impaired awareness)",
+                "Higher cortical function is affected before brainstem function, so consciousness declines progressively",
+                "Prolonged, severe hypoglycaemia can cause seizures and permanent neuronal injury"
+            ],
+            "bonusPoints": [
+                "Hypoglycaemia can mimic stroke with focal signs; behaviour change may be mistaken for intoxication."
+            ],
+            "modelAnswer": {
+                "presentation": "Autonomic features (sweating, tremor, pallor) alongside neuroglycopenic features (confusion, aggression) with a glucose of 2.4 mmol/L indicate significant hypoglycaemia.",
+                "mechanism": "Poor intake while unwell has reduced his circulating glucose below what his brain requires.",
+                "physiology": "The brain cannot store glucose or use alternative fuels quickly, so function depends on continuous supply. As levels fall, counter-regulatory hormones are released: glucagon first, then adrenaline, cortisol and growth hormone, mobilising glucose and opposing insulin's effects.",
+                "signs": "Sympathoadrenal activation causes sweating, tremor, pallor and tachycardia — the warning symptoms. Direct neuronal glucose deprivation, neuroglycopenia, impairs the higher cortical functions first, causing confusion and disinhibited, aggressive behaviour, and can progress to reduced consciousness and seizures.",
+                "linking": "One set of signs is the body shouting for help, the other is the brain running out of fuel — and recognising both matters, because the warning signs can be absent in long-standing diabetes."
+            }
+        }
+    },
+    {
+        "id": "sa-ne-04",
+        "category": "neurological",
+        "title": "Headache, neck stiffness and a rash",
+        "stem": "A 19-year-old student has had a severe headache and fever since this morning. She dislikes the light, her neck is stiff, and there is a dark purple rash on her legs that does not fade when pressed. HR 126, BP 92/60.",
+        "intro": {
+            "question": "Why does meningitis cause neck stiffness and dislike of light, and why does the rash not fade when pressed?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Meningitis is inflammation of the membranes covering the brain and spinal cord (the meninges)",
+                "Inflamed meninges are painful when stretched, so moving or bending the neck hurts and the muscles resist it",
+                "The same irritation makes light painful (photophobia)",
+                "In meningococcal infection, bacteria damage blood vessels so blood leaks into the skin; blood outside the vessels can't be pressed away, so the rash doesn't fade"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Fever, severe headache, photophobia, neck stiffness and a non-fading purple rash suggest meningococcal meningitis with septicaemia.",
+                "mechanism": "Infection has inflamed the membranes covering her brain and spinal cord, and the bacteria are also in her bloodstream.",
+                "physiology": "Inflamed meninges are painful when stretched, and light increases that discomfort.",
+                "signs": "Bending the neck stretches the meninges, so it hurts and the muscles resist — neck stiffness. Photophobia comes from the same irritation. Bacteria damage small blood vessels, letting blood leak into the skin, so the rash stays visible when pressed. Her fast pulse and low blood pressure show the infection is affecting her circulation.",
+                "linking": "The head signs come from inflamed meninges and the rash from damaged blood vessels — together a serious combination."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of meningococcal meningitis with septicaemia and link it to her meningism, non-blanching rash and haemodynamic findings.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Bacteria reach the subarachnoid space, where the inflammatory response releases cytokines and attracts neutrophils",
+                "Meningeal inflammation causes pain on stretching, producing neck stiffness and positive meningeal signs, plus photophobia",
+                "Inflammation increases blood–brain barrier permeability, causing cerebral oedema and raised intracranial pressure, contributing to headache and vomiting",
+                "In septicaemia, endotoxin (lipopolysaccharide) triggers a systemic inflammatory response",
+                "Endothelial injury and activation of coagulation cause microvascular thrombosis and leakage of blood into the skin — a non-blanching petechial or purpuric rash",
+                "Vasodilation and capillary leak cause distributive shock: hypotension with compensatory tachycardia",
+                "The combination can progress to disseminated intravascular coagulation and multi-organ failure"
+            ],
+            "bonusPoints": [
+                "The rash may begin as sparse petechiae and evolve rapidly; septicaemia without meningitis is possible and can be more rapidly lethal."
+            ],
+            "modelAnswer": {
+                "presentation": "Fever, severe headache, photophobia, neck stiffness, a non-blanching purpuric rash, tachycardia and hypotension indicate meningococcal disease with both meningitis and septicaemia.",
+                "mechanism": "Bacteria have invaded the subarachnoid space and the bloodstream. In the subarachnoid space, cytokine release recruits neutrophils and produces intense inflammation.",
+                "physiology": "Inflamed meninges are exquisitely sensitive to stretch, and inflammation increases blood–brain barrier permeability, causing oedema and raised intracranial pressure. In the circulation, endotoxin drives a systemic inflammatory response with widespread vasodilation, capillary leak, endothelial injury and activation of coagulation.",
+                "signs": "Stretching inflamed meninges causes neck stiffness and headache, and photophobia follows the same irritation. Endothelial damage and microvascular thrombosis allow blood to leak into the skin, so the rash does not blanch. Vasodilation and fluid leak cause distributive shock — hypotension with compensatory tachycardia.",
+                "linking": "Her head signs reflect inflammation inside the skull and her rash and shock reflect the same organism damaging blood vessels throughout the body."
+            }
+        }
+    },
+    {
+        "id": "sa-ne-05",
+        "category": "neurological",
+        "title": "Flashing lights before a headache",
+        "stem": "A 31-year-old woman describes 20 minutes of zig-zag flashing lights in her right visual field, which faded and was followed by a severe throbbing headache on the left with nausea. She has had similar episodes before. Observations are normal.",
+        "intro": {
+            "question": "Why do some people see visual disturbances before a migraine headache starts?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "A migraine aura is caused by a wave of altered electrical activity spreading slowly across the surface of the brain",
+                "It usually starts in the visual area at the back of the brain, so visual symptoms come first",
+                "The wave causes a short burst of activity (flashing zig-zags) followed by reduced activity (a blank or dark area)",
+                "The headache follows as pain-sensitive structures around the brain are activated"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Zig-zag flashing lights lasting 20 minutes, followed by a one-sided throbbing headache with nausea, is a typical migraine with aura.",
+                "mechanism": "A wave of altered electrical activity spreads slowly across the surface of her brain.",
+                "physiology": "It usually begins in the visual area at the back of the brain, which is why the first symptoms are visual. The wave briefly excites the area, then leaves it less active.",
+                "signs": "The excitement causes flashing zig-zags, and the quiet phase can leave a blank patch. As the process continues, pain-sensitive structures around the brain are activated, causing the throbbing headache and nausea.",
+                "linking": "The aura and the headache are two stages of the same process, which is why one follows the other."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of migraine with aura, including why the aura precedes the headache and why the visual field affected is opposite to the headache.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Aura is attributed to cortical spreading depression: a slowly propagating wave of neuronal and glial depolarisation followed by prolonged suppression",
+                "The wave typically begins in the occipital cortex and spreads at roughly 3 mm per minute, explaining the gradual march over 20–60 minutes",
+                "Initial depolarisation produces positive symptoms (scintillations, zig-zags); the following suppression produces negative symptoms (scotoma)",
+                "Visual pathways are crossed: the left occipital cortex processes the right visual field, so left-sided cortical events cause right-field symptoms",
+                "Cortical spreading depression is thought to activate the trigeminovascular system",
+                "Trigeminal activation releases neuropeptides such as CGRP, causing meningeal vasodilation and neurogenic inflammation, sensitising pain fibres",
+                "Central sensitisation explains throbbing pain, photophobia, phonophobia and nausea"
+            ],
+            "bonusPoints": [
+                "Because the cortical wave takes time to trigger trigeminal activation, the aura reliably precedes or overlaps the headache; aura without headache can occur."
+            ],
+            "modelAnswer": {
+                "presentation": "A gradual 20-minute right visual field aura followed by a left-sided throbbing headache with nausea, in a woman with previous identical episodes, describes migraine with aura.",
+                "mechanism": "The aura reflects cortical spreading depression — a wave of neuronal and glial depolarisation that moves slowly across the cortex and is followed by prolonged suppression of activity.",
+                "physiology": "The wave usually starts occipitally and spreads at around 3 mm per minute, which is why symptoms build gradually rather than instantly. Because visual pathways cross, the left occipital cortex serves the right visual field. The wave is thought to activate the trigeminovascular system, releasing neuropeptides such as CGRP, producing meningeal vasodilation and neurogenic inflammation.",
+                "signs": "Depolarisation causes positive visual phenomena — the zig-zag scintillations — and the following suppression can leave a scotoma. Trigeminal activation and central sensitisation then produce the throbbing headache, nausea and light sensitivity.",
+                "linking": "One cortical wave explains the timing, the side and the sequence: right-field aura from the left cortex, then a left-sided headache as the pain system is activated."
+            }
+        }
+    },
+    {
+        "id": "sa-ne-06",
+        "category": "neurological",
+        "title": "Deteriorating after a head injury",
+        "stem": "A 55-year-old man fell down stairs an hour ago and hit his head. He was talking at first, but is now only responding to pain. His right pupil is dilated and sluggish. HR 48, BP 196/104, and his breathing is irregular.",
+        "intro": {
+            "question": "Why does bleeding inside the skull after a head injury cause the level of consciousness to drop?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "The skull is a rigid box with a fixed space inside it",
+                "Bleeding takes up space, and as there is nowhere for it to go, the pressure inside the skull rises",
+                "Rising pressure squashes the brain and reduces the blood flow reaching it",
+                "A squashed, poorly perfused brain works less well, so his level of consciousness falls"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Talking at first, then dropping to responding only to pain after a head injury, suggests bleeding inside his skull.",
+                "mechanism": "The fall has torn a blood vessel inside the skull and blood is collecting there.",
+                "physiology": "The skull is a rigid box, so the extra volume has nowhere to go and the pressure inside rises. Higher pressure inside the skull makes it harder for blood to flow into the brain.",
+                "signs": "The squashed, poorly supplied brain functions less well, so his consciousness falls. The pressure is also pressing on nerves and the brainstem, which explains the large pupil, slow pulse and irregular breathing.",
+                "linking": "A fixed space plus expanding blood means rising pressure — and it's the pressure that harms the brain."
+            }
+        },
+        "advanced": {
+            "question": "Explain raised intracranial pressure using the Monro-Kellie doctrine, and link it to his pupil, Cushing's triad and falling GCS.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Monro-Kellie doctrine: the skull contains a fixed volume of brain, blood and CSF; an increase in one must be offset by a decrease in another",
+                "Initially CSF and venous blood are displaced, so pressure rises little (compensation)",
+                "Once compensation is exhausted, small further increases in volume cause steep rises in intracranial pressure",
+                "Cerebral perfusion pressure = MAP − ICP; rising ICP reduces cerebral perfusion and causes ischaemia, lowering GCS",
+                "The Cushing reflex raises blood pressure to maintain perfusion; baroreceptor response to hypertension causes bradycardia, and brainstem compression causes irregular breathing (Cushing's triad)",
+                "An expanding supratentorial mass causes uncal herniation, compressing the oculomotor nerve (CN III) and giving an ipsilateral fixed, dilated pupil",
+                "Continued herniation compresses the brainstem, causing further deterioration and ultimately respiratory arrest"
+            ],
+            "bonusPoints": [
+                "A lucid interval followed by deterioration is classic for extradural haemorrhage; hypoxia and hypercapnia worsen ICP through cerebral vasodilation."
+            ],
+            "modelAnswer": {
+                "presentation": "A lucid period then deterioration to pain response only, with a dilated sluggish right pupil, bradycardia, hypertension and irregular breathing, indicates a rapidly expanding intracranial haematoma with raised ICP.",
+                "mechanism": "The skull holds a fixed volume of brain, blood and CSF. An expanding haematoma must displace something else.",
+                "physiology": "CSF and venous blood are displaced first, so pressure initially rises little — this is the lucid interval. Once compensation is exhausted, further bleeding produces steep rises in ICP. Cerebral perfusion pressure equals mean arterial pressure minus ICP, so rising ICP reduces perfusion and causes ischaemia.",
+                "signs": "Falling perfusion lowers his GCS. The Cushing reflex raises his blood pressure to defend perfusion, and baroreceptors respond with bradycardia, while brainstem compression makes his breathing irregular. Uncal herniation compresses the right oculomotor nerve, giving the dilated, sluggish right pupil.",
+                "linking": "His signs are stages of the same process — compensation, then failing perfusion, then herniation — which is why deterioration accelerates."
+            }
+        }
+    },
+    {
+        "id": "sa-ne-07",
+        "category": "neurological",
+        "title": "The worst headache of her life",
+        "stem": "A 48-year-old woman developed a severe occipital headache while lifting a box, reaching maximum intensity within seconds. She vomited twice and dislikes the light. Her neck is stiff. GCS 15, BP 168/92.",
+        "intro": {
+            "question": "Why does a bleed around the brain cause a sudden severe headache with a stiff neck and vomiting?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "A blood vessel on the surface of the brain has burst, and blood spreads into the fluid-filled space around the brain",
+                "The membranes around the brain are very sensitive to pain, so the headache starts instantly and is severe",
+                "Blood irritates those membranes, causing neck stiffness and dislike of light",
+                "The sudden rise in pressure and irritation trigger vomiting"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "A headache reaching full intensity within seconds, with vomiting, photophobia and neck stiffness, suggests bleeding around the brain.",
+                "mechanism": "A blood vessel on the brain's surface has ruptured, and blood has spread into the fluid-filled space surrounding the brain.",
+                "physiology": "The membranes in that space are richly supplied with pain fibres and are irritated by blood.",
+                "signs": "The rupture causes instant, severe pain. Blood irritating the membranes causes neck stiffness and photophobia, in the same way meningitis does. The sudden pressure rise and irritation cause vomiting.",
+                "linking": "A headache that peaks in seconds points to something that happened in seconds — a bleed, not a build-up."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of subarachnoid haemorrhage and link it to the thunderclap onset, meningism and vomiting.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Most spontaneous subarachnoid haemorrhage is due to rupture of a berry (saccular) aneurysm, often at arterial branch points on the circle of Willis",
+                "Rupture releases arterial blood at pressure into the subarachnoid space, mixing with CSF",
+                "The dura and vessels are densely innervated by trigeminal pain fibres, so onset is instantaneous and maximal — thunderclap headache",
+                "Blood is a potent meningeal irritant, producing a chemical meningitis: neck stiffness and photophobia",
+                "A sudden rise in intracranial pressure reduces cerebral perfusion transiently and can cause brief loss of consciousness",
+                "Raised ICP and irritation stimulate the vomiting centre, causing vomiting",
+                "Exertion transiently raises arterial pressure, which is why onset is often during straining or exertion"
+            ],
+            "bonusPoints": [
+                "Later complications include vasospasm with delayed ischaemia, hydrocephalus from impaired CSF reabsorption, and rebleeding; hypertension is common acutely."
+            ],
+            "modelAnswer": {
+                "presentation": "An occipital headache peaking within seconds during exertion, with vomiting, photophobia, neck stiffness and preserved GCS, is typical of subarachnoid haemorrhage.",
+                "mechanism": "A saccular aneurysm, usually at a branch point on the circle of Willis, has ruptured. Exertion briefly raised arterial pressure, precipitating it.",
+                "physiology": "Arterial blood enters the subarachnoid space under pressure and mixes with CSF. The meninges and vessels carry dense trigeminal pain innervation, and blood acts as a chemical irritant. Intracranial pressure rises abruptly, transiently reducing cerebral perfusion.",
+                "signs": "Instantaneous stimulation of pain fibres gives a headache that is maximal from the outset. Meningeal irritation by blood causes neck stiffness and photophobia, mimicking meningitis without infection. Raised pressure and irritation stimulate the vomiting centre. Her GCS of 15 does not exclude the diagnosis.",
+                "linking": "The speed of onset reflects the mechanism — arterial blood hitting pain-sensitive membranes instantly, rather than an inflammatory process building over hours."
+            }
+        }
+    },
+    {
+        "id": "sa-ne-08",
+        "category": "neurological",
+        "title": "Hypotensive after a diving accident",
+        "stem": "A 22-year-old man dived into shallow water and struck his head. He cannot move or feel anything below his chest. HR 46, BP 82/48, and his skin is warm and dry with no sweating below the injury.",
+        "intro": {
+            "question": "Why can a spinal cord injury cause low blood pressure with a slow pulse and warm skin, when blood loss usually causes a fast pulse and cold skin?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "Nerves that keep blood vessels tightened and speed the heart up leave the spinal cord in the chest region",
+                "A high spinal injury cuts off those nerve signals below the injury",
+                "Blood vessels relax and widen, so blood pressure falls and the skin stays warm and dry",
+                "The heart can't speed up in the usual way, so the pulse stays slow instead of rising"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "Low blood pressure with a slow pulse and warm, dry skin after a high spinal injury suggests neurogenic shock rather than blood loss.",
+                "mechanism": "The injury has cut the nerve pathways that normally keep blood vessels tightened and allow the heart rate to rise.",
+                "physiology": "Without those signals, blood vessels below the injury relax and widen, so the blood has more space to fill and the pressure falls.",
+                "signs": "Warm, dry skin below the injury shows vessels are widened and sweating is lost. The heart cannot speed up to compensate, so the pulse stays slow.",
+                "linking": "In blood loss the body compensates with a fast pulse and cold skin; here the compensation pathway itself is cut off, which is the clue."
+            }
+        },
+        "advanced": {
+            "question": "Explain the pathophysiology of neurogenic shock and how you would distinguish it physiologically from hypovolaemic shock.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Sympathetic outflow leaves the cord from T1–L2; cardiac accelerator fibres arise from T1–T4",
+                "A cord injury above T6 interrupts descending sympathetic control below the lesion",
+                "Loss of vasomotor tone causes arterial and venous dilation, increasing the size of the vascular compartment",
+                "Venous pooling reduces preload, and reduced systemic vascular resistance lowers blood pressure — distributive shock",
+                "Unopposed vagal tone, with loss of cardiac accelerator fibres, causes bradycardia instead of compensatory tachycardia",
+                "Loss of sympathetic control below the lesion also abolishes vasoconstriction and sweating, so skin is warm, dry and often flushed",
+                "Hypovolaemic shock instead shows tachycardia, cool clammy peripheries and prolonged capillary refill — the presence of bradycardia with warm skin is the key distinction"
+            ],
+            "bonusPoints": [
+                "Neurogenic shock and spinal shock are different: spinal shock describes transient loss of reflexes and flaccidity below the lesion; both may coexist, and occult haemorrhage must still be excluded in trauma."
+            ],
+            "modelAnswer": {
+                "presentation": "Hypotension with bradycardia, warm dry skin and a sensorimotor level at the chest after a diving injury indicates neurogenic shock from a high cervical or upper thoracic cord injury.",
+                "mechanism": "Sympathetic fibres leave the cord between T1 and L2, with cardiac accelerator fibres from T1–T4. An injury above T6 interrupts descending sympathetic control below the lesion.",
+                "physiology": "Loss of vasomotor tone dilates arteries and veins, enlarging the vascular compartment relative to the circulating volume. Venous pooling lowers preload while reduced systemic vascular resistance lowers blood pressure — a distributive shock. With cardiac accelerator fibres cut off, vagal tone is unopposed, so the heart cannot mount a compensatory tachycardia.",
+                "signs": "He is hypotensive but bradycardic. Skin below the lesion is warm and dry because vasoconstriction and sweating are lost.",
+                "linking": "Hypovolaemia would give tachycardia with cool, clammy skin; here the compensatory pathway is itself disconnected, which is why the picture is the opposite — though bleeding still has to be excluded."
+            }
+        }
+    },
+    {
+        "id": "sa-ne-09",
+        "category": "neurological",
+        "title": "A seizure that won't stop",
+        "stem": "A 35-year-old woman has been fitting continuously for 12 minutes. She is cyanosed around the lips, SpO₂ 86%, HR 148, temperature 38.4 °C.",
+        "intro": {
+            "question": "Why is a seizure that carries on for a long time dangerous?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "During a prolonged seizure the brain and muscles use enormous amounts of oxygen and glucose",
+                "Normal breathing is disrupted, so oxygen levels fall and carbon dioxide builds up",
+                "Muscles working continuously produce acid and heat, so the body becomes acidotic and the temperature rises",
+                "If it continues, brain cells start to be damaged from lack of oxygen and energy"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "A seizure lasting more than 10 minutes with cyanosis, low oxygen, a fast pulse and a raised temperature is a medical emergency.",
+                "mechanism": "The abnormal electrical activity is continuing rather than stopping on its own.",
+                "physiology": "Her brain and muscles are using huge amounts of oxygen and glucose, while her breathing is disrupted, so oxygen falls and carbon dioxide rises. Continuously contracting muscles produce acid and heat.",
+                "signs": "She is cyanosed with a low SpO₂, her heart is racing and her temperature is climbing.",
+                "linking": "Demand is rising while supply is falling, so the longer it goes on, the more likely the brain is to be damaged."
+            }
+        },
+        "advanced": {
+            "question": "Explain why status epilepticus becomes self-sustaining and harmful, and link this to her hypoxaemia, tachycardia and pyrexia.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "Status epilepticus is a failure of the mechanisms that normally terminate a seizure",
+                "With prolonged activity, inhibitory GABA-A receptors are internalised while excitatory (NMDA/AMPA) receptors are trafficked to the membrane, so seizures become self-sustaining and harder to stop",
+                "Cerebral metabolic demand rises dramatically while ventilation is impaired, causing hypoxaemia and hypercapnia",
+                "Sustained muscle activity produces lactic acid, causing a metabolic acidosis, and generates heat, raising core temperature",
+                "Massive catecholamine release causes tachycardia and hypertension early",
+                "Early in the seizure, cerebral blood flow rises to meet demand; later, autoregulation fails and supply no longer matches demand",
+                "The resulting excitotoxic neuronal injury, driven by glutamate and calcium influx, causes lasting damage — so time matters"
+            ],
+            "bonusPoints": [
+                "Later features include hypotension, hypoglycaemia and rhabdomyolysis; convulsive activity may become subtle while electrical seizures continue."
+            ],
+            "modelAnswer": {
+                "presentation": "Twelve minutes of continuous convulsive activity with cyanosis, hypoxaemia, tachycardia and pyrexia constitutes status epilepticus.",
+                "mechanism": "The mechanisms that normally terminate a seizure have failed. As activity continues, inhibitory GABA-A receptors are internalised while excitatory NMDA and AMPA receptors move to the membrane, so the seizure becomes self-sustaining and progressively harder to stop.",
+                "physiology": "Cerebral metabolic demand rises steeply while effective ventilation is lost, producing hypoxaemia and hypercapnia. Sustained skeletal muscle contraction generates lactic acid and heat. Catecholamine release drives the cardiovascular response. Cerebral blood flow initially rises to meet demand, but autoregulation eventually fails, so supply falls short.",
+                "signs": "She is cyanosed with SpO₂ 86% from impaired ventilation, tachycardic from catecholamines and hypoxaemia, and pyrexial from muscle heat production rather than infection.",
+                "linking": "Each passing minute makes the seizure harder to stop and the mismatch between demand and supply worse, which is why prolonged seizures cause excitotoxic neuronal injury."
+            }
+        }
+    },
+    {
+        "id": "sa-ne-10",
+        "category": "neurological",
+        "title": "A drooping face",
+        "stem": "A 52-year-old woman woke with the left side of her face drooping. She cannot close her left eye or wrinkle her forehead on that side. Her arms and legs are normal, her speech is clear, and she has no other symptoms.",
+        "intro": {
+            "question": "Why does being unable to wrinkle the forehead suggest this is a facial nerve problem rather than a stroke?",
+            "wordGuide": 100,
+            "markingPoints": [
+                "In a stroke, the forehead usually still works, because each side of the forehead receives nerve signals from both sides of the brain",
+                "So a stroke typically causes drooping of the lower face only",
+                "In a facial nerve problem (Bell's palsy), the whole side of the face is affected, including the forehead and eye closure",
+                "Her normal arms, legs and speech also point away from a stroke, but any new facial droop still needs urgent assessment"
+            ],
+            "bonusPoints": [],
+            "modelAnswer": {
+                "presentation": "A one-sided facial droop affecting the forehead and eye closure, with normal limbs and speech, suggests a facial nerve palsy rather than a stroke.",
+                "mechanism": "The facial nerve on that side isn't working, so every muscle it supplies is weak.",
+                "physiology": "The forehead muscles get their instructions from both sides of the brain, but only from one facial nerve.",
+                "signs": "A stroke usually spares the forehead, because the other side of the brain can still supply it. Here the forehead and eye closure are affected, which points to the nerve itself.",
+                "linking": "Forehead involvement is the key difference — although any new facial weakness still needs urgent assessment."
+            }
+        },
+        "advanced": {
+            "question": "Explain the anatomical basis for distinguishing an upper motor neurone from a lower motor neurone facial weakness.",
+            "wordGuide": 200,
+            "markingPoints": [
+                "The facial nerve (CN VII) supplies all the muscles of facial expression on its own side",
+                "The facial nucleus has two parts: the upper part (supplying forehead and orbicularis oculi) receives bilateral cortical input; the lower part receives mainly contralateral input",
+                "An upper motor neurone lesion (e.g. stroke) therefore spares the forehead, because the unaffected hemisphere still supplies the upper facial nucleus",
+                "A lower motor neurone lesion affects the nerve or nucleus itself, so all ipsilateral facial muscles are weak, including the forehead and eye closure",
+                "Bell's palsy is an acute lower motor neurone palsy, thought to follow inflammation and oedema of the nerve within the facial canal",
+                "Swelling within the narrow bony canal compresses the nerve, impairing conduction",
+                "Loss of orbicularis oculi function prevents eye closure, risking corneal exposure; associated features can include altered taste and sensitivity to loud sound"
+            ],
+            "bonusPoints": [
+                "Forehead sparing is a useful rule but not absolute; a stroke must still be considered where onset, other deficits or risk factors suggest it."
+            ],
+            "modelAnswer": {
+                "presentation": "Isolated unilateral facial weakness including the forehead and eye closure, with normal limbs and speech, indicates a lower motor neurone facial palsy.",
+                "mechanism": "The facial nerve supplies all the muscles of facial expression on its own side. Its nucleus is divided: the part supplying the forehead and orbicularis oculi receives cortical input from both hemispheres, while the part supplying the lower face receives mainly crossed input.",
+                "physiology": "In an upper motor neurone lesion such as a stroke, the intact hemisphere still drives the upper facial nucleus, so forehead movement is preserved and only the lower face droops. In a lower motor neurone lesion, the final common pathway itself is affected, so every muscle it supplies is weak. In Bell's palsy, inflammation and oedema compress the nerve within the narrow facial canal, impairing conduction.",
+                "signs": "Her inability to wrinkle the forehead and close the eye localises the lesion to the nerve rather than the cortex. Loss of eye closure threatens the cornea.",
+                "linking": "The bilateral cortical supply to the forehead is what makes it the deciding sign — though a new facial droop still warrants urgent assessment."
             }
         }
     }
