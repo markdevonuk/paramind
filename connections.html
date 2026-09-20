@@ -67,6 +67,46 @@
             gap: 1rem;
         }
         
+        /* Explanation level switch (Introduction / Advanced) */
+        .level-switch-wrap {
+            text-align: center;
+            margin: -0.5rem 0 1.5rem;
+        }
+        
+        .level-switch {
+            display: inline-flex;
+            background: var(--color-white);
+            border: 2px solid rgba(43, 138, 156, 0.2);
+            border-radius: var(--radius-full);
+            padding: 0.25rem;
+            gap: 0.25rem;
+        }
+        
+        .level-option {
+            border: none;
+            background: transparent;
+            color: var(--color-teal);
+            font-weight: 600;
+            padding: 0.5rem 1.25rem;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all var(--transition-fast);
+        }
+        
+        .level-option.active {
+            background: linear-gradient(135deg, var(--color-teal) 0%, #228B9D 100%);
+            color: white;
+        }
+        
+        .level-hint {
+            font-size: 0.8rem;
+            color: var(--color-gray-600);
+            margin-top: 0.5rem;
+        }
+        
         .hollie-avatar {
             width: 70px;
             height: 70px;
@@ -876,6 +916,19 @@
                 </div>
             </div>
             
+            <!-- Explanation level switch -->
+            <div class="level-switch-wrap">
+                <div class="level-switch" role="group" aria-label="Explanation level">
+                    <button type="button" class="level-option active" id="levelIntroBtn" data-level="intro" aria-pressed="true">
+                        <i class="bi bi-book"></i> Introduction
+                    </button>
+                    <button type="button" class="level-option" id="levelAdvancedBtn" data-level="advanced" aria-pressed="false">
+                        <i class="bi bi-mortarboard"></i> Advanced
+                    </button>
+                </div>
+                <div class="level-hint" id="levelHint">Clear explanations linking A&amp;P to what you see on the road</div>
+            </div>
+            
             <!-- Body Systems Grid -->
             <div class="systems-grid" id="systemsGrid">
                 <!-- Systems will be populated by JavaScript -->
@@ -910,7 +963,7 @@
                     </div>
                     <div class="chat-header-info">
                         <h3>Hollie</h3>
-                        <p>Paramedic Tutor</p>
+                        <p id="chatHeaderSubtitle">Paramedic Tutor</p>
                     </div>
                     <div class="chat-system-badge" id="chatSystemBadge">
                         <!-- System badge populated by JavaScript -->
@@ -1198,6 +1251,33 @@
         // ==================== STATE ====================
         let currentSystem = null;
         let currentQuestion = null;
+        
+        // Explanation level: 'intro' (default) or 'advanced'. Remembered on this device.
+        let learningLevel = 'intro';
+        try {
+            if (localStorage.getItem('connections_level') === 'advanced') learningLevel = 'advanced';
+        } catch (e) {}
+        
+        const LEVEL_HINTS = {
+            intro: 'Clear explanations linking A&P to what you see on the road',
+            advanced: 'University Level 5–6 depth, straight away'
+        };
+        
+        function applyLearningLevel() {
+            document.querySelectorAll('.level-option').forEach(btn => {
+                const isActive = btn.dataset.level === learningLevel;
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+            const hint = document.getElementById('levelHint');
+            if (hint) hint.textContent = LEVEL_HINTS[learningLevel];
+        }
+        
+        function setLearningLevel(level) {
+            learningLevel = (level === 'advanced') ? 'advanced' : 'intro';
+            try { localStorage.setItem('connections_level', learningLevel); } catch (e) {}
+            applyLearningLevel();
+        }
 
         // ==================== AUTH TOKEN HELPER ====================
         // Firebase is loaded by menu-v2.js — this gets the token for API calls
@@ -1213,6 +1293,7 @@
         function initClinicalConnections() {
             renderBodySystems();
             setupEventListeners();
+            applyLearningLevel();
         }
 
         // ==================== RENDER FUNCTIONS ====================
@@ -1262,13 +1343,20 @@
             // Set system badge
             badge.innerHTML = `<i class="bi ${system.icon}"></i> ${system.name}`;
             
+            // Show the explanation level under Hollie's name
+            const subtitle = document.getElementById('chatHeaderSubtitle');
+            if (subtitle) {
+                subtitle.textContent = (learningLevel === 'advanced') ? 'Advanced · Level 5–6' : 'Paramedic Tutor';
+            }
+            
             // Reset simplify button visibility
             if (simplifyBtn) {
                 simplifyBtn.style.display = 'flex';
             }
             const deeperBtn = document.getElementById('deeperBtn');
             if (deeperBtn) {
-                deeperBtn.style.display = 'flex';
+                // Already at Advanced level, so there is nothing deeper to go
+                deeperBtn.style.display = (learningLevel === 'advanced') ? 'none' : 'flex';
             }
             
             // Render user question and typing indicator
@@ -1347,6 +1435,11 @@
                 askHollieToSimplify();
             });
             
+            // Explanation level switch
+            document.querySelectorAll('.level-option').forEach(btn => {
+                btn.addEventListener('click', () => setLearningLevel(btn.dataset.level));
+            });
+            
             // Go deeper button
             document.getElementById('deeperBtn').addEventListener('click', () => {
                 askHollieToGoDeeper();
@@ -1370,7 +1463,7 @@
         async function askHollie(question) {
             const hollieBubble = document.getElementById('hollieBubble');
             
-            const systemPrompt = `You are Hollie, a friendly and experienced UK paramedic who loves teaching anatomy and physiology to fellow paramedics and students. You explain things in a warm, conversational way - like you're chatting to a colleague over a cuppa.
+            const introSystemPrompt = `You are Hollie, a friendly and experienced UK paramedic who loves teaching anatomy and physiology to fellow paramedics and students. You explain things in a warm, conversational way - like you're chatting to a colleague over a cuppa.
 
 Your personality:
 - Friendly and approachable - use "you" and speak directly to the learner
@@ -1392,6 +1485,19 @@ Keep it conversational - no formal headers or bullet points. Write in flowing pa
 Keep responses around 250-350 words - detailed enough to be useful but not overwhelming.
 
 Remember: This is for EDUCATION only - never give treatment advice. If treatment comes up, remind them to check JRCalc.`;
+
+            const advancedSystemPrompt = `You are Hollie, an experienced UK paramedic and educator. The learner has asked for an explanation at university Level 5–6 depth, for their degree studies. Explain the topic fully in its own right:
+1. Explain the mechanism at cellular and molecular level, then at tissue and organ level, then how it affects the whole body.
+2. Walk through it as a clear chain of cause and effect, one step leading to the next.
+3. Link each step to the signs, symptoms and observations a paramedic would see, explaining why each one appears.
+4. Define key terminology briefly the first time you use it.
+5. Finish with a short "Linking it together" paragraph that summarises the chain in a way that would help structure a written exam answer.
+
+Keep your warm, encouraging tone, but prioritise accuracy and depth. You may use short subheadings to organise the explanation. Aim for 450–600 words. Use UK spelling and terminology.
+
+This is for education only. Do not discuss medicines, drug actions, treatments or management. If they come up, remind the learner to refer to JRCalc and their trust guidelines.`;
+
+            const systemPrompt = (learningLevel === 'advanced') ? advancedSystemPrompt : introSystemPrompt;
 
             try {
                 const token = await getAuthToken();
