@@ -921,6 +921,10 @@
                         <i class="bi bi-emoji-smile"></i>
                         Make it simpler, Hollie!
                     </button>
+                    <button class="simplify-btn" id="deeperBtn">
+                        <i class="bi bi-mortarboard"></i>
+                        Go deeper, Hollie!
+                    </button>
                     <button class="another-question-btn" id="anotherQuestionBtn">
                         Back
                     </button>
@@ -1257,6 +1261,10 @@
             if (simplifyBtn) {
                 simplifyBtn.style.display = 'flex';
             }
+            const deeperBtn = document.getElementById('deeperBtn');
+            if (deeperBtn) {
+                deeperBtn.style.display = 'flex';
+            }
             
             // Render user question and typing indicator
             messagesDiv.innerHTML = `
@@ -1332,6 +1340,11 @@
             // Simplify button
             document.getElementById('simplifyBtn').addEventListener('click', () => {
                 askHollieToSimplify();
+            });
+            
+            // Go deeper button
+            document.getElementById('deeperBtn').addEventListener('click', () => {
+                askHollieToGoDeeper();
             });
         }
 
@@ -1612,6 +1625,153 @@ Use UK spelling and terminology.`;
             } catch (error) {
                 console.error('Error:', error);
                 simplifyBubble.innerHTML = `<p style="color: #dc2626;">Sorry, I couldn't simplify that. Please try again.</p>`;
+                chatActions.style.display = 'flex';
+            }
+        }
+
+        // ==================== ASK HOLLIE TO GO DEEPER ====================
+        // Mirrors askHollieToSimplify(), but asks for Level 5-6 depth.
+        // Builds on the original question and answer stored in conversationForSimplify.
+        async function askHollieToGoDeeper() {
+            const chatMessages = document.getElementById('chatMessages');
+            const deeperBtn = document.getElementById('deeperBtn');
+            const chatActions = document.getElementById('chatActions');
+            
+            if (conversationForSimplify.length === 0) return;
+            
+            // Hide actions while processing
+            chatActions.style.display = 'none';
+            
+            // Add user request bubble
+            const userRequest = document.createElement('div');
+            userRequest.className = 'user-message';
+            userRequest.innerHTML = `
+                <div class="user-bubble">Go deeper please, Hollie! 🎓</div>
+            `;
+            chatMessages.appendChild(userRequest);
+            
+            // Add Hollie's typing indicator
+            const hollieResponse = document.createElement('div');
+            hollieResponse.className = 'hollie-message';
+            hollieResponse.innerHTML = `
+                <div class="hollie-avatar">
+                    <img src="images/hollie.png" alt="Hollie">
+                </div>
+                <div class="hollie-bubble">
+                    <div class="typing-indicator">
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <span class="typing-text">Hollie is typing...</span>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(hollieResponse);
+            
+            // Scroll to show the new messages
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Look up within this new message so a retry after an error never picks up an older bubble
+            const deeperBubble = hollieResponse.querySelector('.hollie-bubble');
+            
+            const deeperSystemPrompt = `You are Hollie, an experienced UK paramedic and educator. The learner has read your first explanation and wants to go deeper, at university Level 5–6 depth, for their degree studies.
+
+Build on your previous answer rather than repeating it:
+1. Explain the mechanism at cellular and molecular level, then at tissue and organ level, then how it affects the whole body.
+2. Walk through it as a clear chain of cause and effect, one step leading to the next.
+3. Link each step to the signs, symptoms and observations a paramedic would see, explaining why each one appears.
+4. Define key terminology briefly the first time you use it.
+5. Finish with a short "Linking it together" paragraph that summarises the chain in a way that would help structure a written exam answer.
+
+Keep your warm, encouraging tone, but prioritise accuracy and depth. You may use short subheadings to organise the explanation. Aim for 450–600 words. Use UK spelling and terminology.
+
+This is for education only. Do not discuss medicines, drug actions, treatments or management. If they come up, remind the learner to refer to JRCalc and their trust guidelines.`;
+
+            try {
+                const token = await getAuthToken();
+                
+                const response = await fetch(`${window.paramind.CONFIG.api.baseUrl}${window.paramind.CONFIG.api.chat}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Can you take that further please? Explain it in more depth at university Level 5-6, building on what you just said.',
+                        conversationHistory: conversationForSimplify,
+                        systemPromptAddendum: deeperSystemPrompt
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to get response');
+                }
+                
+                // Set up streaming display
+                deeperBubble.innerHTML = '<span class="streaming-text"></span><span class="streaming-cursor">|</span>';
+                const streamingText = deeperBubble.querySelector('.streaming-text');
+                
+                // Handle streaming response
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullMessage = '';
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    
+                    if (done) break;
+                    
+                    const text = decoder.decode(value, { stream: true });
+                    const lines = text.split('\n');
+                    
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                
+                                if (data.type === 'chunk') {
+                                    fullMessage += data.content;
+                                    
+                                    // Escape HTML during streaming
+                                    const escaped = fullMessage
+                                        .replace(/&/g, '&amp;')
+                                        .replace(/</g, '&lt;')
+                                        .replace(/>/g, '&gt;')
+                                        .replace(/\n/g, '<br>');
+                                    streamingText.innerHTML = escaped;
+                                    
+                                    // Scroll to keep latest text visible
+                                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                                    
+                                } else if (data.type === 'error') {
+                                    throw new Error(data.error);
+                                }
+                            } catch (parseError) {
+                                // Skip invalid JSON
+                            }
+                        }
+                    }
+                }
+                
+                // Finalize with formatted markdown
+                deeperBubble.innerHTML = formatMessage(fullMessage);
+                
+                // Show action buttons but hide go deeper (already used)
+                deeperBtn.style.display = 'none';
+                chatActions.style.display = 'flex';
+                
+                // Scroll chatMessages so the deeper response is just visible below the user request
+                const deeperMsg = deeperBubble.closest('.hollie-message');
+                const containerRect3 = chatMessages.getBoundingClientRect();
+                const msgRect3 = deeperMsg.getBoundingClientRect();
+                const targetScroll3 = msgRect3.top - containerRect3.top + chatMessages.scrollTop - 40;
+                chatMessages.scrollTo({ top: targetScroll3, behavior: 'smooth' });
+                
+            } catch (error) {
+                console.error('Error:', error);
+                deeperBubble.innerHTML = `<p style="color: #dc2626;">Sorry, I couldn't go deeper on that. Please try again.</p>`;
                 chatActions.style.display = 'flex';
             }
         }
