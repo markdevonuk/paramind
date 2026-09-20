@@ -180,6 +180,77 @@
             transform: none;
         }
         
+        /* Explanation level switch (Introduction / Advanced) */
+        .level-switch-wrap {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .level-switch {
+            display: inline-flex;
+            background: var(--color-white, #fff);
+            border: 2px solid rgba(43, 138, 156, 0.2);
+            border-radius: 999px;
+            padding: 0.2rem;
+            gap: 0.2rem;
+        }
+        
+        .level-option {
+            border: none;
+            background: transparent;
+            color: var(--color-teal);
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0.4rem 1rem;
+            border-radius: 999px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-family: inherit;
+        }
+        
+        .level-option.active {
+            background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-teal-dark) 100%);
+            color: white;
+        }
+        
+        .level-hint {
+            font-size: 0.8rem;
+            color: var(--color-gray-600, #6C757D);
+            margin-top: 0.4rem;
+        }
+        
+        /* Go deeper button + divider (Introduction level only) */
+        .deeper-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.25rem;
+            border-radius: 999px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            font-family: inherit;
+        }
+        
+        .deeper-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .deeper-divider {
+            margin: 1.5rem 0 0.75rem;
+            font-weight: 600;
+            color: var(--color-teal);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
         .privacy-note {
             text-align: center;
             font-size: 0.75rem;
@@ -491,6 +562,19 @@
                     <textarea id="additionalNotes" rows="2" placeholder="Any other relevant findings..."></textarea>
                 </div>
                 
+                <!-- Explanation level switch -->
+                <div class="level-switch-wrap">
+                    <div class="level-switch" role="group" aria-label="Explanation level">
+                        <button type="button" class="level-option active" id="levelIntroBtn" data-level="intro" aria-pressed="true">
+                            <i class="bi bi-book"></i> Introduction
+                        </button>
+                        <button type="button" class="level-option" id="levelAdvancedBtn" data-level="advanced" aria-pressed="false">
+                            <i class="bi bi-mortarboard"></i> Advanced
+                        </button>
+                    </div>
+                    <div class="level-hint" id="levelHint">Key differentials and red flags</div>
+                </div>
+                
                 <button type="submit" class="submit-btn" id="submitBtn">
                     <i class="bi bi-chat-dots"></i>
                     Get Guidance
@@ -602,6 +686,41 @@
             isLoading: false
         };
 
+        // ==================== EXPLANATION LEVEL (Introduction / Advanced) ====================
+        // Shared with chat.html and connections.html via localStorage key 'paramind_level'.
+        const ADVANCED_LEVEL_ADDENDUM = `ADVANCED LEVEL (university Level 5–6): For each differential, explain the clinical reasoning: which findings support it and which argue against it, the underlying pathophysiology linking it to the presentation, and the key discriminating features or further assessment findings that would help confirm or exclude it. Rank the differentials by likelihood, and flag the must-not-miss ones. Define key terms briefly the first time you use them. Finish with a short "Linking it together" summary of the reasoning, suitable for a case-study write-up. Aim for 450–650 words. Do not give treatment or management — refer to JRCalc and trust guidelines.`;
+
+        const LEVEL_HINTS = {
+            intro: 'Key differentials and red flags',
+            advanced: 'Level 5–6 clinical reasoning for each differential'
+        };
+
+        let learningLevel = 'intro';
+        try {
+            const savedLevel = localStorage.getItem('paramind_level') || localStorage.getItem('connections_level');
+            if (savedLevel === 'advanced') learningLevel = 'advanced';
+        } catch (e) {}
+
+        // Remembered so "Go deeper" can build on the last answer
+        let lastDifferentialsPrompt = null;
+        let lastDifferentialsResponse = null;
+
+        function applyLearningLevel() {
+            document.querySelectorAll('.level-option').forEach(btn => {
+                const isActive = btn.dataset.level === learningLevel;
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+            const hint = document.getElementById('levelHint');
+            if (hint) hint.textContent = LEVEL_HINTS[learningLevel];
+        }
+
+        function setLearningLevel(level) {
+            learningLevel = (level === 'advanced') ? 'advanced' : 'intro';
+            try { localStorage.setItem('paramind_level', learningLevel); } catch (e) {}
+            applyLearningLevel();
+        }
+
         // ==================== DOM ELEMENTS ====================
         const elements = {
             patientForm: document.getElementById('patientForm'),
@@ -680,7 +799,7 @@
 
         // ==================== BUILD PROMPT ====================
         function buildPatientPrompt(data) {
-            let prompt = `I have a patient and need guidance on differential diagnoses and management:\n\n`;
+            let prompt = `I have a patient and need guidance on differential diagnoses:\n\n`;
             
             if (data.age) prompt += `Age: ${data.age}\n`;
             if (data.sex) prompt += `Sex: ${data.sex}\n`;
@@ -700,7 +819,7 @@
             
             if (data.notes) prompt += `\nAdditional Notes: ${data.notes}\n`;
             
-            prompt += `\nBased on my trust guidelines, what are the key differential diagnoses, red flags to consider, and recommended pre-hospital management?`;
+            prompt += `\nBased on my trust guidelines, what are the key differential diagnoses, red flags to consider, and which assessment findings would help tell them apart?`;
             
             return prompt;
         }
@@ -733,7 +852,7 @@
         }
 
         // ==================== API CALL ====================
-        async function sendToAPI(prompt, onChunk) {
+        async function sendToAPI(prompt, onChunk, options = {}) {
             const user = auth.currentUser;
             if (!user) throw new Error('Not authenticated');
             
@@ -747,7 +866,8 @@
                 },
                 body: JSON.stringify({
                     message: prompt,
-                    conversationHistory: [],
+                    conversationHistory: options.history || [],
+                    ...(options.addendum ? { systemPromptAddendum: options.addendum } : {}),
                     scenarioId: null,
                     scenarioPrompt: null
                 })
@@ -847,6 +967,8 @@
             elements.submitBtn.disabled = true;
             elements.submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Loading...';
             
+            const levelAtRequest = learningLevel;
+            
             try {
                 const response = await sendToAPI(prompt, (partial) => {
                     // Escape HTML during streaming
@@ -861,10 +983,17 @@
                     if (bottom > window.innerHeight - 20) {
                         window.scrollBy({ top: bottom - window.innerHeight + 20 });
                     }
-                });
+                }, levelAtRequest === 'advanced' ? { addendum: ADVANCED_LEVEL_ADDENDUM } : {});
                 
                 // Finalize with formatted markdown
                 responseMessage.innerHTML = formatMessage(response);
+                
+                // Remember this answer, and offer "Go deeper" at Introduction level
+                lastDifferentialsPrompt = prompt;
+                lastDifferentialsResponse = response;
+                if (levelAtRequest === 'intro') {
+                    addGoDeeperButton();
+                }
                 
                 // Scroll back to top of response so user can read from the start
                 const msgRect = responseMessage.getBoundingClientRect();
@@ -896,6 +1025,77 @@
                 pageState.isLoading = false;
                 elements.submitBtn.disabled = false;
                 elements.submitBtn.innerHTML = '<i class="bi bi-chat-dots"></i> Get Guidance';
+            }
+        }
+
+        // ==================== GO DEEPER (Introduction level only) ====================
+        function addGoDeeperButton() {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'deeper-btn';
+            btn.id = 'deeperBtn';
+            btn.innerHTML = '<i class="bi bi-mortarboard"></i> Go deeper, Hollie!';
+            btn.addEventListener('click', goDeeper);
+            elements.responseArea.appendChild(btn);
+        }
+
+        async function goDeeper() {
+            if (pageState.isLoading || !lastDifferentialsPrompt || !lastDifferentialsResponse) return;
+            
+            const oldBtn = document.getElementById('deeperBtn');
+            if (oldBtn) oldBtn.remove();
+            
+            // Divider + new streaming area underneath the first answer
+            const divider = document.createElement('div');
+            divider.className = 'deeper-divider';
+            divider.innerHTML = '<i class="bi bi-mortarboard"></i> Going deeper';
+            elements.responseArea.appendChild(divider);
+            
+            const deeperMessage = document.createElement('div');
+            deeperMessage.className = 'response-message';
+            deeperMessage.innerHTML = '<span class="streaming-text"></span><span class="streaming-cursor">|</span>';
+            elements.responseArea.appendChild(deeperMessage);
+            const streamingText = deeperMessage.querySelector('.streaming-text');
+            
+            divider.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            pageState.isLoading = true;
+            elements.submitBtn.disabled = true;
+            
+            try {
+                const response = await sendToAPI(
+                    'Can you take that further please? Explain the clinical reasoning for these differentials in more depth at university Level 5-6, building on what you just said.',
+                    (partial) => {
+                        const escaped = partial
+                            .replace(/&/g, '&amp;')
+                            .replace(/</g, '&lt;')
+                            .replace(/>/g, '&gt;')
+                            .replace(/\n/g, '<br>');
+                        streamingText.innerHTML = escaped;
+                    },
+                    {
+                        addendum: ADVANCED_LEVEL_ADDENDUM + `
+
+GO DEEPER MODE: The learner has read your previous answer about this patient and wants to go deeper. Stay with the SAME patient and build on what you already said rather than repeating it.`,
+                        history: [
+                            { role: 'user', content: lastDifferentialsPrompt },
+                            { role: 'assistant', content: lastDifferentialsResponse }
+                        ]
+                    }
+                );
+                
+                deeperMessage.innerHTML = formatMessage(response);
+                
+            } catch (error) {
+                if (error.message === 'LIMIT_REACHED') {
+                    deeperMessage.innerHTML = `<p>You've used all 20 free messages for today. Your limit resets at midnight.</p>`;
+                } else {
+                    deeperMessage.innerHTML = `<p>Sorry, something went wrong. Please try again.</p>`;
+                    addGoDeeperButton();
+                }
+            } finally {
+                pageState.isLoading = false;
+                elements.submitBtn.disabled = false;
             }
         }
 
@@ -944,6 +1144,10 @@
         // ==================== EVENT LISTENERS ====================
         elements.patientForm.addEventListener('submit', handleSubmit);
         elements.clearBtn.addEventListener('click', clearResponse);
+        document.querySelectorAll('.level-option').forEach(btn => {
+            btn.addEventListener('click', () => setLearningLevel(btn.dataset.level));
+        });
+        applyLearningLevel();
     </script>
     <script src="js/upgrade-modal.js"></script>
 </body>
