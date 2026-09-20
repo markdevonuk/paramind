@@ -244,6 +244,8 @@
 
         .sa-result-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
         .sa-result-actions .sa-advanced-btn { flex-basis: 100%; }
+        .sa-result-actions .sa-save-btn { flex-basis: 100%; }
+        .sa-save-btn.saved { border-color: #16a34a; color: #15803d; cursor: default; }
 
         .sa-disclaimer { margin-top: 1.5rem; font-size: 0.8rem; color: var(--color-gray-600); text-align: center; }
 
@@ -386,6 +388,9 @@
                 </div>
 
                 <div class="sa-result-actions">
+                    <button type="button" class="sa-secondary-btn sa-save-btn" id="saveCpdBtn">
+                        <i class="bi bi-award"></i> Save to portfolio
+                    </button>
                     <button type="button" class="sa-primary-btn sa-advanced-btn" id="tryAdvancedBtn" hidden>
                         <i class="bi bi-mortarboard"></i> Now try this case at Advanced
                     </button>
@@ -454,7 +459,9 @@
             category: null,
             caseItem: null,
             caseLevel: 'intro',
-            marking: false
+            marking: false,
+            lastResult: null,   // marking result for the attempt on screen
+            lastAnswer: ''      // the answer that was marked
         };
         try {
             var savedLevel = localStorage.getItem('paramind_level') || localStorage.getItem('connections_level');
@@ -670,6 +677,8 @@
 
                 var result = parseMarking(full);
                 saveBest(k.id, level, result.score);
+                state.lastResult = result;
+                state.lastAnswer = answer;
                 showResults(result);
             } catch (err) {
                 console.error('Short answer marking error:', err);
@@ -714,9 +723,51 @@
             }).join('');
 
             $('tryAdvancedBtn').hidden = level !== 'intro';
+            resetSaveButton();
             $('answerCard').hidden = true;
             $('resultsArea').hidden = false;
             $('resultsArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ==================== SAVE TO PORTFOLIO (existing CPD structure) ====================
+        function resetSaveButton() {
+            var b = $('saveCpdBtn');
+            b.disabled = false;
+            b.classList.remove('saved');
+            b.innerHTML = '<i class="bi bi-award"></i> Save to portfolio';
+        }
+
+        async function saveToPortfolio() {
+            var k = state.caseItem, level = state.caseLevel, r = state.lastResult;
+            var b = $('saveCpdBtn');
+            if (!k || !r || b.disabled) return;
+            b.disabled = true;
+            b.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving…';
+            try {
+                var user = firebase.auth().currentUser;
+                if (!user) throw new Error('Not signed in');
+                var levelName = LEVEL_NAMES[level];
+                var code = k.id.toUpperCase() + (level === 'intro' ? '-INT' : '-ADV');
+                await firebase.firestore().collection('users').doc(user.uid).collection('cpdRecords').add({
+                    type:                 'short-answer',
+                    scenarioId:           k.id + '-' + level,
+                    scenarioCode:         code,
+                    scenarioType:         'Short Answer Practice — ' + k.title + ' (' + levelName + ')',
+                    scenarioCategory:     k.category,
+                    userImpression:       state.lastAnswer,
+                    correctDiagnosis:     k.title,
+                    result:               r.score >= 7 ? 'correct' : (r.score >= 4 ? 'partially_correct' : 'incorrect'),
+                    questionsAsked:       0,
+                    assessmentsPerformed: 0,
+                    completedAt:          new Date()
+                });
+                b.classList.add('saved');
+                b.innerHTML = '<i class="bi bi-check-circle-fill"></i> Saved to portfolio';
+            } catch (err) {
+                console.error('Short answer CPD save error:', err);
+                b.disabled = false;
+                b.innerHTML = '<i class="bi bi-exclamation-circle"></i> Save failed — tap to try again';
+            }
         }
 
         function nextCase() {
@@ -759,6 +810,7 @@
             $('tryAgainBtn').addEventListener('click', function () { openCase(state.caseItem.id, state.caseLevel); });
             $('tryAdvancedBtn').addEventListener('click', function () { openCase(state.caseItem.id, 'advanced'); });
             $('nextCaseBtn').addEventListener('click', nextCase);
+            $('saveCpdBtn').addEventListener('click', saveToPortfolio);
         }
 
         document.addEventListener('DOMContentLoaded', init);
