@@ -298,7 +298,7 @@
                 body: JSON.stringify({
                     message: 'Please give me a quick explanation of this term: "' + snippet + '"',
                     conversationHistory: [],
-                    systemPrompt: HX_SYSTEM_PROMPT
+                    systemPromptAddendum: HX_SYSTEM_PROMPT
                 })
             });
             if (!response.ok) throw new Error('Request failed');
