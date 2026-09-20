@@ -354,6 +354,12 @@
         }
         
         /* Info Card */
+        /* Go deeper button row (button style comes from js/go-deeper.js) */
+        .go-deeper-row {
+            text-align: center;
+            margin-top: 1.25rem;
+        }
+
         .info-card {
             background: var(--color-white);
             border-radius: var(--radius-lg);
@@ -954,6 +960,11 @@
                 <ul class="features-list" id="featuresList">
                     <!-- Populated by JavaScript -->
                 </ul>
+                <div class="go-deeper-row">
+                    <button type="button" class="pgd-btn" onclick="goDeeperRhythm()">
+                        <i class="bi bi-mortarboard"></i> Go deeper, Hollie!
+                    </button>
+                </div>
             </div>
         </div>
         
@@ -992,6 +1003,11 @@
                     </div>
                     <div class="quiz-answer-reveal">
                         <p id="quizExplanation"></p>
+                    </div>
+                    <div class="go-deeper-row" style="margin: 0 0 1rem;">
+                        <button type="button" class="pgd-btn" onclick="goDeeperQuizRhythm()">
+                            <i class="bi bi-mortarboard"></i> Go deeper, Hollie!
+                        </button>
                     </div>
                     <div class="quiz-buttons">
                         <button class="quiz-btn quiz-btn-primary" onclick="nextQuestion()">
@@ -1486,6 +1502,37 @@
             document.getElementById('hrValue').textContent = heartRate;
         }
         
+        // ==================== GO DEEPER (uses shared js/go-deeper.js) ====================
+        function rhythmSummary(r) {
+            return 'Rhythm: ' + r.name + '\n' +
+                'Description: ' + r.description + '\n' +
+                'Key features: ' + (r.keyFeatures || []).join('; ');
+        }
+
+        function goDeeperRhythm() {
+            const r = rhythms[selectedRhythm];
+            if (!r || !window.ParamindGoDeeper) return;
+            ParamindGoDeeper.open({
+                snippet: r.name,
+                message: rhythmSummary(r),
+                context: 'The learner is studying a cardiac rhythm in Paramind\'s ECG tool.',
+                extra: 'Explain the electrophysiology behind this rhythm: where the impulse starts, how it is conducted, and why that produces each of its ECG features. Include what is happening at the level of the cardiac action potential and ion movement where relevant, and how the rhythm affects cardiac output and the patient\'s presentation. Include a brief structured way to recognise it on an ECG.'
+            });
+        }
+
+        function goDeeperQuizRhythm() {
+            const r = rhythms[quizRhythm];
+            if (!r || !window.ParamindGoDeeper) return;
+            const chosenKey = document.getElementById('quizAnswer').value;
+            const chosen = (chosenKey && chosenKey !== quizRhythm && rhythms[chosenKey]) ? rhythms[chosenKey].name : null;
+            ParamindGoDeeper.open({
+                snippet: r.name,
+                message: rhythmSummary(r) + (chosen ? '\nThe learner mistook it for: ' + chosen : ''),
+                context: 'The learner has just been shown this rhythm in a recognition quiz in Paramind\'s ECG tool.',
+                extra: 'Explain how to recognise this rhythm step by step, and the electrophysiology behind its key features. If the learner mistook it for a different rhythm, explain the features that tell the two apart.'
+            });
+        }
+
         // ==================== QUIZ FUNCTIONS ====================
         function shuffleArray(array) {
             const shuffled = [...array];
@@ -2479,6 +2526,7 @@
     <script src="js/rhythm-visual.js"></script>
     <script src="js/app.js"></script>
     <script src="js/menu-v2.js"></script>
+    <script src="js/go-deeper.js"></script>
     <script src="js/pro-guard.js"></script>
     <script src="js/activity-logger.js"></script>
     <script src="js/upgrade-modal.js"></script>
