@@ -86,14 +86,70 @@
         /* Chat Toolbar */
         .chat-toolbar {
             padding: 0.75rem 1rem;
-            display: none;
-            justify-content: flex-end;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
             border-bottom: 1px solid var(--color-gray-100);
             background: var(--color-white);
         }
         
         .chat-toolbar.visible {
             display: flex;
+        }
+        
+        /* New Chat only appears once a conversation has started (as before) */
+        .chat-toolbar #clearChatBtn {
+            visibility: hidden;
+        }
+        
+        .chat-toolbar.visible #clearChatBtn {
+            visibility: visible;
+        }
+        
+        .chat-toolbar #clearChatBtn {
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        /* Narrow phones: drop the switch icons so everything fits on one row */
+        @media (max-width: 420px) {
+            .level-option i {
+                display: none;
+            }
+            .level-option {
+                padding: 0.35rem 0.7rem;
+            }
+        }
+        
+        /* Explanation level switch (Introduction / Advanced) */
+        .level-switch {
+            display: inline-flex;
+            background: var(--color-white);
+            border: 2px solid rgba(43, 138, 156, 0.2);
+            border-radius: var(--radius-full);
+            padding: 0.2rem;
+            gap: 0.2rem;
+        }
+        
+        .level-option {
+            border: none;
+            background: transparent;
+            color: var(--color-teal);
+            font-weight: 600;
+            font-size: 0.8rem;
+            padding: 0.35rem 0.8rem;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            transition: all var(--transition-fast);
+        }
+        
+        .level-option.active {
+            background: linear-gradient(135deg, var(--color-teal) 0%, #228B9D 100%);
+            color: white;
         }
         
         /* Chat Messages */
@@ -919,6 +975,14 @@ html {
             <button class="btn btn-outline-secondary btn-sm" id="clearChatBtn">
                 <i class="bi bi-plus-lg me-1"></i>New Chat
             </button>
+            <div class="level-switch" role="group" aria-label="Explanation level">
+                <button type="button" class="level-option active" id="levelIntroBtn" data-level="intro" aria-pressed="true" title="Clear explanations linking theory to what you see on the road">
+                    <i class="bi bi-book"></i> Introduction
+                </button>
+                <button type="button" class="level-option" id="levelAdvancedBtn" data-level="advanced" aria-pressed="false" title="University Level 5–6 depth">
+                    <i class="bi bi-mortarboard"></i> Advanced
+                </button>
+            </div>
         </div>
         
         <!-- Chat Messages -->
@@ -1078,6 +1142,45 @@ Available tools (slug -- when to suggest):
 - readiness -- if the learner is asking about general revision or testing where they stand
 
 Remember: You're Hollie, a friendly paramedic tutor who makes learning enjoyable! 🚑`;
+
+        // ==================== EXPLANATION LEVEL (Introduction / Advanced) ====================
+        // Shared with connections.html via localStorage key 'paramind_level'.
+        // Only affects normal answers - Simplify and Quiz Me are unchanged.
+        const ADVANCED_LEVEL_ADDENDUM = `
+
+ADVANCED LEVEL: The learner has chosen Advanced level (university Level 5–6). This takes priority over "be concise" above. For explanatory questions:
+- Explain mechanisms at cellular and molecular, tissue and organ, and whole-body level, where relevant.
+- Walk through it as a chain of cause and effect.
+- Link each step to the signs, symptoms and observations a paramedic would see, and explain why each appears.
+- Define key terms briefly the first time you use them.
+- Where it helps, finish with a short "Linking it together" summary suited to structuring a written exam answer.
+
+Aim for 400–600 words for substantial questions. Short factual questions still get short answers. Keep your warm tone. Every rule above about treatment, medicines and management still applies in full.`;
+
+        let learningLevel = 'intro';
+        try {
+            const savedLevel = localStorage.getItem('paramind_level') || localStorage.getItem('connections_level');
+            if (savedLevel === 'advanced') learningLevel = 'advanced';
+        } catch (e) {}
+
+        function applyLearningLevel() {
+            document.querySelectorAll('.level-option').forEach(btn => {
+                const isActive = btn.dataset.level === learningLevel;
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+        }
+
+        function setLearningLevel(level) {
+            learningLevel = (level === 'advanced') ? 'advanced' : 'intro';
+            try { localStorage.setItem('paramind_level', learningLevel); } catch (e) {}
+            applyLearningLevel();
+        }
+
+        document.querySelectorAll('.level-option').forEach(btn => {
+            btn.addEventListener('click', () => setLearningLevel(btn.dataset.level));
+        });
+        applyLearningLevel();
 
         // ==================== QUIZ MODE SYSTEM PROMPT ====================
         // Used ONLY for Quiz Me requests. Sent as systemPromptAddendum so the
@@ -1283,7 +1386,7 @@ Output the JSON object now. No other text.`;
                 body: JSON.stringify({
                     message: message,
                     conversationHistory: chatState.conversationHistory.slice(-10).filter(m => m.role !== 'system'),
-                    systemPromptAddendum: HOLLIE_PROMPT_ADDENDUM,
+                    systemPromptAddendum: HOLLIE_PROMPT_ADDENDUM + (learningLevel === 'advanced' ? ADVANCED_LEVEL_ADDENDUM : ''),
                     scenarioId: null,
                     scenarioPrompt: null
                 })

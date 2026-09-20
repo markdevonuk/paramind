@@ -1255,7 +1255,8 @@
         // Explanation level: 'intro' (default) or 'advanced'. Remembered on this device.
         let learningLevel = 'intro';
         try {
-            if (localStorage.getItem('connections_level') === 'advanced') learningLevel = 'advanced';
+            const savedLevel = localStorage.getItem('paramind_level') || localStorage.getItem('connections_level');
+            if (savedLevel === 'advanced') learningLevel = 'advanced';
         } catch (e) {}
         
         const LEVEL_HINTS = {
@@ -1275,7 +1276,7 @@
         
         function setLearningLevel(level) {
             learningLevel = (level === 'advanced') ? 'advanced' : 'intro';
-            try { localStorage.setItem('connections_level', learningLevel); } catch (e) {}
+            try { localStorage.setItem('paramind_level', learningLevel); } catch (e) {}
             applyLearningLevel();
         }
 
