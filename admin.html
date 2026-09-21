@@ -216,6 +216,17 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-md-4">
+                    <div class="stats-card" style="border-left: 4px solid #F5B84C;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="text-muted mb-1">On 7-Day Pro Trial</p>
+                                <h3 id="trialUsers">-</h3>
+                            </div>
+                            <i class="bi bi-gift fs-1 opacity-50" style="color: #d99a1e;"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Users by Role -->
@@ -654,12 +665,14 @@
                 // Run all counts in parallel. Each getCountFromServer is 1 read
                 // regardless of how many docs match, so this is ~5 reads total
                 // instead of fetching every user doc.
-                const [totalSnap, paidSnap, studentSnap, nqpSnap, regSnap] = await Promise.all([
+                const [totalSnap, paidSnap, studentSnap, nqpSnap, regSnap, trialSnap] = await Promise.all([
                     getCountFromServer(usersRef),
                     getCountFromServer(query(usersRef, where('subscriptionStatus', '==', 'active'))),
                     getCountFromServer(query(usersRef, where('paramedicRole', '==', 'student'))),
                     getCountFromServer(query(usersRef, where('paramedicRole', '==', 'nqp'))),
-                    getCountFromServer(query(usersRef, where('paramedicRole', '==', 'registered')))
+                    getCountFromServer(query(usersRef, where('paramedicRole', '==', 'registered'))),
+                    // 7-day Pro trial: anyone whose trial end date is still in the future
+                    getCountFromServer(query(usersRef, where('trialEndsAt', '>', new Date())))
                 ]);
 
                 const total      = totalSnap.data().count;
@@ -673,6 +686,7 @@
                 document.getElementById('totalUsers').textContent     = total;
                 document.getElementById('freeUsers').textContent      = free;
                 document.getElementById('paidUsers').textContent      = paid;
+                document.getElementById('trialUsers').textContent     = trialSnap.data().count;
                 document.getElementById('roleStudent').textContent    = student;
                 document.getElementById('roleNqp').textContent        = nqp;
                 document.getElementById('roleRegistered').textContent = registered;
