@@ -40,7 +40,64 @@ const API_BASE = 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
 const TEMPLATES = {
     newMember:     { quill: null, hasGreeting: true,  hasFirstNameToken: true },
     newProMember:  { quill: null, hasGreeting: true,  hasFirstNameToken: true },
-    general:       { quill: null, hasGreeting: false, hasFirstNameToken: true }
+    general:       { quill: null, hasGreeting: false, hasFirstNameToken: true },
+    // 7-day Pro trial emails (sent by the sendTrialEmails / startProTrial Cloud Functions)
+    trialDay1:     { quill: null, hasGreeting: true,  hasFirstNameToken: true },
+    trialDay3:     { quill: null, hasGreeting: true,  hasFirstNameToken: true },
+    trialDay5:     { quill: null, hasGreeting: true,  hasFirstNameToken: true },
+    trialDay7:     { quill: null, hasGreeting: true,  hasFirstNameToken: true },
+    trialEnded:    { quill: null, hasGreeting: true,  hasFirstNameToken: true }
+};
+
+const TRIAL_TEMPLATE_IDS = ['trialDay1', 'trialDay3', 'trialDay5', 'trialDay7', 'trialEnded'];
+
+// Starting drafts for the trial emails. Shown in the editor ONLY until a
+// template has been saved; nothing is sent until you click Save Template.
+const TRIAL_DEFAULTS = {
+    trialDay1: {
+        subject: 'Your 7 days of Paramind Pro start now',
+        html: '<p>Your Pro trial is live, and everything is unlocked for the next 7 days.</p>' +
+              '<p>If you\'re not sure where to start, these three are a good place:</p>' +
+              '<ul><li><strong>ECG Tool</strong>: study rhythms, then test yourself</li>' +
+              '<li><strong>Understanding Bones</strong>: 63 landmarks and real fracture scenarios</li>' +
+              '<li><strong>Debrief Your Calls</strong>: reflect on a job with Hollie and save it straight to your CPD Portfolio</li></ul>' +
+              '<p>Chat with Hollie is now unlimited too, so ask her anything.</p>' +
+              '<p><a href="https://paramind.co.uk/landing.html">Open Paramind</a></p>' +
+              '<p>Mark<br>Paramedic and founder, Paramind</p>'
+    },
+    trialDay3: {
+        subject: 'Have you tried this yet?',
+        html: '<p>You\'re three days into your Pro trial. Here\'s one worth ten minutes: <strong>Major Incident Training</strong>. ' +
+              'Work through triage under pressure, then try it again without hints.</p>' +
+              '<p>It\'s the kind of thing you rarely get to practise until it\'s real.</p>' +
+              '<p><a href="https://paramind.co.uk/major-incident.html">Try Major Incident Training</a></p>' +
+              '<p>Mark</p>'
+    },
+    trialDay5: {
+        subject: '2 days left on your Pro trial',
+        html: '<p>Just a heads-up: your Pro trial finishes in two days.</p>' +
+              '<p>If you\'ve been using the tools, now\'s a good time to decide whether to keep them. ' +
+              'Pro is £4.99 a month, or £49.99 a year (that\'s £4.17 a month). You can cancel anytime.</p>' +
+              '<p><a href="https://paramind.co.uk/upgrade.html">Keep Pro</a></p>' +
+              '<p>If there\'s anything you haven\'t got round to, have a look before it ends.</p>' +
+              '<p>Mark</p>'
+    },
+    trialDay7: {
+        subject: 'Your Pro trial ends tomorrow',
+        html: '<p>Your trial finishes tomorrow, and the Pro tools will lock again.</p>' +
+              '<p>Anything you\'ve saved to your CPD Portfolio is kept safe, ready for when you go Pro.</p>' +
+              '<p><a href="https://paramind.co.uk/upgrade.html">Keep Pro: £4.99/month</a></p>' +
+              '<p>Thanks for giving it a go.</p>' +
+              '<p>Mark</p>'
+    },
+    trialEnded: {
+        subject: 'Quick question',
+        html: '<p>Your Pro trial finished a couple of days ago, and I\'d genuinely love to know what you thought.</p>' +
+              '<p>Just hit reply and tell me in a sentence. What was useful, and what wasn\'t? I read every reply myself.</p>' +
+              '<p>And if you\'d like to come back, Pro is still there:</p>' +
+              '<p><a href="https://paramind.co.uk/upgrade.html">Go Pro</a></p>' +
+              '<p>Mark</p>'
+    }
 };
 
 // Parsed CSV recipients (general tab)
@@ -69,6 +126,7 @@ export async function initAdminEmails({ auth, db, storage, adminEmail }) {
     buildEditor('newMember',     '#newMember-editor',     true);
     buildEditor('newProMember',  '#newProMember-editor',  true);
     buildEditor('general',       '#general-editor',       true);
+    TRIAL_TEMPLATE_IDS.forEach(id => buildEditor(id, `#${id}-editor`, true));
 
     // Set up the shared image-resize toolbar listeners (once)
     attachGlobalImageListeners();
@@ -77,7 +135,8 @@ export async function initAdminEmails({ auth, db, storage, adminEmail }) {
     await Promise.all([
         loadTemplate('newMember'),
         loadTemplate('newProMember'),
-        loadTemplate('general')
+        loadTemplate('general'),
+        ...TRIAL_TEMPLATE_IDS.map(id => loadTemplate(id))
     ]);
 
     // Wire up save buttons
@@ -87,6 +146,9 @@ export async function initAdminEmails({ auth, db, storage, adminEmail }) {
         () => saveTemplate('newProMember'));
     document.getElementById('general-save').addEventListener('click',
         () => saveTemplate('general'));
+    TRIAL_TEMPLATE_IDS.forEach(id => {
+        document.getElementById(`${id}-save`).addEventListener('click', () => saveTemplate(id));
+    });
 
     // Wire up live preview updates on editor changes
     TEMPLATES.newMember.quill.on('text-change',    () => renderPreview('newMember'));
@@ -95,6 +157,16 @@ export async function initAdminEmails({ auth, db, storage, adminEmail }) {
         renderPreview('general');
         updateSendButtonState();
     });
+    TRIAL_TEMPLATE_IDS.forEach(id => {
+        TEMPLATES[id].quill.on('text-change', () => renderPreview(id));
+    });
+
+    // Pro Trial tab: email picker and on/off switch
+    const trialSelect = document.getElementById('trialEmail-select');
+    trialSelect.addEventListener('change', () => showTrialPanel(trialSelect.value));
+    showTrialPanel(trialSelect.value);
+    await loadTrialOfferSwitch();
+    document.getElementById('trialOffer-enabled').addEventListener('change', saveTrialOfferSwitch);
 
     // Wire up CSV controls
     document.getElementById('general-csv-file').addEventListener('change', handleCsvFile);
@@ -106,6 +178,7 @@ export async function initAdminEmails({ auth, db, storage, adminEmail }) {
     // Wire up the Free / Pro audience loaders
     document.getElementById('general-load-free').addEventListener('click', () => loadAudience('free'));
     document.getElementById('general-load-pro').addEventListener('click',  () => loadAudience('pro'));
+    document.getElementById('general-load-nevertrialled').addEventListener('click', () => loadAudience('nevertrialled'));
 
     // Subject changes affect the Send button state too
     document.getElementById('general-subject').addEventListener('input', updateSendButtonState);
@@ -430,6 +503,12 @@ async function loadTemplate(templateId) {
             const who = data.lastEditedBy || 'unknown';
             statusEl.textContent = `Last saved: ${ts} by ${who}`;
             statusEl.className = 'save-status';
+        } else if (TRIAL_DEFAULTS[templateId]) {
+            // Unsaved trial email: show the starting draft so it can be edited, then saved
+            document.getElementById(`${templateId}-subject`).value = TRIAL_DEFAULTS[templateId].subject;
+            TEMPLATES[templateId].quill.clipboard.dangerouslyPasteHTML(TRIAL_DEFAULTS[templateId].html);
+            statusEl.textContent = 'Not yet saved: draft shown. This email will not send until you click Save Template.';
+            statusEl.className = 'save-status error';
         } else {
             statusEl.textContent = 'Not yet saved';
             statusEl.className = 'save-status';
@@ -657,10 +736,12 @@ async function loadAudience(tier) {
     const statusEl = document.getElementById('general-audience-status');
     const freeBtn  = document.getElementById('general-load-free');
     const proBtn   = document.getElementById('general-load-pro');
-    const label    = tier === 'pro' ? 'Pro' : 'Free';
+    const ntBtn    = document.getElementById('general-load-nevertrialled');
+    const label    = tier === 'pro' ? 'Pro' : (tier === 'nevertrialled' ? 'Never Trialled' : 'Free');
 
     freeBtn.disabled = true;
     proBtn.disabled  = true;
+    ntBtn.disabled   = true;
     statusEl.textContent = `Loading ${label} members…`;
 
     try {
@@ -692,6 +773,16 @@ async function loadAudience(tier) {
             // Keep only members in the requested tier
             if (tier === 'pro'  && !isPro) continue;
             if (tier === 'free' &&  isPro) continue;
+            if (tier === 'nevertrialled') {
+                // Never had a trial AND has no Pro access of any kind
+                // (paying, £0 promo, current trial, or Apple access still running)
+                const appleExpiry = u.accessExpiresAt
+                    ? (u.accessExpiresAt.toDate ? u.accessExpiresAt.toDate() : new Date(u.accessExpiresAt))
+                    : null;
+                const hasProAccess = status === 'active' || u.isPro === true ||
+                    (appleExpiry && !isNaN(appleExpiry.getTime()) && appleExpiry > new Date());
+                if (u.trialUsed === true || hasProAccess) continue;
+            }
 
             const firstName = String(u.firstName || '').trim();
             const email     = String(u.email || '').trim();
@@ -715,6 +806,63 @@ async function loadAudience(tier) {
     } finally {
         freeBtn.disabled = false;
         proBtn.disabled  = false;
+        ntBtn.disabled   = false;
+    }
+}
+
+
+// ============================================================
+// 7-DAY PRO TRIAL TAB
+// ============================================================
+function showTrialPanel(templateId) {
+    TRIAL_TEMPLATE_IDS.forEach(id => {
+        document.getElementById(`trial-panel-${id}`).style.display = id === templateId ? 'block' : 'none';
+    });
+}
+
+// On/off switch lives in config/trialOffer { enabled }. Missing = OFF.
+async function loadTrialOfferSwitch() {
+    const box = document.getElementById('trialOffer-enabled');
+    const statusEl = document.getElementById('trialOffer-status');
+    try {
+        const snap = await getDoc(doc(_db, 'config', 'trialOffer'));
+        const enabled = snap.exists() && snap.data().enabled === true;
+        box.checked = enabled;
+        statusEl.textContent = enabled
+            ? 'ON: eligible free members can start a trial.'
+            : 'OFF: the trial button is hidden and no new trials can start. Existing trials carry on.';
+        statusEl.className = 'save-status';
+        box.disabled = false;
+    } catch (err) {
+        console.error('Failed to load trial switch:', err);
+        statusEl.textContent = 'Failed to load: ' + describeError(err);
+        statusEl.className = 'save-status error';
+    }
+}
+
+async function saveTrialOfferSwitch() {
+    const box = document.getElementById('trialOffer-enabled');
+    const statusEl = document.getElementById('trialOffer-status');
+    const enabled = box.checked;
+    box.disabled = true;
+    statusEl.textContent = 'Saving…';
+    try {
+        await setDoc(doc(_db, 'config', 'trialOffer'), {
+            enabled: enabled,
+            lastEditedAt: serverTimestamp(),
+            lastEditedBy: _adminEmail || 'unknown'
+        }, { merge: true });
+        statusEl.textContent = enabled
+            ? 'ON: eligible free members can start a trial.'
+            : 'OFF: the trial button is hidden and no new trials can start. Existing trials carry on.';
+        statusEl.className = 'save-status saved';
+    } catch (err) {
+        console.error('Failed to save trial switch:', err);
+        box.checked = !enabled;
+        statusEl.textContent = 'Save failed: ' + describeError(err);
+        statusEl.className = 'save-status error';
+    } finally {
+        box.disabled = false;
     }
 }
 

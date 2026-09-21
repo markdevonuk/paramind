@@ -705,7 +705,7 @@ exports.saveConversation = onRequest({ cors: true }, async (req, res) => {
     const user = await getUser(uid);
 
     // Only paid users can save conversations
-    if (user.subscriptionStatus !== "active") {
+    if (user.subscriptionStatus !== "active" && user.isPro !== true) {
       return res.status(403).json({
         error: "Pro subscription required",
         message: "Upgrade to Pro to save conversations",
@@ -826,7 +826,7 @@ exports.saveCpdRecord = onRequest({ cors: true }, async (req, res) => {
     const user = await getUser(uid);
 
     // Only paid users can save CPD records
-    if (user.subscriptionStatus !== "active") {
+    if (user.subscriptionStatus !== "active" && user.isPro !== true) {
       return res.status(403).json({
         error: "Pro subscription required",
         message: "Upgrade to Pro to save CPD records",
@@ -1013,7 +1013,7 @@ exports.transcribe = onRequest(
       const user = await getUser(uid);
 
       // Pro users only — Live Sim is a premium feature
-      if (user.subscriptionStatus !== "active") {
+      if (user.subscriptionStatus !== "active" && user.isPro !== true) {
         return res.status(403).json({
           error: "Pro subscription required",
           message: "Live Sim is a Pro feature. Upgrade to access voice scenarios.",
@@ -1107,7 +1107,7 @@ exports.speak = onRequest(
       const uid = await verifyAuth(req);
       const user = await getUser(uid);
 
-      if (user.subscriptionStatus !== "active") {
+      if (user.subscriptionStatus !== "active" && user.isPro !== true) {
         return res.status(403).json({
           error: "Pro subscription required",
           message: "Live Sim is a Pro feature.",
@@ -1195,7 +1195,7 @@ exports.speakHollie = onRequest(
       const uid = await verifyAuth(req);
       const user = await getUser(uid);
 
-      if (user.subscriptionStatus !== "active") {
+      if (user.subscriptionStatus !== "active" && user.isPro !== true) {
         return res.status(403).json({
           error: "Pro subscription required",
           upgrade: true
@@ -2146,7 +2146,7 @@ exports.researchPapers = onRequest(
       const uid = await verifyAuth(req);
       const user = await getUser(uid);
 
-      if (user.subscriptionStatus !== "active") {
+      if (user.subscriptionStatus !== "active" && user.isPro !== true) {
         return res.status(403).json({
           error: "Pro subscription required",
           message:
@@ -5344,6 +5344,294 @@ exports.backfillStripePlan = onRequest(
     } catch (error) {
       console.error("backfillStripePlan error:", error);
       return res.status(500).json({ error: error.message });
+    }
+  }
+);
+
+
+// ============================================
+// 7-DAY PRO TRIAL
+// ============================================
+// Free members can start ONE free 7-day Pro trial from upgrade.html. No
+// payment is involved: the trial sets isPro: true on the user document, and
+// every Pro check on the site and server already accepts isPro === true.
+// The user's subscriptionStatus is never touched, so trial users are NOT
+// counted as paying members anywhere (admin counts, Pro welcome email,
+// subscription clean-up jobs).
+//
+// Fields on users/{uid} (the Firestore rules stop users editing isPro and
+// the trial* fields themselves - only this server code and the admin can):
+//   isPro: true                  while the trial runs (set back to false at the end)
+//   trialUsed: true              forever - one trial per person
+//   trialStartedAt, trialEndsAt  Timestamps
+//   trialEndedAt                 Timestamp, set when the trial is switched off
+//   trialEmailsSent.<key>        Timestamp per trial email sent
+//
+// On/off switch: config/trialOffer { enabled: true|false }, set from
+// admin-emails.html. Missing document = OFF.
+//
+// Emails (templates in emailTemplates/, edited in admin-emails.html). A
+// template that has not been saved yet is simply skipped.
+//   trialDay1  - sent straight away when the trial starts
+//   trialDay3  - 2 days after the start date, at 9am UK
+//   trialDay5  - 4 days after the start date, at 9am UK
+//   trialDay7  - 6 days after the start date (the day before it ends), 9am UK
+//   trialEnded - 9 days after the start date (2 days after it ends), 9am UK
+// Remaining emails stop as soon as the member starts paying.
+
+const TRIAL_LENGTH_DAYS = 7;
+const TRIAL_EMAIL_SCHEDULE = [
+  { key: "trialDay1",  daysAfterStart: 0 },
+  { key: "trialDay3",  daysAfterStart: 2 },
+  { key: "trialDay5",  daysAfterStart: 4 },
+  { key: "trialDay7",  daysAfterStart: 6 },
+  { key: "trialEnded", daysAfterStart: 9 },
+];
+
+/** "YYYY-MM-DD" in UK time for any Date */
+function ukDateOf(date) {
+  return date.toLocaleDateString("en-CA", { timeZone: "Europe/London" });
+}
+
+/** Whole days between two "YYYY-MM-DD" strings (b - a) */
+function daysBetweenUkDates(a, b) {
+  return Math.round((Date.parse(b + "T00:00:00Z") - Date.parse(a + "T00:00:00Z")) / 86400000);
+}
+
+/** Accepts a Firestore Timestamp, a Date, an ISO string or a number */
+function toDateOrNull(value) {
+  if (!value) return null;
+  if (typeof value.toDate === "function") return value.toDate();
+  const d = new Date(value);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+/** Does this user already have Pro access (paying, trial, or Apple access still running)? */
+function userHasProAccess(u) {
+  if (u.subscriptionStatus === "active" || u.isPro === true) return true;
+  const appleExpiry = toDateOrNull(u.accessExpiresAt);
+  return !!(appleExpiry && appleExpiry > new Date());
+}
+
+/** Is the on/off switch in admin set to ON? */
+async function isTrialOfferEnabled() {
+  const snap = await db.collection("config").doc("trialOffer").get();
+  return snap.exists && snap.data().enabled === true;
+}
+
+/**
+ * Send one trial email to one user, then record it on the user document and
+ * in emailSendLog. Returns true if sent. Never throws.
+ */
+async function sendTrialEmail(userRef, userData, templateKey, templateCache) {
+  try {
+    const firstName = String(userData.firstName || "").trim();
+    const email = String(userData.email || "").trim();
+    if (!firstName || !email) {
+      console.warn(`[trial] ${userRef.id} missing firstName or email; skipping ${templateKey}`);
+      return false;
+    }
+
+    let template = templateCache ? templateCache[templateKey] : undefined;
+    if (template === undefined) {
+      const snap = await db.collection("emailTemplates").doc(templateKey).get();
+      template = snap.exists ? snap.data() : null;
+      if (templateCache) templateCache[templateKey] = template;
+    }
+    if (!template || !template.subject || !template.htmlBody) {
+      console.warn(`[trial] ${templateKey} template not saved yet; skipping ${userRef.id}`);
+      return false;
+    }
+
+    const subject = String(template.subject).replace(/\{firstName\}/g, firstName);
+    const body = String(template.htmlBody).replace(/\{firstName\}/g, escapeEmailHtml(firstName));
+    const fullBody = `<p>Dear ${escapeEmailHtml(firstName)},</p>` + body;
+
+    const client = new postmark.ServerClient(process.env.POSTMARK_API_TOKEN);
+    const result = await client.sendEmail({
+      From: EMAIL_FROM,
+      To: email,
+      ReplyTo: EMAIL_REPLY_TO,
+      Subject: subject,
+      HtmlBody: wrapEmailHtml(fullBody, subject),
+      TextBody: htmlToText(fullBody),
+      MessageStream: "outbound",
+    });
+
+    await userRef.update({
+      [`trialEmailsSent.${templateKey}`]: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    await db.collection("emailSendLog").add({
+      type: templateKey,
+      subject: subject,
+      totalRecipients: 1,
+      sent: 1,
+      failed: 0,
+      errors: [],
+      userId: userRef.id,
+      recipientEmail: email,
+      postmarkMessageId: result.MessageID || null,
+      sentAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    console.log(`[trial] Sent ${templateKey} to ${email} (${userRef.id})`);
+    return true;
+  } catch (err) {
+    console.error(`[trial] Failed to send ${templateKey} to ${userRef.id}:`, err.message || err);
+    try {
+      await db.collection("emailSendLog").add({
+        type: templateKey,
+        totalRecipients: 1,
+        sent: 0,
+        failed: 1,
+        errors: [{ email: String(userData.email || ""), code: -1, message: String(err.message || err) }],
+        userId: userRef.id,
+        sentAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    } catch (logErr) {
+      console.error("[trial] Failed to write audit log:", logErr.message);
+    }
+    return false;
+  }
+}
+
+/**
+ * POST /startProTrial
+ * Called by the "Try Pro free for 7 days" button on upgrade.html.
+ * Response 200: { ok: true, trialEndsAt: ISO string }
+ * Response 409: { error, reason: "offer_closed" | "already_pro" | "already_used" }
+ */
+exports.startProTrial = onRequest(
+  { cors: true, secrets: ["POSTMARK_API_TOKEN"] },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+    try {
+      const uid = await verifyAuth(req);
+
+      if (!(await isTrialOfferEnabled())) {
+        return res.status(409).json({ error: "The free trial is not available right now", reason: "offer_closed" });
+      }
+
+      const userRef = db.collection("users").doc(uid);
+      const now = new Date();
+      const endsAt = new Date(now.getTime() + TRIAL_LENGTH_DAYS * 24 * 60 * 60 * 1000);
+
+      // Transaction so a double tap can never start two trials
+      const outcome = await db.runTransaction(async (tx) => {
+        const snap = await tx.get(userRef);
+        if (!snap.exists) return { reason: "no_user" };
+        const u = snap.data();
+        if (u.trialUsed === true) return { reason: "already_used" };
+        if (userHasProAccess(u)) return { reason: "already_pro" };
+
+        tx.update(userRef, {
+          isPro: true,
+          trialUsed: true,
+          trialStartedAt: admin.firestore.Timestamp.fromDate(now),
+          trialEndsAt: admin.firestore.Timestamp.fromDate(endsAt),
+        });
+        return { reason: null, userData: u };
+      });
+
+      if (outcome.reason === "no_user") {
+        return res.status(404).json({ error: "User not found" });
+      }
+      if (outcome.reason) {
+        const messages = {
+          already_used: "You have already had your free trial",
+          already_pro: "You already have Pro",
+        };
+        return res.status(409).json({ error: messages[outcome.reason], reason: outcome.reason });
+      }
+
+      // Day 1 email straight away (best effort - the trial has started either way)
+      await sendTrialEmail(userRef, outcome.userData, "trialDay1", null);
+
+      console.log(`[trial] Started for ${uid}, ends ${endsAt.toISOString()}`);
+      return res.status(200).json({ ok: true, trialEndsAt: endsAt.toISOString() });
+    } catch (err) {
+      console.error("startProTrial error:", err);
+      if (String(err.message || "").includes("Unauthorized")) {
+        return res.status(401).json({ error: err.message });
+      }
+      return res.status(500).json({ error: "Could not start the trial" });
+    }
+  }
+);
+
+/**
+ * Hourly: switch Pro off for anyone whose trial has finished.
+ * Only touches users with isPro true AND trialUsed true AND trialEndsAt in the
+ * past, so nobody else's access can be affected. If they have started paying,
+ * subscriptionStatus "active" keeps them Pro regardless.
+ */
+exports.endProTrials = onSchedule(
+  { schedule: "5 * * * *", timeZone: "Europe/London", retryCount: 1 },
+  async () => {
+    try {
+      const now = new Date();
+      const snap = await db.collection("users").where("isPro", "==", true).get();
+      let ended = 0;
+      for (const d of snap.docs) {
+        const u = d.data();
+        if (u.trialUsed !== true) continue;
+        const endsAt = toDateOrNull(u.trialEndsAt);
+        if (!endsAt || endsAt > now) continue;
+        await d.ref.update({
+          isPro: false,
+          trialEndedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        ended++;
+      }
+      console.log(`[trial] endProTrials: checked ${snap.size}, ended ${ended}`);
+    } catch (err) {
+      console.error("[trial] endProTrials error:", err);
+    }
+  }
+);
+
+/**
+ * Daily at 9am UK: send whichever trial emails are due today.
+ * Each email is sent only on its own day, so a missed run never causes a
+ * burst of several emails at once. Stops once the member is paying.
+ */
+exports.sendTrialEmails = onSchedule(
+  {
+    schedule: "0 9 * * *",
+    timeZone: "Europe/London",
+    secrets: ["POSTMARK_API_TOKEN"],
+    retryCount: 0,
+    timeoutSeconds: 300,
+  },
+  async () => {
+    try {
+      const today = ukDateOf(new Date());
+      // Only trials started in the last 12 days can have an email due
+      const since = new Date(Date.now() - 12 * 24 * 60 * 60 * 1000);
+      const snap = await db.collection("users")
+        .where("trialStartedAt", ">=", admin.firestore.Timestamp.fromDate(since))
+        .get();
+
+      const templateCache = {};
+      let sent = 0;
+      for (const d of snap.docs) {
+        const u = d.data();
+        if (u.trialUsed !== true) continue;
+        if (u.subscriptionStatus === "active") continue; // paying now - no more trial emails
+        const startedAt = toDateOrNull(u.trialStartedAt);
+        if (!startedAt) continue;
+
+        const dayNumber = daysBetweenUkDates(ukDateOf(startedAt), today);
+        const already = u.trialEmailsSent || {};
+        const due = TRIAL_EMAIL_SCHEDULE.find((e) => e.daysAfterStart === dayNumber);
+        if (!due || already[due.key]) continue;
+
+        if (await sendTrialEmail(d.ref, u, due.key, templateCache)) sent++;
+      }
+      console.log(`[trial] sendTrialEmails: checked ${snap.size}, sent ${sent}`);
+    } catch (err) {
+      console.error("[trial] sendTrialEmails error:", err);
     }
   }
 );

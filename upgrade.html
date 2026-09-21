@@ -412,6 +412,18 @@
                     if (rb) rb.style.display = 'flex';
                 }
             </script>
+
+            <!-- 7-day Pro trial offer: hidden unless the script below finds the member eligible -->
+            <div id="trialOfferBox" style="display: none; margin-top: 1rem; text-align: center;">
+                <div style="font-size: 0.85rem; color: #6c757d; margin-bottom: 0.5rem;">or</div>
+                <button class="upgrade-cta-btn" id="trialBtn" style="background: transparent; color: var(--color-primary); border: 2px solid var(--color-primary);" onclick="startProTrial()">
+                    <i class="bi bi-gift"></i>
+                    Try Pro free for 7 days
+                </button>
+                <p class="price-note" style="margin-top: 0.5rem;">No card needed. Nothing to cancel. It just ends after 7 days.</p>
+            </div>
+            <!-- Shown instead while a trial is running, or once one has just started -->
+            <div id="trialActiveBox" style="display: none; margin-top: 1rem; text-align: center;"></div>
         </div>
         
         <!-- What's Included -->
@@ -822,6 +834,110 @@
             });
         }
         
+        // ==================== 7-DAY PRO TRIAL ====================
+        // Shows the "Try Pro free for 7 days" button to logged-in free members who
+        // have never had a trial, while the offer is switched ON in admin
+        // (config/trialOffer). The server (startProTrial) re-checks everything.
+        function formatTrialEnd(date) {
+            return date.toLocaleString('en-GB', {
+                weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit'
+            });
+        }
+
+        function showTrialActive(endDate, justStarted) {
+            const offer = document.getElementById('trialOfferBox');
+            const active = document.getElementById('trialActiveBox');
+            offer.style.display = 'none';
+            active.innerHTML = justStarted
+                ? '<p style="font-weight: 700; margin-bottom: 0.25rem;"><i class="bi bi-gift"></i> Your free week of Pro has started!</p>' +
+                  '<p class="price-note" style="margin-bottom: 0.75rem;">Everything is unlocked until ' + formatTrialEnd(endDate) + '.</p>' +
+                  '<a href="landing.html" class="upgrade-cta-btn" style="text-decoration: none;"><i class="bi bi-arrow-right"></i> Start exploring</a>'
+                : '<p class="price-note"><i class="bi bi-gift"></i> You\'re on your free Pro trial until ' + formatTrialEnd(endDate) + '. Upgrade above to keep Pro afterwards.</p>';
+            active.style.display = 'block';
+        }
+
+        (function initTrialOffer() {
+            waitForFirebaseReady().then(function () {
+                firebase.auth().onAuthStateChanged(async function (user) {
+                    if (!user) return;
+                    try {
+                        const db = firebase.firestore();
+                        const results = await Promise.all([
+                            db.collection('users').doc(user.uid).get(),
+                            db.collection('config').doc('trialOffer').get()
+                        ]);
+                        const u = results[0].exists ? results[0].data() : null;
+                        if (!u) return;
+
+                        const now = new Date();
+                        const trialEnd = u.trialEndsAt && u.trialEndsAt.toDate ? u.trialEndsAt.toDate() : null;
+                        if (u.isPro === true && u.subscriptionStatus !== 'active' && trialEnd && trialEnd > now) {
+                            showTrialActive(trialEnd, false);
+                            return;
+                        }
+
+                        const appleExpiry = u.accessExpiresAt
+                            ? (u.accessExpiresAt.toDate ? u.accessExpiresAt.toDate() : new Date(u.accessExpiresAt))
+                            : null;
+                        const hasPro = u.subscriptionStatus === 'active' || u.isPro === true ||
+                            (appleExpiry && !isNaN(appleExpiry.getTime()) && appleExpiry > now);
+                        const offerOn = results[1].exists && results[1].data().enabled === true;
+                        if (hasPro || u.trialUsed === true || !offerOn) return;
+
+                        const box = document.getElementById('trialOfferBox');
+                        box.style.display = 'block';
+                        if (new URLSearchParams(window.location.search).get('trial') === '1') {
+                            box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    } catch (e) {
+                        console.warn('Trial offer check failed:', e);
+                    }
+                });
+            }).catch(function () { /* Firebase unavailable - leave the offer hidden */ });
+        })();
+
+        async function startProTrial() {
+            const btn = document.getElementById('trialBtn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Starting your trial...';
+            try {
+                await waitForFirebaseReady();
+                const user = firebase.auth().currentUser;
+                if (!user) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                const token = await user.getIdToken();
+                const baseUrl = window.paramind?.CONFIG?.api?.baseUrl || 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
+                const response = await fetch(baseUrl + '/startProTrial', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
+                const data = await response.json().catch(function () { return {}; });
+
+                if (response.ok && data.ok) {
+                    showTrialActive(new Date(data.trialEndsAt), true);
+                    return;
+                }
+                if (response.status === 409 && data.error) {
+                    document.getElementById('trialOfferBox').style.display = 'none';
+                    alert(data.error);
+                    return;
+                }
+                throw new Error(data.error || 'Could not start the trial');
+            } catch (error) {
+                console.error('Trial start error:', error);
+                alert('Sorry, the trial could not be started. Please try again.');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
         // ==================== SMART BACK LINK ====================
         // If we know which page the user came from, link back there
         (function() {
