@@ -1966,6 +1966,25 @@ function copyReflection(btn) {
     });
 }
 
+/* ── PDF save — iPhone/iPad use the Share sheet; everything else downloads as before ── */
+async function saveReflectionPdf(doc, filename) {
+    const isIOS = /ipad|iphone|ipod/i.test(navigator.userAgent) ||
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (isIOS) {
+        try {
+            const file = new File([doc.output('blob')], filename, { type: 'application/pdf' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({ files: [file] });
+                return;
+            }
+        } catch (e) {
+            if (e && e.name === 'AbortError') return; // user closed the Share sheet
+            console.error('PDF share error:', e);
+        }
+    }
+    doc.save(filename);
+}
+
 /* ── PDF download ── */
 async function downloadReflectionPDF(btn) {
     const parsed = ATC.lastReflection;
@@ -2088,7 +2107,7 @@ async function downloadReflectionPDF(btn) {
 
         // Save
         const filename = 'Paramind_AfterTheCall_' + new Date().toISOString().slice(0, 10) + '.pdf';
-        doc.save(filename);
+        await saveReflectionPdf(doc, filename);
 
         btn.disabled = false;
         btn.innerHTML = '<i class="bi bi-file-earmark-pdf"></i> Download PDF';
