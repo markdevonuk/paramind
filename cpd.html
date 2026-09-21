@@ -812,14 +812,25 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// iPhone/iPad: open the Share sheet (Save to Files / Print / Mail).
+// Everything else downloads as before.
 function savePdf(doc, fileName) {
     var isIOS = /ipad|iphone|ipod/i.test(navigator.userAgent) ||
                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     if (isIOS) {
-        window.open(doc.output('bloburl'), '_blank');
-    } else {
-        doc.save(fileName);
+        try {
+            var file = new File([doc.output('blob')], fileName, { type: 'application/pdf' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                navigator.share({ files: [file] }).catch(function(e) {
+                    if (e && e.name === 'AbortError') return; // user closed the Share sheet
+                    console.error('PDF share error:', e);
+                    doc.save(fileName);
+                });
+                return;
+            }
+        } catch (e) { console.error('PDF share error:', e); }
     }
+    doc.save(fileName);
 }
 
 // ==================== TAB SWITCHING ====================
@@ -1415,6 +1426,7 @@ waitForFirebase(function(ready) {
 // ==============================================================
 
 var pageState = { userName: 'ParaMind User' };
+var cpdRecordsCache = []; // records already loaded for the list — reused by downloadCertificate
 var elements  = {
     cpdContent: document.getElementById('cpdContent'),
     emptyState: document.getElementById('emptyState'),
@@ -1464,6 +1476,7 @@ async function loadCpdRecords() {
         });
         if (!response.ok) throw new Error('Failed to load CPD records');
         var data = await response.json();
+        cpdRecordsCache = data.records || [];
         displayCpdRecords(data.records || []);
     } catch(error) {
         console.error('Error loading CPD records:', error);
@@ -1539,6 +1552,14 @@ function displayCpdRecords(records) {
 // ==================== CERTIFICATE DOWNLOAD ====================
 async function downloadCertificate(recordId) {
     try {
+        // Fast path: use the record already loaded for the list, so the PDF is
+        // built straight after the tap (iPhone only allows the Share sheet then).
+        var cached = cpdRecordsCache.find(function(r) { return r.id === recordId; });
+        if (cached && pageState.userName && pageState.userName !== 'ParaMind User') {
+            generateCertificatePdf(cached, pageState.userName);
+            return;
+        }
+        // Otherwise fetch as before
         var user = firebase.auth().currentUser;
         if (!user) throw new Error('Not authenticated');
         var token    = await user.getIdToken();
