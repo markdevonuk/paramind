@@ -20,10 +20,11 @@
     var API_BASE = 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
     var SHEET_SEEN_KEY = 'paramind_trialSheetSeen_';
     var PRO_TOOLS = [
-        'A&amp;P Connections', 'ECG Tool', 'Flash Cards', 'Understanding Bones',
-        'Understanding Bloods', 'Understanding Drugs', 'Cardiac Arrest Sim',
+        'Chat with Hollie', 'On Placement', 'A&amp;P Connections', 'ECG Tool',
+        'Flash Cards', 'Understanding Bones', 'Understanding Bloods',
+        'Understanding Drugs', 'Scenarios', 'OSCE Practice', 'Cardiac Arrest Sim',
         'Major Incident Training', 'ATMIST', 'Interview Prep',
-        'Debrief Your Calls', 'CPD Portfolio'
+        'Short Answer Practice', 'Debrief Your Calls', 'CPD Portfolio'
     ];
 
     function injectStyles() {
@@ -108,7 +109,7 @@
                 '<div class="tp-perf" aria-hidden="true"><i></i><hr><i></i></div>' +
                 '<div class="tp-pass-bottom">' +
                     '<ul class="tp-list">' +
-                        '<li><i class="bi bi-check-lg"></i>All 12 Pro tools unlocked</li>' +
+                        '<li><i class="bi bi-check-lg"></i>17 tools, fully unlocked</li>' +
                         '<li><i class="bi bi-check-lg"></i>Unlimited chats with Hollie</li>' +
                         '<li><i class="bi bi-check-lg"></i>Save reflections to your CPD Portfolio</li>' +
                     '</ul>' +
@@ -161,7 +162,7 @@
                     '<div class="tp-handle" aria-hidden="true"></div>' +
                     '<div class="tp-avatar"><img src="images/hollie.png" alt="Hollie"><span class="tp-chip">PRO</span></div>' +
                     '<h2 id="tpSheetTitle">I\'ve unlocked everything for you, free for 7 days</h2>' +
-                    '<p>Every Pro tool, unlimited chats with me, and your own CPD Portfolio.</p>' +
+                    '<p>17 tools, fully unlocked, including unlimited chats with me and your own CPD Portfolio.</p>' +
                     '<div class="tp-tools">' + tools + '</div>' +
                     '<button type="button" class="tp-btn tp-btn-teal" id="tpSheetStart">Start my free week</button>' +
                     '<p class="tp-note">No card needed · Nothing to cancel</p>' +
