@@ -1022,6 +1022,9 @@ html {
             
         </div>
         
+        <!-- Free-member chat counter (shown to free members only; styles already in this file) -->
+        <div class="message-limit-banner" id="messageLimitBanner" style="display: none;"></div>
+
         <!-- Chat Input Area -->
         <div class="chat-input-area">
             <form class="chat-form" id="chatForm">
@@ -1255,7 +1258,9 @@ Output the JSON object now. No other text.`;
             isPro: false,
             conversationHistory: [],
             isLoading: false,
-            userData: null
+            userData: null,
+            conversationId: newConversationId(),   // free-member chat limit: one id per chat
+            usage: null                            // latest counts from the server (free members)
         };
         
         // Track the last response for simplification
@@ -1271,7 +1276,8 @@ Output the JSON object now. No other text.`;
             welcomeMessage: document.getElementById('welcomeMessage'),
             chatToolbar: document.getElementById('chatToolbar'),
             clearChatBtn: document.getElementById('clearChatBtn'),
-            proBadgeWelcome: document.getElementById('proBadgeWelcome')
+            proBadgeWelcome: document.getElementById('proBadgeWelcome'),
+            messageLimitBanner: document.getElementById('messageLimitBanner')
         };
 
         // ==================== AUTH STATE ====================
@@ -1284,6 +1290,7 @@ Output the JSON object now. No other text.`;
                 chatState.isPro = chatState.userData.subscriptionStatus === 'active' || chatState.userData.isPro === true;
                 
                 updateUIForUser();
+                if (!chatState.isPro) loadUsageStatus();
             }
         } catch (error) {
             console.error('Error fetching user data:', error);
@@ -1317,6 +1324,86 @@ Output the JSON object now. No other text.`;
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\*(.*?)\*/g, '<em>$1</em>')
                 .replace(/\n/g, '<br>');
+        }
+
+        // ==================== FREE-MEMBER CHAT LIMIT ====================
+        // Free members: 3 chats a day, 5 messages per chat (the server enforces
+        // this in functions/index.js; these helpers only show it). Every request
+        // from this page sends hollieChat + conversationId. New Chat or a page
+        // refresh starts a new conversationId.
+        function newConversationId() {
+            return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+        }
+
+        function updateUsageBanner(usage) {
+            if (!usage || !elements.messageLimitBanner) return;
+            chatState.usage = usage;
+            if (chatState.isPro) {
+                elements.messageLimitBanner.style.display = 'none';
+                return;
+            }
+            const convLimit = Number(usage.conversationsLimit) || 3;
+            const msgLimit  = Number(usage.messagesLimit) || 5;
+            const left      = Math.max(0, convLimit - (Number(usage.conversationsUsed) || 0));
+            const msgsUsed  = Number(usage.messagesUsed) || 0;
+            const outOfChats = left === 0 && (msgsUsed === 0 || msgsUsed >= msgLimit);
+
+            let text;
+            if (outOfChats) {
+                text = 'No free chats left today';
+            } else {
+                text = '<span class="count">' + left + '</span> of ' + convLimit + ' free chats left today';
+                if (msgsUsed > 0) text += ' · ' + msgsUsed + ' of ' + msgLimit + ' messages in this chat';
+            }
+            elements.messageLimitBanner.innerHTML =
+                '<span>' + text + '</span>' +
+                '<a class="upgrade-link" href="upgrade.html">Unlimited with Pro</a>';
+            elements.messageLimitBanner.classList.toggle('limit-reached', outOfChats);
+            elements.messageLimitBanner.style.display = 'flex';
+        }
+
+        async function loadUsageStatus() {
+            try {
+                const user = auth.currentUser;
+                if (!user) return;
+                const token = await user.getIdToken();
+                const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.chatEndpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ statusOnly: true, hollieChat: true })
+                });
+                if (!response.ok) return;
+                const data = await response.json();
+                if (data && data.unlimited === false && data.usage) updateUsageBanner(data.usage);
+            } catch (e) {
+                console.warn('Chat usage status unavailable:', e);
+            }
+        }
+
+        async function buildLimitError(response) {
+            const err = new Error('LIMIT_REACHED');
+            try {
+                const body = await response.json();
+                err.limitType = body.limitType;
+                err.usage = body.usage;
+            } catch (e) { /* no details - fall back to the generic message */ }
+            if (err.usage) updateUsageBanner(err.usage);
+            return err;
+        }
+
+        function limitMessageText(err) {
+            const u = err && err.usage;
+            if (err && err.limitType === 'conversation' && u && u.conversationsUsed < u.conversationsLimit) {
+                const left = u.conversationsLimit - u.conversationsUsed;
+                return "That's " + u.messagesLimit + " messages in this chat, which is the limit for free members. Tap **New Chat** to start another. You have " + left + " free chat" + (left === 1 ? '' : 's') + " left today.\n\nWant unlimited chats with me? [Go Pro](upgrade.html)";
+            }
+            if (err && (err.limitType === 'daily' || err.limitType === 'conversation')) {
+                return "You've used your " + (u ? u.conversationsLimit : 3) + " free chats for today. They reset at midnight.\n\nWant unlimited chats with me? [Go Pro](upgrade.html)";
+            }
+            return "Sorry, I'm having a bit of trouble right now. Give it another go in a moment! 🚑";
         }
 
         // ==================== CHAT FUNCTIONS ====================
@@ -1367,6 +1454,11 @@ Output the JSON object now. No other text.`;
                 chatState.conversationHistory.push({ role: 'assistant', content: parsedForHistory.cleanText });
             } catch (error) {
                 removeStreamingMessage(aiMessageId);
+                if (error.message === 'LIMIT_REACHED') {
+                    // Not sent: take it out of the history and put the text back in the box
+                    chatState.conversationHistory.pop();
+                    elements.messageInput.value = message;
+                }
                 handleChatError(error);
             } finally {
                 chatState.isLoading = false;
@@ -1391,13 +1483,15 @@ Output the JSON object now. No other text.`;
                     conversationHistory: chatState.conversationHistory.slice(-10).filter(m => m.role !== 'system'),
                     systemPromptAddendum: HOLLIE_PROMPT_ADDENDUM + (learningLevel === 'advanced' ? ADVANCED_LEVEL_ADDENDUM : ''),
                     scenarioId: null,
+                    hollieChat: true,
+                    conversationId: chatState.conversationId,
                     scenarioPrompt: null
                 })
             });
             
             if (!response.ok) {
                 if (response.status === 429) {
-                    throw new Error('LIMIT_REACHED');
+                    throw await buildLimitError(response);
                 }
                 throw new Error('Failed to send message');
             }
@@ -1419,7 +1513,9 @@ Output the JSON object now. No other text.`;
                         try {
                             const data = JSON.parse(line.slice(6));
                             
-                            if (data.type === 'chunk') {
+                            if (data.type === 'meta') {
+                                if (data.usage) updateUsageBanner(data.usage);
+                            } else if (data.type === 'chunk') {
                                 fullMessage += data.content;
                                 if (onChunk) onChunk(fullMessage);
                             } else if (data.type === 'error') {
@@ -1952,13 +2048,15 @@ Output the JSON object now. No other text.`;
                         conversationHistory: chatState.conversationHistory.slice(-6),
                         systemPromptAddendum: QUIZ_SYSTEM_PROMPT,
                         scenarioId: null,
+                        hollieChat: true,
+                        conversationId: chatState.conversationId,
                         scenarioPrompt: null
                     })
                 });
 
                 if (!response.ok) {
                     if (response.status === 429) {
-                        cleanup("You've hit your daily message limit. Quiz mode is available again tomorrow, or upgrade to Pro for unlimited.");
+                        cleanup(limitMessageText(await buildLimitError(response)));
                         return;
                     }
                     throw new Error('Quiz request failed (status ' + response.status + ')');
@@ -1978,7 +2076,9 @@ Output the JSON object now. No other text.`;
                         if (line.startsWith('data: ')) {
                             try {
                                 const data = JSON.parse(line.slice(6));
-                                if (data.type === 'chunk') {
+                                if (data.type === 'meta') {
+                                    if (data.usage) updateUsageBanner(data.usage);
+                                } else if (data.type === 'chunk') {
                                     fullJson += data.content;
                                 } else if (data.type === 'error') {
                                     throw new Error(data.error);
@@ -2223,13 +2323,15 @@ SIMPLIFY MODE: The learner just asked you to simplify your previous explanation.
 - Start with "No worries!" or "Of course!" 
 - Do NOT introduce new topics - simplify what you already explained`,
                         scenarioId: null,
+                        hollieChat: true,
+                        conversationId: chatState.conversationId,
                         scenarioPrompt: null
                     })
                 });
                 
                 if (!response.ok) {
                     if (response.status === 429) {
-                        throw new Error('LIMIT_REACHED');
+                        throw await buildLimitError(response);
                     }
                     throw new Error('Failed to send message');
                 }
@@ -2251,7 +2353,9 @@ SIMPLIFY MODE: The learner just asked you to simplify your previous explanation.
                             try {
                                 const data = JSON.parse(line.slice(6));
                                 
-                                if (data.type === 'chunk') {
+                                if (data.type === 'meta') {
+                                    if (data.usage) updateUsageBanner(data.usage);
+                                } else if (data.type === 'chunk') {
                                     fullMessage += data.content;
                                     updateStreamingMessage(aiMessageId, fullMessage);
                                 } else if (data.type === 'error') {
@@ -2334,13 +2438,15 @@ SIMPLIFY MODE: The learner just asked you to simplify your previous explanation.
 
 GO DEEPER MODE: The learner has read your previous explanation and wants to go deeper. Stay on the SAME topic and build on what you already said rather than repeating it.`,
                         scenarioId: null,
+                        hollieChat: true,
+                        conversationId: chatState.conversationId,
                         scenarioPrompt: null
                     })
                 });
                 
                 if (!response.ok) {
                     if (response.status === 429) {
-                        throw new Error('LIMIT_REACHED');
+                        throw await buildLimitError(response);
                     }
                     throw new Error('Failed to send message');
                 }
@@ -2362,7 +2468,9 @@ GO DEEPER MODE: The learner has read your previous explanation and wants to go d
                             try {
                                 const data = JSON.parse(line.slice(6));
                                 
-                                if (data.type === 'chunk') {
+                                if (data.type === 'meta') {
+                                    if (data.usage) updateUsageBanner(data.usage);
+                                } else if (data.type === 'chunk') {
                                     fullMessage += data.content;
                                     updateStreamingMessage(aiMessageId, fullMessage);
                                 } else if (data.type === 'error') {
@@ -2409,7 +2517,7 @@ GO DEEPER MODE: The learner has read your previous explanation and wants to go d
 
         function handleChatError(error) {
             if (error.message === 'LIMIT_REACHED') {
-                addMessage('assistant', "Sorry, I'm having a bit of trouble right now. Give it another go in a moment! 🚑");
+                addMessage('assistant', limitMessageText(error));
                 console.error('Chat error:', error);
             } else {
                 addMessage('assistant', "Sorry, I hit a snag there. Give it another go! 🚑");
@@ -2420,6 +2528,10 @@ GO DEEPER MODE: The learner has read your previous explanation and wants to go d
 
         function clearChat() {
             chatState.conversationHistory = [];
+
+            // Free-member limit: a new chat is a new conversation
+            chatState.conversationId = newConversationId();
+            if (chatState.usage) updateUsageBanner(Object.assign({}, chatState.usage, { messagesUsed: 0 }));
             
             // Clear simplify button state
             lastAssistantResponse = '';

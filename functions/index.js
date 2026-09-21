@@ -92,6 +92,86 @@ Be friendly, professional, and thorough in your explanations. Use UK medical ter
 }
 
 // ============================================
+// FREE-MEMBER LIMIT FOR HOLLIE CHAT (chat.html only)
+// ============================================
+// Free members get FREE_CHAT_CONVERSATIONS_PER_DAY new chats per UK day,
+// each with up to FREE_CHAT_MESSAGES_PER_CONVERSATION messages (the opening
+// message counts). Pro members (subscriptionStatus "active" or isPro true)
+// are never limited. Only requests from chat.html (hollieChat: true) are
+// counted, so every other tool that uses /chat stays unlimited.
+//
+// Usage lives in chatUsage/{uid}, NOT on the user document, so a user who
+// can edit their own profile cannot reset their count:
+//   { day: "2026-09-21", conversations: { <conversationId>: <count> }, updatedAt }
+// The document is rewritten on the first message of each new UK day, so old
+// days are dropped automatically.
+const FREE_CHAT_CONVERSATIONS_PER_DAY = 3;
+const FREE_CHAT_MESSAGES_PER_CONVERSATION = 5;
+
+function ukDateString() {
+  // "YYYY-MM-DD" in UK time, so the count resets at midnight UK time
+  return new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" });
+}
+
+function isValidConversationId(id) {
+  return typeof id === "string" && /^[A-Za-z0-9_-]{8,64}$/.test(id);
+}
+
+function chatUsageSummary(conversationsUsed, messagesUsed) {
+  return {
+    conversationsUsed: conversationsUsed,
+    conversationsLimit: FREE_CHAT_CONVERSATIONS_PER_DAY,
+    messagesUsed: messagesUsed,
+    messagesLimit: FREE_CHAT_MESSAGES_PER_CONVERSATION,
+  };
+}
+
+/**
+ * Read today's usage without changing it (used for the counter on page load)
+ */
+async function readChatUsage(uid) {
+  const snap = await db.collection("chatUsage").doc(uid).get();
+  const data = snap.exists ? snap.data() : {};
+  const convs = (data.day === ukDateString() && data.conversations) ? data.conversations : {};
+  return chatUsageSummary(Object.keys(convs).length, 0);
+}
+
+/**
+ * Try to use one message in a conversation. Runs in a transaction so two
+ * messages sent at the same moment cannot both slip past the limit.
+ * Returns { allowed: true, usage } or { allowed: false, limitType, usage }
+ * where limitType is "daily" (no new chats left) or "conversation" (this chat is full).
+ */
+async function claimChatMessage(uid, conversationId) {
+  const ref = db.collection("chatUsage").doc(uid);
+  const today = ukDateString();
+
+  return db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    const data = snap.exists ? snap.data() : {};
+    const convs = (data.day === today && data.conversations) ? { ...data.conversations } : {};
+    const used = Object.keys(convs).length;
+    const isNew = !Object.prototype.hasOwnProperty.call(convs, conversationId);
+    const current = isNew ? 0 : (Number(convs[conversationId]) || 0);
+
+    if (isNew && used >= FREE_CHAT_CONVERSATIONS_PER_DAY) {
+      return { allowed: false, limitType: "daily", usage: chatUsageSummary(used, 0) };
+    }
+    if (!isNew && current >= FREE_CHAT_MESSAGES_PER_CONVERSATION) {
+      return { allowed: false, limitType: "conversation", usage: chatUsageSummary(used, current) };
+    }
+
+    convs[conversationId] = current + 1;
+    tx.set(ref, {
+      day: today,
+      conversations: convs,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    return { allowed: true, usage: chatUsageSummary(Object.keys(convs).length, current + 1) };
+  });
+}
+
+// ============================================
 // CLOUD FUNCTIONS
 // ============================================
 
@@ -120,11 +200,41 @@ exports.chat = onRequest(
       const uid = await verifyAuth(req);
       const user = await getUser(uid);
 
+      // Free-member chat limit (see FREE-MEMBER LIMIT FOR HOLLIE CHAT above)
+      const isProUser = user.subscriptionStatus === "active" || user.isPro === true;
+      const isHollieChat = req.body.hollieChat === true;
+
+      // Status check only: chat.html asks on page load so it can show the counter. No AI call.
+      if (req.body.statusOnly === true) {
+        if (isProUser) {
+          return res.status(200).json({ unlimited: true });
+        }
+        const statusUsage = await readChatUsage(uid);
+        return res.status(200).json({ unlimited: false, usage: statusUsage });
+      }
+
       // Get message, conversation history, scenario prompt, and addendum from request
       const { message, conversationHistory = [], scenarioPrompt, systemPromptAddendum } = req.body;
 
       if (!message || typeof message !== "string") {
         return res.status(400).json({ error: "Message is required" });
+      }
+
+      // Count this message for free members using Hollie chat
+      let chatUsage = null;
+      if (isHollieChat && !isProUser) {
+        if (!isValidConversationId(req.body.conversationId)) {
+          return res.status(400).json({ error: "Invalid conversation" });
+        }
+        const claim = await claimChatMessage(uid, req.body.conversationId);
+        if (!claim.allowed) {
+          return res.status(429).json({
+            error: "Free chat limit reached",
+            limitType: claim.limitType,
+            usage: claim.usage,
+          });
+        }
+        chatUsage = claim.usage;
       }
 
       // Build the system prompt:
@@ -156,6 +266,11 @@ exports.chat = onRequest(
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
+
+      // Tell chat.html the updated counts so it can refresh the counter
+      if (chatUsage) {
+        res.write(`data: ${JSON.stringify({ type: 'meta', usage: chatUsage })}\n\n`);
+      }
 
       // Call OpenAI API with streaming enabled
       const stream = await openai.chat.completions.create({
