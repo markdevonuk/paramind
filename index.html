@@ -506,6 +506,88 @@
         }
 
 
+        /* ============================================================
+           7-DAY PRO TRIAL PROMOTION (announcement strip + band under hero)
+           ============================================================ */
+        .trial-strip {
+            display: block;
+            background: #164E5A;
+            color: #ffffff;
+            text-align: center;
+            padding: 0.7rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+        }
+        .trial-strip:hover { color: #ffffff; background: #1F6E7D; }
+        .trial-strip strong { color: #F5B84C; font-weight: 700; }
+        .trial-band-section { padding: 1.5rem 0 2.5rem; }
+        .trial-band {
+            background: #164E5A;
+            border-radius: 28px;
+            padding: 2.5rem 2.25rem;
+            color: #ffffff;
+        }
+        .trial-band-chip {
+            display: inline-block;
+            background: #F5B84C;
+            color: #3b2600;
+            font-weight: 800;
+            font-size: 0.8rem;
+            letter-spacing: 1.2px;
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            margin-bottom: 1rem;
+        }
+        .trial-band-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            line-height: 1.1;
+            letter-spacing: -0.5px;
+            color: #ffffff;
+            margin-bottom: 1rem;
+        }
+        .trial-band-text { font-size: 1.05rem; line-height: 1.5; color: #d3ecf1; margin-bottom: 1.5rem; }
+        .trial-band-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-height: 54px;
+            padding: 0 1.75rem;
+            border-radius: 14px;
+            background: #5BC166;
+            color: #0d3314;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+            font-size: 1.05rem;
+            text-decoration: none;
+        }
+        .trial-band-btn:hover { background: #6ccc76; color: #0d3314; }
+        .trial-band-note { font-size: 0.85rem; color: #b9dde4; margin: 0.75rem 0 0; }
+        .trial-steps { display: flex; flex-direction: column; gap: 1.35rem; }
+        .trial-step { display: flex; gap: 0.9rem; align-items: flex-start; text-align: left; }
+        .trial-step-num {
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #35B0C8;
+            color: #0b2f37;
+            font-weight: 800;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .trial-step-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 1.1rem; color: #ffffff; }
+        .trial-step-text { font-size: 0.95rem; color: #b9dde4; margin-top: 0.2rem; }
+        @media (max-width: 991.98px) {
+            .trial-band { padding: 2rem 1.35rem; text-align: center; border-radius: 22px; }
+            .trial-band-btn { width: 100%; justify-content: center; }
+            .trial-steps { margin-top: 0.5rem; }
+        }
+
     </style>
 </head>
 <body>
@@ -528,6 +610,9 @@
     </div>
 </nav>
 
+    <!-- 7-day Pro trial announcement strip -->
+    <a href="#trial-offer" class="trial-strip"><strong>NEW</strong> &middot; Every account now gets 7 days of Pro, free</a>
+
     <!-- Hero Section with Animated Chat Preview -->
     <header class="hero-section">
         <div class="container">
@@ -547,7 +632,7 @@
                     </p>
                    <div class="hero-cta">
     <a href="register.html" class="btn btn-primary btn-lg me-3">
-        Start Free Trial
+        Get my free week of Pro
         <i class="bi bi-arrow-right ms-2"></i>
     </a>
     <a href="#features" class="btn btn-outline-secondary btn-lg">
@@ -630,6 +715,39 @@
             </div>
         </div>
     </header>
+
+    <!-- ==================== 7-DAY PRO TRIAL BAND ==================== -->
+    <section class="trial-band-section" id="trial-offer">
+        <div class="container">
+            <div class="trial-band">
+                <div class="row g-4 align-items-center">
+                    <div class="col-lg-6">
+                        <span class="trial-band-chip">FREE PRO PASS</span>
+                        <h2 class="trial-band-title">7 days of everything.<br>No card. No catch.</h2>
+                        <p class="trial-band-text">Try all 12 Pro tools and unlimited Hollie before you decide. When the week ends, you keep your free account.</p>
+                        <a href="register.html" class="trial-band-btn">Start my free week <i class="bi bi-arrow-right"></i></a>
+                        <p class="trial-band-note">Already have an account? <a href="login.html" style="color: #ffffff; font-weight: 600;">Log in</a> and tap "Start my free week".</p>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="trial-steps">
+                            <div class="trial-step">
+                                <div class="trial-step-num">1</div>
+                                <div><div class="trial-step-title">Create a free account</div><div class="trial-step-text">Takes under a minute.</div></div>
+                            </div>
+                            <div class="trial-step">
+                                <div class="trial-step-num">2</div>
+                                <div><div class="trial-step-title">Tap Start my free week</div><div class="trial-step-text">Pro switches on instantly.</div></div>
+                            </div>
+                            <div class="trial-step">
+                                <div class="trial-step-num">3</div>
+                                <div><div class="trial-step-title">Use everything for 7 days</div><div class="trial-step-text">It ends by itself. Nothing to cancel.</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- Chat Demo Section (shown ONLY for partners, above features) -->
     <section id="chatDemoSection" class="chat-demo-section">
@@ -1764,7 +1882,7 @@
                             <li><i class="bi bi-check-circle text-success"></i> CPD Portfolio</li>
                             <li><i class="bi bi-check-circle text-success"></i> Priority support</li>
                         </ul>
-                        <a href="register.html" class="btn btn-primary w-100">Start Free Trial</a>
+                        <a href="register.html" class="btn btn-primary w-100">Get my free week of Pro</a>
                     </div>
                 </div>
             </div>

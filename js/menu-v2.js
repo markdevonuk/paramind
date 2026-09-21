@@ -301,6 +301,11 @@
             menuUpgradeBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 closeMenu();
+                // 7-day trial offer: see showTrialMenuLink()
+                if (menuUpgradeBtn.dataset.trial === '1') {
+                    window.location.href = 'upgrade.html?trial=1';
+                    return;
+                }
                 if (typeof window.handleUpgrade === 'function') {
                     window.handleUpgrade();
                 } else if (typeof window.showUpgradeModal === 'function') {
@@ -444,7 +449,8 @@
                                 callback({
                                     email: user.email,
                                     trust: data.trust || data.trustName || null,
-                                    isPro: data.subscriptionStatus === 'active' || data.isPro === true
+                                    isPro: data.subscriptionStatus === 'active' || data.isPro === true,
+                                    trialUsed: data.trialUsed === true
                                 });
                             } else {
                                 callback({
@@ -520,6 +526,8 @@
             // Update Pro badges - remove them if user IS Pro
             if (userData.isPro) {
                 updateProStatus(true);
+            } else if (userData.email && !userData.trialUsed) {
+                showTrialMenuLink();
             }
         });
     }
@@ -545,6 +553,27 @@
         updateUserDisplay(userData.email, userData.trust);
 
         console.log('Menu v2: Built with defaults (waiting for Firebase...)');
+    }
+
+    // 7-day Pro trial: for free members who have never had a trial, relabel
+    // "Upgrade to Pro" as "Try Pro free for 7 days" while the offer is
+    // switched ON (config/trialOffer, set in Admin > Emails > Pro Trial).
+    function showTrialMenuLink() {
+        if (typeof firebase === 'undefined' || !firebase.firestore) return;
+        firebase.firestore().collection('config').doc('trialOffer').get()
+            .then(function(doc) {
+                if (!doc.exists || doc.data().enabled !== true) return;
+                const btn = document.getElementById('menuUpgradeBtn');
+                if (!btn) return;
+                btn.dataset.trial = '1';
+                const icon = btn.querySelector('i');
+                const label = btn.querySelector('span');
+                if (icon) icon.className = 'bi bi-gift';
+                if (label) label.textContent = 'Try Pro free for 7 days';
+            })
+            .catch(function(err) {
+                console.warn('Menu: Could not check trial offer:', err);
+            });
     }
 
     // Update Pro status in-place WITHOUT rebuilding the entire menu
