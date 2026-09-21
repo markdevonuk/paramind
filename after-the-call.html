@@ -1155,7 +1155,7 @@
             <p class="mic-status" id="micStatus">Tap the mic to start</p>
         </div>
         <p id="micPermissionHint" style="display:none;font-size:12px;color:var(--atc-muted);text-align:center;padding:0 8px;margin-bottom:8px;line-height:1.6">
-            <i class="bi bi-info-circle"></i> If asked, please allow microphone access. If not prompted, go to <strong>Settings &rarr; Paramind &rarr; Microphone</strong> and turn it on.
+            <i class="bi bi-info-circle"></i> If asked, please allow microphone access. If not prompted, go to <strong id="micPermissionHintPath">Settings &rarr; Paramind &rarr; Microphone</strong> and turn it on.
         </p>
 
         <div class="atc-error" id="voiceError"></div>
@@ -1293,12 +1293,44 @@ function showScreen(id) {
     document.getElementById(id).classList.add('active');
     window.scrollTo(0, 0);
 
-    // Show mic permission hint on iOS app only
+    // Show mic permission hint in the app only (wording matches iPhone / Android)
     if (id === 'screen-voice') {
         const hint = document.getElementById('micPermissionHint');
         const isApp = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
         if (hint) hint.style.display = isApp ? 'block' : 'none';
+        const hintPath = document.getElementById('micPermissionHintPath');
+        if (hintPath && getMicPlatform() === 'android') {
+            hintPath.innerHTML = 'Settings &rarr; Apps &rarr; Paramind &rarr; Permissions &rarr; Microphone';
+        }
     }
+}
+
+/* ── Which device is the user on? 'ios' app, 'android' app, or 'web' browser ── */
+function getMicPlatform() {
+    try {
+        if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+            return window.Capacitor.getPlatform ? window.Capacitor.getPlatform() : 'ios';
+        }
+    } catch (e) { /* fall through to web */ }
+    return 'web';
+}
+
+/* ── Microphone-blocked message, worded for the user's device ── */
+function getMicBlockedMessage(short) {
+    const platform = getMicPlatform();
+    if (platform === 'android') {
+        return short
+            ? 'Microphone blocked — go to Settings → Apps → Paramind → Permissions → Microphone and choose Allow.'
+            : 'Microphone access is blocked. On Android, go to Settings → Apps → Paramind → Permissions → Microphone and choose Allow, then try again.';
+    }
+    if (platform === 'ios') {
+        return short
+            ? 'Microphone blocked — go to Settings → Paramind → Microphone and turn it on.'
+            : 'Microphone access is blocked. On iPhone, go to Settings → Paramind → Microphone and turn it on, then try again.';
+    }
+    return short
+        ? 'Microphone blocked — check your browser settings and try again.'
+        : 'Microphone access is blocked. Check your browser settings to allow the microphone for paramind.co.uk, then try again.';
 }
 
 /* ── Build Hollie system prompt ── */
@@ -1488,7 +1520,7 @@ async function startRecording() {
 
     } catch (e) {
         const errEl = document.getElementById('voiceError');
-        errEl.textContent = 'Microphone access is blocked. On iPhone, go to Settings → Paramind → Microphone and turn it on, then try again.';
+        errEl.textContent = getMicBlockedMessage(false);
         errEl.style.display = 'block';
     }
 }
@@ -2232,9 +2264,7 @@ async function startInlineMic() {
     } catch (e) {
         console.error('Inline mic error:', e);
         const status = document.getElementById('ivwStatus');
-        if (status) status.textContent = isCapacitor2
-            ? 'Microphone blocked — go to Settings → Paramind → Microphone and turn it on.'
-            : 'Microphone blocked — check your browser settings and try again.';
+        if (status) status.textContent = getMicBlockedMessage(true);
     }
 }
 
