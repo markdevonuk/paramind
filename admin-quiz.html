@@ -494,6 +494,41 @@
             return '<span class="badge bg-success">OK</span>';
         }
 
+        function monthName(mid){
+            const names = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            const m = parseInt(String(mid).slice(5, 7), 10) - 1;
+            return names[m] || mid;
+        }
+
+        async function setWinner(uid){
+            const id = monthId();
+            try {
+                await updateDoc(doc(db, 'quizzes', id), {
+                    winnerUid: uid,
+                    winnerSetAt: uid ? new Date().toISOString() : null
+                });
+                await loadWinners();
+            } catch (err){
+                console.error(err);
+                alert('Could not save the winner: ' + err.message);
+            }
+        }
+
+        // One listener for the whole panel — the table is rebuilt on every load.
+        document.getElementById('winnersArea').addEventListener('click', (e) => {
+            const mark = e.target.closest('[data-mark-winner]');
+            if (mark){
+                const name = mark.dataset.name, won = mark.dataset.won;
+                let msg = 'Mark ' + name + ' as the ' + monthName(monthId()) + ' winner?';
+                if (won) msg = name + ' has already won ' + won + ' this year, so the prize terms say they are not eligible.\n\nMark them as winner anyway?';
+                if (confirm(msg)) setWinner(mark.dataset.markWinner);
+                return;
+            }
+            if (e.target.closest('[data-clear-winner]')){
+                if (confirm('Clear the winner for ' + monthName(monthId()) + '?')) setWinner(null);
+            }
+        });
+
         async function loadWinners(){
             const id = monthId();
             const area = document.getElementById('winnersArea');
@@ -542,6 +577,21 @@
                     });
                 }
 
+                // Winners already recorded this calendar year. Stored as winnerUid on each
+                // month's quiz document. The quizzes collection is twelve documents a year.
+                const year = id.slice(0, 4);
+                let currentWinner = null;
+                const otherWins = {};   // uid -> ['August', ...] for other months this year
+                try {
+                    const all = await getDocs(collection(db, 'quizzes'));
+                    all.forEach(qd => {
+                        const w = (qd.data() || {}).winnerUid;
+                        if (!w || qd.id.slice(0, 4) !== year) return;
+                        if (qd.id === id) currentWinner = w;
+                        else (otherWins[w] = otherWins[w] || []).push(monthName(qd.id));
+                    });
+                } catch (e){ console.warn('Winner history unavailable:', e); }
+
                 // Total entries for the month. Server-side count: billed as 1 read per 1000 docs.
                 let summary;
                 try {
@@ -559,10 +609,26 @@
                     '<div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0" style="font-size:.88rem;">' +
                     '<thead class="table-light"><tr>' +
                     '<th>#</th><th>Name</th><th>Email</th><th>Grade / Service</th>' +
-                    '<th class="text-end">Score</th><th class="text-end">Time</th><th class="text-end">Real time</th><th>Check</th><th>Public</th>' +
+                    '<th class="text-end">Score</th><th class="text-end">Time</th><th class="text-end">Real time</th><th>Check</th><th>Public</th><th>Winner</th>' +
                     '</tr></thead><tbody>';
                 rows.forEach((r, i) => {
-                    html += '<tr' + (i === 0 ? ' class="table-warning"' : '') + '>' +
+                    const isWinner = (r.uid === currentWinner);
+                    const wonElsewhere = otherWins[r.uid] || [];
+                    const rowCls = isWinner ? ' class="table-success"'
+                                 : (i === 0 && !currentWinner ? ' class="table-warning"' : '');
+                    let winCell;
+                    if (isWinner){
+                        winCell = '<span class="badge bg-success me-1"><i class="bi bi-trophy-fill me-1"></i>Winner</span>' +
+                                  '<button class="btn btn-link btn-sm p-0 text-danger" data-clear-winner="1">Clear</button>';
+                    } else {
+                        winCell = (wonElsewhere.length
+                                    ? '<span class="badge bg-secondary me-1">Won ' + escapeHtml(wonElsewhere.join(', ')) + ' ' + year + '</span>'
+                                    : '') +
+                                  '<button class="btn btn-outline-success btn-sm py-0" data-mark-winner="' + escapeHtml(r.uid) + '"' +
+                                  ' data-name="' + escapeHtml(r.name || r.email || 'this entrant') + '"' +
+                                  ' data-won="' + escapeHtml(wonElsewhere.join(', ')) + '">Mark winner</button>';
+                    }
+                    html += '<tr' + rowCls + '>' +
                         '<td><strong>' + (i+1) + '</strong></td>' +
                         '<td>' + escapeHtml(r.name || '—') + '</td>' +
                         '<td>' + (r.email ? '<a href="mailto:' + escapeHtml(r.email) + '">' + escapeHtml(r.email) + '</a>' : '<span class="text-muted">not found</span>') + '</td>' +
@@ -572,6 +638,7 @@
                         '<td class="text-end">' + (r.realMs === null ? '<span class="text-muted">—</span>' : fmtMs(r.realMs)) + '</td>' +
                         '<td>' + checkBadge(r) + '</td>' +
                         '<td>' + (r.showName ? '<span class="text-success">Yes</span>' : '<span class="text-muted">Anonymous</span>') + '</td>' +
+                        '<td class="text-nowrap">' + winCell + '</td>' +
                         '</tr>';
                 });
                 html += '</tbody></table></div>' +
@@ -580,7 +647,10 @@
                     '<span class="badge bg-danger">Doesn\'t add up</span> means the claimed time is impossible for a real run. ' +
                     '<span class="badge bg-danger">No attempt record</span> means the score was written without pressing START. ' +
                     '<span class="badge bg-warning text-dark">Very fast</span> means under 2.5 seconds per correct answer \u2014 possible, ' +
-                    'but worth a look before awarding a prize (e.g. check the account\'s Created date in Firebase Authentication).</p>';
+                    'but worth a look before awarding a prize (e.g. check the account\'s Created date in Firebase Authentication).</p>' +
+                    '<p class="small text-muted mt-1 mb-0"><span class="badge bg-secondary">Won …</span> means that person has already ' +
+                    'been marked as a winner in another month this calendar year, so under the prize terms they are not eligible again ' +
+                    'until next year.</p>';
                 area.innerHTML = html;
             } catch (err){
                 console.error(err);
