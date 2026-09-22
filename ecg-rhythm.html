@@ -23,6 +23,7 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/ecg12-viewer.css">
     
     <style>
         /* ECG Page Specific Styles */
@@ -866,6 +867,18 @@
         .view-btn { flex: 1; min-height: 40px; border: none; border-radius: 0.5rem; background: transparent; font: inherit; font-size: 0.9rem;
             font-weight: 700; color: #6C757D; cursor: pointer; }
         .view-btn.active { background: #fff; color: #237282; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+        /* 12-lead view: example pager (Example 1 of 3) and data credit */
+        .ex-pager { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.75rem; }
+        .ex-btn { width: 44px; height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+            background: #fff; border: 1px solid #DEE2E6; border-radius: 0.5rem; color: #212529; font-size: 1.1rem; cursor: pointer; }
+        .ex-btn:hover:not(:disabled) { border-color: #2B8A9C; color: #2B8A9C; }
+        .ex-btn:disabled { opacity: 0.35; cursor: default; }
+        .ex-label { text-align: center; display: flex; flex-direction: column; gap: 0.1rem; }
+        .ex-count { font-size: 0.95rem; font-weight: 700; color: #212529; }
+        .ex-meta { font-size: 0.8rem; color: #6C757D; }
+        .ecg12-credit { font-size: 0.75rem; color: #6C757D; text-align: center; margin: 0.25rem 0 0; }
+        .ecg12-pending { font-size: 0.85rem; color: #6C757D; font-style: italic; text-align: center; margin: 1rem 0 0; }
+
         /* The heart view has its own rhythm dropdown; this page's dropdown replaces it */
         #visualContent .rv-select { display: none; }
     </style>
@@ -896,8 +909,7 @@
             </select>
         </div>
 
-        <!-- View switch. The 12-lead button is added in the next build phase;
-             it is hidden (not removed) until then. -->
+        <!-- View switch. 12-lead and Heart view buttons hide for rhythms that have none. -->
         <div class="view-switch" id="viewSwitch">
             <button type="button" class="view-btn active" id="viewSimpleBtn" onclick="setView('simple')">Simple</button>
             <button type="button" class="view-btn" id="view12Btn" onclick="setView('12lead')" style="display: none;">12-lead</button>
@@ -963,6 +975,46 @@
             </div>
         </div>
 
+        <!-- 12-lead view (real ECGs; drawing engine in js/ecg12-viewer.js) -->
+        <div id="twelveContent" style="display: none;">
+            <div class="ex-pager" id="exPager">
+                <button type="button" class="ex-btn" id="exPrevBtn" onclick="changeExample(-1)" aria-label="Previous example"><i class="bi bi-chevron-left"></i></button>
+                <div class="ex-label">
+                    <span class="ex-count" id="exCount">Example 1 of 1</span>
+                    <span class="ex-meta" id="exMeta"></span>
+                </div>
+                <button type="button" class="ex-btn" id="exNextBtn" onclick="changeExample(1)" aria-label="Next example"><i class="bi bi-chevron-right"></i></button>
+            </div>
+
+            <div class="ecg12-viewer">
+                <div class="ecg12-viewer-head">
+                    <span class="title"><i class="bi bi-activity"></i> <span id="ecg12ViewerTitle">12-lead</span></span>
+                    <span class="ecg12-tag" id="ecg12Tag">overview</span>
+                </div>
+                <div class="ecg12-stage" id="ecg12Stage"></div>
+                <p class="ecg12-hintbar" id="ecg12Hint">Tap any lead to zoom.</p>
+            </div>
+
+            <div class="ecg12-legend">
+                <span><i style="background:#EAF3DE;"></i>lateral</span>
+                <span><i style="background:#FAEEDA;"></i>inferior</span>
+                <span><i style="background:#E6F1FB;"></i>septal</span>
+                <span><i style="background:#FBEAF0;"></i>anterior</span>
+            </div>
+            <p class="ecg12-credit">Real ECGs from PTB-XL (PhysioNet, CC BY 4.0).</p>
+
+            <!-- Teaching notes: shown only for examples you have reviewed -->
+            <div class="ecg12-teach" id="ecg12Teach" style="display: none;">
+                <div class="ecg12-teach-title">Reading it with ROIS</div>
+                <div id="ecg12RoisRows"></div>
+                <div class="ecg12-findings" id="ecg12Findings" style="display: none;">
+                    <div class="lbl">Findings</div>
+                    <ul id="ecg12FindingsList"></ul>
+                </div>
+            </div>
+            <p class="ecg12-pending" id="ecg12Pending" style="display: none;">Teaching notes for this example are coming soon.</p>
+        </div>
+
         <!-- Heart view (js/rhythm-visual.js builds it here the first time it is opened) -->
         <div id="visualContent" style="display: none;"></div>
 
@@ -999,6 +1051,8 @@
 
     <!-- Shared rhythm data + waveforms (rhythms, generateWaveform) -->
     <script src="js/ecg-rhythms.js"></script>
+    <!-- Shared 12-lead viewer (ECG12Viewer) -->
+    <script src="js/ecg12-viewer.js"></script>
 
     <!-- RHYTHM VIEWER PAGE SCRIPT -->
     <script>
@@ -1025,6 +1079,33 @@
             // hyperkalaemia: no heart view yet
         };
 
+        // Real 12-lead examples for each rhythm, by record id in data/ecg12/library.json,
+        // in the order they are shown. A rhythm missing from this list has no 12-lead,
+        // so the 12-lead button is hidden for it.
+        // STEMI: only the three records whose notes describe ST elevation. The other
+        // five "MI" records (11940, 12841, 532, 8652, 19056) are left out until Mark
+        // confirms they show an acute pattern rather than an old infarct.
+        const TWELVE_LEAD_EXAMPLES = {
+            normalSinus: ['10', '57', '62', '79', '94'],
+            sinusBradycardia: ['611', '1166'],
+            sinusTachycardia: ['892', '1628'],
+            sinusArrhythmia: ['122', '228'],
+            atrialFibrillation: ['866', '2078', '4117'],
+            atrialFlutter: ['20', '23'],
+            svt: ['1173', '7796'],
+            firstDegreeBlock: ['3948', '6910', '7079'],
+            wpw: ['4825', '6240'],
+            pvcs: ['219', '818'],
+            pacs: ['1084', '1184'],
+            stemi: ['11944', '8075', '11948'],
+            longQT: ['6515', '9894'],
+            lbbb: ['598', '618', '798'],
+            rbbb: ['1123', '3041', '3155']
+        };
+        let exampleIndex = 0;          // which example of the current rhythm (0 = first)
+        let twelveRequest = 0;         // stops a slow load overwriting a newer one
+        let twelveReady = false;       // ECG12Viewer.init done
+
         // ==================== INITIALIZATION ====================
         document.addEventListener('DOMContentLoaded', function() {
             canvas = document.getElementById('ecgCanvas');
@@ -1035,9 +1116,12 @@
             // The link can choose the rhythm and view, e.g. ecg-rhythm.html?rhythm=atrialFibrillation&view=heart
             const params = new URLSearchParams(window.location.search);
             const startRhythm = rhythms[params.get('rhythm')] ? params.get('rhythm') : 'normalSinus';
-            const startView = params.get('view') === 'heart' ? 'heart' : 'simple';
+            const v = params.get('view');
+            const startView = (v === 'heart' || v === '12lead') ? v : 'simple';
 
             selectRhythm(startRhythm);
+            const ex = parseInt(params.get('ex'), 10);
+            if (TWELVE_LEAD_EXAMPLES[startRhythm] && ex >= 1 && ex <= TWELVE_LEAD_EXAMPLES[startRhythm].length) exampleIndex = ex - 1;
             setView(startView);
             animate();
         });
@@ -1064,14 +1148,20 @@
             heartRate = rhythms[rhythmKey].defaultRate;
             document.getElementById('rhythmSelect').value = rhythmKey;
 
-            // Heart view button only for rhythms that have one
+            // 12-lead and Heart view buttons only for rhythms that have them
             const hasHeart = !!HEART_VIEW_KEYS[rhythmKey];
+            const has12 = !!TWELVE_LEAD_EXAMPLES[rhythmKey];
             document.getElementById('viewHeartBtn').style.display = hasHeart ? '' : 'none';
+            document.getElementById('view12Btn').style.display = has12 ? '' : 'none';
+            exampleIndex = 0;
 
             updateRhythmDisplay();
 
             if (currentView === 'heart') {
                 if (hasHeart) RhythmVisual.show(HEART_VIEW_KEYS[rhythmKey]);
+                else setView('simple');
+            } else if (currentView === '12lead') {
+                if (has12) load12Lead();
                 else setView('simple');
             }
             updateAddress();
@@ -1080,7 +1170,7 @@
         // ==================== VIEW SWITCH ====================
         function setView(view) {
             if (view === 'heart' && !HEART_VIEW_KEYS[selectedRhythm]) view = 'simple';
-            if (view === '12lead') view = 'simple';   // built in the next phase
+            if (view === '12lead' && !TWELVE_LEAD_EXAMPLES[selectedRhythm]) view = 'simple';
             currentView = view;
 
             document.getElementById('viewSimpleBtn').classList.toggle('active', view === 'simple');
@@ -1090,9 +1180,12 @@
             // The heart view brings its own monitor, so the main one is hidden there
             document.getElementById('mainMonitorCard').style.display = view === 'simple' ? 'block' : 'none';
             document.getElementById('simpleContent').style.display = view === 'simple' ? 'block' : 'none';
+            document.getElementById('twelveContent').style.display = view === '12lead' ? 'block' : 'none';
             document.getElementById('visualContent').style.display = view === 'heart' ? 'block' : 'none';
 
-            if (view === 'heart') {
+            if (view === '12lead') {
+                load12Lead();
+            } else if (view === 'heart') {
                 RhythmVisual.mount(document.getElementById('visualContent'));   // built once, then reused
                 RhythmVisual.show(HEART_VIEW_KEYS[selectedRhythm]);
             } else {
@@ -1101,9 +1194,111 @@
             updateAddress();
         }
 
+        // ==================== 12-LEAD VIEW ====================
+        function changeExample(step) {
+            const list = TWELVE_LEAD_EXAMPLES[selectedRhythm];
+            if (!list) return;
+            const next = exampleIndex + step;
+            if (next < 0 || next >= list.length) return;
+            exampleIndex = next;
+            load12Lead();
+            updateAddress();
+        }
+
+        function load12Lead() {
+            const list = TWELVE_LEAD_EXAMPLES[selectedRhythm];
+            if (!list) return;
+            if (!twelveReady) {
+                ECG12Viewer.init({
+                    stage: document.getElementById('ecg12Stage'),
+                    hint: document.getElementById('ecg12Hint'),
+                    tag: document.getElementById('ecg12Tag')
+                });
+                twelveReady = true;
+            }
+            const request = ++twelveRequest;
+            const recordId = list[exampleIndex];
+
+            // Pager
+            document.getElementById('exCount').textContent = 'Example ' + (exampleIndex + 1) + ' of ' + list.length;
+            document.getElementById('exPrevBtn').disabled = exampleIndex === 0;
+            document.getElementById('exNextBtn').disabled = exampleIndex === list.length - 1;
+            document.getElementById('exPager').style.visibility = '';
+            document.getElementById('ecg12Teach').style.display = 'none';
+            document.getElementById('ecg12Pending').style.display = 'none';
+
+            ECG12Viewer.loadLibrary().then(function(library) {
+                if (request !== twelveRequest) return;
+                const meta = library.records.filter(function(r) { return r.id === recordId; })[0];
+                if (!meta) { document.getElementById('ecg12Hint').textContent = 'Could not find this example.'; return; }
+                document.getElementById('ecg12ViewerTitle').textContent = meta.label;
+                const bits = [];
+                if (meta.age) bits.push(Math.round(parseFloat(meta.age)) + (meta.sex ? ' ' + meta.sex : ''));
+                if (meta.territory) bits.push('territory: ' + meta.territory);
+                document.getElementById('exMeta').textContent = bits.join('  \u00b7  ');
+                return ECG12Viewer.load(meta).then(function() {
+                    if (request !== twelveRequest) return;
+                    // Teaching notes only once reviewed; unreviewed examples show the ECG alone
+                    if (meta.textStatus === 'reviewed') renderTeaching(meta, library);
+                    else document.getElementById('ecg12Pending').style.display = 'block';
+                });
+            }).catch(function() {
+                if (request === twelveRequest) document.getElementById('ecg12Hint').textContent = 'Could not load this ECG. Check your connection and try again.';
+            });
+        }
+
+        // ROIS teaching panel (from ecg-12lead.html)
+        function renderTeaching(meta, library) {
+            const ROIS_LABELS = { R: 'Rate & Rhythm', O: 'Origin', I: 'Intervals', S: 'ST segment & T waves' };
+            const rowsEl = document.getElementById('ecg12RoisRows');
+            rowsEl.innerHTML = '';
+            const rois = meta.rois || {};
+            ['R', 'O', 'I', 'S'].forEach(function(letter) {
+                const text = rois[letter] || '';
+                const p = document.createElement('p');
+                p.className = 'ecg12-rois-text';
+                if (text) {
+                    p.textContent = text;
+                } else {
+                    p.textContent = 'Teaching notes coming soon.';
+                    p.style.color = 'var(--color-gray-400)';
+                    p.style.fontStyle = 'italic';
+                }
+                const row = document.createElement('div');
+                row.className = 'ecg12-rois-row';
+                const badge = document.createElement('div');
+                badge.className = 'ecg12-rois-badge';
+                badge.textContent = letter;
+                const body = document.createElement('div');
+                body.className = 'ecg12-rois-body';
+                const step = document.createElement('div');
+                step.className = 'ecg12-rois-step';
+                step.textContent = (library && library.roisLabels && library.roisLabels[letter]) || ROIS_LABELS[letter];
+                body.appendChild(step); body.appendChild(p);
+                row.appendChild(badge); row.appendChild(body);
+                rowsEl.appendChild(row);
+            });
+            const findEl = document.getElementById('ecg12Findings');
+            const listEl = document.getElementById('ecg12FindingsList');
+            listEl.innerHTML = '';
+            if (meta.findings && meta.findings.length) {
+                meta.findings.forEach(function(f) {
+                    const li = document.createElement('li');
+                    li.textContent = f;
+                    listEl.appendChild(li);
+                });
+                findEl.style.display = 'block';
+            } else {
+                findEl.style.display = 'none';
+            }
+            document.getElementById('ecg12Teach').style.display = 'block';
+        }
+
         // Keeps the address bar in step, so refreshing or sharing the link returns here
         function updateAddress() {
-            const url = 'ecg-rhythm.html?rhythm=' + selectedRhythm + (currentView === 'heart' ? '&view=heart' : '');
+            let url = 'ecg-rhythm.html?rhythm=' + selectedRhythm;
+            if (currentView === 'heart') url += '&view=heart';
+            if (currentView === '12lead') url += '&view=12lead' + (exampleIndex > 0 ? '&ex=' + (exampleIndex + 1) : '');
             try { history.replaceState(null, '', url); } catch (e) { /* not essential */ }
         }
 
