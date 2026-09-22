@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>ECG Test Yourself | Paramind</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Menu CSS -->
+    <link rel="stylesheet" href="css/menu-v2.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/rois.css">
+    
+    <style>
+        /* ECG Page Specific Styles */
+        .ecg-page {
+            min-height: 100vh;
+            background: var(--color-gray-50);
+        }
+        
+        .ecg-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1rem;
+            padding-bottom: 2rem;
+        }
+        
+        .ecg-header {
+            text-align: center;
+            padding: 1.5rem 0;
+        }
+        
+        .ecg-header h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .ecg-header p {
+            color: var(--color-gray-600);
+            margin: 0;
+        }
+        
+        
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--color-teal);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .back-link:hover {
+            color: var(--color-teal-dark);
+        }
+        
+        /* Mode Toggle Buttons */
+        .mode-toggle {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .mode-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: 2px solid var(--color-gray-200);
+            background: var(--color-white);
+            color: var(--color-gray-600);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .mode-btn:hover {
+            border-color: var(--color-teal);
+            color: var(--color-teal);
+        }
+        
+        .mode-btn.active {
+            background: var(--color-teal);
+            border-color: var(--color-teal);
+            color: white;
+        }
+        
+        /* ECG Monitor Card */
+        .ecg-monitor-card {
+            background: #1a1a2e;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            margin-bottom: 1.5rem;
+        }
+        
+        .monitor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            background: #252542;
+            border-bottom: 1px solid #3d3d5a;
+        }
+        
+        .monitor-lead {
+            color: #888;
+            font-size: 0.9rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .monitor-hr {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .hr-icon {
+            animation: pulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        .monitor-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .monitor-btn {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .monitor-btn-play {
+            background: #22c55e;
+            color: white;
+        }
+        
+        .monitor-btn-pause {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .monitor-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
+        /* No Pulse Indicator */
+        .no-pulse-indicator {
+            background: rgba(245, 158, 11, 0.2);
+            border: 2px solid #f59e0b;
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem;
+            margin: 0 1rem 1rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            animation: pulseBlink 1s ease-in-out infinite;
+        }
+        
+        .no-pulse-indicator i {
+            color: #f59e0b;
+            font-size: 1.25rem;
+        }
+        
+        .no-pulse-indicator span {
+            color: #fbbf24;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        @keyframes pulseBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .ecg-canvas-container {
+            padding: 1rem;
+        }
+        
+        #ecgCanvas {
+            width: 100%;
+            border-radius: var(--radius-md);
+            display: block;
+        }
+        
+        /* Emergency Warning Banner */
+        .emergency-banner {
+            background: rgba(220, 38, 38, 0.2);
+            border: 2px solid #dc2626;
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin: 1rem;
+            text-align: center;
+            animation: emergencyPulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes emergencyPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .emergency-banner span {
+            color: #fca5a5;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        
+        /* Rhythm Selector Grid */
+        .rhythm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .rhythm-btn {
+            padding: 0.875rem 1rem;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--color-gray-200);
+            background: var(--color-white);
+            text-align: left;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--color-gray-700);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .rhythm-btn::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--rhythm-color, var(--color-gray-300));
+        }
+        
+        .rhythm-btn:hover {
+            border-color: var(--rhythm-color, var(--color-teal));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .rhythm-btn.active {
+            border-color: var(--rhythm-color, var(--color-teal));
+            background: linear-gradient(135deg, rgba(43, 138, 156, 0.05) 0%, rgba(92, 184, 92, 0.05) 100%);
+        }
+        
+        .rhythm-btn .emergency-icon {
+            margin-left: 0.25rem;
+        }
+        
+        .rhythm-btn.emergency {
+            background: rgba(220, 38, 38, 0.05);
+        }
+        
+        /* Rate Slider Card */
+        .rate-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .rate-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: var(--color-gray-700);
+        }
+        
+        .rate-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            color: var(--color-teal);
+        }
+        
+        .rate-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--color-gray-200);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        .rate-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--color-teal);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(43, 138, 156, 0.4);
+        }
+        
+        .rate-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--color-teal);
+            cursor: pointer;
+            border: none;
+        }
+        
+        .rate-range {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--color-gray-500);
+        }
+        
+        /* Info Card */
+        /* Go deeper button row (button style comes from js/go-deeper.js) */
+        .go-deeper-row {
+            text-align: center;
+            margin-top: 1.25rem;
+        }
+
+        .info-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .info-card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .info-card .description {
+            color: var(--color-gray-600);
+            margin-bottom: 1.25rem;
+            line-height: 1.6;
+        }
+        
+        .info-card h3 {
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            color: var(--color-gray-700);
+        }
+        
+        .features-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .features-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+            color: var(--color-gray-600);
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+        
+        .features-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .features-list .check-icon {
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        /* Quiz Mode Styles */
+        .quiz-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .quiz-score {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .quiz-score-badge {
+            display: inline-block;
+            background: var(--color-teal);
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+        }
+        
+        .quiz-question {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--color-gray-800);
+        }
+        
+        .quiz-select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--color-gray-200);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            background: var(--color-white);
+        }
+        
+        .quiz-select:focus {
+            outline: none;
+            border-color: var(--color-teal);
+        }
+        
+        .quiz-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .quiz-btn {
+            flex: 1;
+            padding: 0.875rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .quiz-btn-primary {
+            background: var(--color-teal);
+            color: white;
+        }
+        
+        .quiz-btn-primary:hover:not(:disabled) {
+            background: var(--color-teal-dark);
+        }
+        
+        .quiz-btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .quiz-btn-secondary {
+            background: var(--color-gray-200);
+            color: var(--color-gray-700);
+        }
+        
+        .quiz-btn-secondary:hover {
+            background: var(--color-gray-300);
+        }
+        
+        /* Quiz Result */
+        .quiz-result {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+        }
+        
+        .quiz-result.correct {
+            background: rgba(34, 197, 94, 0.1);
+            border: 2px solid #22c55e;
+        }
+        
+        .quiz-result.incorrect {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid #ef4444;
+        }
+        
+        .quiz-result-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .quiz-result.correct .quiz-result-icon {
+            color: #22c55e;
+        }
+        
+        .quiz-result.incorrect .quiz-result-icon {
+            color: #ef4444;
+        }
+        
+        .quiz-answer-reveal {
+            background: var(--color-gray-50);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        
+        .quiz-answer-reveal h4 {
+            color: var(--color-gray-500);
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .quiz-answer-reveal .answer {
+            color: #22c55e;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        /* Final Results Screen */
+        .final-results-container {
+            text-align: center;
+            padding: 1rem 0;
+        }
+        
+        .final-results-title {
+            font-size: 1.75rem;
+            color: var(--color-gray-800);
+            margin-bottom: 1.5rem;
+        }
+        
+        .final-score-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-green) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 8px 30px rgba(43, 138, 156, 0.3);
+        }
+        
+        .final-score-percent {
+            font-size: 3rem;
+            font-weight: 700;
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .final-score-text {
+            font-size: 1.2rem;
+            color: var(--color-gray-700);
+            margin-bottom: 0.5rem;
+        }
+        
+        .final-score-message {
+            font-size: 1.1rem;
+            color: var(--color-gray-500);
+            margin-bottom: 1rem;
+        }
+        
+        /* Info Banner */
+        .info-banner {
+            background: linear-gradient(135deg, rgba(43, 138, 156, 0.1) 0%, rgba(92, 184, 92, 0.1) 100%);
+            border: 1px solid rgba(43, 138, 156, 0.2);
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+        
+        .info-banner i {
+            color: var(--color-teal);
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        
+        .info-banner p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--color-gray-600);
+        }
+        
+        /* Footer Disclaimer */
+        .ecg-footer {
+            text-align: center;
+            padding: 1.5rem 0;
+            color: var(--color-gray-500);
+            font-size: 0.85rem;
+        }
+        
+        .ecg-footer i {
+            margin-right: 0.25rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .rhythm-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .mode-toggle {
+                flex-direction: column;
+            }
+            
+            .mode-btn {
+                width: 100%;
+            }
+        }
+
+        /* ==================== GUIDED TOUR ==================== */
+        .tour-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 9000;
+        }
+        .tour-overlay.active { display: block; }
+
+        .tour-spotlight {
+            position: absolute;
+            border-radius: 12px;
+            box-shadow: 0 0 0 4000px rgba(0,0,0,0.55);
+            transition: all 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+            pointer-events: none;
+        }
+
+        .tour-tooltip {
+            position: absolute;
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 16px 18px 14px;
+            width: min(320px, calc(100vw - 32px));
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+            z-index: 9001;
+            animation: tourFadeIn 0.3s ease;
+        }
+        .tour-tooltip-arrow {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: #FFFFFF;
+            transform: rotate(45deg);
+            box-shadow: -2px -2px 4px rgba(0,0,0,0.05);
+        }
+        .tour-tooltip-arrow.arrow-top { top: -7px; left: 28px; }
+        .tour-tooltip-arrow.arrow-bottom { bottom: -7px; left: 28px; }
+
+        .tour-tooltip-step {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+        .tour-step-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark, #237282));
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .tour-step-label {
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--color-gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .tour-tooltip h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--color-gray-900);
+            margin: 0 0 4px;
+        }
+        .tour-tooltip p {
+            font-size: 0.82rem;
+            line-height: 1.5;
+            color: var(--color-gray-600);
+            margin: 0 0 12px;
+        }
+        .tour-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .tour-skip-btn {
+            background: none;
+            border: none;
+            color: var(--color-gray-500);
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 4px 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: color 0.2s;
+        }
+        .tour-skip-btn:hover { color: var(--color-gray-700); }
+        .tour-next-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark, #237282));
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.2s ease;
+        }
+        .tour-next-btn:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .tour-next-btn:active { transform: scale(0.97); }
+
+        .tour-dots { display: flex; gap: 5px; align-items: center; }
+        .tour-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-gray-300);
+            transition: all 0.2s ease;
+        }
+        .tour-dot.active {
+            background: var(--color-teal);
+            width: 18px;
+            border-radius: 3px;
+        }
+        .tour-dot.done { background: var(--color-teal); }
+
+        @keyframes tourFadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Welcome splash */
+        .tour-welcome {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 9002;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .tour-welcome.active { display: flex; }
+        .tour-welcome-card {
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 28px 24px 22px;
+            max-width: 340px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: tourFadeIn 0.35s ease;
+        }
+        .tour-welcome-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(43,138,156,0.12), rgba(92,184,92,0.1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin: 0 auto 12px;
+        }
+        .tour-welcome-card h3 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--color-gray-900);
+            margin: 0 0 6px;
+        }
+        .tour-welcome-card p {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: var(--color-gray-600);
+            margin: 0 0 18px;
+        }
+        .tour-welcome-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .tour-start-btn {
+            width: 100%;
+            padding: 11px 20px;
+            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark, #237282));
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .tour-start-btn:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .tour-dismiss-btn {
+            background: none;
+            border: none;
+            color: var(--color-gray-500);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 8px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: color 0.2s;
+        }
+        .tour-dismiss-btn:hover { color: var(--color-gray-700); }
+
+        /* ===== Fixed Monitor in ROIS Mode (JS-powered) ===== */
+        .ecg-monitor-card.rois-fixed {
+            position: fixed;
+            top: var(--rois-nav-height, 56px);
+            left: 0;
+            right: 0;
+            z-index: 50;
+            border-radius: 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .ecg-monitor-card.rois-fixed .ecg-canvas-container {
+            padding: 0.5rem;
+        }
+        .ecg-monitor-card.rois-fixed #ecgCanvas {
+            height: 120px;
+        }
+        /* Placeholder keeps page from jumping when monitor becomes fixed */
+        .ecg-monitor-placeholder {
+            display: none;
+        }
+    </style>
+</head>
+<body class="ecg-page">
+   <!-- ==================== NAVIGATION ==================== -->
+<nav class="member-navbar">
+    <div class="container">
+        <span class="brand-text">
+            <a class="navbar-brand" href="landing.html">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </a>
+        </span>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</nav>
+
+    <div class="ecg-container">
+        <!-- Header -->
+        <div class="ecg-header">
+            <h1>🫀 Test Yourself</h1>
+            <p>Five rhythms, assessed step by step with ROIS</p>
+        </div>
+
+        <!-- Keeps the page from jumping when the monitor is pinned in ROIS Mode -->
+        <div class="ecg-monitor-placeholder" id="ecgMonitorPlaceholder"></div>
+
+        <!-- ECG Monitor -->
+        <div class="ecg-monitor-card" id="mainMonitorCard">
+            <div class="monitor-header">
+                <span class="monitor-lead" id="monitorLead">Lead II</span>
+                <div class="monitor-hr" id="monitorHR" style="color: #22c55e;">
+                    <span class="hr-icon">♥</span>
+                    <span id="hrValue">75</span> BPM
+                </div>
+                <div class="monitor-controls">
+                    <button class="monitor-btn monitor-btn-pause" id="playPauseBtn" onclick="togglePlayPause()">
+                        <i class="bi bi-pause-fill"></i> Pause
+                    </button>
+                </div>
+            </div>
+            <div class="ecg-canvas-container">
+                <canvas id="ecgCanvas" width="800" height="200"></canvas>
+            </div>
+            <!-- No Pulse Indicator (for PEA and pulseless VT) -->
+            <div class="no-pulse-indicator" id="noPulseIndicator" style="display: none;">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>No pulse detected</span>
+            </div>
+            <!-- Emergency Banner (hidden by default) -->
+            <div class="emergency-banner" id="emergencyBanner" style="display: none;">
+                <span>⚠️ EMERGENCY RHYTHM - IMMEDIATE INTERVENTION REQUIRED</span>
+            </div>
+        </div>
+
+        <!-- Test Yourself: five rhythms, ROIS questions (engine: js/rois.js) -->
+        <div id="roisContent">
+
+            <!-- PocketParamedic Credit -->
+            <div class="rois-credit">
+                <div class="rois-credit-framework">
+                    The <span class="rois-letters">R O I S</span> Framework
+                </div>
+                <div class="rois-credit-by">
+                    A brilliant systematic approach to ECG interpretation, developed by
+                </div>
+                <a href="https://www.pocketparamedic.co.uk" target="_blank" rel="noopener noreferrer" class="rois-credit-link">
+                    <i class="bi bi-heart-pulse-fill"></i>
+                    PocketParamedic — pocketparamedic.co.uk
+                </a>
+                <div class="rois-credit-tagline">
+                    An outstanding resource for paramedic education — check them out!
+                </div>
+            </div>
+
+            <!-- ROIS Progress Bar -->
+            <div class="rois-progress-bar" id="roisProgressBar">
+                <span class="rois-progress-rhythm">Rhythm <span id="roisRhythmNum">1</span> of 5</span>
+                <span class="rois-progress-step" id="roisStepCount">Step 1 of 6</span>
+                <span class="rois-progress-score">Score: <span id="roisScoreDisplay">0/0</span></span>
+            </div>
+
+            <!-- ROIS Letter Indicators -->
+            <div class="rois-letter-indicators">
+                <div class="rois-letter-indicator indicator-active" id="roisIndicatorR">R</div>
+                <div class="rois-letter-indicator indicator-pending" id="roisIndicatorO">O</div>
+                <div class="rois-letter-indicator indicator-pending" id="roisIndicatorI">I</div>
+                <div class="rois-letter-indicator indicator-pending" id="roisIndicatorS">S</div>
+            </div>
+
+            <!-- ROIS Step Area -->
+            <div id="roisStepArea">
+                <div class="rois-step-card">
+                    <div class="rois-step-header">
+                        <div class="rois-letter-big" id="roisLetterBig">R</div>
+                        <div class="rois-step-label" id="roisLetterLabel">Rate</div>
+                    </div>
+
+                    <div class="rois-question" id="roisQuestion">What is the approximate ventricular rate?</div>
+
+                    <div class="rois-options" id="roisOptions">
+                        <!-- Populated by JavaScript -->
+                    </div>
+
+                    <div class="rois-feedback" id="roisFeedback" style="display: none;">
+                        <div class="rois-feedback-icon" id="roisFeedbackIcon">✅</div>
+                        <div class="rois-feedback-text" id="roisFeedbackText">Correct!</div>
+                        <div class="rois-feedback-explanation" id="roisFeedbackExplanation"></div>
+                    </div>
+
+                    <!-- Go deeper (shown once the rhythm is revealed; button style from js/go-deeper.js) -->
+                    <div class="go-deeper-row" id="roisGoDeeperRow" style="display: none; margin: 1rem 0;">
+                        <button type="button" class="pgd-btn" onclick="goDeeperROISRhythm()">
+                            <i class="bi bi-mortarboard"></i> Go deeper, Hollie!
+                        </button>
+                    </div>
+
+                    <button class="rois-next-btn" id="roisNextBtn" onclick="roisNext()" style="display: none;">
+                        Next <i class="bi bi-arrow-right"></i>
+                    </button>
+
+                    <a class="rois-exit-btn" href="ecg-new.html" style="display: block; text-align: center; text-decoration: none;">
+                        <i class="bi bi-arrow-left me-1"></i> Stop the test
+                    </a>
+                </div>
+            </div>
+
+            <!-- ROIS Final Results (hidden until session complete) -->
+            <div id="roisFinalResults" style="display: none;">
+                <div class="rois-final-results">
+                    <h2 class="rois-final-title">🫀 ROIS Assessment Complete!</h2>
+
+                    <div class="rois-final-score-circle">
+                        <span class="rois-final-percent" id="roisFinalPercent">0%</span>
+                    </div>
+
+                    <p class="rois-final-score-text">
+                        You scored <span id="roisFinalCorrect">0</span> out of <span id="roisFinalTotal">30</span> steps correctly
+                    </p>
+
+                    <p class="rois-final-message" id="roisFinalMessage">Keep practising!</p>
+
+                    <div class="rois-weakest-tip" id="roisWeakestTip" style="display: none;"></div>
+
+                    <div class="rois-section-title"><i class="bi bi-bar-chart-fill"></i> Performance by ROIS Step</div>
+                    <div class="rois-letter-breakdown" id="roisLetterBreakdown">
+                        <!-- Populated by JavaScript -->
+                    </div>
+
+                    <div class="rois-section-title"><i class="bi bi-activity"></i> Results by Rhythm</div>
+                    <div class="rois-rhythm-breakdown" id="roisRhythmBreakdown">
+                        <!-- Populated by JavaScript -->
+                    </div>
+
+                    <div class="rois-final-buttons">
+                        <button class="quiz-btn quiz-btn-primary" onclick="restartROIS()">
+                            🔄 Try again (new rhythms)
+                        </button>
+                        <a class="quiz-btn quiz-btn-secondary" href="ecg-new.html" style="text-decoration: none;">
+                            📚 Back to the ECG Tool
+                        </a>
+                    </div>
+
+                    <!-- PocketParamedic Credit (repeated at bottom of results) -->
+                    <div class="rois-credit" style="margin-top: 1.5rem;">
+                        <div class="rois-credit-framework">
+                            Practised using the <span class="rois-letters">R O I S</span> Framework
+                        </div>
+                        <div class="rois-credit-by">
+                            Developed by PocketParamedic — an invaluable resource for paramedic education
+                        </div>
+                        <a href="https://www.pocketparamedic.co.uk" target="_blank" rel="noopener noreferrer" class="rois-credit-link">
+                            <i class="bi bi-box-arrow-up-right"></i>
+                            Visit pocketparamedic.co.uk
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="ecg-footer">
+            <p><i class="bi bi-shield-check"></i> For educational purposes only - not for clinical decision-making</p>
+            <p><i class="bi bi-exclamation-circle"></i> These are simplified, single-lead examples only. Real ECGs can vary significantly in presentation across different leads, patients, and clinical contexts. Deeper learning and supervised clinical practice are essential for safe ECG interpretation.</p>
+        </div>
+    </div>
+
+    <!-- ==================== FOOTER ==================== -->
+<footer class="member-footer">
+    <div class="container">
+        <div class="footer-brand">
+            <span class="brand-text">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </span>
+        </div>
+        <div class="footer-links">
+            <a href="terms.html">Terms of Service</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="purpose.html">Intended Purpose</a>
+            <a href="sources.html">Sources &amp; Citations</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <p class="footer-copyright">&copy; 2026 Paramind. All rights reserved.</p>
+        <p class="footer-trademark" style="font-size: 0.85rem; color: var(--color-gray-500);">Paramind&#174; is a registered UK trade mark (UK00004321918).</p>
+    </div>
+</footer>
+
+
+    <!-- ==================== SCRIPTS ==================== -->
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Shared rhythm data + waveforms (rhythms, generateWaveform) -->
+    <script src="js/ecg-rhythms.js"></script>
+
+    <!-- TEST YOURSELF PAGE SCRIPT -->
+    <script>
+        // The ROIS session itself lives in js/rois.js. This page only draws the
+        // monitor and hands it the five rhythms.
+        let selectedRhythm = 'normalSinus';   // js/rois.js sets this as the session moves on
+        let heartRate = 75;
+        let isPlaying = true;
+        let time = 0;                          // animation clock, read by generateWaveform()
+        let animationId = null;
+        let canvas, ctx;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            canvas = document.getElementById('ecgCanvas');
+            ctx = canvas.getContext('2d');
+            animate();
+            setModeROIS();                      // five random rhythms
+        });
+
+        // ==================== GO DEEPER (used by the reveal in js/rois.js) ====================
+        function rhythmSummary(r) {
+            return 'Rhythm: ' + r.name + '\n' +
+                'Description: ' + r.description + '\n' +
+                'Key features: ' + (r.keyFeatures || []).join('; ');
+        }
+
+        // ==================== PLAY/PAUSE ====================
+        function togglePlayPause() {
+            isPlaying = !isPlaying;
+            const btn = document.getElementById('playPauseBtn');
+            
+            if (isPlaying) {
+                btn.innerHTML = '<i class="bi bi-pause-fill"></i> Pause';
+                btn.className = 'monitor-btn monitor-btn-pause';
+            } else {
+                btn.innerHTML = '<i class="bi bi-play-fill"></i> Play';
+                btn.className = 'monitor-btn monitor-btn-play';
+            }
+        }
+        
+        // ==================== MONITOR LEAD LABEL ====================
+        // Most rhythms are drawn as Lead II. The bundle branch blocks are drawn
+        // as the chest lead where they show best, so the label follows suit.
+        const rhythmLeads = { lbbb: 'Lead V1', rbbb: 'Lead V1' };
+        let shownLeadRhythm = null;
+        function updateLeadLabel(rhythmKey) {
+            if (rhythmKey === shownLeadRhythm) return; // only touch the page when it changes
+            shownLeadRhythm = rhythmKey;
+            document.getElementById('monitorLead').textContent = rhythmLeads[rhythmKey] || 'Lead II';
+        }
+
+        // ==================== ECG ANIMATION ====================
+        function animate() {
+            if (isPlaying) {
+                time += 0.05;
+            }
+            drawECG();
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        function drawECG() {
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, width, height);
+            
+            drawGrid(width, height);
+            
+            const currentRhythm = selectedRhythm;
+            const currentRate = heartRate;
+            
+            if (!currentRhythm) return;
+            updateLeadLabel(currentRhythm);
+            
+            const points = generateWaveform(currentRhythm, currentRate, width);
+            // Plain green until the rhythm is revealed, so the colour gives nothing away
+            const waveColor = roisState.revealed ? rhythms[selectedRhythm].color : '#22c55e';
+            
+            ctx.strokeStyle = waveColor;
+            ctx.lineWidth = 2;
+            ctx.shadowColor = waveColor;
+            ctx.shadowBlur = 4;
+            ctx.beginPath();
+            
+            points.forEach((point, i) => {
+                if (i === 0) {
+                    ctx.moveTo(point.x, point.y);
+                } else {
+                    ctx.lineTo(point.x, point.y);
+                }
+            });
+            
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+        
+        function drawGrid(width, height) {
+            ctx.strokeStyle = '#2d2d4a';
+            ctx.lineWidth = 0.5;
+            
+            for (let x = 0; x < width; x += 4) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < height; y += 4) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+            
+            ctx.strokeStyle = '#3d3d5a';
+            ctx.lineWidth = 1;
+            
+            for (let x = 0; x < width; x += 20) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < height; y += 20) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+        }
+        
+    </script>
+
+    <!-- Standardised script loading -->
+    <script src="js/rois.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/menu-v2.js"></script>
+    <script src="js/go-deeper.js"></script>
+    <script src="js/pro-guard.js"></script>
+    <script src="js/activity-logger.js"></script>
+    <script src="js/upgrade-modal.js"></script>
+</body>
+</html>
