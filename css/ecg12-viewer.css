@@ -1,0 +1,90 @@
+/* ============================================================
+   css/ecg12-viewer.css — styles for js/ecg12-viewer.js
+   Copied unchanged from ecg-12lead.html (viewer card, lead grid, zoom,
+   record info, ROIS teaching panel, findings, self-mark buttons).
+   ============================================================ */
+/* Self-mark buttons (Got it / Nearly / Missed it) */
+.rois-selfmark { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
+.rois-selfmark-btn { flex: 1; padding: 0.7rem 0.5rem; border-radius: var(--radius-md);
+    border: 1.5px solid var(--color-gray-200); background: #fff; cursor: pointer;
+    font-family: inherit; font-size: 0.85rem; font-weight: 600; color: var(--color-gray-700);
+    display: flex; flex-direction: column; align-items: center; gap: 0.25rem; }
+.rois-selfmark-btn i { font-size: 1.1rem; }
+.rois-selfmark-got:hover, .rois-selfmark-got:active { border-color: #22c55e; color: #16a34a; background: rgba(34,197,94,0.06); }
+.rois-selfmark-nearly:hover, .rois-selfmark-nearly:active { border-color: #f59e0b; color: #d97706; background: rgba(245,158,11,0.06); }
+.rois-selfmark-missed:hover, .rois-selfmark-missed:active { border-color: #ef4444; color: #dc2626; background: rgba(239,68,68,0.06); }
+
+/* Self-mark tag (used in the summary breakdown) */
+.rois-selfmark-tag { font-size: 0.8rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: var(--radius-full);
+    display: inline-flex; align-items: center; gap: 0.3rem; margin-left: auto; }
+.rois-selfmark-tag.rois-selfmark-got { background: rgba(34,197,94,0.15); color: #16a34a; }
+.rois-selfmark-tag.rois-selfmark-nearly { background: rgba(245,158,11,0.15); color: #d97706; }
+.rois-selfmark-tag.rois-selfmark-missed { background: rgba(239,68,68,0.15); color: #dc2626; }
+
+/* 'Nearly' indicator state (rois.css has correct/incorrect, not nearly) */
+.indicator-nearly { background: rgba(245,158,11,0.15); color: #f59e0b; border-color: #f59e0b; }
+
+/* Territory legend */
+.ecg12-legend { display: flex; flex-wrap: wrap; gap: 0.75rem 1rem; justify-content: center;
+    font-size: 0.72rem; color: var(--color-gray-600); margin: 0.75rem 0 0.25rem; }
+.ecg12-legend span { display: inline-flex; align-items: center; gap: 0.3rem; }
+.ecg12-legend i { width: 11px; height: 11px; border-radius: 3px; border: 0.5px solid rgba(0,0,0,0.2); display: inline-block; }
+
+/* Viewer card */
+.ecg12-viewer { background: #fff; border: 1px solid #E9ECEF; border-radius: var(--radius-lg);
+    overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.ecg12-viewer-head { padding: 0.65rem 0.9rem; border-bottom: 1px solid #F1F3F5;
+    display: flex; align-items: center; justify-content: space-between; }
+.ecg12-viewer-head .title { font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; color: var(--color-gray-800); }
+.ecg12-tag { font-size: 0.72rem; color: var(--color-gray-500); }
+.ecg12-stage { padding: 0.6rem; }
+.ecg12-hintbar { padding: 0.55rem 0.9rem; border-top: 1px solid #F1F3F5; font-size: 0.78rem; color: var(--color-gray-600); margin: 0; }
+
+/* Overview grid */
+.ecg12-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; }
+.ecg12-cell { padding: 0; border-radius: 3px; overflow: hidden; position: relative; cursor: pointer; height: 74px; border: 0.5px solid; font-family: inherit; }
+.ecg12-cell canvas { width: 100%; height: 74px; display: block; }
+.ecg12-cell .lead-tag { position: absolute; top: 2px; left: 4px; font-size: 0.68rem; font-weight: 600; }
+
+/* Zoom view */
+.ecg12-zoom-head { display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; margin-bottom: 0.5rem; }
+.ecg12-zoom-wrap { position: relative; border-radius: 3px; overflow: hidden; border: 0.5px solid; }
+.ecg12-zoom-wrap canvas { width: 100%; height: 150px; display: block; }
+.ecg12-zoom-wrap .lead-tag { position: absolute; top: 3px; left: 5px; font-size: 0.8rem; font-weight: 600; }
+.ecg12-nav { display: flex; gap: 6px; margin-top: 0.5rem; }
+.ecg12-nav-btn { flex: 1; padding: 0.35rem 0.5rem; display: flex; align-items: center; gap: 0.45rem;
+    background: #fff; border: 1px solid #E9ECEF; border-radius: var(--radius-md); cursor: pointer; font-family: inherit; font-size: 0.8rem; }
+.ecg12-nav-btn.next { justify-content: flex-end; }
+.ecg12-nav-btn .mini { display: inline-block; width: 36px; height: 22px; border-radius: 2px; overflow: hidden; border: 0.5px solid; }
+.ecg12-nav-btn .mini canvas { width: 36px; height: 22px; display: block; }
+.ecg12-btn-plain { font-size: 0.8rem; padding: 0.3rem 0.7rem; background: #fff; border: 1px solid #E9ECEF; border-radius: var(--radius-md); cursor: pointer; font-family: inherit; color: var(--color-gray-700); }
+.ecg12-chip { font-size: 0.78rem; font-weight: 600; padding: 0.2rem 0.7rem; border-radius: var(--radius-md); }
+
+/* Record info */
+.ecg12-info { margin-top: 1rem; background: #fff; border: 1px solid #E9ECEF; border-radius: var(--radius-lg); padding: 0.9rem; }
+.ecg12-info h2 { font-size: 0.95rem; font-weight: 600; margin: 0 0 0.35rem; color: var(--color-gray-800); }
+.ecg12-info .meta { font-size: 0.82rem; color: var(--color-gray-600); }
+
+/* Learn-mode teaching panel (ROIS text below the viewer) */
+.ecg12-teach { margin-top: 1.25rem; }
+.ecg12-teach-title { font-size: 0.78rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--color-gray-500); margin-bottom: 0.75rem; }
+.ecg12-rois-row { display: flex; gap: 0.85rem; align-items: flex-start;
+    background: #fff; border: 1px solid #E9ECEF; border-radius: var(--radius-lg);
+    padding: 0.9rem 1rem; margin-bottom: 0.6rem; box-shadow: var(--shadow-sm); }
+.ecg12-rois-badge { width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--color-teal), #237282); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 700; }
+.ecg12-rois-body { flex: 1; }
+.ecg12-rois-step { font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--color-gray-500); margin-bottom: 0.15rem; }
+.ecg12-rois-text { font-size: 0.9rem; color: var(--color-gray-800); line-height: 1.5; margin: 0; }
+
+/* Findings summary */
+.ecg12-findings { margin-top: 0.9rem; background: #F0FAFB; border: 1px solid #B8E4EB;
+    border-radius: var(--radius-lg); padding: 0.9rem 1rem; }
+.ecg12-findings .lbl { font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--color-teal); margin-bottom: 0.4rem; }
+.ecg12-findings ul { margin: 0; padding-left: 1.1rem; }
+.ecg12-findings li { font-size: 0.9rem; color: var(--color-gray-800); margin-bottom: 0.2rem; }
