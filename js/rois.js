@@ -10,9 +10,10 @@
    S - ST Segments & T Waves
    ============================================ */
 
-// ==================== ROIS DATA FOR ALL 20 RHYTHMS ====================
+// ==================== ROIS DATA FOR 22 RHYTHMS ====================
 // Excluded: ventricularFibrillation, asystole, pea (cardiac arrest rhythms)
 // Each rhythm has 5 steps: R(Rate), R(Rhythm), O, I, S
+// ...followed by a naming step built from ROIS_NAME_DISTRACTORS (below)
 
 const ROIS_DATA = {
 
@@ -56,7 +57,7 @@ const ROIS_DATA = {
             { letter: 'R', label: 'Rhythm', question: 'How would you describe the rhythm regularity?', options: ['Regular', 'Irregular \u2014 varying R-R intervals in a cyclical pattern', 'Irregularly irregular \u2014 completely chaotic', 'Regularly irregular (grouped pattern with pauses)'], correct: 1, explanation: 'The rhythm is irregular \u2014 R-R intervals vary in a cyclical pattern linked to respiration. This is NOT the same as "irregularly irregular" (which is chaotic, like AF). The cyclical, predictable nature of the irregularity is the key distinguishing feature.' },
             { letter: 'O', label: 'Origin', question: 'Where is this rhythm most likely originating from?', options: ['SA node (sinus)', 'Multiple atrial foci (chaotic)', 'AV junction', 'Alternating sinus and atrial foci'], correct: 0, explanation: 'P waves are consistent in morphology and always precede the QRS \u2014 this is sinus origin. The irregular R-R intervals are due to vagal tone changes with breathing, not a change in origin.' },
             { letter: 'I', label: 'Intervals', question: 'What do the intervals (PR, QRS, QTc) show?', options: ['All intervals normal despite rate variation', 'Variable PR intervals suggesting wandering pacemaker', 'Progressively prolonging PR (Wenckebach)', 'Widened QRS complex'], correct: 0, explanation: 'All intervals are normal. The PR interval stays constant even as the R-R intervals vary. This distinguishes sinus arrhythmia from other causes of irregular rhythm.' },
-            { letter: 'S', label: 'ST/T Waves', question: 'What do the ST segments and T waves show?', options: ['No acute ST changes', 'ST elevation in contiguous leads', 'ST depression', 'Cannot assess due to irregular rhythm'], correct: 0, explanation: 'No acute ST changes. Sinus arrhythmia is a benign normal variant \u2014 common in young, fit individuals. No treatment is needed.' }
+            { letter: 'S', label: 'ST/T Waves', question: 'What do the ST segments and T waves show?', options: ['No acute ST changes', 'ST elevation in contiguous leads', 'ST depression', 'Cannot assess due to irregular rhythm'], correct: 0, explanation: 'No acute ST changes. Sinus arrhythmia is a benign normal variant \u2014 common in young, fit individuals. It is not a sign of heart disease in itself.' }
         ]
     },
 
@@ -97,10 +98,10 @@ const ROIS_DATA = {
         roisRate: 180,
         steps: [
             { letter: 'R', label: 'Rate', question: 'What is the approximate ventricular rate?', options: ['Less than 60 bpm', '60\u2013100 bpm', '100\u2013150 bpm', '150\u2013250 bpm'], correct: 3, explanation: 'The rate is approximately 180 bpm. VT typically runs at 100\u2013250 bpm. The combination of a fast rate with the wide QRS morphology should immediately raise concern for VT.' },
-            { letter: 'R', label: 'Rhythm', question: 'How would you describe the rhythm regularity?', options: ['Regular', 'Irregular', 'Irregularly irregular', 'Regularly irregular (grouped pattern)'], correct: 0, explanation: 'Monomorphic VT is typically regular \u2014 the R-R intervals are consistent because a single ventricular focus is firing repeatedly. A regular wide-complex tachycardia should be treated as VT until proven otherwise.' },
-            { letter: 'O', label: 'Origin', question: 'Where is this rhythm most likely originating from?', options: ['SA node (sinus)', 'Supraventricular with aberrant conduction', 'Ventricles', 'AV junction'], correct: 2, explanation: 'The wide, bizarre QRS morphology indicates ventricular origin. The electrical impulse originates in the ventricular myocardium and conducts abnormally, producing the characteristic broad complex pattern. Always treat a broad complex tachycardia as VT until proven otherwise.' },
+            { letter: 'R', label: 'Rhythm', question: 'How would you describe the rhythm regularity?', options: ['Regular', 'Irregular', 'Irregularly irregular', 'Regularly irregular (grouped pattern)'], correct: 0, explanation: 'Monomorphic VT is typically regular \u2014 the R-R intervals are consistent because a single ventricular focus is firing repeatedly. Most regular wide-complex tachycardias turn out to be VT, so it should be the first rhythm you think of.' },
+            { letter: 'O', label: 'Origin', question: 'Where is this rhythm most likely originating from?', options: ['SA node (sinus)', 'Supraventricular with aberrant conduction', 'Ventricles', 'AV junction'], correct: 2, explanation: 'The wide, bizarre QRS morphology indicates ventricular origin. The electrical impulse originates in the ventricular myocardium and conducts abnormally, producing the characteristic broad complex pattern. Most broad complex tachycardias are ventricular in origin.' },
             { letter: 'I', label: 'Intervals', question: 'What do the intervals (PR, QRS, QTc) show?', options: ['Narrow QRS with normal PR', 'Wide QRS (>0.12s), no discernible P waves', 'Wide QRS with short PR and delta wave', 'Progressive PR prolongation'], correct: 1, explanation: 'The QRS is wide (>0.12s) \u2014 this is the defining feature. No P waves are visible. AV dissociation may be present (P waves marching through at their own rate, independently of the QRS). QTc cannot be meaningfully assessed.' },
-            { letter: 'S', label: 'ST/T Waves', question: 'What do the ST segments and T waves show?', options: ['No acute ST changes', 'ST-T changes present but secondary to wide QRS', 'Clear ST elevation with reciprocal changes', 'Cannot reliably assess ST segments'], correct: 3, explanation: 'ST segments cannot be reliably assessed in VT because the wide QRS causes secondary ST-T changes. \u26a0\ufe0f CRITICAL: Always check for a pulse. Pulseless VT is a cardiac arrest rhythm requiring immediate defibrillation.' }
+            { letter: 'S', label: 'ST/T Waves', question: 'What do the ST segments and T waves show?', options: ['No acute ST changes', 'ST-T changes present but secondary to wide QRS', 'Clear ST elevation with reciprocal changes', 'Cannot reliably assess ST segments'], correct: 3, explanation: 'ST segments cannot be reliably assessed in VT because the wide QRS causes secondary ST-T changes. \u26a0\ufe0f Remember: VT can occur with or without a pulse, and the trace alone cannot tell you which. Pulseless VT is a cardiac arrest rhythm.' }
         ]
     },
 
@@ -111,7 +112,7 @@ const ROIS_DATA = {
             { letter: 'R', label: 'Rhythm', question: 'How would you describe the rhythm regularity?', options: ['Regular with constant amplitude', 'Regular rate but with undulating, varying amplitude', 'Irregularly irregular', 'Regularly irregular (grouped pattern)'], correct: 1, explanation: 'The rate is relatively regular, but the amplitude of the QRS complexes waxes and wanes in a characteristic spindle-shaped pattern \u2014 this "twisting of the points" is the hallmark of Torsades de Pointes and distinguishes it from monomorphic VT.' },
             { letter: 'O', label: 'Origin', question: 'Where is this rhythm most likely originating from?', options: ['Supraventricular with aberrant conduction', 'Ventricles \u2014 monomorphic (single focus)', 'Ventricles \u2014 polymorphic (rotating axis)', 'Atrial flutter with variable block'], correct: 2, explanation: 'This is a polymorphic ventricular tachycardia \u2014 the QRS axis rotates, creating the characteristic "twisting of the points" (Torsades de Pointes). The changing amplitude is the key visual feature.' },
             { letter: 'I', label: 'Intervals', question: 'What do the intervals (PR, QRS, QTc) show?', options: ['Narrow QRS with normal intervals', 'Wide QRS with progressively changing axis and amplitude', 'Wide QRS with constant morphology', 'Irregular narrow QRS with no P waves'], correct: 1, explanation: 'Wide QRS complexes with a continuously changing axis \u2014 the amplitude waxes and wanes in a spindle-shaped pattern. This is associated with a prolonged QT interval (check the preceding rhythm if available).' },
-            { letter: 'S', label: 'ST/T Waves', question: 'What do the ST segments and T waves show?', options: ['No acute ST changes', 'ST elevation visible between complexes', 'Cannot assess \u2014 rhythm is too chaotic', 'ST depression throughout'], correct: 2, explanation: 'ST segments cannot be assessed during Torsades \u2014 the chaotic wide complexes obscure the baseline. The priority is recognising this rhythm and identifying the underlying cause (usually prolonged QT). This is a medical emergency requiring immediate senior clinical input.' }
+            { letter: 'S', label: 'ST/T Waves', question: 'What do the ST segments and T waves show?', options: ['No acute ST changes', 'ST elevation visible between complexes', 'Cannot assess \u2014 rhythm is too chaotic', 'ST depression throughout'], correct: 2, explanation: 'ST segments cannot be assessed during Torsades \u2014 the chaotic wide complexes obscure the baseline. The priority is recognising this rhythm and identifying the underlying cause (usually prolonged QT). Torsades is a life-threatening rhythm that can degenerate into VF.' }
         ]
     },
 
@@ -144,7 +145,7 @@ const ROIS_DATA = {
             { letter: 'R', label: 'Rhythm', question: 'How would you describe the rhythm regularity?', options: ['Regular', 'Irregularly irregular \u2014 completely chaotic', 'Regularly irregular \u2014 regular rhythm interrupted by sudden pauses', 'Irregular \u2014 cyclical variation with breathing'], correct: 2, explanation: 'The rhythm is regularly irregular \u2014 the conducted beats are at regular intervals, but sudden pauses occur when a QRS is dropped. Unlike Wenckebach, there is no gradual build-up before the dropped beat \u2014 it happens without warning, which makes this rhythm more unpredictable and dangerous.' },
             { letter: 'O', label: 'Origin', question: 'Where is this rhythm most likely originating from?', options: ['SA node with intermittent conduction failure below the AV node', 'SA node with progressive AV delay (Wenckebach)', 'AV junction', 'Ventricles independently'], correct: 0, explanation: 'The SA node is firing normally (regular P waves at a normal rate), but the block is below the AV node \u2014 in the bundle of His or bundle branches. This means some P waves simply fail to conduct without any prior warning.' },
             { letter: 'I', label: 'Intervals', question: 'What do the intervals (PR, QRS, QTc) show?', options: ['Progressively prolonging PR until a beat drops', 'Constant PR interval with sudden dropped QRS complexes', 'No relationship between P waves and QRS', 'All intervals normal'], correct: 1, explanation: 'The PR interval remains constant for all conducted beats \u2014 then suddenly a QRS is dropped with no prior prolongation. The QRS may be wide (suggesting the block is in the bundle branches). This is the key distinction from Mobitz I: constant PR with sudden dropped beats = Mobitz II.' },
-            { letter: 'S', label: 'ST/T Waves', question: 'What do the ST segments and T waves show?', options: ['No acute ST changes', 'ST elevation in inferior leads', 'ST depression suggesting ischaemia', 'ST elevation with reciprocal changes'], correct: 0, explanation: 'No acute ST changes in this trace. \u26a0\ufe0f Important: Mobitz Type II is dangerous \u2014 it carries a significant risk of progressing to complete heart block without warning. This patient may need transcutaneous pacing. Prepare for deterioration.' }
+            { letter: 'S', label: 'ST/T Waves', question: 'What do the ST segments and T waves show?', options: ['No acute ST changes', 'ST elevation in inferior leads', 'ST depression suggesting ischaemia', 'ST elevation with reciprocal changes'], correct: 0, explanation: 'No acute ST changes in this trace. \u26a0\ufe0f Important: Mobitz Type II is dangerous \u2014 it carries a significant risk of progressing to complete heart block without warning. It is an unstable conduction pattern.' }
         ]
     },
 
@@ -155,7 +156,7 @@ const ROIS_DATA = {
             { letter: 'R', label: 'Rhythm', question: 'How would you describe the rhythm regularity?', options: ['Regular \u2014 both atrial and ventricular rates are independently regular', 'Irregularly irregular', 'Regularly irregular (grouped pattern)', 'Irregular \u2014 random R-R intervals'], correct: 0, explanation: 'Both the atrial rhythm (P waves) and the ventricular rhythm (QRS) are independently regular \u2014 but at different rates. The P waves march through at their own rate (usually ~70 bpm), while the QRS complexes appear at the escape rate (~30-50 bpm). Each is regular, but they are not related to each other.' },
             { letter: 'O', label: 'Origin', question: 'Where is this rhythm most likely originating from?', options: ['SA node with normal conduction', 'SA node firing normally but completely disconnected from ventricles', 'Ventricles only (no atrial activity)', 'AV junction with normal conduction'], correct: 1, explanation: 'The SA node fires normally (you can see regular P waves at their own rate), but there is COMPLETE AV dissociation \u2014 none of the atrial impulses reach the ventricles. The ventricles are driven by an independent escape pacemaker (junctional or ventricular).' },
             { letter: 'I', label: 'Intervals', question: 'What do the intervals (PR, QRS, QTc) show?', options: ['Normal PR with narrow QRS', 'Prolonged but constant PR interval', 'No consistent relationship between P waves and QRS complexes', 'Progressively prolonging PR interval'], correct: 2, explanation: 'There is NO consistent relationship between P waves and QRS complexes \u2014 the PR interval varies randomly because the atria and ventricles are beating completely independently. The QRS may be narrow (junctional escape) or wide (ventricular escape).' },
-            { letter: 'S', label: 'ST/T Waves', question: 'What do the ST segments and T waves show?', options: ['No acute ST changes', 'ST elevation \u2014 consider inferior STEMI as a cause', 'ST depression throughout', 'ST elevation with reciprocal changes'], correct: 0, explanation: 'No acute ST changes in this trace, though complete heart block can be caused by inferior STEMI. \u26a0\ufe0f This is a time-critical rhythm requiring urgent senior clinical input and cardiology referral. Prepare for deterioration.' }
+            { letter: 'S', label: 'ST/T Waves', question: 'What do the ST segments and T waves show?', options: ['No acute ST changes', 'ST elevation \u2014 consider inferior STEMI as a cause', 'ST depression throughout', 'ST elevation with reciprocal changes'], correct: 0, explanation: 'No acute ST changes in this trace, though complete heart block can be caused by inferior STEMI. \u26a0\ufe0f Complete heart block is a serious rhythm \u2014 the ventricles are relying entirely on a slow escape pacemaker.' }
         ]
     },
 
@@ -177,7 +178,7 @@ const ROIS_DATA = {
             { letter: 'R', label: 'Rhythm', question: 'How would you describe the rhythm regularity?', options: ['Regular', 'Irregular', 'Irregularly irregular', 'Regularly irregular (grouped pattern)'], correct: 0, explanation: 'At rest, WPW produces a regular rhythm \u2014 the underlying sinus rhythm is conducted normally (just via two pathways). The regularity helps identify this as a baseline WPW pattern rather than WPW complicated by an arrhythmia.' },
             { letter: 'O', label: 'Origin', question: 'Where is this rhythm most likely originating from?', options: ['SA node (sinus) with an accessory conduction pathway', 'AV junction', 'Ventricles', 'Multiple atrial foci'], correct: 0, explanation: 'The rhythm is sinus in origin, but an accessory pathway (Bundle of Kent) conducts the impulse to the ventricles faster than the AV node, causing pre-excitation. The ventricles start depolarising early via this shortcut \u2014 producing the delta wave.' },
             { letter: 'I', label: 'Intervals', question: 'What do the intervals (PR, QRS, QTc) show?', options: ['All intervals normal', 'Prolonged PR interval with narrow QRS', 'Short PR interval (<0.12s) with delta wave and wide QRS', 'Absent P waves with wide QRS'], correct: 2, explanation: 'The classic WPW triad: (1) Short PR interval (<0.12s) because the accessory pathway bypasses the AV node delay, (2) Delta wave \u2014 a slurred upstroke at the start of the QRS, (3) Wide QRS because of early ventricular activation via the abnormal pathway.' },
-            { letter: 'S', label: 'ST/T Waves', question: 'What do the ST segments and T waves show?', options: ['No acute ST changes', 'ST-T changes secondary to pre-excitation (not ischaemic)', 'ST elevation suggesting STEMI', 'ST depression in lateral leads'], correct: 1, explanation: 'WPW can cause secondary ST-T wave changes that mimic ischaemia \u2014 these are due to the abnormal depolarisation, NOT acute coronary syndrome. \u26a0\ufe0f Critical: If AF develops in a patient with WPW, this is a medical emergency requiring immediate specialist input \u2014 standard rhythm control approaches may be dangerous.' }
+            { letter: 'S', label: 'ST/T Waves', question: 'What do the ST segments and T waves show?', options: ['No acute ST changes', 'ST-T changes secondary to pre-excitation (not ischaemic)', 'ST elevation suggesting STEMI', 'ST depression in lateral leads'], correct: 1, explanation: 'WPW can cause secondary ST-T wave changes that mimic ischaemia \u2014 these are due to the abnormal depolarisation, NOT acute coronary syndrome. \u26a0\ufe0f Important: if AF develops in a patient with WPW, impulses can race down the accessory pathway, producing a very fast, irregular, broad complex rhythm that can degenerate into VF.' }
         ]
     },
 
@@ -199,7 +200,7 @@ const ROIS_DATA = {
             { letter: 'R', label: 'Rhythm', question: 'How would you describe the rhythm regularity?', options: ['Regular', 'Irregular \u2014 regular underlying rhythm interrupted by early beats', 'Irregularly irregular \u2014 completely chaotic', 'Regularly irregular (grouped pattern)'], correct: 1, explanation: 'The rhythm is irregular because the underlying sinus rhythm is interrupted by premature atrial beats that arrive early. Unlike PVCs, the early beats in PACs are narrow complex. The underlying sinus rhythm is regular between the ectopics.' },
             { letter: 'O', label: 'Origin', question: 'Where are the abnormal beats originating from?', options: ['SA node \u2014 all beats are sinus', 'Predominantly sinus with atrial ectopic beats', 'Predominantly sinus with ventricular ectopic beats', 'AV junction'], correct: 1, explanation: 'The underlying rhythm is sinus, but the early beats have a P wave with a different shape to the normal sinus P waves \u2014 indicating they arise from an ectopic atrial focus, not the SA node.' },
             { letter: 'I', label: 'Intervals', question: 'What do the intervals show for the abnormal beats?', options: ['Early P wave (different morphology) followed by narrow QRS', 'Early wide QRS with no P wave', 'Progressive PR prolongation', 'Short PR with delta wave'], correct: 0, explanation: 'PACs show an early P wave that looks different from the sinus P waves, usually followed by a narrow QRS (because ventricular conduction is normal). There is typically an incomplete compensatory pause. PACs are common and usually benign.' },
-            { letter: 'S', label: 'ST/T Waves', question: 'What do the ST segments and T waves show?', options: ['No acute ST changes', 'ST elevation in contiguous leads', 'ST depression on PAC beats', 'ST elevation with reciprocal changes'], correct: 0, explanation: 'No acute ST changes. PACs are very common and usually require no treatment. Frequent PACs can occasionally trigger sustained arrhythmias like AF or SVT in some patients.' }
+            { letter: 'S', label: 'ST/T Waves', question: 'What do the ST segments and T waves show?', options: ['No acute ST changes', 'ST elevation in contiguous leads', 'ST depression on PAC beats', 'ST elevation with reciprocal changes'], correct: 0, explanation: 'No acute ST changes. PACs are very common and usually benign. Frequent PACs can occasionally trigger sustained arrhythmias like AF or SVT in some patients.' }
         ]
     },
 
@@ -209,8 +210,8 @@ const ROIS_DATA = {
             { letter: 'R', label: 'Rate', question: 'What is the approximate ventricular rate?', options: ['Less than 60 bpm', '60\u2013100 bpm', '100\u2013150 bpm', 'Greater than 150 bpm'], correct: 1, explanation: 'The rate may be normal or bradycardic depending on the severity of hyperkalaemia. As potassium rises further, the rate typically slows.' },
             { letter: 'R', label: 'Rhythm', question: 'How would you describe the rhythm regularity?', options: ['Regular', 'Irregular', 'Irregularly irregular', 'Regularly irregular (grouped pattern)'], correct: 0, explanation: 'In early-to-moderate hyperkalaemia, the rhythm is typically still regular \u2014 the conduction system is impaired but still functioning. As potassium rises further, the rhythm may become irregular or deteriorate into a sine wave pattern before arrest.' },
             { letter: 'O', label: 'Origin', question: 'Where is this rhythm most likely originating from?', options: ['SA node (sinus) but with impaired conduction', 'AV junction', 'Ventricles', 'Cannot determine \u2014 P waves are flattened or absent'], correct: 0, explanation: 'Initially sinus, but high potassium progressively affects the myocardium: P waves flatten and may disappear, the QRS widens, and eventually a sine wave pattern develops.' },
-            { letter: 'I', label: 'Intervals', question: 'What do the intervals (PR, QRS, QTc) show?', options: ['All intervals normal', 'Prolonged PR and narrow QRS', 'Widened QRS with tall peaked T waves', 'Shortened PR with delta wave'], correct: 2, explanation: 'The classic progression of hyperkalaemia: tall, peaked T waves \u2192 flattened P waves \u2192 widened QRS \u2192 sine wave pattern \u2192 cardiac arrest. The widened QRS and peaked T waves are the key warning signs that demand urgent treatment.' },
-            { letter: 'S', label: 'ST/T Waves', question: 'What do the ST segments and T waves show?', options: ['No acute ST changes \u2014 but T wave morphology is grossly abnormal', 'ST elevation mimicking STEMI', 'ST depression throughout', 'Normal ST segments and T waves'], correct: 0, explanation: 'The ST segments themselves may not show classic STEMI changes, but the tall, peaked T waves are dramatically abnormal. \u26a0\ufe0f This is a medical emergency requiring urgent intervention. Follow your local clinical guidelines and escalate immediately.' }
+            { letter: 'I', label: 'Intervals', question: 'What do the intervals (PR, QRS, QTc) show?', options: ['All intervals normal', 'Prolonged PR and narrow QRS', 'Widened QRS with tall peaked T waves', 'Shortened PR with delta wave'], correct: 2, explanation: 'The classic progression of hyperkalaemia: tall, peaked T waves \u2192 flattened P waves \u2192 widened QRS \u2192 sine wave pattern \u2192 cardiac arrest. The widened QRS and peaked T waves are the key warning signs that potassium is dangerously high.' },
+            { letter: 'S', label: 'ST/T Waves', question: 'What do the ST segments and T waves show?', options: ['No acute ST changes \u2014 but T wave morphology is grossly abnormal', 'ST elevation mimicking STEMI', 'ST depression throughout', 'Normal ST segments and T waves'], correct: 0, explanation: 'The ST segments themselves may not show classic STEMI changes, but the tall, peaked T waves are dramatically abnormal. \u26a0\ufe0f These changes can progress rapidly towards a sine wave pattern and cardiac arrest.' }
         ]
     },
 
@@ -221,7 +222,7 @@ const ROIS_DATA = {
             { letter: 'R', label: 'Rhythm', question: 'How would you describe the rhythm regularity?', options: ['Regular', 'Irregular', 'Irregularly irregular', 'Regularly irregular (grouped pattern)'], correct: 0, explanation: 'The rhythm is regular \u2014 normal sinus rhythm. Combined with the normal rate, the first two ROIS steps may seem entirely unremarkable. This is why systematic assessment is critical \u2014 the life-threatening finding here is in the final step.' },
             { letter: 'O', label: 'Origin', question: 'Where is this rhythm most likely originating from?', options: ['SA node (sinus)', 'AV junction', 'Ventricles', 'Atrial ectopic focus'], correct: 0, explanation: 'The underlying rhythm is sinus \u2014 P waves are present before each QRS. The critical finding in this ECG is NOT the rhythm origin. Keep going with your ROIS assessment.' },
             { letter: 'I', label: 'Intervals', question: 'What do the intervals (PR, QRS, QTc) show?', options: ['All intervals normal', 'Prolonged PR interval', 'Widened QRS complex', 'Short PR with delta wave'], correct: 0, explanation: 'Intervals may be completely normal in acute STEMI. Normal R, normal O, normal I \u2014 but the critical finding is waiting at the final step. This is why you must ALWAYS complete all ROIS steps.' },
-            { letter: 'S', label: 'ST/T Waves', question: 'What do the ST segments and T waves show?', options: ['No acute ST changes', 'ST depression only', 'ST elevation in contiguous leads with reciprocal changes', 'Non-specific T wave changes'], correct: 2, explanation: '\ud83d\udea8 ST elevation in 2 or more contiguous leads with reciprocal ST depression \u2014 this is a STEMI. TIME IS MUSCLE. Activate the cath lab immediately. Follow your local STEMI protocol and ensure rapid transport. Every minute of delay costs myocardium.' }
+            { letter: 'S', label: 'ST/T Waves', question: 'What do the ST segments and T waves show?', options: ['No acute ST changes', 'ST depression only', 'ST elevation in contiguous leads with reciprocal changes', 'Non-specific T wave changes'], correct: 2, explanation: '\ud83d\udea8 ST elevation in 2 or more contiguous leads with reciprocal ST depression \u2014 this is a STEMI. The pattern indicates an acute coronary artery occlusion \u2014 heart muscle is actively being injured.' }
         ]
     },
 
@@ -232,7 +233,29 @@ const ROIS_DATA = {
             { letter: 'R', label: 'Rhythm', question: 'How would you describe the rhythm regularity?', options: ['Regular', 'Irregular', 'Irregularly irregular', 'Regularly irregular (grouped pattern)'], correct: 0, explanation: 'The rhythm is regular \u2014 Long QT itself does not cause an irregular rhythm. The danger is that the prolonged QT creates a vulnerable period where a premature beat could trigger Torsades de Pointes. A regular rhythm with suspicious T-wave morphology should prompt you to measure the QT interval.' },
             { letter: 'O', label: 'Origin', question: 'Where is this rhythm most likely originating from?', options: ['SA node (sinus)', 'AV junction', 'Ventricles', 'Atrial ectopic focus'], correct: 0, explanation: 'The rhythm is sinus \u2014 P waves are present and normal. The problem in Long QT is not the rhythm origin but the prolonged ventricular repolarisation, which you will identify in the Intervals step.' },
             { letter: 'I', label: 'Intervals', question: 'What do the intervals (PR, QRS, QTc) show?', options: ['All intervals normal', 'Prolonged PR interval with normal QTc', 'Normal PR and QRS but prolonged QTc interval', 'Shortened PR with delta wave'], correct: 2, explanation: 'The QTc interval is prolonged (>0.45s in men, >0.47s in women). The PR and QRS are normal. The T wave may appear broad, notched, or bifid. This prolongation increases the risk of Torsades de Pointes. Causes include congenital syndromes and acquired factors such as electrolyte imbalances.' },
-            { letter: 'S', label: 'ST/T Waves', question: 'What do the ST segments and T waves show?', options: ['No acute ST elevation \u2014 but T wave morphology is abnormal', 'ST elevation in contiguous leads', 'ST depression throughout', 'ST elevation with reciprocal changes'], correct: 0, explanation: 'No acute ST elevation. The T waves may appear abnormal (broad, notched) as part of the prolonged QT, but this is not STEMI. The key risk is that this patient is vulnerable to developing Torsades de Pointes. Review the clinical context and consider reversible causes.' }
+            { letter: 'S', label: 'ST/T Waves', question: 'What do the ST segments and T waves show?', options: ['No acute ST elevation \u2014 but T wave morphology is abnormal', 'ST elevation in contiguous leads', 'ST depression throughout', 'ST elevation with reciprocal changes'], correct: 0, explanation: 'No acute ST elevation. The T waves may appear abnormal (broad, notched) as part of the prolonged QT, but this is not STEMI. The key risk is that this patient is vulnerable to developing Torsades de Pointes.' }
+        ]
+    },
+
+    lbbb: {
+        roisRate: 70,
+        steps: [
+            { letter: 'R', label: 'Rate', question: 'What is the approximate ventricular rate?', options: ['Less than 60 bpm', '60\u2013100 bpm', '100\u2013150 bpm', 'Greater than 150 bpm'], correct: 1, explanation: 'The rate is around 70 bpm \u2014 within the normal range. A bundle branch block changes how the ventricles are activated, not how fast the SA node fires.' },
+            { letter: 'R', label: 'Rhythm', question: 'How would you describe the rhythm regularity?', options: ['Regular', 'Irregular', 'Irregularly irregular', 'Regularly irregular (grouped pattern)'], correct: 0, explanation: 'The rhythm is regular \u2014 the R-R intervals are consistent. The unusual shape of each complex is not caused by a rhythm problem, so keep going through the steps to find out what is.' },
+            { letter: 'O', label: 'Origin', question: 'Where is this rhythm most likely originating from?', options: ['SA node (sinus) with delayed conduction through the ventricles', 'Ventricles', 'AV junction', 'Atrial ectopic focus'], correct: 0, explanation: 'A P wave comes before every QRS \u2014 this is sinus origin. The wide QRS is not coming from a ventricular pacemaker: the left bundle is not conducting, so the left ventricle is activated slowly, cell to cell, from the right side.' },
+            { letter: 'I', label: 'Intervals', question: 'What do the intervals (PR, QRS, QTc) show?', options: ['All intervals normal', 'Normal PR interval, wide QRS (\u22650.12s)', 'Short PR interval with a delta wave', 'Prolonged PR interval, narrow QRS'], correct: 1, explanation: 'The PR interval is normal, but the QRS is wide (\u22650.12s). This trace shows the pattern as it appears in V1: a small r wave followed by a deep, broad S wave (rS). The wide QRS also lengthens the QT, so QTc is hard to judge.' },
+            { letter: 'S', label: 'ST/T Waves', question: 'What do the ST segments and T waves show?', options: ['Normal ST segments and T waves', 'ST-T changes opposite to the QRS \u2014 expected with LBBB', 'ST elevation with reciprocal changes', 'Tall, peaked T waves'], correct: 1, explanation: 'The T wave points the opposite way to the main QRS deflection (discordant) \u2014 here the QRS is negative in V1, so the T wave is upright. These secondary changes are expected in LBBB, and they make the ST segments much harder to interpret for ischaemia.' }
+        ]
+    },
+
+    rbbb: {
+        roisRate: 70,
+        steps: [
+            { letter: 'R', label: 'Rate', question: 'What is the approximate ventricular rate?', options: ['Less than 60 bpm', '60\u2013100 bpm', '100\u2013150 bpm', 'Greater than 150 bpm'], correct: 1, explanation: 'The rate is around 70 bpm \u2014 within the normal range. A bundle branch block changes how the ventricles are activated, not how fast the SA node fires.' },
+            { letter: 'R', label: 'Rhythm', question: 'How would you describe the rhythm regularity?', options: ['Regular', 'Irregular', 'Irregularly irregular', 'Regularly irregular (grouped pattern)'], correct: 0, explanation: 'The rhythm is regular \u2014 the R-R intervals are consistent. The unusual shape of each complex is not caused by a rhythm problem, so keep going through the steps to find out what is.' },
+            { letter: 'O', label: 'Origin', question: 'Where is this rhythm most likely originating from?', options: ['SA node (sinus) with delayed conduction through the ventricles', 'Ventricles', 'AV junction', 'Atrial ectopic focus'], correct: 0, explanation: 'A P wave comes before every QRS \u2014 this is sinus origin. The left ventricle is activated normally, but the right bundle is not conducting, so the right ventricle is activated late. That late activation produces the extra deflection at the end of the QRS.' },
+            { letter: 'I', label: 'Intervals', question: 'What do the intervals (PR, QRS, QTc) show?', options: ['All intervals normal', 'Normal PR interval, wide QRS (\u22650.12s) with an RSR\u2032 pattern', 'Wide QRS with an rS pattern', 'Short PR interval with a delta wave'], correct: 1, explanation: 'The PR interval is normal, but the QRS is wide (\u22650.12s). This trace shows the pattern as it appears in V2: a small r wave, an S wave, then a tall R\u2032 \u2014 the RSR\u2032 or \u201crabbit ears\u201d pattern of RBBB.' },
+            { letter: 'S', label: 'ST/T Waves', question: 'What do the ST segments and T waves show?', options: ['Normal ST segments and T waves', 'T wave inverted, opposite to the R\u2032 \u2014 expected with RBBB', 'ST elevation in contiguous leads', 'ST depression suggesting ischaemia'], correct: 1, explanation: 'The T wave is inverted, pointing the opposite way to the tall R\u2032 (discordant). This is an expected secondary change in RBBB and on its own does not indicate ischaemia.' }
         ]
     }
 };
@@ -240,33 +263,93 @@ const ROIS_DATA = {
 // ==================== ROIS EXCLUDED RHYTHMS ====================
 const ROIS_EXCLUDED = ['ventricularFibrillation', 'asystole', 'pea'];
 
+// ==================== NAMING STEP ====================
+// After R-R-O-I-S the learner names the rhythm. These are the three wrong
+// answers offered alongside the right one, chosen to be plausible look-alikes.
+// Names are taken from the page's own `rhythms` object so they always match.
+const ROIS_NAME_DISTRACTORS = {
+    normalSinus:          ['sinusArrhythmia', 'sinusTachycardia', 'firstDegreeBlock'],
+    sinusBradycardia:     ['normalSinus', 'junctionalRhythm', 'thirdDegreeBlock'],
+    sinusTachycardia:     ['svt', 'atrialFlutter', 'normalSinus'],
+    sinusArrhythmia:      ['atrialFibrillation', 'pacs', 'normalSinus'],
+    atrialFibrillation:   ['atrialFlutter', 'sinusArrhythmia', 'pacs'],
+    atrialFlutter:        ['atrialFibrillation', 'svt', 'sinusTachycardia'],
+    svt:                  ['sinusTachycardia', 'atrialFlutter', 'ventricularTachycardia'],
+    ventricularTachycardia: ['torsadesDePointes', 'svt', 'lbbb'],
+    torsadesDePointes:    ['ventricularTachycardia', 'longQT', 'atrialFibrillation'],
+    firstDegreeBlock:     ['normalSinus', 'secondDegreeMobitz1', 'sinusBradycardia'],
+    secondDegreeMobitz1:  ['secondDegreeMobitz2', 'firstDegreeBlock', 'thirdDegreeBlock'],
+    secondDegreeMobitz2:  ['secondDegreeMobitz1', 'thirdDegreeBlock', 'firstDegreeBlock'],
+    thirdDegreeBlock:     ['secondDegreeMobitz2', 'junctionalRhythm', 'sinusBradycardia'],
+    junctionalRhythm:     ['sinusBradycardia', 'thirdDegreeBlock', 'normalSinus'],
+    wpw:                  ['lbbb', 'firstDegreeBlock', 'normalSinus'],
+    pvcs:                 ['pacs', 'ventricularTachycardia', 'sinusArrhythmia'],
+    pacs:                 ['pvcs', 'sinusArrhythmia', 'atrialFibrillation'],
+    hyperkalaemia:        ['stemi', 'longQT', 'lbbb'],
+    stemi:                ['hyperkalaemia', 'lbbb', 'normalSinus'],
+    longQT:               ['hyperkalaemia', 'normalSinus', 'firstDegreeBlock'],
+    lbbb:                 ['rbbb', 'ventricularTachycardia', 'wpw'],
+    rbbb:                 ['lbbb', 'wpw', 'normalSinus']
+};
+
+const ROIS_RHYTHMS_PER_SESSION = 5;
+// 5 ROIS steps + 1 naming step
+const ROIS_STEPS_PER_RHYTHM = 6;
+const ROIS_NAME_STEP = 5;
+
 // ==================== ROIS STATE ====================
+function freshROISScore() {
+    return {
+        total: 0,
+        correct: 0,
+        perLetter: {
+            R: { correct: 0, total: 0 }, O: { correct: 0, total: 0 },
+            I: { correct: 0, total: 0 }, S: { correct: 0, total: 0 },
+            N: { correct: 0, total: 0 }
+        }
+    };
+}
+
 let roisState = {
     active: false,
+    revealed: false,      // true once the rhythm name is shown (trace turns to its colour)
     rhythms: [],
     currentRhythmIndex: 0,
     currentStep: 0,
     answered: false,
-    score: {
-        total: 0,
-        correct: 0,
-        perLetter: { R: { correct: 0, total: 0 }, O: { correct: 0, total: 0 }, I: { correct: 0, total: 0 }, S: { correct: 0, total: 0 } }
-    },
+    nameOptions: [],      // rhythm keys in the order shown on the naming step
+    score: freshROISScore(),
     results: []
 };
 
+function shuffleROIS(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+// The current step as a question object. Steps 0-4 come from ROIS_DATA;
+// step 5 is the naming question, built on the fly.
+function getROISStep() {
+    const rhythmKey = roisState.rhythms[roisState.currentRhythmIndex];
+    if (roisState.currentStep < ROIS_NAME_STEP) return ROIS_DATA[rhythmKey].steps[roisState.currentStep];
+    return {
+        letter: 'N',
+        label: 'Name the Rhythm',
+        question: 'Putting that together, what is this rhythm?',
+        options: roisState.nameOptions.map(function(k) { return rhythms[k].name; }),
+        correct: roisState.nameOptions.indexOf(rhythmKey)
+    };
+}
+
 // ==================== ROIS FUNCTIONS ====================
 
+// Called by the page's setMode('rois') after it has shown the monitor and ROIS panel
 function setModeROIS() {
-    currentMode = 'rois';
-    document.getElementById('learnModeBtn').classList.remove('active');
-    document.getElementById('quizModeBtn').classList.remove('active');
-    document.getElementById('roisModeBtn').classList.add('active');
-    document.getElementById('learnContent').style.display = 'none';
-    document.getElementById('quizContent').style.display = 'none';
-    document.getElementById('quizScore').style.display = 'none';
     document.getElementById('quizFinalResults').style.display = 'none';
-    document.getElementById('roisContent').style.display = 'block';
     document.getElementById('monitorHR').style.display = 'none';
     document.getElementById('emergencyBanner').style.display = 'none';
     document.getElementById('noPulseIndicator').style.display = 'none';
@@ -274,16 +357,29 @@ function setModeROIS() {
     startROIS();
 }
 
+// Called by the page's setMode() when switching away from ROIS Mode
+function leaveROIS() {
+    disableROISSticky();
+    const rIndicator = document.getElementById('roisIndicatorR');
+    if (rIndicator) rIndicator.textContent = 'R';
+    roisState.active = false;
+    roisState.revealed = false;
+    // Put the rhythm ROIS left on the monitor back to its normal rate and
+    // highlight it in the Simple ECG views grid
+    if (selectedRhythm && rhythms[selectedRhythm]) selectRhythm(selectedRhythm);
+}
+
 function startROIS() {
-    var eligible = Object.keys(rhythms).filter(function(k) { return !ROIS_EXCLUDED.includes(k) && ROIS_DATA[k]; });
-    var shuffled = eligible.slice().sort(function() { return Math.random() - 0.5; });
+    const eligible = Object.keys(rhythms).filter(function(k) { return !ROIS_EXCLUDED.includes(k) && ROIS_DATA[k]; });
     roisState = {
         active: true,
-        rhythms: shuffled.slice(0, 5),
+        revealed: false,
+        rhythms: shuffleROIS(eligible).slice(0, ROIS_RHYTHMS_PER_SESSION),
         currentRhythmIndex: 0,
         currentStep: 0,
         answered: false,
-        score: { total: 0, correct: 0, perLetter: { R: { correct: 0, total: 0 }, O: { correct: 0, total: 0 }, I: { correct: 0, total: 0 }, S: { correct: 0, total: 0 } } },
+        nameOptions: [],
+        score: freshROISScore(),
         results: []
     };
     document.getElementById('roisFinalResults').style.display = 'none';
@@ -293,33 +389,35 @@ function startROIS() {
 }
 
 function showROISRhythm() {
-    var rhythmKey = roisState.rhythms[roisState.currentRhythmIndex];
-    var roisData = ROIS_DATA[rhythmKey];
+    const rhythmKey = roisState.rhythms[roisState.currentRhythmIndex];
+    const roisData = ROIS_DATA[rhythmKey];
     heartRate = roisData.roisRate;
     selectedRhythm = rhythmKey;
+    roisState.revealed = false;
+    const distractors = (ROIS_NAME_DISTRACTORS[rhythmKey] || []).filter(function(k) { return rhythms[k]; });
+    roisState.nameOptions = shuffleROIS([rhythmKey].concat(distractors));
     document.getElementById('hrValue').textContent = roisData.roisRate;
     document.getElementById('monitorHR').style.color = '#22c55e';
     document.getElementById('monitorHR').style.display = 'none';
-    updateROISProgress();
     roisState.currentStep = 0;
     roisState.results.push({ rhythmKey: rhythmKey, steps: [] });
+    const nextBtn = document.getElementById('roisNextBtn');
+    nextBtn.onclick = roisNext;
     showROISStep();
 }
 
 function showROISStep() {
-    var rhythmKey = roisState.rhythms[roisState.currentRhythmIndex];
-    var roisData = ROIS_DATA[rhythmKey];
-    var step = roisData.steps[roisState.currentStep];
+    const step = getROISStep();
     roisState.answered = false;
     updateROISProgress();
     updateROISLetterIndicators();
-    document.getElementById('roisLetterBig').textContent = step.letter;
+    document.getElementById('roisLetterBig').textContent = step.letter === 'N' ? '?' : step.letter;
     document.getElementById('roisLetterLabel').textContent = step.label;
     document.getElementById('roisQuestion').textContent = step.question;
-    var optionsContainer = document.getElementById('roisOptions');
+    const optionsContainer = document.getElementById('roisOptions');
     optionsContainer.innerHTML = '';
     step.options.forEach(function(option, index) {
-        var btn = document.createElement('button');
+        const btn = document.createElement('button');
         btn.className = 'rois-option-btn';
         btn.textContent = option;
         btn.onclick = function() { selectROISAnswer(index); };
@@ -333,86 +431,74 @@ function showROISStep() {
 function selectROISAnswer(selectedIndex) {
     if (roisState.answered) return;
     roisState.answered = true;
-    var rhythmKey = roisState.rhythms[roisState.currentRhythmIndex];
-    var roisData = ROIS_DATA[rhythmKey];
-    var step = roisData.steps[roisState.currentStep];
-    var isCorrect = selectedIndex === step.correct;
+    const rhythmKey = roisState.rhythms[roisState.currentRhythmIndex];
+    const step = getROISStep();
+    const isNameStep = roisState.currentStep === ROIS_NAME_STEP;
+    const isCorrect = selectedIndex === step.correct;
     roisState.score.total++;
     if (isCorrect) roisState.score.correct++;
     roisState.score.perLetter[step.letter].total++;
     if (isCorrect) roisState.score.perLetter[step.letter].correct++;
-    var currentResult = roisState.results[roisState.results.length - 1];
+    const currentResult = roisState.results[roisState.results.length - 1];
     currentResult.steps.push({ letter: step.letter, label: step.label, correct: isCorrect, userAnswer: selectedIndex, correctAnswer: step.correct });
-    var options = document.querySelectorAll('.rois-option-btn');
-    options.forEach(function(btn, i) {
+
+    document.querySelectorAll('.rois-option-btn').forEach(function(btn, i) {
         btn.disabled = true;
         btn.style.pointerEvents = 'none';
         if (i === step.correct) btn.classList.add('rois-correct');
         if (i === selectedIndex && !isCorrect) btn.classList.add('rois-incorrect');
     });
-    var feedback = document.getElementById('roisFeedback');
+
+    const feedback = document.getElementById('roisFeedback');
     feedback.style.display = 'block';
-    feedback.className = isCorrect ? 'rois-feedback rois-feedback-correct' : 'rois-feedback rois-feedback-incorrect';
-    document.getElementById('roisFeedbackIcon').textContent = isCorrect ? '\u2705' : '\u274c';
-    document.getElementById('roisFeedbackText').textContent = isCorrect ? 'Correct!' : 'Incorrect';
-    document.getElementById('roisFeedbackExplanation').textContent = step.explanation;
+    const nextBtn = document.getElementById('roisNextBtn');
+    nextBtn.style.display = 'block';
+
     // Reveal BPM after the Rate question (step 0) is answered
     if (roisState.currentStep === 0) {
         document.getElementById('monitorHR').style.display = 'flex';
     }
-    updateROISLetterIndicators();
-    var nextBtn = document.getElementById('roisNextBtn');
-    nextBtn.style.display = 'block';
-    var totalSteps = roisData.steps.length;
-    if (roisState.currentStep < totalSteps - 1) {
-        var nextStep = roisData.steps[roisState.currentStep + 1];
-        nextBtn.innerHTML = 'Next: <strong>' + nextStep.letter + '</strong> \u2014 ' + nextStep.label + ' <i class="bi bi-arrow-right"></i>';
-    } else if (roisState.currentRhythmIndex < roisState.rhythms.length - 1) {
-        nextBtn.innerHTML = 'Reveal Rhythm <i class="bi bi-arrow-right"></i>';
+
+    if (isNameStep) {
+        // The naming answer doubles as the reveal: show the rhythm, colour the trace
+        const rhythmData = rhythms[rhythmKey];
+        const stepsCorrect = currentResult.steps.filter(function(s) { return s.correct; }).length;
+        const totalSteps = currentResult.steps.length;
+        roisState.revealed = true;
+        document.getElementById('monitorHR').style.color = rhythmData.color;
+        feedback.className = isCorrect ? 'rois-feedback rois-feedback-correct' : 'rois-feedback rois-feedback-incorrect';
+        document.getElementById('roisFeedbackIcon').textContent = stepsCorrect === totalSteps ? '\ud83c\udf1f' : stepsCorrect >= 5 ? '\ud83c\udfaf' : stepsCorrect >= 4 ? '\ud83d\udc4d' : '\ud83d\udcda';
+        document.getElementById('roisFeedbackText').innerHTML = (isCorrect ? 'Correct! ' : 'Not quite \u2014 this is ') + '<span style="color: ' + rhythmData.color + '; font-weight: 700;">' + rhythmData.name + '</span>';
+        document.getElementById('roisFeedbackExplanation').textContent = 'You scored ' + stepsCorrect + '/' + totalSteps + ' on this rhythm. ' + rhythmData.description;
+        if (roisState.currentRhythmIndex < roisState.rhythms.length - 1) {
+            nextBtn.innerHTML = 'Next Rhythm (' + (roisState.currentRhythmIndex + 2) + ' of ' + roisState.rhythms.length + ') <i class="bi bi-arrow-right"></i>';
+            nextBtn.onclick = function() { roisState.currentRhythmIndex++; showROISRhythm(); };
+        } else {
+            nextBtn.innerHTML = 'See Final Results <i class="bi bi-arrow-right"></i>';
+            nextBtn.onclick = function() { nextBtn.onclick = roisNext; showROISFinalResults(); };
+        }
     } else {
-        nextBtn.innerHTML = 'Reveal Rhythm & See Results <i class="bi bi-arrow-right"></i>';
+        feedback.className = isCorrect ? 'rois-feedback rois-feedback-correct' : 'rois-feedback rois-feedback-incorrect';
+        document.getElementById('roisFeedbackIcon').textContent = isCorrect ? '\u2705' : '\u274c';
+        document.getElementById('roisFeedbackText').textContent = isCorrect ? 'Correct!' : 'Incorrect';
+        document.getElementById('roisFeedbackExplanation').textContent = step.explanation;
+        if (roisState.currentStep < ROIS_NAME_STEP - 1) {
+            const nextStep = ROIS_DATA[rhythmKey].steps[roisState.currentStep + 1];
+            nextBtn.innerHTML = 'Next: <strong>' + nextStep.letter + '</strong> \u2014 ' + nextStep.label + ' <i class="bi bi-arrow-right"></i>';
+        } else {
+            nextBtn.innerHTML = 'Next: Name the rhythm <i class="bi bi-arrow-right"></i>';
+        }
     }
+
+    updateROISLetterIndicators();
+    updateROISProgress();
     feedback.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function roisNext() {
-    var rhythmKey = roisState.rhythms[roisState.currentRhythmIndex];
-    var roisData = ROIS_DATA[rhythmKey];
-    var totalSteps = roisData.steps.length;
-    if (roisState.currentStep < totalSteps - 1) {
+    if (roisState.currentStep < ROIS_NAME_STEP) {
         roisState.currentStep++;
         showROISStep();
-    } else {
-        showROISReveal();
-    }
-}
-
-function showROISReveal() {
-    var rhythmKey = roisState.rhythms[roisState.currentRhythmIndex];
-    var rhythmData = rhythms[rhythmKey];
-    var currentResult = roisState.results[roisState.results.length - 1];
-    var stepsCorrect = currentResult.steps.filter(function(s) { return s.correct; }).length;
-    var totalSteps = currentResult.steps.length;
-    document.getElementById('monitorHR').style.color = rhythmData.color;
-    document.getElementById('roisLetterBig').textContent = '\ud83e\udec0';
-    document.getElementById('roisLetterLabel').textContent = 'Rhythm Revealed';
-    document.getElementById('roisQuestion').textContent = '';
-    document.getElementById('roisOptions').innerHTML = '';
-    document.getElementById('roisNextBtn').style.display = 'none';
-    var feedback = document.getElementById('roisFeedback');
-    feedback.style.display = 'block';
-    feedback.className = 'rois-feedback rois-feedback-reveal';
-    document.getElementById('roisFeedbackIcon').textContent = stepsCorrect === totalSteps ? '\ud83c\udf1f' : stepsCorrect >= 4 ? '\ud83c\udfaf' : stepsCorrect >= 3 ? '\ud83d\udc4d' : '\ud83d\udcda';
-    document.getElementById('roisFeedbackText').innerHTML = '<span style="color: ' + rhythmData.color + '; font-size: 1.2rem; font-weight: 700;">' + rhythmData.name + '</span>';
-    document.getElementById('roisFeedbackExplanation').textContent = 'You scored ' + stepsCorrect + '/' + totalSteps + ' on this rhythm. ' + rhythmData.description;
-    var nextBtn = document.getElementById('roisNextBtn');
-    nextBtn.style.display = 'block';
-    if (roisState.currentRhythmIndex < roisState.rhythms.length - 1) {
-        nextBtn.innerHTML = 'Next Rhythm (' + (roisState.currentRhythmIndex + 2) + ' of 5) <i class="bi bi-arrow-right"></i>';
-        nextBtn.onclick = function() { roisState.currentRhythmIndex++; nextBtn.onclick = roisNext; showROISRhythm(); };
-    } else {
-        nextBtn.innerHTML = 'See Final Results <i class="bi bi-arrow-right"></i>';
-        nextBtn.onclick = function() { nextBtn.onclick = roisNext; showROISFinalResults(); };
     }
 }
 
@@ -420,83 +506,87 @@ function showROISFinalResults() {
     document.getElementById('roisStepArea').style.display = 'none';
     document.getElementById('roisProgressBar').style.display = 'none';
     document.getElementById('roisFinalResults').style.display = 'block';
-    var total = roisState.score.total;
-    var correct = roisState.score.correct;
-    var percent = Math.round((correct / total) * 100);
+    const total = roisState.score.total;
+    const correct = roisState.score.correct;
+    const percent = total > 0 ? Math.round((correct / total) * 100) : 0;
     document.getElementById('roisFinalPercent').textContent = percent + '%';
     document.getElementById('roisFinalCorrect').textContent = correct;
     document.getElementById('roisFinalTotal').textContent = total;
-    var letterBreakdown = document.getElementById('roisLetterBreakdown');
+
+    const letters = ['R', 'O', 'I', 'S', 'N'];
+    const labels = { R: 'Rate & Rhythm', O: 'Origin', I: 'Intervals', S: 'ST/T Waves', N: 'Naming the Rhythm' };
+    const letterBreakdown = document.getElementById('roisLetterBreakdown');
     letterBreakdown.innerHTML = '';
-    ['R', 'O', 'I', 'S'].forEach(function(letter) {
-        var data = roisState.score.perLetter[letter];
-        var letterPercent = data.total > 0 ? Math.round((data.correct / data.total) * 100) : 0;
-        var labels = { R: 'Rate & Rhythm', O: 'Origin', I: 'Intervals', S: 'ST/T Waves' };
-        var div = document.createElement('div');
+    letters.forEach(function(letter) {
+        const data = roisState.score.perLetter[letter];
+        const letterPercent = data.total > 0 ? Math.round((data.correct / data.total) * 100) : 0;
+        const div = document.createElement('div');
         div.className = 'rois-letter-stat';
-        div.innerHTML = '<div class="rois-letter-stat-header"><span class="rois-letter-stat-letter">' + letter + '</span><span class="rois-letter-stat-label">' + labels[letter] + '</span></div><div class="rois-letter-stat-bar"><div class="rois-letter-stat-fill" style="width: ' + letterPercent + '%; background: ' + (letterPercent >= 80 ? '#22c55e' : letterPercent >= 60 ? '#f59e0b' : '#ef4444') + '"></div></div><span class="rois-letter-stat-score">' + data.correct + '/' + data.total + '</span>';
+        div.innerHTML = '<div class="rois-letter-stat-header"><span class="rois-letter-stat-letter">' + (letter === 'N' ? '?' : letter) + '</span><span class="rois-letter-stat-label">' + labels[letter] + '</span></div><div class="rois-letter-stat-bar"><div class="rois-letter-stat-fill" style="width: ' + letterPercent + '%; background: ' + (letterPercent >= 80 ? '#22c55e' : letterPercent >= 60 ? '#f59e0b' : '#ef4444') + '"></div></div><span class="rois-letter-stat-score">' + data.correct + '/' + data.total + '</span>';
         letterBreakdown.appendChild(div);
     });
-    var rhythmBreakdown = document.getElementById('roisRhythmBreakdown');
+
+    const rhythmBreakdown = document.getElementById('roisRhythmBreakdown');
     rhythmBreakdown.innerHTML = '';
     roisState.results.forEach(function(result) {
-        var rhythmData = rhythms[result.rhythmKey];
-        var stepsCorrect = result.steps.filter(function(s) { return s.correct; }).length;
-        var totalSteps = result.steps.length;
-        var div = document.createElement('div');
+        const rhythmData = rhythms[result.rhythmKey];
+        const stepsCorrect = result.steps.filter(function(s) { return s.correct; }).length;
+        const div = document.createElement('div');
         div.className = 'rois-rhythm-result';
-        var dotsHtml = result.steps.map(function(s) {
-            var label = s.letter === 'R' ? (s.label === 'Rate' ? 'R\u2081' : 'R\u2082') : s.letter;
-            return '<span class="rois-step-dot ' + (s.correct ? 'dot-correct' : 'dot-incorrect') + '" title="' + s.letter + ' (' + s.label + '): ' + (s.correct ? 'Correct' : 'Incorrect') + '">' + label + '</span>';
+        const dotsHtml = result.steps.map(function(s) {
+            const label = s.letter === 'R' ? (s.label === 'Rate' ? 'R\u2081' : 'R\u2082') : (s.letter === 'N' ? '?' : s.letter);
+            return '<span class="rois-step-dot ' + (s.correct ? 'dot-correct' : 'dot-incorrect') + '" title="' + s.label + ': ' + (s.correct ? 'Correct' : 'Incorrect') + '">' + label + '</span>';
         }).join('');
-        div.innerHTML = '<div class="rois-rhythm-result-name" style="color: ' + rhythmData.color + '">' + rhythmData.name + '</div><div class="rois-rhythm-result-steps">' + dotsHtml + '</div><div class="rois-rhythm-result-score">' + stepsCorrect + '/' + totalSteps + '</div>';
+        div.innerHTML = '<div class="rois-rhythm-result-name" style="color: ' + rhythmData.color + '">' + rhythmData.name + '</div><div class="rois-rhythm-result-steps">' + dotsHtml + '</div><div class="rois-rhythm-result-score">' + stepsCorrect + '/' + result.steps.length + '</div>';
         rhythmBreakdown.appendChild(div);
     });
-    var message;
+
+    let message;
     if (percent === 100) message = '\ud83c\udf1f Perfect ROIS assessment! Outstanding systematic analysis.';
     else if (percent >= 85) message = '\ud83c\udfaf Excellent! Your systematic approach is strong.';
     else if (percent >= 70) message = '\ud83d\udc4d Good work! Review the steps you missed.';
-    else if (percent >= 50) message = '\ud83d\udcda Getting there! Focus on your weakest ROIS letter.';
+    else if (percent >= 50) message = '\ud83d\udcda Getting there! Focus on your weakest ROIS step.';
     else message = '\ud83d\udcaa Keep practising! Try Learn Mode to study the rhythms first.';
     document.getElementById('roisFinalMessage').textContent = message;
-    var weakest = null;
-    var weakestPercent = 101;
-    ['R', 'O', 'I', 'S'].forEach(function(letter) {
-        var data = roisState.score.perLetter[letter];
-        var pct = data.total > 0 ? (data.correct / data.total) * 100 : 100;
+
+    let weakest = null;
+    let weakestPercent = 101;
+    letters.forEach(function(letter) {
+        const data = roisState.score.perLetter[letter];
+        const pct = data.total > 0 ? (data.correct / data.total) * 100 : 100;
         if (pct < weakestPercent) { weakestPercent = pct; weakest = letter; }
     });
-    var weakestTip = document.getElementById('roisWeakestTip');
+    const weakestTip = document.getElementById('roisWeakestTip');
     if (weakest && weakestPercent < 100) {
-        var labels = { R: 'Rate & Rhythm assessment', O: 'identifying rhythm Origin', I: 'Interval analysis', S: 'ST segment & T wave assessment' };
+        const tipLabels = { R: 'Rate & Rhythm assessment', O: 'identifying rhythm Origin', I: 'Interval analysis', S: 'ST segment & T wave assessment', N: 'putting your findings together to name the rhythm' };
         weakestTip.style.display = 'block';
-        weakestTip.innerHTML = '<i class="bi bi-lightbulb-fill"></i> <strong>Focus area:</strong> Your results suggest extra practice on <strong>' + labels[weakest] + '</strong> would help most.';
+        weakestTip.innerHTML = '<i class="bi bi-lightbulb-fill"></i> <strong>Focus area:</strong> Your results suggest extra practice on <strong>' + tipLabels[weakest] + '</strong> would help most.';
     } else { weakestTip.style.display = 'none'; }
 }
 
 function updateROISProgress() {
     document.getElementById('roisRhythmNum').textContent = roisState.currentRhythmIndex + 1;
-    document.getElementById('roisStepCount').textContent = 'Step ' + (roisState.currentStep + 1) + ' of 5';
+    document.getElementById('roisStepCount').textContent = 'Step ' + (roisState.currentStep + 1) + ' of ' + ROIS_STEPS_PER_RHYTHM;
     document.getElementById('roisScoreDisplay').textContent = roisState.score.correct + '/' + roisState.score.total;
 }
 
 function updateROISLetterIndicators() {
-    var letterMap = [
+    const letterMap = [
         { indicator: 'R', steps: [0, 1] },
         { indicator: 'O', steps: [2] },
         { indicator: 'I', steps: [3] },
         { indicator: 'S', steps: [4] }
     ];
-    var currentResult = roisState.results[roisState.results.length - 1];
+    const currentResult = roisState.results[roisState.results.length - 1];
     letterMap.forEach(function(item) {
-        var el = document.getElementById('roisIndicator' + item.indicator);
+        const el = document.getElementById('roisIndicator' + item.indicator);
         if (!el) return;
         el.className = 'rois-letter-indicator';
-        var allCompleted = item.steps.every(function(s) { return s < roisState.currentStep || (s === roisState.currentStep && roisState.answered); });
-        var anyActive = item.steps.includes(roisState.currentStep) && !roisState.answered;
-        var allPending = item.steps.every(function(s) { return s > roisState.currentStep; });
+        const allCompleted = item.steps.every(function(s) { return s < roisState.currentStep || (s === roisState.currentStep && roisState.answered); });
+        const anyActive = item.steps.includes(roisState.currentStep) && !roisState.answered;
+        const allPending = item.steps.every(function(s) { return s > roisState.currentStep; });
         if (allCompleted) {
-            var allCorrect = item.steps.every(function(s) { return currentResult.steps[s] && currentResult.steps[s].correct; });
+            const allCorrect = item.steps.every(function(s) { return currentResult.steps[s] && currentResult.steps[s].correct; });
             el.classList.add(allCorrect ? 'indicator-correct' : 'indicator-incorrect');
             if (item.indicator === 'R') el.textContent = 'R';
         } else if (anyActive) {
@@ -515,6 +605,7 @@ function restartROIS() {
     document.getElementById('roisFinalResults').style.display = 'none';
     enableROISSticky();
     startROIS();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ==================== JS-POWERED STICKY MONITOR ====================
@@ -522,7 +613,7 @@ var roisStickyActive = false;
 var roisStickyOffset = 0;
 
 function roisScrollHandler() {
-    var monitor = document.querySelector('.ecg-monitor-card');
+    var monitor = document.getElementById('mainMonitorCard');
     var placeholder = document.getElementById('ecgMonitorPlaceholder');
     if (!monitor || !placeholder) return;
 
@@ -542,47 +633,29 @@ function roisScrollHandler() {
 }
 
 function enableROISSticky() {
-    var monitor = document.querySelector('.ecg-monitor-card');
+    var monitor = document.getElementById('mainMonitorCard');
     var navbar = document.querySelector('.member-navbar');
     if (monitor) {
-        // Calculate where the monitor sits on the page
+        // Unpin first so we measure the monitor's real position on the page
+        monitor.classList.remove('rois-fixed');
+        var placeholder = document.getElementById('ecgMonitorPlaceholder');
+        if (placeholder) placeholder.style.display = 'none';
         roisStickyOffset = monitor.getBoundingClientRect().top + window.scrollY;
     }
     // Measure navbar height and set as CSS variable for the fixed top offset
     if (navbar) {
-        var navHeight = navbar.offsetHeight;
-        document.documentElement.style.setProperty('--rois-nav-height', navHeight + 'px');
+        document.documentElement.style.setProperty('--rois-nav-height', navbar.offsetHeight + 'px');
     }
     roisStickyActive = true;
     window.addEventListener('scroll', roisScrollHandler, { passive: true });
+    roisScrollHandler();
 }
 
 function disableROISSticky() {
     roisStickyActive = false;
     window.removeEventListener('scroll', roisScrollHandler);
-    var monitor = document.querySelector('.ecg-monitor-card');
+    var monitor = document.getElementById('mainMonitorCard');
     var placeholder = document.getElementById('ecgMonitorPlaceholder');
     if (monitor) monitor.classList.remove('rois-fixed');
     if (placeholder) placeholder.style.display = 'none';
-}
-
-// ==================== PATCH MODE SWITCHING ====================
-function setMode(mode) {
-    if (mode === 'rois') { setModeROIS(); return; }
-    var roisContent = document.getElementById('roisContent');
-    if (roisContent) roisContent.style.display = 'none';
-    var roisBtn = document.getElementById('roisModeBtn');
-    if (roisBtn) roisBtn.classList.remove('active');
-    disableROISSticky();
-    var rIndicator = document.getElementById('roisIndicatorR');
-    if (rIndicator) rIndicator.textContent = 'R';
-    currentMode = mode;
-    document.getElementById('learnModeBtn').classList.toggle('active', mode === 'learn');
-    document.getElementById('quizModeBtn').classList.toggle('active', mode === 'quiz');
-    document.getElementById('learnContent').style.display = mode === 'learn' ? 'block' : 'none';
-    document.getElementById('quizContent').style.display = mode === 'quiz' ? 'block' : 'none';
-    document.getElementById('quizScore').style.display = mode === 'quiz' ? 'block' : 'none';
-    document.getElementById('monitorHR').style.display = mode === 'learn' ? 'flex' : (mode === 'quiz' ? 'none' : 'flex');
-    if (mode === 'learn') selectRhythm(selectedRhythm || 'normalSinus');
-    else if (mode === 'quiz') startQuiz();
 }
