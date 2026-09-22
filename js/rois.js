@@ -446,7 +446,7 @@ function selectROISAnswer(selectedIndex) {
     roisState.score.perLetter[step.letter].total++;
     if (isCorrect) roisState.score.perLetter[step.letter].correct++;
     const currentResult = roisState.results[roisState.results.length - 1];
-    currentResult.steps.push({ letter: step.letter, label: step.label, correct: isCorrect, userAnswer: selectedIndex, correctAnswer: step.correct });
+    currentResult.steps.push({ letter: step.letter, label: step.label, correct: isCorrect, userAnswer: selectedIndex, correctAnswer: step.correct, explanation: step.explanation || '' });
 
     document.querySelectorAll('.rois-option-btn').forEach(function(btn, i) {
         btn.disabled = true;
@@ -476,7 +476,25 @@ function selectROISAnswer(selectedIndex) {
         feedback.className = isCorrect ? 'rois-feedback rois-feedback-correct' : 'rois-feedback rois-feedback-incorrect';
         document.getElementById('roisFeedbackIcon').textContent = stepsCorrect === totalSteps ? '\ud83c\udf1f' : stepsCorrect >= 5 ? '\ud83c\udfaf' : stepsCorrect >= 4 ? '\ud83d\udc4d' : '\ud83d\udcda';
         document.getElementById('roisFeedbackText').innerHTML = (isCorrect ? 'Correct! ' : 'Not quite \u2014 this is ') + '<span style="color: ' + rhythmData.color + '; font-weight: 700;">' + rhythmData.name + '</span>';
-        document.getElementById('roisFeedbackExplanation').textContent = 'You scored ' + stepsCorrect + '/' + totalSteps + ' on this rhythm. ' + rhythmData.description;
+        // The step explanations are held back until now, so they cannot give away the
+        // rhythm's name before the learner has had a go at naming it themselves.
+        const explBox = document.getElementById('roisFeedbackExplanation');
+        explBox.innerHTML = '';
+        const intro = document.createElement('p');
+        intro.style.marginBottom = '0.75rem';
+        intro.textContent = 'You scored ' + stepsCorrect + '/' + totalSteps + ' on this rhythm. ' + rhythmData.description;
+        explBox.appendChild(intro);
+        currentResult.steps.forEach(function(st) {
+            if (!st.explanation) return;
+            const row = document.createElement('p');
+            row.style.margin = '0 0 0.6rem';
+            row.style.textAlign = 'left';
+            const tag = document.createElement('strong');
+            tag.textContent = st.letter + ' \u00b7 ' + st.label + ': ';
+            row.appendChild(tag);
+            row.appendChild(document.createTextNode(st.explanation));
+            explBox.appendChild(row);
+        });
         if (roisState.currentRhythmIndex < roisState.rhythms.length - 1) {
             nextBtn.innerHTML = 'Next Rhythm (' + (roisState.currentRhythmIndex + 2) + ' of ' + roisState.rhythms.length + ') <i class="bi bi-arrow-right"></i>';
             nextBtn.onclick = function() { roisState.currentRhythmIndex++; showROISRhythm(); };
@@ -488,7 +506,11 @@ function selectROISAnswer(selectedIndex) {
         feedback.className = isCorrect ? 'rois-feedback rois-feedback-correct' : 'rois-feedback rois-feedback-incorrect';
         document.getElementById('roisFeedbackIcon').textContent = isCorrect ? '\u2705' : '\u274c';
         document.getElementById('roisFeedbackText').textContent = isCorrect ? 'Correct!' : 'Incorrect';
-        document.getElementById('roisFeedbackExplanation').textContent = step.explanation;
+        // No explanation yet — it would name the rhythm before the naming step.
+        // Everything is explained together once the rhythm is revealed.
+        const stepExpl = document.getElementById('roisFeedbackExplanation');
+        stepExpl.innerHTML = '';
+        stepExpl.textContent = roisState.currentStep === 0 ? 'Explanations come once you have named the rhythm.' : '';
         if (roisState.currentStep < ROIS_NAME_STEP - 1) {
             const nextStep = ROIS_DATA[rhythmKey].steps[roisState.currentStep + 1];
             nextBtn.innerHTML = 'Next: <strong>' + nextStep.letter + '</strong> \u2014 ' + nextStep.label + ' <i class="bi bi-arrow-right"></i>';
