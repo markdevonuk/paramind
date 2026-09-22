@@ -452,6 +452,8 @@ var qStart = 0, runStart = 0;
 var clockRAF = null, ringRAF = null, answered = false;
 var myScore = null;        // { totalMs, correct } once written
 var boardCache = {};
+var play = [];           // per-player order: [{ qi: original question index, perm: [original option index per display slot] }]
+var saveFailed = false;  // true if the score write was refused
 var prizeByMonth = {};   // monthId -> quiz doc, for the prize banner
 
 /* ==================== SMALL HELPERS ==================== */
@@ -649,9 +651,38 @@ function beginCountdown(){
     })();
 }
 
+function shuffled(arr){
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--){
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+}
+
+// Options that are all numbers (a GCS score, ECG timings) keep their natural
+// ascending order — "3, 0, 5, 1" reads badly. Everything else is shuffled.
+function allNumeric(opts){
+    for (var i = 0; i < opts.length; i++){
+        if (!/^\s*[\d.]/.test(String(opts[i]))) return false;
+    }
+    return true;
+}
+
+function buildPlayOrder(){
+    var qs = [];
+    for (var i = 0; i < quiz.questions.length; i++) qs.push(i);
+    return shuffled(qs).map(function(qi){
+        var n = quiz.questions[qi].o.length, idx = [];
+        for (var k = 0; k < n; k++) idx.push(k);
+        return { qi: qi, perm: allNumeric(quiz.questions[qi].o) ? idx : shuffled(idx) };
+    });
+}
+
 function beginRun(){
     show('quiz');
     qIdx = 0; correctCount = 0; totalMs = 0; order = [];
+    play = buildPlayOrder();
     runStart = performance.now();
     startClock();
     showQuestion(0);
@@ -667,7 +698,8 @@ function startClock(){
 /* ==================== FLOW: QUESTION ==================== */
 function showQuestion(i){
     answered = false;
-    var q = quiz.questions[i];
+    var q = quiz.questions[play[i].qi];
+    var perm = play[i].perm;
 
     el('qNum').textContent = String(i+1).padStart(2,'0');
     el('qCat').textContent = q.cat || '';
@@ -680,11 +712,12 @@ function showQuestion(i){
 
     var wrap = el('qOptions');
     wrap.innerHTML = '';
-    for (var o = 0; o < q.o.length; o++){
+    for (var d = 0; d < perm.length; d++){
+        var o = perm[d];                       // original option index shown in slot d
         var b = document.createElement('button');
         b.className = 'qm-opt';
         b.dataset.opt = String(o);
-        b.innerHTML = '<span class="key">'+KEYS[o]+'</span><span>'+esc(q.o[o])+'</span>';
+        b.innerHTML = '<span class="key">'+KEYS[d]+'</span><span>'+esc(q.o[o])+'</span>';
         b.addEventListener('click', onAnswer);
         wrap.appendChild(b);
     }
@@ -722,25 +755,34 @@ function handleAnswer(chosen){
     var taken = Math.min(QUESTION_SECONDS * 1000, performance.now() - qStart);
     cancelAnimationFrame(ringRAF);
 
-    var q = quiz.questions[qIdx];
+    var p = play[qIdx];
+    var q = quiz.questions[p.qi];
     var isCorrect = (chosen !== null && chosen === q.c);
     var btns = document.querySelectorAll('#qOptions .qm-opt');
+
+    // Buttons are in shuffled order, so find them by the original option index.
+    function btnFor(orig){
+        for (var k=0;k<btns.length;k++){ if (parseInt(btns[k].dataset.opt,10) === orig) return btns[k]; }
+        return null;
+    }
+    var rightBtn = btnFor(q.c);
 
     for (var i=0;i<btns.length;i++) btns[i].disabled = true;
 
     if (chosen === null){
         el('qCard').classList.add('timeout');
         el('ringSec').textContent = '0';
-        if (btns[q.c]) btns[q.c].classList.add('right');
+        if (rightBtn) rightBtn.classList.add('right');
     } else {
-        btns[chosen].classList.add(isCorrect ? 'right' : 'wrong');
-        if (!isCorrect && btns[q.c]) btns[q.c].classList.add('right');
+        var chosenBtn = btnFor(chosen);
+        if (chosenBtn) chosenBtn.classList.add(isCorrect ? 'right' : 'wrong');
+        if (!isCorrect && rightBtn) rightBtn.classList.add('right');
     }
 
     if (isCorrect){ correctCount++; totalMs += taken; }
     else { totalMs += PENALTY_MS; }
 
-    order.push({ id:q.id, chosen:chosen, correct:isCorrect, takenMs:taken });
+    order.push({ id:q.id, qi:p.qi, perm:p.perm, chosen:chosen, correct:isCorrect, takenMs:taken });
 
     setTimeout(function(){
         qIdx++;
@@ -766,7 +808,7 @@ function finishRun(){
 
     db.collection('quizScores').doc(monthId).collection('entries').doc(uid)
       .set(payload)
-      .catch(function(err){ console.error('Score write failed:', err); })
+      .catch(function(err){ console.error('Score write failed:', err); saveFailed = true; })
       .then(function(){ renderSummary(payload.totalMs, payload.correct, true); });
 }
 
@@ -795,6 +837,12 @@ function renderSummary(ms, correct, isFresh){
 
     // Rank against the month, then celebrate if it earned it.
     loadBoard(monthId).then(function(rows){
+        if (isFresh && saveFailed){
+            var failLine = el('sumRank');
+            failLine.classList.remove('record','champion');
+            failLine.textContent = 'YOUR SCORE COULD NOT BE SAVED \u2014 PLEASE CONTACT US';
+            return;
+        }
         var rank = 0;
         for (var i=0;i<rows.length;i++){ if (rows[i].uid === uid){ rank = i+1; break; } }
         var line = el('sumRank');
@@ -932,12 +980,13 @@ function openReview(){
     var html = '';
     for (var i=0;i<order.length;i++){
         var a = order[i];
-        var q = quiz.questions[i];
-        var chosenTxt = (a.chosen === null) ? 'Ran out of time' : (KEYS[a.chosen] + ' \u2014 ' + q.o[a.chosen]);
+        var q = quiz.questions[a.qi];
+        var chosenTxt = (a.chosen === null) ? 'Ran out of time'
+                      : (KEYS[a.perm.indexOf(a.chosen)] + ' \u2014 ' + q.o[a.chosen]);
         html += '<div class="qm-review-item'+(a.correct ? ' ok' : '')+'">' +
                   '<div class="rq">'+(i+1)+'. '+esc(q.q)+'</div>' +
                   '<div class="ra '+(a.correct ? 'good' : 'bad')+'">Your answer: '+esc(chosenTxt)+'</div>' +
-                  (a.correct ? '' : '<div class="ra good">Correct: '+KEYS[q.c]+' \u2014 '+esc(q.o[q.c])+'</div>') +
+                  (a.correct ? '' : '<div class="ra good">Correct: '+KEYS[a.perm.indexOf(q.c)]+' \u2014 '+esc(q.o[q.c])+'</div>') +
                   (q.ex ? '<div class="rx">'+esc(q.ex)+'</div>' : '') +
                 '</div>';
     }

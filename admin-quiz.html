@@ -480,6 +480,20 @@
                 .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
         }
 
+        // A genuine run always takes longer in real time than the answering time
+        // it claims: there is a 3-2-1 countdown and a short flash after every answer
+        // (together about 6 seconds). Time spent on WRONG answers is not in the
+        // claimed time (a flat 10s penalty replaces it), so only correct-answer
+        // time can be compared.
+        function checkBadge(r){
+            if (r.noAttempt) return '<span class="badge bg-danger">No attempt record</span>';
+            if (r.realMs === null) return '<span class="badge bg-secondary">Unknown</span>';
+            const answeringMs = (Number(r.totalMs) || 0) - 10000 * (10 - (Number(r.correct) || 0));
+            if (r.realMs < answeringMs + 5000) return '<span class="badge bg-danger">Doesn\'t add up</span>';
+            if (r.correct > 0 && answeringMs / r.correct < 2500) return '<span class="badge bg-warning text-dark">Very fast</span>';
+            return '<span class="badge bg-success">OK</span>';
+        }
+
         async function loadWinners(){
             const id = monthId();
             const area = document.getElementById('winnersArea');
@@ -507,7 +521,19 @@
                             name  = [ud.firstName, ud.surname].filter(Boolean).join(' ');
                         }
                     } catch (e){ /* account may have been deleted since */ }
+                    // Real elapsed time: START (attempt claimed) to finish (score written).
+                    // Both are server timestamps, so the player's own clock plays no part.
+                    let realMs = null, noAttempt = false;
+                    try {
+                        const a = await getDoc(doc(db, 'quizAttempts', id, 'entries', d.id));
+                        if (!a.exists()) noAttempt = true;
+                        else {
+                            const st = a.data().startedAt, ct = s.completedAt;
+                            if (st && ct && st.toMillis && ct.toMillis) realMs = ct.toMillis() - st.toMillis();
+                        }
+                    } catch (e){ /* leave realMs null — shown as unknown */ }
                     rows.push({
+                        realMs: realMs, noAttempt: noAttempt,
                         uid: d.id, email: email, name: name,
                         publicName: s.showName ? (s.firstName || '') : '',
                         showName: !!s.showName,
@@ -533,7 +559,7 @@
                     '<div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0" style="font-size:.88rem;">' +
                     '<thead class="table-light"><tr>' +
                     '<th>#</th><th>Name</th><th>Email</th><th>Grade / Service</th>' +
-                    '<th class="text-end">Score</th><th class="text-end">Time</th><th>Public</th>' +
+                    '<th class="text-end">Score</th><th class="text-end">Time</th><th class="text-end">Real time</th><th>Check</th><th>Public</th>' +
                     '</tr></thead><tbody>';
                 rows.forEach((r, i) => {
                     html += '<tr' + (i === 0 ? ' class="table-warning"' : '') + '>' +
@@ -543,10 +569,18 @@
                         '<td>' + escapeHtml([r.role, r.trust].filter(Boolean).join(' · ') || '—') + '</td>' +
                         '<td class="text-end">' + r.correct + '/10</td>' +
                         '<td class="text-end"><strong>' + fmtMs(r.totalMs) + '</strong></td>' +
+                        '<td class="text-end">' + (r.realMs === null ? '<span class="text-muted">—</span>' : fmtMs(r.realMs)) + '</td>' +
+                        '<td>' + checkBadge(r) + '</td>' +
                         '<td>' + (r.showName ? '<span class="text-success">Yes</span>' : '<span class="text-muted">Anonymous</span>') + '</td>' +
                         '</tr>';
                 });
-                html += '</tbody></table></div>';
+                html += '</tbody></table></div>' +
+                    '<p class="small text-muted mt-2 mb-0">' +
+                    '<strong>Real time</strong> is from pressing START to finishing, measured by the server. ' +
+                    '<span class="badge bg-danger">Doesn\'t add up</span> means the claimed time is impossible for a real run. ' +
+                    '<span class="badge bg-danger">No attempt record</span> means the score was written without pressing START. ' +
+                    '<span class="badge bg-warning text-dark">Very fast</span> means under 2.5 seconds per correct answer \u2014 possible, ' +
+                    'but worth a look before awarding a prize (e.g. check the account\'s Created date in Firebase Authentication).</p>';
                 area.innerHTML = html;
             } catch (err){
                 console.error(err);
