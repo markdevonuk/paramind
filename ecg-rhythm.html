@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>ECG Rhythm Viewer | Paramind</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Menu CSS -->
+    <link rel="stylesheet" href="css/menu-v2.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        /* ECG Page Specific Styles */
+        .ecg-page {
+            min-height: 100vh;
+            background: var(--color-gray-50);
+        }
+        
+        .ecg-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1rem;
+            padding-bottom: 2rem;
+        }
+        
+        .ecg-header {
+            text-align: center;
+            padding: 1.5rem 0;
+        }
+        
+        .ecg-header h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .ecg-header p {
+            color: var(--color-gray-600);
+            margin: 0;
+        }
+        
+        
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--color-teal);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .back-link:hover {
+            color: var(--color-teal-dark);
+        }
+        
+        /* Mode Toggle Buttons */
+        .mode-toggle {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .mode-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: 2px solid var(--color-gray-200);
+            background: var(--color-white);
+            color: var(--color-gray-600);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .mode-btn:hover {
+            border-color: var(--color-teal);
+            color: var(--color-teal);
+        }
+        
+        .mode-btn.active {
+            background: var(--color-teal);
+            border-color: var(--color-teal);
+            color: white;
+        }
+        
+        /* ECG Monitor Card */
+        .ecg-monitor-card {
+            background: #1a1a2e;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            margin-bottom: 1.5rem;
+        }
+        
+        .monitor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            background: #252542;
+            border-bottom: 1px solid #3d3d5a;
+        }
+        
+        .monitor-lead {
+            color: #888;
+            font-size: 0.9rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .monitor-hr {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .hr-icon {
+            animation: pulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        .monitor-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .monitor-btn {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .monitor-btn-play {
+            background: #22c55e;
+            color: white;
+        }
+        
+        .monitor-btn-pause {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .monitor-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
+        /* No Pulse Indicator */
+        .no-pulse-indicator {
+            background: rgba(245, 158, 11, 0.2);
+            border: 2px solid #f59e0b;
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem;
+            margin: 0 1rem 1rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            animation: pulseBlink 1s ease-in-out infinite;
+        }
+        
+        .no-pulse-indicator i {
+            color: #f59e0b;
+            font-size: 1.25rem;
+        }
+        
+        .no-pulse-indicator span {
+            color: #fbbf24;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        @keyframes pulseBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .ecg-canvas-container {
+            padding: 1rem;
+        }
+        
+        #ecgCanvas {
+            width: 100%;
+            border-radius: var(--radius-md);
+            display: block;
+        }
+        
+        /* Emergency Warning Banner */
+        .emergency-banner {
+            background: rgba(220, 38, 38, 0.2);
+            border: 2px solid #dc2626;
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin: 1rem;
+            text-align: center;
+            animation: emergencyPulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes emergencyPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .emergency-banner span {
+            color: #fca5a5;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        
+        /* Rhythm Selector Grid */
+        .rhythm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .rhythm-btn {
+            padding: 0.875rem 1rem;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--color-gray-200);
+            background: var(--color-white);
+            text-align: left;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--color-gray-700);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .rhythm-btn::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--rhythm-color, var(--color-gray-300));
+        }
+        
+        .rhythm-btn:hover {
+            border-color: var(--rhythm-color, var(--color-teal));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .rhythm-btn.active {
+            border-color: var(--rhythm-color, var(--color-teal));
+            background: linear-gradient(135deg, rgba(43, 138, 156, 0.05) 0%, rgba(92, 184, 92, 0.05) 100%);
+        }
+        
+        .rhythm-btn .emergency-icon {
+            margin-left: 0.25rem;
+        }
+        
+        .rhythm-btn.emergency {
+            background: rgba(220, 38, 38, 0.05);
+        }
+        
+        /* Rate Slider Card */
+        .rate-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .rate-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: var(--color-gray-700);
+        }
+        
+        .rate-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            color: var(--color-teal);
+        }
+        
+        .rate-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--color-gray-200);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        .rate-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--color-teal);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(43, 138, 156, 0.4);
+        }
+        
+        .rate-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--color-teal);
+            cursor: pointer;
+            border: none;
+        }
+        
+        .rate-range {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--color-gray-500);
+        }
+        
+        /* Info Card */
+        /* Go deeper button row (button style comes from js/go-deeper.js) */
+        .go-deeper-row {
+            text-align: center;
+            margin-top: 1.25rem;
+        }
+
+        .info-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .info-card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .info-card .description {
+            color: var(--color-gray-600);
+            margin-bottom: 1.25rem;
+            line-height: 1.6;
+        }
+        
+        .info-card h3 {
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            color: var(--color-gray-700);
+        }
+        
+        .features-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .features-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+            color: var(--color-gray-600);
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+        
+        .features-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .features-list .check-icon {
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        /* Quiz Mode Styles */
+        .quiz-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .quiz-score {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .quiz-score-badge {
+            display: inline-block;
+            background: var(--color-teal);
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+        }
+        
+        .quiz-question {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--color-gray-800);
+        }
+        
+        .quiz-select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--color-gray-200);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            background: var(--color-white);
+        }
+        
+        .quiz-select:focus {
+            outline: none;
+            border-color: var(--color-teal);
+        }
+        
+        .quiz-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .quiz-btn {
+            flex: 1;
+            padding: 0.875rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .quiz-btn-primary {
+            background: var(--color-teal);
+            color: white;
+        }
+        
+        .quiz-btn-primary:hover:not(:disabled) {
+            background: var(--color-teal-dark);
+        }
+        
+        .quiz-btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .quiz-btn-secondary {
+            background: var(--color-gray-200);
+            color: var(--color-gray-700);
+        }
+        
+        .quiz-btn-secondary:hover {
+            background: var(--color-gray-300);
+        }
+        
+        /* Quiz Result */
+        .quiz-result {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+        }
+        
+        .quiz-result.correct {
+            background: rgba(34, 197, 94, 0.1);
+            border: 2px solid #22c55e;
+        }
+        
+        .quiz-result.incorrect {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid #ef4444;
+        }
+        
+        .quiz-result-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .quiz-result.correct .quiz-result-icon {
+            color: #22c55e;
+        }
+        
+        .quiz-result.incorrect .quiz-result-icon {
+            color: #ef4444;
+        }
+        
+        .quiz-answer-reveal {
+            background: var(--color-gray-50);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        
+        .quiz-answer-reveal h4 {
+            color: var(--color-gray-500);
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .quiz-answer-reveal .answer {
+            color: #22c55e;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        /* Final Results Screen */
+        .final-results-container {
+            text-align: center;
+            padding: 1rem 0;
+        }
+        
+        .final-results-title {
+            font-size: 1.75rem;
+            color: var(--color-gray-800);
+            margin-bottom: 1.5rem;
+        }
+        
+        .final-score-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-green) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 8px 30px rgba(43, 138, 156, 0.3);
+        }
+        
+        .final-score-percent {
+            font-size: 3rem;
+            font-weight: 700;
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .final-score-text {
+            font-size: 1.2rem;
+            color: var(--color-gray-700);
+            margin-bottom: 0.5rem;
+        }
+        
+        .final-score-message {
+            font-size: 1.1rem;
+            color: var(--color-gray-500);
+            margin-bottom: 1rem;
+        }
+        
+        /* Info Banner */
+        .info-banner {
+            background: linear-gradient(135deg, rgba(43, 138, 156, 0.1) 0%, rgba(92, 184, 92, 0.1) 100%);
+            border: 1px solid rgba(43, 138, 156, 0.2);
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+        
+        .info-banner i {
+            color: var(--color-teal);
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        
+        .info-banner p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--color-gray-600);
+        }
+        
+        /* Footer Disclaimer */
+        .ecg-footer {
+            text-align: center;
+            padding: 1.5rem 0;
+            color: var(--color-gray-500);
+            font-size: 0.85rem;
+        }
+        
+        .ecg-footer i {
+            margin-right: 0.25rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .rhythm-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .mode-toggle {
+                flex-direction: column;
+            }
+            
+            .mode-btn {
+                width: 100%;
+            }
+        }
+
+        /* ==================== GUIDED TOUR ==================== */
+        .tour-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 9000;
+        }
+        .tour-overlay.active { display: block; }
+
+        .tour-spotlight {
+            position: absolute;
+            border-radius: 12px;
+            box-shadow: 0 0 0 4000px rgba(0,0,0,0.55);
+            transition: all 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+            pointer-events: none;
+        }
+
+        .tour-tooltip {
+            position: absolute;
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 16px 18px 14px;
+            width: min(320px, calc(100vw - 32px));
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+            z-index: 9001;
+            animation: tourFadeIn 0.3s ease;
+        }
+        .tour-tooltip-arrow {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: #FFFFFF;
+            transform: rotate(45deg);
+            box-shadow: -2px -2px 4px rgba(0,0,0,0.05);
+        }
+        .tour-tooltip-arrow.arrow-top { top: -7px; left: 28px; }
+        .tour-tooltip-arrow.arrow-bottom { bottom: -7px; left: 28px; }
+
+        .tour-tooltip-step {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+        .tour-step-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark, #237282));
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .tour-step-label {
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--color-gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .tour-tooltip h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--color-gray-900);
+            margin: 0 0 4px;
+        }
+        .tour-tooltip p {
+            font-size: 0.82rem;
+            line-height: 1.5;
+            color: var(--color-gray-600);
+            margin: 0 0 12px;
+        }
+        .tour-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .tour-skip-btn {
+            background: none;
+            border: none;
+            color: var(--color-gray-500);
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 4px 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: color 0.2s;
+        }
+        .tour-skip-btn:hover { color: var(--color-gray-700); }
+        .tour-next-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark, #237282));
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.2s ease;
+        }
+        .tour-next-btn:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .tour-next-btn:active { transform: scale(0.97); }
+
+        .tour-dots { display: flex; gap: 5px; align-items: center; }
+        .tour-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-gray-300);
+            transition: all 0.2s ease;
+        }
+        .tour-dot.active {
+            background: var(--color-teal);
+            width: 18px;
+            border-radius: 3px;
+        }
+        .tour-dot.done { background: var(--color-teal); }
+
+        @keyframes tourFadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Welcome splash */
+        .tour-welcome {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 9002;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .tour-welcome.active { display: flex; }
+        .tour-welcome-card {
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 28px 24px 22px;
+            max-width: 340px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: tourFadeIn 0.35s ease;
+        }
+        .tour-welcome-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(43,138,156,0.12), rgba(92,184,92,0.1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin: 0 auto 12px;
+        }
+        .tour-welcome-card h3 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--color-gray-900);
+            margin: 0 0 6px;
+        }
+        .tour-welcome-card p {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: var(--color-gray-600);
+            margin: 0 0 18px;
+        }
+        .tour-welcome-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .tour-start-btn {
+            width: 100%;
+            padding: 11px 20px;
+            background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dark, #237282));
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .tour-start-btn:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .tour-dismiss-btn {
+            background: none;
+            border: none;
+            color: var(--color-gray-500);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 8px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: color 0.2s;
+        }
+        .tour-dismiss-btn:hover { color: var(--color-gray-700); }
+
+        /* ===== Rhythm viewer: back button, rhythm dropdown, view switch ===== */
+        .viewer-top { display: flex; align-items: center; gap: 0.6rem; margin: 1rem 0 0.75rem; }
+        .viewer-back { width: 44px; height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+            background: #fff; border: 1px solid #DEE2E6; border-radius: 0.5rem; color: #212529; font-size: 1.2rem; text-decoration: none; }
+        .viewer-back:hover { border-color: #2B8A9C; color: #2B8A9C; }
+        /* Same look as the Learn Mode (heart view) dropdown */
+        .viewer-select { flex: 1; min-width: 0; height: 44px; font: inherit; font-size: 1.02rem; font-weight: 700; color: #212529; background: #fff;
+            border: 1px solid #DEE2E6; border-radius: 0.5rem; padding: 0 2.4rem 0 0.75rem; cursor: pointer; appearance: none; -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236C757D' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 0.8rem center; transition: border-color 150ms ease; }
+        .viewer-select:hover, .viewer-select:focus { border-color: #2B8A9C; outline: none; }
+        .view-switch { display: flex; background: #E9ECEF; border-radius: 0.625rem; padding: 4px; gap: 4px; margin-bottom: 1rem; }
+        .view-btn { flex: 1; min-height: 40px; border: none; border-radius: 0.5rem; background: transparent; font: inherit; font-size: 0.9rem;
+            font-weight: 700; color: #6C757D; cursor: pointer; }
+        .view-btn.active { background: #fff; color: #237282; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+        /* The heart view has its own rhythm dropdown; this page's dropdown replaces it */
+        #visualContent .rv-select { display: none; }
+    </style>
+</head>
+<body class="ecg-page">
+   <!-- ==================== NAVIGATION ==================== -->
+<nav class="member-navbar">
+    <div class="container">
+        <span class="brand-text">
+            <a class="navbar-brand" href="landing.html">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </a>
+        </span>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</nav>
+
+    <div class="ecg-container">
+        <!-- Back to the ECG hub + rhythm dropdown -->
+        <div class="viewer-top">
+            <a href="ecg-new.html" class="viewer-back" aria-label="Back to ECG Tool"><i class="bi bi-arrow-left"></i></a>
+            <select class="viewer-select" id="rhythmSelect" aria-label="Choose a rhythm" onchange="selectRhythm(this.value)">
+                <!-- Populated by JavaScript -->
+            </select>
+        </div>
+
+        <!-- View switch. The 12-lead button is added in the next build phase;
+             it is hidden (not removed) until then. -->
+        <div class="view-switch" id="viewSwitch">
+            <button type="button" class="view-btn active" id="viewSimpleBtn" onclick="setView('simple')">Simple</button>
+            <button type="button" class="view-btn" id="view12Btn" onclick="setView('12lead')" style="display: none;">12-lead</button>
+            <button type="button" class="view-btn" id="viewHeartBtn" onclick="setView('heart')">Heart view</button>
+        </div>
+
+        <!-- ECG Monitor -->
+        <div class="ecg-monitor-card" id="mainMonitorCard">
+            <div class="monitor-header">
+                <span class="monitor-lead" id="monitorLead">Lead II</span>
+                <div class="monitor-hr" id="monitorHR" style="color: #22c55e;">
+                    <span class="hr-icon">♥</span>
+                    <span id="hrValue">75</span> BPM
+                </div>
+                <div class="monitor-controls">
+                    <button class="monitor-btn monitor-btn-pause" id="playPauseBtn" onclick="togglePlayPause()">
+                        <i class="bi bi-pause-fill"></i> Pause
+                    </button>
+                </div>
+            </div>
+            <div class="ecg-canvas-container">
+                <canvas id="ecgCanvas" width="800" height="200"></canvas>
+            </div>
+            <!-- No Pulse Indicator (for PEA and pulseless VT) -->
+            <div class="no-pulse-indicator" id="noPulseIndicator" style="display: none;">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>No pulse detected</span>
+            </div>
+            <!-- Emergency Banner (hidden by default) -->
+            <div class="emergency-banner" id="emergencyBanner" style="display: none;">
+                <span>⚠️ EMERGENCY RHYTHM - IMMEDIATE INTERVENTION REQUIRED</span>
+            </div>
+        </div>
+
+        <!-- Simple view -->
+        <div id="simpleContent">
+            <!-- Rate Slider -->
+            <div class="rate-card" id="rateCard">
+                <div class="rate-label">
+                    <span>Adjust Heart Rate</span>
+                    <span class="rate-value"><span id="rateValue">75</span> BPM</span>
+                </div>
+                <input type="range" class="rate-slider" id="rateSlider" min="60" max="100" value="75" oninput="updateRate(this.value)">
+                <div class="rate-range">
+                    <span id="rateMin">60 BPM</span>
+                    <span id="rateMax">100 BPM</span>
+                </div>
+            </div>
+            
+            <!-- Rhythm Info -->
+            <div class="info-card" id="infoCard">
+                <h2 id="rhythmTitle" style="color: #22c55e;">Normal Sinus Rhythm</h2>
+                <p class="description" id="rhythmDescription">Regular rhythm with consistent P waves before each QRS complex. Rate 60-100 bpm.</p>
+                <h3><i class="bi bi-list-check me-2"></i>Key Features</h3>
+                <ul class="features-list" id="featuresList">
+                    <!-- Populated by JavaScript -->
+                </ul>
+                <div class="go-deeper-row">
+                    <button type="button" class="pgd-btn" onclick="goDeeperRhythm()">
+                        <i class="bi bi-mortarboard"></i> Go deeper, Hollie!
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Heart view (js/rhythm-visual.js builds it here the first time it is opened) -->
+        <div id="visualContent" style="display: none;"></div>
+
+        <!-- Footer -->
+        <div class="ecg-footer">
+            <p><i class="bi bi-shield-check"></i> For educational purposes only - not for clinical decision-making</p>
+            <p><i class="bi bi-exclamation-circle"></i> These are simplified, single-lead examples only. Real ECGs can vary significantly in presentation across different leads, patients, and clinical contexts. Deeper learning and supervised clinical practice are essential for safe ECG interpretation.</p>
+        </div>
+    </div>
+
+    <!-- ==================== FOOTER ==================== -->
+<footer class="member-footer">
+    <div class="container">
+        <div class="footer-brand">
+            <span class="brand-text">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </span>
+        </div>
+        <div class="footer-links">
+            <a href="terms.html">Terms of Service</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="purpose.html">Intended Purpose</a>
+            <a href="sources.html">Sources &amp; Citations</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <p class="footer-copyright">&copy; 2026 Paramind. All rights reserved.</p>
+        <p class="footer-trademark" style="font-size: 0.85rem; color: var(--color-gray-500);">Paramind&#174; is a registered UK trade mark (UK00004321918).</p>
+    </div>
+</footer>
+
+    <!-- ==================== SCRIPTS ==================== -->
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Shared rhythm data + waveforms (rhythms, generateWaveform) -->
+    <script src="js/ecg-rhythms.js"></script>
+
+    <!-- RHYTHM VIEWER PAGE SCRIPT -->
+    <script>
+        // ==================== STATE VARIABLES ====================
+        let currentView = 'simple';            // 'simple' | '12lead' | 'heart'
+        let selectedRhythm = 'normalSinus';
+        let heartRate = 75;
+        let isPlaying = true;
+        let time = 0;                           // animation clock, read by generateWaveform()
+        let animationId = null;
+        let canvas, ctx;
+
+        // The heart view (js/rhythm-visual.js) uses its own short names for rhythms.
+        // This translates this page's names into its names. A rhythm missing from
+        // this list has no heart view, so the Heart view button is hidden for it.
+        const HEART_VIEW_KEYS = {
+            normalSinus: 'nsr', sinusBradycardia: 'sbrady', sinusTachycardia: 'stachy', sinusArrhythmia: 'sarr',
+            atrialFibrillation: 'af', atrialFlutter: 'flutter', svt: 'svt',
+            ventricularTachycardia: 'vt', torsadesDePointes: 'torsades', ventricularFibrillation: 'vf',
+            asystole: 'asystole', pea: 'pea',
+            firstDegreeBlock: 'block1', secondDegreeMobitz1: 'block2a', secondDegreeMobitz2: 'block2b', thirdDegreeBlock: 'block3',
+            junctionalRhythm: 'junctional', wpw: 'wpw', pvcs: 'pvc', pacs: 'pac',
+            stemi: 'stemi', longQT: 'longqt', lbbb: 'lbbb', rbbb: 'rbbb'
+            // hyperkalaemia: no heart view yet
+        };
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            canvas = document.getElementById('ecgCanvas');
+            ctx = canvas.getContext('2d');
+
+            initRhythmSelect();
+
+            // The link can choose the rhythm and view, e.g. ecg-rhythm.html?rhythm=atrialFibrillation&view=heart
+            const params = new URLSearchParams(window.location.search);
+            const startRhythm = rhythms[params.get('rhythm')] ? params.get('rhythm') : 'normalSinus';
+            const startView = params.get('view') === 'heart' ? 'heart' : 'simple';
+
+            selectRhythm(startRhythm);
+            setView(startView);
+            animate();
+        });
+
+        // ==================== RHYTHM DROPDOWN ====================
+        // Normal sinus rhythm first (it is what everything is compared with), then A-Z,
+        // the same order as the heart view's own list.
+        function initRhythmSelect() {
+            const select = document.getElementById('rhythmSelect');
+            const keys = Object.keys(rhythms).sort(function(a, b) {
+                if (a === 'normalSinus') return -1;
+                if (b === 'normalSinus') return 1;
+                return rhythms[a].name.localeCompare(rhythms[b].name, 'en');
+            });
+            select.innerHTML = keys.map(function(k) {
+                return '<option value="' + k + '">' + rhythms[k].name + '</option>';
+            }).join('');
+        }
+
+        // ==================== RHYTHM SELECTION ====================
+        function selectRhythm(rhythmKey) {
+            if (!rhythms[rhythmKey]) return;
+            selectedRhythm = rhythmKey;
+            heartRate = rhythms[rhythmKey].defaultRate;
+            document.getElementById('rhythmSelect').value = rhythmKey;
+
+            // Heart view button only for rhythms that have one
+            const hasHeart = !!HEART_VIEW_KEYS[rhythmKey];
+            document.getElementById('viewHeartBtn').style.display = hasHeart ? '' : 'none';
+
+            updateRhythmDisplay();
+
+            if (currentView === 'heart') {
+                if (hasHeart) RhythmVisual.show(HEART_VIEW_KEYS[rhythmKey]);
+                else setView('simple');
+            }
+            updateAddress();
+        }
+
+        // ==================== VIEW SWITCH ====================
+        function setView(view) {
+            if (view === 'heart' && !HEART_VIEW_KEYS[selectedRhythm]) view = 'simple';
+            if (view === '12lead') view = 'simple';   // built in the next phase
+            currentView = view;
+
+            document.getElementById('viewSimpleBtn').classList.toggle('active', view === 'simple');
+            document.getElementById('view12Btn').classList.toggle('active', view === '12lead');
+            document.getElementById('viewHeartBtn').classList.toggle('active', view === 'heart');
+
+            // The heart view brings its own monitor, so the main one is hidden there
+            document.getElementById('mainMonitorCard').style.display = view === 'simple' ? 'block' : 'none';
+            document.getElementById('simpleContent').style.display = view === 'simple' ? 'block' : 'none';
+            document.getElementById('visualContent').style.display = view === 'heart' ? 'block' : 'none';
+
+            if (view === 'heart') {
+                RhythmVisual.mount(document.getElementById('visualContent'));   // built once, then reused
+                RhythmVisual.show(HEART_VIEW_KEYS[selectedRhythm]);
+            } else {
+                updateRhythmDisplay();
+            }
+            updateAddress();
+        }
+
+        // Keeps the address bar in step, so refreshing or sharing the link returns here
+        function updateAddress() {
+            const url = 'ecg-rhythm.html?rhythm=' + selectedRhythm + (currentView === 'heart' ? '&view=heart' : '');
+            try { history.replaceState(null, '', url); } catch (e) { /* not essential */ }
+        }
+
+        // ==================== MONITOR LEAD LABEL ====================
+        // Most rhythms are drawn as Lead II. The bundle branch blocks are drawn
+        // as the chest lead where they show best, so the label follows suit.
+        const rhythmLeads = { lbbb: 'Lead V1', rbbb: 'Lead V1' };
+        let shownLeadRhythm = null;
+        function updateLeadLabel(rhythmKey) {
+            if (rhythmKey === shownLeadRhythm) return; // only touch the page when it changes
+            shownLeadRhythm = rhythmKey;
+            document.getElementById('monitorLead').textContent = rhythmLeads[rhythmKey] || 'Lead II';
+        }
+
+        function updateRhythmDisplay() {
+            const rhythm = rhythms[selectedRhythm];
+            
+            document.getElementById('rhythmTitle').textContent = rhythm.name;
+            document.getElementById('rhythmTitle').style.color = rhythm.color;
+            document.getElementById('rhythmDescription').textContent = rhythm.description;
+            
+            const featuresList = document.getElementById('featuresList');
+            featuresList.innerHTML = rhythm.keyFeatures.map(feature => 
+                `<li><i class="bi bi-check-circle-fill check-icon" style="color: ${rhythm.color}"></i>${feature}</li>`
+            ).join('');
+            
+            const rateCard = document.getElementById('rateCard');
+            if (rhythm.minRate === rhythm.maxRate || rhythm.minRate === 0) {
+                rateCard.style.display = 'none';
+            } else {
+                rateCard.style.display = 'block';
+                const slider = document.getElementById('rateSlider');
+                slider.min = rhythm.minRate;
+                slider.max = rhythm.maxRate;
+                slider.value = heartRate;
+                document.getElementById('rateValue').textContent = heartRate;
+                document.getElementById('rateMin').textContent = rhythm.minRate + ' BPM';
+                document.getElementById('rateMax').textContent = rhythm.maxRate + ' BPM';
+            }
+            
+            document.getElementById('hrValue').textContent = heartRate || '--';
+            document.getElementById('monitorHR').style.color = rhythm.color;
+            
+            const banner = document.getElementById('emergencyBanner');
+            banner.style.display = rhythm.emergency ? 'block' : 'none';
+            
+            const noPulseIndicator = document.getElementById('noPulseIndicator');
+            if (selectedRhythm === 'pea' || selectedRhythm === 'ventricularTachycardia') {
+                noPulseIndicator.style.display = 'flex';
+            } else {
+                noPulseIndicator.style.display = 'none';
+            }
+        }
+        
+        function updateRate(value) {
+            heartRate = parseInt(value);
+            document.getElementById('rateValue').textContent = heartRate;
+            document.getElementById('hrValue').textContent = heartRate;
+        }
+
+        // ==================== GO DEEPER (uses shared js/go-deeper.js) ====================
+        function rhythmSummary(r) {
+            return 'Rhythm: ' + r.name + '\n' +
+                'Description: ' + r.description + '\n' +
+                'Key features: ' + (r.keyFeatures || []).join('; ');
+        }
+
+        function goDeeperRhythm() {
+            const r = rhythms[selectedRhythm];
+            if (!r || !window.ParamindGoDeeper) return;
+            ParamindGoDeeper.open({
+                snippet: r.name,
+                message: rhythmSummary(r),
+                context: 'The learner is studying a cardiac rhythm in Paramind\'s ECG tool.',
+                extra: 'Explain the electrophysiology behind this rhythm: where the impulse starts, how it is conducted, and why that produces each of its ECG features. Include what is happening at the level of the cardiac action potential and ion movement where relevant, and how the rhythm affects cardiac output and the patient\'s presentation. Include a brief structured way to recognise it on an ECG.'
+            });
+        }
+
+        // ==================== PLAY/PAUSE ====================
+        function togglePlayPause() {
+            isPlaying = !isPlaying;
+            const btn = document.getElementById('playPauseBtn');
+            
+            if (isPlaying) {
+                btn.innerHTML = '<i class="bi bi-pause-fill"></i> Pause';
+                btn.className = 'monitor-btn monitor-btn-pause';
+            } else {
+                btn.innerHTML = '<i class="bi bi-play-fill"></i> Play';
+                btn.className = 'monitor-btn monitor-btn-play';
+            }
+        }
+
+        // ==================== ECG ANIMATION ====================
+        function animate() {
+            if (isPlaying) {
+                time += 0.05;
+            }
+            drawECG();
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        function drawECG() {
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, width, height);
+            
+            drawGrid(width, height);
+            
+            const currentRhythm = selectedRhythm;
+            const currentRate = heartRate;
+            
+            if (!currentRhythm) return;
+            updateLeadLabel(currentRhythm);
+            
+            const points = generateWaveform(currentRhythm, currentRate, width);
+            const waveColor = rhythms[selectedRhythm].color;
+            
+            ctx.strokeStyle = waveColor;
+            ctx.lineWidth = 2;
+            ctx.shadowColor = waveColor;
+            ctx.shadowBlur = 4;
+            ctx.beginPath();
+            
+            points.forEach((point, i) => {
+                if (i === 0) {
+                    ctx.moveTo(point.x, point.y);
+                } else {
+                    ctx.lineTo(point.x, point.y);
+                }
+            });
+            
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+        
+        function drawGrid(width, height) {
+            ctx.strokeStyle = '#2d2d4a';
+            ctx.lineWidth = 0.5;
+            
+            for (let x = 0; x < width; x += 4) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < height; y += 4) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+            
+            ctx.strokeStyle = '#3d3d5a';
+            ctx.lineWidth = 1;
+            
+            for (let x = 0; x < width; x += 20) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < height; y += 20) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+        }
+
+    </script>
+
+    <!-- Standardised script loading -->
+    <script src="js/rhythm-visual.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/menu-v2.js"></script>
+    <script src="js/go-deeper.js"></script>
+    <script src="js/pro-guard.js"></script>
+    <script src="js/activity-logger.js"></script>
+    <script src="js/upgrade-modal.js"></script>
+</body>
+</html>
