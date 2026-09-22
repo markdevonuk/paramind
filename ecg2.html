@@ -1127,7 +1127,7 @@
                     </div>
 
                     <!-- Go deeper (shown once the rhythm is revealed; button style from js/go-deeper.js) -->
-                    <div class="go-deeper-row" id="roisGoDeeperRow" style="display: none; margin: 0 0 1rem;">
+                    <div class="go-deeper-row" id="roisGoDeeperRow" style="display: none; margin: 1rem 0;">
                         <button type="button" class="pgd-btn" onclick="goDeeperROISRhythm()">
                             <i class="bi bi-mortarboard"></i> Go deeper, Hollie!
                         </button>
@@ -1302,7 +1302,7 @@
             sinusArrhythmia: {
                 name: "Sinus Arrhythmia",
                 description: "Normal variant where heart rate increases with inspiration and decreases with expiration. Common in young, fit individuals.",
-                keyFeatures: ["Rate varies with breathing", "P wave before each QRS", "Normal PR and QRS", "Benign — no treatment needed"],
+                keyFeatures: ["Rate varies with breathing", "P wave before each QRS", "Normal PR and QRS", "Benign normal variant"],
                 defaultRate: 70,
                 minRate: 55,
                 maxRate: 90,
@@ -1431,7 +1431,7 @@
             },
             wpw: {
                 name: "Wolff-Parkinson-White (WPW)",
-                description: "Pre-excitation syndrome with accessory pathway. Short PR, delta wave, wide QRS. AVOID adenosine and verapamil in AF with WPW.",
+                description: "Pre-excitation syndrome with accessory pathway. Short PR, delta wave, wide QRS. If AF develops, impulses can race down the accessory pathway, producing a very fast, irregular, broad complex rhythm.",
                 keyFeatures: ["Short PR interval (<0.12s)", "Delta wave (slurred QRS upstroke)", "Wide QRS complex", "AVOID AV nodal blockers in AF"],
                 defaultRate: 80,
                 minRate: 60,
@@ -1495,7 +1495,7 @@
             },
             rbbb: {
                 name: "Right Bundle Branch Block (RBBB)",
-                description: "Conduction delay in the right bundle branch. In V2, produces a small r wave, a deep S wave, then a tall R' prime — the classic RSR' or 'rabbit ears' pattern. Often an incidental finding but can indicate structural heart disease.",
+                description: "Conduction delay in the right bundle branch. In V1, produces a small r wave, a deep S wave, then a tall R' prime — the classic RSR' or 'rabbit ears' pattern. Often an incidental finding but can indicate structural heart disease.",
                 keyFeatures: ["Wide QRS (≥0.12s)", "RSR' pattern in V1/V2 — small r, S, tall R' prime", "Wide S waves in lateral leads (I, V6)", "Discordant inverted T wave"],
                 defaultRate: 70,
                 minRate: 40,
@@ -1610,7 +1610,7 @@
         // ==================== MONITOR LEAD LABEL ====================
         // Most rhythms are drawn as Lead II. The bundle branch blocks are drawn
         // as the chest lead where they show best, so the label follows suit.
-        const rhythmLeads = { lbbb: 'Lead V1', rbbb: 'Lead V2' };
+        const rhythmLeads = { lbbb: 'Lead V1', rbbb: 'Lead V1' };
         let shownLeadRhythm = null;
         function updateLeadLabel(rhythmKey) {
             if (rhythmKey === shownLeadRhythm) return; // only touch the page when it changes
@@ -2452,7 +2452,7 @@
                     break;
 
                 case 'rbbb':
-                    // RBBB — V2 representation
+                    // RBBB — V1 representation
                     // Small r up, deep S down, tall sharp R' prime up, inverted discordant T down
                     if (cyclePos >= 0.0 && cyclePos < 0.08) {
                         // Normal P wave

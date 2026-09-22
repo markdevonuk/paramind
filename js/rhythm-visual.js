@@ -733,7 +733,7 @@ RHYTHMS.push(makeBlock({
     {chip:'Steady again', atMs:[800,1320], html:'<b>Identical again.</b> No stretching, no build-up, nothing to warn you. If you were only watching the PR interval you would think everything was fine.'},
     {chip:'Then nothing', atMs:[1600,2400], showMarks:true, html:'<b>And then a train simply never arrives.</b> A P wave comes and no QRS follows it — with no change in the PR beforehand. It came out of nowhere.'},
     {chip:'Why it differs', atMs:[0,2400], html:'<b>The junction is fine. The track past it is not.</b> The fault sits <i>below</i> the AV node, in the <b>bundle branches</b> — the two lines carrying the order down to the left and right ventricles. Rails that hold, and hold, and then one fails with no warning creak first. That is also why these QRS complexes often look <b>wider</b> than normal.'},
-    {chip:'The danger', atMs:[0,2400], html:'Because nothing builds up to it, there is <b>no warning before it gets worse</b>. Mobitz II can go from dropping the occasional beat to blocking everything. It is treated far more seriously than Mobitz I.'}
+    {chip:'The danger', atMs:[0,2400], html:'Because nothing builds up to it, there is <b>no warning before it gets worse</b>. Mobitz II can go from dropping the occasional beat to blocking everything. That is why it is considered far more dangerous than Mobitz I.'}
   ],
   note:'<b>Mobitz I stretches before it drops. Mobitz II just drops.</b> That single difference is why one is watched and the other is worried about.'
 }));
@@ -870,7 +870,7 @@ RHYTHMS.push(makeBBB({
 RHYTHMS.push(makeBBB({
   key:'lbbb', name:'Left Bundle Branch Block (LBBB)',
   title:'Left Bundle Branch Block', sub:'The left-hand branch line is closed — and it is the bigger side.',
-  alert:'⚠️ NEW LBBB WITH CHEST PAIN IS TREATED AS A STEMI EQUIVALENT',
+  alert:'⚠️ LBBB CAN HIDE THE ST CHANGES OF A STEMI',
   rbb:[0.21,0.27], purkR:[0.25,0.33], lbb:[], purkL:[],
   branchBlock:'M 489 534 L 511 556 M 511 534 L 489 556',
   wave:{ cx:480, cy:452, clip:'rv_lvMass', r:320 },
@@ -887,9 +887,9 @@ RHYTHMS.push(makeBBB({
     {chip:'The long way round', at:[0.30,0.66], html:'<b>Now the left ventricle has to be reached through muscle</b> — and it is the big one, with the thick wall. So the crawl takes even longer than it would on the other side.'},
     {chip:'Wide QRS', at:[0.20,0.66], html:'On time, then late, recorded end to end — a <b>wide QRS, 0.12 s or more</b>. The left ventricle being activated last and slowly is also why the T wave points the opposite way to the QRS (<b>discordance</b>).'},
     {chip:'What V1 shows', at:[0.22,0.42], html:'In <b>V1</b> you get a small r wave followed by a <b>deep, broad S wave</b> — the rS pattern — with the T wave pointing upwards, away from the QRS.'},
-    {chip:'Why this one matters', at:[0.00,1.00], html:'<b>LBBB scrambles the ECG.</b> Because the left ventricle is depolarising abnormally, its repolarisation is abnormal too — so the ST segments cannot be read the usual way. That is why <b>a new LBBB in someone with chest pain is treated as a STEMI equivalent</b>: you cannot rule the STEMI out, so you do not try.'}
+    {chip:'Why this one matters', at:[0.00,1.00], html:'<b>LBBB scrambles the ECG.</b> Because the left ventricle is depolarising abnormally, its repolarisation is abnormal too — so the ST segments cannot be read the usual way. That is why <b>a new LBBB in someone with chest pain is so significant</b>: it can hide the very ST changes that would otherwise reveal a STEMI.'}
   ],
-  note:'<b>The mirror image of RBBB, with one crucial difference.</b> RBBB is often incidental. New LBBB with chest pain changes what you do — because it hides the very thing you are looking for.'
+  note:'<b>The mirror image of RBBB, with one crucial difference.</b> RBBB is often incidental. New LBBB with chest pain is far more significant — because it hides the very thing you are looking for.'
 }));
 
 /* ==========================================================================
