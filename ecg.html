@@ -1765,6 +1765,28 @@
             const pixelsPerSecond = 100;
             const beatInterval = rate > 0 ? (60 / rate) * pixelsPerSecond : 1000;
             
+            // Sinus arrhythmia: the complexes are normal and identical; only the GAPS between
+            // them change with breathing. Measured from the real 12-lead examples in
+            // data/ecg12 (records 122 and 228): mean about 62 bpm, R-R swinging roughly
+            // +/-17% around the mean, over a breathing cycle of about six beats.
+            // So the beat positions are worked out first, then each complex is drawn at its
+            // normal width — exactly how atrial fibrillation is handled below.
+            let saBeatPositions = [];
+            const SA_SWING = 0.17;          // how far R-R moves either side of the mean
+            const SA_BEATS_PER_BREATH = 6;  // beats in one breathing cycle
+            let saPatternLength = 0;
+            if (rhythm === 'sinusArrhythmia') {
+                saPatternLength = beatInterval * SA_BEATS_PER_BREATH;   // one whole breath, so the pattern repeats seamlessly
+                let pos = 0;
+                for (let i = 0; i < SA_BEATS_PER_BREATH; i++) {
+                    saBeatPositions.push(pos);
+                    pos += beatInterval * (1 + SA_SWING * Math.sin((i / SA_BEATS_PER_BREATH) * Math.PI * 2));
+                }
+                // Stretch the cycle so the beats fit the breath exactly (no jump at the joint)
+                const scale = saPatternLength / pos;
+                saBeatPositions = saBeatPositions.map(function(v) { return v * scale; });
+            }
+
             let afBeatPositions = [];
             if (rhythm === 'atrialFibrillation') {
                 const patternLength = 800;
@@ -1851,11 +1873,16 @@
                         y = baselineY + (Math.random() - 0.5) * 2;
                     }
                 } else if (rhythm === 'sinusArrhythmia') {
-                    // Rate varies cyclically (simulating breathing)
-                    const breathCycle = Math.sin(adjustedX * 0.003) * 0.3;
-                    const variedInterval = beatInterval * (1 + breathCycle);
-                    let cyclePos = (adjustedX % variedInterval) / variedInterval;
-                    y = generatePQRST('normalSinus', cyclePos, baselineY, adjustedX, variedInterval);
+                        // Find the beat this pixel belongs to, then draw a normal complex from it.
+                        // The complex always takes the same time; the pause after it is what varies.
+                        const posInPattern = ((adjustedX % saPatternLength) + saPatternLength) % saPatternLength;
+                        let beatStart = saBeatPositions[0] - beatInterval;
+                        for (let i = 0; i < saBeatPositions.length; i++) {
+                            if (saBeatPositions[i] <= posInPattern) beatStart = saBeatPositions[i];
+                        }
+                        const cyclePos = (posInPattern - beatStart) / beatInterval;
+                        // Past the end of a normal complex (the P-QRS-T is done by 0.5) it is flat baseline
+                        y = cyclePos < 1 ? generatePQRST('normalSinus', cyclePos, baselineY, adjustedX, beatInterval) : baselineY;
                 } else {
                     let cyclePos = (adjustedX % beatInterval) / beatInterval;
                     y = generatePQRST(rhythm, cyclePos, baselineY, adjustedX, beatInterval);
