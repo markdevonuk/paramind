@@ -907,7 +907,7 @@
         <!-- ECG Monitor -->
         <div class="ecg-monitor-card" id="mainMonitorCard">
             <div class="monitor-header">
-                <span class="monitor-lead">Lead II</span>
+                <span class="monitor-lead" id="monitorLead">Lead II</span>
                 <div class="monitor-hr" id="monitorHR" style="color: #22c55e;">
                     <span class="hr-icon">♥</span>
                     <span id="hrValue">75</span> BPM
@@ -1322,7 +1322,7 @@
             },
             longQT: {
                 name: "Long QT Syndrome",
-                description: "Prolonged QT interval increasing risk of Torsades de Pointes. QTc upper limit: >0.45s in men, >0.47s in women (Bazett formula). Can be congenital or drug-induced (amiodarone, ondansetron, etc).",
+                description: "Prolonged QT interval increasing risk of Torsades de Pointes. QTc upper limit: >0.45s in men, >0.47s in women (Bazett formula). Can be congenital or acquired, for example as a side effect of certain medications or from electrolyte disturbances.",
                 keyFeatures: ["QTc > 0.45s men / > 0.47s women", "Risk of Torsades de Pointes", "May be drug-induced", "T wave may be broad/notched"],
                 defaultRate: 65,
                 minRate: 50,
@@ -1331,7 +1331,7 @@
             },
             lbbb: {
                 name: "Left Bundle Branch Block (LBBB)",
-                description: "Conduction delay in the left bundle branch. In V1, produces a small r wave followed by a deep broad S wave (rS pattern), with a discordant positive T wave. New LBBB in the context of chest pain should be treated as a STEMI equivalent.",
+                description: "Conduction delay in the left bundle branch. In V1, produces a small r wave followed by a deep broad S wave (rS pattern), with a discordant positive T wave. Because LBBB distorts the ST segments, it makes signs of acute ischaemia much harder to identify on the ECG.",
                 keyFeatures: ["Wide QRS (≥0.12s)", "rS pattern in V1 — small r, deep broad S", "No septal Q waves in lateral leads", "Discordant T waves (opposite direction to QRS)"],
                 defaultRate: 70,
                 minRate: 40,
@@ -1444,6 +1444,17 @@
             }
         }
         
+        // ==================== MONITOR LEAD LABEL ====================
+        // Most rhythms are drawn as Lead II. The bundle branch blocks are drawn
+        // as the chest lead where they show best, so the label follows suit.
+        const rhythmLeads = { lbbb: 'Lead V1', rbbb: 'Lead V2' };
+        let shownLeadRhythm = null;
+        function updateLeadLabel(rhythmKey) {
+            if (rhythmKey === shownLeadRhythm) return; // only touch the page when it changes
+            shownLeadRhythm = rhythmKey;
+            document.getElementById('monitorLead').textContent = rhythmLeads[rhythmKey] || 'Lead II';
+        }
+
         // ==================== RHYTHM SELECTION ====================
         function selectRhythm(rhythmKey) {
             document.querySelectorAll('.rhythm-btn').forEach(btn => btn.classList.remove('active'));
@@ -1691,6 +1702,7 @@
             const currentRate = currentMode === 'quiz' ? rhythms[quizRhythm]?.defaultRate || 75 : heartRate;
             
             if (!currentRhythm) return;
+            updateLeadLabel(currentRhythm);
             
             const points = generateWaveform(currentRhythm, currentRate, width);
             const waveColor = currentMode === 'quiz' ? '#22c55e' : rhythms[selectedRhythm].color;

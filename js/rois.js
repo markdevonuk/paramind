@@ -426,6 +426,7 @@ function showROISStep() {
     });
     document.getElementById('roisFeedback').style.display = 'none';
     document.getElementById('roisNextBtn').style.display = 'none';
+    document.getElementById('roisGoDeeperRow').style.display = 'none';
 }
 
 function selectROISAnswer(selectedIndex) {
@@ -466,6 +467,7 @@ function selectROISAnswer(selectedIndex) {
         const totalSteps = currentResult.steps.length;
         roisState.revealed = true;
         document.getElementById('monitorHR').style.color = rhythmData.color;
+        document.getElementById('roisGoDeeperRow').style.display = 'block';
         feedback.className = isCorrect ? 'rois-feedback rois-feedback-correct' : 'rois-feedback rois-feedback-incorrect';
         document.getElementById('roisFeedbackIcon').textContent = stepsCorrect === totalSteps ? '\ud83c\udf1f' : stepsCorrect >= 5 ? '\ud83c\udfaf' : stepsCorrect >= 4 ? '\ud83d\udc4d' : '\ud83d\udcda';
         document.getElementById('roisFeedbackText').innerHTML = (isCorrect ? 'Correct! ' : 'Not quite \u2014 this is ') + '<span style="color: ' + rhythmData.color + '; font-weight: 700;">' + rhythmData.name + '</span>';
@@ -493,6 +495,24 @@ function selectROISAnswer(selectedIndex) {
     updateROISLetterIndicators();
     updateROISProgress();
     feedback.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// "Go deeper, Hollie!" on the reveal — same pattern as the page's quiz version,
+// using the shared js/go-deeper.js popup and the page's rhythmSummary()
+function goDeeperROISRhythm() {
+    const rhythmKey = roisState.rhythms[roisState.currentRhythmIndex];
+    const r = rhythms[rhythmKey];
+    if (!r || !window.ParamindGoDeeper) return;
+    const result = roisState.results[roisState.results.length - 1];
+    const nameStep = result && result.steps[ROIS_NAME_STEP];
+    const chosenKey = nameStep ? roisState.nameOptions[nameStep.userAnswer] : null;
+    const chosen = (chosenKey && chosenKey !== rhythmKey && rhythms[chosenKey]) ? rhythms[chosenKey].name : null;
+    ParamindGoDeeper.open({
+        snippet: r.name,
+        message: rhythmSummary(r) + (chosen ? '\nThe learner mistook it for: ' + chosen : ''),
+        context: 'The learner has just worked through this rhythm step by step using the ROIS framework (Rate & Rhythm, Origin, Intervals, ST segments & T waves) in Paramind\'s ECG tool.',
+        extra: 'Walk through this rhythm using the ROIS steps in order, explaining what each step shows and the electrophysiology behind it. If the learner mistook it for a different rhythm, explain the features that tell the two apart.'
+    });
 }
 
 function roisNext() {
