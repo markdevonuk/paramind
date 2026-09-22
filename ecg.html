@@ -1842,6 +1842,8 @@
                     }
                     
                     y = generateAFBeat(beatPhase, baselineY);
+            // the fibrillatory wobble continues between and around beats, but not through the QRS
+            if (beatPhase < 0.10 || beatPhase >= 0.21) y += afBaselineWobble(adjustedX);
                 } else if (rhythm === 'torsadesDePointes') {
                     // Torsades de Pointes — wide complexes that twist polarity with waxing/waning amplitude
                     const tdpRate = 250; // ~250 bpm
@@ -1894,32 +1896,42 @@
             return points;
         }
         
+        // The fibrillatory baseline: a restless, never-repeating wobble instead of P waves.
+        // On the real example (record 866) the baseline moves noticeably, so it is drawn
+        // rather than left flat.
+        function afBaselineWobble(x) {
+            return Math.sin(x * 0.55) * 3.2 +
+                   Math.sin(x * 0.91) * 2.4 +
+                   Math.sin(x * 1.37) * 1.6;
+        }
+
+        // One QRST of atrial fibrillation. The 50px window is 500ms, so the QRS below
+        // spans about 60ms — matching the real record — and no P wave is drawn.
         function generateAFBeat(phase, baselineY) {
             if (phase < 0 || phase > 1) {
                 return baselineY;
             }
-            
+
             let y = baselineY;
-            
-            if (phase >= 0.0 && phase < 0.1) {
-                y = baselineY + Math.sin((phase / 0.1) * Math.PI) * 4;
+
+            if (phase >= 0.10 && phase < 0.12) {
+                y = baselineY + Math.sin(((phase - 0.10) / 0.02) * Math.PI) * 7;      // small q
             }
-            else if (phase >= 0.1 && phase < 0.25) {
-                y = baselineY - Math.sin(((phase - 0.1) / 0.15) * Math.PI) * 60;
+            else if (phase >= 0.12 && phase < 0.17) {
+                y = baselineY - Math.sin(((phase - 0.12) / 0.05) * Math.PI) * 60;     // sharp narrow R
             }
-            else if (phase >= 0.25 && phase < 0.35) {
-                y = baselineY + Math.sin(((phase - 0.25) / 0.1) * Math.PI) * 10;
+            else if (phase >= 0.17 && phase < 0.21) {
+                y = baselineY + Math.sin(((phase - 0.17) / 0.04) * Math.PI) * 12;     // s wave
             }
-            else if (phase >= 0.5 && phase < 0.85) {
-                y = baselineY - Math.sin(((phase - 0.5) / 0.35) * Math.PI) * 12;
+            else if (phase >= 0.42 && phase < 0.78) {
+                y = baselineY - Math.sin(((phase - 0.42) / 0.36) * Math.PI) * 12;     // T wave
             }
             else {
                 y = baselineY;
             }
-            
+
             return y;
         }
-        
         function generatePQRST(rhythm, cyclePos, baselineY, adjustedX, beatInterval) {
             let y = baselineY;
             
@@ -1949,21 +1961,28 @@
                     const flutterPeriod = 20;
                     const flutterPos = (adjustedX % flutterPeriod) / flutterPeriod;
                     
-                    let flutterWave;
-                    if (flutterPos < 0.7) {
-                        flutterWave = baselineY + 10 - (flutterPos / 0.7) * 20;
-                    } else {
-                        flutterWave = baselineY - 10 + ((flutterPos - 0.7) / 0.3) * 20;
-                    }
-                    
-                    y = flutterWave;
-                    
-                    if (cyclePos >= 0.18 && cyclePos < 0.21) {
-                        y = baselineY - Math.sin(((cyclePos - 0.18) / 0.03) * Math.PI) * 55;
-                    }
-                    else if (cyclePos >= 0.21 && cyclePos < 0.24) {
-                        y = baselineY + Math.sin(((cyclePos - 0.21) / 0.03) * Math.PI) * 10;
-                    }
+            // Sawtooth: a long, slightly curved descent then a fast upstroke — the teeth.
+                        // On record 20 the sawtooth is large next to the QRS, so it is drawn tall.
+                        let flutterWave;
+                        if (flutterPos < 0.75) {
+                            const fall = flutterPos / 0.75;
+                            flutterWave = baselineY + 13 - (0.75 * fall + 0.25 * Math.sin(fall * Math.PI / 2)) * 26;
+                        } else {
+                            flutterWave = baselineY - 13 + ((flutterPos - 0.75) / 0.25) * 26;
+                        }
+
+                        y = flutterWave;
+
+                        // QRS rides on top of the sawtooth, sharp and narrow so it stands out from it
+                        if (cyclePos >= 0.17 && cyclePos < 0.185) {
+                            y = baselineY + Math.sin(((cyclePos - 0.17) / 0.015) * Math.PI) * 8;
+                        }
+                        else if (cyclePos >= 0.185 && cyclePos < 0.215) {
+                            y = baselineY - Math.sin(((cyclePos - 0.185) / 0.03) * Math.PI) * 58;
+                        }
+                        else if (cyclePos >= 0.215 && cyclePos < 0.245) {
+                            y = baselineY + Math.sin(((cyclePos - 0.215) / 0.03) * Math.PI) * 14;
+                        }
                     break;
                     
                 case 'ventricularTachycardia':
@@ -2145,12 +2164,15 @@
                     if (pvcLocalPhase >= 0 && pvcLocalPhase <= 1) {
                         if (isPVCBeat) {
                             // PVC — wide, bizarre, no P wave, tall, with inverted T after
-                            if (pvcLocalPhase >= 0.05 && pvcLocalPhase < 0.18) {
-                                // Wide tall R wave
-                                y = baselineY - Math.sin(((pvcLocalPhase - 0.05) / 0.13) * Math.PI) * 75;
-                            } else if (pvcLocalPhase >= 0.18 && pvcLocalPhase < 0.32) {
-                                // Deep wide S wave
-                                y = baselineY + Math.sin(((pvcLocalPhase - 0.18) / 0.14) * Math.PI) * 30;
+                    // A real PVC (record 818) is about twice the height of the normal
+                                        // beats and roughly 2.5x their width, but with a fast upstroke rather
+                                        // than a smooth balloon. The power curve gives that sharper edge.
+                                        if (pvcLocalPhase >= 0.06 && pvcLocalPhase < 0.16) {
+                                            // Wide tall R wave, steep on the way up
+                                            y = baselineY - Math.pow(Math.sin(((pvcLocalPhase - 0.06) / 0.10) * Math.PI), 0.65) * 75;
+                                        } else if (pvcLocalPhase >= 0.16 && pvcLocalPhase < 0.26) {
+                                            // Deep wide S wave
+                                            y = baselineY + Math.pow(Math.sin(((pvcLocalPhase - 0.16) / 0.10) * Math.PI), 0.75) * 30;
                             } else if (pvcLocalPhase >= 0.36 && pvcLocalPhase < 0.56) {
                                 // Inverted (opposite direction) T wave
                                 y = baselineY + Math.sin(((pvcLocalPhase - 0.36) / 0.20) * Math.PI) * 14;
@@ -2263,17 +2285,11 @@
                         y = baselineY - Math.sin(((cyclePos - 0.16) / 0.04) * Math.PI) * 60;
                     } else if (cyclePos >= 0.20 && cyclePos < 0.24) {
                         y = baselineY + Math.sin(((cyclePos - 0.20) / 0.04) * Math.PI) * 12;
-                    } else if (cyclePos >= 0.24 && cyclePos < 0.55) {
-                        // ST elevation — stays elevated above baseline
-                        const stBase = baselineY - 18;
-                        if (cyclePos < 0.35) {
-                            // ST segment — elevated plateau
-                            y = stBase;
-                        } else {
-                            // Elevated T wave merging with ST segment
-                            y = stBase - Math.sin(((cyclePos - 0.35) / 0.20) * Math.PI) * 12;
+            } else if (cyclePos >= 0.24 && cyclePos < 0.58) {
+                            // Coved ST elevation running straight into the T wave — one smooth dome
+                            // rather than a square plateau, which is how the real record looks.
+                            y = baselineY - 14 - Math.sin(((cyclePos - 0.24) / 0.34) * Math.PI) * 14;
                         }
-                    }
                     break;
                     
                 case 'longQT':
