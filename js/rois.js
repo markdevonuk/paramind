@@ -347,14 +347,17 @@ function getROISStep() {
 
 // ==================== ROIS FUNCTIONS ====================
 
-// Called by the page's setMode('rois') after it has shown the monitor and ROIS panel
-function setModeROIS() {
-    document.getElementById('quizFinalResults').style.display = 'none';
+// Called by the page's setMode('rois') after it has shown the monitor and ROIS panel.
+// rhythmKeys (optional): assess just these rhythms, e.g. ['atrialFibrillation'] for
+// "Assess this rhythm". Leave it out for a normal random 5-rhythm session.
+function setModeROIS(rhythmKeys) {
+    const quizFinal = document.getElementById('quizFinalResults');
+    if (quizFinal) quizFinal.style.display = 'none';
     document.getElementById('monitorHR').style.display = 'none';
     document.getElementById('emergencyBanner').style.display = 'none';
     document.getElementById('noPulseIndicator').style.display = 'none';
     enableROISSticky();
-    startROIS();
+    startROIS(rhythmKeys);
 }
 
 // Called by the page's setMode() when switching away from ROIS Mode
@@ -369,12 +372,14 @@ function leaveROIS() {
     if (selectedRhythm && rhythms[selectedRhythm]) selectRhythm(selectedRhythm);
 }
 
-function startROIS() {
+function startROIS(rhythmKeys) {
     const eligible = Object.keys(rhythms).filter(function(k) { return !ROIS_EXCLUDED.includes(k) && ROIS_DATA[k]; });
+    const fixed = Array.isArray(rhythmKeys) ? rhythmKeys.filter(function(k) { return eligible.includes(k); }) : [];
     roisState = {
         active: true,
         revealed: false,
-        rhythms: shuffleROIS(eligible).slice(0, ROIS_RHYTHMS_PER_SESSION),
+        fixedRhythms: fixed.length ? fixed : null,   // remembered so "Try again" repeats the same rhythm(s)
+        rhythms: fixed.length ? fixed : shuffleROIS(eligible).slice(0, ROIS_RHYTHMS_PER_SESSION),
         currentRhythmIndex: 0,
         currentStep: 0,
         answered: false,
@@ -586,6 +591,8 @@ function showROISFinalResults() {
 
 function updateROISProgress() {
     document.getElementById('roisRhythmNum').textContent = roisState.currentRhythmIndex + 1;
+    const totalEl = document.getElementById('roisRhythmTotal');   // optional: pages with a variable number of rhythms
+    if (totalEl) totalEl.textContent = roisState.rhythms.length;
     document.getElementById('roisStepCount').textContent = 'Step ' + (roisState.currentStep + 1) + ' of ' + ROIS_STEPS_PER_RHYTHM;
     document.getElementById('roisScoreDisplay').textContent = roisState.score.correct + '/' + roisState.score.total;
 }
@@ -624,7 +631,7 @@ function updateROISLetterIndicators() {
 function restartROIS() {
     document.getElementById('roisFinalResults').style.display = 'none';
     enableROISSticky();
-    startROIS();
+    startROIS(roisState.fixedRhythms);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 

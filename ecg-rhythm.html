@@ -24,6 +24,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/ecg12-viewer.css">
+    <link rel="stylesheet" href="css/rois.css">
     
     <style>
         /* ECG Page Specific Styles */
@@ -879,6 +880,36 @@
         .ecg12-credit { font-size: 0.75rem; color: #6C757D; text-align: center; margin: 0.25rem 0 0; }
         .ecg12-pending { font-size: 0.85rem; color: #6C757D; font-style: italic; text-align: center; margin: 1rem 0 0; }
 
+        /* ===== Fixed Monitor in ROIS Mode (JS-powered) ===== */
+        .ecg-monitor-card.rois-fixed {
+            position: fixed;
+            top: var(--rois-nav-height, 56px);
+            left: 0;
+            right: 0;
+            z-index: 50;
+            border-radius: 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .ecg-monitor-card.rois-fixed .ecg-canvas-container {
+            padding: 0.5rem;
+        }
+        .ecg-monitor-card.rois-fixed #ecgCanvas {
+            height: 120px;
+        }
+        /* Placeholder keeps page from jumping when monitor becomes fixed */
+        .ecg-monitor-placeholder {
+            display: none;
+        }
+
+        /* "Assess this rhythm" / "Assess this ECG" */
+        .assess-btn { width: 100%; min-height: 52px; border: none; border-radius: 0.75rem; background: #2B8A9C; color: #fff;
+            font: inherit; font-size: 1rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            box-shadow: 0 4px 12px rgba(43,138,156,0.3); cursor: pointer; margin: 1rem 0 0.5rem; }
+        .assess-btn:hover { background: #237282; }
+        .assess-exit-btn { width: 100%; margin-top: 0.75rem; }
+
         /* The heart view has its own rhythm dropdown; this page's dropdown replaces it */
         #visualContent .rv-select { display: none; }
     </style>
@@ -902,7 +933,7 @@
 
     <div class="ecg-container">
         <!-- Back to the ECG hub + rhythm dropdown -->
-        <div class="viewer-top">
+        <div class="viewer-top" id="viewerTop">
             <a href="ecg-new.html" class="viewer-back" aria-label="Back to ECG Tool"><i class="bi bi-arrow-left"></i></a>
             <select class="viewer-select" id="rhythmSelect" aria-label="Choose a rhythm" onchange="selectRhythm(this.value)">
                 <!-- Populated by JavaScript -->
@@ -915,6 +946,9 @@
             <button type="button" class="view-btn" id="view12Btn" onclick="setView('12lead')" style="display: none;">12-lead</button>
             <button type="button" class="view-btn" id="viewHeartBtn" onclick="setView('heart')">Heart view</button>
         </div>
+
+        <!-- Keeps the page from jumping when the monitor is pinned during an assessment -->
+        <div class="ecg-monitor-placeholder" id="ecgMonitorPlaceholder"></div>
 
         <!-- ECG Monitor -->
         <div class="ecg-monitor-card" id="mainMonitorCard">
@@ -1013,10 +1047,153 @@
                 </div>
             </div>
             <p class="ecg12-pending" id="ecg12Pending" style="display: none;">Teaching notes for this example are coming soon.</p>
+
+            <!-- Assess this ECG: only for examples with reviewed notes (the notes are the answers) -->
+            <button type="button" class="assess-btn" id="assess12Btn" onclick="start12Assess()" style="display: none;">
+                <i class="bi bi-clipboard2-check"></i> Assess this ECG
+            </button>
+            <div class="ecg12-practise" id="ecg12Practise" style="display: none; margin-top: 1.25rem;">
+                <div class="ecg12-teach-title">Practise &mdash; walk the four steps, then mark yourself</div>
+                <div id="ecg12RoisEngine"></div>
+                <button type="button" class="quiz-btn quiz-btn-secondary assess-exit-btn" onclick="exit12Assess()">
+                    <i class="bi bi-arrow-left me-1"></i> Back to the notes
+                </button>
+            </div>
         </div>
 
         <!-- Heart view (js/rhythm-visual.js builds it here the first time it is opened) -->
         <div id="visualContent" style="display: none;"></div>
+
+        <!-- Assess this rhythm (Simple and Heart views; hidden for rhythms with no ROIS questions) -->
+        <button type="button" class="assess-btn" id="assessBtn" onclick="startAssess()">
+            <i class="bi bi-clipboard2-check"></i> Assess this rhythm
+        </button>
+
+        <!-- Assess this rhythm: ROIS questions for the chosen rhythm (engine: js/rois.js) -->
+        <div id="roisContent" style="display: none;">
+
+            <!-- PocketParamedic Credit -->
+            <div class="rois-credit">
+                <div class="rois-credit-framework">
+                    The <span class="rois-letters">R O I S</span> Framework
+                </div>
+                <div class="rois-credit-by">
+                    A brilliant systematic approach to ECG interpretation, developed by
+                </div>
+                <a href="https://www.pocketparamedic.co.uk" target="_blank" rel="noopener noreferrer" class="rois-credit-link">
+                    <i class="bi bi-heart-pulse-fill"></i>
+                    PocketParamedic — pocketparamedic.co.uk
+                </a>
+                <div class="rois-credit-tagline">
+                    An outstanding resource for paramedic education — check them out!
+                </div>
+            </div>
+
+            <!-- ROIS Progress Bar -->
+            <div class="rois-progress-bar" id="roisProgressBar">
+                <span class="rois-progress-rhythm">Rhythm <span id="roisRhythmNum">1</span> of <span id="roisRhythmTotal">1</span></span>
+                <span class="rois-progress-step" id="roisStepCount">Step 1 of 6</span>
+                <span class="rois-progress-score">Score: <span id="roisScoreDisplay">0/0</span></span>
+            </div>
+
+            <!-- ROIS Letter Indicators -->
+            <div class="rois-letter-indicators">
+                <div class="rois-letter-indicator indicator-active" id="roisIndicatorR">R</div>
+                <div class="rois-letter-indicator indicator-pending" id="roisIndicatorO">O</div>
+                <div class="rois-letter-indicator indicator-pending" id="roisIndicatorI">I</div>
+                <div class="rois-letter-indicator indicator-pending" id="roisIndicatorS">S</div>
+            </div>
+
+            <!-- ROIS Step Area -->
+            <div id="roisStepArea">
+                <div class="rois-step-card">
+                    <div class="rois-step-header">
+                        <div class="rois-letter-big" id="roisLetterBig">R</div>
+                        <div class="rois-step-label" id="roisLetterLabel">Rate</div>
+                    </div>
+
+                    <div class="rois-question" id="roisQuestion">What is the approximate ventricular rate?</div>
+
+                    <div class="rois-options" id="roisOptions">
+                        <!-- Populated by JavaScript -->
+                    </div>
+
+                    <div class="rois-feedback" id="roisFeedback" style="display: none;">
+                        <div class="rois-feedback-icon" id="roisFeedbackIcon">✅</div>
+                        <div class="rois-feedback-text" id="roisFeedbackText">Correct!</div>
+                        <div class="rois-feedback-explanation" id="roisFeedbackExplanation"></div>
+                    </div>
+
+                    <!-- Go deeper (shown once the rhythm is revealed; button style from js/go-deeper.js) -->
+                    <div class="go-deeper-row" id="roisGoDeeperRow" style="display: none; margin: 1rem 0;">
+                        <button type="button" class="pgd-btn" onclick="goDeeperROISRhythm()">
+                            <i class="bi bi-mortarboard"></i> Go deeper, Hollie!
+                        </button>
+                    </div>
+
+                    <button class="rois-next-btn" id="roisNextBtn" onclick="roisNext()" style="display: none;">
+                        Next <i class="bi bi-arrow-right"></i>
+                    </button>
+
+                    <button class="rois-exit-btn" onclick="exitAssess()">
+                        <i class="bi bi-arrow-left me-1"></i> Stop assessing
+                    </button>
+                </div>
+            </div>
+
+            <!-- ROIS Final Results (hidden until session complete) -->
+            <div id="roisFinalResults" style="display: none;">
+                <div class="rois-final-results">
+                    <h2 class="rois-final-title">🫀 ROIS Assessment Complete!</h2>
+
+                    <div class="rois-final-score-circle">
+                        <span class="rois-final-percent" id="roisFinalPercent">0%</span>
+                    </div>
+
+                    <p class="rois-final-score-text">
+                        You scored <span id="roisFinalCorrect">0</span> out of <span id="roisFinalTotal">6</span> steps correctly
+                    </p>
+
+                    <p class="rois-final-message" id="roisFinalMessage">Keep practising!</p>
+
+                    <div class="rois-weakest-tip" id="roisWeakestTip" style="display: none;"></div>
+
+                    <div class="rois-section-title"><i class="bi bi-bar-chart-fill"></i> Performance by ROIS Step</div>
+                    <div class="rois-letter-breakdown" id="roisLetterBreakdown">
+                        <!-- Populated by JavaScript -->
+                    </div>
+
+                    <div class="rois-section-title"><i class="bi bi-activity"></i> Results by Rhythm</div>
+                    <div class="rois-rhythm-breakdown" id="roisRhythmBreakdown">
+                        <!-- Populated by JavaScript -->
+                    </div>
+
+                    <div class="rois-final-buttons">
+                        <button class="quiz-btn quiz-btn-primary" onclick="restartROIS()">
+                            🔄 Try this rhythm again
+                        </button>
+                        <button class="quiz-btn quiz-btn-secondary" onclick="exitAssess()">
+                            📚 Back to the rhythm
+                        </button>
+                    </div>
+
+                    <!-- PocketParamedic Credit (repeated at bottom of results) -->
+                    <div class="rois-credit" style="margin-top: 1.5rem;">
+                        <div class="rois-credit-framework">
+                            Practised using the <span class="rois-letters">R O I S</span> Framework
+                        </div>
+                        <div class="rois-credit-by">
+                            Developed by PocketParamedic — an invaluable resource for paramedic education
+                        </div>
+                        <a href="https://www.pocketparamedic.co.uk" target="_blank" rel="noopener noreferrer" class="rois-credit-link">
+                            <i class="bi bi-box-arrow-up-right"></i>
+                            Visit pocketparamedic.co.uk
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         <!-- Footer -->
         <div class="ecg-footer">
@@ -1105,6 +1282,7 @@
         let exampleIndex = 0;          // which example of the current rhythm (0 = first)
         let twelveRequest = 0;         // stops a slow load overwriting a newer one
         let twelveReady = false;       // ECG12Viewer.init done
+        let assessFrom = 'simple';     // the view to return to after "Assess this rhythm"
 
         // ==================== INITIALIZATION ====================
         document.addEventListener('DOMContentLoaded', function() {
@@ -1154,6 +1332,7 @@
             document.getElementById('viewHeartBtn').style.display = hasHeart ? '' : 'none';
             document.getElementById('view12Btn').style.display = has12 ? '' : 'none';
             exampleIndex = 0;
+            updateAssessButton();
 
             updateRhythmDisplay();
 
@@ -1182,6 +1361,10 @@
             document.getElementById('simpleContent').style.display = view === 'simple' ? 'block' : 'none';
             document.getElementById('twelveContent').style.display = view === '12lead' ? 'block' : 'none';
             document.getElementById('visualContent').style.display = view === 'heart' ? 'block' : 'none';
+            document.getElementById('roisContent').style.display = 'none';
+            document.getElementById('viewerTop').style.display = '';
+            document.getElementById('viewSwitch').style.display = '';
+            updateAssessButton();
 
             if (view === '12lead') {
                 load12Lead();
@@ -1226,6 +1409,8 @@
             document.getElementById('exPager').style.visibility = '';
             document.getElementById('ecg12Teach').style.display = 'none';
             document.getElementById('ecg12Pending').style.display = 'none';
+            document.getElementById('assess12Btn').style.display = 'none';
+            document.getElementById('ecg12Practise').style.display = 'none';
 
             ECG12Viewer.loadLibrary().then(function(library) {
                 if (request !== twelveRequest) return;
@@ -1239,12 +1424,76 @@
                 return ECG12Viewer.load(meta).then(function() {
                     if (request !== twelveRequest) return;
                     // Teaching notes only once reviewed; unreviewed examples show the ECG alone
-                    if (meta.textStatus === 'reviewed') renderTeaching(meta, library);
-                    else document.getElementById('ecg12Pending').style.display = 'block';
+                    if (meta.textStatus === 'reviewed') {
+                        renderTeaching(meta, library);
+                        document.getElementById('assess12Btn').style.display = '';
+                    } else {
+                        document.getElementById('ecg12Pending').style.display = 'block';
+                    }
                 });
             }).catch(function() {
                 if (request === twelveRequest) document.getElementById('ecg12Hint').textContent = 'Could not load this ECG. Check your connection and try again.';
             });
+        }
+
+        // ==================== ASSESS THIS RHYTHM (Simple / Heart view) ====================
+        // Runs the ROIS questions from js/rois.js for just the chosen rhythm.
+        function updateAssessButton() {
+            const canAssess = (currentView === 'simple' || currentView === 'heart') &&
+                typeof ROIS_DATA !== 'undefined' && !!ROIS_DATA[selectedRhythm];   // arrest rhythms have none
+            document.getElementById('assessBtn').style.display = canAssess ? '' : 'none';
+        }
+
+        function startAssess() {
+            if (typeof ROIS_DATA === 'undefined' || !ROIS_DATA[selectedRhythm]) return;
+            assessFrom = currentView;
+            currentView = 'assess';
+            document.getElementById('viewerTop').style.display = 'none';
+            document.getElementById('viewSwitch').style.display = 'none';
+            document.getElementById('simpleContent').style.display = 'none';
+            document.getElementById('visualContent').style.display = 'none';
+            document.getElementById('twelveContent').style.display = 'none';
+            document.getElementById('assessBtn').style.display = 'none';
+            document.getElementById('mainMonitorCard').style.display = 'block';
+            document.getElementById('roisContent').style.display = 'block';
+            window.scrollTo(0, 0);
+            setModeROIS([selectedRhythm]);
+        }
+
+        function exitAssess() {
+            currentView = assessFrom;
+            leaveROIS();              // unpins the monitor and resets the rhythm's rate (js/rois.js)
+            setView(assessFrom);
+            window.scrollTo(0, 0);
+        }
+
+        // ==================== ASSESS THIS ECG (12-lead) ====================
+        // The flip-card self-assessment from ecg-12lead.html (js/rois-engine.js).
+        // The teaching notes are hidden while assessing, because they are the answers.
+        function start12Assess() {
+            const current = ECG12Viewer.getCurrent();
+            if (!current || typeof RoisEngine === 'undefined') return;
+            document.getElementById('ecg12Teach').style.display = 'none';
+            document.getElementById('assess12Btn').style.display = 'none';
+            document.getElementById('ecg12Practise').style.display = 'block';
+            const list = TWELVE_LEAD_EXAMPLES[selectedRhythm] || [];
+            ECG12Viewer.loadLibrary().then(function(library) {
+                RoisEngine.start({
+                    container: document.getElementById('ecg12RoisEngine'),
+                    labels: (library && library.roisLabels) || null,
+                    rois: current.meta.rois || {},
+                    recordLabel: current.meta.label,
+                    // "Next" in the summary moves to the next example of this rhythm, if there is one
+                    onNext: exampleIndex < list.length - 1 ? function() { changeExample(1); window.scrollTo({ top: 0, behavior: 'smooth' }); } : undefined
+                });
+            });
+            document.getElementById('ecg12Practise').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function exit12Assess() {
+            document.getElementById('ecg12Practise').style.display = 'none';
+            document.getElementById('ecg12Teach').style.display = 'block';
+            document.getElementById('assess12Btn').style.display = '';
         }
 
         // ROIS teaching panel (from ecg-12lead.html)
@@ -1416,7 +1665,8 @@
             updateLeadLabel(currentRhythm);
             
             const points = generateWaveform(currentRhythm, currentRate, width);
-            const waveColor = rhythms[selectedRhythm].color;
+            // Plain green during an assessment until the rhythm is revealed, as in ROIS Mode
+            const waveColor = (currentView === 'assess' && !roisState.revealed) ? '#22c55e' : rhythms[selectedRhythm].color;
             
             ctx.strokeStyle = waveColor;
             ctx.lineWidth = 2;
@@ -1474,6 +1724,8 @@
 
     <!-- Standardised script loading -->
     <script src="js/rhythm-visual.js"></script>
+    <script src="js/rois.js"></script>
+    <script src="js/rois-engine.js"></script>
     <script src="js/app.js"></script>
     <script src="js/menu-v2.js"></script>
     <script src="js/go-deeper.js"></script>
