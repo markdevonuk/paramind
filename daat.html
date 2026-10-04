@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Devon HEMS Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an ops status board — one header strip, one card per asset, a plain notes block. */
+:root{
+  --bg:#eef1f3; --panel:#ffffff; --fg:#14202a; --muted:#5b6b78; --line:#d6dde3;
+  --accent:#c8102e;
+  --ok:#1f7a4d; --ok-bg:#e3f3ea;
+  --air:#b45309; --air-bg:#fdf0dc;
+  --idle:#56626d; --idle-bg:#e7ebee;
+  --err:#a61b1b; --err-bg:#fbe5e5;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e161d; --panel:#16212a; --fg:#e6edf2; --muted:#93a3b0; --line:#26343f;
+  --accent:#ff4d5e;
+  --ok:#5fd39a; --ok-bg:#163527; --air:#f5b454; --air-bg:#3a2a12;
+  --idle:#a3b0bb; --idle-bg:#22303b; --err:#ff8a8a; --err-bg:#3c1a1d;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0e161d; --panel:#16212a; --fg:#e6edf2; --muted:#93a3b0; --line:#26343f;
+  --accent:#ff4d5e;
+  --ok:#5fd39a; --ok-bg:#163527; --air:#f5b454; --air-bg:#3a2a12;
+  --idle:#a3b0bb; --idle-bg:#22303b; --err:#ff8a8a; --err-bg:#3c1a1d;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--body);padding-inline:16px;padding-block:20px 40px}
+.wrap{max-width:880px;margin:0 auto;display:grid;gap:20px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;border-bottom:3px solid var(--accent);padding-bottom:12px}
+h1{font:700 2.1rem/1 var(--display);letter-spacing:.02em;text-transform:uppercase;margin:0;text-wrap:balance}
+.sub{color:var(--muted);font-size:.85rem;margin-top:4px}
+.clock{font:500 .85rem var(--mono);color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.clock button{font:600 .8rem var(--body);background:transparent;color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer;margin-top:6px}
+.clock button:hover{border-color:var(--accent)}
+button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.section-label{font:700 .8rem var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 -8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:12px;min-width:0}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.callsign{font:700 1.7rem/1 var(--display);letter-spacing:.03em}
+.meta{color:var(--muted);font-size:.82rem}
+.pill{font:600 .75rem var(--body);letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:999px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.pill::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.s-air{color:var(--air);background:var(--air-bg)}
+.s-air::before{animation:blink 1.2s infinite}
+.s-ground{color:var(--ok);background:var(--ok-bg)}
+.s-unseen{color:var(--idle);background:var(--idle-bg)}
+.s-err{color:var(--err);background:var(--err-bg)}
+.s-wait{color:var(--idle);background:var(--idle-bg)}
+@keyframes blink{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.s-air::before{animation:none}}
+.headline{font-weight:600}
+dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0;font-size:.88rem}
+dt{color:var(--muted)}
+dd{margin:0;font-family:var(--mono);font-variant-numeric:tabular-nums;min-width:0;overflow-wrap:anywhere}
+.links{display:flex;flex-wrap:wrap;gap:12px;font-size:.85rem}
+a{color:var(--accent)}
+.car .callsign{color:var(--muted)}
+.notes{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;font-size:.88rem;color:var(--muted)}
+.notes h2{font:700 1rem var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--fg);margin:0 0 6px}
+.notes ul{margin:0;padding-left:18px;display:grid;gap:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Devon Air Ambulance</h1>
+      <div class="sub">Unofficial live board from public ADS-B transponder data</div>
+    </div>
+    <div class="clock">
+      <div id="updated">Checking…</div>
+      <button id="refresh" type="button">Refresh now</button>
+    </div>
+  </header>
+
+  <p class="section-label">Helicopters</p>
+  <div class="grid" id="heli"></div>
+
+  <p class="section-label">Critical Care Cars</p>
+  <div class="grid">
+    <div class="card car">
+      <div class="card-top">
+        <div>
+          <div class="callsign">Road fleet</div>
+          <div class="meta">Critical Care Cars, Exeter &amp; Eaglescott</div>
+        </div>
+        <span class="pill s-unseen">No public feed</span>
+      </div>
+      <div class="meta">The cars don't broadcast a public position, so their status can't be shown here. They typically respond when weather or maintenance grounds the aircraft, or when road is quicker.</div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <h2>How to read this</h2>
+    <ul>
+      <li><strong>Airborne</strong>: the aircraft is transmitting and flying, so it is probably on a mission or returning.</li>
+      <li><strong>On ground</strong>: transmitting while landed. At base it is likely ready; away from base it is likely at scene or a hospital.</li>
+      <li><strong>Not seen</strong>: no signal. Usually means it is shut down at base, but low flying in valleys can also drop out of receiver coverage.</li>
+      <li>This is not official availability. Crew status, weather limits and maintenance aren't visible in transponder data.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+const AIRCRAFT = [
+  { reg:"G-DAAS", call:"Exeter", type:"Airbus H145", base:"Exeter Airport", lat:50.7344, lon:-3.4139 },
+  { reg:"G-DAAN", call:"North Devon", type:"Airbus EC135", base:"Eaglescott", lat:50.9283, lon:-3.9889 }
+];
+// Two community ADS-B networks with the same readsb-style JSON; second is a fallback.
+const SOURCES = [
+  reg => `https://api.adsb.lol/v2/reg/${reg}`,
+  reg => `https://api.airplanes.live/v2/reg/${reg}`
+];
+const POLL_MS = 30000;
+const AT_BASE_KM = 1.5;
+
+const el = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function km(a,b,c,d){
+  const R=6371, r=x=>x*Math.PI/180;
+  const dLat=r(c-a), dLon=r(d-b);
+  const h=Math.sin(dLat/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.sqrt(h));
+}
+function nearestBase(lat,lon){
+  return AIRCRAFT.map(a=>({name:a.base,d:km(lat,lon,a.lat,a.lon)})).sort((x,y)=>x.d-y.d)[0];
+}
+function compass(deg){
+  if(deg==null) return "";
+  return ["N","NE","E","SE","S","SW","W","NW"][Math.round(deg/45)%8];
+}
+function lastSeen(reg, set){
+  const k="daa-last-"+reg;
+  try{ if(set) localStorage.setItem(k, String(set)); return Number(localStorage.getItem(k))||null; }
+  catch(e){ return null; }
+}
+function ago(ts){
+  if(!ts) return "not recorded on this device";
+  const m=Math.round((Date.now()-ts)/60000);
+  if(m<1) return "just now";
+  if(m<60) return m+" min ago";
+  const h=Math.floor(m/60);
+  if(h<24) return h+" h "+(m%60)+" min ago";
+  return new Date(ts).toLocaleString("en-GB",{dateStyle:"medium",timeStyle:"short"});
+}
+
+async function fetchReg(reg){
+  let lastErr;
+  for(const src of SOURCES){
+    try{
+      let t;
+      const timeout=new Promise((_,rej)=>{ t=setTimeout(()=>rej(Object.assign(new Error("timed out"),{name:"AbortError"})),10000); });
+      const r=await Promise.race([fetch(src(reg)), timeout]);
+      clearTimeout(t);
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      const j=await r.json();
+      return (j.ac||j.aircraft||[])[0]||null;
+    }catch(e){
+      const host=new URL(src(reg)).hostname;
+      const why = e.name==="AbortError" ? "timed out"
+        : e instanceof TypeError ? "blocked or unreachable (CORS, offline, or a sandboxed preview)"
+        : e.message;
+      lastErr = lastErr ? lastErr+"; "+host+": "+why : host+": "+why;
+    }
+  }
+  throw new Error(lastErr||"No source answered");
+}
+
+function render(a, state){
+  const links = `<div class="links">
+    <a href="https://globe.adsb.lol/?reg=${a.reg}" target="_blank" rel="noopener">Live map</a>
+    <a href="https://globe.airplanes.live/?reg=${a.reg}" target="_blank" rel="noopener">Alt map</a>
+  </div>`;
+  let pill, headline, rows="";
+  if(state.error){
+    pill=`<span class="pill s-err">No data</span>`;
+    headline="Couldn't reach the tracking networks. Will retry.";
+    rows=`<dt>Reason</dt><dd>${esc(state.reason||"unknown")}</dd><dt>Opened from</dt><dd>${esc(location.protocol==="file:"?"local file":location.host||"embedded preview")}</dd>`;
+  } else if(state.pending){
+    pill=`<span class="pill s-wait">Checking</span>`;
+    headline="Looking for a signal…";
+  } else if(!state.ac){
+    pill=`<span class="pill s-unseen">Not seen</span>`;
+    headline=`No transponder signal. Most likely shut down at ${esc(a.base)}.`;
+    rows=`<dt>Last seen</dt><dd>${esc(ago(lastSeen(a.reg)))}</dd>`;
+  } else {
+    const ac=state.ac;
+    const onGround = ac.alt_baro==="ground" || (typeof ac.gs==="number" && ac.gs<20 && (ac.alt_baro==null || ac.alt_baro<600));
+    const hasPos = typeof ac.lat==="number" && typeof ac.lon==="number";
+    const nb = hasPos ? nearestBase(ac.lat,ac.lon) : null;
+    const homeKm = hasPos ? km(ac.lat,ac.lon,a.lat,a.lon) : null;
+    lastSeen(a.reg, Date.now());
+    if(onGround){
+      pill=`<span class="pill s-ground">On ground</span>`;
+      headline = nb && nb.d<AT_BASE_KM ? `Landed at ${esc(nb.name)} with transponder on.` : `Landed away from base, likely at scene or hospital.`;
+    } else {
+      pill=`<span class="pill s-air">Airborne</span>`;
+      headline = "Flying. Probably tasked or returning to base.";
+    }
+    if(typeof ac.alt_baro==="number") rows+=`<dt>Altitude</dt><dd>${ac.alt_baro.toLocaleString("en-GB")} ft</dd>`;
+    if(typeof ac.gs==="number") rows+=`<dt>Speed</dt><dd>${Math.round(ac.gs)} kt ${esc(compass(ac.track))}</dd>`;
+    if(homeKm!=null) rows+=`<dt>From ${esc(a.base)}</dt><dd>${homeKm.toFixed(1)} km (${(homeKm*0.5399).toFixed(1)} nm)</dd>`;
+    if(hasPos) rows+=`<dt>Position</dt><dd>${ac.lat.toFixed(4)}, ${ac.lon.toFixed(4)}</dd>`;
+    if(ac.flight) rows+=`<dt>Callsign</dt><dd>${esc(ac.flight.trim())}</dd>`;
+    if(ac.squawk) rows+=`<dt>Squawk</dt><dd>${esc(ac.squawk)}</dd>`;
+    if(typeof ac.seen==="number") rows+=`<dt>Signal age</dt><dd>${Math.round(ac.seen)} s</dd>`;
+  }
+  return `<div class="card">
+    <div class="card-top">
+      <div>
+        <div class="callsign">${esc(a.call)}</div>
+        <div class="meta">${esc(a.reg)} · ${esc(a.type)} · ${esc(a.base)}</div>
+      </div>
+      ${pill}
+    </div>
+    <div class="headline">${headline}</div>
+    ${rows?`<dl>${rows}</dl>`:""}
+    ${links}
+  </div>`;
+}
+
+let states = AIRCRAFT.map(()=>({pending:true}));
+function draw(){ el("heli").innerHTML = AIRCRAFT.map((a,i)=>render(a,states[i])).join(""); }
+
+let busy=false;
+async function poll(){
+  if(busy) return; busy=true;
+  el("updated").textContent="Updating…";
+  states = await Promise.all(AIRCRAFT.map(async a=>{
+    try{ return {ac: await fetchReg(a.reg)}; }
+    catch(e){ return {error:true, reason:e.message}; }
+  }));
+  draw();
+  el("updated").textContent="Updated "+new Date().toLocaleTimeString("en-GB")+" · every 30 s";
+  busy=false;
+}
+el("refresh").addEventListener("click", poll);
+draw();
+poll();
+setInterval(()=>{ if(!document.hidden) poll(); }, POLL_MS);
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) poll(); });
+</script>
+</body>
+</html>
