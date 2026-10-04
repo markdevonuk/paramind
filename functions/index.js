@@ -5635,3 +5635,48 @@ exports.sendTrialEmails = onSchedule(
     }
   }
 );
+
+// ============================================
+// DEVON AIR AMBULANCE TRACKER (daat.html)
+// Server-side ADS-B lookup: the public ADS-B APIs don't allow browser (CORS) requests.
+// Fixed to the two DAA registrations so it can't be used as an open proxy.
+// ============================================
+
+const DAAT_REGS = ["G-DAAS", "G-DAAN"];
+const DAAT_SOURCES = [
+  (reg) => `https://api.adsb.lol/v2/reg/${reg}`,
+  (reg) => `https://api.airplanes.live/v2/reg/${reg}`,
+];
+let daatCache = { at: 0, body: null };
+
+async function daatLookup(reg) {
+  let lastErr = "no source answered";
+  for (const src of DAAT_SOURCES) {
+    const url = src(reg);
+    try {
+      const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const j = await r.json();
+      return { reg, ok: true, source: new URL(url).hostname, ac: (j.ac || j.aircraft || [])[0] || null };
+    } catch (err) {
+      lastErr = `${new URL(url).hostname}: ${err.message}`;
+    }
+  }
+  return { reg, ok: false, error: lastErr };
+}
+
+exports.daatStatus = onRequest(
+  {
+    cors: ["https://paramind.co.uk", "https://www.paramind.co.uk", /localhost/],
+    memory: "128MiB",
+    maxInstances: 2,
+  },
+  async (req, res) => {
+    if (Date.now() - daatCache.at > 20000 || !daatCache.body) {
+      const aircraft = await Promise.all(DAAT_REGS.map(daatLookup));
+      daatCache = { at: Date.now(), body: { fetchedAt: new Date().toISOString(), aircraft } };
+    }
+    res.set("Cache-Control", "public, max-age=20");
+    res.json(daatCache.body);
+  }
+);

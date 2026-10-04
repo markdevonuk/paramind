@@ -119,11 +119,8 @@ const AIRCRAFT = [
   { reg:"G-DAAS", call:"Exeter", type:"Airbus H145", base:"Exeter Airport", lat:50.7344, lon:-3.4139 },
   { reg:"G-DAAN", call:"North Devon", type:"Airbus EC135", base:"Eaglescott", lat:50.9283, lon:-3.9889 }
 ];
-// Two community ADS-B networks with the same readsb-style JSON; second is a fallback.
-const SOURCES = [
-  reg => `https://api.adsb.lol/v2/reg/${reg}`,
-  reg => `https://api.airplanes.live/v2/reg/${reg}`
-];
+// Paramind Cloud Function that queries adsb.lol / airplanes.live server-side (they block browser CORS).
+const STATUS_URL = "https://europe-west2-paramind-64b8e.cloudfunctions.net/daatStatus";
 const POLL_MS = 30000;
 const AT_BASE_KM = 1.5;
 
@@ -158,26 +155,16 @@ function ago(ts){
   return new Date(ts).toLocaleString("en-GB",{dateStyle:"medium",timeStyle:"short"});
 }
 
-async function fetchReg(reg){
-  let lastErr;
-  for(const src of SOURCES){
-    try{
-      let t;
-      const timeout=new Promise((_,rej)=>{ t=setTimeout(()=>rej(Object.assign(new Error("timed out"),{name:"AbortError"})),10000); });
-      const r=await Promise.race([fetch(src(reg)), timeout]);
-      clearTimeout(t);
-      if(!r.ok) throw new Error("HTTP "+r.status);
-      const j=await r.json();
-      return (j.ac||j.aircraft||[])[0]||null;
-    }catch(e){
-      const host=new URL(src(reg)).hostname;
-      const why = e.name==="AbortError" ? "timed out"
-        : e instanceof TypeError ? "blocked or unreachable (CORS, offline, or a sandboxed preview)"
-        : e.message;
-      lastErr = lastErr ? lastErr+"; "+host+": "+why : host+": "+why;
-    }
-  }
-  throw new Error(lastErr||"No source answered");
+async function fetchAll(){
+  let t;
+  try{
+    const timeout=new Promise((_,rej)=>{ t=setTimeout(()=>rej(new Error("timed out")),15000); });
+    const r=await Promise.race([fetch(STATUS_URL), timeout]);
+    if(!r.ok) throw new Error("status service HTTP "+r.status+(r.status===404?" (function not deployed yet?)":""));
+    return await r.json();
+  }catch(e){
+    throw new Error(e.message==="timed out"||/^status service/.test(e.message) ? e.message : "status service unreachable ("+e.message+")");
+  }finally{ clearTimeout(t); }
 }
 
 function render(a, state){
@@ -240,10 +227,16 @@ let busy=false;
 async function poll(){
   if(busy) return; busy=true;
   el("updated").textContent="Updating…";
-  states = await Promise.all(AIRCRAFT.map(async a=>{
-    try{ return {ac: await fetchReg(a.reg)}; }
-    catch(e){ return {error:true, reason:e.message}; }
-  }));
+  try{
+    const data = await fetchAll();
+    states = AIRCRAFT.map(a=>{
+      const hit = (data.aircraft||[]).find(x=>x.reg===a.reg);
+      if(!hit) return {error:true, reason:"no entry for "+a.reg};
+      return hit.ok ? {ac: hit.ac} : {error:true, reason:hit.error};
+    });
+  }catch(e){
+    states = AIRCRAFT.map(()=>({error:true, reason:e.message}));
+  }
   draw();
   el("updated").textContent="Updated "+new Date().toLocaleTimeString("en-GB")+" · every 30 s";
   busy=false;
