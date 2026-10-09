@@ -626,47 +626,46 @@ function countView(id){
   }
 }
 
-/* ---------- listening (simulated sounds) ---------- */
-let actx, noiseBuf;
-function audio(){
-  if(!actx){ actx = new (window.AudioContext||window.webkitAudioContext)(); }
-  if(actx.state==='suspended') actx.resume();
-  if(!noiseBuf){
-    noiseBuf = actx.createBuffer(1, actx.sampleRate*7, actx.sampleRate);
-    const d=noiseBuf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
-  }
-  return actx;
-}
-function playChest(crackles){
-  const ctx=audio(), t0=ctx.currentTime+0.05;
-  const master=ctx.createGain(); master.gain.value=0.9; master.connect(ctx.destination);
-  const src=ctx.createBufferSource(); src.buffer=noiseBuf;
-  const bp=ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=420; bp.Q.value=0.7;
-  const lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=900;
-  const g=ctx.createGain(); g.gain.setValueAtTime(0,t0);
-  for(let i=0;i<3;i++){
-    const b=t0+i*2;
-    g.gain.linearRampToValueAtTime(0.45,b+0.55);
-    g.gain.linearRampToValueAtTime(0.06,b+0.9);
-    g.gain.linearRampToValueAtTime(0.22,b+1.15);
-    g.gain.linearRampToValueAtTime(0.0,b+1.9);
-  }
-  src.connect(bp); bp.connect(lp); lp.connect(g); g.connect(master);
-  src.start(t0); src.stop(t0+6.1);
+/* ---------- listening (simulated sounds) ----------
+   Sounds are built as a short WAV clip and played with an <audio>
+   element, which iPhones play even when the silent switch is on. */
+const wavCache = {};
+let player = null;
+function chestWav(crackles){
+  const key = crackles ? 'c' : 'n';
+  if(wavCache[key]) return wavCache[key];
+  const sr = 22050, n = sr*6, d = new Float32Array(n);
+  const pts = [[0,0],[0.55,0.45],[0.9,0.06],[1.15,0.22],[1.9,0],[2,0]];
+  const env = t => { const p = t % 2; for(let i=1;i<pts.length;i++){ if(p<=pts[i][0]){ const a=pts[i-1], b=pts[i]; return a[1]+(b[1]-a[1])*(p-a[0])/(b[0]-a[0]); } } return 0; };
+  const a1 = 1-Math.exp(-2*Math.PI*900/sr), a2 = 1-Math.exp(-2*Math.PI*250/sr);
+  let lp=0, lp2=0;
+  for(let i=0;i<n;i++){ const x=Math.random()*2-1; lp+=a1*(x-lp); lp2+=a2*(lp-lp2); d[i]=(lp-lp2)*env(i/sr)*3.2; }
   if(crackles){
-    const len=Math.floor(ctx.sampleRate*0.008);
-    const cb=ctx.createBuffer(1,len,ctx.sampleRate); const d=cb.getChannelData(0);
-    for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/(len/5));
-    for(let i=0;i<3;i++){
+    const len = Math.floor(sr*0.008);
+    for(let b=0;b<3;b++){
       for(let k=0;k<11;k++){
-        const t=t0+i*2+0.35+Math.random()*0.5;
-        const s=ctx.createBufferSource(); s.buffer=cb;
-        const hp=ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=700+Math.random()*500;
-        const cg=ctx.createGain(); cg.gain.value=0.35+Math.random()*0.35;
-        s.connect(hp); hp.connect(cg); cg.connect(master); s.start(t);
+        const st = Math.floor((b*2+0.35+Math.random()*0.5)*sr), amp = 0.35+Math.random()*0.35;
+        let prev = 0;
+        for(let j=0;j<len && st+j<n;j++){ const x=(Math.random()*2-1)*Math.exp(-j/(len/5)); d[st+j]+=(x-prev)*amp; prev=x; }
       }
     }
   }
+  const buf = new ArrayBuffer(44+n*2), v = new DataView(buf);
+  const w = (o,str) => { for(let i=0;i<str.length;i++) v.setUint8(o+i, str.charCodeAt(i)); };
+  w(0,'RIFF'); v.setUint32(4,36+n*2,true); w(8,'WAVE'); w(12,'fmt ');
+  v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+  v.setUint32(24,sr,true); v.setUint32(28,sr*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true);
+  w(36,'data'); v.setUint32(40,n*2,true);
+  for(let i=0;i<n;i++){ v.setInt16(44+i*2, Math.round(Math.tanh(d[i]*0.9)*0.9*32767), true); }
+  return (wavCache[key] = URL.createObjectURL(new Blob([buf], {type:'audio/wav'})));
+}
+function playChest(crackles){
+  const url = chestWav(crackles);
+  if(player){ try{ player.pause(); }catch(e){} }
+  player = new Audio(url);
+  player.setAttribute('playsinline','');
+  const p = player.play();
+  if(p && p.catch) p.catch(()=>{});
 }
 function listenView(){
   const zone = (k,label,where)=>`<button class="act ${S.found.has(k)?'done':''}" data-z="${k}"><span class="L">🩺</span><span>${label}<br><small style="color:var(--muted)">${where}</small></span><span class="cost">${S.found.has(k)?'Done':'20 s'}</span>${S.found.has(k)?`<span class="res">${esc(CLUES[k].t)}</span>`:''}</button>`;
@@ -895,7 +894,7 @@ function start(){
   window.scrollTo({top:0});
   doorway();
 }
-$('#go').addEventListener('click', ()=>{ try{audio();}catch(e){} start(); });
+$('#go').addEventListener('click', start);
 document.querySelectorAll('.hs').forEach(h=>{
   h.addEventListener('click', ()=>showArea(h.dataset.area));
   h.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); showArea(h.dataset.area);} });
