@@ -487,13 +487,55 @@ CH.home = function(){
   this.root.innerHTML = `
     <div class="ch-home ch-lv-${lv}">
       <div class="ch-head">
-        <svg class="ch-logo" viewBox="0 0 96 96" role="img" aria-label="Clue Hunt game">
-          <rect x="4" y="4" width="88" height="88" rx="24" fill="#2B8A9C"/>
-          <rect x="4" y="4" width="88" height="44" rx="24" fill="#3DA4B8" opacity=".55"/>
-          <circle cx="42" cy="42" r="21" fill="#ffffff"/><circle cx="42" cy="42" r="21" fill="none" stroke="#1d5f6c" stroke-width="6"/>
-          <path d="M26 43 L33 43 L37 33 L43 53 L47 39 L50 43 L58 43" fill="none" stroke="#e05a5a" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M57 57 L74 74" stroke="#1d5f6c" stroke-width="10" stroke-linecap="round"/><path d="M57 57 L74 74" stroke="#f4b740" stroke-width="5" stroke-linecap="round"/>
-          <circle cx="74" cy="22" r="10" fill="#5CB85C"/><path d="M70.5 22 L73 24.8 L78 19" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <svg class="ch-logo" viewBox="0 0 200 200" role="img" aria-label="Clue Hunt: a paramedic searching for clues with a magnifying glass">
+  <defs><clipPath id="chMedicClip"><circle cx="100" cy="100" r="94"/></clipPath></defs>
+  <circle cx="100" cy="100" r="96" fill="#3DA4B8"/>
+  <circle cx="100" cy="100" r="94" fill="#e6f4f6"/>
+  <g clip-path="url(#chMedicClip)">
+    <circle cx="100" cy="100" r="70" fill="#d3ecf0"/>
+    <!-- sparkles -->
+    <path d="M160 46 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3 Z" fill="#f4b740"/>
+    <path d="M40 62 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z" fill="#5CB85C"/>
+    <!-- hair behind -->
+    <circle cx="140" cy="56" r="14" fill="#4a2e1c"/>
+    <path d="M78 84 C74 48 146 48 142 84 L146 112 Q110 120 76 112 Z" fill="#4a2e1c"/>
+    <!-- body: green uniform -->
+    <path d="M38 210 Q40 146 110 132 Q178 146 182 210 Z" fill="#1f5a3c"/>
+    <path d="M60 150 Q66 140 80 136 L84 150 Z" fill="#2c7a52"/>
+    <path d="M160 150 Q154 140 140 136 L136 150 Z" fill="#2c7a52"/>
+    <path d="M96 132 L110 152 L124 132 Z" fill="#e9c3a6"/>
+    <path d="M92 130 L110 156 L100 130 Z" fill="#2c7a52"/><path d="M128 130 L110 156 L120 130 Z" fill="#2c7a52"/>
+    <!-- chest badge -->
+    <rect x="114" y="158" width="44" height="12" rx="2.5" fill="#ffffff"/>
+    <text x="136" y="166.5" text-anchor="middle" font-family="Plus Jakarta Sans, system-ui, sans-serif" font-size="6" font-weight="800" fill="#1f5a3c" letter-spacing=".3">PARAMEDIC</text>
+    <!-- radio on shoulder -->
+    <rect x="146" y="140" width="11" height="18" rx="3" fill="#2a2a2a"/><rect x="150" y="130" width="3" height="11" rx="1.5" fill="#2a2a2a"/><circle cx="151.5" cy="146" r="1.6" fill="#5CB85C"/>
+    <!-- neck and head -->
+    <rect x="100" y="104" width="20" height="30" rx="6" fill="#e2b898"/>
+    <ellipse cx="80" cy="82" rx="5" ry="8" fill="#e2b898"/><ellipse cx="140" cy="82" rx="5" ry="8" fill="#e2b898"/>
+    <ellipse cx="110" cy="78" rx="30" ry="34" fill="#e9c3a6"/>
+    <path d="M80 76 C78 46 142 46 140 76 C130 58 116 54 104 60 C96 56 86 62 80 76 Z" fill="#4a2e1c"/>
+    <!-- right eye (normal) and brows -->
+    <path d="M115 66 Q122 62 129 66" stroke="#3a2416" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+    <circle cx="122" cy="77" r="3.4" fill="#2a2a2a"/><circle cx="123.2" cy="75.8" r="1" fill="#ffffff"/>
+    <ellipse cx="128" cy="90" rx="6" ry="4" fill="#e88a8a" opacity=".45"/>
+    <path d="M102 96 Q112 104 122 95" stroke="#a8545a" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- arm holding the magnifying glass -->
+    <path d="M58 200 Q46 150 62 116" stroke="#1f5a3c" stroke-width="22" fill="none" stroke-linecap="round"/>
+        <path d="M70 102 L82 90" stroke="#3a2a1a" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="65" cy="110" r="10" fill="#e9c3a6"/>
+    <path d="M58 106 Q64 100 72 104" stroke="#d6a888" stroke-width="2" fill="none"/>
+    <!-- lens with enlarged eye -->
+    <circle cx="96" cy="76" r="21" fill="#ffffff"/>
+    <ellipse cx="97" cy="77" rx="12" ry="9.5" fill="#ffffff" stroke="#e9c3a6" stroke-width="2"/>
+    <circle cx="98" cy="77" r="7" fill="#3a6a8a"/><circle cx="98" cy="77" r="3.6" fill="#141414"/><circle cx="100.5" cy="74.5" r="2" fill="#ffffff"/>
+    <path d="M84 64 Q96 58 108 63" stroke="#3a2416" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <circle cx="96" cy="76" r="21" fill="#bfe6f2" fill-opacity=".28"/>
+    <path d="M82 66 Q86 60 92 58" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".9"/>
+    <circle cx="96" cy="76" r="21" fill="none" stroke="#f4b740" stroke-width="6"/>
+    <circle cx="96" cy="76" r="24" fill="none" stroke="#c98f1e" stroke-width="1.2" opacity=".6"/>
+  </g>
+
         </svg>
         <h1>Clue Hunt</h1>
         <p>Examine the patient, find the clues, then name what's going on. Turn your sound on to listen to chests.</p></div>
