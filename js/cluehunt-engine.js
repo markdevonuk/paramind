@@ -475,7 +475,7 @@ CH.home = function(){
   const list = this.cases.filter(c=>c.level===lv);
   const tabs = Object.keys(LEVELS).map(k=>{
     const n = this.cases.filter(c=>c.level===k).length;
-    return `<button class="ch-tab ${k===lv?'on':''}" data-lv="${k}" role="tab" aria-selected="${k===lv}">${LEVELS[k].name}<small>${n?n+' cases':'Coming soon'}</small></button>`;
+    return `<button class="ch-tab ch-tab-${k} ${k===lv?'on':''}" data-lv="${k}" role="tab" aria-selected="${k===lv}">${LEVELS[k].name}<small>${n?n+' cases':'Coming soon'}</small></button>`;
   }).join('');
   const cards = list.length ? list.map((c,i)=>{
     const b = best[c.id];
@@ -485,8 +485,17 @@ CH.home = function(){
       <span class="ch-card-best ${b!=null?'done':''}">${b!=null?b+'%':'New'}</span></button>`;
   }).join('') : `<p class="ch-soon">${esc(LEVELS[lv].name)} cases are on their way.</p>`;
   this.root.innerHTML = `
-    <div class="ch-home">
-      <div class="ch-head"><div class="ch-eyebrow">Paramind Pro</div><h1>Clue Hunt</h1>
+    <div class="ch-home ch-lv-${lv}">
+      <div class="ch-head">
+        <svg class="ch-logo" viewBox="0 0 96 96" role="img" aria-label="Clue Hunt game">
+          <rect x="4" y="4" width="88" height="88" rx="24" fill="#2B8A9C"/>
+          <rect x="4" y="4" width="88" height="44" rx="24" fill="#3DA4B8" opacity=".55"/>
+          <circle cx="42" cy="42" r="21" fill="#ffffff"/><circle cx="42" cy="42" r="21" fill="none" stroke="#1d5f6c" stroke-width="6"/>
+          <path d="M26 43 L33 43 L37 33 L43 53 L47 39 L50 43 L58 43" fill="none" stroke="#e05a5a" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M57 57 L74 74" stroke="#1d5f6c" stroke-width="10" stroke-linecap="round"/><path d="M57 57 L74 74" stroke="#f4b740" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="74" cy="22" r="10" fill="#5CB85C"/><path d="M70.5 22 L73 24.8 L78 19" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h1>Clue Hunt</h1>
         <p>Examine the patient, find the clues, then name what's going on. Turn your sound on to listen to chests.</p></div>
       <div class="ch-tabs" role="tablist">${tabs}</div>
       <p class="ch-lvl">${esc(LEVELS[lv].blurb)}</p>
