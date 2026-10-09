@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <title>Clue Hunt | Paramind – Free Paramedic Assessment Game</title>
+
+    <!-- SEO -->
+    <meta name="description" content="Clue Hunt: a free paramedic assessment game from Paramind. Examine the patient, find the clues and name what's going on. No sign-up required.">
+    <meta property="og:title" content="Paramind Clue Hunt – Can You Spot the Clues?">
+    <meta property="og:description" content="Free paramedic assessment game. Examine the patient, count the breaths, listen to the chest and make your call. No sign-up required.">
+    <meta property="og:image" content="https://paramind.co.uk/images/paramind-social-preview.png?v=1">
+    <meta property="og:url" content="https://paramind.co.uk/cluehunt-free.html">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   CLUE HUNT (FREE) — standalone page, no navbar, no Firebase.
+   Colours mirror css/styles.css brand values.
+   ═══════════════════════════════════════════════════════════ */
+:root{
+  --teal:#2B8A9C; --teal-dark:#237282; --teal-bright:#3DA4B8; --teal-soft:#e6f4f6;
+  --brand-green:#5CB85C; --green:#4A9A4A; --green-soft:#eaf6ea;
+  --bg:#F8F9FA; --surface:#FFFFFF; --surface-2:#F1F3F5; --ink:#212529; --muted:#6C757D; --line:#E9ECEF;
+  --amber:#9a6412; --amber-soft:#fff4dc; --red:#c82333; --red-soft:#fdecee; --on-teal:#ffffff;
+  --shadow:0 10px 30px rgba(33,37,41,.10);
+  --f-body:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,"SF Mono",Menlo,monospace;
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{background:var(--bg);margin:0}
+body{color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:var(--teal)}
+button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--teal-bright);outline-offset:2px}
+.app{max-width:1120px;margin:0 auto;padding-inline:16px;padding-block:12px 40px}
+
+/* Top bar */
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;padding-block:6px 14px}
+.brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.wordmark{font-weight:800;font-size:1.4rem;text-decoration:none;letter-spacing:-.01em;line-height:1}
+.brand-para{color:var(--teal)}.brand-mind{color:var(--brand-green)}
+.game{font-weight:700;font-size:1.05rem;color:var(--muted)}
+.hud{display:flex;align-items:center;gap:14px}
+.abcde{display:flex;gap:4px}
+.chip{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-weight:800;font-size:.85rem;background:var(--surface-2);color:var(--muted);border:1px solid var(--line);position:relative;transition:background .25s,color .25s}
+.chip.on{background:var(--teal);color:var(--on-teal);border-color:var(--teal)}
+.chip sup{position:absolute;top:-7px;right:-6px;font-size:.62rem;background:var(--ink);color:#fff;border-radius:999px;min-width:15px;height:15px;display:grid;place-items:center;font-weight:700}
+.clock{display:flex;flex-direction:column;align-items:flex-end;line-height:1.1}
+.clock .lbl{font-size:.66rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.clock #clock{font-family:var(--f-mono);font-weight:700;font-size:1.25rem;font-variant-numeric:tabular-nums}
+
+/* Start screen */
+.start{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:28px;align-items:start;padding-block:12px}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--teal)}
+.start h1{font-weight:800;font-size:clamp(2.4rem,7vw,4rem);line-height:1;letter-spacing:-.03em;margin:.2em 0 .25em;text-wrap:balance;color:var(--ink)}
+.lede{font-size:1.1rem;color:var(--muted);max-width:34ch;margin:0 0 22px}
+.steps{list-style:none;padding:0;margin:0 0 22px;display:grid;gap:10px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;counter-increment:s}
+.steps li::before{content:counter(s);width:28px;height:28px;border-radius:50%;background:var(--teal-soft);display:grid;place-items:center;font-weight:800;font-size:.82rem;color:var(--teal)}
+.steps b{display:block}
+.steps span{color:var(--muted);font-size:.92rem}
+.btn{border:0;border-radius:12px;padding:12px 18px;font-weight:700;background:var(--surface-2);color:var(--ink);text-decoration:none;display:inline-block;text-align:center}
+.btn.primary{background:var(--teal);color:var(--on-teal)}
+.btn.primary:hover{background:var(--teal-dark)}
+.btn.big{padding:15px 26px;font-size:1.05rem}
+.btn.ghost{background:transparent;border:1.5px solid var(--line)}
+.fine{font-size:.85rem;color:var(--muted);margin-top:14px}
+
+.dispatch{background:#0f2a33;color:#d8f1f6;border-radius:16px;padding:18px 18px 16px;box-shadow:var(--shadow);font-family:var(--f-mono);font-size:.88rem}
+.dispatch .row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:#7fc9d8;font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px dashed #2b5260;padding-bottom:10px;margin-bottom:12px}
+.dispatch .cat{background:#e8a948;color:#2a1b04;padding:1px 8px;border-radius:6px;font-weight:700}
+.dispatch p{margin:0 0 8px;line-height:1.55}
+.dispatch .addr{color:#9cc5cf}
+
+/* Game */
+.game-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:20px;align-items:start}
+.stage{display:grid;gap:12px}
+.scene-wrap{position:relative;border-radius:20px;overflow:hidden;box-shadow:var(--shadow);background:#22313d;max-width:560px;width:100%;justify-self:center}
+#scene{display:block;width:100%;height:auto}
+.doorway{position:absolute;inset:0;display:grid;place-items:end center;padding:18px;background:linear-gradient(to top,rgba(8,20,26,.82),rgba(8,20,26,0) 55%);color:#fff;text-align:center;pointer-events:none}
+.doorway b{font-size:1.1rem}
+.doorway .count{font-family:var(--f-mono);font-size:2.4rem;font-weight:700;line-height:1}
+.tools{display:flex;flex-wrap:wrap;gap:8px;max-width:560px;width:100%;justify-self:center}
+.tools .btn{flex:1 1 auto}
+.toggle{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--muted);padding:0 6px;flex:1 1 100%}
+.toggle input{accent-color:var(--teal);width:18px;height:18px}
+
+/* hotspots */
+.hs{cursor:pointer;outline:none}
+.hs-shape{fill:rgba(53,176,200,0);stroke:transparent;stroke-width:2.5;transition:fill .2s,stroke .2s}
+.glow .hs-shape{stroke:#7fe0f0;stroke-dasharray:5 6;fill:rgba(53,176,200,.08);animation:hsPulse 2.4s ease-in-out infinite}
+.hs:hover .hs-shape,.hs:focus-visible .hs-shape{fill:rgba(53,176,200,.2);stroke:#bff3fb;stroke-dasharray:none}
+.hs.done .hs-shape{stroke:#8ee59a;stroke-dasharray:3 5;animation:none;fill:rgba(111,208,122,.08)}
+.hs.active .hs-shape{stroke:#ffffff;stroke-dasharray:none;fill:rgba(255,255,255,.14);animation:none}
+.locked .hs{pointer-events:none}
+.locked .hs-shape{opacity:0}
+@keyframes hsPulse{0%,100%{stroke-opacity:.35}50%{stroke-opacity:1}}
+
+/* patient animation: one breath every 2 s = 30 a minute */
+#upper{transform-box:view-box;transform-origin:200px 300px;animation:breathe 2s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:translateY(0) scale(1,1)}42%{transform:translateY(-3.5px) scale(1.022,1.018)}}
+#mouth{transform-box:fill-box;transform-origin:center;animation:gasp 2s ease-in-out infinite}
+@keyframes gasp{0%,100%{transform:scaleY(.65)}42%{transform:scaleY(1.2)}}
+.sweat{animation:shine 3s ease-in-out infinite}
+@keyframes shine{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes pulseRing{0%{transform:scale(1);opacity:1}100%{transform:scale(2.2);opacity:0}}
+#veins,#scm2{transition:opacity .8s}
+#bubble{transition:opacity .3s}
+.flash{animation:flashIt 1.2s ease-out 1}
+@keyframes flashIt{0%{filter:drop-shadow(0 0 0 #fff)}30%{filter:drop-shadow(0 0 6px #bff3fb)}100%{filter:drop-shadow(0 0 0 #fff)}}
+
+/* notebook + sheet */
+.side{display:grid;gap:16px;align-content:start;min-width:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;min-width:0}
+.panel h2{font-size:.78rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;font-weight:700;display:flex;justify-content:space-between;gap:8px}
+.notes{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.notes li{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;font-size:.92rem;padding:8px 10px;border-radius:10px;background:var(--surface-2);animation:noteIn .35s ease-out}
+@keyframes noteIn{from{transform:translateY(-4px);opacity:0}to{transform:none;opacity:1}}
+.tag{font-size:.64rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:6px;background:var(--surface);color:var(--teal);border:1px solid var(--line);white-space:nowrap;margin-top:2px}
+.empty{color:var(--muted);font-size:.92rem;margin:0}
+
+.sheet-back{display:none}
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow);min-width:0}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.sheet-head h3{margin:0;font-size:1.1rem}
+.x{border:0;background:var(--surface-2);width:34px;height:34px;border-radius:10px;font-size:1.1rem;line-height:1}
+.acts{display:grid;gap:8px}
+.act{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px}
+.act:hover{border-color:var(--teal)}
+.act .L{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:var(--teal-soft);color:var(--teal);font-weight:800;font-size:.85rem}
+.act .cost{font-family:var(--f-mono);font-size:.75rem;color:var(--muted)}
+.act.done{background:var(--surface-2);border-color:transparent}
+.act.done .cost{color:var(--green);font-family:var(--f-body);font-weight:700}
+.act .res{grid-column:2 / 4;font-size:.9rem;color:var(--ink);font-weight:600}
+.hint{font-size:.85rem;color:var(--muted);margin:4px 0 10px}
+
+.counter{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center}
+.counter svg{width:120px;height:120px;border-radius:14px;background:#22313d}
+.tapbtn{width:100%;padding:18px;border-radius:14px;border:0;background:var(--teal);color:var(--on-teal);font-weight:800;font-size:1.15rem}
+.tapbtn:disabled{opacity:.5}
+.bar{height:8px;border-radius:999px;background:var(--surface-2);overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;width:0;background:var(--teal-bright)}
+.big-n{font-family:var(--f-mono);font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums}
+.result{margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--green-soft);font-weight:600}
+.result.warn{background:var(--amber-soft)}
+
+.monitor{background:#071116;border-radius:14px;padding:14px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;font-family:var(--f-mono)}
+.vital{display:grid}
+.vital small{font-size:.66rem;letter-spacing:.06em;color:#7aa3ad}
+.vital b{font-size:1.4rem;font-variant-numeric:tabular-nums}
+.v-hr b{color:#6fe08a}.v-sp b{color:#6fd3f0}.v-rr b{color:#f1e170}.v-bp b{color:#f08aa0}.v-t b{color:#e9eef0}.v-bm b{color:#c7a7ff}
+
+.opts{display:grid;gap:8px;margin:6px 0 12px}
+.opt{display:flex;gap:10px;align-items:center;border:1.5px solid var(--line);border-radius:12px;padding:12px;background:var(--surface);text-align:left}
+.opt.sel{border-color:var(--teal);box-shadow:inset 0 0 0 1px var(--teal)}
+
+/* Debrief */
+.debrief{display:grid;gap:18px;max-width:860px;margin:0 auto}
+.verdict{border-radius:20px;padding:22px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;background:var(--surface);border:1px solid var(--line)}
+.verdict h2{margin:4px 0 6px;font-size:clamp(1.5rem,4vw,2.1rem);line-height:1.1;letter-spacing:-.02em;text-wrap:balance}
+.verdict p{margin:0;color:var(--muted)}
+.score{text-align:center}
+.score .n{font-family:var(--f-mono);font-size:2.6rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.score small{color:var(--muted);display:block}
+.ok{color:var(--green)}.bad{color:var(--red)}
+.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.rows{display:grid;gap:6px}
+.rows div{display:flex;justify-content:space-between;gap:10px;font-size:.93rem;padding:6px 0;border-bottom:1px dashed var(--line)}
+.rows div:last-child{border:0}
+.rows b{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.path{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.clist{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.clist li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:.92rem;align-items:start}
+.clist .mk{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:.75rem;font-weight:800;margin-top:1px}
+.clist .f .mk{background:var(--green-soft);color:var(--green)}
+.clist .m .mk{background:var(--red-soft);color:var(--red)}
+.clist .m{color:var(--muted)}
+.sep{border-left:4px solid var(--teal-bright);background:var(--teal-soft);border-radius:0 14px 14px 0;padding:14px 16px}
+.sep h3{margin:0 0 6px;font-size:1rem}
+.sep p{margin:0}
+.hollie{display:grid;grid-template-columns:52px 1fr;gap:14px}
+.av{width:52px;height:52px;border-radius:50%;object-fit:cover;object-position:50% 12%;background:var(--teal-soft);border:2px solid var(--teal-soft)}
+.hollie p{margin:0 0 10px;max-width:65ch}
+.policy{font-size:.85rem;color:var(--muted);text-align:center;margin:0}
+.feedback{background:var(--amber-soft);border-radius:14px;padding:12px 14px}
+
+/* Pro pitch */
+.pitch{background:linear-gradient(135deg,var(--teal) 0%,var(--teal-dark) 100%);color:#fff;border-radius:20px;padding:26px 22px;text-align:center;display:grid;gap:12px;justify-items:center}
+.pitch .eyebrow{color:#c8f7c5}
+.pitch h3{margin:0;font-size:clamp(1.4rem,4vw,1.9rem);line-height:1.15;letter-spacing:-.02em;text-wrap:balance;max-width:24ch}
+.pitch p{margin:0;color:rgba(255,255,255,.88);max-width:52ch}
+.btn.white{background:#fff;color:var(--teal-dark);padding:14px 26px;font-size:1.05rem}
+.btn.white:hover{background:#eefafc}
+.pitch .price{font-size:.85rem;color:rgba(255,255,255,.75)}
+.pitch .join{color:#fff;font-weight:600;font-size:.92rem}
+
+@media (max-width:820px){
+  .start{grid-template-columns:1fr}
+  .game-grid{grid-template-columns:1fr}
+  .cols{grid-template-columns:1fr}
+  .sheet-back{display:block;position:fixed;inset:0;background:rgba(5,15,20,.45);z-index:20}
+  .sheet-back[hidden]{display:none!important}
+  .sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;border-radius:20px 20px 0 0;max-height:72vh;overflow:auto;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))}
+}
+@media (max-width:460px){
+  .verdict{grid-template-columns:1fr}
+  .counter{grid-template-columns:96px 1fr}.counter svg{width:96px;height:96px}
+  .monitor{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:reduce){
+  .glow .hs-shape,.sweat,.notes li{animation:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <a class="wordmark" href="index.html" aria-label="Paramind home"><span class="brand-para">para</span><span class="brand-mind">mind</span></a>
+      <span class="game">Clue Hunt</span>
+    </div>
+    <div class="hud" id="hud" hidden>
+      <div class="abcde" id="abcde" aria-label="ABCDE progress"></div>
+      <div class="clock"><span class="lbl">Time on scene</span><span id="clock">00:00</span></div>
+    </div>
+  </header>
+
+  <main>
+    <!-- START -->
+    <section id="s-start" class="start">
+      <div>
+        <div class="eyebrow">Free case · No sign-up</div>
+        <h1>Clue Hunt</h1>
+        <p class="lede">Examine the patient, find the clues, then name what's going on.</p>
+        <ol class="steps">
+          <li><div><b>Look from the doorway</b><span>Five seconds to form a first impression.</span></div></li>
+          <li><div><b>Examine</b><span>Tap areas of the patient. Every check costs time on scene.</span></div></li>
+          <li><div><b>Make your call</b><span>Pick your working impression.</span></div></li>
+          <li><div><b>Debrief</b><span>See what you found, what you missed, and why.</span></div></li>
+        </ol>
+        <button class="btn primary big" id="go">Arrive on scene</button>
+        <p class="fine">Turn your sound on. You'll need it to listen to his chest. Takes about five minutes.</p>
+      </div>
+      <div class="dispatch" aria-label="Dispatch details">
+        <div class="row"><span>Incoming · 23:47</span><span class="cat">Cat 2</span></div>
+        <p><b>78-year-old male. Difficulty in breathing.</b></p>
+        <p>Caller is daughter. Patient conscious and breathing. Unable to get comfortable, worsening over the evening.</p>
+        <p class="addr">Ground-floor flat · daughter will meet you at the door</p>
+      </div>
+    </section>
+
+    <!-- GAME -->
+    <section id="s-game" hidden>
+      <div class="game-grid">
+        <div class="stage">
+          <div class="scene-wrap">
+            <svg id="scene" class="glow locked" viewBox="0 0 400 460" role="img" aria-label="Derek, 78, sitting forward in his armchair at night">
+              <defs>
+                <radialGradient id="lampGlow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd98a" stop-opacity=".5"/><stop offset="1" stop-color="#ffd98a" stop-opacity="0"/></radialGradient>
+              </defs>
+              <!-- room -->
+              <rect width="400" height="460" fill="#2a3946"/>
+              <g fill="#ffffff" opacity=".05"><rect x="10" width="16" height="372"/><rect x="58" width="16" height="372"/><rect x="106" width="16" height="372"/><rect x="154" width="16" height="372"/><rect x="202" width="16" height="372"/><rect x="250" width="16" height="372"/><rect x="298" width="16" height="372"/><rect x="346" width="16" height="372"/></g>
+              <rect y="372" width="400" height="88" fill="#3b3431"/>
+              <rect y="368" width="400" height="8" fill="#4d5c68"/>
+              <!-- open window -->
+              <rect x="296" y="36" width="90" height="130" rx="4" fill="#51606c"/>
+              <rect x="302" y="42" width="78" height="118" fill="#152038"/>
+              <circle cx="354" cy="70" r="10" fill="#e9edf2"/>
+              <circle cx="318" cy="58" r="1.4" fill="#cfd8e6"/><circle cx="332" cy="92" r="1.1" fill="#cfd8e6"/><circle cx="366" cy="116" r="1.3" fill="#cfd8e6"/>
+              <rect x="339" y="42" width="4" height="118" fill="#51606c"/>
+              <path d="M343 44 L380 52 L380 150 L343 158 Z" fill="#2a3a56" opacity=".85"/>
+              <path d="M284 30 C292 70 288 120 296 176 L282 176 C276 120 280 70 274 30 Z" fill="#6c4b5b"/>
+              <!-- lamp -->
+              <circle cx="58" cy="140" r="96" fill="url(#lampGlow)"/>
+              <rect x="56" y="118" width="4" height="252" fill="#1e2830"/>
+              <ellipse cx="58" cy="370" rx="22" ry="5" fill="#1e2830"/>
+              <path d="M32 120 L84 120 L74 88 L42 88 Z" fill="#e6c27a"/>
+              <!-- rug -->
+              <ellipse cx="200" cy="432" rx="172" ry="22" fill="#5a4140"/>
+              <ellipse cx="200" cy="432" rx="150" ry="16" fill="none" stroke="#6e5250" stroke-width="3"/>
+              <!-- armchair -->
+              <rect x="118" y="58" width="164" height="252" rx="34" fill="#6d7d58"/>
+              <rect x="132" y="72" width="136" height="220" rx="26" fill="#788a62"/>
+              <rect x="92" y="200" width="54" height="132" rx="20" fill="#7f9068"/>
+              <rect x="254" y="200" width="54" height="132" rx="20" fill="#7f9068"/>
+              <rect x="108" y="316" width="184" height="54" rx="10" fill="#66764f"/>
+              <rect x="122" y="370" width="10" height="10" fill="#3a2c22"/><rect x="268" y="370" width="10" height="10" fill="#3a2c22"/>
+
+              <!-- legs -->
+              <g id="legs">
+                <rect x="150" y="280" width="100" height="50" rx="18" fill="#4b5563"/>
+                <rect x="157" y="318" width="36" height="82" rx="11" fill="#4b5563"/>
+                <rect x="207" y="318" width="36" height="82" rx="11" fill="#4b5563"/>
+                <ellipse cx="175" cy="400" rx="23" ry="12" fill="#d8c3b4"/>
+                <ellipse cx="225" cy="400" rx="23" ry="12" fill="#d8c3b4"/>
+                <path d="M158 398 Q175 404 192 398" stroke="#bfa898" stroke-width="1.5" fill="none"/>
+                <path d="M208 398 Q225 404 242 398" stroke="#bfa898" stroke-width="1.5" fill="none"/>
+                <ellipse cx="172" cy="418" rx="30" ry="11" fill="#7b3b3b"/>
+                <ellipse cx="228" cy="418" rx="30" ry="11" fill="#7b3b3b"/>
+                <ellipse cx="172" cy="414" rx="18" ry="5" fill="#8f4a4a"/>
+                <ellipse cx="228" cy="414" rx="18" ry="5" fill="#8f4a4a"/>
+              </g>
+
+              <!-- upper body: breathes -->
+              <g id="upper">
+                <path d="M150 192 L133 256 L160 308" stroke="#9dc2d4" stroke-width="27" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M250 192 L267 256 L240 308" stroke="#9dc2d4" stroke-width="27" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="163" cy="314" r="13" fill="#d8c3b4"/>
+                <circle cx="237" cy="314" r="13" fill="#d8c3b4"/>
+                <path d="M142 176 Q200 160 258 176 L254 292 Q200 302 146 292 Z" fill="#a9cadb"/>
+                <g stroke="#93b9cb" stroke-width="2"><line x1="170" y1="172" x2="168" y2="296"/><line x1="230" y1="172" x2="232" y2="296"/><line x1="155" y1="178" x2="152" y2="292"/><line x1="245" y1="178" x2="248" y2="292"/></g>
+                <line x1="200" y1="204" x2="200" y2="298" stroke="#93b9cb" stroke-width="2"/>
+                <circle cx="205" cy="222" r="2.6" fill="#ffffff"/><circle cx="205" cy="246" r="2.6" fill="#ffffff"/><circle cx="205" cy="270" r="2.6" fill="#ffffff"/>
+                <rect x="184" y="128" width="32" height="50" rx="9" fill="#d8c3b4"/>
+                <path d="M178 170 L200 206 L222 170 Z" fill="#d8c3b4"/>
+                <path d="M176 168 L200 206 L186 168 Z" fill="#c6dde8"/>
+                <path d="M224 168 L200 206 L214 168 Z" fill="#c6dde8"/>
+                <!-- accessory neck muscles (faint, strengthen when examined) -->
+                <g id="scm" stroke="#b49b8a" stroke-width="3" stroke-linecap="round" opacity=".35"><path d="M189 134 L197 176"/><path d="M211 134 L203 176"/></g>
+                <g id="scm2" stroke="#9e8270" stroke-width="3.5" stroke-linecap="round" opacity="0"><path d="M189 134 L197 176"/><path d="M211 134 L203 176"/><path d="M178 172 L160 180"/><path d="M222 172 L240 180"/></g>
+                <!-- neck veins (revealed when examined) -->
+                <g id="veins" stroke="#6f7fb4" stroke-width="2.6" fill="none" stroke-linecap="round" opacity="0"><path d="M192 136 C188 148 193 158 189 172"/><path d="M208 136 C212 148 207 158 211 172"/></g>
+                <!-- head -->
+                <ellipse cx="164" cy="104" rx="7" ry="11" fill="#cfb8a8"/>
+                <ellipse cx="236" cy="104" rx="7" ry="11" fill="#cfb8a8"/>
+                <ellipse cx="200" cy="98" rx="36" ry="42" fill="#d8c3b4"/>
+                <path d="M165 104 C160 74 172 60 184 58 C176 70 172 84 172 104 Z" fill="#c9cdd2"/>
+                <path d="M235 104 C240 74 228 60 216 58 C224 70 228 84 228 104 Z" fill="#c9cdd2"/>
+                <path d="M184 60 Q200 54 216 60" stroke="#c9cdd2" stroke-width="3" fill="none"/>
+                <path d="M179 91 L193 86" stroke="#9aa0a6" stroke-width="3" stroke-linecap="round"/>
+                <path d="M221 91 L207 86" stroke="#9aa0a6" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="187" cy="99" r="3.2" fill="#2a2a2a"/>
+                <circle cx="213" cy="99" r="3.2" fill="#2a2a2a"/>
+                <path d="M181 106 Q187 109 193 106" stroke="#bda898" stroke-width="1.6" fill="none"/>
+                <path d="M207 106 Q213 109 219 106" stroke="#bda898" stroke-width="1.6" fill="none"/>
+                <path d="M200 100 Q206 112 198 116" stroke="#bda898" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <g id="mouthG"><ellipse id="mouth" cx="200" cy="127" rx="8" ry="5.5" fill="#4a2e34" stroke="#8d92b8" stroke-width="3"/></g>
+                <g id="sweatG" fill="#d6eef9">
+                  <path class="sweat" d="M178 76 q3 5 0 8 q-3 -3 0 -8 Z"/>
+                  <path class="sweat" d="M222 80 q3 5 0 8 q-3 -3 0 -8 Z" style="animation-delay:.8s"/>
+                  <path class="sweat" d="M231 96 q3 5 0 8 q-3 -3 0 -8 Z" style="animation-delay:1.6s"/>
+                  <path class="sweat" d="M171 112 q3 5 0 8 q-3 -3 0 -8 Z" style="animation-delay:2.2s"/>
+                </g>
+              </g>
+
+              <!-- speech bubble -->
+              <g id="bubble" opacity="0">
+                <rect x="232" y="14" width="160" height="50" rx="14" fill="#ffffff"/>
+                <path d="M244 62 L236 80 L258 63 Z" fill="#ffffff"/>
+                <text id="bubbleText" x="246" y="35" font-family="Plus Jakarta Sans, system-ui, sans-serif" font-size="13" font-weight="600" fill="#212529"></text>
+              </g>
+
+              <!-- hotspots -->
+              <g id="hotspots">
+                <g class="hs" data-area="face" tabindex="0" role="button" aria-label="Examine face and head"><ellipse class="hs-shape" cx="200" cy="98" rx="48" ry="52"/></g>
+                <g class="hs" data-area="neck" tabindex="0" role="button" aria-label="Examine neck"><rect class="hs-shape" x="176" y="150" width="48" height="28" rx="10"/></g>
+                <g class="hs" data-area="chest" tabindex="0" role="button" aria-label="Examine chest"><rect class="hs-shape" x="148" y="182" width="104" height="76" rx="16"/></g>
+                <g class="hs" data-area="abdo" tabindex="0" role="button" aria-label="Examine tummy"><rect class="hs-shape" x="170" y="262" width="60" height="30" rx="12"/></g>
+                <g class="hs" data-area="hand" tabindex="0" role="button" aria-label="Examine wrist and hand"><circle class="hs-shape" cx="160" cy="314" r="23"/></g>
+                <g class="hs" data-area="ankles" tabindex="0" role="button" aria-label="Examine ankles and legs"><rect class="hs-shape" x="146" y="384" width="108" height="32" rx="12"/></g>
+              </g>
+            </svg>
+            <div class="doorway" id="doorway" hidden><div><b>Doorway view: just look</b><div class="count" id="dcount">5</div></div></div>
+          </div>
+          <div class="tools">
+            <button class="btn" id="b-ask">Ask questions</button>
+            <button class="btn" id="b-obs">Monitor</button>
+            <button class="btn primary" id="b-call">Make your call</button>
+            <label class="toggle"><input type="checkbox" id="glowT" checked> Show areas to examine</label>
+          </div>
+        </div>
+
+        <aside class="side">
+          <div class="sheet-back" id="sheetBack" hidden></div>
+          <div class="sheet" id="sheet" hidden role="dialog" aria-labelledby="sheetTitle">
+            <div class="sheet-head"><h3 id="sheetTitle"></h3><button class="x" id="sheetX" aria-label="Close">×</button></div>
+            <div id="sheetBody"></div>
+          </div>
+          <div class="panel">
+            <h2><span>Your findings</span><span id="nCount">0</span></h2>
+            <p class="empty" id="nEmpty">Tap the outlined areas on Derek to examine him. What you find is noted here.</p>
+            <ol class="notes" id="notes"></ol>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- DEBRIEF -->
+    <section id="s-debrief" hidden><div class="debrief" id="debrief"></div></section>
+  </main>
+</div>
+
+<script>
+(function(){
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- case data ---------- */
+const CLUES = {
+  doorway:{t:'Sitting bolt upright on the edge of his chair, leaning forward and working hard to breathe', g:'Doorway', key:true, p:20},
+  speech:{t:'Airway clear, but only managing 2–3 words at a time', g:'A', p:10},
+  lips:{t:'Lips have a slight blue-grey tinge', g:'B', p:10},
+  accessory:{t:'Neck and shoulder muscles pulling with every breath', g:'B', p:10},
+  rr:{t:'Breathing rate about 30 a minute', g:'B', p:10},
+  upper:{t:'Upper chest: breath sounds heard on both sides', g:'B', p:5, normal:true},
+  bases:{t:'Fine crackles at the bottom of both lungs', g:'B', key:true, p:20},
+  skin:{t:'Pale, sweaty and clammy', g:'C', p:10},
+  veins:{t:'Neck veins swollen even though he is sitting upright', g:'C', key:true, p:20},
+  hr:{t:'Pulse about 112 a minute and regular', g:'C', p:10},
+  crt:{t:'Capillary refill about 3 seconds', g:'C', p:10},
+  alert:{t:'Alert and knows where he is, but frightened', g:'D', p:5, normal:true},
+  pupils:{t:'Pupils equal and reacting to light', g:'D', p:5, normal:true},
+  temp:{t:'Skin cool and damp, not hot to the touch', g:'E', key:true, p:20},
+  abdo:{t:'Tummy soft, nothing of note', g:'E', p:5, normal:true},
+  ankles:{t:'Both ankles swollen; a press leaves a dent that slowly fills', g:'E', key:true, p:20},
+  h_night:{t:'Woke at 3am last night gasping and sat by an open window', g:'History', key:true, p:20},
+  h_flat:{t:'Can’t lie flat; has slept in the chair for two nights', g:'History', key:true, p:20},
+  h_pain:{t:'No chest pain', g:'History', p:5, normal:true},
+  h_cough:{t:'Coughing up a little frothy white spit', g:'History', p:10},
+  h_fever:{t:'Hasn’t felt hot or shivery', g:'History', p:10},
+  h_tabs:{t:'Takes tablets for his heart and blood pressure', g:'History', p:10},
+  h_ankles:{t:'Ankles have been getting bigger all week', g:'History', p:10},
+  obs:{t:'HR 112 · RR 30 · SpO₂ 89% · BP 168/94 · Temp 36.8 °C · BM 6.2', g:'Obs', p:10}
+};
+
+const AREAS = {
+  face:{n:'Face and head', a:['talk','lips','skin','alert','pupils']},
+  neck:{n:'Neck', a:['accessory','veins']},
+  chest:{n:'Chest', a:['rr','listen']},
+  hand:{n:'Wrist and hand', a:['hr','temp','crt']},
+  abdo:{n:'Tummy', a:['abdo']},
+  ankles:{n:'Ankles and legs', a:['ankles']}
+};
+
+const ACTS = {
+  talk:{l:'Talk to him', L:'A', cost:15, clue:'speech', fx:()=>say(['Can’t… get…','my breath…'])},
+  lips:{l:'Look at his lips', L:'B', cost:10, clue:'lips', fx:()=>flash('#mouthG')},
+  skin:{l:'Look at his skin', L:'C', cost:10, clue:'skin', fx:()=>flash('#sweatG')},
+  alert:{l:'Check how alert he is', L:'D', cost:15, clue:'alert', fx:()=>say(['I know… where I am…','Just… can’t breathe…'])},
+  pupils:{l:'Check his pupils', L:'D', cost:15, clue:'pupils', kind:'pupils'},
+  accessory:{l:'Watch his neck muscles', L:'B', cost:10, clue:'accessory', fx:()=>{$('#scm2').style.opacity=1}},
+  veins:{l:'Look at his neck veins', L:'C', cost:10, clue:'veins', fx:()=>{$('#veins').style.opacity=1}},
+  rr:{l:'Count his breathing rate', L:'B', cost:15, clue:'rr', kind:'count', rate:30, what:'breath'},
+  listen:{l:'Listen to his chest', L:'B', cost:0, kind:'listen'},
+  hr:{l:'Count his pulse', L:'C', cost:15, clue:'hr', kind:'count', rate:112, what:'beat'},
+  temp:{l:'Feel his skin temperature', L:'E', cost:10, clue:'temp'},
+  crt:{l:'Check capillary refill', L:'C', cost:10, clue:'crt', kind:'crt'},
+  abdo:{l:'Look at and feel his tummy', L:'E', cost:15, clue:'abdo'},
+  ankles:{l:'Press on his ankles', L:'E', cost:15, clue:'ankles', kind:'press'}
+};
+
+const QUESTIONS = [
+  {q:'What’s happened tonight?', who:'Sue, his daughter', a:'He woke at 3am last night gasping and sat by the open window. Tonight he couldn’t get comfortable at all, so he rang me.', clue:'h_night'},
+  {q:'Can you lie flat?', who:'Derek', a:'No… worse… lying down. Slept… in this chair… two nights.', clue:'h_flat', bubble:['Worse… lying down…']},
+  {q:'Any chest pain?', who:'Derek', a:'No… just… my breathing.', clue:'h_pain', bubble:['No… just…','my breathing…']},
+  {q:'Are you coughing anything up?', who:'Derek', a:'Bit… frothy… white.', clue:'h_cough', bubble:['Bit… frothy…','white…']},
+  {q:'Have you felt hot or shivery?', who:'Derek', a:'No.', clue:'h_fever', bubble:['No.']},
+  {q:'Does he take any tablets?', who:'Sue, his daughter', a:'A few, for his heart and his blood pressure. I’ve put them all in a bag for you.', clue:'h_tabs'},
+  {q:'Anything different this week?', who:'Sue, his daughter', a:'His ankles have been getting bigger all week. He couldn’t get his shoes on on Tuesday.', clue:'h_ankles'}
+];
+
+const OPTIONS = [
+  {id:'hf', t:'Acute heart failure (fluid on the lungs)'},
+  {id:'pneu', t:'Chest infection (pneumonia)'},
+  {id:'asthma', t:'Asthma attack'},
+  {id:'pe', t:'Pulmonary embolism'}
+];
+const CORRECT = 'hf';
+const WRONG = {
+  pneu:'A chest infection usually brings a raised temperature, and crackles are often in one patch on one side. Derek’s temperature is normal, the crackles are at the bottom of both lungs, and he has swollen neck veins and ankles.',
+  asthma:'Asthma narrows the airways and gives a wheeze, not fine crackles. It doesn’t swell the neck veins or ankles, and it isn’t typically worse lying flat.',
+  pe:'A clot on the lung can cause sudden breathlessness and a fast pulse, but the chest usually sounds clear. If there is leg swelling it’s typically one calf, not both ankles, and it doesn’t explain crackles at both bases.'
+};
+
+/* ---------- state ---------- */
+let S;
+function fresh(){ return {clock:0, found:new Map(), letters:[], impression:null, choice:null, area:null, busy:false}; }
+
+/* ---------- helpers ---------- */
+const fmt = s => String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+function addTime(s){ S.clock += s; $('#clock').textContent = fmt(S.clock); }
+function touch(L){
+  if('ABCDE'.includes(L) && !S.letters.includes(L)){ S.letters.push(L); }
+  renderChips();
+}
+function renderChips(){
+  $('#abcde').innerHTML = 'ABCDE'.split('').map(L=>{
+    const i = S.letters.indexOf(L);
+    return `<div class="chip ${i>-1?'on':''}" title="${L}">${L}${i>-1?`<sup>${i+1}</sup>`:''}</div>`;
+  }).join('');
+}
+function record(id){
+  if(S.found.has(id)) return false;
+  S.found.set(id, CLUES[id].t);
+  const li = document.createElement('li');
+  li.innerHTML = `<span class="tag">${esc(CLUES[id].g)}</span><span>${esc(CLUES[id].t)}</span>`;
+  $('#notes').prepend(li);
+  $('#nEmpty').hidden = true;
+  $('#nCount').textContent = S.found.size;
+  markDoneAreas();
+  return true;
+}
+function actDone(id){
+  if(id==='listen') return S.found.has('upper') && S.found.has('bases');
+  return S.found.has(ACTS[id].clue);
+}
+function markDoneAreas(){
+  document.querySelectorAll('.hs').forEach(h=>{
+    const a = AREAS[h.dataset.area].a;
+    h.classList.toggle('done', a.every(actDone));
+  });
+}
+let bubbleT;
+function say(lines){
+  const t = $('#bubbleText');
+  t.innerHTML = lines.map((l,i)=>`<tspan x="246" dy="${i?17:0}">${esc(l)}</tspan>`).join('');
+  const box = $('#bubble rect');
+  box.setAttribute('height', 32 + lines.length*16);
+  t.setAttribute('y', lines.length>1 ? 33 : 41);
+  $('#bubble').style.opacity = 1;
+  clearTimeout(bubbleT); bubbleT = setTimeout(()=>{$('#bubble').style.opacity=0}, 3800);
+}
+function flash(sel){ const el=$(sel); el.classList.remove('flash'); void el.getBoundingClientRect(); el.classList.add('flash'); }
+
+/* ---------- sheet ---------- */
+function openSheet(title, html){
+  $('#sheetTitle').textContent = title;
+  $('#sheetBody').innerHTML = html;
+  $('#sheet').hidden = false; $('#sheetBack').hidden = false;
+}
+function closeSheet(){
+  if(S.busy) return;
+  $('#sheet').hidden = true; $('#sheetBack').hidden = true;
+  document.querySelectorAll('.hs.active').forEach(h=>h.classList.remove('active'));
+  S.area = null;
+}
+$('#sheetX').addEventListener('click', closeSheet);
+$('#sheetBack').addEventListener('click', ()=>{ if(!$('#sheetX').hidden) closeSheet(); });
+
+function showArea(area){
+  if(S.busy) return;
+  S.area = area;
+  document.querySelectorAll('.hs').forEach(h=>h.classList.toggle('active', h.dataset.area===area));
+  const rows = AREAS[area].a.map(id=>{
+    const A = ACTS[id], done = actDone(id);
+    let res = '';
+    if(done){ res = id==='listen' ? `${CLUES.upper.t}. ${CLUES.bases.t}.` : S.found.get(A.clue); }
+    else if(id==='listen'){ const bits=['upper','bases'].filter(k=>S.found.has(k)).map(k=>S.found.get(k)); if(bits.length) res = bits.join('. '); }
+    const cost = id==='listen' ? '20 s each' : `${A.cost} s`;
+    return `<button class="act ${done?'done':''}" data-act="${id}" ${done?'aria-disabled="true"':''}>
+      <span class="L">${A.L}</span><span>${esc(A.l)}</span><span class="cost">${done?'Done':cost}</span>
+      ${res?`<span class="res">${esc(res)}</span>`:''}</button>`;
+  }).join('');
+  openSheet(AREAS[area].n, `<div class="acts">${rows}</div>`);
+  $('#sheetBody').querySelectorAll('.act').forEach(b=>b.addEventListener('click', ()=>doAct(b.dataset.act)));
+}
+
+function doAct(id){
+  const A = ACTS[id];
+  if(actDone(id)) return;
+  touch(A.L);
+  if(A.kind==='count') return countView(id);
+  if(A.kind==='listen') return listenView();
+  if(A.kind==='crt') return crtView();
+  if(A.kind==='press') return pressView();
+  if(A.kind==='pupils') return pupilsView();
+  addTime(A.cost);
+  if(A.fx) A.fx();
+  record(A.clue);
+  showArea(S.area);
+}
+
+/* ---------- counting (breaths / pulse) ---------- */
+function countView(id){
+  const A = ACTS[id];
+  const isBreath = A.what==='breath';
+  const period = 60 / A.rate;
+  const mini = isBreath
+    ? `<svg viewBox="0 0 120 120" aria-hidden="true"><g style="transform-origin:60px 110px;animation:breathe ${period}s ease-in-out infinite"><path d="M22 40 Q60 26 98 40 L94 112 L26 112 Z" fill="#a9cadb"/><path d="M44 38 L60 64 L76 38 Z" fill="#d8c3b4"/><line x1="60" y1="64" x2="60" y2="112" stroke="#93b9cb" stroke-width="2"/></g></svg>`
+    : `<svg viewBox="0 0 120 120" aria-hidden="true"><rect x="10" y="40" width="100" height="44" rx="22" fill="#d8c3b4"/><circle cx="52" cy="62" r="8" fill="#c6a998"/><circle cx="52" cy="62" r="8" fill="none" stroke="#3DA4B8" stroke-width="3" style="transform-box:fill-box;transform-origin:center;animation:pulseRing ${period}s ease-out infinite"/><path d="M40 52 l12 -14 l14 0" stroke="#7e98a6" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`;
+  openSheet(A.l, `
+    <p class="hint">${isBreath?'Watch his chest. Tap once every time it rises.':'Feel the pulse at his wrist. Tap once for every beat.'} You have 15 seconds.</p>
+    <div class="counter">${mini}<div>
+      <div class="big-n" id="cN">0</div><div class="hint" style="margin:0">${isBreath?'breaths':'beats'} counted</div>
+      <div class="bar"><i id="cBar"></i></div></div></div>
+    <div style="margin-top:12px;display:grid;gap:8px">
+      <button class="tapbtn" id="cTap">Start counting</button>
+    </div><div id="cOut"></div>`);
+  let n=0, running=false, t0=0;
+  const tap=$('#cTap');
+  tap.addEventListener('click', ()=>{
+    if(!running && !t0){ running=true; S.busy=true; t0=performance.now(); tap.textContent = isBreath?'Tap: breath':'Tap: beat'; tick(); return; }
+    if(running){ n++; $('#cN').textContent=n; }
+  });
+  function tick(){
+    const el=(performance.now()-t0)/1000;
+    $('#cBar').style.width = Math.min(100, el/15*100)+'%';
+    if(el>=15){ finish(); return; }
+    requestAnimationFrame(tick);
+  }
+  function finish(){
+    running=false; S.busy=false; tap.disabled=true; tap.textContent='Time';
+    const est=n*4, diff=Math.abs(est-A.rate), good=diff<= (isBreath?4:12);
+    addTime(A.cost);
+    record(A.clue);
+    $('#cOut').innerHTML = `<div class="result ${good?'':'warn'}">You counted ${n} in 15 s, so about <b>${est} a minute</b>. Actual: ${A.rate}. ${good?'Good count.':'Worth slowing down and counting again in practice.'}</div>
+      <button class="btn ghost" style="margin-top:10px;width:100%" id="cBack">Back to ${esc(AREAS[S.area].n.toLowerCase())}</button>`;
+    $('#cBack').addEventListener('click', ()=>showArea(S.area));
+  }
+}
+
+/* ---------- listening (simulated sounds) ---------- */
+let actx, noiseBuf;
+function audio(){
+  if(!actx){ actx = new (window.AudioContext||window.webkitAudioContext)(); }
+  if(actx.state==='suspended') actx.resume();
+  if(!noiseBuf){
+    noiseBuf = actx.createBuffer(1, actx.sampleRate*7, actx.sampleRate);
+    const d=noiseBuf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+  }
+  return actx;
+}
+function playChest(crackles){
+  const ctx=audio(), t0=ctx.currentTime+0.05;
+  const master=ctx.createGain(); master.gain.value=0.9; master.connect(ctx.destination);
+  const src=ctx.createBufferSource(); src.buffer=noiseBuf;
+  const bp=ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=420; bp.Q.value=0.7;
+  const lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=900;
+  const g=ctx.createGain(); g.gain.setValueAtTime(0,t0);
+  for(let i=0;i<3;i++){
+    const b=t0+i*2;
+    g.gain.linearRampToValueAtTime(0.45,b+0.55);
+    g.gain.linearRampToValueAtTime(0.06,b+0.9);
+    g.gain.linearRampToValueAtTime(0.22,b+1.15);
+    g.gain.linearRampToValueAtTime(0.0,b+1.9);
+  }
+  src.connect(bp); bp.connect(lp); lp.connect(g); g.connect(master);
+  src.start(t0); src.stop(t0+6.1);
+  if(crackles){
+    const len=Math.floor(ctx.sampleRate*0.008);
+    const cb=ctx.createBuffer(1,len,ctx.sampleRate); const d=cb.getChannelData(0);
+    for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/(len/5));
+    for(let i=0;i<3;i++){
+      for(let k=0;k<11;k++){
+        const t=t0+i*2+0.35+Math.random()*0.5;
+        const s=ctx.createBufferSource(); s.buffer=cb;
+        const hp=ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=700+Math.random()*500;
+        const cg=ctx.createGain(); cg.gain.value=0.35+Math.random()*0.35;
+        s.connect(hp); hp.connect(cg); cg.connect(master); s.start(t);
+      }
+    }
+  }
+}
+function listenView(){
+  const zone = (k,label,where)=>`<button class="act ${S.found.has(k)?'done':''}" data-z="${k}"><span class="L">🩺</span><span>${label}<br><small style="color:var(--muted)">${where}</small></span><span class="cost">${S.found.has(k)?'Done':'20 s'}</span>${S.found.has(k)?`<span class="res">${esc(CLUES[k].t)}</span>`:''}</button>`;
+  openSheet('Listen to his chest', `
+    <p class="hint">Turn your sound on. Each place plays three breaths.</p>
+    <div class="acts">${zone('upper','Upper chest','Both sides, below the collarbones')}${zone('bases','Bottom of the chest','Both sides, from behind')}</div>
+    <p class="hint" style="margin-top:10px">Simulated breath sounds.</p>
+    <button class="btn ghost" style="width:100%" id="lBack">Back to chest</button>`);
+  $('#lBack').addEventListener('click', ()=>showArea('chest'));
+  $('#sheetBody').querySelectorAll('[data-z]').forEach(b=>b.addEventListener('click', ()=>{
+    if(S.busy) return;
+    const k=b.dataset.z; S.busy=true;
+    b.querySelector('.cost').textContent='Playing…';
+    try{ playChest(k==='bases'); }catch(e){}
+    setTimeout(()=>{ S.busy=false; if(!S.found.has(k)){ addTime(20); record(k);} listenView(); }, 6100);
+  }));
+}
+
+/* ---------- capillary refill ---------- */
+function crtView(){
+  openSheet('Check capillary refill', `
+    <p class="hint">Press the fingertip for a moment, let go, and watch the colour come back.</p>
+    <div class="counter"><svg viewBox="0 0 120 120" aria-hidden="true"><path d="M30 120 L30 50 Q30 20 60 20 Q90 20 90 50 L90 120 Z" fill="#d8c3b4"/><rect id="nail" x="44" y="30" width="32" height="34" rx="12" fill="#d9a3a2"/></svg>
+    <div><div class="big-n" id="crtN">0.0 s</div><button class="tapbtn" id="crtGo" style="margin-top:10px">Press</button></div></div><div id="crtOut"></div>`);
+  $('#crtGo').addEventListener('click', ()=>{
+    const nail=$('#nail'), go=$('#crtGo'); go.disabled=true; S.busy=true;
+    nail.style.transition='fill .2s'; nail.setAttribute('fill','#f3ebe7');
+    setTimeout(()=>{
+      nail.style.transition='fill 3s linear'; nail.setAttribute('fill','#d9a3a2');
+      const t0=performance.now();
+      (function tick(){ const el=(performance.now()-t0)/1000; $('#crtN').textContent=Math.min(el,3).toFixed(1)+' s';
+        if(el<3) requestAnimationFrame(tick); else { S.busy=false; addTime(10); record('crt');
+          $('#crtOut').innerHTML=`<div class="result">${esc(CLUES.crt.t)}.</div><button class="btn ghost" style="margin-top:10px;width:100%" id="crtB">Back to wrist and hand</button>`;
+          $('#crtB').addEventListener('click',()=>showArea('hand')); } })();
+    }, 900);
+  });
+}
+
+/* ---------- ankle press ---------- */
+function pressView(){
+  openSheet('Press on his ankles', `
+    <p class="hint">Press firmly over the ankle bone for a few seconds, then let go.</p>
+    <div class="counter"><svg viewBox="0 0 120 120" aria-hidden="true"><rect x="34" y="0" width="52" height="60" fill="#4b5563"/><ellipse cx="60" cy="72" rx="44" ry="26" fill="#d8c3b4"/><ellipse id="dent" cx="60" cy="72" rx="9" ry="6" fill="#b89e8d" opacity="0"/><ellipse cx="60" cy="104" rx="50" ry="14" fill="#7b3b3b"/></svg>
+    <div><button class="tapbtn" id="pGo">Press</button></div></div><div id="pOut"></div>`);
+  $('#pGo').addEventListener('click', ()=>{
+    const d=$('#dent'), go=$('#pGo'); go.disabled=true; S.busy=true;
+    d.style.transition='opacity .3s'; d.setAttribute('opacity','1');
+    setTimeout(()=>{ d.style.transition='opacity 4s ease-in'; d.setAttribute('opacity','0');
+      S.busy=false; addTime(15); record('ankles');
+      $('#pOut').innerHTML=`<div class="result">${esc(CLUES.ankles.t)}. Same on the other side.</div><button class="btn ghost" style="margin-top:10px;width:100%" id="pB">Back to ankles and legs</button>`;
+      $('#pB').addEventListener('click',()=>showArea('ankles'));
+    }, 1200);
+  });
+}
+
+/* ---------- pupils ---------- */
+function pupilsView(){
+  openSheet('Check his pupils', `
+    <p class="hint">Shine the torch into each eye and watch the pupils.</p>
+    <div class="counter"><svg viewBox="0 0 120 120" aria-hidden="true"><ellipse cx="34" cy="60" rx="24" ry="15" fill="#f5f1ea"/><ellipse cx="86" cy="60" rx="24" ry="15" fill="#f5f1ea"/><circle cx="34" cy="60" r="11" fill="#6b8a6a"/><circle cx="86" cy="60" r="11" fill="#6b8a6a"/><g id="pups"><circle cx="34" cy="60" r="6" fill="#111" style="transform-box:fill-box;transform-origin:center;transition:transform .6s"/><circle cx="86" cy="60" r="6" fill="#111" style="transform-box:fill-box;transform-origin:center;transition:transform .6s"/></g></svg>
+    <div><button class="tapbtn" id="eGo">Shine torch</button></div></div><div id="eOut"></div>`);
+  $('#eGo').addEventListener('click', ()=>{
+    $('#eGo').disabled=true; S.busy=true;
+    document.querySelectorAll('#pups circle').forEach(c=>c.style.transform='scale(.5)');
+    setTimeout(()=>{ S.busy=false; addTime(15); record('pupils');
+      $('#eOut').innerHTML=`<div class="result">${esc(CLUES.pupils.t)}.</div><button class="btn ghost" style="margin-top:10px;width:100%" id="eB">Back to face and head</button>`;
+      $('#eB').addEventListener('click',()=>showArea('face')); }, 900);
+  });
+}
+
+/* ---------- ask & monitor ---------- */
+function askView(){
+  if(S.busy) return;
+  document.querySelectorAll('.hs.active').forEach(h=>h.classList.remove('active'));
+  const rows = QUESTIONS.map((Q,i)=>{
+    const done=S.found.has(Q.clue);
+    return `<button class="act ${done?'done':''}" data-q="${i}"><span class="L">?</span><span>${esc(Q.q)}</span><span class="cost">${done?'Asked':'20 s'}</span>
+      ${done?`<span class="res"><span style="font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--teal)">${esc(Q.who)}</span><br>“${esc(Q.a)}”</span>`:''}</button>`;
+  }).join('');
+  openSheet('Ask questions', `<p class="hint">Derek is too breathless to say much. Sue can help.</p><div class="acts">${rows}</div>`);
+  $('#sheetBody').querySelectorAll('[data-q]').forEach(b=>b.addEventListener('click', ()=>{
+    const Q=QUESTIONS[+b.dataset.q]; if(S.found.has(Q.clue)) return;
+    addTime(20); record(Q.clue); if(Q.bubble) say(Q.bubble); askView();
+  }));
+}
+function obsView(){
+  if(S.busy) return;
+  document.querySelectorAll('.hs.active').forEach(h=>h.classList.remove('active'));
+  const shown=S.found.has('obs');
+  const v = shown ? {hr:'112',sp:'89%',rr:'30',bp:'168/94',t:'36.8',bm:'6.2'} : {hr:'--',sp:'--',rr:'--',bp:'--/--',t:'--',bm:'--'};
+  openSheet('Monitor', `
+    <p class="hint">${shown?'A full set of obs is on your notes.':'A full set of obs takes time. Try assessing by eye and hand first.'}</p>
+    <div class="monitor">
+      <div class="vital v-hr"><small>HR</small><b>${v.hr}</b></div><div class="vital v-sp"><small>SpO₂</small><b>${v.sp}</b></div><div class="vital v-rr"><small>RR</small><b>${v.rr}</b></div>
+      <div class="vital v-bp"><small>BP</small><b>${v.bp}</b></div><div class="vital v-t"><small>TEMP °C</small><b>${v.t}</b></div><div class="vital v-bm"><small>BM mmol/L</small><b>${v.bm}</b></div>
+    </div>
+    ${shown?'':'<button class="btn primary" style="width:100%;margin-top:12px" id="oGo">Take a full set of obs · 90 s</button>'}`);
+  if(!shown) $('#oGo').addEventListener('click', ()=>{ addTime(90); record('obs'); obsView(); });
+}
+
+/* ---------- make the call ---------- */
+function callView(){
+  if(S.busy) return;
+  document.querySelectorAll('.hs.active').forEach(h=>h.classList.remove('active'));
+  const few = [...S.found.keys()].filter(k=>k!=='doorway').length < 8;
+  openSheet('Make your call', `
+    <p class="hint">What’s your working impression?</p>
+    <div class="opts" role="radiogroup">${OPTIONS.map(o=>`<button class="opt" role="radio" aria-checked="false" data-o="${o.id}">${esc(o.t)}</button>`).join('')}</div>
+    ${few?'<p class="hint" style="color:var(--amber)">You haven’t found many clues yet. You can still decide now, but it may cost you.</p>':''}
+    <button class="btn primary" style="width:100%" id="confirm" disabled>Confirm</button>`);
+  $('#sheetBody').querySelectorAll('.opt').forEach(b=>b.addEventListener('click', ()=>{
+    $('#sheetBody').querySelectorAll('.opt').forEach(x=>{x.classList.remove('sel');x.setAttribute('aria-checked','false')});
+    b.classList.add('sel'); b.setAttribute('aria-checked','true'); S.choice=b.dataset.o; $('#confirm').disabled=false;
+  }));
+  $('#confirm').addEventListener('click', debrief);
+}
+
+/* ---------- doorway ---------- */
+function doorway(){
+  const dw=$('#doorway'); dw.hidden=false; let n=5; $('#dcount').textContent=n;
+  const iv=setInterval(()=>{ n--; $('#dcount').textContent=n; if(n<=0){ clearInterval(iv); dw.hidden=true; impressionView(); } },1000);
+}
+function impressionView(){
+  openSheet('First impression', `
+    <p class="hint">From the doorway, how does Derek look?</p>
+    <div class="opts">
+      <button class="opt" data-i="sick">Seriously unwell</button>
+      <button class="opt" data-i="unwell">Unwell but stable</button>
+      <button class="opt" data-i="well">Looks well</button>
+    </div>`);
+  $('#sheetX').hidden=true;
+  $('#sheetBody').querySelectorAll('.opt').forEach(b=>b.addEventListener('click', ()=>{
+    S.impression=b.dataset.i; addTime(10); record('doorway');
+    $('#sheetX').hidden=false;
+    $('#scene').classList.remove('locked');
+    $('#sheetBody').innerHTML = `<div class="result ${S.impression==='sick'?'':'warn'}">${S.impression==='sick'?'Agreed. ':'Look again: '} ${esc(CLUES.doorway.t)}. That’s a seriously unwell man.</div>
+      <p class="hint" style="margin-top:10px">Now examine him. Tap an outlined area to start.</p>
+      <button class="btn primary" style="width:100%" id="impOk">Start examining</button>`;
+    $('#impOk').addEventListener('click', closeSheet);
+  }));
+}
+
+/* ---------- debrief ---------- */
+function debrief(){
+  closeSheet();
+  const found=S.found;
+  const clueIds=Object.keys(CLUES);
+  const clueMax=clueIds.reduce((a,k)=>a+CLUES[k].p,0);
+  const cluePts=[...found.keys()].reduce((a,k)=>a+CLUES[k].p,0);
+  const correct=S.choice===CORRECT;
+  const inOrder = S.letters.join('')==='ABCDE';
+  const timeOk = S.clock<=420;
+  const premature = [...found.keys()].filter(k=>k!=='doorway').length < 8;
+  const rows=[
+    ['Clues found', `${found.size} of ${clueIds.length}`, cluePts],
+    ['Working impression', correct?'Correct':'Not this time', correct?50:0],
+    ['First impression', S.impression==='sick'?'Spot on':'Underestimated', S.impression==='sick'?10:0],
+    ['ABCDE in order', inOrder?'Yes':(S.letters.length===5?'All checked, out of order':`${S.letters.length} of 5 checked`), inOrder?30:0],
+    ['Time on scene', fmt(S.clock)+(timeOk?' (under 7:00)':' (over 7:00)'), timeOk?20:0]
+  ];
+  if(premature) rows.push(['Decided too early','Fewer than 8 clues', -30]);
+  const max=clueMax+50+10+30+20;
+  const total=Math.max(0, rows.reduce((a,r)=>a+r[2],0));
+  const pct=Math.round(total/max*100);
+  const rating = pct>=80?'Thorough sweep':pct>=55?'Solid assessment':'Keep hunting';
+  const keyIds=clueIds.filter(k=>CLUES[k].key), otherIds=clueIds.filter(k=>!CLUES[k].key);
+  const li=k=>`<li class="${found.has(k)?'f':'m'}"><span class="mk">${found.has(k)?'✓':'·'}</span><span>${esc(CLUES[k].t)}</span></li>`;
+  const chosen = OPTIONS.find(o=>o.id===S.choice);
+
+  $('#debrief').innerHTML = `
+    <div class="verdict">
+      <div>
+        <div class="eyebrow">Debrief · Derek, 78</div>
+        <h2>${correct?'<span class="ok">Correct:</span> acute heart failure':'<span class="bad">Not quite.</span> This was acute heart failure'}</h2>
+        <p>${correct?'Fluid on the lungs from a heart that couldn’t keep up.':'You chose: '+esc(chosen?chosen.t:'')+'.'}</p>
+      </div>
+      <div class="score"><div class="n">${total}</div><small>of ${max} · ${rating}</small></div>
+    </div>
+    ${!correct&&WRONG[S.choice]?`<div class="feedback"><b>Why not ${esc(chosen.t.toLowerCase())}?</b><br>${esc(WRONG[S.choice])}</div>`:''}
+    <div class="sep"><h3>What told it apart from a chest infection</h3>
+      <p>No fever, crackles at the bottom of <b>both</b> lungs rather than one patch, swollen neck veins and ankles, and breathlessness that’s worse lying flat.</p></div>
+    <div class="cols">
+      <div class="panel"><h2><span>Score</span></h2><div class="rows">${rows.map(r=>`<div><span>${esc(r[0])}<br><small style="color:var(--muted)">${esc(r[1])}</small></span><b class="${r[2]<0?'bad':''}">${r[2]>0?'+':''}${r[2]}</b></div>`).join('')}</div>
+        <h2 style="margin-top:14px"><span>Your examination order</span></h2>
+        <div class="path">${S.letters.length?S.letters.map(L=>`<div class="chip on">${L}</div>`).join(''):'<span class="hint">No ABCDE checks made</span>'}</div>
+        ${premature?'<p class="hint">You decided with fewer than 8 clues. You might have been right, but a look-alike would have caught you out.</p>':''}
+      </div>
+      <div class="panel"><h2><span>Separating clues</span><span>${keyIds.filter(k=>found.has(k)).length}/${keyIds.length}</span></h2>
+        <ul class="clist">${keyIds.map(li).join('')}</ul>
+        <h2 style="margin-top:14px"><span>Other findings</span><span>${otherIds.filter(k=>found.has(k)).length}/${otherIds.length}</span></h2>
+        <ul class="clist">${otherIds.map(li).join('')}</ul>
+      </div>
+    </div>
+    <div class="panel hollie"><img class="av" src="images/hollie.png" alt="Hollie" loading="lazy"><div>
+      <h2 style="margin-bottom:8px"><span>Hollie explains</span></h2>
+      <p>Derek’s heart isn’t pumping forward well enough. When the left side falls behind, pressure backs up into the blood vessels of the lungs and fluid leaks into the tiny air spaces. It settles at the bottom of both lungs, which is why you hear fine crackles there and why he’s working so hard to breathe.</p>
+      <p>Lying flat makes it worse because more blood returns to the heart and the fluid spreads across more of the lungs. That’s why he’s been sleeping in the chair and woke at 3am gasping.</p>
+      <p>The back-pressure doesn’t stop at the lungs. It reaches the veins of the body too, so his neck veins are swollen even sitting up and fluid has pooled in both ankles.</p>
+      <p>His fast pulse and pale, clammy skin are his stress response at work: the body speeds up the heart and narrows the blood vessels in the skin to protect blood flow to vital organs.</p>
+    </div></div>
+    <div class="pitch">
+      <div class="eyebrow">Paramind Pro</div>
+      <h3>Derek was one patient. Unlock 20 more Clue Hunt cases with Pro.</h3>
+      <p>New patients and new conditions to examine, plus every other Paramind tool: patient scenarios, the ECG tool and CPD certificates for your portfolio.</p>
+      <a class="btn white" href="upgrade.html">Unlock Clue Hunt with Pro</a>
+      <div class="price">Pro from £4.99 a month</div>
+      <a class="join" href="index.html">New to Paramind? Create a free account</a>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn ghost big" id="again">Play again</button></div>
+    <p class="policy">Clue Hunt teaches recognition and understanding only. For clinical management, follow JRCALC and your trust guidelines.<br>Educational use only. Not clinical advice. Not a medical device.</p>`;
+  $('#s-game').hidden=true; $('#hud').hidden=true; $('#s-debrief').hidden=false;
+  window.scrollTo({top:0});
+  $('#again').addEventListener('click', start);
+}
+
+/* ---------- boot ---------- */
+function start(){
+  S=fresh();
+  $('#notes').innerHTML=''; $('#nEmpty').hidden=false; $('#nCount').textContent='0';
+  $('#veins').style.opacity=0; $('#scm2').style.opacity=0; $('#bubble').style.opacity=0;
+  document.querySelectorAll('.hs').forEach(h=>h.classList.remove('done','active'));
+  $('#scene').classList.add('locked');
+  $('#clock').textContent='00:00'; renderChips();
+  $('#sheet').hidden=true; $('#sheetBack').hidden=true; $('#sheetX').hidden=false;
+  $('#s-start').hidden=true; $('#s-debrief').hidden=true; $('#s-game').hidden=false; $('#hud').hidden=false;
+  window.scrollTo({top:0});
+  doorway();
+}
+$('#go').addEventListener('click', ()=>{ try{audio();}catch(e){} start(); });
+document.querySelectorAll('.hs').forEach(h=>{
+  h.addEventListener('click', ()=>showArea(h.dataset.area));
+  h.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); showArea(h.dataset.area);} });
+});
+$('#b-ask').addEventListener('click', ()=>{ if(!$('#scene').classList.contains('locked')) askView(); });
+$('#b-obs').addEventListener('click', ()=>{ if(!$('#scene').classList.contains('locked')) obsView(); });
+$('#b-call').addEventListener('click', ()=>{ if(!$('#scene').classList.contains('locked')) callView(); });
+$('#glowT').addEventListener('change', e=>$('#scene').classList.toggle('glow', e.target.checked));
+S=fresh();
+})();
+</script>
+</body>
+</html>
