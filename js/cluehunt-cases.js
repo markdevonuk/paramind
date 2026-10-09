@@ -1137,6 +1137,390 @@ window.CLUEHUNT_CASES = [
     'Cold slows everything down: the brain, so he’s drowsy and slurred; the heart, so his pulse is slow; and breathing. Clamped-down skin vessels make him grey-blue and make it hard to get a sats reading.',
     'Older people who live alone, eat poorly or have an underactive thyroid are at higher risk. Many standard thermometers can’t read very low temperatures, so a very cold patient may actually be colder than the reading shows.'
   ]
+},
+
+/* ───────────────────────── INTERMEDIATE 6 · SIMPLE FAINT ───────────────────────── */
+{
+  id:'int-faint', level:'intermediate',
+  dispatch:{time:'12:34', cat:'Cat 3', headline:'Collapsed in a queue, now awake',
+    text:'25-year-old female. Collapsed while queuing, now conscious.',
+    detail:'Caller is a member of staff. Patient was briefly unconscious and is now talking.', addr:'Post office, town centre · staff member with her'},
+  scene:{room:'shop_day', chair:'dining', chairColour:'#5d6d7a'},
+  patient:{name:'Emma', age:25, sex:'f', skin:'#d9a98a', hair:'long', hairColour:'#4a3020',
+    outfit:'dress', top:'#4a8a8a', shoes:'#2a2a2a', mouth:'closed', eyes:'open',
+    signs:{pale:true}},
+  doorway:{t:'Sitting on a chair the staff brought out, a little pale, chatting and looking embarrassed', correct:'well'},
+  askHint:'Emma is chatty and remembers most of it. Dev, the staff member, saw her fall.',
+  areas:{
+    face:[
+      {id:'talk', l:'Talk to her', L:'A', cost:15, clue:{t:'Airway clear; talking normally', normal:true}, fx:{say:['I’m so sorry,','I feel such an idiot']}},
+      {id:'skin', l:'Look at her skin', L:'C', cost:10, clue:{t:'Slightly pale, but her colour is coming back'}},
+      {id:'alert', l:'Check how alert she is', L:'D', cost:15, clue:{t:'Fully alert; remembers everything up to feeling hot and dizzy', key:true}},
+      {id:'mouth', l:'Look in her mouth', L:'A', cost:10, clue:{t:'No tongue bite', key:true}},
+      {id:'pupils', l:'Check her pupils', L:'D', cost:15, kind:'pupils', clue:{t:'Pupils equal and reacting to light', normal:true}}
+    ],
+    chest:[
+      {id:'rr', l:'Count her breathing rate', L:'B', cost:15, kind:'count', rate:14, what:'breath', clue:{t:'Breathing rate about 14 a minute', normal:true}},
+      {id:'listen', l:'Listen to her chest', L:'B', kind:'listen', zones:[
+        {id:'upper', label:'Upper chest', where:'Both sides, below the collarbones', sound:'normal', clue:{t:'Upper chest clear on both sides', normal:true}},
+        {id:'bases', label:'Bottom of the chest', where:'Both sides, from behind', sound:'normal', clue:{t:'Bottom of the chest clear on both sides', normal:true}}
+      ]},
+      {id:'ecg', l:'Record a 12-lead ECG', L:'C', cost:60, clue:{t:'Normal 12-lead ECG: regular rhythm and normal intervals', key:true}}
+    ],
+    hand:[
+      {id:'hr', l:'Count her pulse', L:'C', cost:15, kind:'count', rate:72, what:'beat', clue:{t:'Pulse about 72 a minute and regular', normal:true}},
+      {id:'crt', l:'Check capillary refill', L:'C', cost:10, kind:'crt', secs:1.8, clue:{t:'Capillary refill under 2 seconds', normal:true}},
+      {id:'bm', l:'Check her blood sugar', L:'D', cost:20, kind:'bm', value:'5.2', clue:{t:'Blood sugar 5.2: normal', normal:true}}
+    ],
+    abdo:[
+      {id:'abdo', l:'Look at and feel her tummy', L:'E', cost:15, clue:{t:'Tummy soft, nothing of note', normal:true}}
+    ],
+    legs:[
+      {id:'wet', l:'Check her clothing', L:'E', cost:10, clue:{t:'She hasn’t wet herself', normal:true}},
+      {id:'legs', l:'Look at her legs', L:'E', cost:10, clue:{t:'No swelling and no injuries from the fall', normal:true}}
+    ]
+  },
+  questions:[
+    {q:'What happened?', who:'Emma', a:'I’d been standing in the queue for ages and it was really hot. I felt sick and sweaty, my vision went grey round the edges, and the next thing I knew I was on the floor.', clue:{t:'Long standing in the heat, then felt hot, sick and her vision greyed', key:true}},
+    {q:'How long was she out for?', who:'Dev, staff member', a:'Ten seconds, maybe. Her arms twitched a couple of times, then she came round straight away and knew where she was.', clue:{t:'Out for about ten seconds, a brief twitch, then came round quickly', key:true}},
+    {q:'Any chest pain or a racing heart beforehand?', who:'Emma', a:'No, nothing like that. Just hot and sick.', clue:{t:'No chest pain or palpitations before it', key:true}},
+    {q:'Has this happened before?', who:'Emma', a:'Once when I had blood taken. I went exactly the same way.', clue:{t:'Fainted once before having blood taken'}},
+    {q:'Have you eaten today?', who:'Emma', a:'Only a coffee. I was running late.', clue:{t:'Only had a coffee today'}},
+    {q:'Any family history of heart problems or sudden death?', who:'Emma', a:'No, not that I know of.', clue:{t:'No family history of heart problems or sudden death', key:true}}
+  ],
+  obs:{hr:72, sp:99, rr:14, bp:'112/70', t:'36.8', bm:'5.2'},
+  options:[
+    {id:'faint', t:'Simple faint'},
+    {id:'seizure', t:'Seizure'},
+    {id:'arrhythmia', t:'Heart rhythm problem'},
+    {id:'hypo', t:'Low blood sugar'},
+    {id:'tia', t:'Mini-stroke (TIA)'},
+    {id:'panic', t:'Panic attack'}
+  ],
+  correct:'faint',
+  summary:'A reflex drop in heart rate and blood pressure after standing in the heat.',
+  wrong:{
+    seizure:'A few seconds of twitching is common in a faint and doesn’t mean a seizure. A seizure usually brings longer jerking, often a tongue bite, and confusion afterwards. Emma came round straight away and clear-headed.',
+    arrhythmia:'Worrying signs of a heart rhythm problem include collapsing without warning or during exercise, chest pain or palpitations beforehand, a family history of sudden death, or an abnormal ECG. Emma has none of these.',
+    hypo:'Her sugar is 5.2, so that isn’t the cause.',
+    tia:'A mini-stroke causes weakness, numbness or speech problems and very rarely makes someone pass out. Emma has none of these.',
+    panic:'Panic rarely causes someone to pass out, and Emma’s warning signs were feeling hot, sick and grey, not fear and overbreathing.'
+  },
+  separator:{title:'What made this a simple faint, not a heart rhythm problem',
+    text:'A clear trigger (long standing in the heat with an empty stomach), warning signs beforehand, a brief collapse with a quick, full recovery, no chest pain or palpitations, no family history and a normal ECG.'},
+  explain:[
+    'A simple faint is a reflex. Standing still for a long time lets blood pool in the legs. The body tries to correct it, overshoots, and suddenly slows the heart and widens the blood vessels.',
+    'Blood pressure drops, the brain briefly gets too little blood, and the warning signs follow: feeling hot, sick and sweaty, with vision going grey. Then the person collapses.',
+    'Once she’s flat, blood flows back to the brain and she recovers within seconds. A few brief twitches are common and don’t mean a seizure.',
+    'The real skill is ruling out the dangerous causes. Collapse during exercise or with no warning, chest pain or palpitations, a family history of sudden death, or an abnormal ECG all point away from a simple faint.'
+  ]
+},
+
+/* ───────────────────────── INTERMEDIATE 7 · KIDNEY STONE ───────────────────────── */
+{
+  id:'int-renal', level:'intermediate',
+  dispatch:{time:'10:52', cat:'Cat 3', headline:'Severe back pain',
+    text:'40-year-old male. Severe pain in his back, vomiting.',
+    detail:'Caller is his supervisor. Patient can’t sit still.', addr:'Distribution warehouse · supervisor at the loading bay'},
+  scene:{room:'warehouse_day', chair:'office', chairColour:'#3a3f4a'},
+  patient:{name:'Darren', age:40, sex:'m', skin:'#c99a76', hair:'short', hairColour:'#3a2a1e',
+    outfit:'tshirt', top:'#e8d23a', bottom:'#3a3f4a', shoes:'#2a2a2a', mouth:'grimace', face:'pain', eyes:'open',
+    arms:{L:'knee', R:'flank'}, signs:{sweat:true, pale:true, restless:true}},
+  doorway:{t:'Perched on a chair, rocking and twisting, clutching the left side of his back', correct:'unwell'},
+  askHint:'Darren can talk between waves of pain. His supervisor Karl called you.',
+  areas:{
+    face:[
+      {id:'talk', l:'Talk to him', L:'A', cost:15, clue:{t:'Airway clear; talking in full sentences between waves of pain', normal:true}, fx:{say:['It’s coming again…','ahh!']}},
+      {id:'skin', l:'Look at his skin', L:'C', cost:10, clue:{t:'Pale and sweaty'}},
+      {id:'alert', l:'Check how alert he is', L:'D', cost:15, clue:{t:'Alert and oriented', normal:true}},
+      {id:'pupils', l:'Check his pupils', L:'D', cost:15, kind:'pupils', clue:{t:'Pupils equal and reacting to light', normal:true}}
+    ],
+    chest:[
+      {id:'rr', l:'Count his breathing rate', L:'B', cost:15, kind:'count', rate:20, what:'breath', clue:{t:'Breathing rate about 20 a minute', normal:true}},
+      {id:'listen', l:'Listen to his chest', L:'B', kind:'listen', zones:[
+        {id:'upper', label:'Upper chest', where:'Both sides, below the collarbones', sound:'normal', clue:{t:'Upper chest clear on both sides', normal:true}},
+        {id:'bases', label:'Bottom of the chest', where:'Both sides, from behind', sound:'normal', clue:{t:'Bottom of the chest clear on both sides', normal:true}}
+      ]}
+    ],
+    hand:[
+      {id:'hr', l:'Count his pulse', L:'C', cost:15, kind:'count', rate:104, what:'beat', clue:{t:'Pulse about 104 a minute and regular'}},
+      {id:'crt', l:'Check capillary refill', L:'C', cost:10, kind:'crt', secs:1.9, clue:{t:'Capillary refill under 2 seconds', normal:true}},
+      {id:'temp', l:'Feel his skin temperature', L:'E', cost:10, clue:{t:'Warm, not hot: no sign of fever', key:true}}
+    ],
+    abdo:[
+      {id:'front', l:'Feel his tummy', L:'E', cost:15, clue:{t:'Tummy soft and not tender at the front', key:true}},
+      {id:'loin', l:'Feel his back below the ribs', L:'E', cost:10, clue:{t:'Tender over the left loin, at the back below the ribs', key:true}},
+      {id:'mass', l:'Feel for a pulsing mass', L:'C', cost:10, clue:{t:'No pulsing mass in the tummy', key:true}}
+    ],
+    legs:[
+      {id:'pulses', l:'Feel the pulses in his legs', L:'C', cost:10, clue:{t:'Leg pulses strong and equal on both sides', normal:true}}
+    ]
+  },
+  questions:[
+    {q:'Tell me about the pain', who:'Darren', a:'Started an hour ago on the left side of my back. It comes in waves and shoots down into my groin.', clue:{t:'Waves of pain from the left loin down to the groin', key:true}},
+    {q:'Can you keep still?', who:'Darren', a:'No, I can’t get comfortable whatever I do.', clue:{t:'Can’t keep still or get comfortable', key:true}},
+    {q:'Any problems passing water?', who:'Darren', a:'It looked a bit pink, and it stings.', clue:{t:'Pink urine that stings', key:true}},
+    {q:'Have you been sick?', who:'Darren', a:'Twice, since it started.', clue:{t:'Vomited twice'}},
+    {q:'Any fever or shivers?', who:'Darren', a:'No.', clue:{t:'No fever or shivering', normal:true}},
+    {q:'Has anyone in your family had anything like this?', who:'Darren', a:'My dad gets kidney stones. He says it’s worse than anything.', clue:{t:'Father has kidney stones'}}
+  ],
+  obs:{hr:104, sp:99, rr:20, bp:'152/94', t:'36.9', bm:'6.0'},
+  options:[
+    {id:'renal', t:'Kidney stone (renal colic)'},
+    {id:'aaa', t:'Leaking abdominal aortic aneurysm'},
+    {id:'pyelo', t:'Kidney infection'},
+    {id:'strain', t:'Back muscle strain'},
+    {id:'appendix', t:'Appendicitis'},
+    {id:'pancreatitis', t:'Pancreatitis'}
+  ],
+  correct:'renal',
+  summary:'A stone moving down the tube from his kidney to his bladder.',
+  wrong:{
+    aaa:'A leaking aneurysm can look exactly like renal colic, so it must always be considered, especially in anyone over 50 with no history of stones. Darren is 40, has no pulsing mass, equal leg pulses and a high blood pressure, and has blood in his urine.',
+    pyelo:'A kidney infection causes loin pain with a fever and shivering, and the pain is usually constant. Darren has no fever and his pain comes in waves.',
+    strain:'A strained back is worse with movement and better with rest. It doesn’t shoot into the groin in waves, cause vomiting, or turn the urine pink.',
+    appendix:'Appendicitis makes people lie still, with tenderness low on the right at the front. Darren can’t keep still and his tummy is soft.',
+    pancreatitis:'Pancreatitis causes constant upper tummy pain going through to the back. Darren’s pain is in his left loin, comes in waves and goes to his groin.'
+  },
+  separator:{title:'What made this a kidney stone, not a leaking aneurysm',
+    text:'A 40-year-old with waves of loin-to-groin pain, unable to keep still, with blood in his urine, no pulsing mass, equal leg pulses and a high blood pressure.'},
+  explain:[
+    'A kidney stone causes pain when it moves into the ureter, the narrow tube from the kidney to the bladder. The muscle in the ureter squeezes in waves to push the stone along.',
+    'Each squeeze causes a wave of severe pain that starts in the loin and shoots to the groin. People with renal colic can’t keep still, which is very different from someone with an inflamed tummy lining, who lies very still.',
+    'The stone scrapes the lining of the ureter, so blood appears in the urine. The pain itself causes the sweating, pallor, fast pulse, high blood pressure and vomiting.',
+    'A fever with a stone is a warning sign of infection trapped behind a blockage. And in older people, a leaking aortic aneurysm can mimic renal colic almost perfectly.'
+  ]
+},
+
+/* ───────────────────────── INTERMEDIATE 8 · APPENDICITIS ───────────────────────── */
+{
+  id:'int-appendix', level:'intermediate',
+  dispatch:{time:'09:15', cat:'Cat 3', headline:'Tummy pain',
+    text:'23-year-old male. Abdominal pain since yesterday.',
+    detail:'Caller is his partner. Pain getting worse; vomited once.', addr:'Flat above the bakery · partner will open the door'},
+  scene:{room:'lounge_eve', chair:'armchair', chairColour:'#5a4a6a'},
+  patient:{name:'Josh', age:23, sex:'m', skin:'#f0cdb0', hair:'short', hairColour:'#a0522d',
+    outfit:'tshirt', top:'#4a4a6a', bottom:'#6a6a6a', shoes:'#2a2a2a', mouth:'closed', face:'pain', eyes:'open',
+    arms:{L:'tummy', R:'knee'}, signs:{flushed:true}},
+  doorway:{t:'Sitting very still and slightly bent forward, one hand pressed low on the right of his tummy', correct:'unwell'},
+  askHint:'Josh can talk to you. His partner Alex is with him.',
+  areas:{
+    face:[
+      {id:'talk', l:'Talk to him', L:'A', cost:15, clue:{t:'Airway clear; talking normally', normal:true}, fx:{say:['It really hurts','when I move']}},
+      {id:'skin', l:'Look at his skin', L:'C', cost:10, clue:{t:'Slightly flushed'}},
+      {id:'alert', l:'Check how alert he is', L:'D', cost:15, clue:{t:'Alert and oriented', normal:true}},
+      {id:'pupils', l:'Check his pupils', L:'D', cost:15, kind:'pupils', clue:{t:'Pupils equal and reacting to light', normal:true}}
+    ],
+    chest:[
+      {id:'rr', l:'Count his breathing rate', L:'B', cost:15, kind:'count', rate:18, what:'breath', clue:{t:'Breathing rate about 18 a minute', normal:true}},
+      {id:'listen', l:'Listen to his chest', L:'B', kind:'listen', zones:[
+        {id:'upper', label:'Upper chest', where:'Both sides, below the collarbones', sound:'normal', clue:{t:'Upper chest clear on both sides', normal:true}},
+        {id:'bases', label:'Bottom of the chest', where:'Both sides, from behind', sound:'normal', clue:{t:'Bottom of the chest clear on both sides', normal:true}}
+      ]}
+    ],
+    hand:[
+      {id:'hr', l:'Count his pulse', L:'C', cost:15, kind:'count', rate:102, what:'beat', clue:{t:'Pulse about 102 a minute and regular'}},
+      {id:'temp', l:'Feel his skin temperature', L:'E', cost:10, clue:{t:'Warm, slightly hot'}},
+      {id:'crt', l:'Check capillary refill', L:'C', cost:10, kind:'crt', secs:2, clue:{t:'Capillary refill about 2 seconds', normal:true}}
+    ],
+    abdo:[
+      {id:'feel', l:'Feel his tummy gently', L:'E', cost:15, clue:{t:'Tender low on the right, worst about two-thirds of the way from his belly button to his hip bone', key:true}},
+      {id:'left', l:'Press low on the left side', L:'E', cost:10, clue:{t:'Pressing low on the left causes pain on the right', key:true}},
+      {id:'cough', l:'Ask him to cough', L:'E', cost:10, clue:{t:'Coughing makes the right-sided pain much worse', key:true}}
+    ],
+    legs:[
+      {id:'leg', l:'Ask him to lift his right leg against your hand', L:'E', cost:10, clue:{t:'Lifting his right leg hurts low on the right of his tummy'}}
+    ]
+  },
+  questions:[
+    {q:'Where did the pain start?', who:'Josh', a:'Round my belly button yesterday afternoon. Then overnight it moved down here, on the right.', clue:{t:'Pain started around the belly button and moved low on the right', key:true}},
+    {q:'Does moving make it worse?', who:'Josh', a:'The bumps in the road in Alex’s car were agony. I just want to keep still.', clue:{t:'Movement and bumps make it worse; keeping still', key:true}},
+    {q:'Have you been hungry?', who:'Josh', a:'Not at all. I couldn’t face breakfast.', clue:{t:'Off his food'}},
+    {q:'Have you been sick?', who:'Alex, his partner', a:'Once, this morning.', clue:{t:'Vomited once'}},
+    {q:'Any diarrhoea or problems passing water?', who:'Josh', a:'No, both fine.', clue:{t:'No diarrhoea or urinary symptoms', normal:true}},
+    {q:'Any pain in your testicles?', who:'Josh', a:'No, nothing down there.', clue:{t:'No testicular pain', normal:true}}
+  ],
+  obs:{hr:102, sp:98, rr:18, bp:'128/78', t:'37.9', bm:'5.9'},
+  options:[
+    {id:'appendix', t:'Appendicitis'},
+    {id:'renal', t:'Kidney stone'},
+    {id:'gastro', t:'Tummy bug (gastroenteritis)'},
+    {id:'constipation', t:'Constipation'},
+    {id:'torsion', t:'Twisted testicle (testicular torsion)'},
+    {id:'hernia', t:'Hernia'}
+  ],
+  correct:'appendix',
+  summary:'An inflamed appendix now irritating the lining of his tummy.',
+  wrong:{
+    renal:'A kidney stone causes waves of loin-to-groin pain and people can’t keep still. Josh wants to keep perfectly still, and his urine is normal.',
+    gastro:'A tummy bug causes crampy pain all over, usually with diarrhoea. Josh has no diarrhoea, and his pain has settled in one spot that’s worse with movement and coughing.',
+    constipation:'Constipation causes crampy pain and bloating, not a fever, a fast pulse and sharp pain on coughing low on the right.',
+    torsion:'Lower tummy pain in a young man should always prompt a question about the testicles, because torsion can refer pain to the tummy. Josh has no testicular pain.',
+    hernia:'A hernia causes a lump in the groin or near a scar. Josh has no lump, and his pain moved from the belly button.'
+  },
+  separator:{title:'What made this appendicitis, not a tummy bug',
+    text:'Pain that started around the belly button and moved low on the right, worse with movement and coughing, pain on the right when you press the left, a low fever, off his food, and no diarrhoea.'},
+  explain:[
+    'The appendix is a small tube coming off the bowel. If it becomes blocked it can swell, become infected and inflamed.',
+    'Early on the pain is vague and felt around the belly button, because the appendix shares its nerve supply with the middle of the gut. As the inflammation spreads to the lining of the tummy wall next to it, the pain becomes sharp and settles low on the right.',
+    'Inflamed tummy lining hates being moved or jolted, which is why bumps in the road, coughing and pressing the opposite side all hurt. People with it tend to lie very still, unlike someone with a kidney stone.',
+    'The low fever, fast pulse and loss of appetite are the body’s response to the inflammation.'
+  ]
+},
+
+/* ───────────────────────── INTERMEDIATE 9 · ECTOPIC PREGNANCY ───────────────────────── */
+{
+  id:'int-ectopic', level:'intermediate',
+  dispatch:{time:'14:05', cat:'Cat 2', headline:'Tummy pain, feels faint',
+    text:'27-year-old female. Lower abdominal pain, feeling faint.',
+    detail:'Caller is her partner. Pain since this morning, getting worse.', addr:'New-build house · partner at the door'},
+  scene:{room:'lounge_day', chair:'armchair', chairColour:'#8a6a8a'},
+  patient:{name:'Hannah', age:27, sex:'f', skin:'#b07a55', hair:'long', hairColour:'#2a1a12',
+    outfit:'tshirt', top:'#e0a0b0', bottom:'#3e4a6a', shoes:'#e8e8e8', mouth:'closed', eyes:'open',
+    arms:{L:'tummy', R:'knee'}, signs:{pale:true}},
+  doorway:{t:'Sitting on the edge of her chair holding her lower tummy, a little pale, talking to her partner', correct:'unwell'},
+  askHint:'Hannah can talk to you. Her partner Ben is with her.',
+  areas:{
+    face:[
+      {id:'talk', l:'Talk to her', L:'A', cost:15, clue:{t:'Airway clear; talking normally', normal:true}, fx:{say:['It’s getting','worse, not better']}},
+      {id:'skin', l:'Look at her skin', L:'C', cost:10, clue:{t:'Pale and slightly clammy', key:true}},
+      {id:'alert', l:'Check how alert she is', L:'D', cost:15, clue:{t:'Alert and oriented', normal:true}},
+      {id:'pupils', l:'Check her pupils', L:'D', cost:15, kind:'pupils', clue:{t:'Pupils equal and reacting to light', normal:true}}
+    ],
+    chest:[
+      {id:'rr', l:'Count her breathing rate', L:'B', cost:15, kind:'count', rate:20, what:'breath', clue:{t:'Breathing rate about 20 a minute', normal:true}},
+      {id:'listen', l:'Listen to her chest', L:'B', kind:'listen', zones:[
+        {id:'upper', label:'Upper chest', where:'Both sides, below the collarbones', sound:'normal', clue:{t:'Upper chest clear on both sides', normal:true}},
+        {id:'bases', label:'Bottom of the chest', where:'Both sides, from behind', sound:'normal', clue:{t:'Bottom of the chest clear on both sides', normal:true}}
+      ]}
+    ],
+    hand:[
+      {id:'hr', l:'Count her pulse', L:'C', cost:15, kind:'count', rate:118, what:'beat', clue:{t:'Pulse about 118 a minute and regular', key:true}},
+      {id:'crt', l:'Check capillary refill', L:'C', cost:10, kind:'crt', secs:2.8, clue:{t:'Capillary refill nearly 3 seconds'}},
+      {id:'temp', l:'Feel her skin temperature', L:'E', cost:10, clue:{t:'Hands cool, no fever'}}
+    ],
+    abdo:[
+      {id:'feel', l:'Feel her tummy gently', L:'E', cost:15, clue:{t:'Tender low down, worse on the left; she tenses her tummy when you press', key:true}}
+    ],
+    legs:[
+      {id:'legs', l:'Look at her legs', L:'E', cost:10, clue:{t:'Nothing of note', normal:true}}
+    ]
+  },
+  questions:[
+    {q:'Tell me about the pain', who:'Hannah', a:'It started this morning, low on the left. It’s got worse, and now the tip of my right shoulder hurts too.', clue:{t:'Low left-sided pain, now with pain at the tip of her shoulder', key:true}},
+    {q:'When was your last period?', who:'Hannah', a:'About seven weeks ago. I’m usually like clockwork.', clue:{t:'Last period seven weeks ago; normally regular', key:true}},
+    {q:'Could you be pregnant?', who:'Hannah', a:'I… suppose I could be. We’ve been trying.', clue:{t:'Could be pregnant', key:true}},
+    {q:'Any bleeding?', who:'Hannah', a:'A little bit of spotting this morning.', clue:{t:'Light vaginal spotting this morning'}},
+    {q:'Have you felt faint?', who:'Ben, her partner', a:'She nearly went over when she stood up to go to the toilet.', clue:{t:'Nearly fainted on standing', key:true}},
+    {q:'Any problems passing water?', who:'Hannah', a:'No, that’s fine.', clue:{t:'No urinary symptoms', normal:true}}
+  ],
+  obs:{hr:118, sp:98, rr:20, bp:'104/68', t:'36.7', bm:'5.8'},
+  options:[
+    {id:'ectopic', t:'Ectopic pregnancy'},
+    {id:'miscarriage', t:'Miscarriage'},
+    {id:'appendix', t:'Appendicitis'},
+    {id:'uti', t:'Urine infection'},
+    {id:'renal', t:'Kidney stone'},
+    {id:'period', t:'Period pain'}
+  ],
+  correct:'ectopic',
+  summary:'A pregnancy growing outside the womb, now bleeding inside her tummy.',
+  wrong:{
+    miscarriage:'A miscarriage also causes bleeding and cramps, and can’t be ruled out here. But one-sided pain, shoulder-tip pain, nearly fainting and a pulse of 118 suggest bleeding inside the tummy, and an ectopic pregnancy must be thought of first.',
+    appendix:'Appendicitis can cause low tummy pain, usually on the right with a fever. Hannah’s missed period, shoulder-tip pain, fast pulse and faintness point elsewhere.',
+    uti:'She has no urinary symptoms, and an infection wouldn’t explain the shoulder-tip pain or nearly fainting.',
+    renal:'A kidney stone causes waves of loin-to-groin pain with blood in the urine. Hannah’s pain is low and constant and her urine is normal.',
+    period:'Her period is seven weeks overdue, and period pain doesn’t cause shoulder-tip pain, nearly fainting or a pulse of 118.'
+  },
+  separator:{title:'What made this an ectopic pregnancy, not appendicitis',
+    text:'A missed period with a possible pregnancy, one-sided low tummy pain, pain at the tip of the shoulder, nearly fainting on standing, and a rising pulse with pale, clammy skin.'},
+  explain:[
+    'In an ectopic pregnancy the fertilised egg implants outside the womb, usually in a fallopian tube. As it grows, it stretches the tube and causes one-sided pain.',
+    'The tube can tear and bleed into the tummy. Blood irritates the diaphragm, which shares its nerve supply with the shoulder tip, so the brain feels pain in the shoulder.',
+    'Young, healthy people compensate for blood loss very well. The pulse climbs and the skin goes pale and clammy, but the blood pressure can stay near normal until late. A normal blood pressure shouldn’t reassure you.',
+    'Pregnancy should be considered in any woman of childbearing age with tummy pain or a collapse, even if she hasn’t mentioned it.'
+  ]
+},
+
+/* ───────────────────────── INTERMEDIATE 10 · PANIC ATTACK ───────────────────────── */
+{
+  id:'int-panic', level:'intermediate',
+  dispatch:{time:'23:42', cat:'Cat 2', headline:'Can’t breathe, hands tingling',
+    text:'28-year-old female. Difficulty in breathing, tingling in her hands.',
+    detail:'Caller is a friend. At a house party.', addr:'House party, terraced street · friend will look out for you'},
+  scene:{room:'party_night', chair:'dining', chairColour:'#4a3a5a'},
+  patient:{name:'Zara', age:28, sex:'f', skin:'#e8bfa0', hair:'long', hairColour:'#a8442a',
+    outfit:'dress', top:'#2a2a3a', shoes:'#1a1a1a', mouth:'gasp', eyes:'open',
+    signs:{flushed:true}},
+  doorway:{t:'Sitting on a chair at the side of the room, breathing very fast and gripping her friend’s hand', correct:'unwell'},
+  askHint:'Zara can talk, in short bursts. Her friend Maddie is with her.',
+  areas:{
+    face:[
+      {id:'talk', l:'Talk to her', L:'A', cost:15, clue:{t:'Airway clear; talking fast in short bursts, very frightened'}, fx:{say:['I can’t breathe!','I think I’m dying!']}},
+      {id:'lips', l:'Look at her lips', L:'B', cost:10, clue:{t:'Lips a normal pink colour', normal:true}},
+      {id:'skin', l:'Look at her skin', L:'C', cost:10, clue:{t:'A little flushed; no rash or swelling', key:true}},
+      {id:'alert', l:'Check how alert she is', L:'D', cost:15, clue:{t:'Alert and oriented, very anxious', normal:true}},
+      {id:'pupils', l:'Check her pupils', L:'D', cost:15, kind:'pupils', clue:{t:'Pupils normal size, equal and reacting', key:true}}
+    ],
+    neck:[
+      {id:'stridor', l:'Listen to her breathing at the neck', L:'A', cost:10, clue:{t:'No stridor or noisy breathing in', normal:true}}
+    ],
+    chest:[
+      {id:'rr', l:'Count her breathing rate', L:'B', cost:15, kind:'count', rate:34, what:'breath', clue:{t:'Breathing rate about 34 a minute'}},
+      {id:'move', l:'Watch her chest move', L:'B', cost:10, clue:{t:'Both sides move equally; fast breaths from the upper chest', normal:true}},
+      {id:'listen', l:'Listen to her chest', L:'B', kind:'listen', zones:[
+        {id:'upper', label:'Upper chest', where:'Both sides, below the collarbones', sound:'normal', clue:{t:'Upper chest clear; no wheeze', normal:true}},
+        {id:'bases', label:'Bottom of the chest', where:'Both sides, from behind', sound:'normal', clue:{t:'Bottom of the chest clear on both sides', key:true}}
+      ]},
+      {id:'ecg', l:'Record a 12-lead ECG', L:'C', cost:60, clue:{t:'ECG normal apart from a fast, regular rate', key:true}}
+    ],
+    hand:[
+      {id:'hr', l:'Count her pulse', L:'C', cost:15, kind:'count', rate:112, what:'beat', clue:{t:'Pulse about 112 a minute and regular'}},
+      {id:'hands', l:'Look at her hands', L:'D', cost:10, clue:{t:'Fingers cramped and curled inwards', key:true}},
+      {id:'bm', l:'Check her blood sugar', L:'D', cost:20, kind:'bm', value:'5.9', clue:{t:'Blood sugar 5.9: normal', normal:true}}
+    ],
+    abdo:[
+      {id:'abdo', l:'Look at and feel her tummy', L:'E', cost:15, clue:{t:'Tummy soft, nothing of note', normal:true}}
+    ],
+    legs:[
+      {id:'calves', l:'Look at and feel her calves', L:'E', cost:15, clue:{t:'Calves soft, not swollen or tender', key:true}}
+    ]
+  },
+  questions:[
+    {q:'What happened?', who:'Maddie, her friend', a:'We were dancing, then she took a call from her ex and got really upset. She started breathing faster and faster and saying she couldn’t breathe.', clue:{t:'Started after an upsetting phone call', key:true}},
+    {q:'What can you feel?', who:'Zara', a:'My hands… and round my mouth… pins and needles…', clue:{t:'Pins and needles in both hands and around her mouth', key:true}, bubble:['Pins and needles…','my hands…']},
+    {q:'Has this happened before?', who:'Maddie, her friend', a:'She had something like this before her exams last year.', clue:{t:'A similar episode last year under stress'}},
+    {q:'Do you have asthma or any medical problems?', who:'Zara', a:'No… nothing…', clue:{t:'No asthma or medical problems', normal:true}, bubble:['No…','nothing…']},
+    {q:'Has she taken anything tonight?', who:'Maddie, her friend', a:'Two glasses of wine. No drugs. I’ve been with her all night.', clue:{t:'Two glasses of wine; no drugs', key:true}},
+    {q:'Any recent travel, surgery or leg pain?', who:'Zara', a:'No… none of that…', clue:{t:'No recent travel, surgery or leg pain', key:true}},
+    {q:'Any allergies? Eaten anything new?', who:'Maddie, her friend', a:'No allergies. She’s only had crisps.', clue:{t:'No allergies or new foods', normal:true}}
+  ],
+  obs:{hr:112, sp:99, rr:34, bp:'132/80', t:'36.8', bm:'5.9'},
+  options:[
+    {id:'panic', t:'Panic attack (hyperventilation)'},
+    {id:'asthma', t:'Asthma attack'},
+    {id:'pe', t:'Pulmonary embolism'},
+    {id:'anaph', t:'Anaphylaxis'},
+    {id:'drugs', t:'Reaction to recreational drugs'},
+    {id:'arrhythmia', t:'Heart rhythm problem'}
+  ],
+  correct:'panic',
+  summary:'Overbreathing after an emotional trigger, with every serious cause looked for and ruled out.',
+  wrong:{
+    asthma:'There’s no wheeze, no history of asthma and her sats are 99%.',
+    pe:'A clot on the lung was worth thinking about, but she has no risk factors, no swollen calf, a clear chest and sats of 99%.',
+    anaph:'She has no rash, swelling or stridor, no allergies, nothing new to eat, and her blood pressure is normal.',
+    drugs:'Her friend has been with her all night. Stimulant drugs would usually cause big pupils, a very fast pulse and a raised temperature; Zara’s pupils and temperature are normal.',
+    arrhythmia:'Her pulse is fast, but the ECG shows a normal rhythm that is simply running quickly.'
+  },
+  separator:{title:'What made this a panic attack, and why you could only say so at the end',
+    text:'An emotional trigger, tingling hands and lips with cramped fingers, sats of 99%, a clear chest, a normal ECG apart from the rate, normal calves, normal pupils, and no allergy signs or drugs. Every serious cause was looked for and ruled out first.'},
+  explain:[
+    'In a panic attack, fear drives very fast breathing. Breathing that fast blows off too much carbon dioxide, which makes the blood slightly alkaline.',
+    'That change affects how calcium behaves in the blood and makes nerves more twitchy. The result is pins and needles in the hands and around the mouth, and cramping that curls the fingers inwards.',
+    'Those sensations, along with chest tightness and dizziness, make the person even more frightened, which drives even faster breathing. That’s the loop.',
+    'Panic attack is a conclusion you reach last, not first. Low sats, a wheeze, chest signs, an abnormal ECG, a swollen calf or signs of allergy all mean something else is going on until proven otherwise.'
+  ]
 }
 
 ];

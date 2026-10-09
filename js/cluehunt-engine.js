@@ -100,6 +100,29 @@ const SCENES = {
     <rect y="372" width="400" height="88" fill="#4e4a46"/><rect y="368" width="400" height="8" fill="#7a8794"/>
     <ellipse cx="200" cy="432" rx="172" ry="22" fill="#5e5a54"/>`; },
 
+  shop_day(){ return `
+    <rect width="400" height="460" fill="#e6e9ec"/><rect y="0" width="400" height="26" fill="#c0392b"/><rect x="24" y="6" width="120" height="14" rx="3" fill="#f4d03f"/>
+    <g>${[60,120,180].map(y=>`<rect x="0" y="${y}" width="104" height="8" fill="#b0b8c0"/>`).join('')}
+    ${[[8,60,'#e67e22'],[30,60,'#3498db'],[54,60,'#27ae60'],[78,60,'#e74c3c'],[10,120,'#9b59b6'],[36,120,'#f1c40f'],[62,120,'#1abc9c'],[84,120,'#e67e22'],[12,180,'#3498db'],[40,180,'#e74c3c'],[66,180,'#27ae60']].map(([x,y,c],i)=>`<rect x="${x}" y="${y-22-i%3*4}" width="18" height="${22+i%3*4}" fill="${c}"/>`).join('')}</g>
+    <rect x="290" y="150" width="110" height="222" fill="#8a9aa8"/><rect x="290" y="140" width="110" height="14" fill="#5d6d7a"/><rect x="300" y="60" width="90" height="78" fill="#dfeef6" opacity=".7"/>
+    <rect y="372" width="400" height="88" fill="#b9b0a2"/><g stroke="#a89f90" stroke-width="2">${[60,140,220,300,380].map(x=>`<line x1="${x}" y1="372" x2="${x-30}" y2="460"/>`).join('')}</g>`; },
+
+  warehouse_day(){ return `
+    <rect width="400" height="460" fill="#cfd4d8"/>
+    <g fill="#3f6fa8">${[0,96,300].map(x=>`<rect x="${x}" y="30" width="8" height="342"/><rect x="${x+88}" y="30" width="8" height="342"/>`).join('')}</g>
+    <g fill="#e67e22">${[0,96,300].map(x=>[90,190,290].map(y=>`<rect x="${x}" y="${y}" width="96" height="6"/>`).join('')).join('')}</g>
+    <g fill="#c49a6c">${[[8,48],[46,58],[104,52],[140,62],[310,46],[348,56],[10,148],[52,156],[110,150],[308,150],[346,158],[14,250],[106,252],[318,248]].map(([x,y])=>`<rect x="${x}" y="${y+4}" width="34" height="36" fill="#c49a6c" stroke="#a87e52" stroke-width="2"/>`).join('')}</g>
+    <rect y="372" width="400" height="88" fill="#9aa0a6"/><rect y="400" width="400" height="8" fill="#f1c40f"/>`; },
+
+  party_night(){ return `
+    <rect width="400" height="460" fill="#3a2a4a"/>
+    <path d="M0 40 Q100 70 200 40 T400 40" stroke="#5a4a6a" stroke-width="2" fill="none"/>
+    <g>${[20,60,100,140,180,220,260,300,340,380].map((x,i)=>`<circle cx="${x}" cy="${46+Math.sin(i)*8}" r="5" fill="${['#ffd27a','#ff8ab0','#8ad8ff','#b0ff8a'][i%4]}" opacity=".9"/>`).join('')}</g>
+    <ellipse cx="40" cy="140" rx="22" ry="28" fill="#e05a8a"/><path d="M40 168 Q44 200 36 240" stroke="#c0c0c0" stroke-width="1.5" fill="none"/>
+    <ellipse cx="360" cy="120" rx="20" ry="26" fill="#5ab0e0"/><path d="M360 146 Q356 180 364 220" stroke="#c0c0c0" stroke-width="1.5" fill="none"/>
+    <rect x="290" y="250" width="110" height="122" fill="#2a1e36"/><rect x="300" y="232" width="12" height="20" fill="#8a3a4a"/><rect x="320" y="226" width="8" height="26" fill="#5a8a5a" opacity=".85"/>
+    <rect y="372" width="400" height="88" fill="#2e2438"/>`; },
+
   bedroom_night(){ return `
     <defs><radialGradient id="chBed" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffe2a0" stop-opacity=".45"/><stop offset="1" stop-color="#ffe2a0" stop-opacity="0"/></radialGradient></defs>
     <rect width="400" height="460" fill="#3e3c5a"/>
@@ -135,7 +158,9 @@ const ARM = {
   knee:  {L:['M150 192 L133 256 L160 308',[163,314]], R:['M250 192 L267 256 L240 308',[237,314]]},
   drop:  {L:['M150 192 L128 252 L118 306',[117,314]], R:['M250 192 L272 252 L282 306',[283,314]]},
   chest: {L:['M150 192 L146 250 L186 230',[192,228]], R:['M250 192 L254 250 L214 230',[208,228]]},
-  throat:{L:['M150 192 L148 238 L182 178',[190,170]], R:['M250 192 L252 238 L218 178',[210,170]]}
+  throat:{L:['M150 192 L148 238 L182 178',[190,170]], R:['M250 192 L252 238 L218 178',[210,170]]},
+  tummy: {L:['M150 192 L140 250 L172 276',[178,278]], R:['M250 192 L260 250 L228 276',[222,278]]},
+  flank: {L:['M150 192 L132 236 L148 262',[152,266]], R:['M250 192 L268 236 L252 262',[248,266]]}
 };
 const HIVES = [[178,140],[214,150],[196,162],[171,116],[230,118],[188,186],[212,190]];
 const HIVES_ARM = [[140,262],[148,284],[260,262],[252,284],[135,240],[265,240]];
@@ -154,7 +179,7 @@ function headSVG(P, skin, shade, ear, lip, hair){
   if(P.hair==='bald') s += `<path d="M165 104 C160 74 172 60 184 58 C176 70 172 84 172 104 Z" fill="${hair}"/><path d="M235 104 C240 74 228 60 216 58 C224 70 228 84 228 104 Z" fill="${hair}"/>`;
   if(P.hair==='short' || P.hair==='bun') s += `<path d="M163 102 C158 64 178 52 200 52 C222 52 242 64 237 102 C232 84 220 72 200 72 C180 72 168 84 163 102 Z" fill="${hair}"/>`;
   if(P.hair==='bun') s += `<circle cx="200" cy="50" r="13" fill="${hair}"/>`;
-  if(P.hair==='long') s += `<path d="M164 98 C162 58 238 58 236 98 C228 74 214 68 200 76 C186 68 172 74 164 98 Z" fill="${hair}"/>`;
+  if(P.hair==='long') s += `<path d="M162 104 C156 62 178 50 200 50 C222 50 244 62 238 104 C232 82 220 70 204 74 C196 70 180 72 170 86 C166 92 164 98 162 104 Z" fill="${hair}"/>`;
   if(P.hair==='curly') s += `<g fill="${hair}"><circle cx="180" cy="62" r="14"/><circle cx="200" cy="58" r="15"/><circle cx="220" cy="62" r="14"/><circle cx="168" cy="78" r="10"/><circle cx="232" cy="78" r="10"/></g>`;
   /* brows */
   const bc = P.hair==='bald' || P.hair==='bun' ? '#9aa0a6' : mix(hair,'#000000',.1);
@@ -228,7 +253,7 @@ function patientSVG(P){
     return out.join('');
   };
   /* arms drawn behind the torso unless resting over it */
-  const front = k => (P.arms && (P.arms[k]==='chest' || P.arms[k]==='throat'));
+  const front = k => (P.arms && ['chest','throat','tummy'].includes(P.arms[k]));
   if(!front('L')) s += arm(armL, topS) + `<circle cx="${armL[1][0]}" cy="${armL[1][1]}" r="13" fill="${skin}"/>`;
   if(!front('R')) s += arm(armR, topS) + `<circle cx="${armR[1][0]}" cy="${armR[1][1]}" r="13" fill="${skin}"/>`;
   s += barrel
@@ -337,7 +362,7 @@ function sceneSVG(c){
   return `<svg class="ch-scene ch-glow ch-locked" viewBox="0 0 400 460" role="img" aria-label="${esc(P.name)}, ${P.age}">
     ${SCENES[c.scene.room]()}
     ${P.pose==='floor' ? '' : chairSVG(c.scene.chair, c.scene.chairColour)}
-    <g id="chFig" class="${P.signs.shiver?'ch-shiver':''}">${P.pose==='floor' ? floorSVG(P) : patientSVG(P)}</g>
+    <g id="chFig" class="${P.signs.shiver?'ch-shiver':''}${P.signs.restless?' ch-restless':''}">${P.pose==='floor' ? floorSVG(P) : patientSVG(P)}</g>
     ${c.scene.prop==='bowl' ? `<g><ellipse cx="96" cy="414" rx="30" ry="9" fill="#5a3a2a" opacity=".25"/><path d="M68 398 Q96 428 124 398 Z" fill="#cfd6dc"/><ellipse cx="96" cy="398" rx="28" ry="7" fill="#e9eef2"/><ellipse cx="96" cy="399" rx="22" ry="4.5" fill="#4a2e1e"/></g>` : ''}
     <g id="chBubble" opacity="0"><rect x="232" y="14" width="160" height="50" rx="14" fill="#ffffff"/><path d="M244 62 L236 80 L258 63 Z" fill="#ffffff"/>
       <text id="chBubbleText" x="246" y="35" font-family="Plus Jakarta Sans, system-ui, sans-serif" font-size="13" font-weight="600" fill="#212529"></text></g>
