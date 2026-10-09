@@ -747,6 +747,396 @@ window.CLUEHUNT_CASES = [
     'Trapped air and damaged lung tissue make the breath sounds quiet, especially at the bottom. A flare-up is often triggered by an infection, which is why the phlegm has increased and changed colour.',
     'People with COPD often live with lower oxygen levels than most people, so knowing what’s normal for them matters. Ron’s blue-tinged lips and sats of 86% show he is worse than his usual self.'
   ]
+},
+
+/* ═════════════════════════ INTERMEDIATE ═════════════════════════ */
+
+/* ───────────────────────── INTERMEDIATE 1 · PULMONARY EMBOLISM ───────────────────────── */
+{
+  id:'int-pe', level:'intermediate',
+  dispatch:{time:'15:40', cat:'Cat 2', headline:'Sudden breathlessness',
+    text:'34-year-old female. Sudden difficulty breathing and chest pain.',
+    detail:'Caller is the patient. Came on suddenly about 30 minutes ago.', addr:'Flat, second floor · door on the latch'},
+  scene:{room:'lounge_day', chair:'armchair', chairColour:'#5a6a8a'},
+  patient:{name:'Sophie', age:34, sex:'f', skin:'#f0d0b8', hair:'long', hairColour:'#c9a46a',
+    outfit:'tshirt', top:'#c95a6a', bottom:'#3e5a7a', shoes:'#e8e8e8', mouth:'gasp', eyes:'open',
+    signs:{pale:true}},
+  doorway:{t:'Sitting upright on the edge of her chair, breathing a little fast, but talking and looking around', correct:'unwell'},
+  askHint:'Sophie can talk to you, though she’s a little short of breath.',
+  areas:{
+    face:[
+      {id:'talk', l:'Talk to her', L:'A', cost:15, clue:{t:'Airway clear; talking in sentences, but has to stop for breath'}, fx:{say:['I just… can’t catch','my breath properly']}},
+      {id:'lips', l:'Look at her lips', L:'B', cost:10, clue:{t:'Lips a normal colour', normal:true}},
+      {id:'skin', l:'Look at her skin', L:'C', cost:10, clue:{t:'A little pale'}},
+      {id:'alert', l:'Check how alert she is', L:'D', cost:15, clue:{t:'Alert and oriented, anxious', normal:true}},
+      {id:'pupils', l:'Check her pupils', L:'D', cost:15, kind:'pupils', clue:{t:'Pupils equal and reacting to light', normal:true}}
+    ],
+    neck:[
+      {id:'veins', l:'Look at her neck veins', L:'C', cost:10, clue:{t:'Neck veins not swollen', normal:true}},
+      {id:'trachea', l:'Check the position of her windpipe', L:'B', cost:10, clue:{t:'Windpipe in the middle', normal:true}}
+    ],
+    chest:[
+      {id:'rr', l:'Count her breathing rate', L:'B', cost:15, kind:'count', rate:26, what:'breath', clue:{t:'Breathing rate about 26 a minute'}},
+      {id:'move', l:'Watch her chest move', L:'B', cost:10, clue:{t:'Both sides move equally', normal:true}},
+      {id:'listen', l:'Listen to her chest', L:'B', kind:'listen', zones:[
+        {id:'upper', label:'Upper chest', where:'Both sides, below the collarbones', sound:'normal', clue:{t:'Upper chest clear, equal on both sides', normal:true}},
+        {id:'bases', label:'Bottom of the chest', where:'Both sides, from behind', sound:'normal', clue:{t:'Bottom of the chest clear on both sides, despite her breathlessness', key:true}}
+      ]},
+      {id:'press', l:'Press on her chest wall', L:'C', cost:10, clue:{t:'Pressing on her chest doesn’t bring on the pain', normal:true}}
+    ],
+    hand:[
+      {id:'hr', l:'Count her pulse', L:'C', cost:15, kind:'count', rate:118, what:'beat', clue:{t:'Pulse about 118 a minute and regular', key:true}},
+      {id:'crt', l:'Check capillary refill', L:'C', cost:10, kind:'crt', secs:2, clue:{t:'Capillary refill about 2 seconds', normal:true}},
+      {id:'temp', l:'Feel her skin temperature', L:'E', cost:10, clue:{t:'Warm, not hot', normal:true}}
+    ],
+    abdo:[
+      {id:'abdo', l:'Look at and feel her tummy', L:'E', cost:15, clue:{t:'Tummy soft, nothing of note', normal:true}}
+    ],
+    legs:[
+      {id:'calves', l:'Look at and feel her calves', L:'E', cost:15, clue:{t:'Left calf swollen, warm and tender; clearly bigger than the right', key:true}, fx:{flash:'legs'}},
+      {id:'ankles', l:'Press on her ankles', L:'E', cost:15, kind:'press', dent:false, clue:{t:'No ankle swelling', normal:true}}
+    ]
+  },
+  questions:[
+    {q:'What happened?', who:'Sophie', a:'I stood up from the sofa and suddenly couldn’t get my breath. Then I got this sharp pain in my chest.', clue:{t:'Sudden breathlessness on standing, then chest pain', key:true}},
+    {q:'Where’s the pain? Does breathing change it?', who:'Sophie', a:'On the right. It’s sharp, and it catches when I breathe in.', clue:{t:'Sharp right-sided pain, worse on breathing in'}},
+    {q:'Have you travelled recently?', who:'Sophie', a:'I flew back from Australia yesterday. Twenty-two hours of flying.', clue:{t:'Long-haul flight yesterday', key:true}},
+    {q:'Any pain in your legs?', who:'Sophie', a:'My left calf has ached since the flight. I thought it was cramp.', clue:{t:'Left calf ache since the flight', key:true}},
+    {q:'Any cough, cold or fever?', who:'Sophie', a:'No, I was fine before this.', clue:{t:'No cough, cold or fever', normal:true}},
+    {q:'Have you coughed up any blood?', who:'Sophie', a:'Just a tiny streak, about ten minutes ago.', clue:{t:'A small streak of blood when coughing'}}
+  ],
+  obs:{hr:118, sp:92, rr:26, bp:'118/76', t:'37.3', bm:'5.6'},
+  options:[
+    {id:'pe', t:'Pulmonary embolism'},
+    {id:'ptx', t:'Pneumothorax (collapsed lung)'},
+    {id:'pneu', t:'Chest infection (pneumonia)'},
+    {id:'asthma', t:'Asthma attack'},
+    {id:'mi', t:'Heart attack'},
+    {id:'panic', t:'Panic attack'}
+  ],
+  correct:'pe',
+  summary:'A clot from her leg vein has travelled to her lungs.',
+  wrong:{
+    ptx:'A collapsed lung also gives sudden sharp pain and breathlessness, but breath sounds are quiet on the affected side and that side moves less. Sophie’s chest moves equally and sounds clear on both sides.',
+    pneu:'A chest infection builds up over days with fever, cough and crackles. Sophie was well until this came on suddenly, and her chest is clear.',
+    asthma:'There’s no wheeze and no history of asthma. Her chest sounds normal.',
+    mi:'Heart attack pain is usually heavy and central, not sharp and catching on breathing in. Her history of a long flight and a swollen calf points elsewhere.',
+    panic:'She is breathless and anxious, but a pulse of 118, sats of 92% and a swollen calf are not explained by panic. Low sats should never be put down to anxiety.'
+  },
+  separator:{title:'What made this a PE, not a collapsed lung',
+    text:'A clear chest with equal movement and breath sounds on both sides, despite low sats and a fast pulse, after a long-haul flight and with a swollen, tender calf.'},
+  explain:[
+    'Sitting still for a long time slows blood flow in the deep veins of the legs, and a clot can form there. That’s why her left calf has been aching and is now swollen.',
+    'If part of that clot breaks off, it travels up through the right side of the heart and lodges in the arteries of the lungs. Air still reaches that part of the lung, but blood can’t, so oxygen can’t be picked up there.',
+    'That’s the key to recognising it: her sats fall and her heart races, yet her chest can sound completely normal. A clear chest doesn’t rule out a serious breathing problem.',
+    'The sharp pain on breathing in comes from irritated lung tissue near the blockage, and a small amount of blood can be coughed up for the same reason.'
+  ]
+},
+
+/* ───────────────────────── INTERMEDIATE 2 · DKA ───────────────────────── */
+{
+  id:'int-dka', level:'intermediate',
+  dispatch:{time:'18:55', cat:'Cat 2', headline:'Vomiting and drowsy',
+    text:'19-year-old male. Vomiting, drowsy, breathing fast.',
+    detail:'Caller is his flatmate. Unwell since yesterday, worse this evening.', addr:'Student flat · flatmate will meet you'},
+  scene:{room:'kitchen_day', chair:'dining', chairColour:'#6a6a6a'},
+  patient:{name:'Jordan', age:19, sex:'m', skin:'#5e3b26', hair:'short', hairColour:'#151210',
+    outfit:'tshirt', top:'#d06a3a', bottom:'#2f3b4a', shoes:'#f0f0f0', mouth:'gasp', eyes:'half',
+    signs:{deepBreaths:true}},
+  doorway:{t:'Slumped at the kitchen table, eyes half closed, taking big, deep, sighing breaths', correct:'sick'},
+  askHint:'Jordan is drowsy. His flatmate Mia can help.',
+  areas:{
+    face:[
+      {id:'talk', l:'Talk to him', L:'A', cost:15, clue:{t:'Airway clear; answers slowly, sounds exhausted'}, fx:{say:['So… thirsty…']}},
+      {id:'smell', l:'Smell his breath', L:'A', cost:10, clue:{t:'Sweet, pear-drop smell on his breath', key:true}},
+      {id:'mouth', l:'Look at his mouth and lips', L:'C', cost:10, clue:{t:'Lips and tongue dry and cracked'}},
+      {id:'alert', l:'Check how alert he is', L:'D', cost:15, clue:{t:'Drowsy but rousable; knows where he is'}},
+      {id:'pupils', l:'Check his pupils', L:'D', cost:15, kind:'pupils', clue:{t:'Pupils equal and reacting to light', normal:true}}
+    ],
+    chest:[
+      {id:'rr', l:'Count his breathing rate', L:'B', cost:15, kind:'count', rate:30, what:'breath', clue:{t:'Breathing rate about 30 a minute'}},
+      {id:'pattern', l:'Watch how he breathes', L:'B', cost:10, clue:{t:'Very deep, sighing, regular breaths', key:true}},
+      {id:'listen', l:'Listen to his chest', L:'B', kind:'listen', zones:[
+        {id:'upper', label:'Upper chest', where:'Both sides, below the collarbones', sound:'normal', clue:{t:'Upper chest clear on both sides', normal:true}},
+        {id:'bases', label:'Bottom of the chest', where:'Both sides, from behind', sound:'normal', clue:{t:'Bottom of the chest clear: his fast breathing isn’t coming from his lungs', key:true}}
+      ]}
+    ],
+    hand:[
+      {id:'hr', l:'Count his pulse', L:'C', cost:15, kind:'count', rate:124, what:'beat', clue:{t:'Pulse about 124 a minute and regular'}},
+      {id:'crt', l:'Check capillary refill', L:'C', cost:10, kind:'crt', secs:3.2, clue:{t:'Capillary refill about 3 seconds'}},
+      {id:'bm', l:'Check his blood sugar', L:'D', cost:20, kind:'bm', value:'HI', clue:{t:'Blood sugar reads HI: too high for the meter to measure', key:true}},
+      {id:'temp', l:'Feel his skin temperature', L:'E', cost:10, clue:{t:'Warm and dry, not feverish', normal:true}}
+    ],
+    abdo:[
+      {id:'abdo', l:'Look at and feel his tummy', L:'E', cost:15, clue:{t:'Tender all over, but soft'}}
+    ],
+    legs:[
+      {id:'legs', l:'Check his legs', L:'E', cost:10, clue:{t:'Nothing of note', normal:true}}
+    ]
+  },
+  questions:[
+    {q:'What’s been happening?', who:'Mia, his flatmate', a:'He’s been throwing up since yesterday and keeps saying his stomach hurts. Today he’s been really sleepy.', clue:{t:'Vomiting and tummy pain since yesterday, now drowsy'}},
+    {q:'Have you been drinking or weeing more than usual?', who:'Jordan', a:'So… thirsty… keep… peeing.', clue:{t:'Very thirsty and passing a lot of urine', key:true}, bubble:['So thirsty…','keep peeing…']},
+    {q:'Any medical problems?', who:'Mia, his flatmate', a:'He’s type 1 diabetic.', clue:{t:'Type 1 diabetic', key:true}},
+    {q:'How has he been managing his diabetes?', who:'Mia, his flatmate', a:'He’s had a cold all week. He said he wasn’t eating so he skipped his injections.', clue:{t:'Ill with a cold and has skipped his injections', key:true}},
+    {q:'Any alcohol or drugs?', who:'Mia, his flatmate', a:'No, he hasn’t been out at all this week.', clue:{t:'No alcohol or drugs', normal:true}},
+    {q:'Any diarrhoea?', who:'Mia, his flatmate', a:'No, just the sickness.', clue:{t:'No diarrhoea', normal:true}}
+  ],
+  obs:{hr:124, sp:99, rr:30, bp:'104/62', t:'37.0', bm:'HI'},
+  options:[
+    {id:'dka', t:'Diabetic ketoacidosis (DKA)'},
+    {id:'hypo', t:'Low blood sugar'},
+    {id:'gastro', t:'Tummy bug (gastroenteritis)'},
+    {id:'sepsis', t:'Sepsis'},
+    {id:'appendix', t:'Appendicitis'},
+    {id:'panic', t:'Panic attack (hyperventilation)'}
+  ],
+  correct:'dka',
+  summary:'Dangerously high sugar and acid in his blood after missed injections during an illness.',
+  wrong:{
+    hypo:'Drowsiness in a diabetic makes low sugar the first thing to check, but his sugar reads HI. Everything else, the thirst, the breath and the deep breathing, points the other way.',
+    gastro:'A tummy bug causes vomiting, but it wouldn’t explain a blood sugar too high to read, a sweet smell on the breath, and deep sighing breathing.',
+    sepsis:'Infection can trigger DKA and should be kept in mind, but Jordan has no fever, and the high sugar, breath smell and breathing pattern are the main story.',
+    appendix:'Appendicitis gives pain that settles in the lower right of the tummy. Jordan’s tummy is tender all over, and his sugar and breathing explain his symptoms.',
+    panic:'His breathing is fast, but it’s deep and sighing rather than panicky, and he’s drowsy, not agitated. A blood sugar of HI needs explaining.'
+  },
+  separator:{title:'What made this DKA, not a tummy bug',
+    text:'A type 1 diabetic with vomiting, thirst and passing lots of urine, deep sighing breathing, a sweet smell on the breath, and a blood sugar too high to read.'},
+  explain:[
+    'In type 1 diabetes the body doesn’t make the hormone that lets cells take in sugar from the blood. Without enough of it, sugar builds up in the blood while the cells starve.',
+    'Starving cells start burning fat instead, which produces ketones. Ketones are acids, and as they build up the blood becomes acidic. One ketone, acetone, is breathed out, giving the sweet pear-drop smell.',
+    'To get rid of acid the body breathes it off as carbon dioxide, so breathing becomes deep and sighing. That breathing pattern is a classic sign.',
+    'Very high sugar spills into the urine and drags water with it, so he’s thirsty and passing lots of urine and is now dehydrated: dry mouth, slow capillary refill, fast pulse. Illness and missed injections are common triggers.'
+  ]
+},
+
+/* ───────────────────────── INTERMEDIATE 3 · MENINGOCOCCAL SEPSIS ───────────────────────── */
+{
+  id:'int-mening', level:'intermediate',
+  dispatch:{time:'08:30', cat:'Cat 2', headline:'Headache, hard to wake',
+    text:'19-year-old female. Severe headache, difficult to wake.',
+    detail:'Caller is a friend in halls. Patient vomited twice this morning.', addr:'University halls, room 214 · friend will meet you at the entrance'},
+  scene:{room:'bedroom_day'},
+  patient:{name:'Lily', age:19, sex:'f', pose:'floor', skin:'#f2d4c0', hair:'long', hairColour:'#6b4a30',
+    outfit:'skirt', top:'#9a7ac9', shoes:'#e9c6d2', mouth:'closed', eyes:'closed',
+    signs:{petechiae:true, flushed:true}},
+  doorway:{t:'Lying on the floor beside her bed with her eyes screwed shut, flushed, a few dark spots on her legs', correct:'sick'},
+  askHint:'Lily is drowsy and doesn’t want to open her eyes. Her friend Amira can help.',
+  areas:{
+    face:[
+      {id:'talk', l:'Talk to her', L:'A', cost:15, clue:{t:'Airway clear; answers slowly, keeps her eyes shut'}, fx:{say:['My head…','it’s so bad…']}},
+      {id:'light', l:'Turn on the main light', L:'D', cost:10, clue:{t:'Flinches and turns away; says the light hurts her eyes', key:true}},
+      {id:'alert', l:'Check how alert she is', L:'D', cost:15, clue:{t:'Drowsy and muddled about the time', key:true}},
+      {id:'pupils', l:'Check her pupils', L:'D', cost:15, kind:'pupils', clue:{t:'Pupils equal and reacting, though she hates the torch', normal:true}}
+    ],
+    neck:[
+      {id:'stiff', l:'Ask her to bend her chin to her chest', L:'D', cost:10, clue:{t:'Neck stiff and painful to bend forward', key:true}}
+    ],
+    chest:[
+      {id:'rr', l:'Count her breathing rate', L:'B', cost:15, kind:'count', rate:24, what:'breath', clue:{t:'Breathing rate about 24 a minute'}},
+      {id:'listen', l:'Listen to her chest', L:'B', kind:'listen', zones:[
+        {id:'upper', label:'Upper chest', where:'Both sides, below the collarbones', sound:'normal', clue:{t:'Upper chest clear on both sides', normal:true}},
+        {id:'bases', label:'Bottom of the chest', where:'Both sides, at the sides', sound:'normal', clue:{t:'Bottom of the chest clear on both sides', normal:true}}
+      ]}
+    ],
+    hand:[
+      {id:'hr', l:'Count her pulse', L:'C', cost:15, kind:'count', rate:128, what:'beat', clue:{t:'Pulse about 128 a minute and regular'}},
+      {id:'crt', l:'Check capillary refill', L:'C', cost:10, kind:'crt', secs:4, clue:{t:'Capillary refill about 4 seconds'}},
+      {id:'temp', l:'Feel her hands and feet', L:'E', cost:10, clue:{t:'Hands and feet cold, even though her body is hot', key:true}}
+    ],
+    abdo:[
+      {id:'abdo', l:'Look at and feel her tummy', L:'E', cost:15, clue:{t:'Tummy soft, nothing of note', normal:true}}
+    ],
+    legs:[
+      {id:'rash', l:'Look at the spots on her legs', L:'E', cost:10, clue:{t:'Small purple-red spots on her legs, arms and neck', key:true}, fx:{flash:'rash'}},
+      {id:'glass', l:'Do the glass test', L:'E', cost:15, kind:'glass', blanch:false, clue:{t:'The spots don’t fade under the glass', key:true}}
+    ]
+  },
+  questions:[
+    {q:'What’s happened?', who:'Amira, her friend', a:'She went to bed early with a headache. This morning she was really hard to wake and she’s got these spots.', clue:{t:'Headache last night, hard to wake this morning'}},
+    {q:'How bad is the headache?', who:'Lily', a:'Worst… ever…', clue:{t:'Describes the worst headache she’s ever had'}, bubble:['Worst…','ever…']},
+    {q:'When did the spots appear?', who:'Amira, her friend', a:'I only noticed them an hour ago, and there are more now.', clue:{t:'Spots appeared an hour ago and are spreading', key:true}},
+    {q:'Has she been sick?', who:'Amira, her friend', a:'Twice this morning.', clue:{t:'Vomited twice'}},
+    {q:'Was she drinking last night?', who:'Amira, her friend', a:'No, she had a quiet night in because she felt rubbish.', clue:{t:'No alcohol last night', normal:true}},
+    {q:'Any medical problems?', who:'Amira, her friend', a:'None that I know of.', clue:{t:'No known medical problems', normal:true}}
+  ],
+  obs:{hr:128, sp:96, rr:24, bp:'96/58', t:'39.1', bm:'6.2'},
+  options:[
+    {id:'mening', t:'Meningococcal disease (meningitis with sepsis)'},
+    {id:'flu', t:'Flu'},
+    {id:'migraine', t:'Migraine'},
+    {id:'viral', t:'Harmless viral rash'},
+    {id:'uti', t:'Sepsis from a urine infection'},
+    {id:'hangover', t:'Hangover'}
+  ],
+  correct:'mening',
+  summary:'A bacterial infection of the blood and the lining of the brain.',
+  wrong:{
+    flu:'Flu causes fever, headache and aches, but not a stiff neck, a rash that doesn’t fade under a glass, or cold hands and feet with a slow capillary refill.',
+    migraine:'Migraine can cause headache, dislike of light and vomiting, but not a high fever, a fast pulse, a stiff neck or a non-fading rash.',
+    viral:'Many viral rashes fade when pressed. Lily’s spots don’t fade, are spreading, and she has a stiff neck and a high temperature.',
+    uti:'There are no urinary symptoms here, and the stiff neck, dislike of light and non-fading rash point to the brain’s lining and the blood.',
+    hangover:'She hasn’t been drinking, and a hangover doesn’t cause a high fever, a stiff neck or a rash that won’t fade.'
+  },
+  separator:{title:'What made this meningococcal disease, not flu',
+    text:'Spots that don’t fade under a glass and are spreading, a stiff neck, dislike of light, cold hands and feet with a high temperature, and worsening drowsiness.'},
+  explain:[
+    'Meningococcal bacteria can infect the meninges, the lining around the brain and spinal cord, and the bloodstream at the same time.',
+    'Inflamed meninges cause the severe headache, the stiff neck and the dislike of light. Bending the neck stretches the inflamed lining, which is why it hurts.',
+    'In the bloodstream, the infection damages small blood vessels so they leak blood into the skin. That blood is outside the vessels, so pressing a glass on it can’t push it away. That’s why the spots don’t fade.',
+    'Cold hands and feet and a slow capillary refill are early signs that the circulation is struggling, and they often come before the rash. This can get worse within hours, so the whole picture matters more than any one sign.'
+  ]
+},
+
+/* ───────────────────────── INTERMEDIATE 4 · UPPER GI BLEED ───────────────────────── */
+{
+  id:'int-gibleed', level:'intermediate',
+  dispatch:{time:'10:15', cat:'Cat 2', headline:'Vomiting, feels faint',
+    text:'55-year-old male. Vomiting, feels faint.',
+    detail:'Caller is the patient. Has been sick several times this morning.', addr:'Ground-floor flat · door is open'},
+  scene:{room:'lounge_day', chair:'armchair', chairColour:'#5a5048', prop:'bowl'},
+  patient:{name:'Gary', age:55, sex:'m', skin:'#e3c0a6', hair:'short', hairColour:'#8a8a8a',
+    outfit:'tshirt', top:'#5a6a4a', bottom:'#3a3a3a', shoes:'#2a2a2a', mouth:'closed', eyes:'half',
+    signs:{pale:true, sweat:true}},
+  doorway:{t:'Sitting very still in his chair, pale and sweaty, a sick bowl on the floor beside him', correct:'sick'},
+  askHint:'Gary is tired but can talk to you.',
+  areas:{
+    face:[
+      {id:'talk', l:'Talk to him', L:'A', cost:15, clue:{t:'Airway clear; talking, but tired and lightheaded', normal:true}, fx:{say:['Feel like I’m','going to pass out']}},
+      {id:'mouth', l:'Look at his mouth', L:'A', cost:10, clue:{t:'Dark brown granules around his teeth and lips'}},
+      {id:'skin', l:'Look at his skin', L:'C', cost:10, clue:{t:'Very pale, cool and sweaty', key:true}, fx:{flash:'sweat'}},
+      {id:'eyes', l:'Look at the whites of his eyes', L:'E', cost:10, clue:{t:'A yellow tinge to the whites of his eyes'}},
+      {id:'alert', l:'Check how alert he is', L:'D', cost:15, clue:{t:'Alert but slow to answer'}}
+    ],
+    chest:[
+      {id:'rr', l:'Count his breathing rate', L:'B', cost:15, kind:'count', rate:22, what:'breath', clue:{t:'Breathing rate about 22 a minute'}},
+      {id:'listen', l:'Listen to his chest', L:'B', kind:'listen', zones:[
+        {id:'upper', label:'Upper chest', where:'Both sides, below the collarbones', sound:'normal', clue:{t:'Upper chest clear on both sides', normal:true}},
+        {id:'bases', label:'Bottom of the chest', where:'Both sides, from behind', sound:'normal', clue:{t:'Bottom of the chest clear on both sides', normal:true}}
+      ]}
+    ],
+    hand:[
+      {id:'hr', l:'Count his pulse', L:'C', cost:15, kind:'count', rate:124, what:'beat', clue:{t:'Pulse about 124 a minute, weak and regular', key:true}},
+      {id:'crt', l:'Check capillary refill', L:'C', cost:10, kind:'crt', secs:3.5, clue:{t:'Capillary refill about 3–4 seconds'}},
+      {id:'temp', l:'Feel his skin temperature', L:'E', cost:10, clue:{t:'Cool and clammy'}}
+    ],
+    abdo:[
+      {id:'abdo', l:'Look at and feel his tummy', L:'E', cost:15, clue:{t:'Swollen with fluid and tender in the upper middle'}}
+    ],
+    legs:[
+      {id:'bowl', l:'Look in the sick bowl', L:'E', cost:10, clue:{t:'Dark brown vomit like coffee grounds, with a few fresh red streaks', key:true}}
+    ]
+  },
+  questions:[
+    {q:'What’s happened?', who:'Gary', a:'I’ve been sick three times. It looks like coffee. I nearly passed out when I stood up.', clue:{t:'Vomiting dark material, nearly fainted on standing', key:true}},
+    {q:'Have your bowels opened?', who:'Gary', a:'Yeah, it was black and sticky. Really smelly.', clue:{t:'Black, sticky, foul-smelling stools', key:true}},
+    {q:'How much alcohol do you drink?', who:'Gary', a:'About a bottle of vodka a day. Have done for years.', clue:{t:'Heavy daily drinking for years'}},
+    {q:'Any tummy pain?', who:'Gary', a:'A burning pain up here, on and off for weeks.', clue:{t:'Burning upper tummy pain for weeks'}},
+    {q:'Have you been told you have any liver problems?', who:'Gary', a:'The doctor said my liver’s in a bad way.', clue:{t:'Known liver damage'}},
+    {q:'Any chest pain?', who:'Gary', a:'No, nothing like that.', clue:{t:'No chest pain', normal:true}}
+  ],
+  obs:{hr:124, sp:97, rr:22, bp:'92/60', t:'36.5', bm:'6.6'},
+  options:[
+    {id:'gibleed', t:'Bleeding from the stomach or gullet'},
+    {id:'gastro', t:'Tummy bug (gastroenteritis)'},
+    {id:'withdrawal', t:'Alcohol withdrawal'},
+    {id:'pancreatitis', t:'Pancreatitis'},
+    {id:'mi', t:'Heart attack'},
+    {id:'sepsis', t:'Sepsis'}
+  ],
+  correct:'gibleed',
+  summary:'Blood loss from the upper gut in a heavy drinker with liver damage.',
+  wrong:{
+    gastro:'A tummy bug can cause vomiting and feeling faint from dehydration, but not coffee-ground vomit and black, sticky stools.',
+    withdrawal:'Withdrawal causes shaking, sweating and agitation when someone stops drinking. Gary hasn’t stopped, and the dark vomit and black stools point to bleeding.',
+    pancreatitis:'Pancreatitis causes severe upper tummy pain going through to the back, often with vomiting. It doesn’t cause coffee-ground vomit or black stools.',
+    mi:'A heart attack can cause sweating and feeling faint, but Gary has no chest pain, and the vomit and stools explain his blood pressure.',
+    sepsis:'His fast pulse and low blood pressure could fit sepsis, but he has no fever and the vomit and stools show where the problem is: blood loss.'
+  },
+  separator:{title:'What made this a bleed, not a tummy bug',
+    text:'Vomit that looks like coffee grounds, black sticky stools, nearly fainting on standing, a fast weak pulse, a low blood pressure and pale cool skin.'},
+  explain:[
+    'Blood that sits in the stomach is partly digested by stomach acid, turning it dark brown and granular. That’s the coffee-ground look. Fresh red streaks mean some of it is recent.',
+    'Blood that travels all the way through the gut is digested further and comes out as black, sticky, foul-smelling stools, called melaena.',
+    'As blood is lost, the body compensates: the heart speeds up and vessels in the skin narrow, making him pale, cool and sweaty with a slow capillary refill. A low blood pressure is a late sign that compensation is failing, and feeling faint on standing is an early warning of it.',
+    'Years of heavy drinking damage the liver. That can cause swollen veins at the bottom of the gullet that bleed heavily, as well as stomach ulcers. The yellow eyes and swollen tummy are clues to his liver damage.'
+  ]
+},
+
+/* ───────────────────────── INTERMEDIATE 5 · HYPOTHERMIA ───────────────────────── */
+{
+  id:'int-hypothermia', level:'intermediate',
+  dispatch:{time:'08:20', cat:'Cat 2', headline:'Drowsy and very cold',
+    text:'81-year-old male. Drowsy, very cold to touch.',
+    detail:'Caller is his home carer on her morning visit. Heating not working.', addr:'Terraced house · carer at the door'},
+  scene:{room:'lounge_cold', chair:'armchair', chairColour:'#6a6a5a'},
+  patient:{name:'Albert', age:81, sex:'m', skin:'#e6cfc4', hair:'bald', hairColour:'#d8d8d8',
+    outfit:'pyjama', top:'#9ab0c4', bottom:'#4b5563', shoes:'#5a4a3a', mouth:'closed', eyes:'half',
+    signs:{pale:true, blueLips:true, grey:true}},
+  doorway:{t:'Sitting very still in his armchair in a freezing room, grey-blue and barely moving', correct:'sick'},
+  askHint:'Albert is too drowsy to tell you much. His carer Debbie found him.',
+  areas:{
+    face:[
+      {id:'talk', l:'Talk to him', L:'A', cost:15, clue:{t:'Airway clear; speech slow and slurred'}, fx:{say:['Mm… cold…']}},
+      {id:'skin', l:'Look at his skin', L:'C', cost:10, clue:{t:'Pale and grey-blue, cold even on his face', key:true}},
+      {id:'lips', l:'Look at his lips', L:'B', cost:10, clue:{t:'Lips blue-tinged'}},
+      {id:'alert', l:'Check how alert he is', L:'D', cost:15, clue:{t:'Very drowsy; mumbles and doesn’t know what day it is', key:true}},
+      {id:'pupils', l:'Check his pupils', L:'D', cost:15, kind:'pupils', clue:{t:'Pupils equal, slow to react'}}
+    ],
+    chest:[
+      {id:'rr', l:'Count his breathing rate', L:'B', cost:15, kind:'count', rate:10, what:'breath', clue:{t:'Breathing slow and shallow, about 10 a minute', key:true}},
+      {id:'listen', l:'Listen to his chest', L:'B', kind:'listen', zones:[
+        {id:'upper', label:'Upper chest', where:'Both sides, below the collarbones', sound:'quiet', clue:{t:'Breath sounds quiet but clear', normal:true}},
+        {id:'bases', label:'Bottom of the chest', where:'Both sides, from behind', sound:'quiet', clue:{t:'Bottom of the chest quiet but clear', normal:true}}
+      ]}
+    ],
+    hand:[
+      {id:'hr', l:'Count his pulse', L:'C', cost:15, kind:'count', rate:46, what:'beat', clue:{t:'Pulse slow, about 46 a minute', key:true}},
+      {id:'shiver', l:'Look for shivering', L:'E', cost:10, clue:{t:'Not shivering at all, despite being very cold', key:true}},
+      {id:'crt', l:'Check capillary refill', L:'C', cost:10, kind:'crt', secs:4.5, clue:{t:'Capillary refill over 4 seconds'}},
+      {id:'bm', l:'Check his blood sugar', L:'D', cost:20, kind:'bm', value:'4.6', clue:{t:'Blood sugar 4.6: normal', normal:true}}
+    ],
+    abdo:[
+      {id:'abdo', l:'Feel his tummy', L:'E', cost:15, clue:{t:'Even his tummy is cold to the touch'}}
+    ],
+    legs:[
+      {id:'legs', l:'Look at his legs', L:'E', cost:10, clue:{t:'Legs cold; no injuries or signs of a fall', normal:true}}
+    ]
+  },
+  questions:[
+    {q:'What’s happened?', who:'Debbie, his carer', a:'I come in every morning. The house was freezing and he was like this in his chair. The boiler’s been broken since the weekend.', clue:{t:'Found in a freezing house; boiler broken for days', key:true}},
+    {q:'When was he last seen well?', who:'Debbie, his carer', a:'His son rang him at six last night and said he sounded fine.', clue:{t:'Sounded well on the phone at 6pm yesterday'}},
+    {q:'Has he fallen?', who:'Debbie, his carer', a:'I don’t think so. He’s in his usual chair and there’s nothing knocked over.', clue:{t:'No sign of a fall', normal:true}},
+    {q:'Does he drink alcohol?', who:'Debbie, his carer', a:'No, never.', clue:{t:'Doesn’t drink alcohol', normal:true}},
+    {q:'Any medical problems?', who:'Debbie, his carer', a:'He’s a bit forgetful, and he has an underactive thyroid.', clue:{t:'Mild memory problems and an underactive thyroid'}},
+    {q:'Has he eaten?', who:'Debbie, his carer', a:'Last night’s dinner is still in the fridge.', clue:{t:'Didn’t eat last night'}}
+  ],
+  obs:{hr:46, sp:'Poor trace', rr:10, bp:'98/60', t:'31.4', bm:'4.6'},
+  options:[
+    {id:'hypothermia', t:'Hypothermia'},
+    {id:'stroke', t:'Stroke'},
+    {id:'sepsis', t:'Sepsis'},
+    {id:'hypo', t:'Low blood sugar'},
+    {id:'dementia', t:'Worsening dementia'},
+    {id:'brady', t:'Slow heart rhythm problem'}
+  ],
+  correct:'hypothermia',
+  summary:'His core temperature has fallen dangerously low in a freezing house.',
+  wrong:{
+    stroke:'Drowsiness and slurred speech can come with a stroke, but Albert has no one-sided weakness, and the cold house, ice-cold skin and a temperature of 31.4 °C explain everything.',
+    sepsis:'Sepsis can cause a low temperature in older people and is worth keeping in mind. But here there’s no sign of infection, and a freezing house with a broken boiler is the obvious cause.',
+    hypo:'His sugar is 4.6, so that isn’t the cause.',
+    dementia:'He’s normally a bit forgetful, but he sounded fine last night. A sudden change like this always has a cause, and here it’s the cold.',
+    brady:'His pulse is slow, but that’s a result of the cold, not the cause. Cold slows the heart down.'
+  },
+  separator:{title:'What made this hypothermia, not sepsis',
+    text:'A freezing house, ice-cold skin even on the tummy, no shivering, slow breathing and pulse, drowsiness, and a temperature of 31.4 °C with no sign of infection.'},
+  explain:[
+    'Hypothermia happens when the body loses heat faster than it can make it. In mild hypothermia the body fights back by shivering hard and narrowing skin blood vessels.',
+    'As the core temperature keeps falling, shivering stops. The body has run out of energy and the shivering response itself fails, so a cold person who isn’t shivering is worse, not better.',
+    'Cold slows everything down: the brain, so he’s drowsy and slurred; the heart, so his pulse is slow; and breathing. Clamped-down skin vessels make him grey-blue and make it hard to get a sats reading.',
+    'Older people who live alone, eat poorly or have an underactive thyroid are at higher risk. Many standard thermometers can’t read very low temperatures, so a very cold patient may actually be colder than the reading shows.'
+  ]
 }
 
 ];

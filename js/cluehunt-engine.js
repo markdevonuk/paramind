@@ -90,6 +90,16 @@ const SCENES = {
     <rect y="226" width="400" height="10" fill="#eef1f4"/><rect y="236" width="400" height="224" fill="#6a6f7a"/>
     <rect x="300" y="196" width="70" height="40" rx="4" fill="#3a3f4a"/><rect x="306" y="186" width="16" height="10" fill="#e9e9e9"/>`; },
 
+  lounge_cold(){ return `
+    <rect width="400" height="460" fill="#5d6a78"/>
+    <g fill="#ffffff" opacity=".04">${[10,58,106,154,202,250,298,346].map(x=>`<rect x="${x}" width="16" height="372"/>`).join('')}</g>
+    <rect x="296" y="36" width="90" height="130" rx="4" fill="#7a8794"/><rect x="302" y="42" width="78" height="118" fill="#c9d6e2"/>
+    <g fill="#ffffff" opacity=".7"><circle cx="312" cy="150" r="10"/><circle cx="372" cy="146" r="12"/><circle cx="318" cy="52" r="8"/><circle cx="368" cy="56" r="9"/></g>
+    <rect x="339" y="42" width="4" height="118" fill="#7a8794"/>
+    <rect x="18" y="220" width="70" height="152" fill="#8a7a6a"/><rect x="30" y="250" width="46" height="70" fill="#2a2a2a"/><rect x="10" y="212" width="86" height="12" fill="#a08a74"/>
+    <rect y="372" width="400" height="88" fill="#4e4a46"/><rect y="368" width="400" height="8" fill="#7a8794"/>
+    <ellipse cx="200" cy="432" rx="172" ry="22" fill="#5e5a54"/>`; },
+
   bedroom_night(){ return `
     <defs><radialGradient id="chBed" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffe2a0" stop-opacity=".45"/><stop offset="1" stop-color="#ffe2a0" stop-opacity="0"/></radialGradient></defs>
     <rect width="400" height="460" fill="#3e3c5a"/>
@@ -242,6 +252,9 @@ function patientSVG(P){
     if(shortSleeve) s += HIVES_ARM.map(([x,y],i)=>`<ellipse cx="${x}" cy="${y}" rx="${4+i%2}" ry="3"/>`).join('');
     s += `</g>`;
   }
+  if(P.signs.petechiae){
+    s += `<g id="chRash" fill="#7a2a4a">${[[171,346],[180,362],[166,378],[176,390],[222,350],[232,366],[218,382],[229,394],[188,150],[212,158],[140,262],[262,270],[146,286],[256,286]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2.5"/>`).join('')}</g>`;
+  }
   /* arms resting in front of the body */
   if(front('L')) s += arm(armL, topS) + `<circle cx="${armL[1][0]}" cy="${armL[1][1]}" r="13" fill="${skin}"/>`;
   if(front('R')) s += arm(armR, topS) + `<circle cx="${armR[1][0]}" cy="${armR[1][1]}" r="13" fill="${skin}"/>`;
@@ -272,6 +285,7 @@ function floorSVG(P){
     ? `<ellipse cx="-44" cy="${222+rLen}" rx="16" ry="8" fill="${shoe}" transform="rotate(-62 -44 ${222+rLen})"/>`
     : `<ellipse cx="-24" cy="322" rx="11" ry="9" fill="${shoe}"/>`;
   s += `<ellipse cx="24" cy="322" rx="11" ry="9" fill="${shoe}"/></g>`;
+  if(P.signs.petechiae) s += `<g id="chRash" fill="#7a2a4a">${[[-30,250],[-20,268],[-28,284],[-18,300],[18,246],[28,262],[16,280],[26,298],[-24,236],[22,232]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2.5"/>`).join('')}</g>`;
   s += `<rect x="-44" y="192" width="88" height="${skirt?64:46}" rx="16" fill="${skirt?top:bottom}"/>`;
   /* arms by the sides */
   s += `<rect x="-64" y="96" width="20" height="112" rx="10" fill="${topS}"/><circle cx="-54" cy="212" r="10" fill="${skin}"/>`;
@@ -281,6 +295,7 @@ function floorSVG(P){
   s += `<rect x="-14" y="70" width="28" height="30" rx="8" fill="${skin}"/><path d="M-16 90 Q0 108 16 90 Z" fill="${skin}"/></g>`;
   /* head, reusing the seated head drawing (centre 200,98 → 0,40) */
   s += `<g transform="translate(-200,-58)">${headSVG(P, skin, shade, ear, lip, hair)}</g>`;
+  if(P.signs.petechiae) s += `<g fill="#7a2a4a"><circle cx="-8" cy="80" r="1.6"/><circle cx="7" cy="86" r="1.6"/><circle cx="-4" cy="94" r="1.6"/></g>`;
   s += `</g>`;
   return s;
 }
@@ -323,6 +338,7 @@ function sceneSVG(c){
     ${SCENES[c.scene.room]()}
     ${P.pose==='floor' ? '' : chairSVG(c.scene.chair, c.scene.chairColour)}
     <g id="chFig" class="${P.signs.shiver?'ch-shiver':''}">${P.pose==='floor' ? floorSVG(P) : patientSVG(P)}</g>
+    ${c.scene.prop==='bowl' ? `<g><ellipse cx="96" cy="414" rx="30" ry="9" fill="#5a3a2a" opacity=".25"/><path d="M68 398 Q96 428 124 398 Z" fill="#cfd6dc"/><ellipse cx="96" cy="398" rx="28" ry="7" fill="#e9eef2"/><ellipse cx="96" cy="399" rx="22" ry="4.5" fill="#4a2e1e"/></g>` : ''}
     <g id="chBubble" opacity="0"><rect x="232" y="14" width="160" height="50" rx="14" fill="#ffffff"/><path d="M244 62 L236 80 L258 63 Z" fill="#ffffff"/>
       <text id="chBubbleText" x="246" y="35" font-family="Plus Jakarta Sans, system-ui, sans-serif" font-size="13" font-weight="600" fill="#212529"></text></g>
     <g id="chHotspots">${hotspotsSVG(c)}</g>
@@ -456,7 +472,7 @@ CH.registry = function(c){
   }));
   c.questions.forEach((q,i)=>{ R['q'+i] = Object.assign({g:'History'}, q.clue); });
   const o = c.obs;
-  R.obs = {t:`HR ${o.hr} · RR ${o.rr} · SpO₂ ${o.sp}% · BP ${o.bp} · Temp ${o.t} °C · BM ${o.bm}`, g:'Obs'};
+  R.obs = {t:`HR ${o.hr} · RR ${o.rr} · SpO₂ ${o.sp}${typeof o.sp==='number'?'%':''} · BP ${o.bp} · Temp ${o.t} °C · BM ${o.bm}`, g:'Obs'};
   Object.keys(R).forEach(k=>{ const r=R[k]; r.p = r.key?20:(r.normal?5:10); });
   return R;
 };
@@ -495,7 +511,7 @@ CH.start = function(){
     </div>`;
   const scene = this.$('.ch-scene');
   if(!LEVELS[c.level].glow) scene.classList.remove('ch-glow');
-  const up = this.$('#chUpper'); if(up) up.style.animationDuration = this.period + 's';
+  const up = this.$('#chUpper'); if(up){ up.style.animationDuration = this.period + 's'; if(P.signs.deepBreaths) up.classList.add('ch-deep'); }
   this.$$('.ch-gasp, .ch-floor-breathe').forEach(el=>el.style.animationDuration = this.period + 's');
   this.renderChips();
   this.$$('.ch-hs').forEach(h=>{
@@ -547,7 +563,7 @@ CH.fx = function(f){
   if(!f) return;
   if(f.say) this.say(f.say);
   if(f.show){ const el = this.$(f.show==='veins'?'#chVeins':'#chScm2'); if(el) el.style.opacity = 1; }
-  if(f.flash){ const el = this.$({mouth:'#chMouthG', sweat:'#chSweat', hives:'#chHives', legs:'#chLegs', mottle:'#chMottle'}[f.flash]); if(el){ el.classList.remove('ch-flash'); void el.getBoundingClientRect(); el.classList.add('ch-flash'); } }
+  if(f.flash){ const el = this.$({mouth:'#chMouthG', sweat:'#chSweat', hives:'#chHives', legs:'#chLegs', mottle:'#chMottle', rash:'#chRash'}[f.flash]); if(el){ el.classList.remove('ch-flash'); void el.getBoundingClientRect(); el.classList.add('ch-flash'); } }
 };
 
 /* ---------- sheet ---------- */
@@ -592,6 +608,7 @@ CH.doAct = function(id){
   if(k==='press') return this.pressView(a);
   if(k==='pupils') return this.pupilsView(a);
   if(k==='bm') return this.bmView(a);
+  if(k==='glass') return this.glassView(a);
   this.addTime(a.cost); this.fx(a.fx); this.record(a.id); this.showArea(this.S.area);
 };
 
@@ -720,6 +737,22 @@ CH.bmView = function(a){
   });
 };
 
+CH.glassView = function(a){
+  const P = this.c.patient, spots = [[38,46],[56,38],[74,52],[46,66],[64,74],[82,70],[52,86],[72,90],[34,82]];
+  this.openSheet(a.l, `<p class="ch-hint">Press the side of a clear glass firmly onto the spots and look through it.</p>
+    <div class="ch-counter"><svg viewBox="0 0 120 120" aria-hidden="true"><rect x="10" y="10" width="100" height="100" rx="18" fill="${P.skin}"/>
+      <g id="chSpots" fill="#7a2a4a">${spots.map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3"/>`).join('')}</g>
+      <circle id="chGlass" cx="60" cy="62" r="40" fill="#dff3fb" fill-opacity=".35" stroke="#ffffff" stroke-width="4" opacity="0"/></svg>
+    <div><button class="ch-tapbtn" id="chGGo">Press the glass</button></div></div><div id="chGOut"></div>`);
+  this.$('#chGGo').addEventListener('click',()=>{
+    this.$('#chGGo').disabled = true; this.S.busy = true;
+    const g = this.$('#chGlass'); g.style.transition='opacity .4s'; g.setAttribute('opacity','1');
+    if(a.blanch){ const sp=this.$('#chSpots'); sp.style.transition='opacity 1.2s'; sp.setAttribute('opacity','.1'); }
+    setTimeout(()=>{ this.S.busy=false; this.addTime(a.cost); this.record(a.id);
+      this.$('#chGOut').innerHTML = `<div class="ch-result">${esc(a.clue.t)}.</div>${this.backBtn(this.S.area)}`; this.wireBack(); }, 1600);
+  });
+};
+
 /* ---------- ask, monitor, call ---------- */
 CH.clearActive = function(){ this.$$('.ch-hs.active').forEach(h=>h.classList.remove('active')); };
 CH.askView = function(){
@@ -737,7 +770,7 @@ CH.obsView = function(){
   const shown = this.S.found.has('obs'), o = this.c.obs;
   const v = shown ? o : {hr:'--',sp:'--',rr:'--',bp:'--/--',t:'--',bm:'--'};
   this.openSheet('Monitor', `<p class="ch-hint">${shown?'A full set of obs is on your notes.':'A full set of obs takes time. Try assessing by eye and hand first.'}</p>
-    <div class="ch-monitor"><div class="v-hr"><small>HR</small><b>${v.hr}</b></div><div class="v-sp"><small>SpO₂</small><b>${v.sp}${shown?'%':''}</b></div><div class="v-rr"><small>RR</small><b>${v.rr}</b></div>
+    <div class="ch-monitor"><div class="v-hr"><small>HR</small><b>${v.hr}</b></div><div class="v-sp"><small>SpO₂</small><b>${v.sp}${shown && typeof v.sp==='number'?'%':''}</b></div><div class="v-rr"><small>RR</small><b>${v.rr}</b></div>
     <div class="v-bp"><small>BP</small><b>${v.bp}</b></div><div class="v-t"><small>TEMP °C</small><b>${v.t}</b></div><div class="v-bm"><small>BM mmol/L</small><b>${v.bm}</b></div></div>
     ${shown?'':'<button class="ch-btn ch-primary ch-wide" id="chOGo" style="margin-top:12px">Take a full set of obs · 90 s</button>'}`);
   if(!shown) this.$('#chOGo').addEventListener('click',()=>{ this.addTime(90); this.record('obs'); this.obsView(); });
