@@ -61,6 +61,33 @@ const SCENES = {
     <rect x="0" y="262" width="118" height="12" fill="#f4f1ea"/><path d="M0 274 L118 274 L112 330 L0 330 Z" fill="#ebe6dc"/>
     <ellipse cx="62" cy="262" rx="30" ry="6" fill="#ffffff"/><ellipse cx="62" cy="261" rx="16" ry="3" fill="#c98a4a"/><rect x="100" y="236" width="6" height="26" fill="#cfe7ef" opacity=".8"/>`; },
 
+  lounge_day(){ return `
+    <rect width="400" height="460" fill="#d9cfbf"/>
+    <g fill="#ffffff" opacity=".12">${[10,58,106,154,202,250,298,346].map(x=>`<rect x="${x}" width="16" height="372"/>`).join('')}</g>
+    <rect x="296" y="36" width="90" height="130" rx="4" fill="#ffffff"/><rect x="302" y="42" width="78" height="118" fill="#a9d6ef"/>
+    <ellipse cx="326" cy="80" rx="18" ry="7" fill="#ffffff" opacity=".85"/><ellipse cx="358" cy="118" rx="14" ry="5" fill="#ffffff" opacity=".7"/>
+    <rect x="339" y="42" width="4" height="118" fill="#ffffff"/>
+    <path d="M284 30 C292 70 288 120 296 176 L282 176 C276 120 280 70 274 30 Z" fill="#8a9a6a"/>
+    <rect x="30" y="318" width="40" height="54" rx="6" fill="#b5654a"/><g fill="#5f8a4f"><ellipse cx="50" cy="300" rx="26" ry="20"/><ellipse cx="36" cy="282" rx="12" ry="22"/><ellipse cx="64" cy="280" rx="12" ry="24"/></g>
+    <rect y="372" width="400" height="88" fill="#7a5c44"/><rect y="368" width="400" height="8" fill="#efe8dc"/>
+    <ellipse cx="200" cy="432" rx="172" ry="22" fill="#a0614a"/>`; },
+
+  hallway_day(){ return `
+    <rect width="400" height="460" fill="#e3dccf"/>
+    <rect x="270" y="20" width="100" height="210" fill="#b08a64"/><rect x="278" y="28" width="84" height="202" fill="#c49c74"/><circle cx="350" cy="130" r="5" fill="#d9c27a"/>
+    <rect x="60" y="50" width="70" height="54" fill="#8a6a4a"/><rect x="66" y="56" width="58" height="42" fill="#a9c6b8"/>
+    <rect x="150" y="150" width="90" height="56" rx="6" fill="#f2f2f2"/><g stroke="#d6d6d6" stroke-width="3">${[160,172,184,196,208,220,232].map(x=>`<line x1="${x}" y1="154" x2="${x}" y2="202"/>`).join('')}</g>
+    <rect y="226" width="400" height="10" fill="#f4efe6"/><rect y="236" width="400" height="224" fill="#8a6a4f"/>
+    <g stroke="#7a5c44" stroke-width="2">${[262,292,322,352,382,412,442].map(y=>`<line x1="0" y1="${y}" x2="400" y2="${y}"/>`).join('')}</g>
+    <path d="M10 262 L392 270 L398 432 L340 426 Q320 418 300 430 L4 424 Z" fill="#8a3f3a"/><path d="M24 274 L380 282 L384 416 L20 412 Z" fill="none" stroke="#b5654a" stroke-width="3"/>`; },
+
+  bedroom_day(){ return `
+    <rect width="400" height="460" fill="#c9d3dc"/>
+    <rect x="40" y="40" width="60" height="80" fill="#e28a5a"/><rect x="120" y="54" width="54" height="70" fill="#5a8ac9"/><rect x="300" y="30" width="80" height="110" rx="3" fill="#ffffff"/><rect x="306" y="36" width="68" height="98" fill="#bfe0f2"/>
+    <rect x="0" y="150" width="150" height="80" rx="6" fill="#4a5a7a"/><rect x="0" y="140" width="70" height="24" rx="10" fill="#f4f2ee"/>
+    <rect y="226" width="400" height="10" fill="#eef1f4"/><rect y="236" width="400" height="224" fill="#6a6f7a"/>
+    <rect x="300" y="196" width="70" height="40" rx="4" fill="#3a3f4a"/><rect x="306" y="186" width="16" height="10" fill="#e9e9e9"/>`; },
+
   bedroom_night(){ return `
     <defs><radialGradient id="chBed" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffe2a0" stop-opacity=".45"/><stop offset="1" stop-color="#ffe2a0" stop-opacity="0"/></radialGradient></defs>
     <rect width="400" height="460" fill="#3e3c5a"/>
@@ -102,71 +129,14 @@ const HIVES = [[178,140],[214,150],[196,162],[171,116],[230,118],[188,186],[212,
 const HIVES_ARM = [[140,262],[148,284],[260,262],[252,284],[135,240],[265,240]];
 const MOTTLE = [[168,340],[178,356],[168,372],[220,344],[230,362],[218,378],[172,388],[228,390]];
 
-function patientSVG(P){
-  let skin = P.skin;
-  if(P.signs.pale) skin = mix(skin,'#dcdcdc',.32);
-  if(P.signs.grey) skin = mix(skin,'#9aa0a6',.3);
-  const shade = mix(skin,'#000000',.13), ear = mix(skin,'#000000',.06);
-  const lip = P.signs.blueLips ? '#8d92b8' : (P.signs.pale ? mix(skin,'#c48a8a',.5) : mix(skin,'#b0555a',.45));
-  const top = P.top, topS = mix(P.top,'#000000',.1), bottom = P.bottom || '#4b5563', shoe = P.shoes || '#3a3a3a';
-  const dress = P.outfit==='dress' || P.outfit==='nightdress';
-  const shortSleeve = P.outfit==='tshirt' || P.outfit==='dress';
-  const hair = P.hairColour || '#5b3e2b';
-  const armL = ARM[P.arms && P.arms.L || 'knee'].L, armR = ARM[P.arms && P.arms.R || 'knee'].R;
-  const barrel = !!P.signs.barrelChest;
+function hairBackSVG(P, hair){
+  if(P.hair==='curly') return `<g fill="${hair}">${[[200,60,30],[166,72,24],[234,72,24],[154,104,22],[246,104,22],[158,136,20],[242,136,20],[200,50,22]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}"/>`).join('')}</g>`;
+  if(P.hair==='long') return `<path d="M158 94 C152 50 248 50 242 94 L250 176 Q200 190 150 176 Z" fill="${hair}"/>`;
+  return '';
+}
+
+function headSVG(P, skin, shade, ear, lip, hair){
   let s = '';
-
-  /* legs */
-  s += `<g id="chLegs">`;
-  s += dress
-    ? `<rect x="148" y="280" width="104" height="52" rx="18" fill="${top}"/>`
-    : `<rect x="150" y="280" width="100" height="50" rx="18" fill="${bottom}"/>`;
-  if(dress){
-    s += `<rect x="158" y="322" width="34" height="80" rx="11" fill="${skin}"/><rect x="208" y="322" width="34" height="80" rx="11" fill="${skin}"/>`;
-    if(P.outfit==='nightdress') s += `<path d="M150 300 L250 300 L256 352 Q200 362 144 352 Z" fill="${top}"/>`;
-    if(P.signs.mottled) s += `<g id="chMottle" fill="#8a5a8a" opacity=".42">${MOTTLE.map(([x,y],i)=>`<ellipse cx="${x}" cy="${y}" rx="${6+i%3}" ry="${4+i%2}"/>`).join('')}</g>`;
-  } else {
-    s += `<rect x="157" y="318" width="36" height="82" rx="11" fill="${bottom}"/><rect x="207" y="318" width="36" height="82" rx="11" fill="${bottom}"/>`;
-    s += `<ellipse cx="175" cy="400" rx="17" ry="9" fill="${skin}"/><ellipse cx="225" cy="400" rx="17" ry="9" fill="${skin}"/>`;
-  }
-  s += `<ellipse cx="172" cy="416" rx="28" ry="10" fill="${shoe}"/><ellipse cx="228" cy="416" rx="28" ry="10" fill="${shoe}"/></g>`;
-
-  /* upper body (breathes) */
-  s += `<g id="chUpper">`;
-  if(P.hair==='long' || P.hair==='curly'){
-    s += P.hair==='curly'
-      ? `<g fill="${hair}">${[[200,60,30],[166,72,24],[234,72,24],[154,104,22],[246,104,22],[158,136,20],[242,136,20],[200,50,22]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}"/>`).join('')}</g>`
-      : `<path d="M158 94 C152 50 248 50 242 94 L250 176 Q200 190 150 176 Z" fill="${hair}"/>`;
-  }
-  const arm = (a, sleeve) => {
-    const out = [];
-    if(shortSleeve){
-      out.push(`<path d="${a[0]}" stroke="${skin}" stroke-width="24" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`);
-      const m = a[0].match(/M(\d+) (\d+) L(\d+) (\d+)/); const x1=+m[1],y1=+m[2],x2=+m[3],y2=+m[4];
-      out.push(`<path d="M${x1} ${y1} L${(x1+(x2-x1)*.45).toFixed(1)} ${(y1+(y2-y1)*.45).toFixed(1)}" stroke="${sleeve}" stroke-width="28" stroke-linecap="round"/>`);
-    } else out.push(`<path d="${a[0]}" stroke="${sleeve}" stroke-width="27" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`);
-    return out.join('');
-  };
-  /* arms drawn behind the torso unless resting over it */
-  const front = k => (P.arms && (P.arms[k]==='chest' || P.arms[k]==='throat'));
-  if(!front('L')) s += arm(armL, topS) + `<circle cx="${armL[1][0]}" cy="${armL[1][1]}" r="13" fill="${skin}"/>`;
-  if(!front('R')) s += arm(armR, topS) + `<circle cx="${armR[1][0]}" cy="${armR[1][1]}" r="13" fill="${skin}"/>`;
-  s += barrel
-    ? `<path d="M134 178 Q200 154 266 178 L258 292 Q200 304 142 292 Z" fill="${top}"/>`
-    : `<path d="M142 176 Q200 160 258 176 L254 292 Q200 302 146 292 Z" fill="${top}"/>`;
-  if(P.outfit==='pyjama') s += `<g stroke="${topS}" stroke-width="2"><line x1="170" y1="172" x2="168" y2="296"/><line x1="230" y1="172" x2="232" y2="296"/></g>`;
-  if(P.outfit==='shirt' || P.outfit==='pyjama') s += `<line x1="200" y1="204" x2="200" y2="298" stroke="${topS}" stroke-width="2"/><circle cx="205" cy="222" r="2.4" fill="${topS}"/><circle cx="205" cy="246" r="2.4" fill="${topS}"/><circle cx="205" cy="270" r="2.4" fill="${topS}"/>`;
-  s += `<rect x="184" y="128" width="32" height="50" rx="9" fill="${skin}"/>`;
-  if(P.outfit==='shirt' || P.outfit==='pyjama'){
-    s += `<path d="M178 170 L200 206 L222 170 Z" fill="${skin}"/><path d="M176 168 L200 206 L186 168 Z" fill="${mix(top,'#ffffff',.25)}"/><path d="M224 168 L200 206 L214 168 Z" fill="${mix(top,'#ffffff',.25)}"/>`;
-  } else {
-    s += `<path d="M182 170 Q200 192 218 170 Z" fill="${skin}"/>`;
-  }
-  if(P.tie) s += `<path d="M196 192 L204 192 L208 250 L200 262 L192 250 Z" fill="${P.tie}"/>`;
-  s += `<g id="chScm" stroke="${shade}" stroke-width="3" stroke-linecap="round" opacity=".3"><path d="M189 134 L197 176"/><path d="M211 134 L203 176"/></g>`;
-  s += `<g id="chScm2" stroke="${mix(shade,'#000000',.15)}" stroke-width="3.5" stroke-linecap="round" opacity="0"><path d="M189 134 L197 176"/><path d="M211 134 L203 176"/><path d="M178 172 L160 180"/><path d="M222 172 L240 180"/></g>`;
-  s += `<g id="chVeins" stroke="#6f7fb4" stroke-width="2.6" fill="none" stroke-linecap="round" opacity="0"><path d="M192 136 C188 148 193 158 189 172"/><path d="M208 136 C212 148 207 158 211 172"/></g>`;
-  /* head */
   s += `<ellipse cx="164" cy="104" rx="7" ry="11" fill="${ear}"/><ellipse cx="236" cy="104" rx="7" ry="11" fill="${ear}"/>`;
   s += `<ellipse cx="200" cy="98" rx="36" ry="42" fill="${skin}"/>`;
   if(P.hair==='bald') s += `<path d="M165 104 C160 74 172 60 184 58 C176 70 172 84 172 104 Z" fill="${hair}"/><path d="M235 104 C240 74 228 60 216 58 C224 70 228 84 228 104 Z" fill="${hair}"/>`;
@@ -201,6 +171,70 @@ function patientSVG(P){
   else s += `<path id="chMouth" d="M191 127 Q200 130 209 127" stroke="${lip}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
   s += `</g>`;
   if(P.signs.sweat) s += `<g id="chSweat" fill="#d6eef9"><path class="ch-sweat" d="M178 76 q3 5 0 8 q-3 -3 0 -8 Z"/><path class="ch-sweat" d="M222 80 q3 5 0 8 q-3 -3 0 -8 Z" style="animation-delay:.8s"/><path class="ch-sweat" d="M231 96 q3 5 0 8 q-3 -3 0 -8 Z" style="animation-delay:1.6s"/><path class="ch-sweat" d="M171 112 q3 5 0 8 q-3 -3 0 -8 Z" style="animation-delay:2.2s"/></g>`;
+  return s;
+}
+
+function patientSVG(P){
+  let skin = P.skin;
+  if(P.signs.pale) skin = mix(skin,'#dcdcdc',.32);
+  if(P.signs.grey) skin = mix(skin,'#9aa0a6',.3);
+  const shade = mix(skin,'#000000',.13), ear = mix(skin,'#000000',.06);
+  const lip = P.signs.blueLips ? '#8d92b8' : (P.signs.pale ? mix(skin,'#c48a8a',.5) : mix(skin,'#b0555a',.45));
+  const top = P.top, topS = mix(P.top,'#000000',.1), bottom = P.bottom || '#4b5563', shoe = P.shoes || '#3a3a3a';
+  const dress = P.outfit==='dress' || P.outfit==='nightdress';
+  const shortSleeve = P.outfit==='tshirt' || P.outfit==='dress';
+  const hair = P.hairColour || '#5b3e2b';
+  const armL = ARM[P.arms && P.arms.L || 'knee'].L, armR = ARM[P.arms && P.arms.R || 'knee'].R;
+  const barrel = !!P.signs.barrelChest;
+  let s = '';
+
+  /* legs */
+  s += `<g id="chLegs">`;
+  s += dress
+    ? `<rect x="148" y="280" width="104" height="52" rx="18" fill="${top}"/>`
+    : `<rect x="150" y="280" width="100" height="50" rx="18" fill="${bottom}"/>`;
+  if(dress){
+    s += `<rect x="158" y="322" width="34" height="80" rx="11" fill="${skin}"/><rect x="208" y="322" width="34" height="80" rx="11" fill="${skin}"/>`;
+    if(P.outfit==='nightdress') s += `<path d="M150 300 L250 300 L256 352 Q200 362 144 352 Z" fill="${top}"/>`;
+    if(P.signs.mottled) s += `<g id="chMottle" fill="#8a5a8a" opacity=".42">${MOTTLE.map(([x,y],i)=>`<ellipse cx="${x}" cy="${y}" rx="${6+i%3}" ry="${4+i%2}"/>`).join('')}</g>`;
+  } else {
+    s += `<rect x="157" y="318" width="36" height="82" rx="11" fill="${bottom}"/><rect x="207" y="318" width="36" height="82" rx="11" fill="${bottom}"/>`;
+    s += `<ellipse cx="175" cy="400" rx="17" ry="9" fill="${skin}"/><ellipse cx="225" cy="400" rx="17" ry="9" fill="${skin}"/>`;
+  }
+  s += `<ellipse cx="172" cy="416" rx="28" ry="10" fill="${shoe}"/><ellipse cx="228" cy="416" rx="28" ry="10" fill="${shoe}"/></g>`;
+
+  /* upper body (breathes) */
+  s += `<g id="chUpper">`;
+  s += hairBackSVG(P, hair);
+  const arm = (a, sleeve) => {
+    const out = [];
+    if(shortSleeve){
+      out.push(`<path d="${a[0]}" stroke="${skin}" stroke-width="24" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`);
+      const m = a[0].match(/M(\d+) (\d+) L(\d+) (\d+)/); const x1=+m[1],y1=+m[2],x2=+m[3],y2=+m[4];
+      out.push(`<path d="M${x1} ${y1} L${(x1+(x2-x1)*.45).toFixed(1)} ${(y1+(y2-y1)*.45).toFixed(1)}" stroke="${sleeve}" stroke-width="28" stroke-linecap="round"/>`);
+    } else out.push(`<path d="${a[0]}" stroke="${sleeve}" stroke-width="27" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`);
+    return out.join('');
+  };
+  /* arms drawn behind the torso unless resting over it */
+  const front = k => (P.arms && (P.arms[k]==='chest' || P.arms[k]==='throat'));
+  if(!front('L')) s += arm(armL, topS) + `<circle cx="${armL[1][0]}" cy="${armL[1][1]}" r="13" fill="${skin}"/>`;
+  if(!front('R')) s += arm(armR, topS) + `<circle cx="${armR[1][0]}" cy="${armR[1][1]}" r="13" fill="${skin}"/>`;
+  s += barrel
+    ? `<path d="M134 178 Q200 154 266 178 L258 292 Q200 304 142 292 Z" fill="${top}"/>`
+    : `<path d="M142 176 Q200 160 258 176 L254 292 Q200 302 146 292 Z" fill="${top}"/>`;
+  if(P.outfit==='pyjama') s += `<g stroke="${topS}" stroke-width="2"><line x1="170" y1="172" x2="168" y2="296"/><line x1="230" y1="172" x2="232" y2="296"/></g>`;
+  if(P.outfit==='shirt' || P.outfit==='pyjama') s += `<line x1="200" y1="204" x2="200" y2="298" stroke="${topS}" stroke-width="2"/><circle cx="205" cy="222" r="2.4" fill="${topS}"/><circle cx="205" cy="246" r="2.4" fill="${topS}"/><circle cx="205" cy="270" r="2.4" fill="${topS}"/>`;
+  s += `<rect x="184" y="128" width="32" height="50" rx="9" fill="${skin}"/>`;
+  if(P.outfit==='shirt' || P.outfit==='pyjama'){
+    s += `<path d="M178 170 L200 206 L222 170 Z" fill="${skin}"/><path d="M176 168 L200 206 L186 168 Z" fill="${mix(top,'#ffffff',.25)}"/><path d="M224 168 L200 206 L214 168 Z" fill="${mix(top,'#ffffff',.25)}"/>`;
+  } else {
+    s += `<path d="M182 170 Q200 192 218 170 Z" fill="${skin}"/>`;
+  }
+  if(P.tie) s += `<path d="M196 192 L204 192 L208 250 L200 262 L192 250 Z" fill="${P.tie}"/>`;
+  s += `<g id="chScm" stroke="${shade}" stroke-width="3" stroke-linecap="round" opacity=".3"><path d="M189 134 L197 176"/><path d="M211 134 L203 176"/></g>`;
+  s += `<g id="chScm2" stroke="${mix(shade,'#000000',.15)}" stroke-width="3.5" stroke-linecap="round" opacity="0"><path d="M189 134 L197 176"/><path d="M211 134 L203 176"/><path d="M178 172 L160 180"/><path d="M222 172 L240 180"/></g>`;
+  s += `<g id="chVeins" stroke="#6f7fb4" stroke-width="2.6" fill="none" stroke-linecap="round" opacity="0"><path d="M192 136 C188 148 193 158 189 172"/><path d="M208 136 C212 148 207 158 211 172"/></g>`;
+  s += headSVG(P, skin, shade, ear, lip, hair);
   if(P.signs.hives){
     s += `<g id="chHives" fill="#e0646a" opacity=".55">${HIVES.map(([x,y],i)=>`<ellipse cx="${x}" cy="${y}" rx="${4+i%3}" ry="${3+i%2}"/>`).join('')}`;
     if(shortSleeve) s += HIVES_ARM.map(([x,y],i)=>`<ellipse cx="${x}" cy="${y}" rx="${4+i%2}" ry="3"/>`).join('');
@@ -213,6 +247,42 @@ function patientSVG(P){
   return s;
 }
 
+/* ==================== PATIENT (lying on the floor) ====================
+ * Drawn as an upright figure facing the viewer, then rotated so the head is
+ * on the left. The patient's right side ends up nearest the viewer. */
+function floorSVG(P){
+  let skin = P.skin;
+  if(P.signs.pale) skin = mix(skin,'#dcdcdc',.32);
+  if(P.signs.grey) skin = mix(skin,'#9aa0a6',.3);
+  const shade = mix(skin,'#000000',.13), ear = mix(skin,'#000000',.06);
+  const lip = P.signs.blueLips ? '#8d92b8' : (P.signs.pale ? mix(skin,'#c48a8a',.5) : mix(skin,'#b0555a',.45));
+  const top = P.top, topS = mix(P.top,'#000000',.1), bottom = P.bottom || '#4b5563', shoe = P.shoes || '#3a3a3a';
+  const skirt = P.outfit==='dress' || P.outfit==='nightdress' || P.outfit==='skirt';
+  const hair = P.hairColour || '#5b3e2b';
+  const shortR = !!P.signs.shortRotated;
+  let s = `<g transform="translate(52,345) rotate(-90)">`;
+  s += `<ellipse cx="0" cy="175" rx="74" ry="190" fill="#000000" opacity=".13"/>`;
+  s += `<g transform="translate(-200,-58)">${hairBackSVG(P, hair)}</g>`;
+  /* legs */
+  const legC = skirt ? skin : bottom, rLen = shortR ? 58 : 92;
+  s += `<g id="chLegs"><rect x="-38" y="226" width="28" height="${rLen}" rx="12" fill="${legC}"/><rect x="10" y="226" width="28" height="92" rx="12" fill="${legC}"/>`;
+  s += shortR
+    ? `<ellipse cx="-44" cy="${222+rLen}" rx="16" ry="8" fill="${shoe}" transform="rotate(-62 -44 ${222+rLen})"/>`
+    : `<ellipse cx="-24" cy="322" rx="11" ry="9" fill="${shoe}"/>`;
+  s += `<ellipse cx="24" cy="322" rx="11" ry="9" fill="${shoe}"/></g>`;
+  s += `<rect x="-44" y="192" width="88" height="${skirt?64:46}" rx="16" fill="${skirt?top:bottom}"/>`;
+  /* arms by the sides */
+  s += `<rect x="-64" y="96" width="20" height="112" rx="10" fill="${topS}"/><circle cx="-54" cy="212" r="10" fill="${skin}"/>`;
+  s += `<rect x="44" y="96" width="20" height="112" rx="10" fill="${topS}"/><circle cx="54" cy="212" r="10" fill="${skin}"/>`;
+  /* torso (breathes) */
+  s += `<g class="ch-floor-breathe"><path d="M-46 92 Q0 80 46 92 L42 200 Q0 208 -42 200 Z" fill="${top}"/>`;
+  s += `<rect x="-14" y="70" width="28" height="30" rx="8" fill="${skin}"/><path d="M-16 90 Q0 108 16 90 Z" fill="${skin}"/></g>`;
+  /* head, reusing the seated head drawing (centre 200,98 → 0,40) */
+  s += `<g transform="translate(-200,-58)">${headSVG(P, skin, shade, ear, lip, hair)}</g>`;
+  s += `</g>`;
+  return s;
+}
+
 /* where the "wrist and hand" hotspot sits: a hand resting on a knee */
 function handSpot(P){
   const a = P.arms || {};
@@ -221,8 +291,17 @@ function handSpot(P){
   return [ARM[a.R].R[1][0], ARM[a.R].R[1][1]];
 }
 
+const FLOOR_SPOTS = {
+  face:  `<ellipse class="ch-hs-shape" cx="92" cy="345" rx="44" ry="40"/>`,
+  neck:  `<rect class="ch-hs-shape" x="120" y="328" width="26" height="34" rx="9"/>`,
+  chest: `<rect class="ch-hs-shape" x="148" y="302" width="54" height="86" rx="14"/>`,
+  abdo:  `<rect class="ch-hs-shape" x="206" y="310" width="46" height="70" rx="12"/>`,
+  hand:  `<circle class="ch-hs-shape" cx="264" cy="399" r="19"/>`,
+  legs:  `<rect class="ch-hs-shape" x="280" y="300" width="114" height="92" rx="14"/>`
+};
 function hotspotsSVG(c){
   const P = c.patient, A = c.areas, [hx,hy] = handSpot(P);
+  if(P.pose==='floor') return Object.keys(FLOOR_SPOTS).filter(k=>A[k]).map(k=>`<g class="ch-hs" data-area="${k}" tabindex="0" role="button" aria-label="Examine ${esc(AREA_NAMES[k].toLowerCase())}">${FLOOR_SPOTS[k]}</g>`).join('');
   const dress = P.outfit==='dress' || P.outfit==='nightdress';
   const shapes = {
     face:  `<ellipse class="ch-hs-shape" cx="200" cy="98" rx="48" ry="52"/>`,
@@ -240,8 +319,8 @@ function sceneSVG(c){
   const P = c.patient;
   return `<svg class="ch-scene ch-glow ch-locked" viewBox="0 0 400 460" role="img" aria-label="${esc(P.name)}, ${P.age}">
     ${SCENES[c.scene.room]()}
-    ${chairSVG(c.scene.chair, c.scene.chairColour)}
-    <g id="chFig" class="${P.signs.shiver?'ch-shiver':''}">${patientSVG(P)}</g>
+    ${P.pose==='floor' ? '' : chairSVG(c.scene.chair, c.scene.chairColour)}
+    <g id="chFig" class="${P.signs.shiver?'ch-shiver':''}">${P.pose==='floor' ? floorSVG(P) : patientSVG(P)}</g>
     <g id="chBubble" opacity="0"><rect x="232" y="14" width="160" height="50" rx="14" fill="#ffffff"/><path d="M244 62 L236 80 L258 63 Z" fill="#ffffff"/>
       <text id="chBubbleText" x="246" y="35" font-family="Plus Jakarta Sans, system-ui, sans-serif" font-size="13" font-weight="600" fill="#212529"></text></g>
     <g id="chHotspots">${hotspotsSVG(c)}</g>
@@ -415,7 +494,7 @@ CH.start = function(){
   const scene = this.$('.ch-scene');
   if(!LEVELS[c.level].glow) scene.classList.remove('ch-glow');
   const up = this.$('#chUpper'); if(up) up.style.animationDuration = this.period + 's';
-  this.$$('.ch-gasp').forEach(el=>el.style.animationDuration = this.period + 's');
+  this.$$('.ch-gasp, .ch-floor-breathe').forEach(el=>el.style.animationDuration = this.period + 's');
   this.renderChips();
   this.$$('.ch-hs').forEach(h=>{
     h.addEventListener('click',()=>this.showArea(h.dataset.area));
