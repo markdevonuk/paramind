@@ -5,7 +5,7 @@
  * examination game, and shows the debrief. Case content lives in
  * js/cluehunt-cases.js — this file contains no clinical content.
  *
- * Used by: cluehunt-new.html (Pro, behind pro-guard.js)
+ * Used by: cluehunt.html (Pro, behind pro-guard.js)
  * The free single case (cluehunt-free.html) is separate and does not use this file.
  */
 (function () {
