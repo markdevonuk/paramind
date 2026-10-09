@@ -123,6 +123,32 @@ const SCENES = {
     <rect x="290" y="250" width="110" height="122" fill="#2a1e36"/><rect x="300" y="232" width="12" height="20" fill="#8a3a4a"/><rect x="320" y="226" width="8" height="26" fill="#5a8a5a" opacity=".85"/>
     <rect y="372" width="400" height="88" fill="#2e2438"/>`; },
 
+  gym_day(){ return `
+    <rect width="400" height="460" fill="#dde2e6"/><rect x="0" y="40" width="400" height="190" fill="#c9d6de"/>
+    <g stroke="#e9f0f4" stroke-width="2" opacity=".8">${[60,160,260,360].map(x=>`<line x1="${x}" y1="40" x2="${x-40}" y2="230"/>`).join('')}</g>
+    <rect x="0" y="230" width="400" height="6" fill="#7a8794"/>
+    <rect x="300" y="250" width="96" height="10" fill="#4a4a4a"/><rect x="300" y="300" width="96" height="10" fill="#4a4a4a"/>
+    <g fill="#2a2a2a">${[310,334,358,382].map(x=>`<rect x="${x-8}" y="236" width="16" height="14" rx="4"/><rect x="${x-8}" y="286" width="16" height="14" rx="4"/>`).join('')}</g>
+    <rect x="300" y="250" width="6" height="122" fill="#4a4a4a"/><rect x="390" y="250" width="6" height="122" fill="#4a4a4a"/>
+    <rect x="12" y="330" width="80" height="10" rx="4" fill="#6a6a6a"/><circle cx="12" cy="335" r="16" fill="#2a2a2a"/><circle cx="92" cy="335" r="16" fill="#2a2a2a"/>
+    <rect y="372" width="400" height="88" fill="#2e3236"/>`; },
+
+  street_night(){ return `
+    <rect width="400" height="460" fill="#1c2236"/>
+    <rect x="0" y="40" width="250" height="300" fill="#4a3a2e"/><rect x="18" y="80" width="200" height="120" fill="#e8b45a"/><g stroke="#4a3a2e" stroke-width="4"><line x1="118" y1="80" x2="118" y2="200"/><line x1="18" y1="140" x2="218" y2="140"/></g>
+    <rect x="20" y="50" width="196" height="22" fill="#2a4a2a"/><rect x="60" y="56" width="116" height="10" fill="#d9c27a"/>
+    <rect x="234" y="230" width="40" height="110" fill="#2a2016"/>
+    <rect x="330" y="60" width="6" height="312" fill="#3a3f4a"/><path d="M333 60 Q333 44 350 44 L366 44" stroke="#3a3f4a" stroke-width="6" fill="none"/><circle cx="366" cy="52" r="9" fill="#ffe8a0"/>
+    <circle cx="366" cy="60" r="60" fill="#ffe8a0" opacity=".08"/>
+    <rect y="340" width="400" height="34" fill="#6a6e76"/><rect y="372" width="400" height="88" fill="#3a3d44"/><rect y="370" width="400" height="6" fill="#8a8e96"/>`; },
+
+  race_day(){ return `
+    <rect width="400" height="236" fill="#9fd0ef"/><ellipse cx="80" cy="50" rx="30" ry="10" fill="#ffffff" opacity=".8"/><ellipse cx="300" cy="80" rx="40" ry="12" fill="#ffffff" opacity=".7"/>
+    <rect x="30" y="40" width="10" height="196" fill="#c0392b"/><rect x="360" y="40" width="10" height="196" fill="#c0392b"/>
+    <rect x="30" y="40" width="340" height="40" fill="#c0392b"/><rect x="120" y="50" width="160" height="20" rx="4" fill="#ffffff"/><rect x="150" y="56" width="100" height="8" fill="#c0392b"/>
+    <g fill="#d9dde2">${[0,70,140,210,280,350].map(x=>`<rect x="${x}" y="180" width="60" height="40" rx="4" stroke="#aab0b8" stroke-width="2"/>`).join('')}</g>
+    <rect y="236" width="400" height="224" fill="#6aa84f"/><g stroke="#5a9a42" stroke-width="3">${[270,310,350,390,430].map(y=>`<line x1="0" y1="${y}" x2="400" y2="${y}"/>`).join('')}</g>`; },
+
   bedroom_night(){ return `
     <defs><radialGradient id="chBed" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffe2a0" stop-opacity=".45"/><stop offset="1" stop-color="#ffe2a0" stop-opacity="0"/></radialGradient></defs>
     <rect width="400" height="460" fill="#3e3c5a"/>
@@ -145,6 +171,9 @@ function chairSVG(style, col){
     <rect x="136" y="108" width="128" height="22" rx="8" fill="${c2}"/>
     <rect x="128" y="290" width="144" height="22" rx="6" fill="${c2}"/>
     <rect x="132" y="312" width="12" height="62" fill="${c3}"/><rect x="256" y="312" width="12" height="62" fill="${c3}"/>`;
+  if(style==='bench') return `
+    <rect x="96" y="294" width="208" height="20" rx="6" fill="${col}"/><rect x="96" y="312" width="208" height="6" fill="${c3}"/>
+    <rect x="110" y="318" width="10" height="56" fill="${c3}"/><rect x="280" y="318" width="10" height="56" fill="${c3}"/>`;
   /* office */
   return `
     <rect x="136" y="84" width="128" height="214" rx="32" fill="${col}"/><rect x="146" y="96" width="108" height="190" rx="26" fill="${c2}"/>
@@ -737,12 +766,12 @@ CH.pupilsView = function(a){
   const shrink = a.react === false ? 1 : .5, sz = a.size || 6;
   this.openSheet(a.l, `<p class="ch-hint">Shine the torch into each eye and watch the pupils.</p>
     <div class="ch-counter"><svg viewBox="0 0 120 120" aria-hidden="true"><ellipse cx="34" cy="60" rx="24" ry="15" fill="#f5f1ea"/><ellipse cx="86" cy="60" rx="24" ry="15" fill="#f5f1ea"/><circle cx="34" cy="60" r="11" fill="${a.iris||'#6b5a3a'}"/><circle cx="86" cy="60" r="11" fill="${a.iris||'#6b5a3a'}"/>
-    <g id="chPups"><circle cx="34" cy="60" r="${sz}" fill="#111"/><circle cx="86" cy="60" r="${sz}" fill="#111"/></g></svg>
+    <g id="chPups"><circle cx="34" cy="60" r="${a.unequal?9:sz}" fill="#111" data-fixed="${a.unequal?1:0}"/><circle cx="86" cy="60" r="${sz}" fill="#111"/></g></svg>
     <div><button class="ch-tapbtn" id="chEGo">Shine torch</button></div></div><div id="chEOut"></div>`);
   this.$$('#chPups circle').forEach(cn=>{ cn.style.transformBox='fill-box'; cn.style.transformOrigin='center'; cn.style.transition='transform .6s'; });
   this.$('#chEGo').addEventListener('click',()=>{
     this.$('#chEGo').disabled = true; this.S.busy = true;
-    this.$$('#chPups circle').forEach(cn=>cn.style.transform=`scale(${shrink})`);
+    this.$$('#chPups circle').forEach(cn=>{ if(cn.dataset.fixed!=='1') cn.style.transform=`scale(${shrink})`; });
     setTimeout(()=>{ this.S.busy=false; this.addTime(a.cost); this.record(a.id);
       this.$('#chEOut').innerHTML = `<div class="ch-result">${esc(a.clue.t)}.</div>${this.backBtn(this.S.area)}`; this.wireBack(); }, 900);
   });

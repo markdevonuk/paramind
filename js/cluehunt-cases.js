@@ -1521,6 +1521,818 @@ window.CLUEHUNT_CASES = [
     'Those sensations, along with chest tightness and dizziness, make the person even more frightened, which drives even faster breathing. That’s the loop.',
     'Panic attack is a conclusion you reach last, not first. Low sats, a wheeze, chest signs, an abnormal ECG, a swollen calf or signs of allergy all mean something else is going on until proven otherwise.'
   ]
+},
+
+/* ═════════════════════════ HARD ═════════════════════════ */
+
+/* ───────────────────────── HARD 1 · LEAKING AAA ───────────────────────── */
+{
+  id:'hard-aaa', level:'hard',
+  dispatch:{time:'07:50', cat:'Cat 2', headline:'Back pain, collapsed',
+    text:'72-year-old male. Severe back pain, collapsed in the bathroom.',
+    detail:'Caller is his wife. Now conscious. Seen by GP yesterday for back pain.', addr:'Detached bungalow · wife at the door'},
+  scene:{room:'lounge_day', chair:'armchair', chairColour:'#6a5a4a'},
+  patient:{name:'Frank', age:72, sex:'m', skin:'#e2c0a6', hair:'bald', hairColour:'#c8c8c8',
+    outfit:'pyjama', top:'#a9b8c9', bottom:'#4b5563', shoes:'#5a3a2a', mouth:'grimace', face:'pain', eyes:'open',
+    arms:{L:'knee', R:'flank'}, signs:{grey:true, sweat:true, pale:true}},
+  doorway:{t:'Slumped sideways in his chair, grey and sweating, one hand clutching his back', correct:'sick'},
+  askHint:'Frank can talk but is in a lot of pain. His wife Jean is with him.',
+  areas:{
+    face:[
+      {id:'talk', l:'Talk to him', L:'A', cost:15, clue:{t:'Airway clear; talking, but grey and frightened', normal:true}, fx:{say:['It’s tearing…','right through me']}},
+      {id:'skin', l:'Look at his skin', L:'C', cost:10, clue:{t:'Grey, cold and sweaty', key:true}, fx:{flash:'sweat'}},
+      {id:'alert', l:'Check how alert he is', L:'D', cost:15, clue:{t:'Alert but slow to answer'}},
+      {id:'pupils', l:'Check his pupils', L:'D', cost:15, kind:'pupils', clue:{t:'Pupils equal and reacting to light', normal:true}}
+    ],
+    chest:[
+      {id:'rr', l:'Count his breathing rate', L:'B', cost:15, kind:'count', rate:24, what:'breath', clue:{t:'Breathing rate about 24 a minute'}},
+      {id:'listen', l:'Listen to his chest', L:'B', kind:'listen', zones:[
+        {id:'upper', label:'Upper chest', where:'Both sides, below the collarbones', sound:'normal', clue:{t:'Upper chest clear on both sides', normal:true}},
+        {id:'bases', label:'Bottom of the chest', where:'Both sides, from behind', sound:'normal', clue:{t:'Bottom of the chest clear on both sides', normal:true}}
+      ]}
+    ],
+    hand:[
+      {id:'hr', l:'Count his pulse', L:'C', cost:15, kind:'count', rate:122, what:'beat', clue:{t:'Pulse about 122 a minute, weak and regular'}},
+      {id:'crt', l:'Check capillary refill', L:'C', cost:10, kind:'crt', secs:4, clue:{t:'Capillary refill about 4 seconds'}},
+      {id:'temp', l:'Feel his skin temperature', L:'E', cost:10, clue:{t:'Cold and clammy'}}
+    ],
+    abdo:[
+      {id:'feel', l:'Feel his tummy', L:'E', cost:15, clue:{t:'Tender in the middle; his tummy feels full'}},
+      {id:'mass', l:'Feel for a pulsing mass', L:'C', cost:10, clue:{t:'A pulsing mass above the belly button', key:true}},
+      {id:'back', l:'Feel his back below the ribs', L:'E', cost:10, clue:{t:'Tender across the left side of his back'}}
+    ],
+    legs:[
+      {id:'pulses', l:'Feel the pulses in his legs', L:'C', cost:10, clue:{t:'Left leg pulse much weaker than the right', key:true}},
+      {id:'look', l:'Look at his legs', L:'E', cost:10, clue:{t:'Left leg cooler and paler than the right'}}
+    ]
+  },
+  questions:[
+    {q:'Tell me about the pain', who:'Frank', a:'It came on suddenly about an hour ago. It’s a tearing pain in my tummy, going right through to my back.', clue:{t:'Sudden tearing tummy pain going through to the back', key:true}},
+    {q:'What happened in the bathroom?', who:'Jean, his wife', a:'He went down on the floor and he was grey. He came round in a few seconds, but he’s not right.', clue:{t:'Collapsed briefly with the pain', key:true}},
+    {q:'What did the GP say yesterday?', who:'Frank', a:'She thought it might be a kidney stone, and to call back if it got worse.', clue:{t:'GP thought it might be a kidney stone yesterday'}},
+    {q:'Has he ever had kidney stones?', who:'Jean, his wife', a:'Never in his life.', clue:{t:'Never had kidney stones before', key:true}},
+    {q:'Any blood in your urine?', who:'Frank', a:'Not that I’ve noticed.', clue:{t:'No blood seen in his urine', normal:true}},
+    {q:'Any medical problems?', who:'Jean, his wife', a:'High blood pressure, and he smoked for fifty years until last year.', clue:{t:'High blood pressure and a long-term smoker'}}
+  ],
+  obs:{hr:122, sp:95, rr:24, bp:'86/50', t:'36.2', bm:'7.1'},
+  options:[
+    {id:'aaa', t:'Leaking abdominal aortic aneurysm'},
+    {id:'renal', t:'Kidney stone (renal colic)'},
+    {id:'pyelo', t:'Kidney infection'},
+    {id:'strain', t:'Back muscle strain'},
+    {id:'disc', t:'Slipped disc'},
+    {id:'pancreatitis', t:'Pancreatitis'},
+    {id:'mi', t:'Heart attack'},
+    {id:'gibleed', t:'Bleeding from the stomach'}
+  ],
+  correct:'aaa',
+  summary:'The main artery in his tummy has ballooned and is now leaking.',
+  wrong:{
+    renal:'This is the trap. A first ever "kidney stone" at 72, with collapse, a low blood pressure, a pulsing mass and a weak leg pulse, is a leaking aneurysm until proven otherwise. The GP’s suggestion yesterday is a red herring.',
+    pyelo:'A kidney infection causes loin pain with a fever. Frank has no fever, and a pulsing mass, collapse and a weak leg pulse aren’t explained by infection.',
+    strain:'A strained back doesn’t cause collapse, grey sweaty skin, a blood pressure of 86/50 or a pulsing mass in the tummy.',
+    disc:'A slipped disc causes back pain, sometimes going down a leg, but not collapse, shock or a pulsing mass.',
+    pancreatitis:'Pancreatitis can cause tummy pain going through to the back and can make people very unwell, but it doesn’t cause a pulsing mass or a weak pulse in one leg.',
+    mi:'He has no chest pain. The tearing tummy-to-back pain, pulsing mass and unequal leg pulses point to the aorta.',
+    gibleed:'He is shocked, as if from bleeding, but there’s no vomiting of blood or black stools. The blood is going into the back of his tummy.'
+  },
+  separator:{title:'What made this a leaking aneurysm, not a kidney stone',
+    text:'A first ever episode at 72 with no history of stones, sudden tearing pain going through to the back, a collapse, a low blood pressure with a fast pulse, a pulsing mass, and a weaker, cooler left leg.'},
+  explain:[
+    'The aorta is the body’s main artery. In older people, especially smokers with high blood pressure, its wall can weaken and balloon out in the tummy. That swelling is an abdominal aortic aneurysm.',
+    'When it starts to leak, blood escapes into the space at the back of the tummy. That causes sudden, severe tearing pain going through to the back, which can look just like a kidney stone.',
+    'The blood loss explains the collapse, the grey cold skin, the slow capillary refill, the fast pulse and the low blood pressure. The pulsing mass is the aneurysm itself, and reduced blood flow down one side makes that leg’s pulse weaker.',
+    'In anyone over 50 with what looks like a first kidney stone, a leaking aneurysm should be the first thing you think of.'
+  ]
+},
+
+/* ───────────────────────── HARD 2 · PNEUMOTHORAX IN COPD ───────────────────────── */
+{
+  id:'hard-ptx', level:'hard',
+  dispatch:{time:'13:25', cat:'Cat 2', headline:'COPD, struggling to breathe',
+    text:'66-year-old male. Known COPD, difficulty in breathing.',
+    detail:'Caller is his wife. Says it’s worse than his usual flare-ups.', addr:'Semi-detached house · wife will open the door'},
+  scene:{room:'lounge_eve', chair:'armchair', chairColour:'#5a6a5a'},
+  patient:{name:'Malcolm', age:66, sex:'m', skin:'#e4c2a8', hair:'short', hairColour:'#a8a8a8',
+    outfit:'shirt', top:'#6a7a9a', bottom:'#4b4b4b', shoes:'#3a2a1a', mouth:'gasp', face:'pain', eyes:'open',
+    signs:{barrelChest:true, blueLips:true, sweat:true}},
+  doorway:{t:'Bolt upright in his chair, blue-lipped and gasping, his barrel chest heaving', correct:'sick'},
+  askHint:'Malcolm can only manage a word or two. His wife Brenda can help.',
+  areas:{
+    face:[
+      {id:'talk', l:'Talk to him', L:'A', cost:15, clue:{t:'Airway clear; only managing one or two words'}, fx:{say:['Can’t…','breathe…']}},
+      {id:'lips', l:'Look at his lips', L:'B', cost:10, clue:{t:'Lips blue-grey'}},
+      {id:'alert', l:'Check how alert he is', L:'D', cost:15, clue:{t:'Alert, very frightened', normal:true}},
+      {id:'pupils', l:'Check his pupils', L:'D', cost:15, kind:'pupils', clue:{t:'Pupils equal and reacting to light', normal:true}}
+    ],
+    neck:[
+      {id:'trachea', l:'Check the position of his windpipe', L:'B', cost:10, clue:{t:'Windpipe in the middle', normal:true}},
+      {id:'veins', l:'Look at his neck veins', L:'C', cost:10, clue:{t:'Neck veins not swollen', normal:true}}
+    ],
+    chest:[
+      {id:'rr', l:'Count his breathing rate', L:'B', cost:15, kind:'count', rate:30, what:'breath', clue:{t:'Breathing rate about 30 a minute'}},
+      {id:'move', l:'Watch both sides of his chest move', L:'B', cost:10, clue:{t:'The right side of his chest barely moves; the left moves normally', key:true}},
+      {id:'listen', l:'Listen to his chest', L:'B', kind:'listen', zones:[
+        {id:'lu', label:'Upper left', where:'Below the left collarbone', sound:'wheeze', clue:{t:'Upper left: wheeze, as usual for his COPD'}},
+        {id:'ru', label:'Upper right', where:'Below the right collarbone', sound:'quiet', clue:{t:'Upper right: almost no breath sounds', key:true}},
+        {id:'ll', label:'Lower left', where:'From behind', sound:'wheeze', clue:{t:'Lower left: wheeze'}},
+        {id:'rl', label:'Lower right', where:'From behind', sound:'quiet', clue:{t:'Lower right: almost no breath sounds', key:true}}
+      ]}
+    ],
+    hand:[
+      {id:'hr', l:'Count his pulse', L:'C', cost:15, kind:'count', rate:118, what:'beat', clue:{t:'Pulse about 118 a minute and regular'}},
+      {id:'temp', l:'Feel his skin temperature', L:'E', cost:10, clue:{t:'Warm, not hot: no sign of fever', normal:true}},
+      {id:'crt', l:'Check capillary refill', L:'C', cost:10, kind:'crt', secs:2.2, clue:{t:'Capillary refill about 2 seconds', normal:true}}
+    ],
+    abdo:[
+      {id:'abdo', l:'Look at and feel his tummy', L:'E', cost:15, clue:{t:'Tummy soft, nothing of note', normal:true}}
+    ],
+    legs:[
+      {id:'ankles', l:'Press on his ankles', L:'E', cost:15, kind:'press', dent:false, clue:{t:'No ankle swelling', normal:true}},
+      {id:'calves', l:'Feel his calves', L:'E', cost:10, clue:{t:'Calves soft and not tender', normal:true}}
+    ]
+  },
+  questions:[
+    {q:'What happened?', who:'Brenda, his wife', a:'He was fine this morning. Then he had a big coughing fit and suddenly couldn’t breathe.', clue:{t:'Sudden breathlessness during a coughing fit', key:true}},
+    {q:'Any chest pain?', who:'Malcolm', a:'Sharp… right side… like a knife.', clue:{t:'Sudden sharp right-sided chest pain', key:true}, bubble:['Sharp…','right side…']},
+    {q:'Is this like your usual flare-ups?', who:'Malcolm', a:'No… they creep up… this was… instant.', clue:{t:'Unlike his flare-ups, which build up over days', key:true}, bubble:['No…','this was… instant…']},
+    {q:'Has he been coughing anything up?', who:'Brenda, his wife', a:'Just the same white stuff he always has.', clue:{t:'No change in his usual white phlegm', normal:true}},
+    {q:'How has he been this week?', who:'Brenda, his wife', a:'Really well. He was out in the garden yesterday.', clue:{t:'Well this week, no recent infection', normal:true}},
+    {q:'How bad is his breathing usually?', who:'Brenda, his wife', a:'He gets puffed on the stairs, and his chest flares up most winters.', clue:{t:'Breathless on stairs normally; flare-ups most winters'}}
+  ],
+  obs:{hr:118, sp:84, rr:30, bp:'132/80', t:'36.8', bm:'6.2'},
+  options:[
+    {id:'ptx', t:'Pneumothorax (collapsed lung)'},
+    {id:'copd', t:'COPD flare-up'},
+    {id:'pneu', t:'Chest infection'},
+    {id:'pe', t:'Pulmonary embolism'},
+    {id:'mi', t:'Heart attack'},
+    {id:'hf', t:'Acute heart failure'},
+    {id:'asthma', t:'Asthma attack'},
+    {id:'panic', t:'Panic attack'}
+  ],
+  correct:'ptx',
+  summary:'Part of his damaged right lung has burst and collapsed.',
+  wrong:{
+    copd:'This is the trap. His known COPD makes a flare-up the obvious guess, but flare-ups build over days, affect both sides, and usually bring more or changed phlegm. This came on instantly, with sharp right-sided pain and a silent right side.',
+    pneu:'A chest infection builds up over days with fever and changed phlegm. He has neither, and his findings point to air, not infection, on the right.',
+    pe:'A clot can cause sudden breathlessness and sharp pain, but it doesn’t make one side of the chest silent and stop moving.',
+    mi:'He has sharp pain on one side with a silent chest on that side, not crushing central pain.',
+    hf:'Heart failure gives crackles at both bases, often with swollen ankles. Malcolm’s right side is silent and his ankles are normal.',
+    asthma:'He has no asthma history, and a wheeze on only one side with silence on the other isn’t asthma.',
+    panic:'Sats of 84% and a silent right chest are never panic.'
+  },
+  separator:{title:'What made this a collapsed lung, not a COPD flare-up',
+    text:'Sudden onset during a coughing fit, sharp one-sided pain, and a right side that barely moves and is almost silent while the left still wheezes as normal. No change in phlegm and no fever.'},
+  explain:[
+    'COPD damages the air sacs and can leave thin-walled blisters on the surface of the lung. A hard coughing fit can burst one, letting air leak into the space between the lung and the chest wall.',
+    'That trapped air stops the lung expanding on that side, so it partly collapses. That causes the sudden, sharp pain, the reduced movement and the near-silent breath sounds on the right.',
+    'Someone with healthy lungs might cope with a small collapse. With COPD there’s no reserve, so even a small one can make them extremely unwell, as Malcolm’s sats of 84% show.',
+    'The lesson is to always compare both sides. A flare-up affects both lungs equally; a difference between sides is a clue that something else is going on.'
+  ]
+},
+
+/* ───────────────────────── HARD 3 · LOW SUGAR MIMICKING A STROKE ───────────────────────── */
+{
+  id:'hard-hypostroke', level:'hard',
+  dispatch:{time:'15:10', cat:'Cat 2', headline:'Possible stroke',
+    text:'63-year-old male. Face drooping, right arm weak, speech slurred.',
+    detail:'Caller is his wife. Started about 30 minutes ago.', addr:'Detached house · wife will be at the door'},
+  scene:{room:'kitchen_day', chair:'dining', chairColour:'#8a6a4a'},
+  patient:{name:'Peter', age:63, sex:'m', skin:'#ecc9ad', hair:'short', hairColour:'#7a6a5a',
+    outfit:'tshirt', top:'#5a7a5a', bottom:'#6b5e4e', shoes:'#5a4a3a', mouth:'droop', eyes:'open',
+    arms:{L:'drop', R:'knee'}, signs:{droop:true, pale:true, sweat:true}},
+  doorway:{t:'Slumped at the kitchen table, the right side of his face drooping, right arm hanging limp', correct:'sick'},
+  askHint:'Peter’s speech is slurred. His wife Carol can help.',
+  areas:{
+    face:[
+      {id:'talk', l:'Talk to him', L:'A', cost:15, clue:{t:'Airway clear; speech slurred and muddled'}, fx:{say:['Wha… I… can’t…']}},
+      {id:'smile', l:'Ask him to smile', L:'D', cost:10, clue:{t:'Right side of his mouth droops'}},
+      {id:'skin', l:'Look at his skin', L:'C', cost:10, clue:{t:'Pale and sweaty', key:true}, fx:{flash:'sweat'}},
+      {id:'alert', l:'Check how alert he is', L:'D', cost:15, clue:{t:'Confused and a little agitated'}},
+      {id:'pupils', l:'Check his pupils', L:'D', cost:15, kind:'pupils', clue:{t:'Pupils equal and reacting to light', normal:true}}
+    ],
+    chest:[
+      {id:'rr', l:'Count his breathing rate', L:'B', cost:15, kind:'count', rate:16, what:'breath', clue:{t:'Breathing rate about 16 a minute', normal:true}},
+      {id:'listen', l:'Listen to his chest', L:'B', kind:'listen', zones:[
+        {id:'upper', label:'Upper chest', where:'Both sides, below the collarbones', sound:'normal', clue:{t:'Upper chest clear on both sides', normal:true}},
+        {id:'bases', label:'Bottom of the chest', where:'Both sides, from behind', sound:'normal', clue:{t:'Bottom of the chest clear on both sides', normal:true}}
+      ]}
+    ],
+    hand:[
+      {id:'hr', l:'Count his pulse', L:'C', cost:15, kind:'count', rate:96, what:'beat', clue:{t:'Pulse about 96 a minute and regular', normal:true}},
+      {id:'arms', l:'Ask him to hold both arms out', L:'D', cost:10, clue:{t:'Right arm drifts down'}},
+      {id:'bm', l:'Check his blood sugar', L:'D', cost:20, kind:'bm', value:'2.3', clue:{t:'Blood sugar 2.3: very low', key:true}},
+      {id:'temp', l:'Feel his skin temperature', L:'E', cost:10, clue:{t:'Cool and clammy', key:true}}
+    ],
+    abdo:[
+      {id:'abdo', l:'Look at and feel his tummy', L:'E', cost:15, clue:{t:'Tummy soft, nothing of note', normal:true}}
+    ],
+    legs:[
+      {id:'legs', l:'Ask him to lift each leg', L:'D', cost:15, clue:{t:'Right leg weaker than the left'}}
+    ]
+  },
+  questions:[
+    {q:'When did this start?', who:'Carol, his wife', a:'About half an hour ago. He came in from the garden acting a bit odd and sweaty, and then his face went.', clue:{t:'Odd and sweaty first, then the facial droop', key:true}},
+    {q:'Has he had a stroke before?', who:'Carol, his wife', a:'A mini-stroke three years ago. That’s why I rang straight away.', clue:{t:'Had a mini-stroke three years ago'}},
+    {q:'Is he diabetic?', who:'Carol, his wife', a:'Yes, type 2. He takes tablets for it.', clue:{t:'Type 2 diabetic on tablets', key:true}},
+    {q:'Has he eaten today?', who:'Carol, his wife', a:'He had breakfast, but he’s been in the garden all day and didn’t stop for lunch.', clue:{t:'Busy in the garden all day and skipped lunch', key:true}},
+    {q:'Any headache?', who:'Carol, his wife', a:'He hasn’t said so.', clue:{t:'No headache mentioned', normal:true}},
+    {q:'Has he been unwell recently?', who:'Carol, his wife', a:'No, he’s been fine.', clue:{t:'No recent illness', normal:true}}
+  ],
+  obs:{hr:96, sp:97, rr:16, bp:'148/86', t:'36.4', bm:'2.3'},
+  options:[
+    {id:'hypo', t:'Low blood sugar'},
+    {id:'stroke', t:'Stroke'},
+    {id:'tia', t:'Mini-stroke (TIA)'},
+    {id:'bleed', t:'Bleed on the brain'},
+    {id:'bells', t:'Bell’s palsy'},
+    {id:'seizure', t:'Weakness after a seizure'},
+    {id:'sepsis', t:'Sepsis'},
+    {id:'alcohol', t:'Alcohol intoxication'}
+  ],
+  correct:'hypo',
+  summary:'A blood sugar of 2.3 causing one-sided signs that look exactly like a stroke.',
+  wrong:{
+    stroke:'This is the trap. His signs look exactly like a stroke, and he’s had a mini-stroke before. But he became odd and sweaty first, he’s cold and clammy, he skipped lunch as a diabetic, and his sugar is 2.3. That has to be the explanation until his sugar is back to normal.',
+    tia:'A mini-stroke can cause the same signs, but it doesn’t explain the sweating, the clammy skin or a sugar of 2.3.',
+    bleed:'A bleed on the brain often comes with a sudden severe headache and very high blood pressure. Peter has no headache and a sugar of 2.3.',
+    bells:'Bell’s palsy affects the face only. Peter’s arm and leg are weak and his speech is slurred.',
+    seizure:'Nobody saw a fit, and there’s no tongue bite or wetting.',
+    sepsis:'He has no fever and no sign of infection.',
+    alcohol:'There’s no alcohol involved, and a sugar of 2.3 explains everything.'
+  },
+  separator:{title:'What made this low blood sugar, not a stroke',
+    text:'Exactly the same one-sided signs as a stroke, but in a diabetic who missed lunch, preceded by odd behaviour and sweating, with cold clammy skin and a blood sugar of 2.3.'},
+  explain:[
+    'Low blood sugar doesn’t always cause general confusion. It can starve particular areas of the brain first and produce one-sided weakness, facial droop and slurred speech that look exactly like a stroke.',
+    'The clues are in the story and the skin: odd behaviour and sweating before the weakness, and cold, clammy skin. Those are the body’s alarm response to low sugar, which you don’t usually see in a stroke.',
+    'Some diabetes tablets can drop the sugar too low, especially with exertion and a missed meal, as here.',
+    'This is why blood sugar is checked in every suspected stroke. The signs from low sugar typically disappear completely once the sugar returns to normal.'
+  ]
+},
+
+/* ───────────────────────── HARD 4 · SUBARACHNOID HAEMORRHAGE ───────────────────────── */
+{
+  id:'hard-sah', level:'hard',
+  dispatch:{time:'18:45', cat:'Cat 2', headline:'Severe headache',
+    text:'45-year-old female. Sudden severe headache, vomiting.',
+    detail:'Caller is a gym instructor. Known migraine sufferer.', addr:'Leisure centre gym · instructor at reception'},
+  scene:{room:'gym_day', chair:'bench', chairColour:'#3a3f4a'},
+  patient:{name:'Kirsty', age:45, sex:'f', skin:'#e8c4a8', hair:'long', hairColour:'#3a2a1a',
+    outfit:'tshirt', top:'#3a8a9a', bottom:'#2a2a2a', shoes:'#e8e8e8', mouth:'closed', face:'pain', eyes:'half',
+    arms:{L:'throat', R:'knee'}, signs:{pale:true}},
+  doorway:{t:'Sitting on a weights bench, very still, holding her neck with her eyes half shut', correct:'unwell'},
+  askHint:'Kirsty can talk, quietly. Leon, the instructor, was with her.',
+  areas:{
+    face:[
+      {id:'talk', l:'Talk to her', L:'A', cost:15, clue:{t:'Airway clear; talking quietly, wants to keep still', normal:true}, fx:{say:['Please… keep','your voice down']}},
+      {id:'light', l:'Turn on the main lights', L:'D', cost:10, clue:{t:'Bright light hurts her eyes'}},
+      {id:'alert', l:'Check how alert she is', L:'D', cost:15, clue:{t:'Alert but slow to answer'}},
+      {id:'smile', l:'Ask her to smile', L:'D', cost:10, clue:{t:'Face moves equally on both sides', normal:true}},
+      {id:'pupils', l:'Check her pupils', L:'D', cost:15, kind:'pupils', clue:{t:'Pupils equal and reacting to light', normal:true}}
+    ],
+    neck:[
+      {id:'stiff', l:'Ask her to bend her chin to her chest', L:'D', cost:10, clue:{t:'Neck stiff and painful to bend forward', key:true}}
+    ],
+    chest:[
+      {id:'rr', l:'Count her breathing rate', L:'B', cost:15, kind:'count', rate:18, what:'breath', clue:{t:'Breathing rate about 18 a minute', normal:true}},
+      {id:'listen', l:'Listen to her chest', L:'B', kind:'listen', zones:[
+        {id:'upper', label:'Upper chest', where:'Both sides, below the collarbones', sound:'normal', clue:{t:'Upper chest clear on both sides', normal:true}},
+        {id:'bases', label:'Bottom of the chest', where:'Both sides, from behind', sound:'normal', clue:{t:'Bottom of the chest clear on both sides', normal:true}}
+      ]}
+    ],
+    hand:[
+      {id:'hr', l:'Count her pulse', L:'C', cost:15, kind:'count', rate:64, what:'beat', clue:{t:'Pulse about 64 a minute and regular', normal:true}},
+      {id:'temp', l:'Feel her skin temperature', L:'E', cost:10, clue:{t:'Warm, not hot: no fever', key:true}},
+      {id:'bm', l:'Check her blood sugar', L:'D', cost:20, kind:'bm', value:'6.4', clue:{t:'Blood sugar 6.4: normal', normal:true}}
+    ],
+    abdo:[
+      {id:'abdo', l:'Look at and feel her tummy', L:'E', cost:15, clue:{t:'Tummy soft, nothing of note', normal:true}}
+    ],
+    legs:[
+      {id:'limbs', l:'Check all four limbs', L:'D', cost:15, clue:{t:'All four limbs strong and equal', normal:true}},
+      {id:'rash', l:'Look at her skin for a rash', L:'E', cost:10, clue:{t:'No rash anywhere', key:true}}
+    ]
+  },
+  questions:[
+    {q:'How did the headache start?', who:'Kirsty', a:'Like being hit on the back of the head with a bat. Full strength in a second.', clue:{t:'Sudden headache at full strength within seconds', key:true}},
+    {q:'What were you doing?', who:'Kirsty', a:'Deadlifting. The heaviest weight I’ve ever tried.', clue:{t:'Started while straining to lift a heavy weight'}},
+    {q:'Do you get headaches?', who:'Kirsty', a:'I get migraines, but nothing like this. They build up slowly and I get flashing lights first.', clue:{t:'Gets migraines, but they build slowly with a warning; this is different', key:true}},
+    {q:'Is this the worst headache you’ve ever had?', who:'Kirsty', a:'By miles. Nothing close.', clue:{t:'Worst headache of her life', key:true}},
+    {q:'Has she been sick?', who:'Leon, gym instructor', a:'Twice, in the changing room.', clue:{t:'Vomited twice'}},
+    {q:'Any fever or recent illness?', who:'Kirsty', a:'No, I’ve been really well.', clue:{t:'No fever or recent illness', normal:true}}
+  ],
+  obs:{hr:64, sp:98, rr:18, bp:'178/96', t:'37.1', bm:'6.4'},
+  options:[
+    {id:'sah', t:'Bleed on the surface of the brain (subarachnoid haemorrhage)'},
+    {id:'migraine', t:'Migraine'},
+    {id:'mening', t:'Meningitis'},
+    {id:'tension', t:'Tension headache'},
+    {id:'neck', t:'Neck muscle strain'},
+    {id:'stroke', t:'Stroke (blocked artery)'},
+    {id:'bp', t:'High blood pressure headache'},
+    {id:'sinus', t:'Sinusitis'}
+  ],
+  correct:'sah',
+  summary:'A bleed into the space around her brain, probably from a burst blood vessel.',
+  wrong:{
+    migraine:'This is the trap. A known migraine sufferer makes migraine the easy guess, but she says herself this is nothing like her usual migraines: no warning, full strength in a second, and the worst of her life, with a stiff neck.',
+    mening:'Meningitis also causes headache, a stiff neck and dislike of light, but it comes with a fever and builds up over hours. Kirsty has no fever and no rash, and her headache was instant.',
+    tension:'A tension headache is a band-like ache that builds slowly. It doesn’t start like a blow to the head, cause vomiting or stiffen the neck.',
+    neck:'A strained neck hurts with movement, but it doesn’t cause the worst headache of her life, vomiting and dislike of light.',
+    stroke:'A blocked artery causes weakness, numbness or speech problems. Kirsty’s limbs and face are normal; her main problem is a sudden severe headache.',
+    bp:'Her blood pressure is high, but that’s more likely a response to what’s happening in her head than the cause of it.',
+    sinus:'Sinusitis gives a dull facial ache with a blocked nose, often with a cold. It doesn’t start like a blow to the head.'
+  },
+  separator:{title:'What made this a brain bleed, not a migraine',
+    text:'A sudden "thunderclap" headache, at full strength within seconds and the worst of her life, starting during straining, with vomiting and a stiff neck. Nothing like her usual migraines, and no fever.'},
+  explain:[
+    'In a subarachnoid haemorrhage, a blood vessel on the surface of the brain bursts, often a weak bulge in an artery. Blood floods into the space around the brain.',
+    'Because the vessel bursts in an instant, the headache arrives in an instant: people describe it as being hit on the head. Straining, such as heavy lifting, raises the pressure in the vessels and can trigger it.',
+    'Blood irritates the lining of the brain just as infection does, causing a stiff neck and dislike of light, but without the fever of meningitis. Blood pressure often rises.',
+    'A headache that reaches full strength within a minute, or is the worst of someone’s life, needs taking seriously even in someone who often gets headaches.'
+  ]
+},
+
+/* ───────────────────────── HARD 5 · SEPSIS WITHOUT A FEVER ───────────────────────── */
+{
+  id:'hard-coldsepsis', level:'hard',
+  dispatch:{time:'10:40', cat:'Cat 3', headline:'Not herself, off her legs',
+    text:'88-year-old female. Not her usual self, unable to walk.',
+    detail:'Caller is a care home carer. No fever. Known dementia.', addr:'Care home, residents’ lounge · carer will meet you'},
+  scene:{room:'lounge_day', chair:'armchair', chairColour:'#8a7a9a'},
+  patient:{name:'Dorothy', age:88, sex:'f', skin:'#f0dccf', hair:'bun', hairColour:'#e4e4e8',
+    outfit:'nightdress', top:'#8a7aa0', shoes:'#6a5a7a', mouth:'gasp', eyes:'half',
+    signs:{pale:true, mottled:true}},
+  doorway:{t:'Dozing in her armchair, a little pale but comfortable-looking, breathing a bit fast', correct:'unwell'},
+  askHint:'Dorothy mumbles yes and no. Her carer Grace knows her well.',
+  areas:{
+    face:[
+      {id:'talk', l:'Talk to her', L:'A', cost:15, clue:{t:'Airway clear; mumbles yes and no', normal:true}, fx:{say:['Mm… yes…','tired, dear…']}},
+      {id:'skin', l:'Look at her skin', L:'C', cost:10, clue:{t:'Pale'}},
+      {id:'alert', l:'Check how alert she is', L:'D', cost:15, clue:{t:'Drowsy; keeps drifting off mid-sentence', key:true}},
+      {id:'pupils', l:'Check her pupils', L:'D', cost:15, kind:'pupils', clue:{t:'Pupils equal and reacting to light', normal:true}}
+    ],
+    chest:[
+      {id:'rr', l:'Count her breathing rate', L:'B', cost:15, kind:'count', rate:24, what:'breath', clue:{t:'Breathing rate about 24 a minute', key:true}},
+      {id:'listen', l:'Listen to her chest', L:'B', kind:'listen', zones:[
+        {id:'upper', label:'Upper chest', where:'Both sides, below the collarbones', sound:'normal', clue:{t:'Upper chest clear on both sides', normal:true}},
+        {id:'lbase', label:'Bottom of the left side', where:'From behind', sound:'coarse', clue:{t:'Coarse crackles at the bottom of the left lung', key:true}},
+        {id:'rbase', label:'Bottom of the right side', where:'From behind', sound:'normal', clue:{t:'Bottom of the right lung clear', normal:true}}
+      ]}
+    ],
+    hand:[
+      {id:'hr', l:'Count her pulse', L:'C', cost:15, kind:'count', rate:108, what:'beat', clue:{t:'Pulse about 108 a minute and regular'}},
+      {id:'temp', l:'Feel her skin temperature', L:'E', cost:10, clue:{t:'Cool to the touch', key:true}},
+      {id:'crt', l:'Check capillary refill', L:'C', cost:10, kind:'crt', secs:3.5, clue:{t:'Capillary refill about 3–4 seconds'}},
+      {id:'bm', l:'Check her blood sugar', L:'D', cost:20, kind:'bm', value:'8.8', clue:{t:'Blood sugar 8.8', normal:true}}
+    ],
+    abdo:[
+      {id:'abdo', l:'Feel her tummy', L:'E', cost:15, clue:{t:'Tummy soft and not tender', normal:true}}
+    ],
+    legs:[
+      {id:'legs', l:'Look at her legs', L:'E', cost:10, clue:{t:'Knees and lower legs mottled', key:true}, fx:{flash:'mottle'}},
+      {id:'limbs', l:'Check all four limbs', L:'D', cost:15, clue:{t:'Weak all over, but equal on both sides', normal:true}}
+    ]
+  },
+  questions:[
+    {q:'What’s different today?', who:'Grace, her carer', a:'She’s usually chatty and walks to breakfast with her frame. Today she won’t get up and keeps falling asleep.', clue:{t:'Sudden change: usually chatty and walking with a frame', key:true}},
+    {q:'Does she have dementia?', who:'Grace, her carer', a:'Yes, mild. She forgets names, but this isn’t her at all.', clue:{t:'Mild dementia, but this is not her normal', key:true}},
+    {q:'Has she had a temperature?', who:'Grace, her carer', a:'We checked: 35.4. So we didn’t think it was an infection.', clue:{t:'Staff measured a low temperature, 35.4 °C', key:true}},
+    {q:'Any cough?', who:'Grace, her carer', a:'A little bit since yesterday, nothing much.', clue:{t:'Slight cough since yesterday'}},
+    {q:'Is she eating and drinking?', who:'Grace, her carer', a:'She’s barely touched anything since yesterday.', clue:{t:'Barely eating or drinking'}},
+    {q:'Has she had a fall?', who:'Grace, her carer', a:'No, she’s been in her chair or her bed.', clue:{t:'No fall', normal:true}}
+  ],
+  obs:{hr:108, sp:94, rr:24, bp:'98/60', t:'35.4', bm:'8.8'},
+  options:[
+    {id:'sepsis', t:'Sepsis from a chest infection'},
+    {id:'dementia', t:'Worsening dementia'},
+    {id:'dehydration', t:'Dehydration'},
+    {id:'stroke', t:'Stroke'},
+    {id:'hypothermia', t:'Hypothermia'},
+    {id:'uti', t:'Urine infection without sepsis'},
+    {id:'hypo', t:'Low blood sugar'},
+    {id:'tired', t:'Just tired: an off day'}
+  ],
+  correct:'sepsis',
+  summary:'A chest infection causing sepsis, with a low temperature instead of a fever.',
+  wrong:{
+    dementia:'This is one of the traps. Dementia progresses slowly. A sudden change from someone’s normal over a day or two always has a cause, and here the fast breathing, fast pulse, low blood pressure, mottled skin and crackles point to sepsis.',
+    dehydration:'She is drinking less and may be dehydrated, but that doesn’t explain the crackles at her left base, the mottled skin and the fast breathing.',
+    stroke:'She is weak, but equally on both sides, with no facial droop or speech change of a stroke.',
+    hypothermia:'Her temperature is low, but she’s in a warm care home lounge. In an older person, a low temperature with signs of infection is a warning sign of sepsis, not simply being cold.',
+    uti:'There are no urinary symptoms, and the crackles point to her chest. Whatever the source, signs like these mean the infection is affecting her whole body.',
+    hypo:'Her sugar is 8.8.',
+    tired:'This is the most dangerous trap of all. Breathing at 24, a pulse of 108, a blood pressure of 98/60 and mottled skin are not an off day.'
+  },
+  separator:{title:'What made this sepsis, even without a fever',
+    text:'A sudden change from her normal, breathing over 20, a pulse over 100, a low blood pressure, mottled skin, crackles at her left base, and a low temperature. In older people a low temperature can be a sign of sepsis.'},
+  explain:[
+    'Older people often don’t mount a fever when they have a serious infection. Their temperature may be normal or even low, and a low temperature in sepsis is a particularly worrying sign.',
+    'Instead, the clues are a change from their normal: going off their legs, becoming drowsy or more confused, or going off their food. Mild dementia doesn’t explain a sudden change.',
+    'Her body is still showing the same signs as any sepsis: fast breathing, a fast pulse, a falling blood pressure, slow capillary refill and mottled skin as blood is diverted away from it.',
+    'The crackles at her left base show where the infection started. "No fever, so it’s not an infection" is a common and dangerous assumption.'
+  ]
+},
+
+/* ───────────────────────── HARD 6 · SILENT HEART ATTACK ───────────────────────── */
+{
+  id:'hard-silentmi', level:'hard',
+  dispatch:{time:'11:30', cat:'Cat 3', headline:'Indigestion and feeling unwell',
+    text:'74-year-old female. Indigestion and nausea since this morning.',
+    detail:'Caller is her daughter. No chest pain.', addr:'Bungalow · daughter will open the door'},
+  scene:{room:'kitchen_day', chair:'dining', chairColour:'#9a7a5a'},
+  patient:{name:'Joyce', age:74, sex:'f', skin:'#eed4c2', hair:'bun', hairColour:'#cfcfd4',
+    outfit:'dress', top:'#6a8ab0', shoes:'#5a4a5a', mouth:'closed', eyes:'open',
+    signs:{sweat:true}},
+  doorway:{t:'Sitting comfortably at her kitchen table, chatting with her daughter, a cup of tea in front of her', correct:'well'},
+  askHint:'Joyce is chatty and keen to say she’s fine. Her daughter Sarah called you.',
+  areas:{
+    face:[
+      {id:'talk', l:'Talk to her', L:'A', cost:15, clue:{t:'Airway clear; talking normally in full sentences', normal:true}, fx:{say:['I’m sure it’s just','indigestion, love']}},
+      {id:'skin', l:'Look at her skin', L:'C', cost:10, clue:{t:'A little pale and clammy on her forehead', key:true}, fx:{flash:'sweat'}},
+      {id:'alert', l:'Check how alert she is', L:'D', cost:15, clue:{t:'Alert and oriented', normal:true}},
+      {id:'pupils', l:'Check her pupils', L:'D', cost:15, kind:'pupils', clue:{t:'Pupils equal and reacting to light', normal:true}}
+    ],
+    chest:[
+      {id:'rr', l:'Count her breathing rate', L:'B', cost:15, kind:'count', rate:20, what:'breath', clue:{t:'Breathing rate about 20 a minute'}},
+      {id:'listen', l:'Listen to her chest', L:'B', kind:'listen', zones:[
+        {id:'upper', label:'Upper chest', where:'Both sides, below the collarbones', sound:'normal', clue:{t:'Upper chest clear on both sides', normal:true}},
+        {id:'bases', label:'Bottom of the chest', where:'Both sides, from behind', sound:'normal', clue:{t:'Bottom of the chest clear on both sides', normal:true}}
+      ]},
+      {id:'press', l:'Press on her chest and upper tummy', L:'C', cost:10, clue:{t:'Pressing doesn’t make anything worse', normal:true}},
+      {id:'ecg', l:'Record a 12-lead ECG', L:'C', cost:60, clue:{t:'12-lead ECG shows ST elevation in leads V1 to V4', key:true}}
+    ],
+    hand:[
+      {id:'hr', l:'Count her pulse', L:'C', cost:15, kind:'count', rate:98, what:'beat', clue:{t:'Pulse about 98 a minute and regular'}},
+      {id:'crt', l:'Check capillary refill', L:'C', cost:10, kind:'crt', secs:2.6, clue:{t:'Capillary refill about 2–3 seconds'}},
+      {id:'bm', l:'Check her blood sugar', L:'D', cost:20, kind:'bm', value:'14.2', clue:{t:'Blood sugar 14.2: high'}}
+    ],
+    abdo:[
+      {id:'abdo', l:'Feel her tummy', L:'E', cost:15, clue:{t:'Tummy soft and not tender, even at the top', key:true}}
+    ],
+    legs:[
+      {id:'ankles', l:'Press on her ankles', L:'E', cost:15, kind:'press', dent:false, clue:{t:'No ankle swelling', normal:true}}
+    ]
+  },
+  questions:[
+    {q:'Tell me how you feel', who:'Joyce', a:'Sort of sick and full, like indigestion. And I’m ever so tired and a bit puffed.', clue:{t:'Nausea, indigestion-like discomfort, tiredness and breathlessness', key:true}},
+    {q:'Any pain anywhere?', who:'Joyce', a:'Not pain exactly. A funny ache in my jaw and between my shoulder blades.', clue:{t:'Ache in her jaw and between her shoulder blades', key:true}},
+    {q:'What were you doing when it started?', who:'Joyce', a:'Hoovering, first thing. I hadn’t eaten anything yet.', clue:{t:'Started with exertion, not after eating', key:true}},
+    {q:'Any medical problems?', who:'Sarah, her daughter', a:'Type 2 diabetes for twenty years, and blood pressure. She’s normally about 150 on top.', clue:{t:'Long-standing diabetes; her blood pressure is normally around 150', key:true}},
+    {q:'Have you had indigestion like this before?', who:'Joyce', a:'Now and then, but it doesn’t usually make me feel this washed out.', clue:{t:'Has had indigestion before, but not like this'}},
+    {q:'Any vomiting or diarrhoea?', who:'Joyce', a:'No, just feeling sick.', clue:{t:'No vomiting or diarrhoea', normal:true}}
+  ],
+  obs:{hr:98, sp:95, rr:20, bp:'104/66', t:'36.6', bm:'14.2'},
+  options:[
+    {id:'mi', t:'Heart attack'},
+    {id:'indig', t:'Indigestion'},
+    {id:'gall', t:'Gallstones'},
+    {id:'gastro', t:'Tummy bug'},
+    {id:'angina', t:'Stable angina'},
+    {id:'pneu', t:'Chest infection'},
+    {id:'anxiety', t:'Anxiety'},
+    {id:'flu', t:'Flu'}
+  ],
+  correct:'mi',
+  summary:'A heart attack with almost no pain, in an older woman with long-standing diabetes.',
+  wrong:{
+    indig:'This is the trap. She looks well and calls it indigestion herself. But it started with exertion before she’d eaten, she’s clammy, her blood pressure is well below her normal, and her ECG shows ST elevation.',
+    gall:'Gallstone pain is in the upper right tummy, often after a fatty meal, and that area is tender. Joyce’s tummy is soft and not tender, and her ECG is abnormal.',
+    gastro:'She has no vomiting or diarrhoea, and a tummy bug doesn’t cause ST elevation.',
+    angina:'Stable angina comes on with exertion and settles within minutes of resting. Joyce’s symptoms have lasted all morning and her ECG shows ST elevation.',
+    pneu:'Her chest is clear, she has no fever or cough.',
+    anxiety:'Nothing here suggests anxiety, and the ECG changes need explaining.',
+    flu:'She has no fever, aches or cough.'
+  },
+  separator:{title:'What made this a heart attack, not indigestion',
+    text:'An older diabetic woman with vague indigestion, nausea, tiredness and breathlessness that started with exertion, an ache in her jaw and back, clammy skin, a blood pressure well below her normal, and ST elevation on the ECG. No crushing pain at all.'},
+  explain:[
+    'Not every heart attack causes crushing chest pain. Older people, women and people with diabetes often have vague symptoms instead: nausea, an indigestion-like feeling, breathlessness, tiredness, or an ache in the jaw, arm or back.',
+    'Long-standing diabetes can damage the nerves that carry pain signals from the heart, so a heart attack may cause little or no pain at all. That’s why these are sometimes called "silent" heart attacks.',
+    'Her clammy skin and a blood pressure much lower than her normal show her heart is struggling. Knowing a patient’s usual blood pressure can turn a normal-looking number into a warning sign.',
+    'ST elevation in V1 to V4 shows injury to the front wall of the heart. Recording an ECG in anyone with vague symptoms like these is what reveals it.'
+  ]
+},
+
+/* ───────────────────────── HARD 7 · HEAD INJURY, NOT JUST DRUNK ───────────────────────── */
+{
+  id:'hard-headinjury', level:'hard',
+  dispatch:{time:'23:35', cat:'Cat 2', headline:'Drunk male, hard to wake',
+    text:'38-year-old male. Intoxicated, difficult to rouse.',
+    detail:'Caller is a friend. Involved in an altercation earlier.', addr:'Outside the Red Lion pub · friend waiting on the bench'},
+  scene:{room:'street_night', chair:'bench', chairColour:'#5a4a3a'},
+  patient:{name:'Liam', age:38, sex:'m', skin:'#d8a882', hair:'short', hairColour:'#2a1e16',
+    outfit:'tshirt', top:'#2a3a5a', bottom:'#3a3f4a', shoes:'#2a2a2a', mouth:'closed', eyes:'half',
+    signs:{}},
+  doorway:{t:'Slumped on a bench outside the pub, eyes half closed, looking like he’s had too much to drink', correct:'unwell'},
+  askHint:'Liam is barely talking. His friend Danny saw everything.',
+  areas:{
+    face:[
+      {id:'talk', l:'Talk to him', L:'A', cost:15, clue:{t:'Airway clear; mumbles a few slurred words'}, fx:{say:['Mmm… leave it…']}},
+      {id:'smell', l:'Smell his breath', L:'A', cost:10, clue:{t:'Smells strongly of alcohol'}},
+      {id:'alert', l:'Check how alert he is', L:'D', cost:15, clue:{t:'Only opens his eyes when you speak loudly to him', key:true}},
+      {id:'pupils', l:'Check his pupils', L:'D', cost:15, kind:'pupils', unequal:true, clue:{t:'Right pupil larger than the left and slow to react', key:true}},
+      {id:'head', l:'Feel his head for injury', L:'E', cost:15, clue:{t:'Boggy swelling just above his right ear', key:true}}
+    ],
+    chest:[
+      {id:'rr', l:'Count his breathing rate', L:'B', cost:15, kind:'count', rate:14, what:'breath', clue:{t:'Breathing rate about 14 a minute', normal:true}},
+      {id:'listen', l:'Listen to his chest', L:'B', kind:'listen', zones:[
+        {id:'upper', label:'Upper chest', where:'Both sides, below the collarbones', sound:'normal', clue:{t:'Upper chest clear on both sides', normal:true}},
+        {id:'bases', label:'Bottom of the chest', where:'Both sides, from behind', sound:'normal', clue:{t:'Bottom of the chest clear on both sides', normal:true}}
+      ]}
+    ],
+    hand:[
+      {id:'hr', l:'Count his pulse', L:'C', cost:15, kind:'count', rate:56, what:'beat', clue:{t:'Pulse slow, about 56 a minute', key:true}},
+      {id:'grip', l:'Ask him to squeeze your hands', L:'D', cost:10, clue:{t:'Left hand grip weaker than the right'}},
+      {id:'bm', l:'Check his blood sugar', L:'D', cost:20, kind:'bm', value:'5.8', clue:{t:'Blood sugar 5.8: normal', normal:true}}
+    ],
+    abdo:[
+      {id:'abdo', l:'Look at and feel his tummy', L:'E', cost:15, clue:{t:'Tummy soft, no injuries', normal:true}}
+    ],
+    legs:[
+      {id:'legs', l:'Check his legs', L:'E', cost:10, clue:{t:'No injuries', normal:true}}
+    ]
+  },
+  questions:[
+    {q:'What happened?', who:'Danny, his friend', a:'Some bloke punched him outside. He went down and cracked the side of his head on the kerb. He was out cold for about a minute.', clue:{t:'Punched, hit the side of his head on the kerb, knocked out for a minute', key:true}},
+    {q:'What was he like after he came round?', who:'Danny, his friend', a:'Totally fine! He laughed it off and wanted to go back in for another pint.', clue:{t:'Seemed completely fine after he came round', key:true}},
+    {q:'When did he get sleepy?', who:'Danny, his friend', a:'About twenty minutes ago. He’s been getting harder and harder to wake.', clue:{t:'Getting steadily harder to wake over twenty minutes', key:true}},
+    {q:'How much has he had to drink?', who:'Danny, his friend', a:'Six pints, maybe. He’s never like this on six.', clue:{t:'About six pints; not normally like this on that amount'}},
+    {q:'Has he taken any drugs?', who:'Danny, his friend', a:'No, never. He’s not into that.', clue:{t:'No drugs', normal:true}},
+    {q:'Any medical problems?', who:'Danny, his friend', a:'Not that I know of.', clue:{t:'No known medical problems', normal:true}}
+  ],
+  obs:{hr:56, sp:96, rr:14, bp:'168/92', t:'36.4', bm:'5.8'},
+  options:[
+    {id:'bleed', t:'Bleed inside the skull after a head injury'},
+    {id:'drunk', t:'Alcohol intoxication'},
+    {id:'concussion', t:'Concussion'},
+    {id:'hypo', t:'Low blood sugar'},
+    {id:'seizure', t:'After a seizure'},
+    {id:'overdose', t:'Drug overdose'},
+    {id:'stroke', t:'Stroke'},
+    {id:'faint', t:'Faint'}
+  ],
+  correct:'bleed',
+  summary:'Blood collecting inside his skull after a blow to the side of the head.',
+  wrong:{
+    drunk:'This is the trap. He smells of drink, but alcohol never explains unequal pupils, a swelling above the ear, a slow pulse with a high blood pressure, or one-sided weakness. Never assume someone is just drunk.',
+    concussion:'Concussion can cause headache and confusion, but people get steadily better, not worse. Liam was fine, then has become harder and harder to wake.',
+    hypo:'His sugar is 5.8.',
+    seizure:'Nobody saw a fit, and after a seizure people get steadily more awake, not less.',
+    overdose:'He hasn’t taken drugs, and an overdose doesn’t cause one large pupil and a swelling on one side of the head.',
+    stroke:'A stroke doesn’t usually follow a blow to the head with a period of being fine. The injury and the story point to bleeding from the head injury.',
+    faint:'He was knocked out by a blow, not by fainting, and he’s getting worse rather than recovering.'
+  },
+  separator:{title:'What made this a bleed in the skull, not just drink',
+    text:'A blow to the side of the head with a brief knock-out, a spell of seeming fine, then steadily getting harder to wake. One large, slow pupil, a swelling above the same ear, weakness on the other side, and a slow pulse with a high blood pressure.'},
+  explain:[
+    'A blow to the side of the head can crack the thin bone there and tear an artery lying just underneath. Blood then collects between the skull and the brain’s outer covering.',
+    'At first the bleed is small, so the person can seem completely fine. This spell is called a lucid interval. As blood builds up, it squeezes the brain and they become steadily drowsier.',
+    'The growing pressure squashes the nerve that controls the pupil on the same side, so that pupil becomes large and slow. It also presses on the pathways for movement, causing weakness on the opposite side of the body.',
+    'Late on, the body pushes the blood pressure up to keep blood flowing to the brain, and the pulse slows. Alcohol can hide all of this, which is why someone who smells of drink still needs a full assessment.'
+  ]
+},
+
+/* ───────────────────────── HARD 8 · CARBON MONOXIDE ───────────────────────── */
+{
+  id:'hard-co', level:'hard',
+  dispatch:{time:'19:20', cat:'Cat 3', headline:'Headache and nausea',
+    text:'35-year-old female. Headache and feeling sick for several days.',
+    detail:'Caller is the patient. Thinks she might have flu.', addr:'Older terraced house · front door'},
+  scene:{room:'lounge_eve', chair:'armchair', chairColour:'#7a6a5a'},
+  patient:{name:'Rachel', age:35, sex:'f', skin:'#f0d4c0', hair:'long', hairColour:'#7a5030',
+    outfit:'tshirt', top:'#8a9aaa', bottom:'#4a4a5a', shoes:'#e8e8e8', mouth:'closed', eyes:'open',
+    signs:{}},
+  doorway:{t:'Sitting in her armchair, looking tired but talking normally', correct:'well'},
+  askHint:'Rachel can talk to you. Her partner Tom is at home too.',
+  areas:{
+    face:[
+      {id:'talk', l:'Talk to her', L:'A', cost:15, clue:{t:'Airway clear; talking normally, says her head is pounding', normal:true}, fx:{say:['My head is','pounding']}},
+      {id:'skin', l:'Look at her skin', L:'C', cost:10, clue:{t:'Normal colour', normal:true}},
+      {id:'alert', l:'Check how alert she is', L:'D', cost:15, clue:{t:'Alert, but finds it hard to concentrate'}},
+      {id:'pupils', l:'Check her pupils', L:'D', cost:15, kind:'pupils', clue:{t:'Pupils equal and reacting to light', normal:true}}
+    ],
+    neck:[
+      {id:'stiff', l:'Ask her to bend her chin to her chest', L:'D', cost:10, clue:{t:'Neck bends easily: no stiffness', normal:true}}
+    ],
+    chest:[
+      {id:'rr', l:'Count her breathing rate', L:'B', cost:15, kind:'count', rate:18, what:'breath', clue:{t:'Breathing rate about 18 a minute', normal:true}},
+      {id:'listen', l:'Listen to her chest', L:'B', kind:'listen', zones:[
+        {id:'upper', label:'Upper chest', where:'Both sides, below the collarbones', sound:'normal', clue:{t:'Upper chest clear on both sides', normal:true}},
+        {id:'bases', label:'Bottom of the chest', where:'Both sides, from behind', sound:'normal', clue:{t:'Bottom of the chest clear on both sides', normal:true}}
+      ]}
+    ],
+    hand:[
+      {id:'hr', l:'Count her pulse', L:'C', cost:15, kind:'count', rate:96, what:'beat', clue:{t:'Pulse about 96 a minute and regular'}},
+      {id:'temp', l:'Feel her skin temperature', L:'E', cost:10, clue:{t:'Warm, not hot: no fever', key:true}},
+      {id:'bm', l:'Check her blood sugar', L:'D', cost:20, kind:'bm', value:'5.4', clue:{t:'Blood sugar 5.4: normal', normal:true}}
+    ],
+    abdo:[
+      {id:'abdo', l:'Look at and feel her tummy', L:'E', cost:15, clue:{t:'Tummy soft; she feels sick but isn’t tender', normal:true}}
+    ],
+    legs:[
+      {id:'rash', l:'Look at her skin for a rash', L:'E', cost:10, clue:{t:'No rash', normal:true}}
+    ]
+  },
+  questions:[
+    {q:'Is anyone else in the house unwell?', who:'Tom, her partner', a:'I’ve had a headache for days too. And the dog’s been really lethargic.', clue:{t:'Her partner and the dog are affected too', key:true}},
+    {q:'Is it worse at certain times?', who:'Rachel', a:'It’s better when I’m at work. It comes back when I get home.', clue:{t:'Better away from the house, worse at home', key:true}},
+    {q:'Any fever, aches or cough?', who:'Rachel', a:'No, none of that. That’s why it’s odd for flu.', clue:{t:'No fever, aches or cough', key:true}},
+    {q:'How long has this been going on?', who:'Rachel', a:'About a week. Since we put the heating on.', clue:{t:'Started about a week ago, when the heating went on', key:true}},
+    {q:'Do you have a carbon monoxide alarm?', who:'Tom, her partner', a:'No. The boiler’s ancient, and the flame’s been going orange lately.', clue:{t:'No CO alarm; old boiler with an orange flame', key:true}},
+    {q:'Do you get headaches normally?', who:'Rachel', a:'Hardly ever. I’ve never had one like this.', clue:{t:'Doesn’t normally get headaches'}}
+  ],
+  obs:{hr:96, sp:99, rr:18, bp:'124/78', t:'36.9', bm:'5.4'},
+  options:[
+    {id:'co', t:'Carbon monoxide poisoning'},
+    {id:'flu', t:'Flu'},
+    {id:'migraine', t:'Migraine'},
+    {id:'tension', t:'Tension headache'},
+    {id:'food', t:'Food poisoning'},
+    {id:'mening', t:'Meningitis'},
+    {id:'gastro', t:'Tummy bug'},
+    {id:'sinus', t:'Sinusitis'}
+  ],
+  correct:'co',
+  summary:'Carbon monoxide from a faulty boiler, affecting everyone in the house.',
+  wrong:{
+    flu:'This is the trap, and Rachel suggested it herself. But she has no fever, aches or cough, everyone in the house including the dog is affected, and she gets better when she leaves the house.',
+    migraine:'She doesn’t get migraines, and a migraine wouldn’t affect her partner and dog or get better at work.',
+    tension:'A tension headache wouldn’t affect the whole household or follow when the heating went on.',
+    food:'Food poisoning would usually cause vomiting and diarrhoea, and wouldn’t keep coming back every time she gets home.',
+    mening:'She has no fever, stiff neck or rash, and she’s been the same for a week.',
+    gastro:'She has nausea but no vomiting or diarrhoea, and the pattern points to the house.',
+    sinus:'Sinusitis gives a blocked nose and facial ache, and wouldn’t affect her partner and dog in the same way.'
+  },
+  separator:{title:'What made this carbon monoxide, not flu',
+    text:'No fever, aches or cough. Everyone in the house affected, including the dog, better away from home, starting when the heating came on, with an old boiler burning an orange flame. Sats of 99% don’t rule it out.'},
+  explain:[
+    'Carbon monoxide is an invisible, odourless gas produced when fuel burns poorly, often from a faulty boiler, fire or cooker. An orange or yellow flame instead of a crisp blue one is a classic warning sign.',
+    'Carbon monoxide sticks to the oxygen-carrying part of red blood cells far more tightly than oxygen does, so the blood carries less oxygen to the brain and heart. That causes headache, nausea, dizziness, tiredness and poor concentration.',
+    'A standard pulse oximeter can’t tell the difference between oxygen and carbon monoxide on red blood cells, so the sats can read normal, as Rachel’s 99% does. Normal sats don’t rule it out.',
+    'The biggest clues are in the story: several people or pets unwell at once, symptoms that improve away from home, and a link to the heating. The cherry-red skin described in textbooks is a late and unreliable sign.'
+  ]
+},
+
+/* ───────────────────────── HARD 9 · EXERTIONAL HEATSTROKE ───────────────────────── */
+{
+  id:'hard-heatstroke', level:'hard',
+  dispatch:{time:'12:05', cat:'Cat 1', headline:'Runner collapsed at the finish',
+    text:'30-year-old male. Collapsed after finishing a half marathon. Confused.',
+    detail:'Caller is a race marshal. Very hot day.', addr:'Half marathon finish area · marshal at the medical tent'},
+  scene:{room:'race_day'},
+  patient:{name:'Callum', age:30, sex:'m', pose:'floor', skin:'#e8b896', hair:'short', hairColour:'#5a3a22',
+    outfit:'tshirt', top:'#e05a3a', bottom:'#2a2a3a', shoes:'#3a7ad0', mouth:'gasp', eyes:'half',
+    signs:{flushed:true, sweat:true}},
+  doorway:{t:'Lying on the grass past the finish line, flushed and sweating, thrashing his arms and shouting', correct:'sick'},
+  askHint:'Callum isn’t making sense. Jo, the race marshal, saw him finish.',
+  areas:{
+    face:[
+      {id:'talk', l:'Talk to him', L:'A', cost:15, clue:{t:'Airway clear; shouting nonsense'}, fx:{say:['Get off me!','Where’s… the line?']}},
+      {id:'skin', l:'Look at his skin', L:'C', cost:10, clue:{t:'Flushed, hot and still sweating'}},
+      {id:'alert', l:'Check how alert he is', L:'D', cost:15, clue:{t:'Confused and agitated; doesn’t know he’s finished the race', key:true}},
+      {id:'head', l:'Check his head for injury', L:'E', cost:15, clue:{t:'No head injury', normal:true}},
+      {id:'pupils', l:'Check his pupils', L:'D', cost:15, kind:'pupils', clue:{t:'Pupils equal and reacting to light', normal:true}}
+    ],
+    chest:[
+      {id:'rr', l:'Count his breathing rate', L:'B', cost:15, kind:'count', rate:28, what:'breath', clue:{t:'Breathing rate about 28 a minute'}},
+      {id:'listen', l:'Listen to his chest', L:'B', kind:'listen', zones:[
+        {id:'upper', label:'Upper chest', where:'Both sides, below the collarbones', sound:'normal', clue:{t:'Upper chest clear on both sides', normal:true}},
+        {id:'bases', label:'Bottom of the chest', where:'Both sides, at the sides', sound:'normal', clue:{t:'Bottom of the chest clear on both sides', normal:true}}
+      ]}
+    ],
+    hand:[
+      {id:'hr', l:'Count his pulse', L:'C', cost:15, kind:'count', rate:148, what:'beat', clue:{t:'Pulse about 148 a minute and regular'}},
+      {id:'temp', l:'Feel his skin temperature', L:'E', cost:10, clue:{t:'Burning hot to the touch', key:true}},
+      {id:'crt', l:'Check capillary refill', L:'C', cost:10, kind:'crt', secs:3, clue:{t:'Capillary refill about 3 seconds'}},
+      {id:'bm', l:'Check his blood sugar', L:'D', cost:20, kind:'bm', value:'4.9', clue:{t:'Blood sugar 4.9: normal', key:true}}
+    ],
+    abdo:[
+      {id:'abdo', l:'Look at and feel his tummy', L:'E', cost:15, clue:{t:'Tummy soft, nothing of note', normal:true}}
+    ],
+    legs:[
+      {id:'legs', l:'Look at his legs', L:'E', cost:10, clue:{t:'Leg muscles twitching; no injuries', normal:true}}
+    ]
+  },
+  questions:[
+    {q:'What happened?', who:'Jo, race marshal', a:'He sprinted the last mile, crossed the line and collapsed. Then he started shouting and didn’t know where he was.', clue:{t:'Collapsed after a sprint finish, then became confused', key:true}},
+    {q:'What’s the weather been like?', who:'Jo, race marshal', a:'Twenty-eight degrees and really humid. We’ve had loads of people struggling.', clue:{t:'Hot, humid day', key:true}},
+    {q:'Has he been drinking water?', who:'Jo, race marshal', a:'His friend says he grabbed a cup at every water station.', clue:{t:'Drank water at every station'}},
+    {q:'Did he hit his head when he fell?', who:'Jo, race marshal', a:'No, he crumpled onto the grass.', clue:{t:'Didn’t hit his head', normal:true}},
+    {q:'Has he been unwell recently?', who:'Jo, race marshal', a:'His friend said he had a stomach bug last week.', clue:{t:'Had a stomach bug last week'}},
+    {q:'Any medical problems?', who:'Jo, race marshal', a:'His friend says none. He runs all the time.', clue:{t:'No known medical problems', normal:true}}
+  ],
+  obs:{hr:148, sp:97, rr:28, bp:'98/58', t:'40.8', bm:'4.9'},
+  options:[
+    {id:'heatstroke', t:'Exertional heatstroke'},
+    {id:'exhaustion', t:'Heat exhaustion'},
+    {id:'sodium', t:'Low sodium from drinking too much water'},
+    {id:'hypo', t:'Low blood sugar'},
+    {id:'head', t:'Head injury'},
+    {id:'arrhythmia', t:'Heart rhythm problem'},
+    {id:'seizure', t:'After a seizure'},
+    {id:'tired', t:'Simple exhaustion'}
+  ],
+  correct:'heatstroke',
+  summary:'His core temperature has climbed so high that his brain has stopped working properly.',
+  wrong:{
+    exhaustion:'Heat exhaustion leaves people feeling awful, dizzy and sick, but they’re still thinking clearly and their temperature is lower. Callum’s confusion and agitation with a temperature of 40.8 °C mean his brain is affected: that’s heatstroke.',
+    sodium:'This is one of the traps. Drinking at every station can dilute the blood’s sodium and cause confusion. But that usually happens with a normal temperature; Callum’s is 40.8 °C.',
+    hypo:'Low sugar is a common cause of confusion after exercise, which is why it’s checked. Callum’s sugar is 4.9.',
+    head:'He crumpled onto grass and has no head injury.',
+    arrhythmia:'His pulse is fast but regular, and his temperature explains everything.',
+    seizure:'Nobody saw a fit, and his temperature explains his confusion.',
+    tired:'Exhausted runners are tired, not confused, agitated and burning hot.'
+  },
+  separator:{title:'What made this heatstroke, not heat exhaustion',
+    text:'Confusion and agitation, meaning the brain is affected, together with a temperature over 40 °C after hard exercise on a hot, humid day. He is still sweating: heatstroke doesn’t always mean dry skin.'},
+  explain:[
+    'Hard-working muscles produce huge amounts of heat. On a hot, humid day, sweat can’t evaporate well enough to carry that heat away, so the core temperature climbs.',
+    'Above about 40 °C the brain starts to malfunction. That’s the dividing line between heat exhaustion and heatstroke: confusion, agitation, odd behaviour or seizures.',
+    'The heart races to push blood to the skin to lose heat and to the muscles at the same time, so the pulse is fast and the blood pressure falls. A recent stomach bug can leave someone dehydrated and at higher risk.',
+    'Many people with exertional heatstroke are still sweating. Dry skin is not needed to make the diagnosis.'
+  ]
+},
+
+/* ───────────────────────── HARD 10 · BELL'S PALSY ───────────────────────── */
+{
+  id:'hard-bells', level:'hard',
+  dispatch:{time:'07:40', cat:'Cat 2', headline:'Face drooping',
+    text:'45-year-old male. Right side of face drooping.',
+    detail:'Caller is his wife. Noticed when he woke up. Patient very worried it’s a stroke.', addr:'Semi-detached house · wife at the door'},
+  scene:{room:'lounge_day', chair:'armchair', chairColour:'#4a6a7a'},
+  patient:{name:'Steve', age:45, sex:'m', skin:'#c48a64', hair:'short', hairColour:'#1e1612',
+    outfit:'tshirt', top:'#7a7a7a', bottom:'#3a3f4a', shoes:'#2a2a2a', mouth:'droop', eyes:'open',
+    signs:{droop:true}},
+  doorway:{t:'Sitting upright in his armchair, the right side of his face drooping, talking anxiously to his wife', correct:'well'},
+  askHint:'Steve is worried but can talk to you. His wife Mel is with him.',
+  areas:{
+    face:[
+      {id:'talk', l:'Talk to him', L:'A', cost:15, clue:{t:'Airway clear; speech a little lispy from his mouth, but he finds words easily and makes sense', key:true}, fx:{say:['Is it a stroke?','Please tell me']}},
+      {id:'smile', l:'Ask him to smile', L:'D', cost:10, clue:{t:'Right side of his mouth droops'}},
+      {id:'brows', l:'Ask him to raise his eyebrows', L:'D', cost:10, clue:{t:'Can’t wrinkle the right side of his forehead', key:true}},
+      {id:'eyes', l:'Ask him to close his eyes tightly', L:'D', cost:10, clue:{t:'Right eye won’t close fully', key:true}},
+      {id:'pupils', l:'Check his pupils', L:'D', cost:15, kind:'pupils', clue:{t:'Pupils equal and reacting to light', normal:true}}
+    ],
+    chest:[
+      {id:'rr', l:'Count his breathing rate', L:'B', cost:15, kind:'count', rate:16, what:'breath', clue:{t:'Breathing rate about 16 a minute', normal:true}},
+      {id:'listen', l:'Listen to his chest', L:'B', kind:'listen', zones:[
+        {id:'upper', label:'Upper chest', where:'Both sides, below the collarbones', sound:'normal', clue:{t:'Upper chest clear on both sides', normal:true}},
+        {id:'bases', label:'Bottom of the chest', where:'Both sides, from behind', sound:'normal', clue:{t:'Bottom of the chest clear on both sides', normal:true}}
+      ]}
+    ],
+    hand:[
+      {id:'hr', l:'Count his pulse', L:'C', cost:15, kind:'count', rate:88, what:'beat', clue:{t:'Pulse about 88 a minute and regular', normal:true}},
+      {id:'arms', l:'Ask him to hold both arms out', L:'D', cost:10, clue:{t:'Both arms held out level; no drift', key:true}},
+      {id:'bm', l:'Check his blood sugar', L:'D', cost:20, kind:'bm', value:'5.6', clue:{t:'Blood sugar 5.6: normal', normal:true}}
+    ],
+    abdo:[
+      {id:'abdo', l:'Look at and feel his tummy', L:'E', cost:15, clue:{t:'Tummy soft, nothing of note', normal:true}}
+    ],
+    legs:[
+      {id:'legs', l:'Ask him to lift each leg', L:'D', cost:15, clue:{t:'Both legs strong and equal', normal:true}}
+    ]
+  },
+  questions:[
+    {q:'When did you notice it?', who:'Mel, his wife', a:'When he woke up. He spat his tea out because his mouth wouldn’t close on that side.', clue:{t:'Noticed on waking; can’t keep liquid in that side of his mouth'}},
+    {q:'Any pain anywhere?', who:'Steve', a:'An ache behind my right ear since yesterday.', clue:{t:'Ache behind the right ear since yesterday', key:true}},
+    {q:'Anything else feel odd?', who:'Steve', a:'My tea tastes funny, and loud noises sound really harsh in my right ear.', clue:{t:'Taste changed, and loud sounds harsh in the right ear', key:true}},
+    {q:'Any weakness or numbness in your arms or legs?', who:'Steve', a:'No, nothing.', clue:{t:'No weakness or numbness in his limbs', normal:true}},
+    {q:'Any rash or blisters around your ear?', who:'Mel, his wife', a:'No, I’ve looked.', clue:{t:'No rash or blisters around the ear', normal:true}},
+    {q:'Have you been unwell recently?', who:'Steve', a:'Just a cold last week.', clue:{t:'Had a cold last week'}}
+  ],
+  obs:{hr:88, sp:99, rr:16, bp:'138/84', t:'36.8', bm:'5.6'},
+  options:[
+    {id:'bells', t:'Bell’s palsy'},
+    {id:'stroke', t:'Stroke'},
+    {id:'tia', t:'Mini-stroke (TIA)'},
+    {id:'hypo', t:'Low blood sugar'},
+    {id:'shingles', t:'Shingles affecting the face'},
+    {id:'ear', t:'Ear infection'},
+    {id:'migraine', t:'Migraine'},
+    {id:'tumour', t:'Brain tumour'}
+  ],
+  correct:'bells',
+  summary:'Inflammation of the facial nerve on the right, after a cold.',
+  wrong:{
+    stroke:'This is the trap, and Steve is worried about it too. A stroke usually spares the forehead, because the forehead gets signals from both sides of the brain. Steve can’t wrinkle his forehead or close his eye on the right, and his arms, legs and language are normal. Telling the two apart isn’t always possible, so the forehead is one clue, not a guarantee.',
+    tia:'A mini-stroke comes and goes within minutes to hours and would normally spare the forehead. Steve’s droop includes his forehead and his limbs are normal.',
+    hypo:'His sugar is 5.6.',
+    shingles:'Shingles can cause facial weakness, but with a painful rash or blisters around the ear. Mel has checked and there are none.',
+    ear:'An ear infection causes earache and sometimes discharge, but not this pattern of facial weakness, taste change and harsh sounds.',
+    migraine:'Migraine can occasionally cause weakness, but usually with a headache and a warning. Steve has neither.',
+    tumour:'A tumour usually causes weakness that creeps on over weeks, often with other symptoms. This came on overnight after a cold.'
+  },
+  separator:{title:'What made this Bell’s palsy, not a stroke',
+    text:'The whole right side of the face is weak, including the forehead and the eye. His arms, legs and language are all normal, with an ache behind the ear, changed taste and harsh sounds on that side, after a cold.'},
+  explain:[
+    'The facial nerve runs from the brainstem, through a narrow bony channel near the ear, to all the muscles on one side of the face. In Bell’s palsy it becomes inflamed and swollen, often after a viral infection, and gets squeezed in that channel.',
+    'Because the nerve itself is affected, every muscle on that side weakens: the mouth, the eye and the forehead. In a stroke the damage is higher up in the brain, and the forehead is usually spared because it gets signals from both sides.',
+    'The same nerve carries taste from the front of the tongue and controls a tiny muscle that dampens loud sounds. That explains why Steve’s tea tastes odd and loud noises seem harsh. The ache behind the ear often comes first.',
+    'Facial weakness is frightening and can look just like a stroke, so a full assessment of the limbs, speech and blood sugar always matters.'
+  ]
 }
 
 ];
