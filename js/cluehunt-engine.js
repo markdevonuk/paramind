@@ -12,6 +12,8 @@
 'use strict';
 
 /* ---------- small helpers ---------- */
+/* random order, so the correct answer isn't always in the same place */
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt = s => String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
 function rgb(h){ h=h.replace('#',''); return [0,2,4].map(i=>parseInt(h.substr(i,2),16)); }
@@ -464,7 +466,7 @@ CH.start = function(){
   const c = this.c, P = c.patient;
   this.R = this.registry(c);
   this.acts = {}; Object.keys(c.areas).forEach(ar=>c.areas[ar].forEach(a=>{ this.acts[a.id]=a; }));
-  this.S = {clock:0, found:new Map(), letters:[], impression:null, choice:null, area:null, busy:false};
+  this.S = {clock:0, found:new Map(), letters:[], impression:null, choice:null, area:null, busy:false, opts:shuffle(c.options)};
   this.period = Math.max(1.4, Math.min(4.5, 60 / c.obs.rr));
   this.root.innerHTML = `
     <div class="ch-hud"><div class="ch-who"><b>${esc(P.name)}, ${P.age}</b><span>${esc(c.dispatch.headline)}</span></div>
@@ -745,7 +747,7 @@ CH.callView = function(){
   if(this.S.busy) return; this.clearActive();
   const few = [...this.S.found.keys()].filter(k=>k!=='doorway').length < this.minClues();
   this.openSheet('Make your call', `<p class="ch-hint">What’s your working impression?</p>
-    <div class="ch-opts" role="radiogroup">${this.c.options.map(o=>`<button class="ch-opt" role="radio" aria-checked="false" data-o="${o.id}">${esc(o.t)}</button>`).join('')}</div>
+    <div class="ch-opts" role="radiogroup">${this.S.opts.map(o=>`<button class="ch-opt" role="radio" aria-checked="false" data-o="${o.id}">${esc(o.t)}</button>`).join('')}</div>
     ${few?'<p class="ch-hint ch-amber">You haven’t found many clues yet. You can still decide now, but it may cost you.</p>':''}
     <button class="ch-btn ch-primary ch-wide" id="chConfirm" disabled>Confirm</button>`);
   this.$$('#chSheetBody .ch-opt').forEach(b=>b.addEventListener('click',()=>{

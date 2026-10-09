@@ -491,7 +491,9 @@ const WRONG = {
 
 /* ---------- state ---------- */
 let S;
-function fresh(){ return {clock:0, found:new Map(), letters:[], impression:null, choice:null, area:null, busy:false}; }
+/* random order, so the correct answer isn't always in the same place */
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function fresh(){ return {clock:0, found:new Map(), letters:[], impression:null, choice:null, area:null, busy:false, opts:shuffle(OPTIONS)}; }
 
 /* ---------- helpers ---------- */
 const fmt = s => String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
@@ -773,7 +775,7 @@ function callView(){
   const few = [...S.found.keys()].filter(k=>k!=='doorway').length < 8;
   openSheet('Make your call', `
     <p class="hint">What’s your working impression?</p>
-    <div class="opts" role="radiogroup">${OPTIONS.map(o=>`<button class="opt" role="radio" aria-checked="false" data-o="${o.id}">${esc(o.t)}</button>`).join('')}</div>
+    <div class="opts" role="radiogroup">${S.opts.map(o=>`<button class="opt" role="radio" aria-checked="false" data-o="${o.id}">${esc(o.t)}</button>`).join('')}</div>
     ${few?'<p class="hint" style="color:var(--amber)">You haven’t found many clues yet. You can still decide now, but it may cost you.</p>':''}
     <button class="btn primary" style="width:100%" id="confirm" disabled>Confirm</button>`);
   $('#sheetBody').querySelectorAll('.opt').forEach(b=>b.addEventListener('click', ()=>{
