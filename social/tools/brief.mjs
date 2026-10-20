@@ -5,7 +5,8 @@ import { chromium } from 'playwright';
 import fs from 'fs';
 import path from 'path';
 
-const [CONTENT, OUT] = process.argv.slice(2);
+const [CONTENT, OUT_ARG] = process.argv.slice(2);
+const OUT = OUT_ARG && path.resolve(OUT_ARG);
 if (!CONTENT || !OUT) { console.error('Usage: node brief.mjs <content.json> <output-folder>'); process.exit(1); }
 const brief = JSON.parse(fs.readFileSync(CONTENT, 'utf8'));
 const stories = brief.stories;
