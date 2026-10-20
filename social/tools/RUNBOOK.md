@@ -1,6 +1,6 @@
-# Paramind Brief: TikTok carousel run (Mon / Wed / Fri, 17:30 UK)
+# Paramind Brief: TikTok carousel run (Mon / Wed / Fri, 17:17 UK)
 
-This is the procedure each scheduled run follows. The run ends with a **TikTok draft in Native for Mark to approve**. It never publishes.
+This is the procedure each scheduled run follows. The run **publishes the carousel to TikTok automatically** through Native (Mark approved auto-posting on 20 Oct 2026). Nobody reviews it first, so the self-check in step 5 is mandatory. If any doubt remains, leave the post as a draft and tell Mark rather than publishing.
 
 ## 0. Which news to use
 
@@ -89,9 +89,28 @@ Commit only the new `social/<DATE>/` folder (PNGs plus `content.json`) to `main`
   - `mediaIds`: all the uploaded image ids, **in slide order**
   - `platforms: ["TIKTOK"]`
   - `caption`: in this pattern: "This week's Brief: <one short clause per story, comma-separated>. #paramedic #ambulance #NHS #studentparamedic #prehospital". Keep it under 2,200 characters.
-- **Do not schedule or publish.** Check the draft with `view_post`, making sure the image count and order are right.
+- Check the draft with `view_post`: the image count matches the slides, the order is right, the only destination is TIKTOK, and the caption is within its limit.
 
-If any Native call returns `cancelled`, `forbidden`, `insufficient_scope` or `writes_disabled`, stop and report it. Do not retry in a loop.
+### Self-check before publishing (mandatory, because no human reviews the post)
+
+Re-read each story against its source email and confirm all of the following. If any check fails, fix it and rebuild. If you can't fix it, **leave the post as a draft**, skip the publish step and tell Mark.
+
+- Every figure, date and name on the slides matches the email exactly.
+- No drug names, doses or treatment guidance appear.
+- No patient, child or individual fitness-to-practise case is named.
+- Hollie is not called "AI".
+- No slide reported `OVERFLOW`, and every PNG looked right when you viewed it.
+- The story is not a repeat of the previous carousel.
+
+### Publish
+
+- Call `publish_post_now` with the post id and `platforms: ["TIKTOK"]`. Call it **once only**.
+- Read `publishResults`:
+  - `published` means it is live.
+  - `pending` / `publishing_in_progress` is normal: do not retry. Wait about a minute, then call `get_post_status` to get the live URL.
+  - `failed`: report the code. Only retry if `retryable` is true, and only once.
+
+If any Native call returns `cancelled`, `forbidden`, `insufficient_scope` or `writes_disabled`, or the TikTok channel needs reconnecting, stop and report it. Do not retry in a loop.
 
 ## 6. Tidy up
 
@@ -100,9 +119,10 @@ Nothing else needs doing. The images stay on the site, and old dated folders can
 ## 7. Report back to Mark
 
 Finish with a short summary:
+- whether it went live, with the TikTok link (or the reason it was left as a draft)
 - the stories used, and any left out with the reason
-- any editorial call he should check
-- the Native draft link (`appUrl`)
+- any editorial call he may want to look at
+- the Native post link (`appUrl`)
 - anything that failed
 
 On failure, say exactly which step failed and what Mark needs to do.
