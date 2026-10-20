@@ -4,11 +4,15 @@ This is the procedure each scheduled run follows. The run **publishes the carous
 
 ## 0. Which news to use
 
+George sends a news email **every day, including weekends** (since 20 Oct 2026). Read every news email received since the previous run, i.e. after the previous run day:
+
 | Run day   | George emails to read                         |
 |-----------|-----------------------------------------------|
-| Monday    | the previous Friday's and today's             |
+| Monday    | Saturday's, Sunday's and today's              |
 | Wednesday | Tuesday's and today's                         |
 | Friday    | Thursday's and today's                        |
+
+Put all the stories from those emails into one pool and choose from it. If one of the expected emails is missing, carry on with the ones that arrived.
 
 The emails come from `admin@fmsportal.co.uk` to `hello@paramind.co.uk`, with subjects starting "UK paramedic news for students". Use the Gmail connector to search, then read each email in full (`get_thread`, plain text). Ignore the "Paramind mentions" emails.
 
@@ -69,7 +73,7 @@ If `/opt/pw-browsers/chromium-1194` doesn't exist, use whichever `chrome` binary
 }
 ```
 
-For `date`, use the span of the emails used, e.g. "Thursday 22 – Friday 23 October 2026" or "20–21 October 2026".
+For `date`, use the span of the emails used, e.g. "24–26 October 2026" for a Monday run, or "Thursday 22 – Friday 23 October 2026".
 
 The script exits with code 2 and prints `OVERFLOW` if any text would not fit. If that happens, shorten that story's body or why text and run it again. Then **look at every PNG** (Read tool) to check that the text is readable and nothing is cut off.
 
