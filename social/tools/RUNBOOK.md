@@ -109,6 +109,7 @@ Re-read each story against its source email and confirm all of the following. If
   - `published` means it is live.
   - `pending` / `publishing_in_progress` is normal: do not retry. Wait about a minute, then call `get_post_status` to get the live URL.
   - `failed`: report the code. Only retry if `retryable` is true, and only once.
+  - TikTok photo posts usually come back with `url: null` even when they succeed (seen on 20 Oct 2026). If the status is `published` / `SUCCESS`, treat it as live and point Mark to https://www.tiktok.com/@paramindapp rather than retrying.
 
 If any Native call returns `cancelled`, `forbidden`, `insufficient_scope` or `writes_disabled`, or the TikTok channel needs reconnecting, stop and report it. Do not retry in a loop.
 
