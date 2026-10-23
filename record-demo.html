@@ -29,7 +29,7 @@
 
     <style>
         /* ══════════════════════════════════════════════
-           PHASE 1 — bare recording test layout.
+           PHASES 1–2 — bare test layout.
            The finished layout comes in Phase 3, after sign-off.
            ══════════════════════════════════════════════ */
         body {
@@ -146,6 +146,32 @@
         .rd-ok   { color: var(--color-green-dark); }
         .rd-busy { color: var(--color-teal); }
         .rd-fail { color: var(--color-danger); }
+
+        /* ── Patient record (Phase 2) ── */
+        .rd-record-row {
+            display: grid;
+            grid-template-columns: 5.5rem 1fr;
+            gap: 0.75rem;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+        .rd-record-row:last-child { border-bottom: none; }
+        .rd-record-label {
+            font-weight: 700;
+            color: var(--color-teal-dark);
+        }
+        .rd-record-value {
+            white-space: pre-wrap;
+            line-height: 1.5;
+            color: var(--color-gray-800);
+        }
+        .rd-record-value ol {
+            margin: 0;
+            padding-left: 1.2rem;
+        }
+        .rd-record-value ol li { margin-bottom: 0.3rem; }
+        .rd-diff-reason { color: var(--color-gray-600); }
+        .rd-btn-retry { background: var(--color-teal); margin-top: 0.75rem; }
     </style>
 </head>
 <body>
@@ -168,7 +194,7 @@
 <div class="rd-container">
 
     <div class="rd-header">
-        <span class="rd-test-badge">PHASE 1 TEST</span>
+        <span class="rd-test-badge">PHASE 2 TEST</span>
         <h1><i class="bi bi-mic text-teal"></i> Patient Record Demo</h1>
         <p>Record a role-played patient interaction of up to 20 minutes.</p>
     </div>
@@ -191,6 +217,15 @@
 
         <div class="rd-warning" id="warningBox"></div>
         <div class="rd-error"   id="errorBox"></div>
+    </div>
+
+    <!-- Patient record (shown once written) -->
+    <div class="rd-card" id="recordCard" style="display:none">
+        <div class="rd-section-title">Patient record</div>
+        <div id="recordBody"></div>
+    </div>
+    <div id="recordRetryWrap" style="display:none; text-align:center; margin-bottom:1rem;">
+        <button class="rd-btn rd-btn-retry" id="retryRecordBtn" type="button"><i class="bi bi-arrow-repeat"></i> Try writing the record again</button>
     </div>
 
     <!-- Running transcript -->
@@ -309,19 +344,26 @@ function formatTime(ms) {
     return m + ':' + s;
 }
 
-/* ── Redraw the transcript and chunk log from RD.chunks ── */
-function render() {
+/* ── The full transcript so far, in order, as one piece of text ── */
+function getTranscriptText() {
     const ordered = RD.chunks.slice().sort((a, b) => a.index - b.index);
-
-    // Transcript
     const parts = [];
     ordered.forEach(c => {
         if (c.status === 'done' && c.text) parts.push(c.text.trim());
         if (c.status === 'failed') parts.push('[Minute ' + (c.index + 1) + ' could not be transcribed]');
     });
+    return parts.join(' ');
+}
+
+/* ── Redraw the transcript and chunk log from RD.chunks ── */
+function render() {
+    const ordered = RD.chunks.slice().sort((a, b) => a.index - b.index);
+
+    // Transcript
+    const transcript = getTranscriptText();
     const tEl = document.getElementById('transcriptText');
-    if (parts.length) {
-        tEl.textContent = parts.join(' ');
+    if (transcript) {
+        tEl.textContent = transcript;
     } else {
         tEl.innerHTML = '<span class="rd-placeholder">The transcript will appear here, one minute at a time.</span>';
     }
@@ -552,12 +594,114 @@ async function finishUp() {
     setStatus('Waiting for the transcript to finish…');
     await Promise.all(RD.pending);
 
-    RD.isProcessing = false;
-    const failed = RD.chunks.filter(c => c.status === 'failed').length;
-    setStatus(failed
-        ? 'Transcript complete — ' + failed + ' minute(s) could not be transcribed.'
-        : 'Transcript complete. (Phase 2 will write the patient record here.)');
+    await writeRecord();
     document.getElementById('resetBtn').style.display = 'inline-block';
+}
+
+/* ── The record headings, in Mark's agreed order ── */
+const RECORD_SECTIONS = [
+    ['pc', 'PC'], ['hpc', 'HPC'], ['pmh', 'PMH'], ['dh', 'DH'], ['allergies', 'Allergies'],
+    ['oa', 'OA'], ['oe', 'OE'], ['imp', 'IMP'], ['diff', 'DIFF'], ['t', 'T'], ['p', 'P']
+];
+
+/* ── Send the transcript to generatePatientRecord and show the result ── */
+async function writeRecord() {
+    RD.isProcessing = true;
+    showError('');
+    document.getElementById('recordRetryWrap').style.display = 'none';
+
+    const failed = RD.chunks.filter(c => c.status === 'failed').length;
+    const transcript = getTranscriptText();
+
+    if (!transcript.replace(/\[Minute \d+ could not be transcribed\]/g, '').trim()) {
+        RD.isProcessing = false;
+        setStatus('No speech was picked up, so there is nothing to write a record from.');
+        return;
+    }
+
+    setStatus('Writing the patient record…');
+
+    try {
+        const token = await getToken();
+        const resp = await fetch(RD.API_BASE + '/generatePatientRecord', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ transcript: transcript })
+        });
+
+        const data = await resp.json().catch(() => ({}));
+
+        if (resp.status === 400) {
+            // Too short / too long — retrying will not help
+            RD.isProcessing = false;
+            setStatus('');
+            showError((data.error || 'The transcript could not be used') + '.');
+            return;
+        }
+        if (!resp.ok || !data.record) throw new Error('Record failed (' + resp.status + ')');
+
+        renderRecord(data.record);
+        RD.isProcessing = false;
+        setStatus(failed
+            ? 'Record written — ' + failed + ' minute(s) of audio could not be transcribed, so may be missing.'
+            : 'Record written.');
+    } catch (e) {
+        console.warn('[RecordDemo] record failed:', e);
+        RD.isProcessing = false;
+        setStatus('');
+        showError('Sorry, the record could not be written. Your transcript is still here — tap the button below to try again.');
+        document.getElementById('recordRetryWrap').style.display = 'block';
+    }
+}
+
+/* ── Show the record (text only — never inserted as HTML) ── */
+function renderRecord(record) {
+    const body = document.getElementById('recordBody');
+    body.innerHTML = '';
+
+    RECORD_SECTIONS.forEach(([key, label]) => {
+        const row = document.createElement('div');
+        row.className = 'rd-record-row';
+
+        const labelEl = document.createElement('div');
+        labelEl.className = 'rd-record-label';
+        labelEl.textContent = label;
+
+        const valueEl = document.createElement('div');
+        valueEl.className = 'rd-record-value';
+
+        if (key === 'diff') {
+            const list = Array.isArray(record.diff) ? record.diff : [];
+            if (!list.length) {
+                valueEl.textContent = 'Not stated';
+            } else {
+                const ol = document.createElement('ol');
+                list.forEach(d => {
+                    const li = document.createElement('li');
+                    const name = document.createElement('strong');
+                    name.textContent = d.condition || '';
+                    const reason = document.createElement('span');
+                    reason.className = 'rd-diff-reason';
+                    reason.textContent = d.reason ? ' — ' + d.reason : '';
+                    li.appendChild(name);
+                    li.appendChild(reason);
+                    ol.appendChild(li);
+                });
+                valueEl.appendChild(ol);
+            }
+        } else {
+            valueEl.textContent = (record[key] || '').trim() || 'Not stated';
+        }
+
+        row.appendChild(labelEl);
+        row.appendChild(valueEl);
+        body.appendChild(row);
+    });
+
+    document.getElementById('recordCard').style.display = 'block';
 }
 
 /* ── START AGAIN: clear everything from memory ── */
@@ -567,6 +711,9 @@ function resetAll() {
     RD.nextIndex = 0;
     RD.recorder = null;
     RD.finishing = false;
+    document.getElementById('recordBody').innerHTML = '';
+    document.getElementById('recordCard').style.display = 'none';
+    document.getElementById('recordRetryWrap').style.display = 'none';
     document.getElementById('timerText').textContent = '00:00';
     showWarning('');
     showError('');
@@ -594,6 +741,11 @@ document.addEventListener('visibilitychange', async () => {
 document.getElementById('startBtn').addEventListener('click', startRecording);
 document.getElementById('finishBtn').addEventListener('click', stopRecording);
 document.getElementById('resetBtn').addEventListener('click', resetAll);
+document.getElementById('retryRecordBtn').addEventListener('click', async () => {
+    document.getElementById('resetBtn').style.display = 'none';
+    await writeRecord();
+    document.getElementById('resetBtn').style.display = 'inline-block';
+});
 </script>
 </body>
 </html>
