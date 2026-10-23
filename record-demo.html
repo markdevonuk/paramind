@@ -65,16 +65,6 @@
             font-size: 0.9rem;
             margin-bottom: 1rem;
         }
-        .rd-test-badge {
-            display: inline-block;
-            background: var(--color-warning);
-            color: var(--color-gray-900);
-            font-size: 0.72rem;
-            font-weight: 700;
-            border-radius: var(--radius-full);
-            padding: 0.15rem 0.6rem;
-            margin-bottom: 0.5rem;
-        }
         .rd-controls {
             text-align: center;
         }
@@ -172,6 +162,118 @@
         .rd-record-value ol li { margin-bottom: 0.3rem; }
         .rd-diff-reason { color: var(--color-gray-600); }
         .rd-btn-retry { background: var(--color-teal); margin-top: 0.75rem; }
+        .rd-diff-intro {
+            display: block;
+            font-style: italic;
+            color: var(--color-gray-600);
+            margin-bottom: 0.35rem;
+        }
+
+        /* ── Transcript: tap to read ── */
+        .rd-transcript-toggle {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: none;
+            border: none;
+            padding: 0;
+            font-family: inherit;
+            text-align: left;
+            color: inherit;
+        }
+        .rd-transcript-toggle .rd-section-title { margin-bottom: 0; }
+        .rd-transcript-hint {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--color-teal);
+            white-space: nowrap;
+        }
+        .rd-transcript-toggle i { transition: transform 0.2s ease; display: inline-block; }
+        .rd-transcript-toggle[aria-expanded="true"] i { transform: rotate(180deg); }
+        #transcriptText { margin-top: 0.75rem; }
+
+        /* ── Intro screen ── */
+        .rd-intro-hero {
+            background: linear-gradient(135deg, var(--color-teal) 0%, var(--color-teal-light) 100%);
+            color: #fff;
+            border-radius: var(--radius-xl);
+            padding: 1.5rem 1.25rem;
+            margin-bottom: 1rem;
+        }
+        .rd-intro-hero h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .rd-intro-hero p { margin: 0; opacity: 0.95; line-height: 1.5; }
+        .rd-steps-intro {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            counter-reset: rdstep;
+        }
+        .rd-steps-intro li {
+            position: relative;
+            padding: 0 0 0.9rem 2.6rem;
+            line-height: 1.45;
+        }
+        .rd-steps-intro li:last-child { padding-bottom: 0; }
+        .rd-steps-intro li::before {
+            counter-increment: rdstep;
+            content: counter(rdstep);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1.85rem;
+            height: 1.85rem;
+            border-radius: 50%;
+            background: rgba(43, 138, 156, 0.12);
+            color: var(--color-teal-dark);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .rd-steps-intro strong { display: block; }
+        .rd-model-table { width: 100%; border-collapse: collapse; }
+        .rd-model-table td {
+            padding: 0.45rem 0;
+            border-bottom: 1px solid var(--color-gray-100);
+            vertical-align: top;
+            line-height: 1.45;
+        }
+        .rd-model-table tr:last-child td { border-bottom: none; }
+        .rd-model-table td:first-child {
+            width: 5.5rem;
+            font-weight: 700;
+            color: var(--color-teal-dark);
+        }
+        .rd-tips { padding-left: 1.2rem; margin: 0; }
+        .rd-tips li { margin-bottom: 0.5rem; line-height: 1.45; }
+        .rd-tips li:last-child { margin-bottom: 0; }
+        .rd-agree-card { border: 2px solid rgba(220, 53, 69, 0.35); }
+        .rd-agree-card ul { padding-left: 1.2rem; margin-bottom: 1rem; }
+        .rd-agree-card ul li { margin-bottom: 0.4rem; line-height: 1.45; }
+        .rd-agree {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+            background: var(--color-gray-50);
+            border-radius: var(--radius-lg);
+            padding: 0.85rem 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            line-height: 1.45;
+        }
+        .rd-agree input {
+            width: 1.3rem;
+            height: 1.3rem;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+            accent-color: var(--color-teal);
+        }
+        .rd-intro-continue { text-align: center; margin-top: 1rem; }
 
         /* ── Processing pop-up (after Finish) ── */
         .rd-modal-backdrop {
@@ -285,8 +387,72 @@
 
 <div class="rd-container">
 
+<!-- ==================== INTRO SCREEN ==================== -->
+<div id="introScreen">
+
+    <div class="rd-intro-hero">
+        <h1><i class="bi bi-file-earmark-medical"></i> Write better ePCRs</h1>
+        <p>Role-play a patient interaction with a colleague. Paramind listens, then writes it up as a structured record using the medical model, so you can see what a clear, complete ePCR looks like and spot what you missed.</p>
+    </div>
+
+    <div class="rd-card">
+        <div class="rd-section-title">How it works</div>
+        <ol class="rd-steps-intro">
+            <li><strong>Role-play the call</strong>One of you is the clinician, the other the patient. Up to 20 minutes.</li>
+            <li><strong>Paramind listens</strong>Your conversation is transcribed a minute at a time while you talk.</li>
+            <li><strong>Get your record</strong>Press Finish and it's written up in the medical model, with other conditions to consider.</li>
+        </ol>
+    </div>
+
+    <div class="rd-card">
+        <div class="rd-section-title">The medical model</div>
+        <table class="rd-model-table">
+            <tr><td>PC</td><td>Presenting condition: why the patient called, in a few words</td></tr>
+            <tr><td>HPC</td><td>History of presenting condition: onset, duration, character, what makes it better or worse, associated symptoms</td></tr>
+            <tr><td>PMH</td><td>Past medical history</td></tr>
+            <tr><td>DH</td><td>Drug history: regular and recent medications</td></tr>
+            <tr><td>Allergies</td><td>Any known allergies</td></tr>
+            <tr><td>OA</td><td>On arrival: what you saw and heard as you walked in</td></tr>
+            <tr><td>OE</td><td>On examination: abnormal observations, investigations and findings</td></tr>
+            <tr><td>IMP</td><td>Your working impression</td></tr>
+            <tr><td>DIFF</td><td>Other conditions to consider</td></tr>
+            <tr><td>T</td><td>Treatment given</td></tr>
+            <tr><td>P</td><td>Plan: convey, discharge on scene, referral</td></tr>
+        </table>
+    </div>
+
+    <div class="rd-card">
+        <div class="rd-section-title">Get the most from it</div>
+        <ul class="rd-tips">
+            <li><strong>Say abnormal observations out loud.</strong> Normal observations aren't written up, because your equipment records them.</li>
+            <li><strong>Say your working impression and plan out loud</strong>, as you would at handover.</li>
+            <li><strong>Look for "Not stated".</strong> It shows something that wasn't covered, which is a prompt for what to ask next time.</li>
+            <li><strong>Always check the record.</strong> Speech-to-text can mishear, and the record is only as good as what was said.</li>
+        </ul>
+    </div>
+
+    <div class="rd-card rd-agree-card">
+        <div class="rd-section-title"><i class="bi bi-shield-exclamation text-danger"></i> Before you start</div>
+        <ul>
+            <li><strong>Simulated role-play only.</strong> Never record a real patient, and never use real names, addresses, dates of birth or any other real patient details.</li>
+            <li>Paramind doesn't keep your audio, transcript or record. Everything disappears when you close the page.</li>
+            <li>This is a learning tool. It doesn't replace your trust's ePCR or documentation guidance.</li>
+        </ul>
+        <label class="rd-agree" for="agreeBox">
+            <input type="checkbox" id="agreeBox">
+            <span>I confirm I will only use this for simulated interactions with colleagues, and will not record real patients or use real patient details.</span>
+        </label>
+        <div class="rd-intro-continue">
+            <button class="rd-btn rd-btn-start" id="continueBtn" type="button" disabled>Continue <i class="bi bi-arrow-right"></i></button>
+        </div>
+    </div>
+
+</div>
+
+<!-- ==================== DEMO SCREEN (after agreeing) ==================== -->
+<div id="demoScreen" style="display:none">
+
     <div class="rd-header">
-        <span class="rd-test-badge">PHASE 2 TEST</span>
         <h1><i class="bi bi-mic text-teal"></i> Patient Record Demo</h1>
         <p>Record a role-played patient interaction of up to 20 minutes.</p>
     </div>
@@ -320,19 +486,25 @@
         <button class="rd-btn rd-btn-retry" id="retryRecordBtn" type="button"><i class="bi bi-arrow-repeat"></i> Try writing the record again</button>
     </div>
 
-    <!-- Running transcript -->
+    <!-- Running transcript: tap to read -->
     <div class="rd-card">
-        <div class="rd-section-title">Transcript</div>
-        <div class="rd-transcript" id="transcriptText"><span class="rd-placeholder">The transcript will appear here, one minute at a time.</span></div>
+        <button class="rd-transcript-toggle" id="transcriptToggle" type="button" aria-expanded="false" aria-controls="transcriptText">
+            <span class="rd-section-title">Transcript</span>
+            <span class="rd-transcript-hint"><span id="transcriptHintText">Tap to read</span> <i class="bi bi-chevron-down"></i></span>
+        </button>
+        <div class="rd-transcript" id="transcriptText" style="display:none"><span class="rd-placeholder">The transcript will appear here, one minute at a time.</span></div>
     </div>
 
-    <!-- Test-only: what happened to each one-minute chunk -->
-    <div class="rd-card">
-        <div class="rd-section-title">Chunk log <span class="rd-test-badge">TEST ONLY</span></div>
+    <!-- Chunk log: hidden. Add ?debug=1 to the page address to show it for testing -->
+    <div class="rd-card" id="chunkLogCard" style="display:none">
+        <div class="rd-section-title">Chunk log</div>
         <ul class="rd-chunk-list" id="chunkList">
             <li class="rd-placeholder">No chunks yet</li>
         </ul>
     </div>
+
+</div>
+<!-- ==================== END DEMO SCREEN ==================== -->
 
 </div>
 
@@ -859,6 +1031,10 @@ function renderRecord(record) {
             if (!list.length) {
                 valueEl.textContent = 'Not stated';
             } else {
+                const intro = document.createElement('span');
+                intro.className = 'rd-diff-intro';
+                intro.textContent = 'Paramind suggests considering:';
+                valueEl.appendChild(intro);
                 const ol = document.createElement('ol');
                 list.forEach(d => {
                     const li = document.createElement('li');
@@ -918,6 +1094,31 @@ document.addEventListener('visibilitychange', async () => {
         await requestWakeLock();
     }
 });
+
+/* ── Intro screen: Continue only once the box is ticked (asked every visit) ── */
+document.getElementById('agreeBox').addEventListener('change', (e) => {
+    document.getElementById('continueBtn').disabled = !e.target.checked;
+});
+document.getElementById('continueBtn').addEventListener('click', () => {
+    if (!document.getElementById('agreeBox').checked) return;
+    document.getElementById('introScreen').style.display = 'none';
+    document.getElementById('demoScreen').style.display = 'block';
+    window.scrollTo(0, 0);
+});
+
+/* ── Transcript: tap to read / hide ── */
+document.getElementById('transcriptToggle').addEventListener('click', () => {
+    const btn = document.getElementById('transcriptToggle');
+    const open = btn.getAttribute('aria-expanded') !== 'true';
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    document.getElementById('transcriptText').style.display = open ? 'block' : 'none';
+    document.getElementById('transcriptHintText').textContent = open ? 'Hide' : 'Tap to read';
+});
+
+/* ── Chunk log only shown with ?debug=1 in the address ── */
+if (new URLSearchParams(window.location.search).get('debug') === '1') {
+    document.getElementById('chunkLogCard').style.display = 'block';
+}
 
 document.getElementById('startBtn').addEventListener('click', startRecording);
 document.getElementById('finishBtn').addEventListener('click', stopRecording);
