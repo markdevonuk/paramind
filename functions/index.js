@@ -5730,7 +5730,8 @@ SECTIONS
 - oa: On arrival — what the clinician saw and heard on arrival: position, alertness, breathing, colour, distress, environment.
 - oe: On examination — ONLY observations the clinician stated out loud as abnormal (the crew's equipment records all observations separately, so normal values are not repeated here). Plus any investigations done (e.g. 12-lead ECG, blood glucose, chest auscultation, neuro assessment) and what was found, and anything else pertinent to the presenting condition.
 - imp: The working impression THE CLINICIAN SAID during the interaction. Do NOT supply your own. If the clinician did not state one, write exactly "Not stated".
-- diff: Up to 4 differential diagnoses that should be considered, ranked most likely first. Do not repeat the clinician's working impression. Each has a condition name and a ONE-LINE reason linking it to specific features in the transcript. This is the ONLY section where you add your own clinical thinking. Conditions only — NEVER treatment, medication, management, or advice on what to do. If the transcript contains too little clinical information, return fewer, or none.
+- imp_covers: A checking step, not shown to the user. List every condition the clinician's impression already covers: the condition itself, its sub-types, variants, complications of the same process, and other names for it. Example: an impression of "gallbladder issues (gallstones or gallbladder)" covers gallstones, cholelithiasis, biliary colic, cholecystitis, gallbladder disease and gallbladder inflammation. If imp is "Not stated", return an empty list.
+- diff: Up to 4 ALTERNATIVE differential diagnoses — other conditions that could explain the same presentation and that the clinician should consider or rule out. NEVER include anything listed in imp_covers, or anything that is just another name, sub-type or variant of the impression. Prefer alternatives from a different organ, system or process (for the gallbladder example: pancreatitis, peptic ulcer disease, inferior MI, right lower lobe pneumonia). Ranked most likely first. Each has a condition name and a ONE-LINE reason linking it to specific features in the transcript. This is the ONLY section where you add your own clinical thinking. Conditions only — NEVER treatment, medication, management, or advice on what to do. If the transcript contains too little clinical information, return fewer, or none.
 - t: Treatment given during the interaction, as stated — medication (names and doses as stated), dressings, positioning, oxygen, etc.
 - p: The plan, as stated — e.g. convey to ED, discharge on scene with worsening advice, referral to GP, out-of-hours GP, etc.
 
@@ -5741,7 +5742,7 @@ WHEN NOTHING WAS SAID FOR A SECTION
 const PATIENT_RECORD_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["pc", "hpc", "pmh", "dh", "allergies", "oa", "oe", "imp", "diff", "t", "p"],
+  required: ["pc", "hpc", "pmh", "dh", "allergies", "oa", "oe", "imp", "imp_covers", "diff", "t", "p"],
   properties: {
     pc:        { type: "string" },
     hpc:       { type: "string" },
@@ -5751,6 +5752,7 @@ const PATIENT_RECORD_SCHEMA = {
     oa:        { type: "string" },
     oe:        { type: "string" },
     imp:       { type: "string" },
+    imp_covers: { type: "array", items: { type: "string" } },   // checking step only — removed before sending
     diff: {
       type: "array",
       items: {
@@ -5827,8 +5829,18 @@ exports.generatePatientRecord = onRequest(
       const raw = completion.choices[0]?.message?.content || "";
       const record = JSON.parse(raw);
 
-      // Enforce the agreed maximum of 4 differentials
+      // Safety net: drop any differential that just repeats the clinician's impression
       if (!Array.isArray(record.diff)) record.diff = [];
+      const covered = (Array.isArray(record.imp_covers) ? record.imp_covers : [])
+        .map(c => String(c).toLowerCase().trim())
+        .filter(c => c.length > 2);
+      record.diff = record.diff.filter(d => {
+        const name = String(d.condition || "").toLowerCase().trim();
+        return name && !covered.some(c => name.includes(c) || c.includes(name));
+      });
+      delete record.imp_covers;   // checking step only — never sent to the page
+
+      // Enforce the agreed maximum of 4 differentials
       record.diff = record.diff.slice(0, 4);
 
       // Log length only — never the transcript or record content
