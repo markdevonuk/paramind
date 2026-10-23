@@ -172,6 +172,98 @@
         .rd-record-value ol li { margin-bottom: 0.3rem; }
         .rd-diff-reason { color: var(--color-gray-600); }
         .rd-btn-retry { background: var(--color-teal); margin-top: 0.75rem; }
+
+        /* ── Processing pop-up (after Finish) ── */
+        .rd-modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(20, 28, 36, 0.55);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .rd-modal-backdrop.open { display: flex; }
+        .rd-modal {
+            background: var(--color-white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            width: 100%;
+            max-width: 360px;
+            padding: 1.75rem 1.5rem 1.5rem;
+            text-align: center;
+        }
+        .rd-clock {
+            position: relative;
+            width: 132px;
+            height: 132px;
+            margin: 0 auto 1rem;
+        }
+        .rd-clock svg { width: 100%; height: 100%; }
+        .rd-clock-track { fill: none; stroke: var(--color-gray-200); stroke-width: 8; }
+        .rd-clock-arc {
+            fill: none;
+            stroke: var(--color-teal);
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 90 300;
+            transform-origin: 60px 60px;
+            animation: rdSpin 1.4s linear infinite;
+        }
+        .rd-clock-hand {
+            stroke: var(--color-teal-dark);
+            stroke-width: 3;
+            stroke-linecap: round;
+            transform-origin: 60px 60px;
+            transition: transform 0.4s ease;
+        }
+        .rd-clock-pin { fill: var(--color-teal-dark); }
+        .rd-clock-time {
+            position: absolute;
+            left: 0; right: 0;
+            bottom: 26px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-gray-700);
+        }
+        @keyframes rdSpin { to { transform: rotate(360deg); } }
+        .rd-modal h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        .rd-steps {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+        }
+        .rd-steps li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            padding: 0.45rem 0;
+            color: var(--color-gray-500);
+            font-size: 0.92rem;
+        }
+        .rd-steps li i { font-size: 1.05rem; line-height: 1.3; }
+        .rd-steps li.active { color: var(--color-gray-900); font-weight: 600; }
+        .rd-steps li.active i { color: var(--color-teal); }
+        .rd-steps li.done { color: var(--color-gray-700); }
+        .rd-steps li.done i { color: var(--color-green-dark); }
+        .rd-step-detail {
+            display: block;
+            font-weight: 400;
+            font-size: 0.82rem;
+            color: var(--color-gray-600);
+        }
+        .rd-modal-note {
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: var(--color-gray-600);
+        }
     </style>
 </head>
 <body>
@@ -242,6 +334,28 @@
         </ul>
     </div>
 
+</div>
+
+<!-- Processing pop-up: shown from Finish until the record is ready -->
+<div class="rd-modal-backdrop" id="procModal" role="dialog" aria-modal="true" aria-labelledby="procTitle">
+    <div class="rd-modal">
+        <div class="rd-clock" aria-hidden="true">
+            <svg viewBox="0 0 120 120">
+                <circle class="rd-clock-track" cx="60" cy="60" r="50"></circle>
+                <circle class="rd-clock-arc"   cx="60" cy="60" r="50"></circle>
+                <line class="rd-clock-hand" id="procHand" x1="60" y1="60" x2="60" y2="24"></line>
+                <circle class="rd-clock-pin" cx="60" cy="60" r="4"></circle>
+            </svg>
+            <div class="rd-clock-time" id="procTime">0:00</div>
+        </div>
+        <h2 id="procTitle">Preparing your record</h2>
+        <ul class="rd-steps" aria-live="polite">
+            <li id="stepRecording"><i class="bi bi-circle"></i><span>Finishing the recording</span></li>
+            <li id="stepTranscribing"><i class="bi bi-circle"></i><span>Transcribing the audio<span class="rd-step-detail" id="stepTranscribingDetail"></span></span></li>
+            <li id="stepWriting"><i class="bi bi-circle"></i><span>Writing the patient record</span></li>
+        </ul>
+        <div class="rd-modal-note">Please keep this page open. This usually takes under a minute.</div>
+    </div>
 </div>
 
 <!-- Scripts — identical order to all Pro pages -->
@@ -368,6 +482,8 @@ function render() {
         tEl.innerHTML = '<span class="rd-placeholder">The transcript will appear here, one minute at a time.</span>';
     }
 
+    updateTranscribingDetail();
+
     // Chunk log
     const list = document.getElementById('chunkList');
     list.innerHTML = '';
@@ -480,6 +596,52 @@ function startSegment() {
     }, RD.CHUNK_MS);
 }
 
+/* ── Processing pop-up ── */
+const PROC = { timerId: null, startTime: 0 };
+
+function openProcModal() {
+    const modal = document.getElementById('procModal');
+    if (modal.classList.contains('open')) return;   // already showing
+    ['stepRecording', 'stepTranscribing', 'stepWriting'].forEach(id => setStep(id, ''));
+    document.getElementById('stepTranscribingDetail').textContent = '';
+    PROC.startTime = Date.now();
+    updateProcClock();
+    PROC.timerId = setInterval(updateProcClock, 1000);
+    modal.classList.add('open');
+}
+
+function closeProcModal() {
+    clearInterval(PROC.timerId);
+    PROC.timerId = null;
+    document.getElementById('procModal').classList.remove('open');
+}
+
+function updateProcClock() {
+    const secs = Math.floor((Date.now() - PROC.startTime) / 1000);
+    document.getElementById('procTime').textContent = Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0');
+    // The hand moves round once a minute, like a stopwatch
+    document.getElementById('procHand').style.transform = 'rotate(' + ((secs % 60) * 6) + 'deg)';
+}
+
+/* state: '' (waiting), 'active' or 'done' */
+function setStep(id, state) {
+    const li = document.getElementById(id);
+    li.classList.remove('active', 'done');
+    if (state) li.classList.add(state);
+    li.querySelector('i').className = state === 'done' ? 'bi bi-check-circle-fill'
+                                    : state === 'active' ? 'bi bi-arrow-right-circle-fill'
+                                    : 'bi bi-circle';
+}
+
+/* "3 of 4 minutes done" while the last chunks are transcribed */
+function updateTranscribingDetail() {
+    if (!document.getElementById('procModal').classList.contains('open')) return;
+    const total = RD.chunks.length;
+    const finished = RD.chunks.filter(c => c.status !== 'sending').length;
+    document.getElementById('stepTranscribingDetail').textContent =
+        total ? finished + ' of ' + total + ' minute' + (total === 1 ? '' : 's') + ' done' : '';
+}
+
 /* ── Microphone cut off mid-recording: stop cleanly, keep what we have ── */
 function markInterrupted() {
     showWarning('Recording stopped because the microphone was interrupted (screen locked or app switched). Everything recorded up to that point has been kept.');
@@ -573,6 +735,8 @@ function stopRecording() {
 
     document.getElementById('finishBtn').style.display = 'none';
     setStatus('Finishing the last chunk…');
+    openProcModal();
+    setStep('stepRecording', 'active');
 
     if (RD.recorder && RD.recorder.state === 'recording') {
         RD.recorder.stop();     // onstop sends the final chunk, then calls finishUp()
@@ -591,8 +755,14 @@ async function finishUp() {
     }
     if (RD.wakeLock) { try { RD.wakeLock.release(); } catch (e) {} RD.wakeLock = null; }
 
+    openProcModal();    // also covers the screen-lock interruption route
+    setStep('stepRecording', 'done');
+    setStep('stepTranscribing', 'active');
+    updateTranscribingDetail();
+
     setStatus('Waiting for the transcript to finish…');
     await Promise.all(RD.pending);
+    setStep('stepTranscribing', 'done');
 
     await writeRecord();
     document.getElementById('resetBtn').style.display = 'inline-block';
@@ -614,12 +784,17 @@ async function writeRecord() {
     const transcript = getTranscriptText();
 
     if (!transcript.replace(/\[Minute \d+ could not be transcribed\]/g, '').trim()) {
+        closeProcModal();
         RD.isProcessing = false;
         setStatus('No speech was picked up, so there is nothing to write a record from.');
         return;
     }
 
     setStatus('Writing the patient record…');
+    openProcModal();    // reopens it for "Try again"
+    setStep('stepRecording', 'done');
+    setStep('stepTranscribing', 'done');
+    setStep('stepWriting', 'active');
 
     try {
         const token = await getToken();
@@ -636,6 +811,7 @@ async function writeRecord() {
 
         if (resp.status === 400) {
             // Too short / too long — retrying will not help
+            closeProcModal();
             RD.isProcessing = false;
             setStatus('');
             showError((data.error || 'The transcript could not be used') + '.');
@@ -644,12 +820,17 @@ async function writeRecord() {
         if (!resp.ok || !data.record) throw new Error('Record failed (' + resp.status + ')');
 
         renderRecord(data.record);
+        setStep('stepWriting', 'done');
+        await new Promise(r => setTimeout(r, 600));   // let the last tick be seen
+        closeProcModal();
+        document.getElementById('recordCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
         RD.isProcessing = false;
         setStatus(failed
             ? 'Record written — ' + failed + ' minute(s) of audio could not be transcribed, so may be missing.'
             : 'Record written.');
     } catch (e) {
         console.warn('[RecordDemo] record failed:', e);
+        closeProcModal();
         RD.isProcessing = false;
         setStatus('');
         showError('Sorry, the record could not be written. Your transcript is still here — tap the button below to try again.');
