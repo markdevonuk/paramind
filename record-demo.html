@@ -51,6 +51,7 @@
             margin-bottom: 1rem;
         }
         .rd-card {
+            scroll-margin-top: 80px;   /* clear the fixed nav bar when scrolled to */
             background: var(--color-white);
             border: 1px solid var(--color-gray-200);
             border-radius: var(--radius-xl);
@@ -168,6 +169,64 @@
             color: var(--color-gray-600);
             margin-bottom: 0.35rem;
         }
+
+        /* ── Consultation tips ── */
+        .rd-tips-prompt {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            background: rgba(91, 193, 102, 0.10);
+            border: 1px solid rgba(91, 193, 102, 0.35);
+        }
+        .rd-tips-prompt-icon {
+            width: 2.5rem; height: 2.5rem;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: var(--color-green);
+            color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+        }
+        .rd-tips-prompt-text { flex: 1; min-width: 0; }
+        .rd-tips-prompt-title { font-weight: 700; line-height: 1.3; }
+        .rd-tips-prompt-sub { font-size: 0.85rem; color: var(--color-gray-600); margin: 0.15rem 0 0.6rem; }
+        .rd-btn-tips { background: var(--color-green-dark); padding: 0.55rem 1.25rem; font-size: 0.92rem; }
+        .rd-tips-loading { display: none; align-items: center; gap: 0.6rem; color: var(--color-gray-700); font-weight: 600; font-size: 0.92rem; }
+        .rd-spinner {
+            width: 1.2rem; height: 1.2rem;
+            border: 3px solid var(--color-gray-200);
+            border-top-color: var(--color-green-dark);
+            border-radius: 50%;
+            animation: rdSpin 0.8s linear infinite;
+        }
+        .rd-tips-heading {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin: 0.9rem 0 0.5rem;
+            display: flex; align-items: center; gap: 0.4rem;
+        }
+        .rd-tips-heading:first-of-type { margin-top: 0.25rem; }
+        .rd-tips-heading.good i { color: var(--color-green-dark); }
+        .rd-tips-heading.better i { color: var(--color-teal); }
+        .rd-tip {
+            background: var(--color-gray-50);
+            border-radius: var(--radius-lg);
+            padding: 0.75rem 0.9rem;
+            margin-bottom: 0.6rem;
+            line-height: 1.5;
+        }
+        .rd-tip-title { font-weight: 700; margin-bottom: 0.2rem; }
+        .rd-tip-detail { color: var(--color-gray-700); font-size: 0.93rem; }
+        .rd-tip-try {
+            margin-top: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            border-left: 3px solid var(--color-teal);
+            background: var(--color-white);
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            font-size: 0.9rem;
+            color: var(--color-gray-800);
+        }
+        .rd-tip-try strong { color: var(--color-teal-dark); }
 
         /* ── Transcript: tap to read ── */
         .rd-transcript-toggle {
@@ -664,6 +723,21 @@
         <button class="rd-btn rd-btn-retry" id="retryRecordBtn" type="button"><i class="bi bi-arrow-repeat"></i> Try writing the record again</button>
     </div>
 
+    <!-- Consultation tips: offered once the record is written -->
+    <div class="rd-card rd-tips-prompt" id="tipsPrompt" style="display:none">
+        <div class="rd-tips-prompt-icon"><i class="bi bi-lightbulb-fill"></i></div>
+        <div class="rd-tips-prompt-text">
+            <div class="rd-tips-prompt-title">Would you like some tips on your consultation?</div>
+            <div class="rd-tips-prompt-sub">Paramind will look at what went well and suggest three ways to improve.</div>
+            <button class="rd-btn rd-btn-tips" id="tipsBtn" type="button">Yes, give me tips <i class="bi bi-arrow-right"></i></button>
+            <div class="rd-tips-loading" id="tipsLoading"><span class="rd-spinner"></span> Reviewing your consultation…</div>
+        </div>
+    </div>
+    <div class="rd-card" id="tipsCard" style="display:none">
+        <div class="rd-section-title">Tips on your consultation</div>
+        <div id="tipsBody"></div>
+    </div>
+
     <!-- Running transcript: tap to read -->
     <div class="rd-card">
         <button class="rd-transcript-toggle" id="transcriptToggle" type="button" aria-expanded="false" aria-controls="transcriptText">
@@ -1129,6 +1203,7 @@ async function writeRecord() {
     RD.isProcessing = true;
     showError('');
     document.getElementById('recordRetryWrap').style.display = 'none';
+    resetTips();
 
     const failed = RD.chunks.filter(c => c.status === 'failed').length;
     const transcript = getTranscriptText();
@@ -1190,6 +1265,7 @@ async function writeRecord() {
 
 /* ── Show the record (text only — never inserted as HTML) ── */
 function renderRecord(record) {
+    RD.lastRecord = record;
     const body = document.getElementById('recordBody');
     body.innerHTML = '';
 
@@ -1237,6 +1313,99 @@ function renderRecord(record) {
     });
 
     document.getElementById('recordCard').style.display = 'block';
+    document.getElementById('tipsPrompt').style.display = 'flex';
+}
+
+/* ── Consultation tips ── */
+function resetTips() {
+    RD.lastRecord = null;
+    document.getElementById('tipsPrompt').style.display = 'none';
+    document.getElementById('tipsCard').style.display = 'none';
+    document.getElementById('tipsBody').innerHTML = '';
+    document.getElementById('tipsBtn').style.display = 'inline-block';
+    document.getElementById('tipsBtn').innerHTML = 'Yes, give me tips <i class="bi bi-arrow-right"></i>';
+    document.getElementById('tipsLoading').style.display = 'none';
+}
+
+async function getTips() {
+    const btn = document.getElementById('tipsBtn');
+    const loading = document.getElementById('tipsLoading');
+    btn.style.display = 'none';
+    loading.style.display = 'flex';
+    showError('');
+
+    try {
+        const token = await getToken();
+        const resp = await fetch(RD.API_BASE + '/generateConsultationTips', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ transcript: getTranscriptText(), record: RD.lastRecord })
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok || !data.tips) throw new Error('Tips failed (' + resp.status + ')');
+
+        renderTips(data.tips);
+        document.getElementById('tipsPrompt').style.display = 'none';
+        document.getElementById('tipsCard').style.display = 'block';
+        document.getElementById('tipsCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (e) {
+        console.warn('[RecordDemo] tips failed:', e);
+        loading.style.display = 'none';
+        btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Sorry, that didn\'t work. Try again';
+        btn.style.display = 'inline-block';
+    }
+}
+
+/* Builds the tips card from text only — never inserted as HTML */
+function renderTips(tips) {
+    const body = document.getElementById('tipsBody');
+    body.innerHTML = '';
+
+    function heading(cls, icon, text) {
+        const h = document.createElement('div');
+        h.className = 'rd-tips-heading ' + cls;
+        const i = document.createElement('i');
+        i.className = 'bi ' + icon;
+        h.appendChild(i);
+        h.appendChild(document.createTextNode(text));
+        body.appendChild(h);
+    }
+    function tip(item, withTry) {
+        const box = document.createElement('div');
+        box.className = 'rd-tip';
+        const t = document.createElement('div');
+        t.className = 'rd-tip-title';
+        t.textContent = item.title || '';
+        const d = document.createElement('div');
+        d.className = 'rd-tip-detail';
+        d.textContent = item.detail || '';
+        box.appendChild(t);
+        box.appendChild(d);
+        if (withTry && item.try_this && item.try_this.trim()) {
+            const tr = document.createElement('div');
+            tr.className = 'rd-tip-try';
+            const label = document.createElement('strong');
+            label.textContent = 'Try: ';
+            tr.appendChild(label);
+            tr.appendChild(document.createTextNode(item.try_this.trim()));
+            box.appendChild(tr);
+        }
+        body.appendChild(box);
+    }
+
+    const good = Array.isArray(tips.went_well) ? tips.went_well : [];
+    const better = Array.isArray(tips.improve) ? tips.improve : [];
+    if (good.length) {
+        heading('good', 'bi-hand-thumbs-up-fill', 'What went well');
+        good.forEach(g => tip(g, false));
+    }
+    if (better.length) {
+        heading('better', 'bi-arrow-up-circle-fill', 'Ideas to improve');
+        better.forEach(b => tip(b, true));
+    }
 }
 
 /* ── START AGAIN: clear everything from memory ── */
@@ -1249,6 +1418,7 @@ function resetAll() {
     document.getElementById('recordBody').innerHTML = '';
     document.getElementById('recordCard').style.display = 'none';
     document.getElementById('recordRetryWrap').style.display = 'none';
+    resetTips();
     document.getElementById('timerText').textContent = '00:00';
     showWarning('');
     showError('');
@@ -1301,6 +1471,7 @@ if (new URLSearchParams(window.location.search).get('debug') === '1') {
 document.getElementById('startBtn').addEventListener('click', startRecording);
 document.getElementById('finishBtn').addEventListener('click', stopRecording);
 document.getElementById('resetBtn').addEventListener('click', resetAll);
+document.getElementById('tipsBtn').addEventListener('click', getTips);
 document.getElementById('retryRecordBtn').addEventListener('click', async () => {
     document.getElementById('resetBtn').style.display = 'none';
     await writeRecord();
