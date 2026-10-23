@@ -315,7 +315,7 @@
         /* How it works: three compact tiles */
         .rd-how {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);   /* 2 x 2 on phones */
             gap: 0.6rem;
             margin-bottom: 1rem;
         }
@@ -338,6 +338,14 @@
             margin: 0 auto 0.45rem;
             font-size: 1.15rem;
         }
+        @media (min-width: 576px) {
+            .rd-how { grid-template-columns: repeat(4, 1fr); }   /* one row on wider screens */
+        }
+        .rd-how-tile.rd-how-tips {
+            background: rgba(91, 193, 102, 0.10);
+            border-color: rgba(91, 193, 102, 0.35);
+        }
+        .rd-how-tips .rd-how-icon { background: var(--color-green); color: #fff; }
         .rd-how-title { font-weight: 700; font-size: 0.85rem; line-height: 1.25; }
         .rd-how-text { font-size: 0.75rem; color: var(--color-gray-600); line-height: 1.3; margin-top: 0.2rem; }
 
@@ -591,6 +599,11 @@
             <div class="rd-how-icon"><i class="bi bi-file-earmark-check-fill"></i></div>
             <div class="rd-how-title">Get your record</div>
             <div class="rd-how-text">Medical model, plus differentials</div>
+        </div>
+        <div class="rd-how-tile rd-how-tips">
+            <div class="rd-how-icon"><i class="bi bi-lightbulb-fill"></i></div>
+            <div class="rd-how-title">Get tips</div>
+            <div class="rd-how-text">What went well, and three ways to improve</div>
         </div>
     </div>
 
