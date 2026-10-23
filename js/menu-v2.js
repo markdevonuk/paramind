@@ -60,6 +60,7 @@
             { id: 'atmist', href: 'atmist.html', icon: 'bi-telephone-outbound', label: 'ATMIST/SBAR', isPro: true },
             { id: 'differentials', href: 'differentials.html', icon: 'bi-clipboard2-pulse', label: 'Differentials' },
             { id: 'interview', href: 'interview.html', icon: 'bi-mic', label: 'Interview Prep', isPro: true },
+            { id: 'cluehunt', href: 'cluehunt.html', icon: 'bi-search', label: 'Clue Hunt Game', isPro: true },
             { id: 'shortanswer', href: 'short-answer.html', icon: 'bi-pencil-square', label: 'Short Answer Practice', isPro: true },
             { id: 'quizmonth', href: 'quiz-month.html', icon: 'bi-trophy', label: 'Quiz of the Month' }
         ],
@@ -94,6 +95,7 @@
         if (path.includes('podcast')) return 'podcast';
         if (path.includes('interview')) return 'interview';
         if (path.includes('short-answer')) return 'shortanswer';
+        if (path.includes('cluehunt')) return 'cluehunt';
         if (path.includes('connections') || path.includes('connections')) return 'connections';
         if (path.includes('drugs')) return 'drugs';
         if (path.includes('bone-lab')) return 'bonelab';

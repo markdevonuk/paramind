@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <!-- Hidden demo page: kept out of search engines and the menu -->
+    <meta name="robots" content="noindex, nofollow">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Patient Record Demo | Paramind</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Paramind shared CSS (nav, brand, menu) -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/menu-v2.css">
+
+    <style>
+        /* ══════════════════════════════════════════════
+           PHASES 1–2 — bare test layout.
+           The finished layout comes in Phase 3, after sign-off.
+           ══════════════════════════════════════════════ */
+        body {
+            background: var(--color-gray-50);
+            font-family: var(--font-primary);
+        }
+        .rd-container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 1.5rem 1rem 4rem;
+        }
+        .rd-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        .rd-header p {
+            color: var(--color-gray-600);
+            margin-bottom: 1rem;
+        }
+        .rd-card {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-xl);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        .rd-notice {
+            background: rgba(43, 138, 156, 0.08);
+            border: 1px solid rgba(43, 138, 156, 0.25);
+            border-radius: var(--radius-lg);
+            padding: 0.85rem 1rem;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        .rd-test-badge {
+            display: inline-block;
+            background: var(--color-warning);
+            color: var(--color-gray-900);
+            font-size: 0.72rem;
+            font-weight: 700;
+            border-radius: var(--radius-full);
+            padding: 0.15rem 0.6rem;
+            margin-bottom: 0.5rem;
+        }
+        .rd-controls {
+            text-align: center;
+        }
+        .rd-timer {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .rd-timer-limit {
+            color: var(--color-gray-500);
+            font-size: 1rem;
+        }
+        .rd-status {
+            color: var(--color-gray-600);
+            font-size: 0.9rem;
+            min-height: 1.4em;
+            margin-bottom: 1rem;
+        }
+        .rd-btn {
+            border: none;
+            border-radius: var(--radius-full);
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #fff;
+        }
+        .rd-btn:disabled { opacity: 0.5; }
+        .rd-btn-start  { background: var(--color-teal); }
+        .rd-btn-finish { background: var(--color-danger); }
+        .rd-btn-reset  { background: var(--color-gray-600); }
+        .rd-warning, .rd-error {
+            display: none;
+            border-radius: var(--radius-lg);
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            text-align: left;
+        }
+        .rd-warning { background: #FFF4D6; border: 1px solid #F0C64A; }
+        .rd-error   { background: #FDE8EA; border: 1px solid #F1A9B0; }
+        .rd-section-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .rd-transcript {
+            white-space: pre-wrap;
+            font-size: 0.95rem;
+            line-height: 1.55;
+            color: var(--color-gray-800);
+        }
+        .rd-placeholder {
+            color: var(--color-gray-500);
+            font-style: italic;
+        }
+        .rd-chunk-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+        }
+        .rd-chunk-list li {
+            padding: 0.3rem 0;
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+        .rd-chunk-list li:last-child { border-bottom: none; }
+        .rd-ok   { color: var(--color-green-dark); }
+        .rd-busy { color: var(--color-teal); }
+        .rd-fail { color: var(--color-danger); }
+
+        /* ── Patient record (Phase 2) ── */
+        .rd-record-row {
+            display: grid;
+            grid-template-columns: 5.5rem 1fr;
+            gap: 0.75rem;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+        .rd-record-row:last-child { border-bottom: none; }
+        .rd-record-label {
+            font-weight: 700;
+            color: var(--color-teal-dark);
+        }
+        .rd-record-value {
+            white-space: pre-wrap;
+            line-height: 1.5;
+            color: var(--color-gray-800);
+        }
+        .rd-record-value ol {
+            margin: 0;
+            padding-left: 1.2rem;
+        }
+        .rd-record-value ol li { margin-bottom: 0.3rem; }
+        .rd-diff-reason { color: var(--color-gray-600); }
+        .rd-btn-retry { background: var(--color-teal); margin-top: 0.75rem; }
+    </style>
+</head>
+<body>
+<!-- ==================== NAVIGATION ==================== -->
+<nav class="member-navbar">
+    <div class="container">
+        <span class="brand-text">
+            <a class="navbar-brand" href="landing.html">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </a>
+        </span>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</nav>
+
+<div class="rd-container">
+
+    <div class="rd-header">
+        <span class="rd-test-badge">PHASE 2 TEST</span>
+        <h1><i class="bi bi-mic text-teal"></i> Patient Record Demo</h1>
+        <p>Record a role-played patient interaction of up to 20 minutes.</p>
+    </div>
+
+    <div class="rd-notice">
+        <i class="bi bi-info-circle"></i>
+        <strong>Simulated interactions only.</strong> Never record a real patient or use real patient details.
+        Audio is not stored, and nothing is saved when you close this page.
+        Keep this page open and your screen on while recording.
+    </div>
+
+    <!-- Recording controls -->
+    <div class="rd-card rd-controls">
+        <div class="rd-timer"><span id="timerText">00:00</span> <span class="rd-timer-limit">/ 20:00</span></div>
+        <div class="rd-status" id="statusText">Ready to record</div>
+
+        <button class="rd-btn rd-btn-start"  id="startBtn"  type="button"><i class="bi bi-mic-fill"></i> Start</button>
+        <button class="rd-btn rd-btn-finish" id="finishBtn" type="button" style="display:none"><i class="bi bi-stop-fill"></i> Finish</button>
+        <button class="rd-btn rd-btn-reset"  id="resetBtn"  type="button" style="display:none"><i class="bi bi-arrow-counterclockwise"></i> Start again</button>
+
+        <div class="rd-warning" id="warningBox"></div>
+        <div class="rd-error"   id="errorBox"></div>
+    </div>
+
+    <!-- Patient record (shown once written) -->
+    <div class="rd-card" id="recordCard" style="display:none">
+        <div class="rd-section-title">Patient record</div>
+        <div id="recordBody"></div>
+    </div>
+    <div id="recordRetryWrap" style="display:none; text-align:center; margin-bottom:1rem;">
+        <button class="rd-btn rd-btn-retry" id="retryRecordBtn" type="button"><i class="bi bi-arrow-repeat"></i> Try writing the record again</button>
+    </div>
+
+    <!-- Running transcript -->
+    <div class="rd-card">
+        <div class="rd-section-title">Transcript</div>
+        <div class="rd-transcript" id="transcriptText"><span class="rd-placeholder">The transcript will appear here, one minute at a time.</span></div>
+    </div>
+
+    <!-- Test-only: what happened to each one-minute chunk -->
+    <div class="rd-card">
+        <div class="rd-section-title">Chunk log <span class="rd-test-badge">TEST ONLY</span></div>
+        <ul class="rd-chunk-list" id="chunkList">
+            <li class="rd-placeholder">No chunks yet</li>
+        </ul>
+    </div>
+
+</div>
+
+<!-- Scripts — identical order to all Pro pages -->
+<script src="js/app.js"></script>
+<script src="js/menu-v2.js"></script>
+<script src="js/pro-guard.js"></script>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   PATIENT RECORD DEMO — Phase 1: recording in one-minute chunks
+   Each minute, the recorder is stopped and a fresh one started on the
+   same microphone, so every chunk is a complete audio file. Each chunk
+   is sent to the existing /transcribe function (which deletes the audio
+   after use). Nothing is stored — the transcript lives only in this page.
+   ══════════════════════════════════════════════════════ */
+
+const RD = {
+    API_BASE: 'https://europe-west2-paramind-64b8e.cloudfunctions.net',
+    CHUNK_MS: 60 * 1000,        // one minute per chunk
+    WARN_MS:  18 * 60 * 1000,   // warning at 18:00
+    MAX_MS:   20 * 60 * 1000,   // automatic stop at 20:00
+    MIN_CHUNK_BYTES: 2000,      // smaller than this = effectively no audio, skip it
+
+    stream: null,
+    recorder: null,
+    mimeType: null,
+    isRecording: false,
+    isProcessing: false,
+    finishing: false,
+    startTime: 0,
+    timerId: null,
+    segmentTimerId: null,
+    warned: false,
+    wakeLock: null,
+    nextIndex: 0,
+    chunks: [],                 // { index, sizeKB, status: 'sending'|'done'|'failed'|'skipped', text }
+    pending: []                 // promises for chunks still being transcribed
+};
+
+/* ── Which device is the user on? (copied from after-the-call.html) ── */
+function getMicPlatform() {
+    try {
+        if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+            return window.Capacitor.getPlatform ? window.Capacitor.getPlatform() : 'ios';
+        }
+    } catch (e) { /* fall through to web */ }
+    return 'web';
+}
+
+/* ── Microphone-blocked message, worded for the user's device (copied from after-the-call.html) ── */
+function getMicBlockedMessage() {
+    const platform = getMicPlatform();
+    if (platform === 'android') {
+        return 'Microphone access is blocked. On Android, go to Settings → Apps → Paramind → Permissions → Microphone and choose Allow, then try again.';
+    }
+    if (platform === 'ios') {
+        return 'Microphone access is blocked. On iPhone, go to Settings → Paramind → Microphone and turn it on, then try again.';
+    }
+    return 'Microphone access is blocked. Check your browser settings to allow the microphone for paramind.co.uk, then try again.';
+}
+
+/* ── Get auth token (same approach as after-the-call.html) ── */
+async function getToken() {
+    const waitForFirebase = () => new Promise((resolve, reject) => {
+        const t = Date.now();
+        const check = () => {
+            if (typeof firebase !== 'undefined' && firebase.auth && firebase.apps && firebase.apps.length > 0) {
+                return resolve();
+            }
+            if (Date.now() - t > 8000) return reject(new Error('Firebase not ready'));
+            setTimeout(check, 150);
+        };
+        check();
+    });
+
+    await waitForFirebase();
+    const user = firebase.auth().currentUser;
+    if (!user) throw new Error('Not authenticated');
+    return await user.getIdToken();
+}
+
+/* ── Small display helpers ── */
+function setStatus(text) {
+    document.getElementById('statusText').textContent = text;
+}
+function showWarning(text) {
+    const el = document.getElementById('warningBox');
+    el.textContent = text;
+    el.style.display = text ? 'block' : 'none';
+}
+function showError(text) {
+    const el = document.getElementById('errorBox');
+    el.textContent = text;
+    el.style.display = text ? 'block' : 'none';
+}
+function formatTime(ms) {
+    const total = Math.floor(ms / 1000);
+    const m = String(Math.floor(total / 60)).padStart(2, '0');
+    const s = String(total % 60).padStart(2, '0');
+    return m + ':' + s;
+}
+
+/* ── The full transcript so far, in order, as one piece of text ── */
+function getTranscriptText() {
+    const ordered = RD.chunks.slice().sort((a, b) => a.index - b.index);
+    const parts = [];
+    ordered.forEach(c => {
+        if (c.status === 'done' && c.text) parts.push(c.text.trim());
+        if (c.status === 'failed') parts.push('[Minute ' + (c.index + 1) + ' could not be transcribed]');
+    });
+    return parts.join(' ');
+}
+
+/* ── Redraw the transcript and chunk log from RD.chunks ── */
+function render() {
+    const ordered = RD.chunks.slice().sort((a, b) => a.index - b.index);
+
+    // Transcript
+    const transcript = getTranscriptText();
+    const tEl = document.getElementById('transcriptText');
+    if (transcript) {
+        tEl.textContent = transcript;
+    } else {
+        tEl.innerHTML = '<span class="rd-placeholder">The transcript will appear here, one minute at a time.</span>';
+    }
+
+    // Chunk log
+    const list = document.getElementById('chunkList');
+    list.innerHTML = '';
+    if (!ordered.length) {
+        list.innerHTML = '<li class="rd-placeholder">No chunks yet</li>';
+        return;
+    }
+    ordered.forEach(c => {
+        const li = document.createElement('li');
+        let label, cls;
+        if (c.status === 'sending')  { label = 'transcribing…'; cls = 'rd-busy'; }
+        if (c.status === 'done')     { label = 'done (' + (c.text || '').trim().split(/\s+/).filter(Boolean).length + ' words)'; cls = 'rd-ok'; }
+        if (c.status === 'failed')   { label = 'FAILED after retry'; cls = 'rd-fail'; }
+        if (c.status === 'skipped')  { label = 'skipped (no audio)'; cls = ''; }
+        li.textContent = 'Chunk ' + (c.index + 1) + ' — ' + c.sizeKB + ' KB — ' + label;
+        if (cls) li.className = cls;
+        list.appendChild(li);
+    });
+}
+
+/* ── Convert an audio blob to base64 (same as after-the-call.html) ── */
+function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+}
+
+/* ── Send one chunk to /transcribe, retrying once if it fails ── */
+async function sendChunk(index, blob) {
+    const chunk = { index: index, sizeKB: Math.round(blob.size / 1024), status: 'sending', text: '' };
+    RD.chunks.push(chunk);
+
+    if (blob.size < RD.MIN_CHUNK_BYTES) {
+        chunk.status = 'skipped';
+        render();
+        return;
+    }
+    render();
+
+    const base64 = await blobToBase64(blob);
+
+    for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+            const token = await getToken();
+            const resp = await fetch(RD.API_BASE + '/transcribe', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ audio: base64, mimeType: RD.mimeType })
+            });
+            if (!resp.ok) throw new Error('Transcription failed (' + resp.status + ')');
+            const data = await resp.json();
+            chunk.text = data.text || '';
+            chunk.status = 'done';
+            render();
+            return;
+        } catch (e) {
+            console.warn('[RecordDemo] chunk ' + (index + 1) + ' attempt ' + attempt + ' failed:', e);
+            if (attempt === 1) await new Promise(r => setTimeout(r, 2000));
+        }
+    }
+    chunk.status = 'failed';
+    render();
+}
+
+/* ── Start one one-minute segment on the open microphone ── */
+function startSegment() {
+    const parts = [];
+    const index = RD.nextIndex++;
+    const recorder = new MediaRecorder(RD.stream, { mimeType: RD.mimeType });
+    RD.recorder = recorder;
+
+    recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) parts.push(e.data);
+    };
+
+    recorder.onstop = () => {
+        const micLive = RD.stream && RD.stream.getAudioTracks().some(t => t.readyState === 'live');
+
+        if (RD.isRecording && micLive) {
+            // Start the next minute straight away, before sending this one
+            try {
+                startSegment();
+            } catch (e) {
+                console.warn('[RecordDemo] could not start next segment:', e);
+                markInterrupted();
+            }
+        } else if (RD.isRecording) {
+            // The microphone was cut off (screen locked / app switched)
+            markInterrupted();
+        }
+
+        const blob = new Blob(parts, { type: RD.mimeType });
+        RD.pending.push(sendChunk(index, blob));
+
+        // Last segment has finished — release the microphone and wrap up
+        if (!RD.isRecording) finishUp();
+    };
+
+    recorder.start();
+
+    // Close this segment after one minute
+    RD.segmentTimerId = setTimeout(() => {
+        if (recorder.state === 'recording') recorder.stop();
+    }, RD.CHUNK_MS);
+}
+
+/* ── Microphone cut off mid-recording: stop cleanly, keep what we have ── */
+function markInterrupted() {
+    showWarning('Recording stopped because the microphone was interrupted (screen locked or app switched). Everything recorded up to that point has been kept.');
+    RD.isRecording = false;
+    RD.isProcessing = true;
+    clearInterval(RD.timerId);
+    clearTimeout(RD.segmentTimerId);
+    document.getElementById('finishBtn').style.display = 'none';
+}
+
+/* ── Keep the screen on; forget the lock if the phone releases it ── */
+async function requestWakeLock() {
+    try {
+        if ('wakeLock' in navigator) {
+            RD.wakeLock = await navigator.wakeLock.request('screen');
+            RD.wakeLock.addEventListener('release', () => { RD.wakeLock = null; });
+        }
+    } catch (e) { /* wake lock not available — continue anyway */ }
+}
+
+/* ── Timer tick: update clock, warn at 18:00, stop at 20:00 ── */
+function tick() {
+    const elapsed = Date.now() - RD.startTime;
+    document.getElementById('timerText').textContent = formatTime(Math.min(elapsed, RD.MAX_MS));
+
+    if (!RD.warned && elapsed >= RD.WARN_MS) {
+        RD.warned = true;
+        showWarning('2 minutes left. Recording will stop automatically at 20:00.');
+    }
+    if (elapsed >= RD.MAX_MS) {
+        showWarning('20-minute limit reached. Recording stopped.');
+        stopRecording();
+    }
+}
+
+/* ── START ── */
+async function startRecording() {
+    showError('');
+    showWarning('');
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || typeof MediaRecorder === 'undefined') {
+        showError('Sorry, recording is not supported on this device or browser.');
+        return;
+    }
+
+    try {
+        RD.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (e) {
+        showError(getMicBlockedMessage());
+        return;
+    }
+
+    // Same format choice as after-the-call.html (webm, or mp4 on iPhone)
+    RD.mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
+
+    // If the microphone is cut off (screen locked, app switched), keep what we have
+    const track = RD.stream.getAudioTracks()[0];
+    if (track) {
+        track.onended = () => {
+            if (RD.isRecording) {
+                markInterrupted();
+                // If the recorder is still running, stopping it sends the last chunk and wraps up.
+                // If it has already stopped itself, its onstop handler has done that already.
+                if (RD.recorder && RD.recorder.state === 'recording') RD.recorder.stop();
+            }
+        };
+    }
+
+    // Keep screen on while recording (same idea as after-the-call.html)
+    await requestWakeLock();
+
+    RD.isRecording = true;
+    RD.startTime = Date.now();
+    RD.warned = false;
+    RD.finishing = false;
+    RD.timerId = setInterval(tick, 500);
+    startSegment();
+
+    setStatus('Recording…');
+    document.getElementById('startBtn').style.display = 'none';
+    document.getElementById('finishBtn').style.display = 'inline-block';
+}
+
+/* ── FINISH (button, 20-minute limit, or interruption) ── */
+function stopRecording() {
+    if (!RD.isRecording) return;
+    RD.isRecording = false;
+    RD.isProcessing = true;
+    clearInterval(RD.timerId);
+    clearTimeout(RD.segmentTimerId);
+
+    document.getElementById('finishBtn').style.display = 'none';
+    setStatus('Finishing the last chunk…');
+
+    if (RD.recorder && RD.recorder.state === 'recording') {
+        RD.recorder.stop();     // onstop sends the final chunk, then calls finishUp()
+    } else {
+        finishUp();
+    }
+}
+
+/* ── After the last segment: release mic, wait for all chunks ── */
+async function finishUp() {
+    if (RD.finishing) return;   // only ever run once per recording
+    RD.finishing = true;
+    if (RD.stream) {
+        RD.stream.getTracks().forEach(t => t.stop());
+        RD.stream = null;
+    }
+    if (RD.wakeLock) { try { RD.wakeLock.release(); } catch (e) {} RD.wakeLock = null; }
+
+    setStatus('Waiting for the transcript to finish…');
+    await Promise.all(RD.pending);
+
+    await writeRecord();
+    document.getElementById('resetBtn').style.display = 'inline-block';
+}
+
+/* ── The record headings, in Mark's agreed order ── */
+const RECORD_SECTIONS = [
+    ['pc', 'PC'], ['hpc', 'HPC'], ['pmh', 'PMH'], ['dh', 'DH'], ['allergies', 'Allergies'],
+    ['oa', 'OA'], ['oe', 'OE'], ['imp', 'IMP'], ['diff', 'DIFF'], ['t', 'T'], ['p', 'P']
+];
+
+/* ── Send the transcript to generatePatientRecord and show the result ── */
+async function writeRecord() {
+    RD.isProcessing = true;
+    showError('');
+    document.getElementById('recordRetryWrap').style.display = 'none';
+
+    const failed = RD.chunks.filter(c => c.status === 'failed').length;
+    const transcript = getTranscriptText();
+
+    if (!transcript.replace(/\[Minute \d+ could not be transcribed\]/g, '').trim()) {
+        RD.isProcessing = false;
+        setStatus('No speech was picked up, so there is nothing to write a record from.');
+        return;
+    }
+
+    setStatus('Writing the patient record…');
+
+    try {
+        const token = await getToken();
+        const resp = await fetch(RD.API_BASE + '/generatePatientRecord', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ transcript: transcript })
+        });
+
+        const data = await resp.json().catch(() => ({}));
+
+        if (resp.status === 400) {
+            // Too short / too long — retrying will not help
+            RD.isProcessing = false;
+            setStatus('');
+            showError((data.error || 'The transcript could not be used') + '.');
+            return;
+        }
+        if (!resp.ok || !data.record) throw new Error('Record failed (' + resp.status + ')');
+
+        renderRecord(data.record);
+        RD.isProcessing = false;
+        setStatus(failed
+            ? 'Record written — ' + failed + ' minute(s) of audio could not be transcribed, so may be missing.'
+            : 'Record written.');
+    } catch (e) {
+        console.warn('[RecordDemo] record failed:', e);
+        RD.isProcessing = false;
+        setStatus('');
+        showError('Sorry, the record could not be written. Your transcript is still here — tap the button below to try again.');
+        document.getElementById('recordRetryWrap').style.display = 'block';
+    }
+}
+
+/* ── Show the record (text only — never inserted as HTML) ── */
+function renderRecord(record) {
+    const body = document.getElementById('recordBody');
+    body.innerHTML = '';
+
+    RECORD_SECTIONS.forEach(([key, label]) => {
+        const row = document.createElement('div');
+        row.className = 'rd-record-row';
+
+        const labelEl = document.createElement('div');
+        labelEl.className = 'rd-record-label';
+        labelEl.textContent = label;
+
+        const valueEl = document.createElement('div');
+        valueEl.className = 'rd-record-value';
+
+        if (key === 'diff') {
+            const list = Array.isArray(record.diff) ? record.diff : [];
+            if (!list.length) {
+                valueEl.textContent = 'Not stated';
+            } else {
+                const ol = document.createElement('ol');
+                list.forEach(d => {
+                    const li = document.createElement('li');
+                    const name = document.createElement('strong');
+                    name.textContent = d.condition || '';
+                    const reason = document.createElement('span');
+                    reason.className = 'rd-diff-reason';
+                    reason.textContent = d.reason ? ' — ' + d.reason : '';
+                    li.appendChild(name);
+                    li.appendChild(reason);
+                    ol.appendChild(li);
+                });
+                valueEl.appendChild(ol);
+            }
+        } else {
+            valueEl.textContent = (record[key] || '').trim() || 'Not stated';
+        }
+
+        row.appendChild(labelEl);
+        row.appendChild(valueEl);
+        body.appendChild(row);
+    });
+
+    document.getElementById('recordCard').style.display = 'block';
+}
+
+/* ── START AGAIN: clear everything from memory ── */
+function resetAll() {
+    RD.chunks = [];
+    RD.pending = [];
+    RD.nextIndex = 0;
+    RD.recorder = null;
+    RD.finishing = false;
+    document.getElementById('recordBody').innerHTML = '';
+    document.getElementById('recordCard').style.display = 'none';
+    document.getElementById('recordRetryWrap').style.display = 'none';
+    document.getElementById('timerText').textContent = '00:00';
+    showWarning('');
+    showError('');
+    setStatus('Ready to record');
+    render();
+    document.getElementById('resetBtn').style.display = 'none';
+    document.getElementById('startBtn').style.display = 'inline-block';
+}
+
+/* ── Warn before leaving mid-recording (nothing can be recovered) ── */
+window.addEventListener('beforeunload', (e) => {
+    if (RD.isRecording || RD.isProcessing) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+});
+
+/* ── Re-request the wake lock if the page comes back into view ── */
+document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState === 'visible' && RD.isRecording && !RD.wakeLock) {
+        await requestWakeLock();
+    }
+});
+
+document.getElementById('startBtn').addEventListener('click', startRecording);
+document.getElementById('finishBtn').addEventListener('click', stopRecording);
+document.getElementById('resetBtn').addEventListener('click', resetAll);
+document.getElementById('retryRecordBtn').addEventListener('click', async () => {
+    document.getElementById('resetBtn').style.display = 'none';
+    await writeRecord();
+    document.getElementById('resetBtn').style.display = 'inline-block';
+});
+</script>
+</body>
+</html>
