@@ -54,6 +54,7 @@
         // Practise section
         practiseNav: [
             { id: 'scenarios', href: 'scenarios.html', icon: 'bi-mortarboard', label: 'Scenarios' },
+            { id: 'epcr', href: 'practice-epcrs.html', icon: 'bi-file-earmark-medical', label: 'ePCR Practice', isPro: true },
             { id: 'osce', href: 'osce-practice.html', icon: 'bi-clipboard2-check', label: 'OSCE Practice', partialPro: true },
             { id: 'arrest', href: 'arrest-scenarios.html', icon: 'bi-lightning-charge', label: 'Cardiac Arrest Sim', partialPro: true },
             { id: 'major-incident', href: 'major-incident.html', icon: 'bi-exclamation-triangle', label: 'Major Incident Training', isPro: true },
@@ -96,6 +97,7 @@
         if (path.includes('interview')) return 'interview';
         if (path.includes('short-answer')) return 'shortanswer';
         if (path.includes('cluehunt')) return 'cluehunt';
+        if (path.includes('practice-epcrs')) return 'epcr';
         if (path.includes('connections') || path.includes('connections')) return 'connections';
         if (path.includes('drugs')) return 'drugs';
         if (path.includes('bone-lab')) return 'bonelab';

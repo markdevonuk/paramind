@@ -5682,14 +5682,14 @@ exports.daatStatus = onRequest(
 );
 
 // ============================================
-// PATIENT RECORD DEMO (record-demo.html)
+// ePCR PRACTICE (practice-epcrs.html)
 // ============================================
 
 /**
  * POST /generatePatientRecord
  * Turns the transcript of a ROLE-PLAYED patient interaction into a written
  * record in Paramind's PRF-style format, plus up to 4 differential diagnoses.
- * Pro users only. Used only by the hidden demo page record-demo.html.
+ * Pro users only. Used by practice-epcrs.html (ePCR Practice).
  *
  * Nothing is saved: the transcript and record are not written to Firestore,
  * and the transcript text is never logged (only its length).
@@ -5865,7 +5865,7 @@ exports.generatePatientRecord = onRequest(
 
 /**
  * POST /generateConsultationTips
- * Feedback on a ROLE-PLAYED consultation from record-demo.html:
+ * Feedback on a ROLE-PLAYED consultation from practice-epcrs.html:
  * 2 things that went well + 3 ideas to improve, pitched at the user's role
  * (paramedicRole: student / nqp / registered).
  * Pro users only. Nothing is saved; the transcript is never logged.
