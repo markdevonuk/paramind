@@ -923,34 +923,62 @@
                 document.getElementById('actTodaySessions').textContent = todaySessions;
 
                 // ── Tool breakdown ──
+                // Every tool the activity logger tracks (js/activity-logger.js PAGE_TOOLS).
+                // Listed even with no sessions yet, so new tools show from day one.
+                const TRACKED_TOOLS = [
+                    'Paramedic Q&A', 'Clinical Patient Simulations', 'Cardiac Arrest Simulator',
+                    'Exploring Differentials', 'Readiness Score', 'Paramind Podcasts', 'A&P Connections',
+                    'Understanding ECGs', 'ATMIST Handover', 'Understanding Bones', 'Understanding Bloods',
+                    'Understanding Drugs', 'Interview Prep', 'Flash Cards', 'After the Call',
+                    'OSCE Practice', 'Incident Ground', 'On Placement',
+                    'ePCR Practice', 'Clue Hunt', 'Short Answer Practice'
+                ];
+                // Tools whose tracking started later, so their totals aren't comparable with older tools
+                const TRACKED_SINCE = {
+                    'ePCR Practice':         '26 Oct 2026',
+                    'Clue Hunt':             '26 Oct 2026',
+                    'Short Answer Practice': '26 Oct 2026'
+                };
+
                 const sessionsByTool = d.sessionsByTool || {};
                 const secondsByTool  = d.secondsByTool  || {};
-                const tools = Object.keys(sessionsByTool).sort(function(a, b) {
+                const used = Object.keys(sessionsByTool).sort(function(a, b) {
                     return (sessionsByTool[b] || 0) - (sessionsByTool[a] || 0);
                 });
+                const unused = TRACKED_TOOLS.filter(function(t) { return !sessionsByTool[t]; });
+                const tools = used.concat(unused);
 
                 function fmtDuration(secs) {
                     if (secs < 60)   return secs + 's';
                     if (secs < 3600) return Math.floor(secs / 60) + 'm';
                     return (secs / 3600).toFixed(1) + 'h';
                 }
-
-                if (!tools.length) {
-                    document.getElementById('actToolTableBody').innerHTML =
-                        '<tr><td colspan="4" class="text-muted text-center py-3">No sessions recorded yet.</td></tr>';
-                } else {
-                    document.getElementById('actToolTableBody').innerHTML = tools.map(function(tool) {
-                        const sessions = sessionsByTool[tool] || 0;
-                        const seconds  = secondsByTool[tool]  || 0;
-                        const avg      = sessions > 0 ? Math.round(seconds / sessions) : 0;
-                        return '<tr>' +
-                            '<td>' + tool + '</td>' +
-                            '<td class="text-end">' + sessions + '</td>' +
-                            '<td class="text-end">' + fmtDuration(seconds) + '</td>' +
-                            '<td class="text-end">' + fmtDuration(avg) + '</td>' +
-                            '</tr>';
-                    }).join('');
+                function esc(t) {
+                    return String(t).replace(/[&<>"]/g, function(c) {
+                        return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c];
+                    });
                 }
+
+                document.getElementById('actToolTableBody').innerHTML = tools.map(function(tool) {
+                    const sessions = sessionsByTool[tool] || 0;
+                    const seconds  = secondsByTool[tool]  || 0;
+                    const avg      = sessions > 0 ? Math.round(seconds / sessions) : 0;
+                    const since    = TRACKED_SINCE[tool]
+                        ? ' <span class="text-muted" style="font-size:0.72rem;">tracked since ' + TRACKED_SINCE[tool] + '</span>'
+                        : '';
+                    if (!sessions) {
+                        return '<tr class="text-muted">' +
+                            '<td>' + esc(tool) + since + '</td>' +
+                            '<td class="text-end" colspan="3" style="font-size:0.78rem;">No sessions yet</td>' +
+                            '</tr>';
+                    }
+                    return '<tr>' +
+                        '<td>' + esc(tool) + since + '</td>' +
+                        '<td class="text-end">' + sessions + '</td>' +
+                        '<td class="text-end">' + fmtDuration(seconds) + '</td>' +
+                        '<td class="text-end">' + fmtDuration(avg) + '</td>' +
+                        '</tr>';
+                }).join('');
 
                 // ── Last updated ──
                 if (d.lastUpdated) {
