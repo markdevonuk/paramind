@@ -128,7 +128,8 @@
             sec.appendChild(h);
             var grid = document.createElement('div');
             grid.className = 'cat-grid';
-            cat.keys.forEach(function (key) {
+            cat.keys.forEach(function (entry) {
+                var key = typeof entry === 'string' ? entry : entry.key;
                 var r = rhythms[key];
                 if (!r) return;
                 var a = document.createElement('a');
@@ -139,10 +140,10 @@
                 body.className = 'rhythm-tile-body';
                 var name = document.createElement('p');
                 name.className = 'rhythm-tile-name';
-                name.textContent = r.name;
+                name.textContent = entry.name || r.name;
                 var line = document.createElement('p');
                 line.className = 'rhythm-tile-line';
-                line.textContent = ECG2027_TAGLINES[key] || '';
+                line.textContent = entry.tagline || ECG2027_TAGLINES[key] || '';
                 var tags = document.createElement('div');
                 tags.className = 'rhythm-tile-tags';
                 tags.innerHTML = '<span class="rhythm-tag">12-lead</span>';

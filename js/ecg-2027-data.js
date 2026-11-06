@@ -5,7 +5,9 @@
    teaching notes come from data/ecg12/drawn.json.
    ============================================================ */
 
-// The rhythms grouped into categories, in the order they are shown
+// The rhythms grouped into categories, in the order they are shown.
+// An entry is a rhythm key, or { key, name, tagline } to show the same rhythm
+// under a different name in that category (it still opens the same page).
 var ECG2027_CATEGORIES = [
     { title: 'Sinus rhythms', icon: 'bi-heart-pulse',
       keys: ['normalSinus', 'sinusBradycardia', 'sinusTachycardia', 'sinusArrhythmia'] },
@@ -18,7 +20,9 @@ var ECG2027_CATEGORIES = [
     { title: 'Ventricular rhythms', icon: 'bi-activity',
       keys: ['pvcs', 'ventricularTachycardia', 'torsadesDePointes'] },
     { title: 'Cardiac arrest rhythms', icon: 'bi-exclamation-octagon',
-      keys: ['ventricularFibrillation', 'asystole', 'pea'] },
+      keys: ['ventricularFibrillation',
+             { key: 'ventricularTachycardia', name: 'Pulseless VT', tagline: 'VT with no pulse' },
+             'asystole', 'pea'] },
     { title: 'ST, T wave & QT changes', icon: 'bi-graph-up',
       keys: ['stemi', 'hyperkalaemia', 'longQT'] }
 ];
