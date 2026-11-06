@@ -174,6 +174,9 @@
     .em-heart-stage #rv_trace{stroke:#62E3F3}
     .em-heart-stage #rv_hi{fill:#62E3F3}
     .em-heart-stage .rv-hr{color:#62E3F3}
+    /* the heart view's own rhythm dropdown: the page header already chooses the rhythm */
+    .em-heart-stage .rv-select{display:none}
+    .em-heart-stage .rv-sub{margin-top:0}
 
     /* ---------- teaching panel ---------- */
     .em-panel{display:flex;flex-direction:column;gap:14px}
@@ -876,6 +879,8 @@
     function emOpenRhythm(key, isPulseless, push, opts) {
         if (!rhythms[key]) key = 'normalSinus';
         opts = opts || {};
+        // moving between rhythms keeps the tab you were on
+        if (!opts.view && currentView === 'heart' && $('emRhythm').classList.contains('on')) opts.view = 'heart';
         pulseless = key === 'ventricularTachycardia' && !!isPulseless;
         emSrc = opts.src === 'real' && EM_REAL[key] ? 'real' : 'drawn';
         emEx = (emSrc === 'real' && opts.ex >= 1 && opts.ex <= EM_REAL[key].length) ? opts.ex - 1 : 0;
