@@ -1,0 +1,384 @@
+{
+ "_note": "Drawn (synthetic) 12-lead ECGs made by tools/ecg-synth/generate.py. Not recordings from real patients. Teaching notes drafted for Mark's review.",
+ "roisLabels": {
+  "R": "Rate & Rhythm",
+  "O": "Origin",
+  "I": "Intervals",
+  "S": "ST segment & T waves"
+ },
+ "rhythms": {
+  "normalSinus": {
+   "id": "syn-normalSinus",
+   "label": "Normal sinus rhythm",
+   "rois": {
+    "R": "Rate 75, regular.",
+    "O": "A P wave before every QRS, upright in I and II, the same shape each time. That means the rhythm starts in the sinus node.",
+    "I": "PR about four small squares (0.16 s). QRS narrow, about two small squares. QT normal for the rate.",
+    "S": "No ST shift in any territory. T waves upright everywhere except aVR, where everything points down. That is normal for aVR."
+   },
+   "findings": [
+    "Normal sinus rhythm"
+   ],
+   "textStatus": "drafted"
+  },
+  "sinusBradycardia": {
+   "id": "syn-sinusBradycardia",
+   "label": "Sinus bradycardia",
+   "rois": {
+    "R": "Rate 45, regular. Under 60, so this is a bradycardia.",
+    "O": "A P wave before every QRS, upright in I and II, the same shape each time. Sinus origin.",
+    "I": "PR normal and constant, QRS narrow, QT normal. Every P is followed by a QRS, so there is no block. The beats are simply further apart.",
+    "S": "No ST shift. Normal T waves."
+   },
+   "findings": [
+    "Sinus bradycardia"
+   ],
+   "textStatus": "drafted"
+  },
+  "sinusTachycardia": {
+   "id": "syn-sinusTachycardia",
+   "label": "Sinus tachycardia",
+   "rois": {
+    "R": "Rate 120, regular. Over 100, so this is a tachycardia.",
+    "O": "A P wave before every QRS, upright in II. At faster rates the P wave sits close behind the previous T wave, so look carefully. Visible P waves are what separate this from SVT.",
+    "I": "PR normal (about 0.14 s), QRS narrow. The QT is shorter than at slower rates, which is expected.",
+    "S": "No ST shift. Normal T waves."
+   },
+   "findings": [
+    "Sinus tachycardia"
+   ],
+   "textStatus": "drafted"
+  },
+  "sinusArrhythmia": {
+   "id": "syn-sinusArrhythmia",
+   "label": "Sinus arrhythmia",
+   "rois": {
+    "R": "Rate about 70 on average, but it varies smoothly between about 60 and 85. The gaps shorten and lengthen in a repeating wave, the way the rate changes with breathing.",
+    "O": "A P wave before every QRS, all the same shape. Same-shape P waves with a changing rate means the rhythm is still sinus.",
+    "I": "PR normal and constant, QRS narrow.",
+    "S": "No ST shift. Normal T waves."
+   },
+   "findings": [
+    "Sinus arrhythmia"
+   ],
+   "textStatus": "drafted"
+  },
+  "atrialFibrillation": {
+   "id": "syn-atrialFibrillation",
+   "label": "Atrial fibrillation",
+   "rois": {
+    "R": "Rate about 90. Irregularly irregular: no two R-R gaps are the same and there is no pattern.",
+    "O": "No P waves. The baseline between complexes wobbles irregularly (fibrillation waves), best seen in V1 and II.",
+    "I": "No PR interval can be measured. QRS narrow.",
+    "S": "No ST shift. The wobbly baseline can make the ST look uneven, so judge it against the overall baseline."
+   },
+   "findings": [
+    "Atrial fibrillation (irregularly irregular, no P waves)"
+   ],
+   "textStatus": "drafted"
+  },
+  "atrialFlutter": {
+   "id": "syn-atrialFlutter",
+   "label": "Atrial flutter",
+   "rois": {
+    "R": "Ventricular rate 150, regular. A regular rate of exactly 150 should always make you look for flutter.",
+    "O": "No normal P waves. Instead, a continuous sawtooth of flutter waves at about 300 a minute, clearest in II, III and aVF (pointing down) and V1. Two flutter waves for every QRS: 2:1 conduction.",
+    "I": "No PR interval. QRS narrow.",
+    "S": "The flutter waves run through the ST segments and T waves, so the ST is hard to judge here."
+   },
+   "findings": [
+    "Atrial flutter with 2:1 conduction",
+    "Sawtooth flutter waves in II, III, aVF"
+   ],
+   "textStatus": "drafted"
+  },
+  "svt": {
+   "id": "syn-svt",
+   "label": "Supraventricular tachycardia (SVT)",
+   "rois": {
+    "R": "Rate 180, regular. Very fast and very regular.",
+    "O": "No visible P waves. They are hidden in or just after the QRS at this rate.",
+    "I": "No PR interval. QRS narrow, so the rhythm is coming from above the ventricles.",
+    "S": "No ST shift. T waves small."
+   },
+   "findings": [
+    "Regular narrow-complex tachycardia at 180 (SVT)"
+   ],
+   "textStatus": "drafted"
+  },
+  "ventricularTachycardia": {
+   "id": "syn-ventricularTachycardia",
+   "label": "Ventricular tachycardia (VT)",
+   "rois": {
+    "R": "Rate 160, regular.",
+    "O": "No P waves. Every complex is broad and the same shape (monomorphic). The chest leads all point the same way, down from V1 to V6 (negative concordance), and aVR is upright. Both point to a ventricular origin.",
+    "I": "QRS broad, about four small squares (0.16 s). A regular broad-complex tachycardia should be considered VT until proven otherwise.",
+    "S": "ST and T can't be judged on their own. They are part of the abnormal ventricular complex and point opposite to it."
+   },
+   "findings": [
+    "Ventricular tachycardia (monomorphic)",
+    "Negative concordance V1–V6",
+    "Upright aVR"
+   ],
+   "textStatus": "drafted"
+  },
+  "torsadesDePointes": {
+   "id": "syn-torsadesDePointes",
+   "label": "Torsades de pointes",
+   "rois": {
+    "R": "Very fast, about 220, and irregular.",
+    "O": "No P waves. Broad complexes that keep changing shape (polymorphic). Watch the height: the complexes grow, shrink almost to nothing, then grow again pointing the other way. That twisting around the baseline is the signature.",
+    "I": "No measurable PR or QT during the run. QRS broad.",
+    "S": "No separate ST segment or T waves. The twisting is easiest to see in II, aVF and V2–V5."
+   },
+   "findings": [
+    "Torsades de pointes (polymorphic VT with twisting amplitude)"
+   ],
+   "textStatus": "drafted"
+  },
+  "ventricularFibrillation": {
+   "id": "syn-ventricularFibrillation",
+   "label": "Ventricular fibrillation (VF)",
+   "rois": {
+    "R": "No rate can be counted and there is no rhythm. Chaotic, irregular waves throughout.",
+    "O": "No P waves and no recognisable QRS complexes. The waves vary in height, shape and spacing in every lead.",
+    "I": "No measurable intervals.",
+    "S": "No ST segments or T waves. Coarse ventricular fibrillation, present in all 12 leads."
+   },
+   "findings": [
+    "Ventricular fibrillation (coarse)"
+   ],
+   "textStatus": "drafted"
+  },
+  "asystole": {
+   "id": "syn-asystole",
+   "label": "Asystole",
+   "rois": {
+    "R": "No rate and no rhythm. A flat line with only a slight drift.",
+    "O": "No P waves and no QRS complexes in any lead.",
+    "I": "Nothing to measure.",
+    "S": "Nothing to assess. On a real monitor, a flat line should always prompt checks of the leads, connections and gain, and a look at more than one lead. Fine VF can look almost flat."
+   },
+   "findings": [
+    "Asystole (no electrical activity in any lead)"
+   ],
+   "textStatus": "drafted"
+  },
+  "pea": {
+   "id": "syn-pea",
+   "label": "Pulseless electrical activity (PEA)",
+   "rois": {
+    "R": "Rate 60, regular.",
+    "O": "A P wave before every QRS. On the ECG this looks like a sinus rhythm.",
+    "I": "PR normal, QRS narrow, QT normal.",
+    "S": "No ST shift. This is the point of PEA: the ECG can look organised, even normal. PEA is identified at the patient, by the absence of a pulse with an organised rhythm on the monitor. The ECG alone can never tell you there is a pulse."
+   },
+   "findings": [
+    "Organised rhythm on the ECG (sinus at 60)",
+    "PEA is a clinical finding: organised rhythm, no pulse"
+   ],
+   "textStatus": "drafted"
+  },
+  "firstDegreeBlock": {
+   "id": "syn-firstDegreeBlock",
+   "label": "First degree heart block",
+   "rois": {
+    "R": "Rate 70, regular. Sinus rhythm.",
+    "O": "A P wave before every QRS, and every P is followed by a QRS.",
+    "I": "The PR interval is long: about seven and a half small squares (0.30 s), well over the five-square (0.20 s) limit, and the same every beat. QRS narrow. That fixed, prolonged PR is the whole finding.",
+    "S": "No ST shift. Normal T waves."
+   },
+   "findings": [
+    "Sinus rhythm",
+    "Prolonged PR interval (first degree AV block)"
+   ],
+   "textStatus": "drafted"
+  },
+  "secondDegreeMobitz1": {
+   "id": "syn-secondDegreeMobitz1",
+   "label": "Second degree heart block — Mobitz I (Wenckebach)",
+   "rois": {
+    "R": "Ventricular rate about 65, irregular, but in a repeating pattern: groups of three beats, then a gap.",
+    "O": "P waves march through regularly at about 86 a minute. Every fourth P wave has no QRS after it. Zoom in on lead II to see the whole cycle.",
+    "I": "Watch the PR: it gets longer with each beat (about 0.18, then 0.28, then 0.36 s) until a P wave is not conducted at all. Then it resets. Progressive PR lengthening before a dropped beat is Mobitz I. QRS narrow.",
+    "S": "No ST shift. Normal T waves."
+   },
+   "findings": [
+    "Second degree AV block, Mobitz I (Wenckebach)",
+    "Progressive PR lengthening, then a dropped beat (4:3)"
+   ],
+   "textStatus": "drafted"
+  },
+  "secondDegreeMobitz2": {
+   "id": "syn-secondDegreeMobitz2",
+   "label": "Second degree heart block — Mobitz II",
+   "rois": {
+    "R": "Ventricular rate about 53, irregular in a repeating pattern: two beats, then a gap.",
+    "O": "P waves march through regularly at 80 a minute. Every third P wave has no QRS after it. You can see the lone P wave in the gap.",
+    "I": "The PR interval is the same (0.18 s) on every conducted beat. It does not lengthen before the dropped beat. A fixed PR with suddenly dropped beats is Mobitz II. QRS narrow here.",
+    "S": "No ST shift. Normal T waves."
+   },
+   "findings": [
+    "Second degree AV block, Mobitz II (3:2)",
+    "Constant PR with dropped beats"
+   ],
+   "textStatus": "drafted"
+  },
+  "thirdDegreeBlock": {
+   "id": "syn-thirdDegreeBlock",
+   "label": "Third degree (complete) heart block",
+   "rois": {
+    "R": "Ventricular rate about 36, slow and regular.",
+    "O": "P waves march through regularly at 80 a minute, at their own steady rate. Some land just before a QRS, some just after, some in the gap. The P waves and the QRS complexes are not linked.",
+    "I": "No consistent PR interval. It changes every beat because the atria and ventricles are beating independently. QRS broad (about three small squares): a slow escape rhythm from low down in the conducting system.",
+    "S": "ST and T point opposite to the broad QRS, which is expected with a broad escape rhythm."
+   },
+   "findings": [
+    "Complete (third degree) heart block",
+    "Atrial rate 80, ventricular rate about 36",
+    "Broad escape rhythm"
+   ],
+   "textStatus": "drafted"
+  },
+  "junctionalRhythm": {
+   "id": "syn-junctionalRhythm",
+   "label": "Junctional rhythm",
+   "rois": {
+    "R": "Rate 50, regular.",
+    "O": "The P waves are upside down in II, III and aVF and sit just before the QRS. That means the atria are being activated backwards, from the AV junction upwards, rather than from the sinus node.",
+    "I": "Short PR (about three small squares). QRS narrow, because the ventricles are still activated through the normal pathway.",
+    "S": "No ST shift. Normal T waves."
+   },
+   "findings": [
+    "Junctional rhythm",
+    "Inverted P waves in II, III, aVF with a short PR"
+   ],
+   "textStatus": "drafted"
+  },
+  "wpw": {
+   "id": "syn-wpw",
+   "label": "Wolff-Parkinson-White (WPW)",
+   "rois": {
+    "R": "Rate 80, regular. Sinus rhythm.",
+    "O": "A P wave before every QRS, running almost straight into it.",
+    "I": "Short PR, about two and a half small squares (0.10 s). The QRS starts with a slow, slurred upstroke before the main spike: the delta wave, clearest in II, V4 and V5. The QRS is broadened to about three small squares. Short PR plus delta wave is the WPW pattern.",
+    "S": "No ST shift. T waves upright."
+   },
+   "findings": [
+    "Sinus rhythm",
+    "Short PR interval",
+    "Delta wave (Wolff-Parkinson-White pattern)"
+   ],
+   "textStatus": "drafted"
+  },
+  "pvcs": {
+   "id": "syn-pvcs",
+   "label": "Premature ventricular complexes (PVCs)",
+   "rois": {
+    "R": "Underlying sinus rhythm at 72, interrupted by early beats. Here every third beat is an early beat, a pattern called trigeminy.",
+    "O": "The normal beats have a P wave in front. The early beats have no P wave and are broad and bizarre: tall in II, III, aVF and V4–V6, deep in V1–V2. They come from the ventricles.",
+    "I": "On the normal beats, PR normal and QRS narrow. The early beats are broad, well over three small squares. After each early beat there is a full compensatory pause: the next sinus beat lands exactly where it would have done.",
+    "S": "The ST and T of the early beats point opposite to their QRS. That is expected. Judge the ST on the normal beats, where there is no shift."
+   },
+   "findings": [
+    "Sinus rhythm",
+    "Premature ventricular complexes (every third beat: trigeminy)",
+    "Compensatory pauses"
+   ],
+   "textStatus": "drafted"
+  },
+  "pacs": {
+   "id": "syn-pacs",
+   "label": "Premature atrial complexes (PACs)",
+   "rois": {
+    "R": "Underlying sinus rhythm at 75, interrupted by beats that come early. Here every third beat is early.",
+    "O": "Each early beat has its own P wave, but a different shape from the sinus P: upside down in II, III and aVF. It starts from a different place in the atria. The QRS of the early beat is narrow and the same shape as the normal beats.",
+    "I": "PR normal, QRS narrow on all beats. The pause after each early beat is short (not compensatory): the sinus node resets.",
+    "S": "No ST shift. Normal T waves."
+   },
+   "findings": [
+    "Sinus rhythm",
+    "Premature atrial complexes (different P wave shape, narrow QRS)"
+   ],
+   "textStatus": "drafted"
+  },
+  "hyperkalaemia": {
+   "id": "syn-hyperkalaemia",
+   "label": "Hyperkalaemia pattern",
+   "rois": {
+    "R": "Rate 70, regular. Sinus rhythm.",
+    "O": "P waves are present but small and flattened. Flattening P waves are part of the pattern.",
+    "I": "PR at the upper end of normal (0.20 s). QRS slightly broadened.",
+    "S": "The striking finding: tall, narrow, peaked T waves with a sharp point, tallest in V2–V4 and taller than the QRS in several leads. Peaked T waves are the earliest classic ECG sign of a raised potassium."
+   },
+   "findings": [
+    "Sinus rhythm",
+    "Tall, peaked T waves (V2–V4 most marked)",
+    "Flattened P waves, slightly broad QRS"
+   ],
+   "textStatus": "drafted"
+  },
+  "stemi": {
+   "id": "syn-stemi",
+   "label": "ST-elevation (inferior STEMI pattern)",
+   "rois": {
+    "R": "Rate 80, regular. Sinus rhythm.",
+    "O": "A P wave before every QRS.",
+    "I": "PR normal, QRS narrow. Small q waves in II, III and aVF.",
+    "S": "ST elevation in II, III and aVF (the inferior territory), highest in III. Now look at aVL and I: the ST is pushed down there. That mirror image is reciprocal change, and it supports a true inferior STEMI pattern. Chest leads normal."
+   },
+   "findings": [
+    "Sinus rhythm",
+    "ST elevation II, III, aVF (inferior, III higher than II)",
+    "Reciprocal ST depression in aVL and I"
+   ],
+   "textStatus": "drafted"
+  },
+  "longQT": {
+   "id": "syn-longQT",
+   "label": "Long QT",
+   "rois": {
+    "R": "Rate 70, regular. Sinus rhythm.",
+    "O": "A P wave before every QRS.",
+    "I": "PR normal, QRS narrow. The QT is long: from the start of the QRS to the end of the T wave is about 13 small squares (0.54 s). Quick check: the T wave should finish before the halfway point between two R waves. Here it finishes well after it.",
+    "S": "No ST shift. The T waves are broad and late."
+   },
+   "findings": [
+    "Sinus rhythm",
+    "Prolonged QT interval"
+   ],
+   "textStatus": "drafted"
+  },
+  "lbbb": {
+   "id": "syn-lbbb",
+   "label": "Left bundle branch block (LBBB)",
+   "rois": {
+    "R": "Rate 75, regular. Sinus rhythm.",
+    "O": "A P wave before every QRS.",
+    "I": "PR normal. QRS broad, about four small squares (0.16 s). V1–V3 show a deep, broad negative complex. I, aVL, V5 and V6 show a broad, slightly notched R wave with no small q wave in front of it. That is the left bundle branch block shape.",
+    "S": "ST and T point the opposite way to the main QRS: raised ST in V1–V3, and ST depression with inverted T waves in I, aVL, V5 and V6. This is expected in left bundle branch block, so don't read it like a normal ECG."
+   },
+   "findings": [
+    "Sinus rhythm",
+    "Left bundle branch block (broad QRS, notched R in I, aVL, V5–V6)",
+    "Discordant ST/T changes (expected)"
+   ],
+   "textStatus": "drafted"
+  },
+  "rbbb": {
+   "id": "syn-rbbb",
+   "label": "Right bundle branch block (RBBB)",
+   "rois": {
+    "R": "Rate 75, regular. Sinus rhythm.",
+    "O": "A P wave before every QRS.",
+    "I": "PR normal. QRS broad, about three and a half small squares. V1 shows an rSR' shape, a small r, an S, then a taller second R wave (the 'M' or 'rabbit ears'). I, V5 and V6 have a wide, slurred S wave. That is the right bundle branch block shape.",
+    "S": "T waves inverted in V1–V2, which is expected with right bundle branch block. No ST elevation."
+   },
+   "findings": [
+    "Sinus rhythm",
+    "Right bundle branch block (rSR' in V1, slurred S in I, V5–V6)"
+   ],
+   "textStatus": "drafted"
+  }
+ }
+}
