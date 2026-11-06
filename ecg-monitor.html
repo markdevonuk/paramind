@@ -224,6 +224,13 @@
     .em-quiz-mon.rois-fixed{position:fixed;top:var(--rois-nav-height,56px);left:0;right:0;z-index:50;border-radius:0;margin:0 auto;max-width:900px;box-shadow:0 4px 20px rgba(0,0,0,.4)}
     .em-quiz-mon.rois-fixed canvas{height:110px}
     #roisContent{margin-top:16px}
+    .em .rois-final-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media(max-width:420px){.em .rois-final-buttons{grid-template-columns:1fr}}
+    .em .quiz-btn{min-height:52px;border-radius:14px;font-weight:800;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 14px;line-height:1.2;width:100%;transition:background .15s}
+    .em .quiz-btn-primary{background:var(--em-teal);color:#fff;border:0;box-shadow:0 10px 22px -12px var(--em-teal)}
+    .em .quiz-btn-primary:hover{background:var(--em-teal-d)}
+    .em .quiz-btn-secondary{background:#fff;color:var(--em-teal-d);border:1.5px solid #B9D4DA}
+    .em .quiz-btn-secondary:hover{background:#F5FBFC;border-color:var(--em-teal-b)}
 
     /* ---------- sheet, full-screen monitor, toast ---------- */
     .em-scrim{position:fixed;inset:0;background:rgba(10,20,24,.45);opacity:0;pointer-events:none;transition:opacity .2s;z-index:1040}
@@ -511,10 +518,10 @@
 
                     <div class="rois-final-buttons">
                         <button class="quiz-btn quiz-btn-primary" onclick="restartROIS()">
-                            🔄 Try this rhythm again
+                            <i class="bi bi-arrow-repeat"></i> Try this rhythm again
                         </button>
                         <button class="quiz-btn quiz-btn-secondary" onclick="exitAssess()">
-                            📚 Back to the rhythm
+                            <i class="bi bi-arrow-left"></i> Back to the rhythm
                         </button>
                     </div>
 
