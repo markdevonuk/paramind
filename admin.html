@@ -200,6 +200,7 @@
                             <div>
                                 <p class="text-muted mb-1">Free Users</p>
                                 <h3 id="freeUsers">-</h3>
+                                <p class="text-muted mb-0" style="font-size:0.75rem;" id="freeBreakdown"></p>
                             </div>
                             <i class="bi bi-person fs-1 text-secondary opacity-50"></i>
                         </div>
@@ -211,6 +212,7 @@
                             <div>
                                 <p class="text-muted mb-1">Paid Users</p>
                                 <h3 id="paidUsers">-</h3>
+                                <p class="text-muted mb-0" style="font-size:0.75rem;" id="paidBreakdown"></p>
                             </div>
                             <i class="bi bi-person-check fs-1 text-success opacity-50"></i>
                         </div>
@@ -694,9 +696,63 @@
                     notSet + ' user' + (notSet === 1 ? '' : 's') + ' have not set their role yet.';
 
                 document.getElementById('lastRefresh').textContent = new Date().toLocaleString();
+
+                // Breakdown lines under the Free / Paid cards. Kept separate so a
+                // failure here can never stop the main numbers from showing.
+                loadPaidFreeBreakdown(usersRef);
             } catch (error) {
                 console.error('Error loading user stats:', error);
                 document.getElementById('totalUsers').textContent = 'Error';
+            }
+        }
+
+        // ============================================
+        // PAID / FREE BREAKDOWN — explains why the numbers move
+        // ============================================
+        async function loadPaidFreeBreakdown(usersRef) {
+            try {
+                const [failedSnap, cancelledSnap, activeSnap] = await Promise.all([
+                    getCountFromServer(query(usersRef, where('subscriptionStatus', '==', 'payment_failed'))),
+                    getCountFromServer(query(usersRef, where('subscriptionStatus', '==', 'cancelled'))),
+                    // One read per paid user — needed to look at each end date
+                    getDocs(query(usersRef, where('subscriptionStatus', '==', 'active')))
+                ]);
+
+                const now = new Date();
+                let apple = 0, google = 0, stripe = 0, cancelling = 0, pastEnd = 0;
+                activeSnap.forEach(function(d) {
+                    const u = d.data();
+                    const p = u.subscriptionPlatform || 'stripe';
+                    if (p === 'apple') apple++;
+                    else if (p === 'google') google++;
+                    else stripe++;
+
+                    // accessExpiresAt is an ISO string (Apple) or a Timestamp (Stripe)
+                    let end = null;
+                    if (u.accessExpiresAt) {
+                        end = (typeof u.accessExpiresAt.toDate === 'function')
+                            ? u.accessExpiresAt.toDate()
+                            : new Date(u.accessExpiresAt);
+                        if (isNaN(end.getTime())) end = null;
+                    }
+                    if (end && end >= now) cancelling++;
+                    if (end && end < now) pastEnd++;
+                });
+
+                let paidText = 'Apple ' + apple + ' · Stripe ' + stripe + ' · Google ' + google;
+                paidText += '. Includes ' + cancelling + ' cancelled but paid up to the end of their period';
+                if (pastEnd > 0) {
+                    paidText += ', and ' + pastEnd + ' past their end date (removed at 03:00)';
+                }
+                document.getElementById('paidBreakdown').textContent = paidText + '.';
+
+                const failed = failedSnap.data().count;
+                const cancelled = cancelledSnap.data().count;
+                document.getElementById('freeBreakdown').textContent =
+                    'Includes ' + cancelled + ' former subscriber' + (cancelled === 1 ? '' : 's') +
+                    ' and ' + failed + ' with a failed payment.';
+            } catch (error) {
+                console.error('Error loading paid/free breakdown:', error);
             }
         }
 

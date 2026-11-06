@@ -287,14 +287,18 @@
                         const NativePurchases = window.Capacitor.Plugins.NativePurchases;
                         await NativePurchases.restorePurchases();
 
-                        // getPurchases() checks Apple's current entitlements — more reliable than result.transactions
+                        // Ask Apple for this Apple ID's purchases
                         const purchases = await NativePurchases.getPurchases({});
                         const allTx = (purchases && purchases.purchases) ? purchases.purchases : [];
-                        // Accept any transaction matching our product IDs — don't require isActive/subscriptionState
-                        // as these may not be set on freshly redeemed offer codes
+                        // getPurchases() also returns EXPIRED purchases. Reject a purchase only when
+                        // Apple positively says it has ended or been refunded; if no expiry date is
+                        // present (e.g. a freshly redeemed offer code) it is still accepted, as before.
                         const activeSub = allTx.find(function(tx) {
                             var id = tx.productIdentifier || '';
-                            return id === 'paramind_pro_monthly' || id === 'paramind_pro_annual';
+                            if (id !== 'paramind_pro_monthly' && id !== 'paramind_pro_annual') return false;
+                            if (tx.revocationDate) return false;
+                            if (tx.expirationDate) return tx.isActive === true || new Date(tx.expirationDate) > new Date();
+                            return true;
                         });
 
                         if (activeSub) {
@@ -306,6 +310,8 @@
                                     subscriptionPlatform: 'apple',
                                     appleProductId: activeSub.productIdentifier || activeSub.productId || null,
                                     appleTransactionId: activeSub.transactionId || null,
+                                    accessExpiresAt: null,
+                                    cancelledAt: null,
                                     appleRestoredAt: new Date().toISOString(),
                                     subscriptionUpdatedAt: new Date().toISOString()
                                 });

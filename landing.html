@@ -678,9 +678,14 @@
                                 await NativePurchases.restorePurchases();
                                 const purchases = await NativePurchases.getPurchases({});
                                 const allTx = (purchases && purchases.purchases) ? purchases.purchases : [];
+                                // getPurchases() also returns EXPIRED purchases, so only accept one
+                                // Apple says is still running (isActive), and never a refunded one.
                                 const activeSub = allTx.find(function(tx) {
                                     const id = tx.productIdentifier || '';
-                                    return id === 'paramind_pro_monthly' || id === 'paramind_pro_annual';
+                                    if (id !== 'paramind_pro_monthly' && id !== 'paramind_pro_annual') return false;
+                                    if (tx.revocationDate) return false;
+                                    if (tx.expirationDate) return tx.isActive === true || new Date(tx.expirationDate) > new Date();
+                                    return true;
                                 });
                                 if (activeSub) {
                                     console.log('Silent restore found active Apple subscription:', activeSub.productIdentifier);
@@ -689,6 +694,8 @@
                                         subscriptionPlatform: 'apple',
                                         appleProductId: activeSub.productIdentifier || null,
                                         appleTransactionId: activeSub.transactionId || null,
+                                        accessExpiresAt: null,
+                                        cancelledAt: null,
                                         subscriptionUpdatedAt: new Date().toISOString(),
                                         restoredSilentlyOnLogin: true
                                     });
