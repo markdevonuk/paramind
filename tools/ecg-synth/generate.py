@@ -370,10 +370,10 @@ def rec_pvcs():
     pw, cx = [], []
     for k, t in enumerate(sinus_ts):
         pw.append((t - 0.16, P_SINUS))                    # sinus P keeps marching
-        if k in (2, 5, 8, 11):
+        if k in (2, 5, 10):
             continue                                     # this sinus beat is not conducted
         cx.append((t, NORMAL, T_NORMAL))
-        if k in (1, 4, 7, 10):
+        if k in (1, 4, 9):                               # occasional, irregularly spaced ectopics
             cx.append((t + rr * 0.55, PVC, T_BROAD))     # early broad beat, no P
     return build(pw, cx)
 
