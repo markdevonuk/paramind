@@ -331,6 +331,16 @@
                 font-size: 1.5rem;
             }
         }
+
+        /* ==================== PRO TOOL PREVIEW VIDEO ==================== */
+        /* Shown only when a free member arrives from a Pro tool that has a video */
+        .tool-preview { max-width: 600px; margin: 0 auto; padding: 1.5rem 1rem 0.5rem; text-align: center; }
+        .tp-eyebrow { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 700; color: var(--color-primary); background: #e6f4f6; padding: 0.3rem 0.8rem; border-radius: 999px; }
+        .tool-preview h2 { font-size: 1.35rem; font-weight: 800; margin: 0.75rem 0 1rem; }
+        .tp-video { position: relative; width: min(260px, 70vw); margin: 0 auto; border-radius: 18px; overflow: hidden; box-shadow: 0 12px 30px rgba(15, 42, 51, 0.25); background: #0f2129; aspect-ratio: 9 / 16; }
+        .tp-video video { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .tp-sound { position: absolute; right: 10px; top: 10px; border: 0; border-radius: 999px; padding: 0.35rem 0.7rem; background: rgba(255, 255, 255, 0.92); color: #0f2a33; font-weight: 700; font-size: 0.78rem; display: inline-flex; gap: 0.35rem; align-items: center; white-space: nowrap; cursor: pointer; }
+        .tp-note { font-size: 0.85rem; color: #6C757D; margin: 0.75rem 0 0; }
     </style>
 </head>
 
@@ -350,6 +360,18 @@
             </button>
         </div>
     </nav>
+
+    <!-- ==================== PRO TOOL PREVIEW VIDEO ==================== -->
+    <!-- Hidden unless the member came from a Pro tool listed in PRO_TOOL_VIDEOS (see script below) -->
+    <div class="tool-preview" id="toolPreview" hidden>
+        <span class="tp-eyebrow"><i class="bi bi-lock-fill"></i> <span id="tpLabel"></span></span>
+        <h2>Here's what you'd get</h2>
+        <div class="tp-video">
+            <video id="tpVideo" muted loop playsinline autoplay preload="auto"></video>
+            <button class="tp-sound" id="tpSound" type="button" aria-pressed="false"><i class="bi bi-volume-up-fill"></i> Tap for sound</button>
+        </div>
+        <p class="tp-note" id="tpNote"></p>
+    </div>
 
     <!-- ==================== HERO ==================== -->
     <div class="upgrade-hero">
@@ -957,6 +979,48 @@
                 btn.disabled = false;
             }
         }
+
+        // ==================== PRO TOOL PREVIEW VIDEO ====================
+        // pro-guard.js sends free members here as upgrade.html?from=<tool page>.
+        // If that tool has a video, show it above the prices.
+        // To add another tool: put its video in /videos and add one line below.
+        const PRO_TOOL_VIDEOS = {
+            'cluehunt.html':    { label: 'Clue Hunt is a Pro tool', video: 'videos/pro-cluehunt.mp4', poster: 'videos/pro-cluehunt.jpg', note: '30 patient cases to examine, listen to and solve.' },
+            'ecg-monitor.html': { label: 'The ECG Tool is a Pro tool', video: 'videos/pro-ecg.mp4', poster: 'videos/pro-ecg.jpg', note: 'Every rhythm, every lead, explained.' },
+            'ecg.html':         { label: 'The ECG Tool is a Pro tool', video: 'videos/pro-ecg.mp4', poster: 'videos/pro-ecg.jpg', note: 'Every rhythm, every lead, explained.' }
+        };
+        (function() {
+            const from = new URLSearchParams(window.location.search).get('from');
+            if (!from) return;
+            let page = '';
+            try { page = new URL(decodeURIComponent(from), window.location.href).pathname.split('/').pop(); } catch (e) { return; }
+            const tool = PRO_TOOL_VIDEOS[page];
+            if (!tool) return;
+
+            const box = document.getElementById('toolPreview');
+            const video = document.getElementById('tpVideo');
+            const sound = document.getElementById('tpSound');
+            document.getElementById('tpLabel').textContent = tool.label;
+            document.getElementById('tpNote').textContent = tool.note;
+            video.poster = tool.poster;
+            video.src = tool.video;
+            box.hidden = false;
+            const p = video.play();
+            if (p && p.catch) p.catch(function() {});
+
+            sound.addEventListener('click', function() {
+                video.muted = !video.muted;
+                if (!video.muted) {
+                    video.currentTime = 0;
+                    const q = video.play();
+                    if (q && q.catch) q.catch(function() {});
+                }
+                sound.setAttribute('aria-pressed', String(!video.muted));
+                sound.innerHTML = video.muted
+                    ? '<i class="bi bi-volume-up-fill"></i> Tap for sound'
+                    : '<i class="bi bi-volume-mute-fill"></i> Mute';
+            });
+        })();
 
         // ==================== SMART BACK LINK ====================
         // If we know which page the user came from, link back there

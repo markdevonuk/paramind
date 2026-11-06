@@ -91,6 +91,7 @@ self.addEventListener('fetch', (event) => {
     url.hostname.includes('cdn.jsdelivr.net') ||
     url.hostname.includes('fonts.googleapis.com') ||
     url.hostname.includes('fonts.gstatic.com') ||
+    url.pathname.startsWith('/videos/') ||
     event.request.method !== 'GET';
   
   if (skipCache) {
