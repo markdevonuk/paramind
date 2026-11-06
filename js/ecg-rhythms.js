@@ -1,8 +1,8 @@
 /* ============================================================
    js/ecg-rhythms.js — shared ECG rhythm data and waveform drawing
    ------------------------------------------------------------
-   Used by the new ECG area (ecg-rhythm.html, ecg-test.html).
-   Copied unchanged from ecg2.html so every page draws the same traces.
+   Used by the ECG section (ecg-monitor.html).
+   A waveform fix made here reaches every page that loads this file.
    A waveform fix made here reaches every page that loads this file.
 
    Provides (as globals, so js/rois.js and the page code can use them):
