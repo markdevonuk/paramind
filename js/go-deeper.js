@@ -101,19 +101,47 @@
         return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
-    // Use marked if the page has it; otherwise a small, safe fallback
+    // Turns Hollie's markdown into HTML. Works line by line, so it is safe to run
+    // on a half-finished answer while it is still streaming in.
+    function inline(t) {
+        return t
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/__(.+?)__/g, '<strong>$1</strong>')
+            .replace(/(^|[^*])\*(?!\s)([^*]+?)\*(?!\*)/g, '$1<em>$2</em>')
+            .replace(/\*\*/g, '');                     // an unfinished ** while streaming
+    }
     function formatAnswer(full) {
-        if (typeof marked !== 'undefined') return marked.parse(full);
-        return escapeHtml(full)
-            .split(/\n{2,}/)
-            .map(function (block) {
-                var h = block.match(/^#{1,4}\s+(.*)$/);
-                if (h) return '<h3>' + h[1] + '</h3>';
-                return '<p>' + block
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/\n/g, '<br>') + '</p>';
-            })
-            .join('');
+        if (typeof marked !== 'undefined') return marked.parse(full);   // pages that load marked (Flash Cards)
+        var lines = escapeHtml(full).split('\n');
+        var html = '', para = [], list = null;
+        function flushPara() { if (para.length) { html += '<p>' + inline(para.join('<br>')) + '</p>'; para = []; } }
+        function flushList() { if (list) { html += '</' + list + '>'; list = null; } }
+        lines.forEach(function (raw) {
+            var line = raw.trim(), m;
+            if (!line) { flushPara(); flushList(); return; }
+            if ((m = line.match(/^#{1,6}\s*(.+?)\s*#*$/))) {              // ### Heading
+                flushPara(); flushList();
+                html += '<h3>' + inline(m[1]) + '</h3>'; return;
+            }
+            if ((m = line.match(/^\*\*([^*]{2,80})\*\*:?$/))) {             // **Heading** on its own line
+                flushPara(); flushList();
+                html += '<h3>' + m[1] + '</h3>'; return;
+            }
+            if ((m = line.match(/^[-*•]\s+(.*)$/))) {                       // - bullet
+                flushPara();
+                if (list !== 'ul') { flushList(); html += '<ul>'; list = 'ul'; }
+                html += '<li>' + inline(m[1]) + '</li>'; return;
+            }
+            if ((m = line.match(/^\d+[.)]\s+(.*)$/))) {                     // 1. numbered
+                flushPara();
+                if (list !== 'ol') { flushList(); html += '<ol>'; list = 'ol'; }
+                html += '<li>' + inline(m[1]) + '</li>'; return;
+            }
+            flushList();
+            para.push(line);
+        });
+        flushPara(); flushList();
+        return html;
     }
 
     function close() {
@@ -151,25 +179,33 @@
 
             var reader = response.body.getReader();
             var decoder = new TextDecoder();
-            var full = '';
+            var full = '', buffer = '', drawPending = false;
+            // Format as it streams, at most once per screen refresh
+            function draw() {
+                drawPending = false;
+                if (myId === requestId) answerEl.innerHTML = formatAnswer(full);
+            }
             while (true) {
                 var chunk = await reader.read();
                 if (chunk.done) break;
-                var lines = decoder.decode(chunk.value, { stream: true }).split('\n');
+                // A line can be split across two network chunks: keep the unfinished end for next time
+                buffer += decoder.decode(chunk.value, { stream: true });
+                var lines = buffer.split('\n');
+                buffer = lines.pop();
                 for (var i = 0; i < lines.length; i++) {
                     if (lines[i].indexOf('data: ') !== 0) continue;
-                    try {
-                        var data = JSON.parse(lines[i].slice(6));
-                        if (data.type === 'chunk') {
-                            full += data.content;
-                            if (myId === requestId) {
-                                answerEl.innerHTML = escapeHtml(full).replace(/\n/g, '<br>');
-                            }
-                        } else if (data.type === 'error') {
-                            throw new Error(data.error);
-                        }
-                    } catch (err) { /* skip partial JSON */ }
+                    var data;
+                    try { data = JSON.parse(lines[i].slice(6)); } catch (e) { continue; }
+                    if (data.type === 'chunk') {
+                        full += data.content;
+                        if (!drawPending) { drawPending = true; requestAnimationFrame(draw); }
+                    } else if (data.type === 'error') {
+                        throw new Error(data.error);
+                    }
                 }
+            }
+            if (buffer.indexOf('data: ') === 0) {
+                try { var last = JSON.parse(buffer.slice(6)); if (last.type === 'chunk') full += last.content; } catch (e) { /* ignore */ }
             }
             if (myId === requestId) answerEl.innerHTML = formatAnswer(full);
         } catch (err) {
