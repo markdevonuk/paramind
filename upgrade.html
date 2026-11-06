@@ -340,6 +340,12 @@
         .tp-video { position: relative; width: min(260px, 70vw); margin: 0 auto; border-radius: 18px; overflow: hidden; box-shadow: 0 12px 30px rgba(15, 42, 51, 0.25); background: #0f2129; aspect-ratio: 9 / 16; }
         .tp-video video { width: 100%; height: 100%; object-fit: cover; display: block; }
         .tp-sound { position: absolute; right: 10px; top: 10px; border: 0; border-radius: 999px; padding: 0.35rem 0.7rem; background: rgba(255, 255, 255, 0.92); color: #0f2a33; font-weight: 700; font-size: 0.78rem; display: inline-flex; gap: 0.35rem; align-items: center; white-space: nowrap; cursor: pointer; }
+        .tp-expand { position: absolute; left: 10px; top: 10px; width: 34px; height: 34px; border: 0; border-radius: 999px; background: rgba(255, 255, 255, 0.92); color: #0f2a33; display: grid; place-items: center; font-size: 0.95rem; cursor: pointer; }
+        .tp-video video { cursor: zoom-in; }
+        .tp-full { position: fixed; inset: 0; z-index: 2000; background: rgba(5, 15, 20, 0.98); display: flex; align-items: center; justify-content: center; padding: calc(56px + env(safe-area-inset-top, 0px)) 12px calc(16px + env(safe-area-inset-bottom, 0px)); }
+        .tp-full[hidden] { display: none; }
+        .tp-full video { width: auto; height: auto; max-width: 100%; max-height: 100%; border-radius: 16px; background: #0f2129; cursor: default; }
+        .tp-close { position: absolute; top: calc(10px + env(safe-area-inset-top, 0px)); right: 12px; width: 42px; height: 42px; border: 0; border-radius: 999px; background: rgba(255, 255, 255, 0.95); color: #0f2a33; font-size: 1.2rem; display: grid; place-items: center; cursor: pointer; }
         .tp-note { font-size: 0.85rem; color: #6C757D; margin: 0.75rem 0 0; }
     </style>
 </head>
@@ -368,9 +374,14 @@
         <h2>Here's what you'd get</h2>
         <div class="tp-video">
             <video id="tpVideo" muted loop playsinline autoplay preload="auto"></video>
+            <button class="tp-expand" id="tpExpand" type="button" aria-label="Enlarge video"><i class="bi bi-arrows-fullscreen"></i></button>
             <button class="tp-sound" id="tpSound" type="button" aria-pressed="false"><i class="bi bi-volume-up-fill"></i> Tap for sound</button>
         </div>
         <p class="tp-note" id="tpNote"></p>
+    </div>
+    <!-- Enlarged video: the same video element is moved in here so it keeps playing -->
+    <div class="tp-full" id="tpFull" role="dialog" aria-modal="true" aria-label="Video" hidden>
+        <button class="tp-close" id="tpClose" type="button" aria-label="Close video"><i class="bi bi-x-lg"></i></button>
     </div>
 
     <!-- ==================== HERO ==================== -->
@@ -451,31 +462,55 @@
         <!-- What's Included -->
         <div class="features-card">
             <h2><i class="bi bi-check-circle-fill" style="color: var(--color-green);"></i> What's included</h2>
-            
+
             <div class="feature-item">
                 <i class="bi bi-check-circle-fill"></i>
                 <div class="feature-text">
-                    <div class="feature-name">Unlimited chat with Hollie</div>
+                    <div class="feature-name">Every Pro tool, unlocked</div>
+                    <div class="feature-desc">All 19 tools below, from the new ECG Tool to Clue Hunt</div>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <div class="feature-text">
+                    <div class="feature-name">Unlimited Hollie</div>
                     <div class="feature-desc">Ask Hollie anything, as often as you need</div>
                 </div>
             </div>
-            
+
             <div class="feature-item">
                 <i class="bi bi-check-circle-fill"></i>
                 <div class="feature-text">
-                    <div class="feature-name">Full scenario library</div>
-                    <div class="feature-desc">Access every clinical scenario we offer</div>
+                    <div class="feature-name">Every patient scenario</div>
+                    <div class="feature-desc">From dispatch to handover, plus the full Cardiac Arrest Sim and OSCE Practice</div>
                 </div>
             </div>
-            
+
             <div class="feature-item">
                 <i class="bi bi-check-circle-fill"></i>
                 <div class="feature-text">
-                    <div class="feature-name">CPD certificates</div>
-                    <div class="feature-desc">Download certificates for completed learning scenarios</div>
+                    <div class="feature-name">Practice that's marked</div>
+                    <div class="feature-desc">Short Answer Practice marked by Hollie, and feedback on every interview answer</div>
                 </div>
             </div>
-            
+
+            <div class="feature-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <div class="feature-text">
+                    <div class="feature-name">CPD Portfolio and certificates</div>
+                    <div class="feature-desc">Log your learning and download certificates for your HCPC portfolio</div>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <div class="feature-text">
+                    <div class="feature-name">New tools included</div>
+                    <div class="feature-desc">Every new tool we launch is yours at no extra cost</div>
+                </div>
+            </div>
+
             <div class="feature-item">
                 <i class="bi bi-check-circle-fill"></i>
                 <div class="feature-text">
@@ -487,7 +522,7 @@
         
         <!-- Pro Tools -->
         <div class="tools-card">
-            <h2><i class="bi bi-star-fill" style="color: #d97706;"></i> 17 tools, fully unlocked</h2>
+            <h2><i class="bi bi-star-fill" style="color: #d97706;"></i> 19 tools, fully unlocked</h2>
 
             <div class="tools-grid">
                 <div class="tool-item">
@@ -1008,18 +1043,39 @@
             const p = video.play();
             if (p && p.catch) p.catch(function() {});
 
-            sound.addEventListener('click', function() {
-                video.muted = !video.muted;
-                if (!video.muted) {
-                    video.currentTime = 0;
-                    const q = video.play();
-                    if (q && q.catch) q.catch(function() {});
-                }
+            function playNow() { const q = video.play(); if (q && q.catch) q.catch(function() {}); }
+            function showSound() {
                 sound.setAttribute('aria-pressed', String(!video.muted));
                 sound.innerHTML = video.muted
                     ? '<i class="bi bi-volume-up-fill"></i> Tap for sound'
                     : '<i class="bi bi-volume-mute-fill"></i> Mute';
+            }
+            sound.addEventListener('click', function() {
+                video.muted = !video.muted;
+                if (!video.muted) video.currentTime = 0;
+                playNow(); showSound();
             });
+
+            // Enlarge: move the video into a full-screen layer, from the start with sound
+            const full = document.getElementById('tpFull');
+            const home = video.parentNode;
+            function openFull() {
+                full.appendChild(video);
+                full.hidden = false;
+                document.body.style.overflow = 'hidden';
+                video.muted = false; video.currentTime = 0; playNow(); showSound();
+            }
+            function closeFull() {
+                home.insertBefore(video, home.firstChild);
+                full.hidden = true;
+                document.body.style.overflow = '';
+                video.muted = true; playNow(); showSound();
+            }
+            document.getElementById('tpExpand').addEventListener('click', openFull);
+            video.addEventListener('click', function() { if (full.hidden) openFull(); });
+            document.getElementById('tpClose').addEventListener('click', closeFull);
+            full.addEventListener('click', function(e) { if (e.target === full) closeFull(); });
+            document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && !full.hidden) closeFull(); });
         })();
 
         // ==================== SMART BACK LINK ====================
