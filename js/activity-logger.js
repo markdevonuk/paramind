@@ -29,6 +29,7 @@
         'podcast.html':          'Paramind Podcasts',
         'connections.html':      'A&P Connections',
         'ecg.html':              'Understanding ECGs',
+        'ecg-monitor.html':      'Understanding ECGs',
         'atmist.html':           'ATMIST Handover',
         'bone-lab.html':         'Understanding Bones',
         'blood-lab.html':        'Understanding Bloods',

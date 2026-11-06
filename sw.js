@@ -4,7 +4,7 @@
    This file enables offline functionality and caching
 */
 
-const CACHE_NAME = 'paramind-v54';
+const CACHE_NAME = 'paramind-v55';
 
 // Files to cache for offline use
 // Add your main pages and essential assets here
@@ -18,7 +18,7 @@ const ASSETS_TO_CACHE = [
   '/scenarios.html',
   '/differentials.html',
   '/atmist.html',
-  '/ecg.html',
+  '/ecg-monitor.html',
   '/cpd.html',
   '/contact.html',
   '/css/styles.css',
