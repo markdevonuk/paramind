@@ -58,8 +58,14 @@ def qrs_value(t, m, tm):
     return v
 
 
+LAST_MARKS = {}   # where the waves are in the last record built (for the page's highlights)
+
+
 def build(pwaves, complexes, extra=None, noise=0.006, seed=1):
     random.seed(seed)
+    LAST_MARKS.clear()
+    LAST_MARKS['p'] = [[round(pt, 3), 'e' if pm is P_ECTOPIC else 'r' if pm is P_RETRO else 's'] for pt, pm in pwaves]
+    LAST_MARKS['c'] = [[round(qt, 3), round(tm['j'], 3), round(tm['tend'], 3), 'v' if m in (PVC, VT, ESCAPE) else 'n'] for qt, m, tm in complexes]
     out = {L: [0.0] * N for L in LEADS}
     for pt, pm in pwaves:                       # pt = P onset
         lo, hi = max(0, int((pt - 0.05) * FS)), min(N, int((pt + 0.16) * FS))
@@ -79,6 +85,12 @@ def build(pwaves, complexes, extra=None, noise=0.006, seed=1):
                 out[L][i] += extra(L, i / FS)
     for L in LEADS:
         out[L] = [round(x + random.gauss(0, noise), 3) for x in out[L]]
+    # R peak of each complex: the biggest deflection in lead II inside the QRS
+    for c in LAST_MARKS['c']:
+        i0, i1 = int(c[0] * FS), min(N, int((c[0] + c[1]) * FS))
+        seg = out['II'][i0:i1] or [0]
+        k = max(range(len(seg)), key=lambda i: abs(seg[i]))
+        c.append(round((i0 + k) / FS, 3))
     return {'fs': FS, 'leads': out}
 
 
@@ -420,6 +432,8 @@ RECORDS = {
     'rbbb':                 lambda: rec_sinus(75, morph=RBBB, tm=T_RBBB),
 }
 
+MARKS, MINI = {}, {}
+
 if __name__ == '__main__':
     import sys
     only = sys.argv[1:]
@@ -427,6 +441,22 @@ if __name__ == '__main__':
     for key, fn in RECORDS.items():
         if only and key not in only:
             continue
+        rec = fn()
         with open(f'data/ecg12/records/syn-{key}.json', 'w') as f:
-            json.dump(fn(), f, separators=(',', ':'))
+            json.dump(rec, f, separators=(',', ':'))
+        marks = dict(LAST_MARKS)
+        if key == 'atrialFlutter':
+            marks['f'] = [round(0.2 * k + 0.14, 3) for k in range(50) if 0.2 * k + 0.14 < DUR]
+        MARKS[key] = marks
+        MINI[key] = [rec['leads']['II'][int(i * FS / 60)] for i in range(int(3.2 * 60))]
         print('wrote syn-' + key)
+    # Highlight positions and list-card traces go into data/ecg12/drawn.json
+    if not only:
+        path = 'data/ecg12/drawn.json'
+        lib = json.load(open(path))
+        for key, entry in lib['rhythms'].items():
+            entry['marks'] = MARKS[key]
+            entry['mini'] = [round(v, 2) for v in MINI[key]]
+        with open(path, 'w') as f:
+            f.write(json.dumps(lib, indent=1, ensure_ascii=False))
+        print('updated', path)
