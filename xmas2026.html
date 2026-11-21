@@ -51,6 +51,8 @@ h2{font-size:28px}
 .verse .ln:nth-child(even){color:var(--verse-alt)}
 .nm{color:var(--teal-bright);font-weight:700}
 .msg{font-size:16px;line-height:1.55;margin:0 0 12px;max-width:34em}
+.for{font-size:19px;font-weight:500;line-height:1.4;margin:0 0 10px}
+.next[disabled]{opacity:.5;cursor:default}
 .sign{font-family:var(--display);font-weight:600;font-size:15px;color:var(--muted);margin:0}
 .field{display:flex;flex-direction:column;gap:6px;margin:4px 0 8px}
 .field label{font-size:13px;font-weight:700;color:var(--muted)}
@@ -123,7 +125,6 @@ button:focus-visible,input:focus-visible,.clue:focus-visible{outline:3px solid v
     <span class="brand">paramind</span>
     <span class="top-right">
       <button class="music" id="music" type="button" aria-pressed="true">&#9834; Sound on</button>
-      <span class="draft">Draft</span>
     </span>
   </div>
   <div class="stage">
@@ -142,7 +143,8 @@ button:focus-visible,input:focus-visible,.clue:focus-visible{outline:3px solid v
 (function(){
 "use strict";
 
-var name = "Sam";
+var name = "friend";      /* used only if we never learn the member's name */
+var nameState = "pending"; /* "known" (from the link or their login), "ask" (show the name box) or "pending" */
 var current = 0;
 var found = [false,false,false];
 
@@ -256,9 +258,13 @@ function sleigh(){
 var scenes=[
  { // 0 cover
   art:function(){return svg(sky()+moon(300,74,36)+'<g transform="translate(262,84) rotate(-9) scale(.8)">'+sleigh()+'</g>'+ground(226)+tree(34,228,1.2)+tree(372,232,1)+tree(338,236,.7)+ambulance(120,176,1,false),"An ambulance parked in the snow under a full moon, with a sleigh crossing the sky");},
-  text:function(){return '<p class="eyebrow">A Christmas card from Paramind</p><h1>The Night Shift Before Christmas</h1>'+
-    '<div class="field"><label for="nameInput">Preview the story with a first name</label><input id="nameInput" type="text" maxlength="24" autocomplete="off" value="'+esc(name)+'"></div>'+
-    '<p class="hint">In the real card each member sees their own name, taken from their email link. Nobody types anything. The music starts when you open the story.</p>';},
+  text:function(){
+    var top='<p class="eyebrow">A Christmas card from Paramind</p><h1>The Night Shift Before Christmas</h1>';
+    if(nameState==="known"){return top+'<p class="for">A story for '+nm()+'</p><p class="hint">Best with the sound on.</p>';}
+    if(nameState==="pending"){return top+'<p class="hint">Getting your card ready&hellip;</p>';}
+    return top+'<div class="field"><label for="nameInput">Your first name</label><input id="nameInput" type="text" maxlength="24" autocomplete="given-name" placeholder="First name" value="'+esc(name==="friend"?"":name)+'"></div>'+
+      '<p class="hint">We will write you into the story. Best with the sound on.</p>';
+  },
   next:"Open the story"
  },
  { // 1 station
@@ -556,6 +562,8 @@ function render(){
   dots.innerHTML=scenes.map(function(_,i){return '<i'+(i<=current?' class="on"':'')+'></i>';}).join("");
   back.disabled=current===0;
   next.textContent=s.next||"Next";
+  next.disabled=false;
+  if(current===0&&nameState==="pending"){next.textContent="One moment\u2026";next.disabled=true;}
   snow.style.display=s.nosnow?"none":"block";
   var input=document.getElementById("nameInput");
   if(input){input.addEventListener("input",readName);}
@@ -563,10 +571,10 @@ function render(){
 function readName(){
   var input=document.getElementById("nameInput");
   if(!input){return;}
-  var v=input.value.replace(/\s+/g," ").trim();
-  name=v||"friend";
+  name=cleanName(input.value)||"friend";
 }
 function go(i){
+  if(current===0&&i>0&&nameState==="pending"){return;}
   readName();
   if(i>=scenes.length){i=1;}
   if(i<0){i=0;}
@@ -618,6 +626,64 @@ art.addEventListener("keydown",function(e){
   size();seed();
   window.addEventListener("resize",function(){size();seed();if(still){draw(0);}});
   if(still){draw(0);}else{requestAnimationFrame(draw);}
+})();
+
+/* ---------- whose card is this? ----------
+   1. A name in the link wins:  xmas2026.html?name=Sam   (the email sends ?name={firstName})
+   2. Otherwise, if the member is signed in to Paramind, use the first name on their profile.
+      This only READS the profile, exactly as the site greeting does. It never writes anything.
+   3. Otherwise show a box and let them type it. */
+function cleanName(s){
+  s=String(s||"");
+  if(/[{}]/.test(s)){return "";}            /* an email token that was never filled in */
+  return s.replace(/[<>]/g,"").replace(/\s+/g," ").trim().slice(0,24);
+}
+var FIREBASE_CONFIG = {
+        apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
+        authDomain: "paramind-64b8e.firebaseapp.com",
+        projectId: "paramind-64b8e",
+        storageBucket: "paramind-64b8e.firebasestorage.app",
+        messagingSenderId: "452173393964",
+        appId: "1:452173393964:web:8599c0fe1983a6f441e189",
+        measurementId: "G-GW385S6L0L"
+  };
+function settleName(found){
+  if(nameState!=="pending"){return;}
+  found=cleanName(found);
+  if(found){name=found;nameState="known";}else{nameState="ask";}
+  if(current===0){render();}
+}
+function nameFromLogin(){
+  var urls=["https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js",
+            "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js",
+            "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"];
+  var left=urls.length;
+  setTimeout(function(){settleName("");},4000);   /* never keep anyone waiting */
+  urls.forEach(function(src){
+    var sc=document.createElement("script");
+    sc.src=src;sc.async=false;                     /* keep them in order */
+    sc.onerror=function(){settleName("");};
+    sc.onload=function(){
+      if(--left>0){return;}
+      try{
+        if(!firebase.apps||!firebase.apps.length){firebase.initializeApp(FIREBASE_CONFIG);}
+        firebase.auth().onAuthStateChanged(function(user){
+          if(!user){settleName("");return;}
+          firebase.firestore().collection("users").doc(user.uid).get().then(function(doc){
+            var d=doc.exists?doc.data():{};
+            settleName(d.firstName||(d.name?String(d.name).split(" ")[0]:""));
+          }).catch(function(){settleName("");});
+        });
+      }catch(e){settleName("");}
+    };
+    document.head.appendChild(sc);
+  });
+}
+(function(){
+  var fromLink="";
+  try{fromLink=cleanName(new URLSearchParams(window.location.search).get("name"));}catch(e){}
+  if(fromLink){name=fromLink;nameState="known";}
+  else{nameFromLogin();}
 })();
 
 render();
