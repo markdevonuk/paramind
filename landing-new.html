@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="robots" content="noindex">
+    <title>Dashboard | Paramind</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Menu CSS -->
+    <link rel="stylesheet" href="css/menu-v2.css">
+
+    <!-- Shared hero component (avatar + greeting) -->
+    <link rel="stylesheet" href="css/hero.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <style>
+        /* ================================================================
+           PARAMIND — LANDING (post-login dashboard)
+           Hero + three-section triptych + payment/upgrade/Pro-video extras.
+           ================================================================ */
+
+        .landing-page {
+            min-height: 100vh;
+            background: #FFFFFF;
+            overflow-x: hidden;
+            position: relative;
+        }
+        .landing-container {
+            max-width: 920px;
+            margin: 0 auto;
+            padding: 0.5rem 1rem 3rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ============================================================
+           PAYMENT SUCCESS BANNER
+           ============================================================ */
+        .payment-success-banner {
+            display: none;
+            background: linear-gradient(135deg, rgba(92,184,92,0.15) 0%, rgba(43,138,156,0.1) 100%);
+            border: 1px solid rgba(92,184,92,0.3);
+            border-radius: 16px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            animation: slideDown 0.4s ease-out;
+            backdrop-filter: blur(12px);
+        }
+        .payment-success-banner.show { display: block; }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .payment-success-banner .success-content {
+            display: flex; align-items: center; gap: 0.75rem;
+        }
+        .payment-success-banner .success-icon {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, var(--color-green), var(--color-teal));
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .payment-success-banner .success-icon i { color: white; font-size: 1.25rem; }
+        .payment-success-banner .success-text h3 {
+            font-size: 1rem; font-weight: 700;
+            color: var(--color-gray-800); margin: 0 0 0.25rem 0;
+        }
+        .payment-success-banner .success-text p {
+            font-size: 0.875rem; color: var(--color-gray-600); margin: 0;
+        }
+
+        /* ================================================================
+           TRIPTYCH — three animated section panels
+           ================================================================ */
+        .triptych { display: flex; flex-direction: column; gap: 14px; margin-top: 0.5rem; }
+        .triptych-panel {
+            position: relative; display: block;
+            height: 220px; border-radius: 18px;
+            overflow: hidden; text-decoration: none; color: #FFFFFF;
+            opacity: 0; transform: translateY(16px);
+            transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.3s ease;
+            box-shadow: 0 6px 18px rgba(15, 66, 82, 0.10);
+        }
+        .triptych-panel.revealed { opacity: 1; transform: translateY(0); }
+        .triptych-panel:hover {
+            box-shadow: 0 14px 36px rgba(15, 66, 82, 0.22);
+            transform: translateY(-3px);
+        }
+        .triptych-panel:hover .panel-arrow { transform: translate(6px, -50%); }
+
+        .panel-bg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+        .panel-veil {
+            position: absolute; inset: 0;
+            background: linear-gradient(to right, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.05) 55%, rgba(0,0,0,0) 100%);
+            pointer-events: none;
+        }
+        .panel-content {
+            position: relative;
+            padding: 1.75rem 2rem; height: 100%;
+            display: flex; flex-direction: column; justify-content: center;
+            max-width: 78%;
+        }
+        .panel-label {
+            font-family: 'JetBrains Mono', 'DM Sans', monospace;
+            font-size: 0.7rem; letter-spacing: 2.5px; text-transform: uppercase;
+            color: rgba(255,255,255,0.75); margin-bottom: 0.35rem;
+        }
+        .panel-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 2.4rem; font-weight: 700; line-height: 1;
+            letter-spacing: -0.5px; margin: 0; color: #FFFFFF;
+        }
+        .panel-tagline { font-size: 1rem; color: rgba(255,255,255,0.92); margin-top: 0.5rem; font-weight: 500; }
+        .panel-tools   { font-size: 0.82rem; color: rgba(255,255,255,0.85); margin-top: 0.9rem; line-height: 1.55; font-weight: 400; }
+        .panel-arrow   { position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); font-size: 1.6rem; opacity: 0.85; transition: transform 0.3s ease; }
+
+        .panel-learn    { background: linear-gradient(135deg, #0F4252 0%, #2B8A9C 60%, #1F6B7C 100%); }
+        .panel-practise { background: linear-gradient(135deg, #0B5564 0%, #35B0C8 70%, #1d7e94 100%); }
+        .panel-reflect  { background: linear-gradient(135deg, #2C5A1A 0%, #5BC166 65%, #3B8C2D 100%); }
+
+        @keyframes ecgScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+        @media (max-width: 640px) {
+            .triptych-panel { height: 190px; border-radius: 14px; }
+            .panel-content { padding: 1.25rem 1.25rem; max-width: 86%; }
+            .panel-title { font-size: 1.9rem; }
+            .panel-tagline { font-size: 0.9rem; }
+            .panel-tools { font-size: 0.75rem; margin-top: 0.7rem; }
+            .panel-arrow { right: 1rem; font-size: 1.3rem; }
+        }
+
+        /* ============================================================
+           UPGRADE BANNER (shown to free users only)
+           ============================================================ */
+        .upgrade-banner {
+            position: relative; background: #FFFFFF;
+            border-radius: 24px; padding: 2rem 1.5rem;
+            margin-top: 2rem; margin-bottom: 2rem; overflow: hidden;
+            box-shadow: 0 4px 30px rgba(255,193,7,0.08);
+            opacity: 0; transform: translateY(40px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .upgrade-banner.revealed { opacity: 1; transform: translateY(0); }
+        .upgrade-banner::before {
+            content: ''; position: absolute; inset: 0;
+            border-radius: 24px; padding: 2px;
+            background: conic-gradient(from var(--upgrade-angle, 0deg), #FFD700, #FFA500, #FFD700, transparent, #FFD700);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude;
+            animation: rotateBorder 4s linear infinite;
+        }
+        @property --upgrade-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+        @keyframes rotateBorder { to { --upgrade-angle: 360deg; } }
+        .upgrade-banner::after {
+            content: ''; position: absolute; top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,215,0,0.06), transparent);
+            animation: shimmerSweep 4s ease-in-out infinite;
+        }
+        @keyframes shimmerSweep { 0% { left: -100%; } 40% { left: 100%; } 100% { left: 100%; } }
+
+        /* Subtitle override for landing only — keeps the marketing index.html
+           subtitle untouched. Drops font-size from 0.95rem to 0.8rem so the
+           subtitle reads as supporting copy rather than primary text. */
+        .hero-subtitle { font-size: 0.8rem; }
+
+        /* ============================================================
+           HEARTBEAT TRACE — the header animation above the greeting.
+           A wide, short heartbeat line with a bright sweep travelling
+           left to right, in the Paramind teal-to-green colours.
+           To change the speed, change 7s below (bigger = slower).
+           ============================================================ */
+        .pulse-stage {
+            width: 100%;
+            max-width: 560px;
+            height: 64px;
+            margin: 0.25rem auto 0.6rem;
+            /* soft fade at both ends */
+            -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
+                    mask-image: linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
+        }
+        .pulse-svg { display: block; width: 100%; height: 100%; overflow: visible; }
+        .pulse-svg path {
+            fill: none;
+            stroke: url(#pulseGradient);
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .pulse-base { opacity: 0.16; }
+        .pulse-trail, .pulse-dot { animation: pulseSweep 7s linear infinite; }
+        .pulse-trail-long  { --pulse-len: 260px; stroke-dasharray: 260 740; opacity: 0.22; }
+        .pulse-trail-mid   { --pulse-len: 140px; stroke-dasharray: 140 860; opacity: 0.45; }
+        .pulse-trail-short { --pulse-len: 55px;  stroke-dasharray: 55 945;  opacity: 1; }
+        .pulse-svg .pulse-dot {
+            --pulse-len: 0.1px;
+            stroke-dasharray: 0.1 999.9;
+            stroke-width: 7;
+            filter: drop-shadow(0 0 5px rgba(53, 176, 200, 0.9));
+        }
+        @keyframes pulseSweep {
+            from { stroke-dashoffset: var(--pulse-len); }
+            to   { stroke-dashoffset: calc(var(--pulse-len) - 1000px); }
+        }
+        /* Phones set to "reduce motion": show a still trace instead */
+        @media (prefers-reduced-motion: reduce) {
+            .pulse-trail, .pulse-dot { animation: none; display: none; }
+            .pulse-base { opacity: 0.55; }
+        }
+        @media (max-width: 540px) {
+            .pulse-stage { height: 54px; }
+        }
+
+        /* ============================================================
+           "WHAT'S NEW" PILL — small CTA under the hero subtitle.
+           Quiet by default so it doesn't compete with the triptych or
+           the upgrade banner. Subtle hover lift + colour swap.
+           ============================================================ */
+        .whatsnew-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 0.3rem;
+            padding: 0.45rem 1.1rem;
+            border-radius: 999px;
+            background: #FFFFFF;
+            border: 1.5px solid var(--color-teal);
+            color: var(--color-teal);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+            box-shadow: 0 2px 6px rgba(43, 138, 156, 0.08);
+        }
+        .whatsnew-pill:hover {
+            background: var(--color-teal);
+            color: #FFFFFF;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(43, 138, 156, 0.25);
+        }
+        .whatsnew-pill i {
+            font-size: 0.95rem;
+            animation: whatsnewPulse 2.6s ease-in-out infinite;
+        }
+        .whatsnew-pill:hover i { animation: none; }
+        @keyframes whatsnewPulse {
+            0%, 100% { transform: scale(1);    opacity: 1;    }
+            50%      { transform: scale(1.18); opacity: 0.75; }
+        }
+        /* Quiz of the Month — same pill shape, trophy gold, sits beside What's new.
+           Icon does not pulse; one pulsing pill in the hero is enough. */
+        .quiz-pill {
+            margin-left: 0.5rem;
+            border-color: #d97706;
+            color: #b45309;
+            box-shadow: 0 2px 6px rgba(217, 119, 6, 0.10);
+        }
+        .quiz-pill:hover {
+            background: linear-gradient(135deg, #d97706, #f59e0b);
+            color: #FFFFFF;
+            box-shadow: 0 6px 14px rgba(217, 119, 6, 0.28);
+        }
+        .quiz-pill i { animation: none; }
+
+        /* ============================================================
+           NEWS HEADLINE STRIP — sits under the quiz button.
+           Shows one news headline at a time; each is a link to the
+           Paramedic news page. Fixed height so nothing below jumps.
+           ============================================================ */
+        .quiz-pill { margin-left: 0; }   /* the quiz button now sits on its own, so centre it */
+        .news-strip {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            max-width: 560px;
+            height: 3.4rem;
+            margin: 0.85rem auto 0;
+            padding: 0 0.9rem 0 0.5rem;
+            background: #FFFFFF;
+            border: 1.5px solid rgba(43, 138, 156, 0.30);
+            border-radius: 14px;
+            box-shadow: 0 2px 6px rgba(43, 138, 156, 0.08);
+            text-align: left;
+            overflow: hidden;
+            visibility: hidden;            /* shown once the headlines have loaded */
+        }
+        .news-strip.is-ready { visibility: visible; }
+        .news-strip-label {
+            flex: 0 0 auto;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #FFFFFF;
+            background: var(--color-teal);
+            padding: 0.3rem 0.55rem;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+        .news-strip-label.is-paramind { background: #2E8B3A; }
+        .news-strip-link {
+            flex: 1 1 auto;
+            min-width: 0;
+            color: var(--color-gray-800);
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 600;
+            line-height: 1.25;
+        }
+        .news-strip-link:hover .news-strip-text { color: var(--color-teal); }
+        .news-strip-text {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            transition: transform 0.35s ease, opacity 0.35s ease, color 0.2s ease;
+        }
+        .news-strip-text.is-leaving  { transform: translateY(-110%); opacity: 0; }
+        .news-strip-text.is-entering { transform: translateY(110%);  opacity: 0; transition: none; }
+        .news-strip-arrow { flex: 0 0 auto; color: var(--color-teal); font-size: 0.85rem; }
+        @media (prefers-reduced-motion: reduce) {
+            .news-strip-text { transition: none; }
+        }
+        .upgrade-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; position: relative; z-index: 1; }
+        .upgrade-icon {
+            width: 44px; height: 44px; border-radius: 10px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; color: #1a1a2e;
+        }
+        .upgrade-title    { font-size: 1.1rem; font-weight: 700; color: var(--color-gray-800); margin: 0; }
+        .upgrade-subtitle { font-size: 0.8rem; color: var(--color-gray-600); margin: 0; }
+        .upgrade-features {
+            display: grid; grid-template-columns: repeat(2, 1fr);
+            gap: 0.35rem 1rem; margin: 0.75rem 0 1rem;
+            position: relative; z-index: 1;
+        }
+        @media (min-width: 600px) { .upgrade-features { grid-template-columns: repeat(4, 1fr); } }
+        .upgrade-feature { display: flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; color: var(--color-gray-600); }
+        .upgrade-feature i { color: #d97706; font-size: 0.8rem; }
+        .upgrade-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; position: relative; z-index: 1; }
+        .upgrade-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #1a1a2e; font-weight: 700; font-size: 0.9rem;
+            padding: 0.65rem 1.25rem;
+            border-radius: var(--radius-full);
+            text-decoration: none; border: none; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            box-shadow: 0 4px 20px rgba(255,193,7,0.25);
+        }
+        .upgrade-btn:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 12px 32px rgba(255,193,7,0.4); color: #1a1a2e; }
+        .upgrade-price { font-size: 0.85rem; color: var(--color-gray-500); }
+        .upgrade-price strong { color: var(--color-gray-700); }
+
+        /* ============================================================
+           PRO VIDEO MODAL
+           NOTE: dormant on this page — no current trigger.
+           HTML / CSS / JS retained so a trigger can be wired in later
+           (e.g. a "See what Pro offers" link in the upgrade banner).
+           Call window.openProVideoModal() to open from anywhere.
+           ============================================================ */
+        .pro-video-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            padding: 1rem;
+        }
+        .pro-video-overlay.active { opacity: 1; visibility: visible; }
+        .pro-video-modal {
+            position: relative; width: 100%; max-width: 360px;
+            background: var(--color-white);
+            border-radius: 24px; overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .pro-video-overlay.active .pro-video-modal { transform: scale(1) translateY(0); }
+        .pro-video-close {
+            position: absolute; top: 12px; right: 12px;
+            width: 36px; height: 36px; border-radius: 50%;
+            border: none; background: rgba(0,0,0,0.5); color: #fff;
+            font-size: 1.2rem; cursor: pointer; z-index: 10;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .pro-video-close:hover { background: rgba(0,0,0,0.7); }
+        .pro-video-container { position: relative; width: 100%; padding-top: 177.78%; background: #000; }
+        .pro-video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .pro-video-footer { padding: 1.25rem; text-align: center; background: var(--color-white); }
+        .pro-video-footer h3 { font-size: 1.05rem; font-weight: 700; color: var(--color-gray-800); margin: 0 0 0.35rem; }
+        .pro-video-footer p  { font-size: 0.82rem; color: var(--color-gray-500); margin: 0 0 1rem; line-height: 1.4; }
+        .pro-video-upgrade-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.75rem 1.75rem; border: none; border-radius: 12px;
+            background: linear-gradient(135deg, #2B8A9C, #5cb85c);
+            color: #fff; font-weight: 700; font-size: 0.95rem;
+            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%; justify-content: center;
+        }
+        .pro-video-upgrade-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(43,138,156,0.35); }
+    </style>
+</head>
+
+<body class="landing-page member-page">
+
+    <!-- ==================== NAVIGATION ==================== -->
+    <nav class="member-navbar">
+        <div class="container">
+            <span class="brand-text">
+                <a class="navbar-brand" href="landing.html">
+                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
+                </a>
+            </span>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <div class="landing-container">
+
+        <!-- Payment success banner (only shown after ?success=true) -->
+        <div class="payment-success-banner" id="paymentSuccessBanner">
+            <div class="success-content">
+                <div class="success-icon">
+                    <i class="bi bi-check-lg"></i>
+                </div>
+                <div class="success-text">
+                    <h3>Welcome to Paramind Pro! 🎉</h3>
+                    <p>Your subscription is now active. Enjoy unlimited access to all features!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hero -->
+        <div class="hero-section">
+            <!-- Header animation: a heartbeat trace sweeping across, like a monitor.
+                 Wide and short. Pure SVG + CSS (styles are in the HEARTBEAT TRACE block above). -->
+            <div class="pulse-stage page-load-2" aria-hidden="true">
+                <svg class="pulse-svg" viewBox="0 0 520 64" preserveAspectRatio="xMidYMid meet" focusable="false">
+                    <defs>
+                        <linearGradient id="pulseGradient" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%"   stop-color="#2B8A9C"/>
+                            <stop offset="55%"  stop-color="#35B0C8"/>
+                            <stop offset="100%" stop-color="#5BC166"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- faint trace that is always there -->
+                    <path class="pulse-base" pathLength="1000" d="M0,40 h18 q7,-9 14,0 h8 l4,4 l6,-34 l6,42 l4,-12 h12 q10,-14 20,0 h38 h18 q7,-9 14,0 h8 l4,4 l6,-34 l6,42 l4,-12 h12 q10,-14 20,0 h38 h18 q7,-9 14,0 h8 l4,4 l6,-34 l6,42 l4,-12 h12 q10,-14 20,0 h38 h18 q7,-9 14,0 h8 l4,4 l6,-34 l6,42 l4,-12 h12 q10,-14 20,0 h38"/>
+                    <!-- bright trace: three overlapping pieces make a tail that fades out -->
+                    <path class="pulse-trail pulse-trail-long"  pathLength="1000" d="M0,40 h18 q7,-9 14,0 h8 l4,4 l6,-34 l6,42 l4,-12 h12 q10,-14 20,0 h38 h18 q7,-9 14,0 h8 l4,4 l6,-34 l6,42 l4,-12 h12 q10,-14 20,0 h38 h18 q7,-9 14,0 h8 l4,4 l6,-34 l6,42 l4,-12 h12 q10,-14 20,0 h38 h18 q7,-9 14,0 h8 l4,4 l6,-34 l6,42 l4,-12 h12 q10,-14 20,0 h38"/>
+                    <path class="pulse-trail pulse-trail-mid"   pathLength="1000" d="M0,40 h18 q7,-9 14,0 h8 l4,4 l6,-34 l6,42 l4,-12 h12 q10,-14 20,0 h38 h18 q7,-9 14,0 h8 l4,4 l6,-34 l6,42 l4,-12 h12 q10,-14 20,0 h38 h18 q7,-9 14,0 h8 l4,4 l6,-34 l6,42 l4,-12 h12 q10,-14 20,0 h38 h18 q7,-9 14,0 h8 l4,4 l6,-34 l6,42 l4,-12 h12 q10,-14 20,0 h38"/>
+                    <path class="pulse-trail pulse-trail-short" pathLength="1000" d="M0,40 h18 q7,-9 14,0 h8 l4,4 l6,-34 l6,42 l4,-12 h12 q10,-14 20,0 h38 h18 q7,-9 14,0 h8 l4,4 l6,-34 l6,42 l4,-12 h12 q10,-14 20,0 h38 h18 q7,-9 14,0 h8 l4,4 l6,-34 l6,42 l4,-12 h12 q10,-14 20,0 h38 h18 q7,-9 14,0 h8 l4,4 l6,-34 l6,42 l4,-12 h12 q10,-14 20,0 h38"/>
+                    <!-- glowing dot at the front -->
+                    <path class="pulse-dot" pathLength="1000" d="M0,40 h18 q7,-9 14,0 h8 l4,4 l6,-34 l6,42 l4,-12 h12 q10,-14 20,0 h38 h18 q7,-9 14,0 h8 l4,4 l6,-34 l6,42 l4,-12 h12 q10,-14 20,0 h38 h18 q7,-9 14,0 h8 l4,4 l6,-34 l6,42 l4,-12 h12 q10,-14 20,0 h38 h18 q7,-9 14,0 h8 l4,4 l6,-34 l6,42 l4,-12 h12 q10,-14 20,0 h38"/>
+                </svg>
+            </div>
+
+            <h1 class="hero-greeting page-load-3"><span id="heroGreeting">Hey</span> <span class="gradient-name" id="userFirstName">there</span>! <span id="greetingEmoji">👋</span></h1>
+            <p class="hero-subtitle page-load-4">What shall we do today?</p>
+            <a href="quiz-month.html" class="whatsnew-pill quiz-pill page-load-5" aria-label="Play the Quiz of the Month">
+                <i class="bi bi-trophy"></i>
+                <span>Quiz of the Month</span>
+            </a>
+
+            <!-- News headline strip: one headline at a time, each a link to the Paramedic news page.
+                 Filled by the NEWS HEADLINE STRIP script near the bottom of this page. -->
+            <div class="news-strip page-load-5" id="newsStrip" aria-label="Latest paramedic news">
+                <a href="news.html" class="news-strip-label">News</a>
+                <a href="news.html" class="news-strip-link" id="newsStripLink">
+                    <span class="news-strip-text" id="newsStripText">Paramedic news</span>
+                </a>
+                <i class="bi bi-chevron-right news-strip-arrow" aria-hidden="true"></i>
+            </div>
+        </div>
+
+        <!-- 7-day Pro trial promotion (filled by js/trial-promo.js; stays empty for everyone else) -->
+        <div id="trialPromoSlot"></div>
+
+        <!-- ==================== TRIPTYCH ==================== -->
+        <div class="triptych">
+
+            <!-- LEARN -->
+            <a href="learn.html" class="triptych-panel panel-learn" aria-label="Learn section">
+                <svg class="panel-bg" viewBox="0 0 920 220" preserveAspectRatio="none" aria-hidden="true">
+                    <g stroke="rgba(157,224,212,0.50)" stroke-width="1" fill="none">
+                        <path d="M0,130 Q180,70 360,120 T720,90 L920,120"/>
+                        <path d="M0,160 Q220,200 440,150 T920,170"/>
+                        <path d="M0,70 Q130,40 260,65 T520,55 T920,70" opacity="0.55"/>
+                        <path d="M40,220 L40,150 L130,150 L130,95 L240,95" opacity="0.4"/>
+                        <path d="M680,220 L680,170 L790,170 L790,120 L920,120" opacity="0.4"/>
+                    </g>
+                    <g fill="#5DCAA5">
+                        <circle cx="180" cy="95" r="5"><animate attributeName="opacity" values=".25;1;.25" dur="2.6s" repeatCount="indefinite"/></circle>
+                        <circle cx="430" cy="135" r="5"><animate attributeName="opacity" values=".25;1;.25" dur="2.6s" begin=".7s" repeatCount="indefinite"/></circle>
+                        <circle cx="720" cy="100" r="5"><animate attributeName="opacity" values=".25;1;.25" dur="2.6s" begin="1.3s" repeatCount="indefinite"/></circle>
+                        <circle cx="320" cy="60" r="4"><animate attributeName="opacity" values=".15;.85;.15" dur="3.2s" begin=".4s" repeatCount="indefinite"/></circle>
+                        <circle cx="820" cy="175" r="4"><animate attributeName="opacity" values=".15;.85;.15" dur="3.2s" begin="1.8s" repeatCount="indefinite"/></circle>
+                    </g>
+                    <g fill="#C8F0E0">
+                        <circle r="4" opacity="0">
+                            <animateMotion dur="5s" repeatCount="indefinite" path="M0,130 Q180,70 360,120 T720,90 L920,120"/>
+                            <animate attributeName="opacity" values="0;0.95;0.95;0" keyTimes="0;0.08;0.92;1" dur="5s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle r="3.5" opacity="0">
+                            <animateMotion dur="6s" begin="1.5s" repeatCount="indefinite" path="M0,160 Q220,200 440,150 T920,170"/>
+                            <animate attributeName="opacity" values="0;0.85;0.85;0" keyTimes="0;0.08;0.92;1" dur="6s" begin="1.5s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle r="3.5" opacity="0">
+                            <animateMotion dur="5.5s" begin="3s" repeatCount="indefinite" path="M0,70 Q130,40 260,65 T520,55 T920,70"/>
+                            <animate attributeName="opacity" values="0;0.85;0.85;0" keyTimes="0;0.08;0.92;1" dur="5.5s" begin="3s" repeatCount="indefinite"/>
+                        </circle>
+                    </g>
+                </svg>
+                <div class="panel-veil"></div>
+                <div class="panel-content">
+                    <div class="panel-label">Section one</div>
+                    <h2 class="panel-title">Learn</h2>
+                    <div class="panel-tagline">Build your knowledge</div>
+                    <div class="panel-tools">Chat with Hollie &middot; On Placement &middot; A&amp;P Connections &middot; ECG Tool &middot; Flash Cards &middot; Understanding Bones &middot; Understanding Bloods &middot; Understanding Drugs</div>
+                </div>
+                <div class="panel-arrow"><i class="bi bi-arrow-right"></i></div>
+            </a>
+
+            <!-- PRACTISE -->
+            <a href="practise.html" class="triptych-panel panel-practise" aria-label="Practise section">
+                <svg class="panel-bg" viewBox="0 0 1840 220" preserveAspectRatio="none" style="width:200%;animation:ecgScroll 7s linear infinite" aria-hidden="true">
+                    <line x1="0" y1="110" x2="1840" y2="110" stroke="rgba(157,224,212,0.10)" stroke-width="1"/>
+                    <path d="M0,110 L130,110 L140,90 L150,110 L170,110 L180,50 L190,170 L200,110 L380,110 L390,90 L400,110 L420,110 L430,50 L440,170 L450,110 L630,110 L640,90 L650,110 L670,110 L680,50 L690,170 L700,110 L880,110 L890,90 L900,110 L920,110 L930,50 L940,170 L950,110 L1130,110 L1140,90 L1150,110 L1170,110 L1180,50 L1190,170 L1200,110 L1380,110 L1390,90 L1400,110 L1420,110 L1430,50 L1440,170 L1450,110 L1630,110 L1640,90 L1650,110 L1670,110 L1680,50 L1690,170 L1700,110 L1840,110" stroke="#9FE1CB" stroke-width="1.6" fill="none" opacity="0.6"/>
+                </svg>
+                <div class="panel-veil"></div>
+                <div class="panel-content">
+                    <div class="panel-label">Section two</div>
+                    <h2 class="panel-title">Practise</h2>
+                    <div class="panel-tagline">Apply it under pressure</div>
+                    <div class="panel-tools">Medical Scenarios &middot; ePCR Practice &middot; OSCE Practice &middot; Cardiac Arrest Sim &middot; Major Incident Sim &middot; ATMIST &middot; How to get Differentials &middot; Interview Prep &middot; Clue Hunt Game</div>
+                </div>
+                <div class="panel-arrow"><i class="bi bi-arrow-right"></i></div>
+            </a>
+
+            <!-- REFLECT -->
+            <a href="reflect.html" class="triptych-panel panel-reflect" aria-label="Reflect section">
+                <svg class="panel-bg" viewBox="0 0 920 220" preserveAspectRatio="none" aria-hidden="true">
+                    <g stroke="rgba(234,243,222,0.55)" stroke-width="1.4" stroke-linecap="round" fill="none">
+                        <line x1="60" y1="60" x2="430" y2="60" stroke-dasharray="370" stroke-dashoffset="370">
+                            <animate attributeName="stroke-dashoffset" values="370;0;0;370" keyTimes="0;0.35;0.85;1" dur="4.2s" repeatCount="indefinite"/>
+                        </line>
+                        <line x1="60" y1="110" x2="500" y2="110" stroke-dasharray="440" stroke-dashoffset="440">
+                            <animate attributeName="stroke-dashoffset" values="440;0;0;440" keyTimes="0;0.35;0.85;1" dur="4.2s" begin=".45s" repeatCount="indefinite"/>
+                        </line>
+                        <line x1="60" y1="160" x2="350" y2="160" stroke-dasharray="290" stroke-dashoffset="290">
+                            <animate attributeName="stroke-dashoffset" values="290;0;0;290" keyTimes="0;0.35;0.85;1" dur="4.2s" begin=".9s" repeatCount="indefinite"/>
+                        </line>
+                    </g>
+                    <g fill="none" stroke="#EAF3DE" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M780,55 l10,10 l20,-20" opacity="0">
+                            <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.3;0.45;0.85;1" dur="4.2s" repeatCount="indefinite"/>
+                        </path>
+                        <path d="M780,105 l10,10 l20,-20" opacity="0">
+                            <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.3;0.45;0.85;1" dur="4.2s" begin=".45s" repeatCount="indefinite"/>
+                        </path>
+                        <path d="M780,155 l10,10 l20,-20" opacity="0">
+                            <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.3;0.45;0.85;1" dur="4.2s" begin=".9s" repeatCount="indefinite"/>
+                        </path>
+                    </g>
+                </svg>
+                <div class="panel-veil"></div>
+                <div class="panel-content">
+                    <div class="panel-label">Section three</div>
+                    <h2 class="panel-title">Reflect</h2>
+                    <div class="panel-tagline">Capture what you've done</div>
+                    <div class="panel-tools">Debrief Your Calls &middot; CPD Portfolio &middot; Think like a paramedic ebook &middot; Readiness Score</div>
+                </div>
+                <div class="panel-arrow"><i class="bi bi-arrow-right"></i></div>
+            </a>
+
+        </div>
+        <!-- ==================== /TRIPTYCH ==================== -->
+
+        <!-- Upgrade banner — visible to free users only -->
+        <div class="upgrade-banner" id="upgradeBanner" style="display: none;">
+            <div class="upgrade-header">
+                <div class="upgrade-icon">
+                    <i class="bi bi-rocket-takeoff"></i>
+                </div>
+                <div>
+                    <h3 class="upgrade-title">Unlock Pro Features</h3>
+                    <p class="upgrade-subtitle">Get unlimited access to all learning tools</p>
+                </div>
+            </div>
+
+            <div class="upgrade-features">
+                <div class="upgrade-feature">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>Unlimited chat</span>
+                </div>
+                <div class="upgrade-feature">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>All Pro tools</span>
+                </div>
+                <div class="upgrade-feature">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>CPD certificates</span>
+                </div>
+            </div>
+
+            <div class="upgrade-cta">
+                <button class="upgrade-btn" onclick="handleUpgrade()">
+                    <i class="bi bi-star-fill"></i>
+                    Upgrade to Pro
+                </button>
+                <span class="upgrade-price">Just <strong>£4.99</strong>/month</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ==================== PRO VIDEO MODAL (dormant — call window.openProVideoModal() to open) ==================== -->
+    <div class="pro-video-overlay" id="proVideoOverlay">
+        <div class="pro-video-modal">
+            <button class="pro-video-close" id="proVideoClose" aria-label="Close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <div class="pro-video-container">
+                <iframe id="proVideoIframe"
+                    src=""
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+                </iframe>
+            </div>
+            <div class="pro-video-footer">
+                <h3>Unlock Pro Tools</h3>
+                <p>Get unlimited access to all learning tools, CPD certificates, and more.</p>
+                <button class="pro-video-upgrade-btn" onclick="handleUpgrade()">
+                    <i class="bi bi-star-fill"></i>
+                    Upgrade to Pro — £4.99/month
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="member-footer">
+        <div class="container">
+            <div class="footer-brand">
+                <span class="brand-text">
+                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
+                </span>
+            </div>
+            <div class="footer-links">
+                <a href="terms.html">Terms of Service</a>
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="purpose.html">Intended Purpose</a>
+                <a href="sources.html">Sources &amp; Citations</a>
+                <a href="contact.html">Contact</a>
+            </div>
+            <p class="footer-copyright">&copy; 2026 Paramind. All rights reserved.</p>
+            <p class="footer-trademark" style="font-size: 0.85rem; color: var(--color-gray-500);">Paramind&#174; is a registered UK trade mark (UK00004321918).</p>
+        </div>
+    </footer>
+
+    <!-- ==================== SCRIPTS ==================== -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/menu-v2.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/personalise.js"></script>
+    <script src="js/news-popup.js"></script>
+    <script src="js/role-prompt.js"></script>
+    <script src="js/upgrade-modal.js"></script>
+
+    <!-- ==================== NEWS HEADLINE STRIP ==================== -->
+    <script>
+        // Shows the latest news headlines one at a time under the quiz button.
+        // - News stories come from social/latest.json (same data as the Paramedic news page).
+        // - Paramind's own news articles (added in admin) go first, if any are current.
+        // - Changes every 5 seconds. Pauses while a finger or mouse is on it.
+        // - If the phone is set to "reduce motion", it stays on the first headline.
+        (function () {
+            'use strict';
+
+            var SECONDS_PER_HEADLINE = 5;
+
+            var strip = document.getElementById('newsStrip');
+            var linkEl = document.getElementById('newsStripLink');
+            var textEl = document.getElementById('newsStripText');
+            var labelEl = strip ? strip.querySelector('.news-strip-label') : null;
+            if (!strip || !linkEl || !textEl || !labelEl) return;
+
+            var items = [];      // [{ text, href, paramind }]
+            var current = 0;
+            var paused = false;
+            var timer = null;
+            var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            function show(index) {
+                var item = items[index];
+                textEl.textContent = item.text;
+                linkEl.setAttribute('href', item.href);
+                labelEl.setAttribute('href', item.href);
+                labelEl.textContent = item.paramind ? 'Paramind' : 'News';
+                labelEl.classList.toggle('is-paramind', !!item.paramind);
+            }
+
+            function next() {
+                if (paused || items.length < 2) return;
+                current = (current + 1) % items.length;
+                textEl.classList.add('is-leaving');
+                setTimeout(function () {
+                    show(current);
+                    textEl.classList.remove('is-leaving');
+                    textEl.classList.add('is-entering');
+                    // Force the browser to notice the start position, then slide in
+                    void textEl.offsetWidth;
+                    textEl.classList.remove('is-entering');
+                }, 350);
+            }
+
+            function start() {
+                if (items.length === 0) return;
+                current = 0;
+                show(0);
+                strip.classList.add('is-ready');
+                if (timer) clearInterval(timer);
+                if (!reduceMotion && items.length > 1) {
+                    timer = setInterval(next, SECONDS_PER_HEADLINE * 1000);
+                }
+            }
+
+            // Pause while someone is touching or hovering, so they can read and tap
+            strip.addEventListener('mouseenter', function () { paused = true; });
+            strip.addEventListener('mouseleave', function () { paused = false; });
+            strip.addEventListener('touchstart', function () { paused = true; }, { passive: true });
+            strip.addEventListener('touchend', function () { setTimeout(function () { paused = false; }, 3000); }, { passive: true });
+            strip.addEventListener('focusin', function () { paused = true; });
+            strip.addEventListener('focusout', function () { paused = false; });
+
+            // Paramind's own news articles: only those saved after the latest round-up
+            function addParamindNews(roundupPublished) {
+                if (typeof firebase === 'undefined' || !firebase.firestore || !firebase.apps || !firebase.apps.length) return;
+                firebase.firestore().collection('paramindNews')
+                    .orderBy('publishedAt', 'desc')
+                    .limit(5)
+                    .get()
+                    .then(function (snap) {
+                        var own = [];
+                        snap.forEach(function (docSnap) {
+                            var item = docSnap.data() || {};
+                            if (!item.headline) return;
+                            var when = (item.publishedAt && item.publishedAt.toDate) ? item.publishedAt.toDate() : null;
+                            if (when && roundupPublished && when.getTime() <= roundupPublished.getTime()) return;
+                            own.push({ text: String(item.headline), href: 'news.html#paramind-' + (own.length + 1), paramind: true });
+                        });
+                        if (own.length > 0) {
+                            items = own.concat(items);
+                            start();
+                        }
+                    })
+                    .catch(function (error) {
+                        console.warn('News strip: could not load Paramind news articles', error);
+                    });
+            }
+
+            // Firebase is set up by other scripts on this page; wait up to 8 seconds for it
+            function whenFirebaseReady(callback) {
+                var checks = 0;
+                var wait = setInterval(function () {
+                    checks++;
+                    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) {
+                        clearInterval(wait);
+                        callback();
+                    } else if (checks >= 80) {
+                        clearInterval(wait);
+                    }
+                }, 100);
+            }
+
+            fetch('social/latest.json?t=' + Date.now(), { cache: 'no-store' })
+                .then(function (response) {
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    return response.json();
+                })
+                .then(function (data) {
+                    var stories = (data && Array.isArray(data.stories)) ? data.stories : [];
+                    stories.forEach(function (story, index) {
+                        if (story && story.headline) {
+                            items.push({ text: String(story.headline), href: 'news.html#story-' + (index + 1), paramind: false });
+                        }
+                    });
+                    start();
+                    var published = (data && data.published) ? new Date(data.published) : null;
+                    if (published && isNaN(published.getTime())) published = null;
+                    whenFirebaseReady(function () { addParamindNews(published); });
+                })
+                .catch(function (error) {
+                    // If the news cannot be loaded the strip simply stays hidden
+                    console.warn('News strip: could not load the latest headlines', error);
+                });
+        })();
+    </script>
+
+    <!-- ==================== SCROLL REVEAL ==================== -->
+    <script>
+        (function() {
+            'use strict';
+            const targets = document.querySelectorAll('.triptych-panel, .upgrade-banner');
+            const obs = new IntersectionObserver((entries) => {
+                entries.forEach((e, i) => {
+                    if (e.isIntersecting) {
+                        setTimeout(() => e.target.classList.add('revealed'), i * 140);
+                        obs.unobserve(e.target);
+                    }
+                });
+            }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+            targets.forEach(t => obs.observe(t));
+        })();
+    </script>
+
+    <!-- ==================== LANDING-SPECIFIC LOGIC ==================== -->
+    <!-- Greeting + first name + Pro badge hiding live in js/personalise.js.
+         This block covers landing-only behaviour:
+           - URL param checks (payment success, upgrade)
+           - Pro detection to show/hide the upgrade banner
+           - Apple silent restore (iOS Capacitor only)
+           - Pro video modal handlers (close / Escape / click-outside)
+           - openProVideoModal() helper for future triggers -->
+    <script>
+        (function() {
+            'use strict';
+
+            const firebaseConfig = {
+                apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
+                authDomain: "paramind-64b8e.firebaseapp.com",
+                projectId: "paramind-64b8e",
+                storageBucket: "paramind-64b8e.firebasestorage.app",
+                messagingSenderId: "452173393964",
+                appId: "1:452173393964:web:8599c0fe1983a6f441e189",
+                measurementId: "G-GW385S6L0L"
+            };
+            try {
+                if (!firebase.apps || !firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+            } catch (e) { /* already initialised — fine */ }
+
+            const auth = firebase.auth();
+            const db   = firebase.firestore();
+
+            // ==================== URL PARAMS ====================
+            const urlParams = new URLSearchParams(window.location.search);
+
+            if (urlParams.get('success') === 'true') {
+                const banner = document.getElementById('paymentSuccessBanner');
+                if (banner) {
+                    banner.classList.add('show');
+                    setTimeout(() => {
+                        banner.style.animation = 'none';
+                        banner.style.opacity = '0';
+                        banner.style.transition = 'opacity 0.5s ease';
+                        setTimeout(() => banner.classList.remove('show'), 500);
+                    }, 10000);
+                }
+                window.history.replaceState({}, document.title, 'landing.html');
+            }
+
+            if (urlParams.get('upgrade') === 'true') {
+                setTimeout(() => {
+                    if (typeof window.handleUpgrade === 'function') window.handleUpgrade();
+                }, 500);
+            }
+
+            // ==================== AUTH + PRO STATE ====================
+            auth.onAuthStateChanged(async function(user) {
+                if (!user) return; // personalise.js handles the redirect
+
+                try {
+                    const doc = await db.collection('users').doc(user.uid).get();
+                    if (!doc.exists) return;
+                    const data = doc.data();
+
+                    const appleAccessExpiry = data.accessExpiresAt ? new Date(data.accessExpiresAt) : null;
+                    let isPro = data.subscriptionStatus === 'active'
+                             || data.isPro === true
+                             || (appleAccessExpiry && appleAccessExpiry > new Date());
+
+                    const upgradeBanner = document.getElementById('upgradeBanner');
+                    if (upgradeBanner) {
+                        upgradeBanner.style.display = isPro ? 'none' : '';
+                    }
+
+                    // ==================== SILENT APPLE RESTORE (iOS only) ====================
+                    if (!isPro
+                        && window.Capacitor
+                        && window.Capacitor.isNativePlatform
+                        && window.Capacitor.isNativePlatform()
+                        && window.Capacitor.getPlatform
+                        && window.Capacitor.getPlatform() === 'ios') {
+
+                        try {
+                            const NativePurchases = window.Capacitor.Plugins.NativePurchases;
+                            if (NativePurchases) {
+                                await NativePurchases.restorePurchases();
+                                const purchases = await NativePurchases.getPurchases({});
+                                const allTx = (purchases && purchases.purchases) ? purchases.purchases : [];
+                                // getPurchases() also returns EXPIRED purchases, so only accept one
+                                // Apple says is still running (isActive), and never a refunded one.
+                                const activeSub = allTx.find(function(tx) {
+                                    const id = tx.productIdentifier || '';
+                                    if (id !== 'paramind_pro_monthly' && id !== 'paramind_pro_annual') return false;
+                                    if (tx.revocationDate) return false;
+                                    if (tx.expirationDate) return tx.isActive === true || new Date(tx.expirationDate) > new Date();
+                                    return true;
+                                });
+                                if (activeSub) {
+                                    console.log('Silent restore found active Apple subscription:', activeSub.productIdentifier);
+                                    await db.collection('users').doc(user.uid).update({
+                                        subscriptionStatus: 'active',
+                                        subscriptionPlatform: 'apple',
+                                        appleProductId: activeSub.productIdentifier || null,
+                                        appleTransactionId: activeSub.transactionId || null,
+                                        accessExpiresAt: null,
+                                        cancelledAt: null,
+                                        subscriptionUpdatedAt: new Date().toISOString(),
+                                        restoredSilentlyOnLogin: true
+                                    });
+                                    isPro = true;
+                                    if (upgradeBanner) upgradeBanner.style.display = 'none';
+                                    console.log('Silent restore complete — user upgraded to Pro');
+                                }
+                            }
+                        } catch (restoreErr) {
+                            console.log('Silent restore check completed with no action:', restoreErr && restoreErr.message);
+                        }
+                    }
+                } catch (err) {
+                    console.warn('landing: could not load user state:', err);
+                }
+            });
+
+            // ==================== HANDLE UPGRADE FALLBACK ====================
+            // upgrade-modal.js overrides window.handleUpgrade on DOMContentLoaded
+            // to show its plan picker. This is a safety net in case that fails.
+            if (typeof window.handleUpgrade !== 'function') {
+                window.handleUpgrade = function() {
+                    if (typeof window.showUpgradeModal === 'function') {
+                        window.showUpgradeModal();
+                    } else {
+                        console.warn('handleUpgrade called but no modal handler available.');
+                    }
+                };
+            }
+
+            // ==================== PRO VIDEO MODAL HANDLERS ====================
+            (function() {
+                const overlay  = document.getElementById('proVideoOverlay');
+                const iframe   = document.getElementById('proVideoIframe');
+                const closeBtn = document.getElementById('proVideoClose');
+                if (!overlay || !iframe || !closeBtn) return;
+
+                function closeVideoModal() {
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                    iframe.src = '';
+                }
+                closeBtn.addEventListener('click', closeVideoModal);
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === overlay) closeVideoModal();
+                });
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') closeVideoModal();
+                });
+
+                // Helper for future triggers: window.openProVideoModal()
+                const YOUTUBE_VIDEO_ID = 'lR8qd_BzWcI';
+                window.openProVideoModal = function() {
+                    iframe.src = `https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&rel=0&modestbranding=1`;
+                    overlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                };
+            })();
+        })();
+    </script>
+
+    <!-- 7-day Pro trial promotion: offer card, countdown, one-time welcome sheet -->
+    <script src="js/trial-promo.js"></script>
+
+</body>
+</html>
