@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Night Shift Before Christmas Card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* One visual world: a flat-art winter night in Paramind teal. Portrait card: picture, verse, controls. */
+  --night:#0B2730;
+  --night-2:#113540;
+  --teal:#2B8A9C;
+  --teal-bright:#35B0C8;
+  --green:#5BC166;
+  --snow:#EEF8FA;
+  --berry:#E24A3B;
+  --glow:#FFD27A;
+  --muted:#9CC3CC;
+  --verse-alt:#FFE6B3;
+  --display:"Plus Jakarta Sans","Segoe UI",system-ui,sans-serif;
+  --body:"DM Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--night);color:var(--snow);font-family:var(--body);display:flex;justify-content:center;align-items:center}
+.card{width:100%;max-width:440px;height:100%;display:flex;flex-direction:column;background:var(--night-2)}
+@media (min-width:480px) and (min-height:700px){
+  .card{height:min(calc(100% - 32px),860px);border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,.09)}
+}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 16px}
+.brand{font-family:var(--display);font-weight:800;font-size:17px;letter-spacing:-.01em;color:var(--teal-bright)}
+.draft{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--night);background:var(--glow);padding:4px 9px;border-radius:99px}
+.top-right{display:flex;align-items:center;gap:8px}
+.music{font-family:var(--body);font-weight:700;font-size:13px;padding:6px 11px;border-radius:99px;background:transparent;color:var(--snow);border-color:rgba(255,255,255,.3)}
+.music[aria-pressed="false"]{color:var(--muted);border-style:dashed}
+.stage{position:relative;aspect-ratio:4/3;background:var(--night);flex:none;overflow:hidden}
+.stage svg{display:block;width:100%;height:100%}
+#snow{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.text{flex:1;min-height:0;overflow-y:auto;padding:18px 20px 6px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin:0 0 8px}
+h1,h2{font-family:var(--display);font-weight:800;letter-spacing:-.02em;line-height:1.12;margin:0 0 14px;text-wrap:balance}
+h1{font-size:30px}
+h2{font-size:28px}
+.verse{margin:0;font-size:17px;line-height:1.55}
+.verse .ln{display:block;animation:rise .55s both;animation-delay:calc(var(--i) * .4s)}
+.verse .ln:nth-child(even){color:var(--verse-alt)}
+.nm{color:var(--teal-bright);font-weight:700}
+.msg{font-size:16px;line-height:1.55;margin:0 0 12px;max-width:34em}
+.sign{font-family:var(--display);font-weight:600;font-size:15px;color:var(--muted);margin:0}
+.field{display:flex;flex-direction:column;gap:6px;margin:4px 0 8px}
+.field label{font-size:13px;font-weight:700;color:var(--muted)}
+.field input{font:inherit;font-size:17px;color:var(--snow);background:var(--night);border:1.5px solid var(--teal);border-radius:10px;padding:11px 12px;width:100%}
+.hint{font-size:13px;line-height:1.45;color:var(--muted);margin:0}
+.clues{margin:14px 0 0;padding:12px 14px;border-radius:12px;background:var(--night);border-left:4px solid var(--glow);font-size:15px;line-height:1.45;min-height:64px}
+.clues b{display:block;font-family:var(--display);font-weight:800}
+.clues .count{display:block;margin-top:6px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.clues.done{border-left-color:var(--green)}
+.nav{display:flex;align-items:center;gap:10px;padding:10px 16px 14px}
+.dots{flex:1;display:flex;gap:5px;justify-content:center}
+.dots i{width:14px;height:4px;border-radius:2px;background:rgba(255,255,255,.18)}
+.dots i.on{background:var(--teal-bright)}
+button{font:inherit;font-family:var(--display);font-weight:800;font-size:15px;border-radius:12px;padding:12px 18px;cursor:pointer;border:1.5px solid transparent}
+.next{background:var(--teal-bright);color:var(--night)}
+.back{background:transparent;color:var(--snow);border-color:rgba(255,255,255,.25)}
+.back[disabled]{opacity:.3;cursor:default}
+button:focus-visible,input:focus-visible,.clue:focus-visible{outline:3px solid var(--glow);outline-offset:2px}
+
+/* cab screen scene */
+.mdt{position:absolute;inset:0;background:#06181E;display:flex;align-items:center;justify-content:center;padding:18px}
+.mdt-screen{width:100%;max-width:340px;border:2px solid var(--teal);border-radius:12px;background:#08222B;overflow:hidden;animation:shake .5s .2s 3}
+.mdt-bar{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;font-weight:700;padding:7px 12px;background:var(--teal);color:#fff}
+.mdt-bar span{color:var(--glow);animation:blink 1s steps(2) infinite}
+.mdt-body{padding:10px 12px 12px;font-family:var(--mono);font-size:13px;line-height:1.75;color:#BFF0D0}
+.mdt-body .ml{display:block;animation:rise .3s both;animation-delay:calc(.5s + var(--i) * .55s);overflow-wrap:anywhere}
+.mdt-body .ml b{color:var(--glow)}
+
+/* motion */
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes blink{50%{opacity:.15}}
+@keyframes shake{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+@keyframes tw{50%{opacity:.25}}
+@keyframes flash{0%,49%{opacity:1}50%,100%{opacity:.12}}
+@keyframes steam{from{opacity:.7;transform:translateY(0)}to{opacity:0;transform:translateY(-12px)}}
+@keyframes scroll{to{transform:translateX(-400px)}}
+@keyframes dash{to{stroke-dashoffset:-48}}
+@keyframes bob{50%{transform:translateY(-1.5px)}}
+@keyframes pulse{0%{transform:scale(.75);opacity:1}100%{transform:scale(1.25);opacity:.15}}
+@keyframes wave{50%{transform:rotate(22deg)}}
+@keyframes fly{from{transform:translate(-110px,170px) rotate(-9deg)}to{transform:translate(500px,30px) rotate(-9deg)}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes pop{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:scale(1)}}
+.tw{animation:tw 2.4s ease-in-out infinite}
+.tw.b{animation-delay:.8s}.tw.c{animation-delay:1.6s}
+.flash{animation:flash .5s linear infinite}
+.flash.alt{animation-delay:.25s}
+.steam{animation:steam 2.2s ease-out infinite}
+.steam.b{animation-delay:1.1s}
+.scroll{animation:scroll 7s linear infinite}
+.dash{animation:dash .5s linear infinite}
+.bob{animation:bob .45s ease-in-out infinite}
+.nose{animation:tw 1.8s ease-in-out infinite}
+.wave{transform-box:fill-box;transform-origin:0% 100%;animation:wave .7s ease-in-out infinite}
+.fly{animation:fly 9s linear infinite}
+.ecg{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 3.2s .3s ease-in-out forwards}
+.pop{transform-box:fill-box;transform-origin:center;animation:pop .5s both;animation-delay:calc(3.3s + var(--i) * .15s)}
+.clue{cursor:pointer}
+.clue .ring{fill:none;stroke:var(--glow);stroke-width:2.5;transform-box:fill-box;transform-origin:center;animation:pulse 1.3s ease-out infinite}
+.clue.found .ring{animation:none;stroke:var(--green);fill:rgba(91,193,102,.28)}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important}
+  .ecg{stroke-dashoffset:0}
+}
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="top">
+    <span class="brand">paramind</span>
+    <span class="top-right">
+      <button class="music" id="music" type="button" aria-pressed="true">&#9834; Sound on</button>
+      <span class="draft">Draft</span>
+    </span>
+  </div>
+  <div class="stage">
+    <div id="art"></div>
+    <canvas id="snow" aria-hidden="true"></canvas>
+  </div>
+  <div class="text" id="text"></div>
+  <div class="nav">
+    <button class="back" id="back" type="button">Back</button>
+    <div class="dots" id="dots" aria-hidden="true"></div>
+    <button class="next" id="next" type="button">Next</button>
+  </div>
+</main>
+
+<script>
+(function(){
+"use strict";
+
+var name = "Sam";
+var current = 0;
+var found = [false,false,false];
+
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function nm(){return '<span class="nm">'+esc(name)+'</span>';}
+function fill(s){return s.split("{n}").join(nm());}
+
+/* ---------- drawing helpers (flat art, 400 x 300) ---------- */
+var C={sky:"#0E2F3A",snow:"#EEF8FA",snow2:"#D5EBF0",wall:"#1A4B59",dark:"#0F323D",red:"#E24A3B",glow:"#FFD27A",teal:"#2B8A9C",tealB:"#35B0C8",green:"#5BC166",ink:"#081E25"};
+
+function svg(inner,label){return '<svg viewBox="0 0 400 300" role="img" aria-label="'+label+'" preserveAspectRatio="xMidYMid slice">'+inner+'</svg>';}
+function sky(){
+  var pts=[[22,28,1.2],[58,64,1],[96,22,1.4],[134,52,1],[176,18,1.2],[214,44,1],[250,24,1.3],[292,60,1],[344,22,1.1],[380,48,1.3],[40,104,1],[160,92,1],[270,98,1.1],[372,110,1]];
+  var s='<rect width="400" height="300" fill="'+C.sky+'"/><rect y="150" width="400" height="150" fill="#123B47"/>';
+  pts.forEach(function(p,i){s+='<circle class="tw '+["","b","c"][i%3]+'" cx="'+p[0]+'" cy="'+p[1]+'" r="'+p[2]+'" fill="#fff"/>';});
+  return s;
+}
+function moon(x,y,r){return '<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="#F6F1D3"/><circle cx="'+(x-r*.3)+'" cy="'+(y-r*.2)+'" r="'+r*.16+'" fill="#E6DFB8"/><circle cx="'+(x+r*.3)+'" cy="'+(y+r*.3)+'" r="'+r*.11+'" fill="#E6DFB8"/>';}
+function ground(y){return '<path d="M0 '+y+' Q100 '+(y-14)+' 200 '+(y-4)+' T400 '+(y-6)+' V300 H0Z" fill="'+C.snow+'"/>';}
+function tree(x,y,s){
+  return '<g transform="translate('+x+','+y+') scale('+s+')"><rect x="-3" y="-8" width="6" height="8" fill="#5A3A28"/>'+
+  '<polygon points="-18,-8 0,-34 18,-8" fill="#1B5B5F"/><polygon points="-14,-24 0,-46 14,-24" fill="#1F6A6B"/><polygon points="-9,-38 0,-56 9,-38" fill="#237B78"/>'+
+  '<polygon points="-5,-46 0,-56 5,-46" fill="'+C.snow+'"/></g>';
+}
+function house(){
+  return '<rect x="-10" y="112" width="132" height="120" fill="#173F4C"/>'+
+  '<rect x="84" y="58" width="20" height="40" fill="#7A3B2E"/><rect x="81" y="54" width="26" height="7" rx="3" fill="'+C.snow+'"/>'+
+  '<polygon points="-22,114 55,62 132,114" fill="'+C.dark+'"/>'+
+  '<path d="M-22 114 L55 62 L132 114 L120 114 L55 72 L-10 114Z" fill="'+C.snow+'"/>'+
+  '<rect x="28" y="150" width="42" height="42" rx="3" fill="'+C.glow+'"/><path d="M49 150v42M28 171h42" stroke="#173F4C" stroke-width="3"/>';
+}
+function ambulance(x,y,s,anim){
+  var b='';
+  for(var i=0;i<8;i++){
+    b+='<rect x="'+(i*15)+'" y="30" width="15" height="7" fill="'+(i%2?"#F4D01C":"#2E9E4F")+'"/>';
+    b+='<rect x="'+(i*15)+'" y="37" width="15" height="7" fill="'+(i%2?"#2E9E4F":"#F4D01C")+'"/>';
+  }
+  return '<g transform="translate('+x+','+y+') scale('+s+')"><g'+(anim?' class="bob"':'')+'>'+
+  '<circle class="flash" cx="82" cy="-4" r="16" fill="#3D8BFF" opacity=".35"/>'+
+  '<rect x="0" y="0" width="86" height="50" rx="4" fill="#F4D01C"/>'+
+  '<path d="M84 14h22l14 18v18h-36z" fill="#F4D01C"/>'+
+  '<path d="M89 18h15l11 14h-26z" fill="#BFE6EE"/>'+
+  '<clipPath id="ac'+x+'"><path d="M0 4a4 4 0 0 1 4-4h78a4 4 0 0 1 4 4v10h20l14 18v18H0z"/></clipPath>'+
+  '<g clip-path="url(#ac'+x+')">'+b+'</g>'+
+  '<rect x="70" y="-6" width="24" height="6" rx="2" fill="#3D8BFF" class="flash"/>'+
+  '<rect x="4" y="-5" width="14" height="5" rx="2" fill="#3D8BFF" class="flash alt"/>'+
+  '<circle cx="24" cy="52" r="10" fill="#10181B"/><circle cx="24" cy="52" r="4" fill="#8FA4AA"/>'+
+  '<circle cx="98" cy="52" r="10" fill="#10181B"/><circle cx="98" cy="52" r="4" fill="#8FA4AA"/>'+
+  '</g></g>';
+}
+function person(x,y,skin,hair){
+  return '<g transform="translate('+x+','+y+')"><rect x="-6" y="-17" width="5" height="17" fill="#14382D"/><rect x="1" y="-17" width="5" height="17" fill="#14382D"/>'+
+  '<rect x="-8" y="-39" width="16" height="24" rx="5" fill="#1F7A55"/><rect x="-8" y="-27" width="16" height="3" fill="#D8F27A"/>'+
+  '<circle cx="0" cy="-47" r="7" fill="'+skin+'"/><path d="M-7 -48a7 7 0 0 1 14 0z" fill="'+hair+'"/></g>';
+}
+function santaHead(dx,dy){
+  return '<g transform="translate('+dx+','+dy+')"><circle cx="2" cy="0" r="13" fill="#F1C7A5"/>'+
+  '<path d="M-11 2Q-12 22 2 26Q16 22 15 2Q2 10 -11 2Z" fill="#fff"/>'+
+  '<circle cx="-3" cy="-2" r="1.4" fill="#222"/><circle cx="7" cy="-2" r="1.4" fill="#222"/><circle cx="2" cy="3" r="2.6" fill="#E79A84"/>'+
+  '<polygon points="-12,-7 5,-34 16,-7" fill="'+C.red+'"/><rect x="-13" y="-11" width="30" height="7" rx="3.5" fill="#fff"/><circle cx="5" cy="-34" r="4.5" fill="#fff"/></g>';
+}
+function santaSit(x,y,s){
+  return '<g transform="translate('+x+','+y+') scale('+s+')">'+
+  '<rect x="4" y="-14" width="42" height="14" rx="7" fill="'+C.red+'"/><rect x="42" y="-19" width="12" height="19" rx="4" fill="#1c1c1c"/>'+
+  '<ellipse cx="0" cy="-24" rx="24" ry="24" fill="'+C.red+'"/>'+
+  '<rect x="-24" y="-22" width="48" height="7" fill="#1c1c1c"/><rect x="-5" y="-23.500" width="10" height="10" rx="1.500" fill="'+C.glow+'"/>'+
+  '<path d="M-18 -34L-38 -6" stroke="'+C.red+'" stroke-width="12" stroke-linecap="round"/><circle cx="-38" cy="-6" r="7" fill="#fff"/>'+
+  '<circle cx="-29" cy="-19" r="3" fill="#242424"/><circle cx="-24" cy="-26" r="2.4" fill="#242424"/><circle cx="-33" cy="-12" r="2" fill="#242424"/>'+
+  santaHead(0,-56)+
+  '<circle cx="-2" cy="-40" r="1.5" fill="#B9772E"/><circle cx="6" cy="-37" r="1.5" fill="#B9772E"/><circle cx="1" cy="-34" r="1.3" fill="#B9772E"/>'+
+  '</g>';
+}
+function santaStand(x,y,s){
+  return '<g transform="translate('+x+','+y+') scale('+s+')">'+
+  '<rect x="-12" y="-18" width="10" height="16" fill="'+C.red+'"/><rect x="2" y="-18" width="10" height="16" fill="'+C.red+'"/>'+
+  '<rect x="-15" y="-5" width="14" height="6" rx="3" fill="#1c1c1c"/><rect x="1" y="-5" width="14" height="6" rx="3" fill="#1c1c1c"/>'+
+  '<path d="M-16 -50L-29 -28" stroke="'+C.red+'" stroke-width="11" stroke-linecap="round"/><circle cx="-29" cy="-28" r="6" fill="#fff"/>'+
+  '<g class="wave"><path d="M16 -52L34 -76" stroke="'+C.red+'" stroke-width="11" stroke-linecap="round"/><circle cx="34" cy="-76" r="6" fill="#fff"/></g>'+
+  '<ellipse cx="0" cy="-40" rx="22" ry="24" fill="'+C.red+'"/>'+
+  '<rect x="-22" y="-38" width="44" height="7" fill="#1c1c1c"/><rect x="-5" y="-39.500" width="10" height="10" rx="1.500" fill="'+C.glow+'"/>'+
+  santaHead(0,-72)+'</g>';
+}
+function reindeer(x,y,s,flip,red){
+  return '<g transform="translate('+x+','+y+') scale('+(flip?-s:s)+','+s+')">'+
+  '<rect x="-16" y="-22" width="4" height="22" fill="#6E452C"/><rect x="-8" y="-22" width="4" height="22" fill="#6E452C"/><rect x="8" y="-22" width="4" height="22" fill="#6E452C"/><rect x="14" y="-22" width="4" height="22" fill="#6E452C"/>'+
+  '<ellipse cx="0" cy="-28" rx="22" ry="11" fill="#8A5A3B"/><circle cx="-22" cy="-31" r="3.500" fill="#EAD9C4"/>'+
+  '<path d="M16 -30L26 -50" stroke="#8A5A3B" stroke-width="9" stroke-linecap="round"/>'+
+  '<ellipse cx="30" cy="-54" rx="10" ry="7" fill="#8A5A3B"/><circle cx="31" cy="-57" r="1.300" fill="#1c1c1c"/>'+
+  (red?'<circle class="nose" cx="40" cy="-54" r="8" fill="'+C.red+'" opacity=".35"/><circle cx="40" cy="-54" r="3.600" fill="'+C.red+'"/>':'<circle cx="40" cy="-54" r="3" fill="#3A2A20"/>')+
+  '<path d="M26 -60l-3 -14m0 6l-6 -5M31 -60l4 -14m-1 6l6 -4" stroke="#C9A27A" stroke-width="2" fill="none" stroke-linecap="round"/></g>';
+}
+function sack(x,y){
+  return '<g transform="translate('+x+','+y+')"><rect x="-10" y="-40" width="9" height="12" fill="'+C.tealB+'"/><rect x="2" y="-44" width="10" height="14" fill="'+C.glow+'"/><rect x="-2" y="-36" width="8" height="8" fill="'+C.green+'"/>'+
+  '<path d="M-20 0Q-26 -22 -12 -30h26Q26 -22 20 0Z" fill="#7B5A2E"/><path d="M-12 -30h26" stroke="#5A3F1D" stroke-width="3"/></g>';
+}
+function sleigh(){
+  var s='<g fill="'+C.ink+'" stroke="'+C.ink+'">';
+  [0,26,52].forEach(function(x){
+    s+='<g transform="translate('+x+',0)"><ellipse cx="0" cy="0" rx="9" ry="4" stroke="none"/><path d="M-6 2l-4 8M-2 3l-1 8M4 3l3 8M7 1l5 7" stroke-width="1.6" fill="none"/><path d="M7 -2l5 -7" stroke-width="3" fill="none"/><ellipse cx="14" cy="-10" rx="4" ry="2.600" stroke="none"/><path d="M12 -12l-2 -6M14 -12l2 -6" stroke-width="1" fill="none"/></g>';
+  });
+  s+='<path d="M-30 -3L52 -1" stroke-width=".8" fill="none"/>'+
+     '<path d="M-66 -9q2 13 12 13h22q6 0 6 -8v-6h-10v6h-18q-6 0 -6 -5z" stroke="none"/>'+
+     '<path d="M-70 9h36q6 0 6 -5" stroke-width="1.600" fill="none"/>'+
+     '<circle cx="-46" cy="-13" r="5" stroke="none"/></g>'+
+     '<polygon points="-51,-16 -44,-27 -41,-16" fill="'+C.red+'"/>'+
+     '<circle class="nose" cx="70" cy="-10" r="2.600" fill="'+C.red+'"/>';
+  return s;
+}
+
+/* ---------- scenes ---------- */
+var scenes=[
+ { // 0 cover
+  art:function(){return svg(sky()+moon(300,74,36)+'<g transform="translate(262,84) rotate(-9) scale(.8)">'+sleigh()+'</g>'+ground(226)+tree(34,228,1.2)+tree(372,232,1)+tree(338,236,.7)+ambulance(120,176,1,false),"An ambulance parked in the snow under a full moon, with a sleigh crossing the sky");},
+  text:function(){return '<p class="eyebrow">A Christmas card from Paramind</p><h1>The Night Shift Before Christmas</h1>'+
+    '<div class="field"><label for="nameInput">Preview the story with a first name</label><input id="nameInput" type="text" maxlength="24" autocomplete="off" value="'+esc(name)+'"></div>'+
+    '<p class="hint">In the real card each member sees their own name, taken from their email link. Nobody types anything. The music starts when you open the story.</p>';},
+  next:"Open the story"
+ },
+ { // 1 station
+  art:function(){
+    var lights='';
+    for(var i=0;i<11;i++){lights+='<circle class="tw '+["","b","c"][i%3]+'" cx="'+(36+i*20)+'" cy="'+(127+(i%2)*3)+'" r="2.600" fill="'+[C.red,C.glow,C.green][i%3]+'"/>';}
+    return svg(sky()+moon(336,48,22)+ground(234)+
+    '<rect x="28" y="120" width="214" height="118" fill="'+C.wall+'"/><rect x="22" y="110" width="226" height="13" rx="5" fill="'+C.snow+'"/>'+lights+
+    '<rect x="46" y="136" width="124" height="17" rx="4" fill="'+C.teal+'"/><text x="108" y="148" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-weight="800" font-size="9" fill="#fff" letter-spacing=".8">AMBULANCE STATION</text>'+
+    '<rect x="46" y="164" width="84" height="74" fill="'+C.dark+'"/><path d="M46 182h84M46 200h84M46 218h84" stroke="#184754" stroke-width="2"/>'+
+    '<rect x="150" y="166" width="76" height="48" rx="3" fill="'+C.glow+'"/>'+
+    '<circle cx="170" cy="196" r="8" fill="#1A4B59"/><rect x="161" y="203" width="18" height="11" fill="#1A4B59"/><circle cx="204" cy="196" r="8" fill="#1A4B59"/><rect x="195" y="203" width="18" height="11" fill="#1A4B59"/>'+
+    '<rect x="183" y="200" width="7" height="8" rx="1.500" fill="#fff"/>'+
+    '<path class="steam" d="M185 197q-3 -4 0 -8" stroke="#fff" stroke-width="1.600" fill="none" stroke-linecap="round"/><path class="steam b" d="M189 197q3 -4 0 -8" stroke="#fff" stroke-width="1.600" fill="none" stroke-linecap="round"/>'+
+    '<path d="M188 166v48M150 190h76" stroke="'+C.wall+'" stroke-width="3" opacity=".55"/>'+
+    ambulance(262,186,.95,false)+tree(388,236,.9),"A snowy ambulance station at night with fairy lights and two people having a brew in the window");
+  },
+  lines:["&rsquo;Twas the night shift before Christmas, and all through the station","Not a radio stirred. A most rare situation.","You&rsquo;d a brew on, {n}, and your feet up at last,","With Hollie beside you as the quiet hours passed."]
+ },
+ { // 2 the call
+  art:function(){return '<div class="mdt" role="img" aria-label="The cab screen showing a new job"><div class="mdt-screen"><div class="mdt-bar">CAB SCREEN &middot; 03:12<span>NEW JOB</span></div><div class="mdt-body">'+
+    ["INC 2512-0001","CAT: <b>FESTIVE</b>","Older gent, red suit","Come off a roof. Alert, chatty","Reindeer on scene: 9","CREW: <b>"+esc(name).toUpperCase()+" + HOLLIE</b>"].map(function(l,i){return '<span class="ml" style="--i:'+i+'">&gt; '+l+'</span>';}).join("")+
+    '</div></div></div>';},
+  lines:["Then up from the cab screen there rose such a clatter,","You put down your tea to see what was the matter.","&ldquo;Older gent, red suit, has come off a roof.","Caller reports reindeer. One&rsquo;s tapping a hoof.&rdquo;"],
+  nosnow:true
+ },
+ { // 3 the drive
+  art:function(){
+    function strip(dx){return '<g transform="translate('+dx+',0)">'+
+      '<rect x="20" y="168" width="54" height="46" fill="#173F4C"/><polygon points="14,170 47,146 80,170" fill="'+C.snow2+'"/><rect x="38" y="184" width="16" height="16" fill="'+C.glow+'"/>'+
+      tree(112,214,1)+tree(140,214,.7)+
+      '<rect x="196" y="160" width="66" height="54" fill="#173F4C"/><polygon points="188,162 229,134 270,162" fill="'+C.snow2+'"/><rect x="208" y="178" width="14" height="14" fill="'+C.glow+'"/><rect x="236" y="178" width="14" height="14" fill="'+C.glow+'"/>'+
+      tree(310,214,1.15)+tree(352,214,.8)+'</g>';}
+    return svg(sky()+'<circle class="nose" cx="352" cy="58" r="9" fill="'+C.red+'" opacity=".3"/><circle class="nose" cx="352" cy="58" r="3.400" fill="'+C.red+'"/>'+
+    '<g class="scroll">'+strip(0)+strip(400)+'</g>'+
+    '<rect y="212" width="400" height="88" fill="'+C.snow+'"/><rect y="236" width="400" height="40" fill="#1B3F4A"/>'+
+    '<path class="dash" d="M0 256H400" stroke="'+C.snow+'" stroke-width="3" stroke-dasharray="24 24"/>'+
+    '<ellipse class="flash" cx="226" cy="262" rx="70" ry="9" fill="#3D8BFF" opacity=".3"/>'+
+    ambulance(138,196,1,true),"The ambulance driving through a snowy village with blue lights on, and a red nose blinking in the distance");
+  },
+  lines:["Blue lights on the snow through the still of the night,","Past tinsel and trees and warm windows of light.","&ldquo;No guessing, {n},&rdquo; Hollie said. &ldquo;Look, and then think.&rdquo;","Far ahead, a red nose gave a slow, steady blink."]
+ },
+ { // 4 on scene, tap the clues
+  art:function(){
+    function clue(i,x,y,label){return '<g class="clue'+(found[i]?' found':'')+'" data-c="'+i+'" tabindex="0" role="button" aria-label="'+label+'" transform="translate('+x+','+y+')"><circle class="ring" r="17"/><circle r="24" fill="transparent"/></g>';}
+    return svg(sky()+moon(346,46,20)+ground(216)+house()+
+    reindeer(332,196,.8,true,false)+reindeer(384,214,1,true,false)+reindeer(346,232,1.1,true,true)+
+    santaSit(205,226,1.3)+sack(278,232)+
+    clue(0,166,200,"Look at his sleeve")+clue(1,208,176,"Look at his beard")+clue(2,278,206,"Look at his sack"),"A cheerful man in a red suit sitting in a snowdrift below a chimney, with three reindeer and a sack beside him");
+  },
+  lines:["There he sat in a snowdrift, all rosy and round,","With a ring of worried reindeer gathered around.","&ldquo;Look first,&rdquo; whispered Hollie. &ldquo;Now what can you see?&rdquo;","Tap the picture, {n}, for clues. There are three."],
+  clues:true
+ },
+ { // 5 all well
+  art:function(){return svg(sky()+moon(346,46,20)+ground(216)+house()+
+    reindeer(338,204,.85,true,false)+reindeer(372,232,1.1,true,true)+
+    person(120,232,"#C98F6B","#2A1B14")+person(146,236,"#F1C7A5","#7A4A22")+
+    santaStand(214,234,1.25)+sack(272,238),"The man in the red suit back on his feet and waving, with two paramedics and the reindeer looking on");},
+  lines:["He was up on his feet with a wink and a grin.","&ldquo;Only bruised in the pride, and some snow down my chin!&rdquo;","You listened, you looked, took your time, did it right,","The way that you do, {n}, night after night."]
+ },
+ { // 6 away he goes
+  art:function(){
+    var roofs='';
+    [[0,236,70],[64,248,60],[118,230,80],[192,246,64],[250,234,78],[322,244,90]].forEach(function(r,i){
+      roofs+='<rect x="'+r[0]+'" y="'+r[1]+'" width="'+r[2]+'" height="80" fill="'+C.dark+'"/><polygon points="'+(r[0]-4)+','+(r[1]+2)+' '+(r[0]+r[2]/2)+','+(r[1]-20)+' '+(r[0]+r[2]+4)+','+(r[1]+2)+'" fill="'+C.snow2+'"/><rect class="tw '+["","b","c"][i%3]+'" x="'+(r[0]+r[2]/2-6)+'" y="'+(r[1]+14)+'" width="12" height="12" fill="'+C.glow+'"/>';
+    });
+    return svg(sky()+moon(200,112,64)+'<g class="fly">'+sleigh()+'</g>'+roofs+'<rect y="286" width="400" height="14" fill="'+C.snow+'"/>'+ambulance(160,250,.62,false),"The sleigh flying across a huge full moon above snowy rooftops, with the ambulance below");
+  },
+  lines:["Then he sprang to his sleigh, to his team gave a call,","And he turned in the sky with a wave for you all:","&ldquo;To the ones on the road while the rest are in bed,","Merry Christmas, {n}!&rdquo; was the last thing he said."]
+ },
+ { // 7 the message
+  art:function(){
+    var line="0,214 62,214 72,205 82,214 104,214 112,228 122,166 132,238 142,214 172,214 186,214 186,198 160,198 185,162 170,162 192,126 180,126 200,90 220,126 208,126 230,162 215,162 240,198 214,198 214,214 258,214 266,228 276,166 286,238 296,214 318,214 328,205 338,214 400,214";
+    var baubles=[[185,182,C.red],[214,176,C.glow],[198,146,C.green],[207,112,C.red],[193,198,C.glow]];
+    var b='';
+    baubles.forEach(function(p,i){b+='<circle class="pop" style="--i:'+(i+1)+'" cx="'+p[0]+'" cy="'+p[1]+'" r="4" fill="'+p[2]+'"/>';});
+    return svg(sky()+
+      '<polyline class="ecg" pathLength="1" points="'+line+'" fill="none" stroke="'+C.tealB+'" stroke-width="9" stroke-linejoin="round" stroke-linecap="round" opacity=".18"/>'+
+      '<polyline class="ecg" pathLength="1" points="'+line+'" fill="none" stroke="'+C.tealB+'" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>'+
+      '<polygon class="pop" style="--i:0" points="200,66 204,78 216,78 206,85 210,97 200,90 190,97 194,85 184,78 196,78" fill="'+C.glow+'"/>'+b,"A heart monitor trace that draws itself into a Christmas tree with a star on top");
+  },
+  text:function(){return '<p class="eyebrow">From all of us</p><h2>Merry Christmas, '+nm()+'</h2>'+
+    '<p class="msg">Thank you for every shift, every question and every patient you looked after this year. Whether you are on the road on Christmas Day or at home with your feet up, we are thinking of you.</p>'+
+    '<p class="sign">Mark, Hollie and everyone at Paramind</p>';},
+  next:"Read it again"
+ }
+];
+
+var clueNotes=[
+  ["Soot on both sleeves","He has been down a fair few chimneys already tonight."],
+  ["Mince pie crumbs in his beard","About four hundred houses&rsquo; worth, at a guess."],
+  ["A sack that is still full","A long round left to do. That explains the rush on the roof."]
+];
+
+/* ---------- sound: Silent Night for a small orchestra (strings, a flute-like lead, harp, bass) and a
+   sleigh-bell alert for the cab screen. Both are built in the browser as sound clips, off the main
+   thread where possible, and played through ordinary audio players. ---------- */
+/*SYNTH*/
+function wavFrom(buf,SR,target){
+  var N=buf.length,peak=0,i;
+  for(i=0;i<N;i++){var a=Math.abs(buf[i]);if(a>peak){peak=a;}}
+  var gain=peak>0?target/peak:0;
+  var out=new DataView(new ArrayBuffer(44+N*2));
+  function str(o,s){for(var q=0;q<s.length;q++){out.setUint8(o+q,s.charCodeAt(q));}}
+  str(0,"RIFF");out.setUint32(4,36+N*2,true);str(8,"WAVE");str(12,"fmt ");out.setUint32(16,16,true);
+  out.setUint16(20,1,true);out.setUint16(22,1,true);out.setUint32(24,SR,true);out.setUint32(28,SR*2,true);
+  out.setUint16(32,2,true);out.setUint16(34,16,true);str(36,"data");out.setUint32(40,N*2,true);
+  for(i=0;i<N;i++){out.setInt16(44+i*2,Math.round(buf[i]*gain*32767),true);}
+  return out.buffer;
+}
+function makeCarolWav(report){
+  var E=0.44, LOOP=150, SR=22050, N=Math.round(LOOP*E*SR), TAU=6.283185307179586;
+  var mel=[[67,3],[69,1],[67,2],[64,6],[67,3],[69,1],[67,2],[64,6],[74,4],[74,2],[71,6],[72,4],[72,2],[67,6],
+           [69,4],[69,2],[72,3],[71,1],[69,2],[67,3],[69,1],[67,2],[64,6],[69,4],[69,2],[72,3],[71,1],[69,2],[67,3],[69,1],[67,2],[64,6],
+           [74,4],[74,2],[77,3],[74,1],[71,2],[72,6],[76,6],[72,2],[67,2],[64,2],[67,3],[65,1],[62,2],[60,6]];
+  var bars=["C","C","C","C","G","G","C","C","F","F","C","C","F","F","C","C","G","G","C","C","C","G","C","C"];
+  var pad={C:[48,55,60,64],G:[43,50,59,62],F:[41,48,57,60]};
+  var harpNotes={C:[48,55,60,64,67,64],G:[43,50,55,59,62,59],F:[41,48,53,57,60,57]};
+  var bassNote={C:36,G:43,F:41};
+  var lead=new Float32Array(N), strings=new Float32Array(N), harp=new Float32Array(N), bass=new Float32Array(N);
+  function hz(m){return 440*Math.pow(2,(m-69)/12);}
+  function leadNote(t0,dur,m){
+    var w=TAU*hz(m)/SR, rel=.32, n=Math.round((dur+rel)*SR), s0=Math.round(t0*SR), att=.07*SR, ph=0;
+    for(var i=0;i<n;i++){
+      var ts=i/SR;
+      ph+=w*(1+.0035*Math.sin(TAU*5.2*ts)*Math.min(1,ts/.35));
+      var env=i<att?i/att:(ts<dur?1-.2*ts/dur:Math.max(0,.8*(1-(ts-dur)/rel)));
+      lead[(s0+i)%N]+=.15*env*(Math.sin(ph)+.3*Math.sin(2*ph)+.1*Math.sin(3*ph));
+    }
+  }
+  function sawNote(t0,dur,m,amp,att,rel){
+    var n=Math.round((dur+rel)*SR), s0=Math.round(t0*SR);
+    [-1,1].forEach(function(det){
+      var inc=hz(m)*Math.pow(2,det*5/1200)/SR, ph=Math.random();
+      for(var i=0;i<n;i++){
+        ph+=inc;if(ph>=1){ph-=1;}
+        var ts=i/SR, env=ts<att?ts/att:(ts<dur?1:Math.max(0,1-(ts-dur)/rel));
+        strings[(s0+i)%N]+=amp*env*(2*ph-1);
+      }
+    });
+  }
+  function pluck(t0,m,v){
+    var w=TAU*hz(m)/SR, n=Math.round(1.2*SR), s0=Math.round(t0*SR), k=Math.log(.002)/n;
+    for(var i=0;i<n;i++){
+      var env=(i<60?i/60:1)*Math.exp(k*i);
+      harp[(s0+i)%N]+=v*env*(Math.sin(w*i)+.45*Math.sin(2*w*i)+.18*Math.sin(3*w*i));
+    }
+  }
+  function bassHold(t0,dur,m){
+    var w=TAU*hz(m)/SR, rel=.8, n=Math.round((dur+rel)*SR), s0=Math.round(t0*SR);
+    for(var i=0;i<n;i++){
+      var ts=i/SR, env=ts<.4?ts/.4:(ts<dur?1:Math.max(0,1-(ts-dur)/rel));
+      bass[(s0+i)%N]+=.07*env*(Math.sin(w*i)+.6*Math.sin(2*w*i)+.3*Math.sin(3*w*i));
+    }
+  }
+  var t=0;
+  mel.forEach(function(n){
+    leadNote(t*E,n[1]*E,n[0]);
+    sawNote(t*E,n[1]*E,n[0],.035,.14,.4);      /* violins shadow the tune */
+    pluck(t*E,n[0]+12,.018);                   /* a touch of celesta sparkle */
+    t+=n[1];
+  });
+  var b0=0;
+  while(b0<bars.length){
+    var c=bars[b0],len=1;
+    while(b0+len<bars.length&&bars[b0+len]===c){len++;}
+    pad[c].forEach(function(m){sawNote(b0*6*E,len*6*E,m,.03,.8,1.3);});
+    bassHold(b0*6*E,len*6*E,bassNote[c]);
+    b0+=len;
+  }
+  bars.forEach(function(c,b){harpNotes[c].forEach(function(m,k){pluck((b*6+k)*E,m,k?0.05:0.075);});});
+  /* soften the strings: two passes of a gentle low-pass */
+  var a=1-Math.exp(-TAU*1500/SR),pass,i,y;
+  for(pass=0;pass<2;pass++){y=0;for(i=0;i<N;i++){y+=a*(strings[i]-y);strings[i]=y;}}
+  var mix=new Float32Array(N);
+  for(i=0;i<N;i++){mix[i]=lead[i]+strings[i]*1.6+harp[i]*1.8+bass[i]*.8;}
+  if(report){
+    var r=function(x,g){var s=0;for(var q=0;q<N;q++){s+=x[q]*x[q]*g*g;}return Math.sqrt(s/N);};
+    report({lead:r(lead,1),strings:r(strings,1.6),harp:r(harp,1),bass:r(bass,1)});
+  }
+  /* a little hall: two echoes that wrap round so the loop joins cleanly */
+  var wet=new Float32Array(N);
+  [[.29,.36,.2],[.41,.3,.18]].forEach(function(cfg){
+    var D=Math.round(cfg[0]*SR), echo=new Float32Array(N), j;
+    for(pass=0;pass<2;pass++){for(i=0;i<N;i++){j=i-D;if(j<0){j+=N;}echo[i]=mix[j]+cfg[1]*echo[j];}}
+    for(i=0;i<N;i++){wet[i]+=echo[i]*cfg[2];}
+  });
+  for(i=0;i<N;i++){mix[i]+=wet[i];}
+  return wavFrom(mix,SR,.7);
+}
+function makeBellsWav(){
+  var SR=22050, N=Math.round(3.2*SR), buf=new Float32Array(N), TAU=6.283185307179586;
+  var freqs=[2450,3120,3980,4700,5650,6800];
+  for(var k=0;k*.125<2.75;k++){
+    var t0=k*.125+Math.random()*.012, fade=t0>2?(2.75-t0)/.75:1, strength=(k%2?0.6:1)*Math.max(0,fade);
+    var s0=Math.round(t0*SR), n=Math.round(.22*SR);
+    freqs.forEach(function(f){
+      if(Math.random()<.25){return;}
+      var w=TAU*f*(1+(Math.random()-.5)*.05)/SR, amp=strength*(.5+Math.random()*.5), tau=(.035+Math.random()*.03)*SR;
+      for(var i=0;i<n&&s0+i<N;i++){buf[s0+i]+=amp*Math.exp(-i/tau)*Math.sin(w*i);}
+    });
+    var prev=0;
+    for(var i=0;i<600&&s0+i<N;i++){var x=Math.random()*2-1;buf[s0+i]+=strength*.5*Math.exp(-i/200)*(x-prev);prev=x;}
+  }
+  return wavFrom(buf,SR,.85);
+}
+/*END*/
+var Music=(function(){
+  var carol=null,bells=null,ready=false,playing=false,failCb=null,started=false;
+  function url(buffer){return URL.createObjectURL(new Blob([buffer],{type:"audio/wav"}));}
+  try{
+    var quiet=url(wavFrom(new Float32Array(4410),22050,0));
+    carol=new Audio();carol.loop=true;carol.preload="auto";carol.src=quiet;
+    bells=new Audio();bells.preload="auto";bells.src=quiet;
+  }catch(e){carol=null;}
+  function onReady(a,b){
+    if(ready||!carol){return;}
+    ready=true;
+    carol.src=url(a);bells.src=url(b);
+    if(playing){play(carol);}
+  }
+  function play(el){
+    var p;
+    try{p=el.play();}catch(e){return false;}
+    if(p&&p.catch){p.catch(function(){if(el===carol){playing=false;if(failCb){failCb();}}});}
+    return true;
+  }
+  function build(){
+    if(started){return;}
+    started=true;
+    var done=false;
+    function local(){if(done){return;}done=true;setTimeout(function(){try{onReady(makeCarolWav(),makeBellsWav());}catch(e){}},50);}
+    try{
+      var src=wavFrom.toString()+"\n"+makeCarolWav.toString()+"\n"+makeBellsWav.toString()+
+        "\nvar a=makeCarolWav(),b=makeBellsWav();postMessage({a:a,b:b},[a,b]);";
+      var w=new Worker(URL.createObjectURL(new Blob([src],{type:"text/javascript"})));
+      w.onmessage=function(e){done=true;onReady(e.data.a,e.data.b);w.terminate();};
+      w.onerror=function(){local();};
+      setTimeout(function(){if(!ready){local();}},6000);
+    }catch(e){local();}
+  }
+  function start(onFail){
+    if(!carol){return false;}
+    failCb=onFail||null;
+    try{carol.currentTime=0;}catch(e){}
+    playing=true;
+    if(!play(carol)){playing=false;return false;}
+    return true;
+  }
+  function stop(){playing=false;try{carol.pause();bells.pause();}catch(e){}}
+  function jingle(){
+    if(!ready||!playing){return;}
+    try{bells.currentTime=0;}catch(e){}
+    play(bells);
+  }
+  function hush(){if(bells){try{bells.pause();}catch(e){}}}
+  document.addEventListener("visibilitychange",function(){
+    if(!carol||!playing){return;}
+    try{if(document.hidden){carol.pause();bells.pause();}else{play(carol);}}catch(e){}
+  });
+  if(carol){setTimeout(build,300);}
+  return {start:start,stop:stop,jingle:jingle,hush:hush,isPlaying:function(){return playing;}};
+})();
+var musicWanted=true;
+var musicBtn=document.getElementById("music");
+function musicLabel(){
+  musicBtn.setAttribute("aria-pressed",musicWanted?"true":"false");
+  musicBtn.innerHTML="&#9834; Sound "+(musicWanted?"on":"off");
+}
+function musicFailed(){musicWanted=false;musicLabel();}
+musicBtn.addEventListener("click",function(){
+  if(Music.isPlaying()){Music.stop();musicWanted=false;}
+  else{musicWanted=Music.start(musicFailed);}
+  musicLabel();
+});
+
+/* ---------- rendering ---------- */
+var art=document.getElementById("art"),text=document.getElementById("text"),dots=document.getElementById("dots"),
+    back=document.getElementById("back"),next=document.getElementById("next"),snow=document.getElementById("snow");
+
+function clueBox(last){
+  var n=found.filter(Boolean).length, html;
+  if(last===undefined){html='<b>Nothing found yet</b>Tap the glowing rings in the picture.';}
+  else{html='<b>'+clueNotes[last][0]+'</b>'+clueNotes[last][1];}
+  if(n===3){html+=' Hollie nods. Now you have the whole picture.';}
+  return '<div class="clues'+(n===3?' done':'')+'" id="clueBox" aria-live="polite">'+html+'<span class="count">'+n+' of 3 clues found</span></div>';
+}
+function render(){
+  var s=scenes[current];
+  art.innerHTML=s.art();
+  var html=s.text?s.text():'<p class="verse">'+s.lines.map(function(l,i){return '<span class="ln" style="--i:'+i+'">'+fill(l)+'</span>';}).join("")+'</p>';
+  if(s.clues){html+=clueBox();}
+  text.innerHTML=html;
+  text.scrollTop=0;
+  dots.innerHTML=scenes.map(function(_,i){return '<i'+(i<=current?' class="on"':'')+'></i>';}).join("");
+  back.disabled=current===0;
+  next.textContent=s.next||"Next";
+  snow.style.display=s.nosnow?"none":"block";
+  var input=document.getElementById("nameInput");
+  if(input){input.addEventListener("input",readName);}
+}
+function readName(){
+  var input=document.getElementById("nameInput");
+  if(!input){return;}
+  var v=input.value.replace(/\s+/g," ").trim();
+  name=v||"friend";
+}
+function go(i){
+  readName();
+  if(i>=scenes.length){i=1;}
+  if(i<0){i=0;}
+  if(i>=1&&musicWanted&&!Music.isPlaying()){musicWanted=Music.start(musicFailed);musicLabel();}
+  if(i===4&&current!==4){found=[false,false,false];}
+  current=i;render();
+  if(current===2){Music.jingle();}else{Music.hush();}
+}
+next.addEventListener("click",function(){go(current+1);});
+back.addEventListener("click",function(){go(current-1);});
+document.addEventListener("keydown",function(e){
+  if(e.target&&e.target.tagName==="INPUT"){if(e.key==="Enter"){go(1);}return;}
+  if(e.key==="ArrowRight"){go(current+1);}
+  if(e.key==="ArrowLeft"){go(current-1);}
+});
+function pick(el){
+  var i=+el.getAttribute("data-c");
+  found[i]=true;el.classList.add("found");
+  var box=document.getElementById("clueBox");
+  if(box){box.outerHTML=clueBox(i);}
+}
+art.addEventListener("click",function(e){var c=e.target.closest&&e.target.closest(".clue");if(c){pick(c);}});
+art.addEventListener("keydown",function(e){
+  var c=e.target.closest&&e.target.closest(".clue");
+  if(c&&(e.key==="Enter"||e.key===" ")){e.preventDefault();pick(c);}
+});
+
+/* ---------- snow ---------- */
+(function(){
+  var ctx=snow.getContext("2d"),flakes=[],w=0,h=0;
+  var still=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function size(){
+    var r=snow.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);
+    w=r.width;h=r.height;snow.width=w*d;snow.height=h*d;ctx.setTransform(d,0,0,d,0,0);
+  }
+  function seed(){
+    flakes=[];
+    for(var i=0;i<55;i++){flakes.push({x:Math.random()*w,y:Math.random()*h,r:.8+Math.random()*1.9,v:.25+Math.random()*.7,p:Math.random()*6.28});}
+  }
+  function draw(t){
+    ctx.clearRect(0,0,w,h);ctx.fillStyle="rgba(255,255,255,.85)";
+    for(var i=0;i<flakes.length;i++){
+      var f=flakes[i];
+      if(!still){f.y+=f.v;f.x+=Math.sin(t/900+f.p)*.3;if(f.y>h+3){f.y=-3;f.x=Math.random()*w;}}
+      ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,6.283);ctx.fill();
+    }
+    if(!still){requestAnimationFrame(draw);}
+  }
+  size();seed();
+  window.addEventListener("resize",function(){size();seed();if(still){draw(0);}});
+  if(still){draw(0);}else{requestAnimationFrame(draw);}
+})();
+
+render();
+})();
+</script>
+</body>
+</html>
