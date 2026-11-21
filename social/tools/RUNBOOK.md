@@ -45,6 +45,8 @@ For each story, write in your own words. Do not copy the email text verbatim.
 | `source`   | The outlet named in the email (e.g. "BBC News", "HSJ", "NHS England"). |
 | `link`     | The web address of the original article, copied **exactly** from the email (it appears in angle brackets `<https://...>` beside that story's headline). Never guess, shorten or build a link. If the email gives no link for a story, use `""`. |
 
+| `keywords` | A list of 6 to 10 **search terms** for the website's news search. They are never shown on the page or the slides. Add what a paramedic might type to find this story that is *not* already in the headline or body: the wider theme ("winter pressure", "handover delays"), jargon and abbreviations ("W45", "OHCA", "NQP"), the fuller name of anything abbreviated, and plain-English alternatives ("jobs" for a recruitment story). Lower case unless it is an abbreviation. No drug names, and no names of patients or private individuals. |
+
 ### Content policy (non-negotiable)
 
 - No drug names, doses, treatment protocols or clinical management guidance. Service and pathway news is fine (e.g. "taken straight to the ECMO team"), but not how to treat.
@@ -71,12 +73,12 @@ If `/opt/pw-browsers/chromium-1194` doesn't exist, use whichever `chrome` binary
 {
   "date": "20–22 October 2026",
   "stories": [
-    { "region": "England", "headline": "…", "body": "…", "why": "…", "source": "BBC News", "link": "https://www.bbc.co.uk/news/articles/…" }
+    { "region": "England", "headline": "…", "body": "…", "why": "…", "source": "BBC News", "link": "https://www.bbc.co.uk/news/articles/…", "keywords": ["handover delays", "winter pressure", "W45"] }
   ]
 }
 ```
 
-The slide builder ignores `link`; it is there for the website (step 5b).
+The slide builder ignores `link` and `keywords`; they are there for the website (step 5b).
 
 For `date`, use the span of the emails used, e.g. "24–26 October 2026" for a Monday run, or "Thursday 22 – Friday 23 October 2026".
 
@@ -110,6 +112,7 @@ Re-read each story against its source email and confirm all of the following. If
 - Hollie is not called "AI".
 - No slide reported `OVERFLOW`, and every PNG looked right when you viewed it.
 - The story is not a repeat of the previous carousel.
+- No `keywords` entry is a drug name or the name of a patient or private individual.
 - Every `link` is copied exactly from the email, starts with `https://`, and belongs to that story (not the story above or below it).
 
 ### Publish
@@ -149,7 +152,15 @@ Write `social/latest.json` in the repo. It is this run's `content.json` with two
 - `stories` are the same stories, in the same order, with the same wording as the slides.
 - `earlier` is the list behind the "Earlier news" section of the page. **Read the existing `social/latest.json` before you overwrite it.** The new `earlier` list is one new entry for the round-up being replaced, `{ "folder": <old folder>, "date": <old date> }`, followed by the old file's `earlier` list unchanged. Newest first. Do not add the entry if the old `folder` is the same as this run's folder (a re-run on the same day), and never drop or reorder existing entries.
 
-Then commit **only** `social/latest.json` with the message `Update Paramedic news page (<DATE>)`, pull with `--rebase`, and push. Wait about 90 seconds and check that `https://paramind.co.uk/social/latest.json` shows the new date. Do not change `news.html` or any other file.
+Also update `social/stories.json`, the file the news page's **search** reads. It holds every story from every round-up, newest first, in one list called `stories`. Add this run's stories to the **top** of that list, in slide order. Each entry is the story from `content.json` (region, headline, body, why, source, link, keywords) plus two extra fields, `"folder"` (this run's `<DATE>`) and `"date"` (the same `date` text as the round-up), like this:
+
+```json
+{ "folder": "2026-10-23", "date": "20–22 October 2026", "region": "England", "headline": "…", "body": "…", "why": "…", "source": "BBC News", "link": "https://…", "keywords": ["…", "…"] }
+```
+
+Never change, reorder or remove the entries already in `social/stories.json`. The one exception is a re-run on the same day: if entries with this run's `folder` are already there, replace them rather than adding duplicates. Check the file is still valid JSON before committing (`python3 -c "import json;json.load(open('social/stories.json'))"`). Do not touch `social/jargon.json`; Mark maintains that.
+
+Then commit **only** `social/latest.json` and `social/stories.json` with the message `Update Paramedic news page (<DATE>)`, pull with `--rebase`, and push. Wait about 90 seconds and check that `https://paramind.co.uk/social/latest.json` shows the new date. Do not change `news.html` or any other file.
 
 ## 6. Tidy up
 
