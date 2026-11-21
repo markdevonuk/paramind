@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <!-- TEST PAGE: keep search engines away until this is launched as the real page -->
-    <meta name="robots" content="noindex">
     <title>Paramedic News | Paramind</title>
     <meta name="description" content="The latest UK ambulance and paramedic news, summarised for working paramedics and students. Updated Monday, Wednesday and Friday.">
+    <link rel="canonical" href="https://paramind.co.uk/news.html">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/menu-v2.css">
@@ -25,6 +24,8 @@
            PARAMIND — PARAMEDIC NEWS (public page, no login needed)
            Shows the latest news round-up from social/latest.json.
            That file is written by the Mon/Wed/Fri news run.
+           Paramind's own news articles (added in admin.html) show
+           above the stories until the next round-up replaces them.
            ================================================================ */
         .landing-page { min-height: 100vh; background: #FFFFFF; overflow-x: hidden; position: relative; }
         .landing-container { max-width: 920px; margin: 0 auto; padding: 0.5rem 1rem 3rem; position: relative; z-index: 1; }
@@ -141,6 +142,19 @@
         }
         .news-card-link:hover { color: var(--color-teal-dark); text-decoration: underline; }
 
+        /* Paramind's own news article (green accent so it stands apart) */
+        .news-card.news-card--paramind {
+            border-color: rgba(91, 193, 102, 0.55);
+            border-left: 5px solid #5BC166;
+            background: linear-gradient(135deg, rgba(91, 193, 102, 0.07) 0%, #ffffff 60%);
+        }
+        .news-card--paramind .news-card-region { color: #2E8B3A; }
+        #paramindNews:not(:empty) { margin-bottom: 1rem; }
+
+        /* When a headline on the home page is tapped, the page jumps to that story */
+        .news-card { scroll-margin-top: 80px; }
+        .news-card.news-card--target { box-shadow: 0 0 0 3px rgba(53, 176, 200, 0.45); }
+
         /* Small print under the stories */
         .news-footnote {
             font-size: 0.82rem;
@@ -190,6 +204,9 @@
             <div class="section-header-tagline">UK ambulance and paramedic news, updated Monday, Wednesday and Friday</div>
         </div>
 
+        <!-- Paramind's own news articles (filled by the script below; stays empty if there are none) -->
+        <div id="paramindNews" class="news-list"></div>
+
         <!-- Main content area — the script below swaps between loading / stories / message -->
         <div id="newsContent">
             <div class="loading-spinner">
@@ -220,20 +237,28 @@
         </div>
     </footer>
 
+    <!-- Firebase compat SDK (same version the menu uses) — only needed for Paramind's own news articles -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/app.js"></script>
     <script src="js/menu-v2.js"></script>
+    <script src="js/app.js"></script>
 
     <script>
         // ============================================================
         // PARAMEDIC NEWS
-        // Reads social/latest.json (the newest news round-up) and
-        // draws one card per story. No login and no Firebase needed.
+        // 1. Reads social/latest.json (the newest news round-up) and
+        //    draws one card per story. No login needed.
+        // 2. Reads Paramind's own news articles from Firestore
+        //    ("paramindNews") and shows any that were saved AFTER the
+        //    latest round-up was published, above the stories.
         // ============================================================
         (function () {
             'use strict';
 
             var content = document.getElementById('newsContent');
+            var paramindBox = document.getElementById('paramindNews');
 
             // Make text safe to put on the page
             function escapeHtml(text) {
@@ -252,6 +277,13 @@
                 return /^https?:\/\//i.test(trimmed) ? trimmed : '';
             }
 
+            // A Paramind page such as upgrade.html (used by Paramind's own articles)
+            function safePageLink(link) {
+                if (typeof link !== 'string') return '';
+                var trimmed = link.trim();
+                return /^[a-z0-9-]+\.html([?#].*)?$/i.test(trimmed) ? trimmed : '';
+            }
+
             function showMessage(icon, text) {
                 content.innerHTML =
                     '<div class="news-message">' +
@@ -260,9 +292,9 @@
                     '</div>';
             }
 
-            function storyCard(story) {
+            function storyCard(story, number) {
                 var link = safeLink(story.link);
-                var html = '<article class="news-card">';
+                var html = '<article class="news-card" id="story-' + number + '">';
 
                 if (story.region) {
                     html += '<div class="news-card-region">' + escapeHtml(story.region) + '</div>';
@@ -293,6 +325,39 @@
                 return html;
             }
 
+            // Paramind's own article: headline, a few sentences, optional link
+            function paramindCard(item, number) {
+                var external = safeLink(item.link);
+                var page = safePageLink(item.link);
+                var html = '<article class="news-card news-card--paramind" id="paramind-' + number + '">';
+                html += '<div class="news-card-region">Paramind news</div>';
+                html += '<h2 class="news-card-headline">' + escapeHtml(item.headline) + '</h2>';
+                if (item.body) {
+                    html += '<p class="news-card-body">' + escapeHtml(item.body) + '</p>';
+                }
+                if (external) {
+                    html += '<div class="news-card-footer"><span></span>' +
+                            '<a class="news-card-link" href="' + escapeHtml(external) + '" target="_blank" rel="noopener noreferrer">' +
+                            'Find out more <i class="bi bi-box-arrow-up-right"></i></a></div>';
+                } else if (page) {
+                    html += '<div class="news-card-footer"><span></span>' +
+                            '<a class="news-card-link" href="' + escapeHtml(page) + '">' +
+                            'Find out more <i class="bi bi-arrow-right"></i></a></div>';
+                }
+                html += '</article>';
+                return html;
+            }
+
+            // If the address ends in #story-2 (from the home page headline strip), jump to that card
+            function jumpToTarget() {
+                var id = (window.location.hash || '').replace('#', '');
+                if (!/^(story|paramind)-\d+$/.test(id)) return;
+                var card = document.getElementById(id);
+                if (!card) return;
+                card.classList.add('news-card--target');
+                card.scrollIntoView({ block: 'start' });
+            }
+
             function render(data) {
                 var stories = (data && Array.isArray(data.stories)) ? data.stories : [];
                 stories = stories.filter(function (s) { return s && s.headline; });
@@ -307,12 +372,55 @@
                     html += '<p class="news-date"><i class="bi bi-calendar3"></i>' + escapeHtml(data.date) + '</p>';
                 }
                 html += '<div class="news-list">';
-                stories.forEach(function (story) { html += storyCard(story); });
+                stories.forEach(function (story, index) { html += storyCard(story, index + 1); });
                 html += '</div>';
                 html += '<p class="news-footnote">Summaries are written by Paramind from the sources shown. ' +
                         'Follow the link on each story to read the original.</p>';
 
                 content.innerHTML = html;
+                jumpToTarget();
+            }
+
+            // ---- Paramind's own news articles (Firestore) ----
+            // Shown only if saved after the latest round-up was published.
+            function loadParamindNews(roundupPublished) {
+                if (typeof firebase === 'undefined' || !firebase.firestore) return;
+                try {
+                    if (!firebase.apps || !firebase.apps.length) {
+                        firebase.initializeApp({
+                            apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
+                            authDomain: "paramind-64b8e.firebaseapp.com",
+                            projectId: "paramind-64b8e",
+                            storageBucket: "paramind-64b8e.firebasestorage.app",
+                            messagingSenderId: "452173393964",
+                            appId: "1:452173393964:web:8599c0fe1983a6f441e189",
+                            measurementId: "G-GW385S6L0L"
+                        });
+                    }
+                } catch (e) { /* already initialised — fine */ }
+
+                firebase.firestore().collection('paramindNews')
+                    .orderBy('publishedAt', 'desc')
+                    .limit(5)
+                    .get()
+                    .then(function (snap) {
+                        var html = '';
+                        var number = 0;
+                        snap.forEach(function (docSnap) {
+                            var item = docSnap.data() || {};
+                            if (!item.headline) return;
+                            var when = (item.publishedAt && item.publishedAt.toDate) ? item.publishedAt.toDate() : null;
+                            if (when && roundupPublished && when.getTime() <= roundupPublished.getTime()) return;
+                            number++;
+                            html += paramindCard(item, number);
+                        });
+                        paramindBox.innerHTML = html;
+                        jumpToTarget();
+                    })
+                    .catch(function (error) {
+                        // Not a problem for visitors — the news stories still show
+                        console.warn('Paramedic news: could not load Paramind news articles', error);
+                    });
             }
 
             // The "?t=" on the end makes sure we always get the newest file
@@ -321,10 +429,16 @@
                     if (!response.ok) throw new Error('HTTP ' + response.status);
                     return response.json();
                 })
-                .then(render)
+                .then(function (data) {
+                    render(data);
+                    var published = (data && data.published) ? new Date(data.published) : null;
+                    if (published && isNaN(published.getTime())) published = null;
+                    loadParamindNews(published);
+                })
                 .catch(function (error) {
                     console.warn('Paramedic news: could not load the latest stories', error);
                     showMessage('bi-wifi-off', 'Sorry, the news could not be loaded. Please check your connection and try again.');
+                    loadParamindNews(null);
                 });
         })();
     </script>

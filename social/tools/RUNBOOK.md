@@ -2,6 +2,8 @@
 
 This is the procedure each scheduled run follows. The run **publishes the carousel to TikTok automatically** through Native (Mark approved auto-posting on 20 Oct 2026). Nobody reviews it first, so the self-check in step 5 is mandatory. If any doubt remains, leave the post as a draft and tell Mark rather than publishing.
 
+Since 21 Nov 2026 the same stories also feed the website: the **Paramedic news page** (`news.html`) and the headline strip on the home page both read `social/latest.json`. Step 5b updates that file. Nobody reviews that either, so it is only updated when the self-check has passed.
+
 ## 0. Which news to use
 
 George sends a news email **every day, including weekends** (since 20 Oct 2026). Read every news email received since the previous run, i.e. after the previous run day:
@@ -41,6 +43,7 @@ For each story, write in your own words. Do not copy the email text verbatim.
 | `body`     | 2 to 3 sentences, up to about 260 characters. Keep figures exactly as the email gives them. Never round up a figure or turn "second highest" into "record". |
 | `why`      | 1 to 2 sentences, up to about 130 characters. Why it matters to a working paramedic. Mention students only where it is natural. |
 | `source`   | The outlet named in the email (e.g. "BBC News", "HSJ", "NHS England"). |
+| `link`     | The web address of the original article, copied **exactly** from the email (it appears in angle brackets `<https://...>` beside that story's headline). Never guess, shorten or build a link. If the email gives no link for a story, use `""`. |
 
 ### Content policy (non-negotiable)
 
@@ -68,10 +71,12 @@ If `/opt/pw-browsers/chromium-1194` doesn't exist, use whichever `chrome` binary
 {
   "date": "20–22 October 2026",
   "stories": [
-    { "region": "England", "headline": "…", "body": "…", "why": "…", "source": "BBC News" }
+    { "region": "England", "headline": "…", "body": "…", "why": "…", "source": "BBC News", "link": "https://www.bbc.co.uk/news/articles/…" }
   ]
 }
 ```
+
+The slide builder ignores `link`; it is there for the website (step 5b).
 
 For `date`, use the span of the emails used, e.g. "24–26 October 2026" for a Monday run, or "Thursday 22 – Friday 23 October 2026".
 
@@ -105,6 +110,7 @@ Re-read each story against its source email and confirm all of the following. If
 - Hollie is not called "AI".
 - No slide reported `OVERFLOW`, and every PNG looked right when you viewed it.
 - The story is not a repeat of the previous carousel.
+- Every `link` is copied exactly from the email, starts with `https://`, and belongs to that story (not the story above or below it).
 
 ### Publish
 
@@ -117,6 +123,29 @@ Re-read each story against its source email and confirm all of the following. If
 
 If any Native call returns `cancelled`, `forbidden`, `insufficient_scope` or `writes_disabled`, or the TikTok channel needs reconnecting, stop and report it. Do not retry in a loop.
 
+## 5b. Update the Paramedic news page on the website
+
+Do this **only if the self-check passed**. If the post was left as a draft because a check failed, skip this step so the website keeps the previous round-up. If the self-check passed but TikTok itself failed for a technical reason (channel needs reconnecting, Native error), still do this step.
+
+Write `social/latest.json` in the repo. It is this run's `content.json` with two extra fields:
+
+```json
+{
+  "date": "20–22 October 2026",
+  "folder": "2026-10-23",
+  "published": "2026-10-23T17:25:00Z",
+  "stories": [
+    { "region": "England", "headline": "…", "body": "…", "why": "…", "source": "BBC News", "link": "https://…" }
+  ]
+}
+```
+
+- `folder` is this run's `<DATE>` folder name.
+- `published` is the time now in UTC, from `date -u +%Y-%m-%dT%H:%M:%SZ`. It matters: Paramind's own news articles (which Mark adds in admin) drop off the page once a round-up with a later `published` time appears.
+- `stories` are the same stories, in the same order, with the same wording as the slides.
+
+Then commit **only** `social/latest.json` with the message `Update Paramedic news page (<DATE>)`, pull with `--rebase`, and push. Wait about 90 seconds and check that `https://paramind.co.uk/social/latest.json` shows the new date. Do not change `news.html` or any other file.
+
 ## 6. Tidy up
 
 Nothing else needs doing. The images stay on the site, and old dated folders can be removed later.
@@ -125,6 +154,7 @@ Nothing else needs doing. The images stay on the site, and old dated folders can
 
 Finish with a short summary:
 - whether it went live, with the TikTok link (or the reason it was left as a draft)
+- whether the Paramedic news page (https://paramind.co.uk/news.html) was updated
 - the stories used, and any left out with the reason
 - any editorial call he may want to look at
 - the Native post link (`appUrl`)

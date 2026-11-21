@@ -514,70 +514,62 @@
 
 
             <!-- ============================================================
-                 ARTICLES MANAGER — drives the "What's New" page
+                 PARAMIND NEWS ARTICLES — short cards on the "Paramedic news" page
                  Distinct from the News Popup Manager above:
                    Popup: one current article per tier (free/pro), shown as a modal on landing
-                   Articles: a feed of multiple articles shown on whatsnew.html
+                   News articles: short cards shown at the top of news.html until the
+                   next Mon/Wed/Fri news round-up replaces them
                  ============================================================ -->
-            <div class="card mt-4 mb-4" id="articlesManager">
+            <div class="card mt-4 mb-4" id="paramindNewsManager">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-journals me-2"></i>Articles (What's New page)</h5>
-                    <button id="newArticleBtn" class="btn btn-primary btn-sm">
-                        <i class="bi bi-plus-lg me-1"></i> New Article
+                    <h5 class="mb-0"><i class="bi bi-newspaper me-2"></i>Paramind news articles (Paramedic news page)</h5>
+                    <button id="pnNewBtn" class="btn btn-primary btn-sm">
+                        <i class="bi bi-plus-lg me-1"></i> New news article
                     </button>
                 </div>
                 <div class="card-body">
                     <p class="text-muted mb-3">
-                        Articles shown on the public <code>whatsnew.html</code> page.
-                        Each save publishes immediately. Saved articles appear newest first.
+                        Short Paramind announcements shown at the top of the public <code>news.html</code> page,
+                        above the news stories. Each save publishes immediately. An article stays on the page
+                        until the next Monday / Wednesday / Friday news round-up, then drops off automatically.
+                        To show an old one again, click Edit and then Save.
                     </p>
 
                     <!-- Article list -->
-                    <div id="articlesList">
-                        <div class="text-muted text-center py-4"><span class="spinner-border spinner-border-sm me-2"></span>Loading articles…</div>
+                    <div id="pnList">
+                        <div class="text-muted text-center py-4"><span class="spinner-border spinner-border-sm me-2"></span>Loading news articles…</div>
                     </div>
 
-                    <!-- Article form (hidden until New Article or Edit is clicked) -->
-                    <div id="articleFormWrapper" style="display: none;" class="border-top pt-4 mt-4">
-                        <h6 class="mb-3" id="articleFormTitle">New Article</h6>
+                    <!-- Article form (hidden until New news article or Edit is clicked) -->
+                    <div id="pnFormWrapper" style="display: none;" class="border-top pt-4 mt-4">
+                        <h6 class="mb-3" id="pnFormTitle">New news article</h6>
 
                         <div class="mb-3">
-                            <label for="articleTitle" class="form-label fw-bold">Title</label>
-                            <input type="text" class="form-control" id="articleTitle" placeholder="Article headline">
+                            <label for="pnHeadline" class="form-label fw-bold">Headline</label>
+                            <input type="text" class="form-control" id="pnHeadline" maxlength="80" placeholder="Short headline (up to 80 characters)">
                         </div>
 
                         <div class="mb-3">
-                            <label for="articleCoverImage" class="form-label fw-bold">Cover image <small class="text-muted fw-normal">(optional — shown on the list page)</small></label>
-                            <input type="file" class="form-control" id="articleCoverImage" accept="image/*">
-                            <div id="articleCoverImagePreview"></div>
+                            <label for="pnBody" class="form-label fw-bold">Text <small class="text-muted fw-normal">(a few sentences)</small></label>
+                            <textarea class="form-control" id="pnBody" rows="4" maxlength="400" placeholder="What is the news?"></textarea>
+                            <div class="form-text"><span id="pnBodyCount">0 / 400</span> characters</div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="articleExcerpt" class="form-label fw-bold">Excerpt <small class="text-muted fw-normal">(one-line summary for the list view)</small></label>
-                            <textarea class="form-control" id="articleExcerpt" rows="2" placeholder="Short summary of what this article is about"></textarea>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Content</label>
-                            <div id="articleEditor" style="background: white; min-height: 300px;"></div>
-                            <div class="form-text">Use the toolbar to format text. Inline images upload to Firebase Storage automatically.</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="articleAttachmentInput" class="form-label fw-bold">Attachments <small class="text-muted fw-normal">(documents — PDF, DOCX, etc.)</small></label>
-                            <input type="file" class="form-control" id="articleAttachmentInput">
-                            <div id="articleAttachmentsList" class="mt-2"></div>
+                            <label for="pnLink" class="form-label fw-bold">Link <small class="text-muted fw-normal">(optional)</small></label>
+                            <input type="text" class="form-control" id="pnLink" placeholder="e.g. cluehunt.html or https://...">
+                            <div class="form-text">A Paramind page (like <code>upgrade.html</code>) or a full web address. Leave empty for no link.</div>
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
-                            <button id="articleCancelBtn" type="button" class="btn btn-outline-secondary">Cancel</button>
-                            <button id="articleSaveBtn" type="button" class="btn btn-success">
-                                <i class="bi bi-check-lg me-1"></i> Save Article
+                            <button id="pnCancelBtn" type="button" class="btn btn-outline-secondary">Cancel</button>
+                            <button id="pnSaveBtn" type="button" class="btn btn-success">
+                                <i class="bi bi-check-lg me-1"></i> Save news article
                             </button>
                         </div>
                     </div>
                 </div>
-            </div><!-- end articles manager card -->
+            </div><!-- end paramind news articles card -->
 
             
             
@@ -638,7 +630,7 @@
                     await loadUserStats();
                     // Load news manager
 					initNewsManager();
-                    // Load articles manager (What's New page)
+                    // Load Paramind news articles manager (Paramedic news page)
                     initAdminNews({ db, storage }).catch(err => console.error('admin-news init failed:', err));
                     // Load arrest simulator click counts
                     loadArrestClicks();
