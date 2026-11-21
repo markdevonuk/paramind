@@ -230,6 +230,66 @@
             box-shadow: 0 6px 14px rgba(217, 119, 6, 0.28);
         }
         .quiz-pill i { animation: none; }
+
+        /* ============================================================
+           NEWS HEADLINE STRIP — sits under the quiz button.
+           Shows one news headline at a time; each is a link to the
+           Paramedic news page. Fixed height so nothing below jumps.
+           ============================================================ */
+        .quiz-pill { margin-left: 0; }   /* the quiz button now sits on its own, so centre it */
+        .news-strip {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            max-width: 560px;
+            height: 3.4rem;
+            margin: 0.85rem auto 0;
+            padding: 0 0.9rem 0 0.5rem;
+            background: #FFFFFF;
+            border: 1.5px solid rgba(43, 138, 156, 0.30);
+            border-radius: 14px;
+            box-shadow: 0 2px 6px rgba(43, 138, 156, 0.08);
+            text-align: left;
+            overflow: hidden;
+            visibility: hidden;            /* shown once the headlines have loaded */
+        }
+        .news-strip.is-ready { visibility: visible; }
+        .news-strip-label {
+            flex: 0 0 auto;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #FFFFFF;
+            background: var(--color-teal);
+            padding: 0.3rem 0.55rem;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+        .news-strip-label.is-paramind { background: #2E8B3A; }
+        .news-strip-link {
+            flex: 1 1 auto;
+            min-width: 0;
+            color: var(--color-gray-800);
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 600;
+            line-height: 1.25;
+        }
+        .news-strip-link:hover .news-strip-text { color: var(--color-teal); }
+        .news-strip-text {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            transition: transform 0.35s ease, opacity 0.35s ease, color 0.2s ease;
+        }
+        .news-strip-text.is-leaving  { transform: translateY(-110%); opacity: 0; }
+        .news-strip-text.is-entering { transform: translateY(110%);  opacity: 0; transition: none; }
+        .news-strip-arrow { flex: 0 0 auto; color: var(--color-teal); font-size: 0.85rem; }
+        @media (prefers-reduced-motion: reduce) {
+            .news-strip-text { transition: none; }
+        }
         .upgrade-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; position: relative; z-index: 1; }
         .upgrade-icon {
             width: 44px; height: 44px; border-radius: 10px;
@@ -368,14 +428,20 @@
 
             <h1 class="hero-greeting page-load-3"><span id="heroGreeting">Hey</span> <span class="gradient-name" id="userFirstName">there</span>! <span id="greetingEmoji">👋</span></h1>
             <p class="hero-subtitle page-load-4">I'm Hollie, your paramedic tutor. What shall we do today?</p>
-            <a href="whatsnew.html" class="whatsnew-pill page-load-5" aria-label="See what's new">
-                <i class="bi bi-megaphone"></i>
-                <span>What's new</span>
-            </a>
             <a href="quiz-month.html" class="whatsnew-pill quiz-pill page-load-5" aria-label="Play the Quiz of the Month">
                 <i class="bi bi-trophy"></i>
                 <span>Quiz of the Month</span>
             </a>
+
+            <!-- News headline strip: one headline at a time, each a link to the Paramedic news page.
+                 Filled by the NEWS HEADLINE STRIP script near the bottom of this page. -->
+            <div class="news-strip page-load-5" id="newsStrip" aria-label="Latest paramedic news">
+                <a href="news.html" class="news-strip-label">News</a>
+                <a href="news.html" class="news-strip-link" id="newsStripLink">
+                    <span class="news-strip-text" id="newsStripText">Paramedic news</span>
+                </a>
+                <i class="bi bi-chevron-right news-strip-arrow" aria-hidden="true"></i>
+            </div>
         </div>
 
         <!-- 7-day Pro trial promotion (filled by js/trial-promo.js; stays empty for everyone else) -->
@@ -574,6 +640,136 @@
     <script src="js/news-popup.js"></script>
     <script src="js/role-prompt.js"></script>
     <script src="js/upgrade-modal.js"></script>
+
+    <!-- ==================== NEWS HEADLINE STRIP ==================== -->
+    <script>
+        // Shows the latest news headlines one at a time under the quiz button.
+        // - News stories come from social/latest.json (same data as the Paramedic news page).
+        // - Paramind's own news articles (added in admin) go first, if any are current.
+        // - Changes every 5 seconds. Pauses while a finger or mouse is on it.
+        // - If the phone is set to "reduce motion", it stays on the first headline.
+        (function () {
+            'use strict';
+
+            var SECONDS_PER_HEADLINE = 5;
+
+            var strip = document.getElementById('newsStrip');
+            var linkEl = document.getElementById('newsStripLink');
+            var textEl = document.getElementById('newsStripText');
+            var labelEl = strip ? strip.querySelector('.news-strip-label') : null;
+            if (!strip || !linkEl || !textEl || !labelEl) return;
+
+            var items = [];      // [{ text, href, paramind }]
+            var current = 0;
+            var paused = false;
+            var timer = null;
+            var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            function show(index) {
+                var item = items[index];
+                textEl.textContent = item.text;
+                linkEl.setAttribute('href', item.href);
+                labelEl.setAttribute('href', item.href);
+                labelEl.textContent = item.paramind ? 'Paramind' : 'News';
+                labelEl.classList.toggle('is-paramind', !!item.paramind);
+            }
+
+            function next() {
+                if (paused || items.length < 2) return;
+                current = (current + 1) % items.length;
+                textEl.classList.add('is-leaving');
+                setTimeout(function () {
+                    show(current);
+                    textEl.classList.remove('is-leaving');
+                    textEl.classList.add('is-entering');
+                    // Force the browser to notice the start position, then slide in
+                    void textEl.offsetWidth;
+                    textEl.classList.remove('is-entering');
+                }, 350);
+            }
+
+            function start() {
+                if (items.length === 0) return;
+                current = 0;
+                show(0);
+                strip.classList.add('is-ready');
+                if (timer) clearInterval(timer);
+                if (!reduceMotion && items.length > 1) {
+                    timer = setInterval(next, SECONDS_PER_HEADLINE * 1000);
+                }
+            }
+
+            // Pause while someone is touching or hovering, so they can read and tap
+            strip.addEventListener('mouseenter', function () { paused = true; });
+            strip.addEventListener('mouseleave', function () { paused = false; });
+            strip.addEventListener('touchstart', function () { paused = true; }, { passive: true });
+            strip.addEventListener('touchend', function () { setTimeout(function () { paused = false; }, 3000); }, { passive: true });
+            strip.addEventListener('focusin', function () { paused = true; });
+            strip.addEventListener('focusout', function () { paused = false; });
+
+            // Paramind's own news articles: only those saved after the latest round-up
+            function addParamindNews(roundupPublished) {
+                if (typeof firebase === 'undefined' || !firebase.firestore || !firebase.apps || !firebase.apps.length) return;
+                firebase.firestore().collection('paramindNews')
+                    .orderBy('publishedAt', 'desc')
+                    .limit(5)
+                    .get()
+                    .then(function (snap) {
+                        var own = [];
+                        snap.forEach(function (docSnap) {
+                            var item = docSnap.data() || {};
+                            if (!item.headline) return;
+                            var when = (item.publishedAt && item.publishedAt.toDate) ? item.publishedAt.toDate() : null;
+                            if (when && roundupPublished && when.getTime() <= roundupPublished.getTime()) return;
+                            own.push({ text: String(item.headline), href: 'news.html#paramind-' + (own.length + 1), paramind: true });
+                        });
+                        if (own.length > 0) {
+                            items = own.concat(items);
+                            start();
+                        }
+                    })
+                    .catch(function (error) {
+                        console.warn('News strip: could not load Paramind news articles', error);
+                    });
+            }
+
+            // Firebase is set up by other scripts on this page; wait up to 8 seconds for it
+            function whenFirebaseReady(callback) {
+                var checks = 0;
+                var wait = setInterval(function () {
+                    checks++;
+                    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) {
+                        clearInterval(wait);
+                        callback();
+                    } else if (checks >= 80) {
+                        clearInterval(wait);
+                    }
+                }, 100);
+            }
+
+            fetch('social/latest.json?t=' + Date.now(), { cache: 'no-store' })
+                .then(function (response) {
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    return response.json();
+                })
+                .then(function (data) {
+                    var stories = (data && Array.isArray(data.stories)) ? data.stories : [];
+                    stories.forEach(function (story, index) {
+                        if (story && story.headline) {
+                            items.push({ text: String(story.headline), href: 'news.html#story-' + (index + 1), paramind: false });
+                        }
+                    });
+                    start();
+                    var published = (data && data.published) ? new Date(data.published) : null;
+                    if (published && isNaN(published.getTime())) published = null;
+                    whenFirebaseReady(function () { addParamindNews(published); });
+                })
+                .catch(function (error) {
+                    // If the news cannot be loaded the strip simply stays hidden
+                    console.warn('News strip: could not load the latest headlines', error);
+                });
+        })();
+    </script>
 
     <!-- ==================== SCROLL REVEAL ==================== -->
     <script>

@@ -39,6 +39,7 @@
             margin-bottom: 1.5rem;
             color: #fff;
             box-shadow: 0 6px 18px rgba(15, 66, 82, 0.10);
+            position: static;   /* css/styles.css makes .section-header stick to the top; on this long page it should scroll away */
         }
         .section-header-label {
             font-family: 'JetBrains Mono', 'DM Sans', monospace;
@@ -155,6 +156,40 @@
         .news-card { scroll-margin-top: 80px; }
         .news-card.news-card--target { box-shadow: 0 0 0 3px rgba(53, 176, 200, 0.45); }
 
+        /* Earlier news: one fold-out row per previous round-up */
+        .news-earlier-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin: 2.25rem 0 0.75rem 0.25rem;
+        }
+        .news-earlier {
+            border: 1px solid #e9ecef;
+            border-radius: 14px;
+            background: #fff;
+            margin-bottom: 0.6rem;
+            overflow: hidden;
+        }
+        .news-earlier summary {
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.85rem 1rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--color-gray-800);
+        }
+        .news-earlier summary::-webkit-details-marker { display: none; }
+        .news-earlier summary i { color: var(--color-teal); transition: transform 0.2s ease; }
+        .news-earlier[open] summary i { transform: rotate(180deg); }
+        .news-earlier[open] summary { border-bottom: 1px solid #e9ecef; }
+        .news-earlier-body { padding: 1rem; background: #f8f9fa; }
+        .news-earlier-body .loading-spinner { padding: 1rem 0; }
+
         /* Small print under the stories */
         .news-footnote {
             font-size: 0.82rem;
@@ -250,6 +285,7 @@
         // PARAMEDIC NEWS
         // 1. Reads social/latest.json (the newest news round-up) and
         //    draws one card per story. No login needed.
+        //    Previous round-ups are listed under "Earlier news".
         // 2. Reads Paramind's own news articles from Firestore
         //    ("paramindNews") and shows any that were saved AFTER the
         //    latest round-up was published, above the stories.
@@ -294,7 +330,7 @@
 
             function storyCard(story, number) {
                 var link = safeLink(story.link);
-                var html = '<article class="news-card" id="story-' + number + '">';
+                var html = number ? '<article class="news-card" id="story-' + number + '">' : '<article class="news-card">';
 
                 if (story.region) {
                     html += '<div class="news-card-region">' + escapeHtml(story.region) + '</div>';
@@ -377,8 +413,63 @@
                 html += '<p class="news-footnote">Summaries are written by Paramind from the sources shown. ' +
                         'Follow the link on each story to read the original.</p>';
 
+                html += earlierSection(data.earlier);
+
                 content.innerHTML = html;
+                wireEarlier();
                 jumpToTarget();
+            }
+
+            // ---- Earlier news ----
+            // latest.json carries a list of previous round-ups: [{ folder, date }].
+            // Each one is a fold-out row; its stories are only fetched when opened.
+            function earlierSection(earlier) {
+                if (!Array.isArray(earlier)) return '';
+                var rows = earlier.filter(function (e) {
+                    return e && /^\d{4}-\d{2}-\d{2}$/.test(e.folder || '') && e.date;
+                });
+                if (rows.length === 0) return '';
+
+                var html = '<h2 class="news-earlier-title">Earlier news</h2>';
+                rows.forEach(function (e) {
+                    html += '<details class="news-earlier" data-folder="' + escapeHtml(e.folder) + '">' +
+                                '<summary><span>' + escapeHtml(e.date) + '</span><i class="bi bi-chevron-down"></i></summary>' +
+                                '<div class="news-earlier-body"></div>' +
+                            '</details>';
+                });
+                return html;
+            }
+
+            function wireEarlier() {
+                var rows = content.querySelectorAll('details.news-earlier');
+                Array.prototype.forEach.call(rows, function (row) {
+                    row.addEventListener('toggle', function () {
+                        if (!row.open || row.getAttribute('data-loaded')) return;
+                        row.setAttribute('data-loaded', 'yes');
+                        var body = row.querySelector('.news-earlier-body');
+                        body.innerHTML = '<div class="loading-spinner"><div class="spinner-border spinner-border-sm" role="status"></div></div>';
+
+                        fetch('social/' + row.getAttribute('data-folder') + '/content.json')
+                            .then(function (response) {
+                                if (!response.ok) throw new Error('HTTP ' + response.status);
+                                return response.json();
+                            })
+                            .then(function (old) {
+                                var stories = (old && Array.isArray(old.stories)) ? old.stories : [];
+                                stories = stories.filter(function (s) { return s && s.headline; });
+                                if (stories.length === 0) throw new Error('no stories');
+                                var html = '<div class="news-list">';
+                                stories.forEach(function (story) { html += storyCard(story, 0); });
+                                html += '</div>';
+                                body.innerHTML = html;
+                            })
+                            .catch(function (error) {
+                                console.warn('Paramedic news: could not load an earlier round-up', error);
+                                row.removeAttribute('data-loaded');   // lets them try again
+                                body.innerHTML = '<div class="news-message" style="padding:1rem;">Sorry, these stories could not be loaded. Please try again.</div>';
+                            });
+                    });
+                });
             }
 
             // ---- Paramind's own news articles (Firestore) ----

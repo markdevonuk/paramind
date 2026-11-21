@@ -136,6 +136,10 @@ Write `social/latest.json` in the repo. It is this run's `content.json` with two
   "published": "2026-10-23T17:25:00Z",
   "stories": [
     { "region": "England", "headline": "…", "body": "…", "why": "…", "source": "BBC News", "link": "https://…" }
+  ],
+  "earlier": [
+    { "folder": "2026-10-21", "date": "20–21 October 2026" },
+    { "folder": "2026-10-20", "date": "Monday 20 October 2026" }
   ]
 }
 ```
@@ -143,6 +147,7 @@ Write `social/latest.json` in the repo. It is this run's `content.json` with two
 - `folder` is this run's `<DATE>` folder name.
 - `published` is the time now in UTC, from `date -u +%Y-%m-%dT%H:%M:%SZ`. It matters: Paramind's own news articles (which Mark adds in admin) drop off the page once a round-up with a later `published` time appears.
 - `stories` are the same stories, in the same order, with the same wording as the slides.
+- `earlier` is the list behind the "Earlier news" section of the page. **Read the existing `social/latest.json` before you overwrite it.** The new `earlier` list is one new entry for the round-up being replaced, `{ "folder": <old folder>, "date": <old date> }`, followed by the old file's `earlier` list unchanged. Newest first. Do not add the entry if the old `folder` is the same as this run's folder (a re-run on the same day), and never drop or reorder existing entries.
 
 Then commit **only** `social/latest.json` with the message `Update Paramedic news page (<DATE>)`, pull with `--rebase`, and push. Wait about 90 seconds and check that `https://paramind.co.uk/social/latest.json` shows the new date. Do not change `news.html` or any other file.
 
