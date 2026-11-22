@@ -149,10 +149,17 @@
                     <div>
                         <h5 class="mb-1"><i class="bi bi-building me-2"></i>Coroner's Court Registrations</h5>
                         <p class="text-muted mb-0" id="coronersCourtSummary">Loading count...</p>
+                        <p class="text-muted mb-0" id="coronersConfirmedSummary"></p>
                     </div>
-                    <div class="d-flex gap-2 align-items-center">
+                    <div class="d-flex gap-2 align-items-center flex-wrap">
                         <button id="exportCoronersBtn" class="btn btn-outline-success">
                             <i class="bi bi-download me-1"></i>Export Registrations CSV
+                        </button>
+                        <button id="testCoronersLinkBtn" class="btn btn-outline-secondary">
+                            <i class="bi bi-envelope me-1"></i>Send Test Link to Me
+                        </button>
+                        <button id="sendCoronersLinksBtn" class="btn btn-outline-primary">
+                            <i class="bi bi-send me-1"></i>Send Confirmation Links
                         </button>
                     </div>
                 </div>
@@ -344,6 +351,7 @@
 
             // Load Coroner's Court registration count (cheap aggregate query)
             loadCoronersCourtCount();
+            loadCoronersConfirmedCount();
         });
 
         // ============================================
@@ -951,16 +959,21 @@
                     return;
                 }
 
-                const headers = ['First Name','Surname','Position','Specific Role','Email','Base Station/Relief','Event','Registered At','Confirmation Email Sent'];
+                const headers = ['First Name','Surname','Position','Specific Role','Email','Base Station/Relief','Event','Registered At','Confirmation Email Sent','Confirmed','Confirmed At'];
                 const rows = regs.map(r => {
                     let registeredAt = '';
                     if (r.registeredAt && typeof r.registeredAt.toDate === 'function') {
                         registeredAt = r.registeredAt.toDate().toISOString();
                     }
+                    let confirmedAt = '';
+                    if (r.placeConfirmedAt && typeof r.placeConfirmedAt.toDate === 'function') {
+                        confirmedAt = r.placeConfirmedAt.toDate().toISOString();
+                    }
                     const cells = [
                         r.firstName, r.surname, r.position, r.specificRole,
                         r.email, r.baseStation, r.eventSelected, registeredAt,
-                        r.confirmationEmailSent === true ? 'Yes' : 'No'
+                        r.confirmationEmailSent === true ? 'Yes' : 'No',
+                        r.placeConfirmed === true ? 'Yes' : 'No', confirmedAt
                     ];
                     return cells.map(field => `"${(field || '').toString().replace(/"/g, '""')}"`).join(',');
                 });
@@ -979,6 +992,80 @@
             } catch (err) {
                 console.error('Coroners Court export failed:', err);
                 alert('Export failed: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = orig;
+            }
+        });
+
+        // ============================================
+        // CORONER'S COURT — CONFIRM YOUR PLACE (coroners-court-confirm.html)
+        // Confirmed count + buttons that email the personal links.
+        // ============================================
+        const CORONERS_API_BASE = 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
+
+        async function loadCoronersConfirmedCount() {
+            const line = document.getElementById('coronersConfirmedSummary');
+            try {
+                const regs = collection(db, 'coronersCourtRegistrations');
+                const [totalSnap, confirmedSnap] = await Promise.all([
+                    getCountFromServer(regs),
+                    getCountFromServer(query(regs, where('placeConfirmed', '==', true)))
+                ]);
+                line.textContent = `${confirmedSnap.data().count} of ${totalSnap.data().count} have confirmed their place.`;
+            } catch (err) {
+                console.error('Coroners Court confirmed count failed:', err);
+                line.textContent = '';
+            }
+        }
+
+        async function callCoronersSendLinks(body) {
+            const idToken = await auth.currentUser.getIdToken();
+            const response = await fetch(CORONERS_API_BASE + '/sendCoronersCourtConfirmLinks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
+                body: JSON.stringify(body)
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.error || ('Server returned ' + response.status));
+            return data;
+        }
+
+        document.getElementById('testCoronersLinkBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('testCoronersLinkBtn');
+            const orig = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-envelope me-1"></i>Sending test...';
+            try {
+                const data = await callCoronersSendLinks({ test: true });
+                alert('Test link sent to ' + data.sentTo + '. Nobody on the list has been emailed.');
+            } catch (err) {
+                console.error('Coroners Court test link failed:', err);
+                alert('Test failed: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = orig;
+            }
+        });
+
+        document.getElementById('sendCoronersLinksBtn').addEventListener('click', async () => {
+            if (!confirm('This emails a personal "confirm your place" link to everyone registered for Derriford who has not already been sent one.\n\nSend now?')) return;
+            const btn = document.getElementById('sendCoronersLinksBtn');
+            const orig = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-send me-1"></i>Sending... please wait';
+            try {
+                const data = await callCoronersSendLinks({});
+                let message = `Done.\n\nSent: ${data.sent}\nAlready sent before (skipped): ${data.skipped}\nFailed: ${data.failed}`;
+                if (data.failed > 0) {
+                    message += '\n\nFailed addresses:\n' + data.errors.map(e => e.email + ' - ' + e.message).join('\n') +
+                               '\n\nPress the button again to retry just these.';
+                }
+                alert(message);
+                loadCoronersConfirmedCount();
+            } catch (err) {
+                console.error('Coroners Court send links failed:', err);
+                alert('Sending failed: ' + err.message + '\n\nIt is safe to press the button again - nobody is emailed twice.');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = orig;

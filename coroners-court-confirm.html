@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Confirm Your Place — Coroner's Court Visit | ParaMind</title>
+    <meta name="robots" content="noindex">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Menu CSS -->
+    <link rel="stylesheet" href="css/menu-v2.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <style>
+        /* Page-specific overrides (matches coroners-court.html) */
+        body {
+            background: var(--color-gray-50);
+            color: var(--color-gray-700);
+        }
+
+        .page-content {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+
+        .page-content h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-content .subtitle {
+            color: var(--color-gray-500);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-card, .success-card, .message-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .form-card p {
+            color: var(--color-gray-600);
+        }
+
+        .event-box {
+            border: 2px solid var(--color-teal);
+            background: rgba(43, 138, 156, 0.06);
+            border-radius: var(--radius-md);
+            padding: 0.9rem 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .event-box .event-title {
+            font-weight: 600;
+            color: var(--color-gray-800);
+        }
+
+        .event-box .event-venue {
+            font-size: 0.85rem;
+            color: var(--color-gray-500);
+        }
+
+        .confirm-option {
+            border: 2px solid var(--color-gray-200, #e5e7eb);
+            border-radius: var(--radius-md);
+            padding: 0.9rem 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            transition: border-color 0.15s ease, background 0.15s ease;
+        }
+
+        .confirm-option:hover,
+        .confirm-option.selected {
+            border-color: var(--color-teal);
+        }
+
+        .confirm-option.selected {
+            background: rgba(43, 138, 156, 0.06);
+        }
+
+        .confirm-option input[type="checkbox"] {
+            margin-top: 0.2rem;
+            width: 1.2rem;
+            height: 1.2rem;
+            flex-shrink: 0;
+            accent-color: var(--color-teal);
+        }
+
+        .confirm-option label {
+            cursor: pointer;
+            margin: 0;
+            font-weight: 600;
+            color: var(--color-gray-800);
+        }
+
+        .deadline-note {
+            background: #FFF8E6;
+            border: 1px solid #F0DFA8;
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem;
+            color: #7A5C00;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .submit-btn {
+            background: var(--color-teal);
+            color: #ffffff;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background: var(--color-bright-teal, #35B0C8);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(43, 138, 156, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+        }
+
+        .success-card, .message-card {
+            text-align: center;
+            padding: 2rem 1.5rem;
+        }
+
+        .success-card i {
+            font-size: 2.5rem;
+            color: var(--color-green, #5BC166);
+        }
+
+        .message-card i {
+            font-size: 2.5rem;
+            color: var(--color-gray-500);
+        }
+
+        .success-card h2, .message-card h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin: 0.75rem 0 0.5rem;
+        }
+
+        .success-card p, .message-card p {
+            color: var(--color-gray-600);
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+<nav class="member-navbar">
+    <div class="container">
+        <span class="brand-text">
+            <a class="navbar-brand" href="landing.html">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </a>
+        </span>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</nav>
+
+    <!-- Content -->
+    <main class="page-content">
+        <h1>Confirm Your Place</h1>
+        <p class="subtitle">Coroner's Court Visit for SWAST staff.</p>
+
+        <!-- Loading -->
+        <div class="message-card" id="loadingCard">
+            <div class="spinner-border" role="status" style="color: var(--color-teal);"></div>
+            <p style="margin-top: 1rem;">Finding your place...</p>
+        </div>
+
+        <!-- Link not recognised -->
+        <div class="message-card" id="invalidCard" style="display:none;">
+            <i class="bi bi-link-45deg"></i>
+            <h2>We could not recognise this link</h2>
+            <p>Please open the link directly from the email we sent to your SWAST inbox.</p>
+            <p style="font-size: 0.9rem; color: var(--color-gray-500);">Still stuck? Contact hello@paramind.co.uk.</p>
+        </div>
+
+        <!-- Could not connect -->
+        <div class="message-card" id="errorCard" style="display:none;">
+            <i class="bi bi-wifi-off"></i>
+            <h2>Sorry, we could not connect</h2>
+            <p>Please check your internet connection and open the link from your email again.</p>
+        </div>
+
+        <!-- Confirm form -->
+        <div class="form-card" id="formCard" style="display:none;">
+            <h3 style="font-size: 1rem; font-weight: 600; color: var(--color-gray-800); margin-bottom: 1rem;"><i class="bi bi-check2-square" style="color: var(--color-teal);"></i> Hello <span id="greetName"></span></h3>
+
+            <p>You have a place on the Coroner's Court visit:</p>
+
+            <div class="event-box">
+                <div class="event-title">December 8th, 10:00</div>
+                <div class="event-venue">Derriford Coroners Court</div>
+            </div>
+
+            <div class="deadline-note">
+                <i class="bi bi-calendar-check me-1"></i>
+                Please confirm by <strong>3rd December</strong> to keep your place.
+            </div>
+
+            <div id="formError" class="alert alert-danger" style="display:none;" role="alert"></div>
+
+            <div class="confirm-option" id="confirmOption">
+                <input type="checkbox" id="confirmTick">
+                <label for="confirmTick">I confirm my place on the Coroner's Court visit</label>
+            </div>
+
+            <button type="button" class="submit-btn" id="confirmBtn" disabled>Confirm my place</button>
+        </div>
+
+        <!-- Success -->
+        <div class="success-card" id="successCard" style="display:none;">
+            <i class="bi bi-check-circle-fill"></i>
+            <h2 id="successTitle">Your place is confirmed</h2>
+            <p>December 8th, 10:00 at Derriford Coroners Court.</p>
+            <p id="successEmailText"></p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="page-footer">
+        <div class="footer-brand">
+            <span class="brand-para">para</span><span class="brand-mind">mind</span>
+        </div>
+        <div class="footer-links">
+            <a href="terms.html">Terms of Service</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="purpose.html">Intended Purpose</a>
+            <a href="sources.html">Sources &amp; Citations</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <p class="footer-copyright">&copy; 2026 Paramind. All rights reserved.</p>
+        <p class="footer-trademark" style="font-size: 0.85rem; color: var(--color-gray-500);">Paramind&#174; is a registered UK trade mark (UK00004321918).</p>
+    </footer>
+
+    <!-- App JS -->
+    <script src="js/app.js"></script>
+
+    <!-- Menu JS (loads the Firebase SDK — single source for the whole site) -->
+    <script src="js/menu-v2.js"></script>
+
+    <!-- Page JS -->
+    <script>
+        (function () {
+            'use strict';
+
+            var API_BASE = 'https://europe-west2-paramind-64b8e.cloudfunctions.net';
+
+            var cards = ['loadingCard', 'invalidCard', 'errorCard', 'formCard', 'successCard'];
+            function showCard(id) {
+                cards.forEach(function (c) {
+                    document.getElementById(c).style.display = (c === id) ? 'block' : 'none';
+                });
+            }
+
+            function showSuccess(alreadyConfirmed, emailSent) {
+                document.getElementById('successTitle').textContent =
+                    alreadyConfirmed ? 'You have already confirmed your place' : 'Your place is confirmed';
+                document.getElementById('successEmailText').textContent = emailSent
+                    ? 'The full details for the day have been emailed to your SWAST inbox.'
+                    : 'Your place is safe, but we could not send the details email just now. Please open your link again in a few minutes, or contact hello@paramind.co.uk.';
+                showCard('successCard');
+            }
+
+            function postJson(path, body) {
+                return fetch(API_BASE + path, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                }).then(function (response) {
+                    return response.json().catch(function () { return {}; }).then(function (data) {
+                        return { status: response.status, data: data };
+                    });
+                });
+            }
+
+            // The personal code from the emailed link (?t=...)
+            var token = (new URLSearchParams(window.location.search).get('t') || '').trim();
+
+            var confirmTick   = document.getElementById('confirmTick');
+            var confirmBtn    = document.getElementById('confirmBtn');
+            var confirmOption = document.getElementById('confirmOption');
+            var formError     = document.getElementById('formError');
+
+            // Button only works once the box is ticked
+            confirmTick.addEventListener('change', function () {
+                confirmBtn.disabled = !confirmTick.checked;
+                confirmOption.classList.toggle('selected', confirmTick.checked);
+            });
+
+            // ============================================
+            // LOAD — who does this link belong to?
+            // ============================================
+            if (!/^[a-f0-9]{48}$/.test(token)) {
+                showCard('invalidCard');
+                return;
+            }
+
+            postJson('/getCoronersCourtInvite', { token: token }).then(function (result) {
+                if (result.status === 404) { showCard('invalidCard'); return; }
+                if (result.status !== 200) { showCard('errorCard'); return; }
+                if (result.data.confirmed === true) {
+                    // Already confirmed. Calling confirm again is safe: it never
+                    // sends a second email, but it does retry one that failed.
+                    confirmPlace().catch(function () { showCard('errorCard'); });
+                    return;
+                }
+                document.getElementById('greetName').textContent = result.data.firstName || '';
+                showCard('formCard');
+            }).catch(function (err) {
+                console.error('Invite lookup failed:', err);
+                showCard('errorCard');
+            });
+
+            // ============================================
+            // CONFIRM
+            // ============================================
+            function confirmPlace() {
+                return postJson('/confirmCoronersCourtPlace', { token: token }).then(function (result) {
+                    if (result.status === 404) { showCard('invalidCard'); return; }
+                    if (result.status !== 200 || !result.data.ok) { throw new Error('Confirm failed'); }
+                    showSuccess(result.data.alreadyConfirmed === true, result.data.emailSent === true);
+                });
+            }
+
+            confirmBtn.addEventListener('click', function () {
+                if (!confirmTick.checked) return;
+                formError.style.display = 'none';
+                confirmBtn.disabled = true;
+                confirmBtn.textContent = 'Confirming...';
+
+                confirmPlace().catch(function (err) {
+                    console.error('Confirm failed:', err);
+                    if (document.getElementById('formCard').style.display === 'none') {
+                        showCard('errorCard');
+                        return;
+                    }
+                    formError.textContent = 'Sorry, something went wrong. Please try again, or contact hello@paramind.co.uk if the problem continues.';
+                    formError.style.display = 'block';
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = 'Confirm my place';
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

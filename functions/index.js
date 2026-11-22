@@ -5290,6 +5290,335 @@ exports.sendCoronersCourtConfirmation = onDocumentCreated(
 );
 
 // ============================================
+// CORONER'S COURT VISIT — CONFIRM YOUR PLACE
+// ============================================
+// Used by coroners-court-confirm.html and the admin button on admin-users.html.
+//
+//   sendCoronersCourtConfirmLinks  (admin only)  Emails every Derriford
+//       registrant a personal link containing a random, unguessable code.
+//       Skips anyone already sent a link, so it is safe to run twice.
+//       Body { test: true } sends ONE sample link to the admin's own
+//       address instead (stored in coronersCourtConfirmTests, so real
+//       registrations and their counts are untouched).
+//   getCoronersCourtInvite         (public)      Looks up the code and
+//       returns only the first name, event and confirmed status.
+//   confirmCoronersCourtPlace      (public)      Marks the place confirmed
+//       and emails the detailed instructions (once only).
+//
+// All reads/writes go through the Admin SDK, so no Firestore rules change
+// is needed. Email wording agreed with Mark (22 Nov 2026).
+
+const CORONERS_EVENT = 'December 8th 10:00 at Derriford Coroners Court (Derriford)';
+const CORONERS_CONFIRM_URL = 'https://paramind.co.uk/coroners-court-confirm.html';
+const CORONERS_LINK_SUBJECT = "Coroner's Court Visit — Please Confirm Your Place";
+const CORONERS_DETAILS_SUBJECT = "Coroner's Court Visit — Your Place is Confirmed";
+const CORONERS_SIGN_OFF_HTML =
+  `<p>Regards<br>` +
+  `Mark Walker<br>` +
+  `Paramedic (Torquay)<br>` +
+  `<a href="mailto:christopher.walker2@swast.nhs.uk">christopher.walker2@swast.nhs.uk</a></p>`;
+const CORONERS_SIGN_OFF_TEXT =
+  `Regards\nMark Walker\nParamedic (Torquay)\nchristopher.walker2@swast.nhs.uk`;
+
+function newCoronersToken() {
+  return require('crypto').randomBytes(24).toString('hex'); // 48 hex characters
+}
+
+/** Find the registration (or admin test record) that owns a link code. */
+async function findCoronersRegByToken(token) {
+  if (typeof token !== 'string' || !/^[a-f0-9]{48}$/.test(token)) return null;
+  for (const coll of ['coronersCourtRegistrations', 'coronersCourtConfirmTests']) {
+    const q = await db.collection(coll).where('confirmToken', '==', token).limit(1).get();
+    if (!q.empty) return q.docs[0];
+  }
+  return null;
+}
+
+/** Email 1 — the personal "confirm your place" link. */
+async function sendCoronersLinkEmail(client, firstName, email, token) {
+  const link = `${CORONERS_CONFIRM_URL}?t=${token}`;
+  const htmlBody =
+    `<p>Dear ${escapeEmailHtml(firstName)},</p>` +
+    `<p>You have a place on the Coroner's Court visit on December 8th at 10:00 at Derriford Coroners Court.</p>` +
+    `<p>To keep your place, please confirm it by <strong>3rd December</strong> using your personal link below:</p>` +
+    `<p style="margin:28px 0;"><a href="${link}" style="background:#2B8A9C;color:#ffffff;text-decoration:none;font-weight:bold;padding:14px 28px;border-radius:8px;display:inline-block;">Confirm my place</a></p>` +
+    `<p style="font-size:13px;color:#666;">If the button does not work, copy and paste this address into your browser:<br>` +
+    `<a href="${link}" style="color:#2B8A9C;word-break:break-all;">${link}</a></p>` +
+    `<p>This link is personal to you, so please don't forward it. Once you confirm, we will email you the full details for the day immediately.</p>` +
+    `<p>If you do not confirm by 3rd December, your place will be offered to someone else. You do not need to let us know; just don't click the link above.</p>` +
+    `<p>We look forward to seeing you in Court!</p>` +
+    CORONERS_SIGN_OFF_HTML;
+  const textBody =
+    `Dear ${firstName},\n\n` +
+    `You have a place on the Coroner's Court visit on December 8th at 10:00 at Derriford Coroners Court.\n\n` +
+    `To keep your place, please confirm it by 3rd December using your personal link below:\n\n` +
+    `${link}\n\n` +
+    `This link is personal to you, so please don't forward it. Once you confirm, we will email you the full details for the day immediately.\n\n` +
+    `If you do not confirm by 3rd December, your place will be offered to someone else. You do not need to let us know; just don't click the link above.\n\n` +
+    `We look forward to seeing you in Court!\n\n` +
+    CORONERS_SIGN_OFF_TEXT;
+  return client.sendEmail({
+    From: EMAIL_FROM,
+    To: email,
+    ReplyTo: EMAIL_REPLY_TO,
+    Subject: CORONERS_LINK_SUBJECT,
+    HtmlBody: wrapEmailHtml(htmlBody, CORONERS_LINK_SUBJECT),
+    TextBody: textBody,
+    MessageStream: 'outbound',
+  });
+}
+
+/** Email 2 — the detailed instructions, sent the moment they confirm. */
+async function sendCoronersDetailsEmail(client, firstName, email) {
+  const mapsUrl = 'https://maps.app.goo.gl/hZyxxrvFrYPQYR4i7';
+  const htmlBody =
+    `<p>Hi ${escapeEmailHtml(firstName)},</p>` +
+    `<p>We are really looking forward to seeing you at Derriford Coroners Court session on TUESDAY 8th December at 10:00am -12:00pm (PLEASE ARRIVE at least 20 mins early... see below for why!), and here is a reminder of all the details you need.</p>` +
+    `<p><strong>Location:</strong><br>` +
+    `HM Coroners Court Plymouth, 1 Derriford Park, Plymouth PL6 5QZ<br>` +
+    `Google Maps: <a href="${mapsUrl}">${mapsUrl}</a></p>` +
+    `<p><strong>Arriving:</strong><br>` +
+    `You must arrive 15-20 minutes before the event and head to the main reception, where the Coroners team will guide you to the main courtroom. It will take a very brave person to walk into the head coroner's courtroom with the massive squeaky doors late, so please don't! People have been hanged for less (allegedly).</p>` +
+    `<p><strong>Parking:</strong><br>` +
+    `Visitor parking spaces are on site, but the car park is tiny and fills up fast, so please carshare if you can. You may need to use the multi-storey next to Derriford Ambulance Station. I stress that you need to arrive early to find parking and get to the court in plenty of time.</p>` +
+    `<p><strong>Dress code:</strong><br>` +
+    `Smart casual is fine; it is a courtroom, so please respect that. Uniform can be worn, but there is no need if you are on your day off.</p>` +
+    `<p><strong>Can't make it?</strong><br>` +
+    `Places are limited, so if you can no longer make it, just drop me a note at least a week in advance, and I will allocate your place to someone else.</p>` +
+    `<p><strong>Anything else?</strong><br>` +
+    `As this is a real courtroom, no photography is allowed. Although there will not be a live case being heard, we must respect that this is a court of law and our behaviour will reflect on SWAST. Water bottles are fine, but please no food is to be consumed.</p>` +
+    `<p>I hope you find this super useful and that it helps both us and the Coroners to work better together.</p>` +
+    CORONERS_SIGN_OFF_HTML;
+  const textBody =
+    `Hi ${firstName},\n\n` +
+    `We are really looking forward to seeing you at Derriford Coroners Court session on TUESDAY 8th December at 10:00am -12:00pm (PLEASE ARRIVE at least 20 mins early... see below for why!), and here is a reminder of all the details you need.\n\n` +
+    `Location:\nHM Coroners Court Plymouth, 1 Derriford Park, Plymouth PL6 5QZ\nGoogle Maps: ${mapsUrl}\n\n` +
+    `Arriving:\nYou must arrive 15-20 minutes before the event and head to the main reception, where the Coroners team will guide you to the main courtroom. It will take a very brave person to walk into the head coroner's courtroom with the massive squeaky doors late, so please don't! People have been hanged for less (allegedly).\n\n` +
+    `Parking:\nVisitor parking spaces are on site, but the car park is tiny and fills up fast, so please carshare if you can. You may need to use the multi-storey next to Derriford Ambulance Station. I stress that you need to arrive early to find parking and get to the court in plenty of time.\n\n` +
+    `Dress code:\nSmart casual is fine; it is a courtroom, so please respect that. Uniform can be worn, but there is no need if you are on your day off.\n\n` +
+    `Can't make it?\nPlaces are limited, so if you can no longer make it, just drop me a note at least a week in advance, and I will allocate your place to someone else.\n\n` +
+    `Anything else?\nAs this is a real courtroom, no photography is allowed. Although there will not be a live case being heard, we must respect that this is a court of law and our behaviour will reflect on SWAST. Water bottles are fine, but please no food is to be consumed.\n\n` +
+    `I hope you find this super useful and that it helps both us and the Coroners to work better together.\n\n` +
+    CORONERS_SIGN_OFF_TEXT;
+  return client.sendEmail({
+    From: EMAIL_FROM,
+    To: email,
+    ReplyTo: EMAIL_REPLY_TO,
+    Subject: CORONERS_DETAILS_SUBJECT,
+    HtmlBody: wrapEmailHtml(htmlBody, CORONERS_DETAILS_SUBJECT),
+    TextBody: textBody,
+    MessageStream: 'outbound',
+  });
+}
+
+/**
+ * POST /sendCoronersCourtConfirmLinks   (admin only)
+ * Body {}             -> email a personal link to every Derriford registrant
+ *                        who has not already been sent one.
+ * Body { test: true } -> email one sample link to the admin's own address.
+ */
+exports.sendCoronersCourtConfirmLinks = onRequest(
+  { cors: true, secrets: ['POSTMARK_API_TOKEN'], memory: '256MiB', timeoutSeconds: 540 },
+  async (req, res) => {
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+    try {
+      const decoded = await verifyAdmin(req);
+      const client = new postmark.ServerClient(process.env.POSTMARK_API_TOKEN);
+      const isTest = !!(req.body && req.body.test === true);
+
+      // ---- Test mode: one sample link to the admin, nobody else ----
+      if (isTest) {
+        const token = newCoronersToken();
+        await db.collection('coronersCourtConfirmTests').doc('admin-test').set({
+          firstName: 'Mark',
+          email: decoded.email,
+          eventSelected: CORONERS_EVENT,
+          confirmToken: token,
+          placeConfirmed: false,
+          instructionsEmailSent: false,
+          isTest: true,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        await sendCoronersLinkEmail(client, 'Mark', decoded.email, token);
+        return res.status(200).json({ ok: true, test: true, sentTo: decoded.email });
+      }
+
+      // ---- Real send ----
+      const snap = await db.collection('coronersCourtRegistrations')
+        .where('eventSelected', '==', CORONERS_EVENT).get();
+
+      let sent = 0, skipped = 0, failed = 0;
+      const errors = [];
+
+      for (const docSnap of snap.docs) {
+        const r = docSnap.data() || {};
+        const firstName = String(r.firstName || '').trim();
+        const email = String(r.email || '').trim();
+
+        if (r.confirmLinkSentAt) { skipped++; continue; }   // already sent
+        if (!firstName || !email) {
+          failed++;
+          errors.push({ email: email || docSnap.id, message: 'Missing first name or email' });
+          continue;
+        }
+
+        try {
+          // Save the code BEFORE emailing, so a link can never arrive
+          // without a matching record.
+          const token = r.confirmToken || newCoronersToken();
+          if (!r.confirmToken) await docSnap.ref.update({ confirmToken: token });
+          await sendCoronersLinkEmail(client, firstName, email, token);
+          await docSnap.ref.update({
+            confirmLinkSentAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+          sent++;
+        } catch (sendErr) {
+          failed++;
+          errors.push({ email: email, message: String(sendErr.message || sendErr) });
+          console.error(`[coronersConfirm] Link email FAILED for ${email}:`, sendErr.message || sendErr);
+        }
+      }
+
+      await db.collection('emailSendLog').add({
+        type: 'coronersCourtConfirmLink',
+        subject: CORONERS_LINK_SUBJECT,
+        totalRecipients: snap.size,
+        sent: sent,
+        skipped: skipped,
+        failed: failed,
+        errors: errors,
+        sentAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      console.log(`[coronersConfirm] Links: ${sent} sent, ${skipped} skipped, ${failed} failed of ${snap.size}`);
+      return res.status(200).json({
+        ok: true, total: snap.size, sent: sent, skipped: skipped, failed: failed, errors: errors,
+      });
+    } catch (err) {
+      console.error('sendCoronersCourtConfirmLinks error:', err);
+      const msg = String(err.message || '');
+      if (msg.includes('Unauthorized')) return res.status(401).json({ error: msg });
+      if (msg.includes('Forbidden')) return res.status(403).json({ error: msg });
+      return res.status(500).json({ error: 'Could not send the confirmation links' });
+    }
+  }
+);
+
+/**
+ * POST /getCoronersCourtInvite   (public — the code in the link is the key)
+ * Body { token }
+ * Response 200: { firstName, eventSelected, confirmed }
+ * Response 404: link not recognised
+ */
+exports.getCoronersCourtInvite = onRequest(
+  { cors: true },
+  async (req, res) => {
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+    try {
+      const docSnap = await findCoronersRegByToken(req.body && req.body.token);
+      if (!docSnap) return res.status(404).json({ error: 'Link not recognised' });
+      const r = docSnap.data() || {};
+      return res.status(200).json({
+        firstName: String(r.firstName || ''),
+        eventSelected: String(r.eventSelected || ''),
+        confirmed: r.placeConfirmed === true,
+      });
+    } catch (err) {
+      console.error('getCoronersCourtInvite error:', err);
+      return res.status(500).json({ error: 'Could not load your details' });
+    }
+  }
+);
+
+/**
+ * POST /confirmCoronersCourtPlace   (public — the code in the link is the key)
+ * Body { token }
+ * Marks the place confirmed and sends the detailed instructions email.
+ * Safe to call twice: the instructions email is only ever sent once
+ * (and is retried on a later click if the first send failed).
+ * Response 200: { ok, alreadyConfirmed, emailSent }
+ */
+exports.confirmCoronersCourtPlace = onRequest(
+  { cors: true, secrets: ['POSTMARK_API_TOKEN'] },
+  async (req, res) => {
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+    try {
+      const found = await findCoronersRegByToken(req.body && req.body.token);
+      if (!found) return res.status(404).json({ error: 'Link not recognised' });
+      const ref = found.ref;
+
+      // Transaction so a double tap can never send two emails
+      const outcome = await db.runTransaction(async (tx) => {
+        const snap = await tx.get(ref);
+        const r = snap.data() || {};
+        const alreadyConfirmed = r.placeConfirmed === true;
+        const shouldSend = r.instructionsEmailSent !== true && r.instructionsEmailSending !== true;
+        const update = {};
+        if (!alreadyConfirmed) {
+          update.placeConfirmed = true;
+          update.placeConfirmedAt = admin.firestore.FieldValue.serverTimestamp();
+        }
+        if (shouldSend) update.instructionsEmailSending = true;
+        if (Object.keys(update).length > 0) tx.update(ref, update);
+        return {
+          alreadyConfirmed: alreadyConfirmed,
+          shouldSend: shouldSend,
+          emailAlreadySent: r.instructionsEmailSent === true,
+          firstName: String(r.firstName || '').trim(),
+          email: String(r.email || '').trim(),
+        };
+      });
+
+      let emailSent = outcome.emailAlreadySent;
+      if (outcome.shouldSend) {
+        try {
+          const client = new postmark.ServerClient(process.env.POSTMARK_API_TOKEN);
+          const result = await sendCoronersDetailsEmail(client, outcome.firstName, outcome.email);
+          await ref.update({
+            instructionsEmailSent: true,
+            instructionsEmailSending: false,
+            instructionsEmailSentAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+          await db.collection('emailSendLog').add({
+            type: 'coronersCourtDetails',
+            subject: CORONERS_DETAILS_SUBJECT,
+            totalRecipients: 1,
+            sent: 1,
+            failed: 0,
+            errors: [],
+            registrationId: ref.id,
+            recipientEmail: outcome.email,
+            postmarkMessageId: result.MessageID || null,
+            sentAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+          emailSent = true;
+        } catch (sendErr) {
+          // Place stays confirmed; release the lock so a later click retries the email
+          console.error(`[coronersConfirm] Details email FAILED for ${outcome.email}:`, sendErr.message || sendErr);
+          await ref.update({ instructionsEmailSending: false });
+          emailSent = false;
+        }
+      }
+
+      return res.status(200).json({
+        ok: true,
+        alreadyConfirmed: outcome.alreadyConfirmed,
+        emailSent: emailSent,
+      });
+    } catch (err) {
+      console.error('confirmCoronersCourtPlace error:', err);
+      return res.status(500).json({ error: 'Could not confirm your place' });
+    }
+  }
+);
+
+// ============================================
 // ADMIN: BACKFILL stripePlan (one-off)
 // ============================================
 // Populates `stripePlan` ('monthly' | 'annual') on existing Stripe web
