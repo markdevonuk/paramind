@@ -5311,6 +5311,7 @@ exports.sendCoronersCourtConfirmation = onDocumentCreated(
 const CORONERS_EVENT = 'December 8th 10:00 at Derriford Coroners Court (Derriford)';
 const CORONERS_CONFIRM_URL = 'https://paramind.co.uk/coroners-court-confirm.html';
 const CORONERS_LINK_SUBJECT = "Coroner's Court Visit — Please Confirm Your Place";
+const CORONERS_REMINDER_SUBJECT = "You are about to lose your place at the Coroners Court";
 const CORONERS_DETAILS_SUBJECT = "Coroner's Court Visit — Your Place is Confirmed";
 const CORONERS_SIGN_OFF_HTML =
   `<p>Regards<br>` +
@@ -5334,13 +5335,27 @@ async function findCoronersRegByToken(token) {
   return null;
 }
 
-/** Email 1 — the personal "confirm your place" link. */
-async function sendCoronersLinkEmail(client, firstName, email, token) {
+/**
+ * Email 1 — the personal "confirm your place" link.
+ * isReminder = true sends the "you are about to lose your place" version
+ * (same personal link, different subject and opening).
+ */
+async function sendCoronersLinkEmail(client, firstName, email, token, isReminder) {
   const link = `${CORONERS_CONFIRM_URL}?t=${token}`;
+  const subject = isReminder ? CORONERS_REMINDER_SUBJECT : CORONERS_LINK_SUBJECT;
+  const openingHtml = isReminder
+    ? `<p>You have a place on the Coroner's Court visit on December 8th at 10:00 at Derriford Coroners Court BUT HAVE NOT CONFIRMED IT. ` +
+      `To keep your place, please confirm it by <strong>3rd December</strong> using your personal link below:</p>`
+    : `<p>You have a place on the Coroner's Court visit on December 8th at 10:00 at Derriford Coroners Court.</p>` +
+      `<p>To keep your place, please confirm it by <strong>3rd December</strong> using your personal link below:</p>`;
+  const openingText = isReminder
+    ? `You have a place on the Coroner's Court visit on December 8th at 10:00 at Derriford Coroners Court BUT HAVE NOT CONFIRMED IT. ` +
+      `To keep your place, please confirm it by 3rd December using your personal link below:\n\n`
+    : `You have a place on the Coroner's Court visit on December 8th at 10:00 at Derriford Coroners Court.\n\n` +
+      `To keep your place, please confirm it by 3rd December using your personal link below:\n\n`;
   const htmlBody =
     `<p>Dear ${escapeEmailHtml(firstName)},</p>` +
-    `<p>You have a place on the Coroner's Court visit on December 8th at 10:00 at Derriford Coroners Court.</p>` +
-    `<p>To keep your place, please confirm it by <strong>3rd December</strong> using your personal link below:</p>` +
+    openingHtml +
     `<p style="margin:28px 0;"><a href="${link}" style="background:#2B8A9C;color:#ffffff;text-decoration:none;font-weight:bold;padding:14px 28px;border-radius:8px;display:inline-block;">Confirm my place</a></p>` +
     `<p style="font-size:13px;color:#666;">If the button does not work, copy and paste this address into your browser:<br>` +
     `<a href="${link}" style="color:#2B8A9C;word-break:break-all;">${link}</a></p>` +
@@ -5350,8 +5365,7 @@ async function sendCoronersLinkEmail(client, firstName, email, token) {
     CORONERS_SIGN_OFF_HTML;
   const textBody =
     `Dear ${firstName},\n\n` +
-    `You have a place on the Coroner's Court visit on December 8th at 10:00 at Derriford Coroners Court.\n\n` +
-    `To keep your place, please confirm it by 3rd December using your personal link below:\n\n` +
+    openingText +
     `${link}\n\n` +
     `This link is personal to you, so please don't forward it. Once you confirm, we will email you the full details for the day immediately.\n\n` +
     `If you do not confirm by 3rd December, your place will be offered to someone else. You do not need to let us know; just don't click the link above.\n\n` +
@@ -5361,8 +5375,8 @@ async function sendCoronersLinkEmail(client, firstName, email, token) {
     From: EMAIL_FROM,
     To: email,
     ReplyTo: EMAIL_REPLY_TO,
-    Subject: CORONERS_LINK_SUBJECT,
-    HtmlBody: wrapEmailHtml(htmlBody, CORONERS_LINK_SUBJECT),
+    Subject: subject,
+    HtmlBody: wrapEmailHtml(htmlBody, subject),
     TextBody: textBody,
     MessageStream: 'outbound',
   });
@@ -5415,7 +5429,12 @@ async function sendCoronersDetailsEmail(client, firstName, email) {
  * POST /sendCoronersCourtConfirmLinks   (admin only)
  * Body {}             -> email a personal link to every Derriford registrant
  *                        who has not already been sent one.
- * Body { test: true } -> email one sample link to the admin's own address.
+ * Body { reminder: true } -> email the "about to lose your place" reminder to
+ *                        Derriford registrants who were sent a link but have
+ *                        NOT confirmed. Skips anyone reminded in the last 24
+ *                        hours, so a double press never emails twice.
+ * Body { test: true } -> email one sample of BOTH emails (link + reminder) to
+ *                        the admin's own address.
  */
 exports.sendCoronersCourtConfirmLinks = onRequest(
   { cors: true, secrets: ['POSTMARK_API_TOKEN'], memory: '256MiB', timeoutSeconds: 540 },
@@ -5441,8 +5460,58 @@ exports.sendCoronersCourtConfirmLinks = onRequest(
           isTest: true,
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
         });
-        await sendCoronersLinkEmail(client, 'Mark', decoded.email, token);
+        await sendCoronersLinkEmail(client, 'Mark', decoded.email, token, false);
+        await sendCoronersLinkEmail(client, 'Mark', decoded.email, token, true);
         return res.status(200).json({ ok: true, test: true, sentTo: decoded.email });
+      }
+
+      // ---- Reminder: sent a link but not yet confirmed ----
+      if (req.body && req.body.reminder === true) {
+        const rSnap = await db.collection('coronersCourtRegistrations')
+          .where('eventSelected', '==', CORONERS_EVENT).get();
+        const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
+        let rSent = 0, rConfirmed = 0, rNoLink = 0, rRecent = 0, rFailed = 0;
+        const rErrors = [];
+
+        for (const docSnap of rSnap.docs) {
+          const r = docSnap.data() || {};
+          const firstName = String(r.firstName || '').trim();
+          const email = String(r.email || '').trim();
+
+          if (r.placeConfirmed === true) { rConfirmed++; continue; }           // already confirmed
+          if (!r.confirmToken || !r.confirmLinkSentAt) { rNoLink++; continue; } // never sent a link
+          if (r.reminderSentAt && typeof r.reminderSentAt.toMillis === 'function' &&
+              r.reminderSentAt.toMillis() > dayAgo) { rRecent++; continue; }    // reminded in last 24h
+
+          try {
+            await sendCoronersLinkEmail(client, firstName, email, r.confirmToken, true);
+            await docSnap.ref.update({
+              reminderSentAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+            rSent++;
+          } catch (sendErr) {
+            rFailed++;
+            rErrors.push({ email: email, message: String(sendErr.message || sendErr) });
+            console.error(`[coronersConfirm] Reminder FAILED for ${email}:`, sendErr.message || sendErr);
+          }
+        }
+
+        await db.collection('emailSendLog').add({
+          type: 'coronersCourtConfirmReminder',
+          subject: CORONERS_REMINDER_SUBJECT,
+          totalRecipients: rSnap.size,
+          sent: rSent,
+          skipped: rConfirmed + rNoLink + rRecent,
+          failed: rFailed,
+          errors: rErrors,
+          sentAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+
+        console.log(`[coronersConfirm] Reminders: ${rSent} sent, ${rConfirmed} confirmed, ${rNoLink} no link, ${rRecent} recent, ${rFailed} failed`);
+        return res.status(200).json({
+          ok: true, reminder: true, sent: rSent, alreadyConfirmed: rConfirmed,
+          noLinkYet: rNoLink, remindedRecently: rRecent, failed: rFailed, errors: rErrors,
+        });
       }
 
       // ---- Real send ----
@@ -5469,7 +5538,7 @@ exports.sendCoronersCourtConfirmLinks = onRequest(
           // without a matching record.
           const token = r.confirmToken || newCoronersToken();
           if (!r.confirmToken) await docSnap.ref.update({ confirmToken: token });
-          await sendCoronersLinkEmail(client, firstName, email, token);
+          await sendCoronersLinkEmail(client, firstName, email, token, false);
           await docSnap.ref.update({
             confirmLinkSentAt: admin.firestore.FieldValue.serverTimestamp(),
           });

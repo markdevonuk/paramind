@@ -161,6 +161,9 @@
                         <button id="sendCoronersLinksBtn" class="btn btn-outline-primary">
                             <i class="bi bi-send me-1"></i>Send Confirmation Links
                         </button>
+                        <button id="remindCoronersBtn" class="btn btn-outline-danger">
+                            <i class="bi bi-alarm me-1"></i>Send Reminder to Unconfirmed
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1040,7 +1043,7 @@
             btn.innerHTML = '<i class="bi bi-envelope me-1"></i>Sending test...';
             try {
                 const data = await callCoronersSendLinks({ test: true });
-                alert('Test link sent to ' + data.sentTo + '. Nobody on the list has been emailed.');
+                alert('Two test emails sent to ' + data.sentTo + ' (the confirmation link and the reminder). Nobody on the list has been emailed.');
             } catch (err) {
                 console.error('Coroners Court test link failed:', err);
                 alert('Test failed: ' + err.message);
@@ -1068,6 +1071,29 @@
             } catch (err) {
                 console.error('Coroners Court send links failed:', err);
                 alert('Sending failed: ' + err.message + '\n\nIt is safe to press the button again - nobody is emailed twice.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = orig;
+            }
+        });
+
+        document.getElementById('remindCoronersBtn').addEventListener('click', async () => {
+            if (!confirm('This emails the "You are about to lose your place" reminder to everyone registered for Derriford who was sent a link but has NOT confirmed.\n\nSend now?')) return;
+            const btn = document.getElementById('remindCoronersBtn');
+            const orig = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-alarm me-1"></i>Sending... please wait';
+            try {
+                const data = await callCoronersSendLinks({ reminder: true });
+                let message = `Done.\n\nReminders sent: ${data.sent}\nAlready confirmed (not emailed): ${data.alreadyConfirmed}\nReminded in the last 24 hours (not emailed again): ${data.remindedRecently}\nNever sent a link (not emailed): ${data.noLinkYet}\nFailed: ${data.failed}`;
+                if (data.failed > 0) {
+                    message += '\n\nFailed addresses:\n' + data.errors.map(e => e.email + ' - ' + e.message).join('\n') +
+                               '\n\nPress the button again to retry just these.';
+                }
+                alert(message);
+            } catch (err) {
+                console.error('Coroners Court reminder failed:', err);
+                alert('Sending failed: ' + err.message + '\n\nIt is safe to press the button again - nobody is emailed twice within 24 hours.');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = orig;
