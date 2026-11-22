@@ -1008,11 +1008,13 @@
             const line = document.getElementById('coronersConfirmedSummary');
             try {
                 const regs = collection(db, 'coronersCourtRegistrations');
+                // Derriford (8 Dec) only - the collection also holds the earlier Exeter visit.
+                // Only Derriford registrants are ever sent a link, so only they can confirm.
                 const [totalSnap, confirmedSnap] = await Promise.all([
-                    getCountFromServer(regs),
+                    getCountFromServer(query(regs, where('eventSelected', '==', 'December 8th 10:00 at Derriford Coroners Court (Derriford)'))),
                     getCountFromServer(query(regs, where('placeConfirmed', '==', true)))
                 ]);
-                line.textContent = `${confirmedSnap.data().count} of ${totalSnap.data().count} have confirmed their place.`;
+                line.textContent = `${confirmedSnap.data().count} of ${totalSnap.data().count} Derriford (8 Dec) registrants have confirmed their place.`;
             } catch (err) {
                 console.error('Coroners Court confirmed count failed:', err);
                 line.textContent = '';
