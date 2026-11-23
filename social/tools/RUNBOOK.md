@@ -1,6 +1,6 @@
-# Paramind Brief: TikTok carousel run (Mon / Wed / Fri, 17:17 UK)
+# Paramind Brief: TikTok + Facebook carousel run (Mon / Wed / Fri, 17:17 UK)
 
-This is the procedure each scheduled run follows. The run **publishes the carousel to TikTok automatically** through Native (Mark approved auto-posting on 20 Oct 2026). Nobody reviews it first, so the self-check in step 5 is mandatory. If any doubt remains, leave the post as a draft and tell Mark rather than publishing.
+This is the procedure each scheduled run follows. The run **publishes the carousel to TikTok and to the Paramind Facebook Page automatically** through Native (Mark approved auto-posting to TikTok on 20 Oct 2026, and added Facebook on 23 Nov 2026). It is one Native post with two destinations. Nobody reviews it first, so the self-check in step 5 is mandatory. If any doubt remains, leave the post as a draft and tell Mark rather than publishing.
 
 Since 21 Nov 2026 the same stories also feed the website: the **Paramedic news page** (`news.html`) and the headline strip on the home page both read `social/latest.json`. Step 5b updates that file. Nobody reviews that either, so it is only updated when the self-check has passed.
 
@@ -92,15 +92,16 @@ Commit only the new `social/<DATE>/` folder (PNGs plus `content.json`) to `main`
 - Pull with `--rebase` before pushing.
 - Wait about 90 seconds for GitHub Pages. Then check that `https://paramind.co.uk/social/<DATE>/01-intro.png` loads (e.g. with WebFetch, which reports "image content", or an HTTP 200).
 
-## 5. Create the TikTok draft in Native
+## 5. Create the post in Native (TikTok + Facebook)
 
 - Workspace "Paramind's Workspace", brand **Paramind**, brandId `da13bb6f-3b9d-4e1c-9488-729854a56327`.
 - For each PNG in slide order, call `upload_image` with `sourceUrl=https://paramind.co.uk/social/<DATE>/<file>.png` and a description like "Paramind Brief <DATE> slide 3 of 7".
 - Call `create_draft` with:
   - `mediaIds`: all the uploaded image ids, **in slide order**
-  - `platforms: ["TIKTOK"]`
-  - `caption`: in this pattern: "This week's Brief: <one short clause per story, comma-separated>. #paramedic #ambulance #NHS #studentparamedic #prehospital". Keep it under 2,200 characters.
-- Check the draft with `view_post`: the image count matches the slides, the order is right, the only destination is TIKTOK, and the caption is within its limit.
+  - `platforms: ["TIKTOK", "FACEBOOK"]`
+  - `caption` (this is the TikTok caption): in this pattern: "This week's Brief: <one short clause per story, comma-separated>. #paramedic #ambulance #NHS #studentparamedic #prehospital". Keep it under 2,200 characters.
+- Then give Facebook its own caption with `update_post`, `platform: "FACEBOOK"`, `text`: the same opening sentence ("This week's Brief: …."), then a blank line, then "Tap the images to read each story. Full stories and links: https://paramind.co.uk/news.html", then a blank line, then "#paramedic #NHS". Facebook shows links as clickable, TikTok does not, so the link goes in the Facebook caption only.
+- Check the draft with `view_post`: the image count matches the slides, the order is right, the destinations are exactly TIKTOK and FACEBOOK (nothing else), each caption is within its own limit, and the Facebook caption contains the news-page link.
 
 ### Self-check before publishing (mandatory, because no human reviews the post)
 
@@ -117,18 +118,19 @@ Re-read each story against its source email and confirm all of the following. If
 
 ### Publish
 
-- Call `publish_post_now` with the post id and `platforms: ["TIKTOK"]`. Call it **once only**.
-- Read `publishResults`:
+- Call `publish_post_now` with the post id and `platforms: ["TIKTOK", "FACEBOOK"]`. Call it **once only**.
+- Read `publishResults`; there is one entry per platform, and each is judged on its own:
   - `published` means it is live.
   - `pending` / `publishing_in_progress` is normal: do not retry. Wait about a minute, then call `get_post_status` to get the live URL.
-  - `failed`: report the code. Only retry if `retryable` is true, and only once.
-  - TikTok photo posts usually come back with `url: null` even when they succeed (seen on 20 Oct 2026). If the status is `published` / `SUCCESS`, treat it as live and point Mark to https://www.tiktok.com/@paramindapp rather than retrying.
+  - `failed`: report the code. Only retry if `retryable` is true, and only once, and then pass **only the failed platform** in `platforms` (a destination that already published is never re-sent, but name only the failed one anyway).
+  - One platform failing does not undo the other. If TikTok went live and Facebook failed (or the other way round), report which went out and which did not.
+  - TikTok photo posts usually come back with `url: null` even when they succeed (seen on 20 Oct 2026). If the status is `published` / `SUCCESS`, treat it as live and point Mark to https://www.tiktok.com/@paramindapp rather than retrying. The same applies to Facebook: if it shows published with no URL, point Mark to https://facebook.com/paramind.
 
-If any Native call returns `cancelled`, `forbidden`, `insufficient_scope` or `writes_disabled`, or the TikTok channel needs reconnecting, stop and report it. Do not retry in a loop.
+If any Native call returns `cancelled`, `forbidden`, `insufficient_scope` or `writes_disabled`, or the TikTok or Facebook channel needs reconnecting, stop and report it. Do not retry in a loop.
 
 ## 5b. Update the Paramedic news page on the website
 
-Do this **only if the self-check passed**. If the post was left as a draft because a check failed, skip this step so the website keeps the previous round-up. If the self-check passed but TikTok itself failed for a technical reason (channel needs reconnecting, Native error), still do this step.
+Do this **only if the self-check passed**. If the post was left as a draft because a check failed, skip this step so the website keeps the previous round-up. If the self-check passed but TikTok or Facebook failed for a technical reason (channel needs reconnecting, Native error), still do this step.
 
 Write `social/latest.json` in the repo. It is this run's `content.json` with two extra fields:
 
@@ -169,7 +171,7 @@ Nothing else needs doing. The images stay on the site, and old dated folders can
 ## 7. Report back to Mark
 
 Finish with a short summary:
-- whether it went live, with the TikTok link (or the reason it was left as a draft)
+- whether it went live on TikTok and on Facebook, with the links (or the reason it was left as a draft, or which platform failed)
 - whether the Paramedic news page (https://paramind.co.uk/news.html) was updated
 - the stories used, and any left out with the reason
 - any editorial call he may want to look at
