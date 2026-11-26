@@ -40,6 +40,7 @@
         'practice-epcrs.html':   'ePCR Practice',
         'cluehunt.html':         'Clue Hunt',
         'short-answer.html':     'Short Answer Practice',
+        'history-taking.html':   'History Taking',
         'osce-practice.html':    'OSCE Practice',
         'major-incident.html':   'Incident Ground',
         'placement.html':        'On Placement',

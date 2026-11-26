@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="description" content="History taking for UK paramedics and student paramedics: what to ask, red flags, pitfalls and how to document 19 common presentations.">
+    <title>History Taking | Paramind</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/menu-v2.css">
+
+    <style>
+        /* ==================== HISTORY TAKING ==================== */
+        .ht-page { min-height: 100vh; background: var(--color-gray-50); }
+        .ht-container { max-width: 720px; margin: 0 auto; padding: 1rem 1rem 2.5rem; color: #12303A; }
+        .ht-container button { font-family: inherit; }
+        .ht-container button:focus-visible { outline: 3px solid #12303A; outline-offset: 2px; }
+        .ht-ink-muted { color: #4A6670; }
+
+        .ht-header { padding: 0.75rem 0 1rem; }
+        .ht-header h1 { font-size: 1.75rem; font-weight: 800; margin: 0 0 0.35rem; display: flex; align-items: center; gap: 0.5rem; }
+        .ht-header h1 i { color: var(--color-teal); }
+        .ht-header p { margin: 0; color: #4A6670; }
+
+        .ht-section { margin-top: 1.25rem; }
+        .ht-section-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #4A6670; margin: 0 0 0.5rem; }
+
+        .ht-card { background: #fff; border: 1px solid #D5E3E7; border-radius: 14px; padding: 0.9rem 1rem; }
+        .ht-stack { display: flex; flex-direction: column; gap: 0.5rem; }
+
+        /* Overall progress */
+        .ht-progress { display: flex; align-items: center; gap: 0.9rem; }
+        .ht-ring { position: relative; flex: none; }
+        .ht-ring svg { display: block; transform: rotate(-90deg); }
+        .ht-ring-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.05rem; }
+        .ht-progress-title { font-weight: 700; font-size: 1rem; }
+        .ht-progress-sub { font-size: 0.82rem; color: #4A6670; }
+
+        /* Pinned */
+        .ht-pin-empty { border: 1px dashed #9DB8C0; border-radius: 12px; padding: 0.75rem 0.9rem; font-size: 0.9rem; color: #4A6670; }
+        .ht-pin-link { display: flex; align-items: center; gap: 0.6rem; width: 100%; text-align: left; background: #1F6E7D; color: #fff; border: 0; border-radius: 12px; padding: 0 0.9rem; min-height: 48px; font-weight: 700; font-size: 0.95rem; text-decoration: none; }
+        .ht-pin-link:hover { color: #fff; background: #185C69; }
+        .ht-pin-link span.ht-pin-tag { margin-left: auto; font-size: 0.75rem; font-weight: 600; color: #E3F2F5; }
+
+        /* Frameworks */
+        .ht-fw-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+        .ht-fw-btn { text-align: left; background: #fff; border: 2px solid #1F6E7D; border-radius: 12px; padding: 0.7rem 0.6rem; min-height: 60px; font-size: 0.85rem; font-weight: 700; line-height: 1.25; color: #12303A; text-decoration: none; display: flex; align-items: center; }
+        .ht-fw-btn:hover { background: #E3F2F5; color: #12303A; }
+
+        /* Categories */
+        .ht-cat { background: #fff; border: 1px solid #D5E3E7; border-radius: 14px; overflow: hidden; }
+        .ht-cat-head { width: 100%; min-height: 56px; display: flex; align-items: center; gap: 0.65rem; text-align: left; background: transparent; border: 0; padding: 0.5rem 0.9rem 0.5rem 0.6rem; color: #12303A; }
+        .ht-cat-icon { width: 40px; height: 40px; flex: none; border-radius: 11px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.2rem; }
+        .ht-cat-name { flex: 1; font-size: 1rem; font-weight: 700; }
+        .ht-cat-frac { font-size: 0.82rem; font-weight: 700; }
+        .ht-cat-ring svg { display: block; transform: rotate(-90deg); }
+        .ht-cat-chev { transition: transform 0.2s ease; }
+        .ht-cat.open .ht-cat-chev { transform: rotate(180deg); }
+        .ht-cat-items { display: none; flex-direction: column; gap: 0.4rem; padding: 0 0.5rem 0.5rem; }
+        .ht-cat.open .ht-cat-items { display: flex; }
+        .ht-item { display: flex; align-items: center; gap: 0.6rem; border-radius: 10px; padding: 0 0.75rem; min-height: 48px; font-size: 0.95rem; font-weight: 600; color: #12303A; text-decoration: none; }
+        .ht-item:hover { color: #12303A; filter: brightness(0.97); }
+        .ht-item-name { flex: 1; }
+        .ht-learned { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; font-weight: 700; color: #1E5C28; }
+
+        /* Presentation */
+        .ht-title-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem; }
+        .ht-title-row h1 { flex: 1; font-size: 1.6rem; font-weight: 800; margin: 0; }
+        .ht-round-btn { flex: none; width: 44px; height: 44px; border: 1px solid #1F6E7D; border-radius: 999px; background: #fff; color: #1F6E7D; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; }
+        .ht-round-btn.on { background: #1F6E7D; color: #fff; }
+        .ht-pill-btn { flex: none; min-height: 44px; padding: 0 0.9rem; border: 1px solid #1F6E7D; border-radius: 999px; background: #fff; color: #1F6E7D; font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none; }
+        .ht-pill-btn:hover { background: #E3F2F5; color: #1F6E7D; }
+
+        .ht-tabs { display: flex; gap: 2px; background: #E3F2F5; border-radius: 12px; padding: 4px; margin-bottom: 1rem; }
+        .ht-tab { flex: 1; min-height: 44px; border: 0; border-radius: 9px; padding: 0 2px; font-size: 0.78rem; font-weight: 700; background: transparent; color: #12303A; }
+        .ht-tab.active { background: #1F6E7D; color: #fff; }
+        @media (min-width: 480px) { .ht-tab { font-size: 0.9rem; } }
+
+        .ht-intro-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem; }
+        .ht-intro-row p { flex: 1; margin: 0; font-size: 0.9rem; color: #4A6670; }
+        .ht-lead { margin: 0 0 0.6rem; font-size: 0.9rem; color: #4A6670; }
+
+        /* Ask list */
+        .ht-ask { background: #fff; border: 1px solid #D5E3E7; border-radius: 12px; padding: 0 0.9rem; }
+        .ht-ask-row + .ht-ask-row { border-top: 1px solid #E3EDF0; }
+        .ht-ask-btn { width: 100%; min-height: 52px; display: flex; align-items: center; gap: 0.75rem; text-align: left; background: transparent; border: 0; padding: 0.6rem 0; color: #12303A; }
+        .ht-badge { width: 28px; height: 28px; flex: none; border-radius: 8px; background: #E3F2F5; color: #1F6E7D; font-weight: 800; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; }
+        .ht-ask-row.open .ht-badge { background: #1F6E7D; color: #fff; }
+        .ht-ask-q { flex: 1; font-size: 0.92rem; line-height: 1.4; }
+        .ht-ask-chev { color: #1F6E7D; transition: transform 0.2s ease; }
+        .ht-ask-row.open .ht-ask-chev { transform: rotate(180deg); }
+        .ht-why { display: none; margin: 0 0 0.75rem 2.5rem; background: #E3F2F5; border-radius: 10px; padding: 0.6rem 0.75rem; }
+        .ht-ask-row.open .ht-why { display: block; }
+        .ht-why-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #1F6E7D; margin-bottom: 0.15rem; }
+        .ht-why-text { font-size: 0.9rem; line-height: 1.45; }
+
+        /* Red flags */
+        .ht-seg { display: flex; gap: 0.5rem; margin-bottom: 0.6rem; }
+        .ht-seg button { flex: 1; min-height: 44px; border: 1px solid #1F6E7D; border-radius: 10px; font-size: 0.88rem; font-weight: 700; background: #fff; color: #1F6E7D; }
+        .ht-seg button.active { background: #1F6E7D; color: #fff; }
+        .ht-flag-name { font-size: 1rem; font-weight: 700; color: #9A3412; margin-bottom: 0.25rem; }
+        .ht-flag-text { font-size: 0.9rem; line-height: 1.45; }
+        .ht-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.6rem; }
+        .ht-chip { min-height: 44px; padding: 0 0.9rem; border-radius: 999px; border: 1px solid #1F6E7D; font-size: 0.88rem; font-weight: 700; background: #fff; color: #1F6E7D; }
+        .ht-chip.active { background: #1F6E7D; color: #fff; }
+        .ht-apart { background: #fff; border: 1px solid #D5E3E7; border-radius: 12px; padding: 0 0.9rem; }
+        .ht-apart-row { display: grid; grid-template-columns: 8rem minmax(0, 1fr); gap: 0.75rem; padding: 0.75rem 0; align-items: baseline; }
+        .ht-apart-row + .ht-apart-row { border-top: 1px solid #E3EDF0; }
+        .ht-apart-name { font-size: 0.82rem; font-weight: 700; color: #9A3412; line-height: 1.3; }
+        .ht-apart-val { font-size: 0.95rem; font-weight: 600; line-height: 1.35; }
+        .ht-note { margin: 0.6rem 0 0; font-size: 0.82rem; color: #4A6670; }
+
+        /* Document */
+        .ht-doc-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; }
+        .ht-ab { background: #E3F2F5; color: #1F6E7D; border-radius: 6px; padding: 0.15rem 0.5rem; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.03em; }
+        .ht-doc-name { font-size: 0.95rem; font-weight: 700; }
+        .ht-doc-text { font-size: 0.9rem; line-height: 1.4; color: #4A6670; }
+
+        /* Pitfalls */
+        .ht-pit { display: flex; gap: 0.75rem; }
+        .ht-pit i { color: #9A3412; font-size: 1.1rem; flex: none; }
+        .ht-pit-h { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.15rem; }
+        .ht-pit-t { font-size: 0.9rem; line-height: 1.4; color: #4A6670; }
+
+        /* Test */
+        .ht-test-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; }
+        .ht-test-title { flex: 1; font-size: 1.05rem; font-weight: 700; }
+        .ht-learned-pill { display: inline-flex; align-items: center; gap: 0.25rem; background: #E6F4E8; color: #1E5C28; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; font-weight: 700; }
+        .ht-btn { display: flex; align-items: center; justify-content: center; gap: 0.4rem; width: 100%; min-height: 52px; border: 0; border-radius: 14px; background: #1F6E7D; color: #fff; font-size: 1rem; font-weight: 700; text-decoration: none; }
+        .ht-btn:hover { background: #185C69; color: #fff; }
+        .ht-btn.outline { background: #fff; color: #1F6E7D; border: 1px solid #1F6E7D; }
+        .ht-btn.outline:hover { background: #E3F2F5; }
+        .ht-btn.save { background: #1E5C28; border: 2px solid #1E5C28; }
+        .ht-btn.save.saved { background: #E6F4E8; color: #1E5C28; }
+        .ht-btn:disabled { opacity: 0.85; }
+
+        /* Put it into practice */
+        .ht-practice { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #D5E3E7; }
+        .ht-practice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+
+        /* Frameworks page */
+        .ht-step { background: #fff; border: 1px solid #D5E3E7; border-radius: 14px; overflow: hidden; }
+        .ht-step.open { border-color: #1F6E7D; }
+        .ht-step-btn { width: 100%; min-height: 56px; display: flex; align-items: center; gap: 0.75rem; text-align: left; background: transparent; border: 0; padding: 0.6rem 0.9rem; color: #12303A; }
+        .ht-step-num { width: 32px; height: 32px; flex: none; border-radius: 999px; background: #E3F2F5; color: #1F6E7D; font-weight: 800; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; }
+        .ht-step.open .ht-step-num { background: #1F6E7D; color: #fff; }
+        .ht-step-name { flex: 1; font-size: 1rem; font-weight: 700; }
+        .ht-step-chev { color: #1F6E7D; transition: transform 0.2s ease; }
+        .ht-step.open .ht-step-chev { transform: rotate(180deg); }
+        .ht-step-body { display: none; padding: 0 0.9rem 0.9rem; }
+        .ht-step.open .ht-step-body { display: block; }
+        .ht-step-what { font-size: 0.9rem; line-height: 1.45; margin-bottom: 0.6rem; }
+        .ht-step-tip { font-size: 0.85rem; line-height: 1.45; color: #4A6670; margin-top: 0.6rem; }
+        .ht-step-tip strong { color: #12303A; }
+
+        /* Pocket card */
+        .ht-pocket-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #4A6670; margin-bottom: 0.4rem; }
+        .ht-pocket-row { display: flex; gap: 0.6rem; align-items: baseline; padding: 0.15rem 0; }
+        .ht-pocket-l { width: 1rem; flex: none; font-weight: 800; color: #1F6E7D; }
+        .ht-pocket-q { font-size: 0.9rem; line-height: 1.35; }
+        .ht-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+        .ht-tag-red { background: #FDEDE4; color: #9A3412; border-radius: 999px; padding: 0.25rem 0.65rem; font-size: 0.82rem; font-weight: 700; }
+
+        /* Quiz + missing question */
+        .ht-q-top { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.75rem; }
+        .ht-q-top h1 { flex: 1; font-size: 1.4rem; font-weight: 800; margin: 0; }
+        .ht-q-count { font-size: 0.82rem; font-weight: 700; color: #1F6E7D; }
+        .ht-q-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #4A6670; margin-bottom: 0.3rem; }
+        .ht-q-body { font-size: 1rem; font-weight: 600; line-height: 1.45; }
+        .ht-opt { width: 100%; min-height: 52px; display: flex; align-items: center; gap: 0.6rem; text-align: left; padding: 0.6rem 0.9rem; border-radius: 12px; font-size: 0.95rem; font-weight: 600; line-height: 1.35; border: 2px solid #1F6E7D; background: #fff; color: #12303A; }
+        .ht-opt span { flex: 1; }
+        .ht-opt.dim { border-color: #D5E3E7; color: #4A6670; }
+        .ht-opt.right { background: #E6F4E8; border-color: #1E5C28; color: #1E5C28; }
+        .ht-opt.wrong { background: #FDECEA; border-color: #B42318; color: #B42318; }
+        .ht-fb { font-size: 0.95rem; font-weight: 700; }
+        .ht-fb.good { color: #1E5C28; }
+        .ht-fb.bad { color: #B42318; }
+        .ht-fb-box { background: #E3F2F5; border-radius: 12px; padding: 0.75rem 0.9rem; }
+        .ht-fb-box p { margin: 0.25rem 0 0; font-size: 0.9rem; line-height: 1.45; }
+        .ht-score { font-size: 2.1rem; font-weight: 800; color: #1F6E7D; line-height: 1.1; }
+        .ht-passed { display: flex; align-items: center; gap: 0.5rem; background: #E6F4E8; color: #1E5C28; border-radius: 12px; padding: 0.75rem 0.9rem; font-weight: 700; }
+        .ht-cpd-link { display: block; text-align: center; font-size: 0.9rem; font-weight: 600; color: var(--color-teal); }
+    </style>
+</head>
+<body class="ht-page">
+
+<!-- ==================== NAVIGATION ==================== -->
+<nav class="member-navbar">
+    <div class="container">
+        <span class="brand-text">
+            <a class="navbar-brand" href="landing.html">
+                <span class="brand-para">para</span><span class="brand-mind">mind</span>
+            </a>
+        </span>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</nav>
+
+<div class="ht-container" id="htApp"></div>
+
+<!-- History Taking content -->
+<script src="js/history-taking-data.js?v=1"></script>
+
+<script>
+/* ==================== HISTORY TAKING - PAGE ENGINE ====================
+ * Screens are driven by the address hash, so the phone's Back button works:
+ *   (none)              first screen (categories)
+ *   #p/<id>             a presentation (tabs: Ask, Red flags, Document, Pitfalls, Test)
+ *   #p/<id>/pocket      its pocket card
+ *   #p/<id>/quiz        its quick check
+ *   #p/<id>/gap         its "spot the missing question"
+ *   #f/model|soc|ros    a framework
+ * Progress (learned + pinned) is kept on this device in localStorage,
+ * the same way Clue Hunt keeps best scores.
+ */
+(function () {
+    'use strict';
+
+    var D = window.HT_DATA, C = D.C, CATS = D.CATS, GAP = D.GAP;
+    var TOTAL = Object.keys(C).length;
+    var PASS_MARK = 2; // out of 3
+    var STORE_KEY = 'paramind_history_taking';
+    var app = document.getElementById('htApp');
+
+    // ==================== SAVED PROGRESS (this device) ====================
+    function loadProgress() {
+        try {
+            var o = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
+            return { learned: o.learned || {}, pinned: o.pinned || {} };
+        } catch (e) { return { learned: {}, pinned: {} }; }
+    }
+    function saveProgress() {
+        try { localStorage.setItem(STORE_KEY, JSON.stringify(P)); } catch (e) {}
+    }
+    var P = loadProgress();
+
+    // ==================== PAGE STATE ====================
+    var S = { cid: null, tab: 'ask', askOpen: -1, flagView: 'causes', feat: null, cat: 0, fwOpen: 0, attempt: 0, quiz: null, gapSel: -1, cpd: {} };
+
+    // ==================== HELPERS ====================
+    function esc(t) {
+        return String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    function lower(name) { return name.charAt(0).toLowerCase() + name.slice(1); }
+    function catOf(id) {
+        for (var i = 0; i < CATS.length; i++) { if (CATS[i][4].indexOf(id) !== -1) return CATS[i]; }
+        return CATS[0];
+    }
+    function rot(arr, k) { k = k % arr.length; return arr.slice(k).concat(arr.slice(0, k)); }
+    function ring(size, r, width, done, total, colour, track) {
+        var len = 2 * Math.PI * r, c = size / 2;
+        return '<svg aria-hidden="true" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
+            '<circle cx="' + c + '" cy="' + c + '" r="' + r + '" fill="none" stroke="' + track + '" stroke-width="' + width + '"/>' +
+            '<circle cx="' + c + '" cy="' + c + '" r="' + r + '" fill="none" stroke="' + colour + '" stroke-width="' + width + '" stroke-dasharray="' + (len * done / total).toFixed(1) + ' ' + len.toFixed(1) + '"/>' +
+            '</svg>';
+    }
+    function back(href, label) {
+        return '<a class="back-btn" href="' + href + '"><i class="bi bi-arrow-left"></i> ' + esc(label) + '</a>';
+    }
+
+    // Quick check questions are built from the presentation's own content.
+    function quizFor(c, n, i) {
+        var src = i === 0 ? c.flags : i === 1 ? c.ask : c.pits;
+        var k = (n + i) % src.length;
+        var three = [src[k], src[(k + 1) % src.length], src[(k + 2) % src.length]];
+        var q = i === 0 ? { label: 'Which cause do these features suggest?', body: three[0].text, opts: three.map(function (x) { return x.name; }) }
+              : i === 1 ? { label: 'Which question does this explain?', body: three[0].why, opts: three.map(function (x) { return x.q; }) }
+              :           { label: 'Which pitfall is this?', body: three[0].t, opts: three.map(function (x) { return x.h; }) };
+        // Position of the right answer varies with the question text and the attempt
+        q.opts = rot(q.opts.map(function (t, j) { return { text: t, correct: j === 0 }; }), q.body.length + n);
+        return q;
+    }
+    function gapFor(id) {
+        var g = GAP[id];
+        return { hx: g[0], exp: g[4], opts: rot([g[1], g[2], g[3]].map(function (t, j) { return { text: t, correct: j === 0 }; }), id.length) };
+    }
+    function optionsHtml(opts, sel, act) {
+        return '<div class="ht-stack">' + opts.map(function (o, j) {
+            var cls = 'ht-opt', icon = '';
+            if (sel !== -1) {
+                if (o.correct) { cls += ' right'; icon = '<i class="bi bi-check-lg" aria-hidden="true"></i>'; }
+                else if (sel === j) { cls += ' wrong'; icon = '<i class="bi bi-x-lg" aria-hidden="true"></i>'; }
+                else { cls += ' dim'; }
+            }
+            return '<button type="button" class="' + cls + '" data-act="' + act + '" data-i="' + j + '"><span>' + esc(o.text) + '</span>' + icon + '</button>';
+        }).join('') + '</div>';
+    }
+
+    // ==================== SCREEN: FIRST SCREEN ====================
+    function viewHub() {
+        var done = Object.keys(P.learned).filter(function (id) { return C[id]; }).length;
+        var pins = Object.keys(P.pinned).filter(function (id) { return C[id]; });
+        var h = '';
+        h += '<div class="ht-header"><h1><i class="bi bi-journal-medical"></i> History Taking</h1>' +
+             '<p>What to ask, what not to miss and what to write down, for ' + TOTAL + ' presenting complaints.</p></div>';
+
+        h += '<div class="ht-card ht-progress">' +
+             '<div class="ht-ring">' + ring(64, 27, 8, done, TOTAL, '#5BC166', '#E3F2F5') + '<div class="ht-ring-num">' + done + '</div></div>' +
+             '<div><div class="ht-progress-title">' + done + ' of ' + TOTAL + ' learned</div>' +
+             '<div class="ht-progress-sub">Pass a quick check to mark a presentation as learned.</div></div></div>';
+
+        h += '<div class="ht-section"><h2 class="ht-section-title">Pinned pocket cards</h2><div class="ht-stack">';
+        if (!pins.length) {
+            h += '<div class="ht-pin-empty">Nothing pinned yet. Open a presentation and tap the bookmark to keep its pocket card here.</div>';
+        } else {
+            pins.forEach(function (id) {
+                h += '<a class="ht-pin-link" href="#p/' + id + '/pocket"><i class="bi bi-bookmark-fill" aria-hidden="true"></i>' + esc(C[id].name) + '<span class="ht-pin-tag">Pocket card</span></a>';
+            });
+        }
+        h += '</div></div>';
+
+        h += '<div class="ht-section"><h2 class="ht-section-title">Frameworks</h2><div class="ht-fw-grid">' +
+             '<a class="ht-fw-btn" href="#f/model">Medical model</a>' +
+             '<a class="ht-fw-btn" href="#f/soc">SOCRATES</a>' +
+             '<a class="ht-fw-btn" href="#f/ros">Review of systems</a></div></div>';
+
+        h += '<div class="ht-section"><h2 class="ht-section-title">Presenting complaints</h2><div class="ht-stack">';
+        CATS.forEach(function (ct, i) {
+            var name = ct[0], fg = ct[1], tint = ct[2], icon = ct[3], ids = ct[4];
+            var dn = ids.filter(function (id) { return P.learned[id]; }).length;
+            var open = S.cat === i;
+            h += '<div class="ht-cat' + (open ? ' open' : '') + '"' + (open ? ' style="border-color:' + fg + '"' : '') + '>' +
+                 '<button type="button" class="ht-cat-head" data-act="cat" data-i="' + i + '" aria-expanded="' + open + '">' +
+                 '<span class="ht-cat-icon" style="background:' + fg + '"><i class="bi ' + icon + '" aria-hidden="true"></i></span>' +
+                 '<span class="ht-cat-name">' + esc(name) + '</span>' +
+                 '<span class="ht-cat-frac" style="color:' + fg + '">' + dn + '/' + ids.length + '</span>' +
+                 '<span class="ht-cat-ring">' + ring(30, 11, 5, dn, ids.length, fg, tint) + '</span>' +
+                 '<i class="bi bi-chevron-down ht-cat-chev" style="color:' + fg + '" aria-hidden="true"></i>' +
+                 '</button><div class="ht-cat-items">';
+            ids.forEach(function (id) {
+                h += '<a class="ht-item" style="background:' + tint + '" href="#p/' + id + '"><span class="ht-item-name">' + esc(C[id].name) + '</span>' +
+                     (P.learned[id] ? '<span class="ht-learned"><i class="bi bi-check-lg" aria-hidden="true"></i>Learned</span>' : '') +
+                     '<i class="bi bi-chevron-right" style="color:' + fg + '" aria-hidden="true"></i></a>';
+            });
+            h += '</div></div>';
+        });
+        h += '</div></div>';
+        return h;
+    }
+
+    // ==================== SCREEN: A PRESENTATION ====================
+    function viewRef(id) {
+        var c = C[id], pinned = !!P.pinned[id], h = '';
+        h += back('#', 'All presentations');
+        h += '<div class="ht-title-row"><h1>' + esc(c.name) + '</h1>' +
+             '<button type="button" class="ht-round-btn' + (pinned ? ' on' : '') + '" data-act="pin" aria-pressed="' + pinned + '" aria-label="' + (pinned ? 'Unpin this presentation' : 'Pin this presentation') + '"><i class="bi ' + (pinned ? 'bi-bookmark-fill' : 'bi-bookmark') + '" aria-hidden="true"></i></button>' +
+             '<a class="ht-pill-btn" href="#p/' + id + '/pocket"><i class="bi bi-card-text" aria-hidden="true"></i>Pocket card</a></div>';
+
+        var tabs = [['ask', 'Ask'], ['flags', 'Red flags'], ['doc', 'Document'], ['pit', 'Pitfalls'], ['test', 'Test']];
+        h += '<div class="ht-tabs" role="tablist">' + tabs.map(function (t) {
+            return '<button type="button" role="tab" aria-selected="' + (S.tab === t[0]) + '" class="ht-tab' + (S.tab === t[0] ? ' active' : '') + '" data-act="tab" data-v="' + t[0] + '">' + t[1] + '</button>';
+        }).join('') + '</div>';
+
+        if (S.tab === 'ask') {
+            h += '<div class="ht-intro-row"><p>What to ask for ' + esc(lower(c.name)) + '. Tap a line to see why we ask.</p>' +
+                 (c.soc ? '<a class="ht-pill-btn" href="#f/soc">New to SOCRATES?</a>' : '') + '</div>';
+            h += '<div class="ht-ask">' + c.ask.map(function (a, i) {
+                var open = S.askOpen === i;
+                return '<div class="ht-ask-row' + (open ? ' open' : '') + '">' +
+                    '<button type="button" class="ht-ask-btn" data-act="ask" data-i="' + i + '" aria-expanded="' + open + '">' +
+                    '<span class="ht-badge">' + esc(a.l) + '</span><span class="ht-ask-q">' + esc(a.q) + '</span>' +
+                    '<i class="bi bi-chevron-down ht-ask-chev" aria-hidden="true"></i></button>' +
+                    '<div class="ht-why"><div class="ht-why-label">Why we ask</div><div class="ht-why-text">' + esc(a.why) + '</div></div></div>';
+            }).join('') + '</div>';
+        }
+
+        if (S.tab === 'flags') {
+            h += '<div class="ht-seg"><button type="button" class="' + (S.flagView === 'causes' ? 'active' : '') + '" data-act="flagview" data-v="causes">Causes not to miss</button>' +
+                 '<button type="button" class="' + (S.flagView === 'apart' ? 'active' : '') + '" data-act="flagview" data-v="apart">Tell them apart</button></div>';
+            if (S.flagView === 'causes') {
+                h += '<div class="ht-stack">' + c.flags.map(function (f) {
+                    return '<div class="ht-card"><div class="ht-flag-name">' + esc(f.name) + '</div><div class="ht-flag-text">' + esc(f.text) + '</div></div>';
+                }).join('') + '</div>';
+            } else {
+                var feat = S.feat || c.feats[0][0];
+                h += '<p class="ht-lead">Pick a feature to compare them side by side.</p>';
+                h += '<div class="ht-chips">' + c.feats.map(function (f) {
+                    return '<button type="button" class="ht-chip' + (feat === f[0] ? ' active' : '') + '" data-act="feat" data-v="' + f[0] + '">' + esc(f[1]) + '</button>';
+                }).join('') + '</div>';
+                h += '<div class="ht-apart">' + c.apart.map(function (r) {
+                    return '<div class="ht-apart-row"><div class="ht-apart-name">' + esc(r.name) + '</div><div class="ht-apart-val">' + esc(r[feat]) + '</div></div>';
+                }).join('') + '</div>';
+                h += '<p class="ht-note">Typical patterns only. Real patients do not always follow them.</p>';
+            }
+        }
+
+        if (S.tab === 'doc') {
+            h += '<p class="ht-lead">A structure for the record. Write what you found, in this order.</p>';
+            h += '<div class="ht-stack">' + D.DOC.map(function (d) {
+                return '<div class="ht-card"><div class="ht-doc-head"><span class="ht-ab">' + esc(d.ab) + '</span><span class="ht-doc-name">' + esc(d.h) + '</span></div><div class="ht-doc-text">' + esc(d.t) + '</div></div>';
+            }).join('') + '</div>';
+            h += '<p class="ht-note">For what treatment to give, follow JRCALC and your trust guidelines.</p>';
+        }
+
+        if (S.tab === 'pit') {
+            h += '<p class="ht-lead">How ' + esc(lower(c.name)) + ' histories go wrong.</p>';
+            h += '<div class="ht-stack">' + c.pits.map(function (p) {
+                return '<div class="ht-card ht-pit"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><div><div class="ht-pit-h">' + esc(p.h) + '</div><div class="ht-pit-t">' + esc(p.t) + '</div></div></div>';
+            }).join('') + '</div>';
+        }
+
+        if (S.tab === 'test') {
+            h += '<div class="ht-stack">';
+            h += '<div class="ht-card"><div class="ht-test-head"><div class="ht-test-title">Quick check</div>' +
+                 (P.learned[id] ? '<span class="ht-learned-pill"><i class="bi bi-check-lg" aria-hidden="true"></i>Learned</span>' : '') + '</div>' +
+                 '<p class="ht-lead">Three questions. Get two right to mark this presentation as learned and save it to your portfolio.</p>' +
+                 '<a class="ht-btn" href="#p/' + id + '/quiz">Start quick check</a></div>';
+            h += '<div class="ht-card"><div class="ht-test-head"><div class="ht-test-title">Spot the missing question</div></div>' +
+                 '<p class="ht-lead">Read a short history and find the question nobody asked.</p>' +
+                 '<a class="ht-btn outline" href="#p/' + id + '/gap">Try it</a></div>';
+            h += '</div>';
+        }
+
+        var toolHref = c.tool === 'ECG tool' ? 'ecg-monitor.html' : 'differentials.html';
+        var toolLabel = c.tool === 'ECG tool' ? 'ECG Tool' : 'Differentials';
+        h += '<div class="ht-practice"><h2 class="ht-section-title">Put it into practice</h2><div class="ht-practice-grid">' +
+             '<a class="ht-btn" href="scenarios.html">Scenarios</a>' +
+             '<a class="ht-btn outline" href="' + toolHref + '">' + toolLabel + '</a></div></div>';
+        return h;
+    }
+
+    // ==================== SCREEN: POCKET CARD ====================
+    function viewPocket(id) {
+        var c = C[id], h = '';
+        h += back('#p/' + id, c.name);
+        h += '<div class="ht-q-top"><h1>' + esc(c.name) + '</h1><span class="ht-q-count">POCKET CARD</span></div>';
+        h += '<div class="ht-stack">';
+        h += '<div class="ht-card"><div class="ht-pocket-label">Ask</div>' + (c.pocket || c.ask).map(function (k) {
+            return '<div class="ht-pocket-row"><div class="ht-pocket-l">' + esc(k.l) + '</div><div class="ht-pocket-q">' + esc(k.q) + '</div></div>';
+        }).join('') + '</div>';
+        h += '<div class="ht-card"><div class="ht-pocket-label">Do not miss</div><div class="ht-tags">' + c.flags.map(function (f) {
+            return '<span class="ht-tag-red">' + esc(f.name) + '</span>';
+        }).join('') + '</div></div>';
+        h += '<div class="ht-card"><div class="ht-pocket-label">Record in this order</div><div class="ht-tags">' + D.DOC.map(function (d) {
+            return '<span class="ht-ab">' + esc(d.ab) + '</span>';
+        }).join('') + '</div></div>';
+        h += '</div>';
+        return h;
+    }
+
+    // ==================== SCREEN: QUICK CHECK ====================
+    function viewQuiz(id) {
+        var c = C[id], Q = S.quiz, h = '';
+        h += back('#p/' + id, c.name);
+
+        if (Q.done) {
+            var passed = Q.score >= PASS_MARK, cpd = S.cpd[id];
+            h += '<div class="ht-stack">';
+            h += '<div class="ht-card"><div class="ht-q-label">' + esc(c.name) + '</div><div class="ht-score">' + Q.score + ' of 3</div>' +
+                 '<p class="ht-lead" style="margin:0.35rem 0 0">' + (passed ? 'Passed. This presentation now counts towards your progress.' : 'You need two out of three to pass. Review the tabs and try again.') + '</p></div>';
+            if (passed) {
+                h += '<div class="ht-passed"><i class="bi bi-check-lg" aria-hidden="true"></i>Marked as learned</div>';
+                if (cpd === 'saved') {
+                    h += '<button type="button" class="ht-btn save saved" disabled><i class="bi bi-check-circle-fill" aria-hidden="true"></i> Saved to portfolio</button>' +
+                         '<a class="ht-cpd-link" href="cpd.html">View your CPD Portfolio</a>';
+                } else if (cpd === 'saving') {
+                    h += '<button type="button" class="ht-btn save" disabled><i class="bi bi-hourglass-split" aria-hidden="true"></i> Saving…</button>';
+                } else if (cpd === 'failed') {
+                    h += '<button type="button" class="ht-btn save" data-act="cpd"><i class="bi bi-exclamation-circle" aria-hidden="true"></i> Save failed — tap to try again</button>';
+                } else {
+                    h += '<button type="button" class="ht-btn save" data-act="cpd"><i class="bi bi-award" aria-hidden="true"></i> Save to portfolio</button>';
+                }
+            }
+            h += '<button type="button" class="ht-btn outline" data-act="retry">Try again</button>';
+            h += '<a class="ht-btn" href="#p/' + id + '">Back to ' + esc(lower(c.name)) + '</a>';
+            h += '</div>';
+            return h;
+        }
+
+        var q = quizFor(c, Q.n, Q.i);
+        h += '<div class="ht-q-top"><h1>Quick check</h1><span class="ht-q-count">Question ' + (Q.i + 1) + ' of 3</span></div>';
+        h += '<div class="ht-stack">';
+        h += '<div class="ht-card"><div class="ht-q-label">' + esc(q.label) + '</div><div class="ht-q-body">' + esc(q.body) + '</div></div>';
+        h += optionsHtml(q.opts, Q.sel, 'qpick');
+        if (Q.sel !== -1) {
+            var ok = q.opts[Q.sel].correct;
+            var right = q.opts.filter(function (o) { return o.correct; })[0].text;
+            h += '<div class="ht-fb ' + (ok ? 'good' : 'bad') + '">' + (ok ? 'Correct.' : 'Not quite. The answer is: ' + esc(right)) + '</div>';
+            h += '<button type="button" class="ht-btn" data-act="qnext">' + (Q.i < 2 ? 'Next question' : 'See your result') + '</button>';
+        }
+        h += '</div>';
+        return h;
+    }
+
+    // ==================== SCREEN: SPOT THE MISSING QUESTION ====================
+    function viewGap(id) {
+        var c = C[id], g = gapFor(id), h = '';
+        h += back('#p/' + id, c.name);
+        h += '<div class="ht-q-top"><h1>Spot the missing question</h1></div>';
+        h += '<div class="ht-stack">';
+        h += '<div class="ht-card"><div class="ht-q-label">The history so far</div><div style="font-size:0.95rem;line-height:1.5">' + esc(g.hx) + '</div></div>';
+        h += '<div class="ht-q-body">Which question was not asked?</div>';
+        h += optionsHtml(g.opts, S.gapSel, 'gpick');
+        if (S.gapSel !== -1) {
+            var ok = g.opts[S.gapSel].correct;
+            h += '<div class="ht-fb-box"><div class="ht-fb ' + (ok ? 'good' : 'bad') + '">' + (ok ? 'Correct.' : 'Not quite.') + '</div><p>' + esc(g.exp) + '</p></div>';
+            h += '<a class="ht-btn" href="#p/' + id + '">Back to ' + esc(lower(c.name)) + '</a>';
+        }
+        h += '</div>';
+        return h;
+    }
+
+    // ==================== SCREEN: A FRAMEWORK ====================
+    var FW = {
+        model: { title: 'The medical model', intro: 'Seven steps that give every history the same shape, whatever the complaint. Tap a step to open it.', steps: D.MODEL },
+        soc:   { title: 'SOCRATES', intro: 'Eight prompts for exploring pain. For symptoms other than pain, the same prompts work without Radiation. Tap a letter to open it.', steps: D.SOC },
+        ros:   { title: 'Review of systems', intro: 'A sweep through the body systems for symptoms the patient has not mentioned. Tap a system to open it.', steps: D.ROS }
+    };
+    function viewFramework(key) {
+        var f = FW[key], h = '';
+        h += '<a class="back-btn" href="#" data-act="histback"><i class="bi bi-arrow-left"></i> Back</a>';
+        h += '<div class="ht-header" style="padding-top:0"><h1>' + esc(f.title) + '</h1><p>' + esc(f.intro) + '</p></div>';
+        h += '<div class="ht-stack">' + f.steps.map(function (st, i) {
+            var open = S.fwOpen === i;
+            return '<div class="ht-step' + (open ? ' open' : '') + '">' +
+                '<button type="button" class="ht-step-btn" data-act="fwstep" data-i="' + i + '" aria-expanded="' + open + '">' +
+                '<span class="ht-step-num">' + esc(st.l || (i + 1)) + '</span><span class="ht-step-name">' + esc(st.h) + '</span>' +
+                '<i class="bi bi-chevron-down ht-step-chev" aria-hidden="true"></i></button>' +
+                '<div class="ht-step-body"><div class="ht-step-what">' + esc(st.what) + '</div>' +
+                '<div class="ht-why" style="display:block;margin:0"><div class="ht-why-label">You might ask</div><div class="ht-why-text">' + esc(st.ask) + '</div></div>' +
+                '<div class="ht-step-tip"><strong>Tip: </strong>' + esc(st.tip) + '</div></div></div>';
+        }).join('') + '</div>';
+        return h;
+    }
+
+    // ==================== ROUTING ====================
+    function parseRoute() {
+        var parts = window.location.hash.replace(/^#/, '').split('/');
+        if (parts[0] === 'p' && C[parts[1]]) return { view: parts[2] === 'pocket' || parts[2] === 'quiz' || parts[2] === 'gap' ? parts[2] : 'ref', id: parts[1] };
+        if (parts[0] === 'f' && FW[parts[1]]) return { view: 'fw', key: parts[1] };
+        return { view: 'hub' };
+    }
+    var lastRouteKey = null;
+    function onRoute() {
+        var r = parseRoute();
+        var key = r.view + ':' + (r.id || r.key || '');
+        if (r.id && r.id !== S.cid) { S.cid = r.id; S.tab = 'ask'; S.askOpen = -1; S.flagView = 'causes'; S.feat = null; }
+        if (key !== lastRouteKey) {
+            if (r.view === 'quiz') { S.attempt += 1; S.quiz = { n: S.attempt, i: 0, sel: -1, score: 0, done: false }; }
+            if (r.view === 'gap') { S.gapSel = -1; }
+            if (r.view === 'fw') { S.fwOpen = 0; }
+            window.scrollTo(0, 0);
+        }
+        lastRouteKey = key;
+        render(r);
+    }
+    function render(r) {
+        r = r || parseRoute();
+        app.innerHTML = r.view === 'ref' ? viewRef(r.id)
+                      : r.view === 'pocket' ? viewPocket(r.id)
+                      : r.view === 'quiz' ? viewQuiz(r.id)
+                      : r.view === 'gap' ? viewGap(r.id)
+                      : r.view === 'fw' ? viewFramework(r.key)
+                      : viewHub();
+    }
+
+    // ==================== SAVE TO PORTFOLIO (existing CPD structure) ====================
+    // Same record shape as Short Answer Practice, so it shows on cpd.html
+    // with the standard card and certificate.
+    async function saveToPortfolio(id) {
+        var c = C[id], Q = S.quiz;
+        if (!Q || !Q.done || S.cpd[id] === 'saving' || S.cpd[id] === 'saved') return;
+        S.cpd[id] = 'saving'; render();
+        try {
+            var user = firebase.auth().currentUser;
+            if (!user) throw new Error('Not signed in');
+            await firebase.firestore().collection('users').doc(user.uid).collection('cpdRecords').add({
+                type:                 'history-taking',
+                scenarioId:           'history-taking-' + id,
+                scenarioCode:         'HT-' + id.toUpperCase(),
+                scenarioType:         'History Taking — ' + c.name,
+                scenarioCategory:     catOf(id)[0],
+                userImpression:       'Quick check passed: ' + Q.score + ' of 3 correct',
+                correctDiagnosis:     c.name + ' — questions to ask, red flags and pitfalls',
+                result:               Q.score === 3 ? 'correct' : 'partially_correct',
+                questionsAsked:       3,
+                assessmentsPerformed: 0,
+                completedAt:          new Date()
+            });
+            S.cpd[id] = 'saved';
+        } catch (err) {
+            console.error('History Taking CPD save error:', err);
+            S.cpd[id] = 'failed';
+        }
+        render();
+    }
+
+    // ==================== CLICKS ====================
+    app.addEventListener('click', function (e) {
+        var el = e.target.closest('[data-act]');
+        if (!el) return;
+        var act = el.getAttribute('data-act');
+        var i = parseInt(el.getAttribute('data-i'), 10);
+        var v = el.getAttribute('data-v');
+        var r = parseRoute();
+
+        if (act === 'cat')      { S.cat = S.cat === i ? -1 : i; }
+        else if (act === 'tab') { S.tab = v; }
+        else if (act === 'ask') { S.askOpen = S.askOpen === i ? -1 : i; }
+        else if (act === 'flagview') { S.flagView = v; }
+        else if (act === 'feat') { S.feat = v; }
+        else if (act === 'fwstep') { S.fwOpen = S.fwOpen === i ? -1 : i; }
+        else if (act === 'pin') {
+            if (P.pinned[r.id]) { delete P.pinned[r.id]; } else { P.pinned[r.id] = true; }
+            saveProgress();
+        }
+        else if (act === 'qpick') {
+            if (S.quiz.sel !== -1) return;
+            var q = quizFor(C[r.id], S.quiz.n, S.quiz.i);
+            S.quiz.sel = i;
+            if (q.opts[i].correct) S.quiz.score += 1;
+        }
+        else if (act === 'qnext') {
+            if (S.quiz.i < 2) { S.quiz.i += 1; S.quiz.sel = -1; }
+            else {
+                S.quiz.done = true;
+                if (S.quiz.score >= PASS_MARK) { P.learned[r.id] = true; saveProgress(); }
+            }
+            window.scrollTo(0, 0);
+        }
+        else if (act === 'retry') {
+            S.attempt += 1; S.quiz = { n: S.attempt, i: 0, sel: -1, score: 0, done: false };
+            if (S.cpd[r.id] !== 'saved') delete S.cpd[r.id];
+            window.scrollTo(0, 0);
+        }
+        else if (act === 'gpick') { if (S.gapSel !== -1) return; S.gapSel = i; }
+        else if (act === 'cpd') { saveToPortfolio(r.id); return; }
+        else if (act === 'histback') {
+            e.preventDefault();
+            if (window.history.length > 1) { window.history.back(); } else { window.location.hash = ''; }
+            return;
+        }
+        else { return; }
+        render(r);
+    });
+
+    window.addEventListener('hashchange', onRoute);
+    onRoute();
+})();
+</script>
+
+<!-- Scripts -->
+<script src="js/app.js"></script>
+<script src="js/menu-v2.js"></script>
+<script src="js/pro-guard.js"></script>
+<script src="js/activity-logger.js?v=3"></script>
+</body>
+</html>

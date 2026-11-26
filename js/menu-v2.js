@@ -43,6 +43,7 @@
         // Learn section
         learnNav: [
             { id: 'chat', href: 'chat.html', icon: 'bi-chat-dots', label: 'Chat with Hollie' },
+            { id: 'historytaking', href: 'history-taking.html', icon: 'bi-journal-medical', label: 'History Taking', isPro: true },
             { id: 'placement', href: 'placement.html', icon: 'bi-compass', label: 'On Placement', partialPro: true },
             { id: 'connections', href: 'connections.html', icon: 'bi-heart-pulse', label: 'A&P Connections', isPro: true },
             { id: 'ecg', href: 'ecg-monitor.html', icon: 'bi-activity', label: 'ECG Tool', isPro: true },
@@ -96,6 +97,7 @@
         if (path.includes('podcast')) return 'podcast';
         if (path.includes('interview')) return 'interview';
         if (path.includes('short-answer')) return 'shortanswer';
+        if (path.includes('history-taking')) return 'historytaking';
         if (path.includes('cluehunt')) return 'cluehunt';
         if (path.includes('practice-epcrs')) return 'epcr';
         if (path.includes('connections') || path.includes('connections')) return 'connections';
