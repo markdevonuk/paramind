@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Paramedic News | Paramind</title>
+    <meta name="description" content="The latest UK ambulance and paramedic news, summarised for working paramedics and students. Updated Monday, Wednesday and Friday.">
+    <link rel="canonical" href="https://paramind.co.uk/news.html">
+    <meta name="robots" content="noindex">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/menu-v2.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+
+    <style>
+        /* ================================================================
+           PARAMIND — PARAMEDIC NEWS (public page, no login needed)
+           Shows the latest news round-up from social/latest.json.
+           That file is written by the Mon/Wed/Fri news run.
+           Paramind's own news articles (added in admin.html) show
+           above the stories until the next round-up replaces them.
+           ================================================================ */
+        .landing-page { min-height: 100vh; background: #FFFFFF; overflow-x: hidden; position: relative; }
+        .landing-container { max-width: 920px; margin: 0 auto; padding: 0.5rem 1rem 3rem; position: relative; z-index: 1; }
+
+        /* Section header (same coloured strip as the What's new page) */
+        .section-header {
+            background: linear-gradient(135deg, #0F4252 0%, #2B8A9C 60%, #1F6B7C 100%);
+            border-radius: 18px;
+            padding: 1.5rem 1.75rem;
+            margin-top: 0.75rem;
+            margin-bottom: 1.5rem;
+            color: #fff;
+            box-shadow: 0 6px 18px rgba(15, 66, 82, 0.10);
+            position: static;   /* css/styles.css makes .section-header stick to the top; on this long page it should scroll away */
+        }
+        .section-header-label {
+            font-family: 'JetBrains Mono', 'DM Sans', monospace;
+            font-size: 0.7rem; letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.75);
+            margin-bottom: 0.35rem;
+        }
+        .section-header-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 2rem; font-weight: 700; line-height: 1;
+            letter-spacing: -0.5px; margin: 0; color: #fff;
+        }
+        .section-header-tagline {
+            font-size: 1rem; color: rgba(255,255,255,0.9);
+            margin-top: 0.5rem; font-weight: 500;
+        }
+
+        /* Search box */
+        .news-search {
+            position: relative;
+            margin: 0 0 1.25rem 0;
+        }
+        .news-search > .bi-search {
+            position: absolute;
+            left: 1rem; top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-gray-500);
+            pointer-events: none;
+        }
+        .news-search input {
+            width: 100%;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;              /* 16px stops iPhones zooming in when you tap the box */
+            padding: 0.8rem 2.8rem 0.8rem 2.7rem;
+            border: 1.5px solid #dee2e6;
+            border-radius: 14px;
+            background: #fff;
+            color: var(--color-gray-800);
+            outline: none;
+            -webkit-appearance: none;
+                    appearance: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .news-search input::-webkit-search-cancel-button { -webkit-appearance: none; }
+        .news-search input:focus {
+            border-color: var(--color-teal);
+            box-shadow: 0 0 0 3px rgba(43, 138, 156, 0.15);
+        }
+        .news-search-clear {
+            position: absolute;
+            right: 0.5rem; top: 50%;
+            transform: translateY(-50%);
+            border: none; background: none;
+            color: var(--color-gray-600);
+            font-size: 1.2rem;
+            padding: 0.25rem 0.5rem;
+            cursor: pointer;
+            display: none;
+        }
+        .news-search.has-text .news-search-clear { display: block; }
+        .news-search-summary {
+            font-size: 0.9rem;
+            color: var(--color-gray-600);
+            margin: 0 0 1rem 0.25rem;
+            line-height: 1.5;
+        }
+        .news-search-summary strong { color: var(--color-gray-800); }
+        .news-card-when {
+            font-size: 0.78rem;
+            color: var(--color-gray-600);
+            margin: -0.2rem 0 0.45rem 0;
+        }
+
+        /* Date line above the stories */
+        .news-date {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--color-gray-600);
+            margin: 0 0 1rem 0.25rem;
+        }
+        .news-date i { color: var(--color-teal); margin-right: 0.35rem; }
+        .news-date--more { margin-top: 1.75rem; }
+        .news-earlier-body .news-date--more:first-child { margin-top: 0; }
+
+        /* Story cards */
+        .news-list { display: flex; flex-direction: column; gap: 1rem; }
+        .news-card {
+            background: #fff;
+            border: 1px solid #e9ecef;
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: 0 2px 8px rgba(15, 66, 82, 0.04);
+        }
+        .news-card-region {
+            font-family: 'JetBrains Mono', 'DM Sans', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--color-teal);
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+        .news-card-headline {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            line-height: 1.3;
+            color: var(--color-gray-800);
+            margin: 0 0 0.6rem 0;
+        }
+        .news-card-body {
+            font-size: 0.98rem;
+            line-height: 1.6;
+            color: var(--color-gray-700);
+            margin: 0 0 0.9rem 0;
+        }
+        .news-card-why {
+            background: rgba(43, 138, 156, 0.07);
+            border-left: 4px solid #2B8A9C;
+            border-radius: 0 10px 10px 0;
+            padding: 0.7rem 0.9rem;
+            margin-bottom: 0.9rem;
+        }
+        .news-card-why-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #1F6B7C;
+            margin-bottom: 0.15rem;
+        }
+        .news-card-why-text {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--color-gray-800);
+            margin: 0;
+        }
+        .news-card-footer {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem 1rem;
+        }
+        .news-card-source {
+            font-size: 0.82rem;
+            color: var(--color-gray-600);
+        }
+        .news-card-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--color-teal);
+            text-decoration: none;
+        }
+        .news-card-link:hover { color: var(--color-teal-dark); text-decoration: underline; }
+
+        /* Paramind's own news article (green accent so it stands apart) */
+        .news-card.news-card--paramind {
+            border-color: rgba(91, 193, 102, 0.55);
+            border-left: 5px solid #5BC166;
+            background: linear-gradient(135deg, rgba(91, 193, 102, 0.07) 0%, #ffffff 60%);
+        }
+        .news-card--paramind .news-card-region { color: #2E8B3A; }
+        #paramindNews:not(:empty) { margin-bottom: 1rem; }
+
+        /* When a headline on the home page is tapped, the page jumps to that story */
+        .news-card { scroll-margin-top: 80px; }
+        .news-card.news-card--target { box-shadow: 0 0 0 3px rgba(53, 176, 200, 0.45); }
+
+        /* Earlier news: one fold-out row per previous month */
+        .news-earlier-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin: 2.25rem 0 0.75rem 0.25rem;
+        }
+        .news-earlier {
+            border: 1px solid #e9ecef;
+            border-radius: 14px;
+            background: #fff;
+            margin-bottom: 0.6rem;
+            overflow: hidden;
+        }
+        .news-earlier summary {
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.85rem 1rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--color-gray-800);
+        }
+        .news-earlier summary::-webkit-details-marker { display: none; }
+        .news-earlier summary i { color: var(--color-teal); transition: transform 0.2s ease; }
+        .news-earlier[open] summary i { transform: rotate(180deg); }
+        .news-earlier[open] summary { border-bottom: 1px solid #e9ecef; }
+        .news-earlier-body { padding: 1rem; background: #f8f9fa; }
+        .news-earlier-body .loading-spinner { padding: 1rem 0; }
+
+        /* Small print under the stories */
+        .news-footnote {
+            font-size: 0.82rem;
+            color: var(--color-gray-600);
+            text-align: center;
+            margin: 1.5rem 0 0 0;
+            line-height: 1.5;
+        }
+
+        /* Loading + message states */
+        .loading-spinner { display: flex; justify-content: center; padding: 3rem 0; color: var(--color-teal); }
+        .news-message {
+            text-align: center;
+            padding: 2.5rem 1rem;
+            color: var(--color-gray-600);
+        }
+        .news-message i { font-size: 2rem; color: var(--color-gray-500); display: block; margin-bottom: 0.5rem; }
+
+        @media (max-width: 540px) {
+            .section-header-title { font-size: 1.6rem; }
+            .news-card { padding: 1rem; }
+            .news-card-headline { font-size: 1.08rem; }
+        }
+    </style>
+</head>
+
+<body class="landing-page member-page">
+
+    <nav class="member-navbar">
+        <div class="container">
+            <span class="brand-text">
+                <a class="navbar-brand" href="landing.html">
+                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
+                </a>
+            </span>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="landing-container">
+
+        <div class="section-header">
+            <div class="section-header-label">News</div>
+            <h1 class="section-header-title">Paramedic news</h1>
+            <div class="section-header-tagline">UK ambulance and paramedic news, updated Monday, Wednesday and Friday</div>
+        </div>
+
+        <!-- Search: looks through every round-up, and understands typos and paramedic jargon -->
+        <div class="news-search" id="newsSearch">
+            <i class="bi bi-search"></i>
+            <input type="search" id="newsSearchInput" placeholder="Search the news, e.g. handover, NQP jobs, LAS"
+                   aria-label="Search the news" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+            <button type="button" class="news-search-clear" id="newsSearchClear" aria-label="Clear search"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div id="newsSearchResults" style="display: none;"></div>
+
+        <!-- Paramind's own news articles (filled by the script below; stays empty if there are none) -->
+        <div id="paramindNews" class="news-list"></div>
+
+        <!-- Main content area — the script below swaps between loading / stories / message -->
+        <div id="newsContent">
+            <div class="loading-spinner">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading…</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="member-footer">
+        <div class="container">
+            <div class="footer-brand">
+                <span class="brand-text">
+                    <span class="brand-para">para</span><span class="brand-mind">mind</span>
+                </span>
+            </div>
+            <div class="footer-links">
+                <a href="terms.html">Terms of Service</a>
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="purpose.html">Intended Purpose</a>
+                <a href="sources.html">Sources &amp; Citations</a>
+                <a href="contact.html">Contact</a>
+            </div>
+            <p class="footer-copyright">&copy; 2026 Paramind. All rights reserved.</p>
+            <p class="footer-trademark" style="font-size: 0.85rem; color: var(--color-gray-500);">Paramind&#174; is a registered UK trade mark (UK00004321918).</p>
+        </div>
+    </footer>
+
+    <!-- Firebase compat SDK (same version the menu uses) — only needed for Paramind's own news articles -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/menu-v2.js"></script>
+    <script src="js/app.js"></script>
+
+    <script>
+        // ============================================================
+        // PARAMEDIC NEWS
+        // 1. Reads social/latest.json (the newest news round-up) and
+        //    draws one card per story. No login needed.
+        //    Previous round-ups are listed under "Earlier news".
+        // 2. Reads Paramind's own news articles from Firestore
+        //    ("paramindNews") and shows any that were saved AFTER the
+        //    latest round-up was published, above the stories.
+        // ============================================================
+        (function () {
+            'use strict';
+
+            var content = document.getElementById('newsContent');
+            var paramindBox = document.getElementById('paramindNews');
+
+            // Make text safe to put on the page
+            function escapeHtml(text) {
+                return String(text == null ? '' : text)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            // Only allow normal web links (https:// or http://)
+            function safeLink(link) {
+                if (typeof link !== 'string') return '';
+                var trimmed = link.trim();
+                return /^https?:\/\//i.test(trimmed) ? trimmed : '';
+            }
+
+            // A Paramind page such as upgrade.html (used by Paramind's own articles)
+            function safePageLink(link) {
+                if (typeof link !== 'string') return '';
+                var trimmed = link.trim();
+                return /^[a-z0-9-]+\.html([?#].*)?$/i.test(trimmed) ? trimmed : '';
+            }
+
+            function showMessage(icon, text) {
+                content.innerHTML =
+                    '<div class="news-message">' +
+                        '<i class="bi ' + icon + '"></i>' +
+                        '<div>' + escapeHtml(text) + '</div>' +
+                    '</div>';
+            }
+
+            function storyCard(story, number, when) {
+                var link = safeLink(story.link);
+                var html = number ? '<article class="news-card" id="story-' + number + '">' : '<article class="news-card">';
+
+                if (story.region) {
+                    html += '<div class="news-card-region">' + escapeHtml(story.region) + '</div>';
+                }
+                html += '<h2 class="news-card-headline">' + escapeHtml(story.headline) + '</h2>';
+                if (when) {
+                    html += '<div class="news-card-when"><i class="bi bi-calendar3"></i> ' + escapeHtml(when) + '</div>';
+                }
+                if (story.body) {
+                    html += '<p class="news-card-body">' + escapeHtml(story.body) + '</p>';
+                }
+                if (story.why) {
+                    html += '<div class="news-card-why">' +
+                                '<div class="news-card-why-label">Why it matters</div>' +
+                                '<p class="news-card-why-text">' + escapeHtml(story.why) + '</p>' +
+                            '</div>';
+                }
+
+                html += '<div class="news-card-footer">';
+                html += '<span class="news-card-source">' +
+                            (story.source ? 'Source: ' + escapeHtml(story.source) : '') +
+                        '</span>';
+                if (link) {
+                    html += '<a class="news-card-link" href="' + escapeHtml(link) + '" target="_blank" rel="noopener noreferrer">' +
+                                'Read the full story <i class="bi bi-box-arrow-up-right"></i>' +
+                            '</a>';
+                }
+                html += '</div>';
+
+                html += '</article>';
+                return html;
+            }
+
+            // Paramind's own article: headline, a few sentences, optional link
+            function paramindCard(item, number) {
+                var external = safeLink(item.link);
+                var page = safePageLink(item.link);
+                var html = '<article class="news-card news-card--paramind" id="paramind-' + number + '">';
+                html += '<div class="news-card-region">Paramind news</div>';
+                html += '<h2 class="news-card-headline">' + escapeHtml(item.headline) + '</h2>';
+                if (item.body) {
+                    html += '<p class="news-card-body">' + escapeHtml(item.body) + '</p>';
+                }
+                if (external) {
+                    html += '<div class="news-card-footer"><span></span>' +
+                            '<a class="news-card-link" href="' + escapeHtml(external) + '" target="_blank" rel="noopener noreferrer">' +
+                            'Find out more <i class="bi bi-box-arrow-up-right"></i></a></div>';
+                } else if (page) {
+                    html += '<div class="news-card-footer"><span></span>' +
+                            '<a class="news-card-link" href="' + escapeHtml(page) + '">' +
+                            'Find out more <i class="bi bi-arrow-right"></i></a></div>';
+                }
+                html += '</article>';
+                return html;
+            }
+
+            // If the address ends in #story-2 (from the home page headline strip), jump to that card
+            function jumpToTarget() {
+                var id = (window.location.hash || '').replace('#', '');
+                if (!/^(story|paramind)-\d+$/.test(id)) return;
+                var card = document.getElementById(id);
+                if (!card) return;
+                card.classList.add('news-card--target');
+                card.scrollIntoView({ block: 'start' });
+            }
+
+            function render(data) {
+                var stories = (data && Array.isArray(data.stories)) ? data.stories : [];
+                stories = stories.filter(function (s) { return s && s.headline; });
+
+                if (stories.length === 0) {
+                    showMessage('bi-newspaper', 'No news stories to show just yet. Please check back soon.');
+                    return;
+                }
+
+                var html = '';
+                if (data.date) {
+                    html += '<p class="news-date"><i class="bi bi-calendar3"></i>' + escapeHtml(tidyDate(data.date)) + '</p>';
+                }
+                html += '<div class="news-list">';
+                stories.forEach(function (story, index) { html += storyCard(story, index + 1); });
+                html += '</div>';
+
+                // The rest of this month's round-ups are added here once they have loaded
+                var thisMonth = monthOf(data.folder);
+                var earlier = Array.isArray(data.earlier) ? data.earlier.filter(function (e) {
+                    return e && /^\d{4}-\d{2}-\d{2}$/.test(e.folder || '');
+                }) : [];
+                var moreThisMonth = thisMonth && earlier.some(function (e) { return monthOf(e.folder) === thisMonth; });
+                if (moreThisMonth) {
+                    html += '<div id="newsThisMonth"><div class="loading-spinner"><div class="spinner-border spinner-border-sm" role="status"></div></div></div>';
+                }
+
+                html += '<p class="news-footnote">Summaries are written by Paramind from the sources shown. ' +
+                        'Follow the link on each story to read the original.</p>';
+
+                html += earlierSection(earlier, thisMonth);
+
+                content.innerHTML = html;
+                wireEarlier();
+                jumpToTarget();
+                if (moreThisMonth) fillThisMonth(thisMonth, data.folder);
+            }
+
+            // ---- Dates ----
+            var MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+                               'August', 'September', 'October', 'November', 'December'];
+
+            // "2026-11-27" -> "2026-11"
+            function monthOf(folder) {
+                return /^\d{4}-\d{2}-\d{2}$/.test(folder || '') ? folder.slice(0, 7) : '';
+            }
+
+            // "2026-11" -> "November 2026"
+            function monthName(month) {
+                var name = MONTH_NAMES[parseInt(month.slice(5, 7), 10) - 1];
+                return name ? name + ' ' + month.slice(0, 4) : month;
+            }
+
+            // The news run writes its dates in a few different styles. This makes them all match:
+            //   "Thursday 26 – Friday 27 November 2026" -> "26–27 November 2026"
+            //   "31 October – 2 November 2026"          -> unchanged
+            function tidyDate(text) {
+                return String(text == null ? '' : text)
+                    .replace(/\b(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b,?\s*/gi, '')
+                    .replace(/^(\d{1,2})\s*[–-]\s*(\d{1,2}\s)/, '$1–$2')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+            }
+
+            // ---- Every story from every round-up (social/stories.json), downloaded once ----
+            var allStoriesLoading = null;
+            function loadAllStories() {
+                if (allStoriesLoading) return allStoriesLoading;
+                allStoriesLoading = fetch('social/stories.json?t=' + Date.now(), { cache: 'no-store' })
+                    .then(function (response) {
+                        if (!response.ok) throw new Error('HTTP ' + response.status);
+                        return response.json();
+                    })
+                    .then(function (file) {
+                        var list = (file && Array.isArray(file.stories)) ? file.stories : [];
+                        return list.filter(function (s) { return s && s.headline && monthOf(s.folder); });
+                    })
+                    .catch(function (error) {
+                        allStoriesLoading = null;   // lets them try again
+                        throw error;
+                    });
+                return allStoriesLoading;
+            }
+
+            // All the stories for one month, as a date line then cards for each round-up (newest first).
+            // "skipFolder" leaves out one round-up (the latest one, which is already on the page).
+            function monthHtml(list, month, skipFolder) {
+                var html = '';
+                var lastFolder = '';
+                var open = false;
+                list.forEach(function (story) {
+                    if (monthOf(story.folder) !== month || story.folder === skipFolder) return;
+                    if (story.folder !== lastFolder) {
+                        if (open) html += '</div>';
+                        html += '<p class="news-date news-date--more"><i class="bi bi-calendar3"></i>' + escapeHtml(tidyDate(story.date)) + '</p>';
+                        html += '<div class="news-list">';
+                        open = true;
+                        lastFolder = story.folder;
+                    }
+                    html += storyCard(story, 0);
+                });
+                if (open) html += '</div>';
+                return html;
+            }
+
+            // ---- The rest of this month, shown under the latest round-up ----
+            function fillThisMonth(month, latestFolder) {
+                var box = document.getElementById('newsThisMonth');
+                if (!box) return;
+                loadAllStories()
+                    .then(function (list) { box.innerHTML = monthHtml(list, month, latestFolder); })
+                    .catch(function (error) {
+                        console.warn('Paramedic news: could not load the rest of this month', error);
+                        box.innerHTML = '<div class="news-message" style="padding:1rem;">Sorry, the rest of this month\'s stories could not be loaded. Please try again.</div>';
+                    });
+            }
+
+            // ---- Earlier news ----
+            // One fold-out row per previous month. latest.json carries the list of previous
+            // round-ups ([{ folder, date }]); the months come from their folder names.
+            // A month's stories are only fetched when its row is opened.
+            function earlierSection(earlier, thisMonth) {
+                var months = [];
+                earlier.forEach(function (e) {
+                    var month = monthOf(e.folder);
+                    if (month && month !== thisMonth && months.indexOf(month) === -1) months.push(month);
+                });
+                if (months.length === 0) return '';
+                months.sort().reverse();   // newest month first
+
+                var html = '<h2 class="news-earlier-title">Earlier news</h2>';
+                months.forEach(function (month) {
+                    html += '<details class="news-earlier" data-month="' + escapeHtml(month) + '">' +
+                                '<summary><span>' + escapeHtml(monthName(month)) + '</span><i class="bi bi-chevron-down"></i></summary>' +
+                                '<div class="news-earlier-body"></div>' +
+                            '</details>';
+                });
+                return html;
+            }
+
+            function wireEarlier() {
+                var rows = content.querySelectorAll('details.news-earlier');
+                Array.prototype.forEach.call(rows, function (row) {
+                    row.addEventListener('toggle', function () {
+                        if (!row.open || row.getAttribute('data-loaded')) return;
+                        row.setAttribute('data-loaded', 'yes');
+                        var body = row.querySelector('.news-earlier-body');
+                        body.innerHTML = '<div class="loading-spinner"><div class="spinner-border spinner-border-sm" role="status"></div></div>';
+
+                        loadAllStories()
+                            .then(function (list) {
+                                var html = monthHtml(list, row.getAttribute('data-month'), '');
+                                if (!html) throw new Error('no stories');
+                                body.innerHTML = html;
+                            })
+                            .catch(function (error) {
+                                console.warn('Paramedic news: could not load an earlier month', error);
+                                row.removeAttribute('data-loaded');   // lets them try again
+                                body.innerHTML = '<div class="news-message" style="padding:1rem;">Sorry, these stories could not be loaded. Please try again.</div>';
+                            });
+                    });
+                });
+            }
+
+            // ---- Paramind's own news articles (Firestore) ----
+            // Shown only if saved after the latest round-up was published.
+            function loadParamindNews(roundupPublished) {
+                if (typeof firebase === 'undefined' || !firebase.firestore) return;
+                try {
+                    if (!firebase.apps || !firebase.apps.length) {
+                        firebase.initializeApp({
+                            apiKey: "AIzaSyC01FaWpNvJQ_LyXYBUx3Z5L2BYRrCNOUE",
+                            authDomain: "paramind-64b8e.firebaseapp.com",
+                            projectId: "paramind-64b8e",
+                            storageBucket: "paramind-64b8e.firebasestorage.app",
+                            messagingSenderId: "452173393964",
+                            appId: "1:452173393964:web:8599c0fe1983a6f441e189",
+                            measurementId: "G-GW385S6L0L"
+                        });
+                    }
+                } catch (e) { /* already initialised — fine */ }
+
+                firebase.firestore().collection('paramindNews')
+                    .orderBy('publishedAt', 'desc')
+                    .limit(5)
+                    .get()
+                    .then(function (snap) {
+                        var html = '';
+                        var number = 0;
+                        snap.forEach(function (docSnap) {
+                            var item = docSnap.data() || {};
+                            if (!item.headline) return;
+                            var when = (item.publishedAt && item.publishedAt.toDate) ? item.publishedAt.toDate() : null;
+                            if (when && roundupPublished && when.getTime() <= roundupPublished.getTime()) return;
+                            number++;
+                            html += paramindCard(item, number);
+                        });
+                        paramindBox.innerHTML = html;
+                        jumpToTarget();
+                    })
+                    .catch(function (error) {
+                        // Not a problem for visitors — the news stories still show
+                        console.warn('Paramedic news: could not load Paramind news articles', error);
+                    });
+            }
+
+            // ============================================================
+            // SEARCH
+            // Looks through every story in social/stories.json.
+            // "Clever" in three ways:
+            //   1. Word endings and typos: "strikes" finds "strike", "handovr" finds "handover".
+            //   2. Jargon: social/jargon.json holds groups of words that mean the same
+            //      thing ("las" = "london ambulance service"), so either finds both.
+            //   3. Hidden keywords: each story carries related terms that are not in
+            //      its text ("corridor care", "winter pressure"...), written by the news run.
+            // The two files are only downloaded when someone first uses the search box.
+            // ============================================================
+            var searchBox = document.getElementById('newsSearch');
+            var searchInput = document.getElementById('newsSearchInput');
+            var searchClear = document.getElementById('newsSearchClear');
+            var searchResults = document.getElementById('newsSearchResults');
+
+            var searchIndex = null;      // filled once the files have loaded
+            var jargonMap = {};          // "stemmed term" -> [ { stems:[...], label:"..." }, ... ]
+            var searchLoading = null;    // the download in progress (a Promise), so we only download once
+            var searchTimer = null;
+
+            var STOP_WORDS = { the:1, a:1, an:1, of:1, 'in':1, on:1, and:1, to:1, 'for':1, at:1, is:1, are:1, 'with':1, about:1, by:1, from:1 };
+            var FIELD_WEIGHT = { head: 3, kw: 2.5, meta: 2, text: 1 };
+
+            // "A&E delays in N. Ireland" -> ["ae", "delays", "in", "n", "ireland"]
+            function tokens(text) {
+                return String(text == null ? '' : text)
+                    .toLowerCase()
+                    .replace(/a\s*&\s*e\b/g, 'ae')
+                    .replace(/[‘’']/g, '')
+                    .replace(/[^a-z0-9]+/g, ' ')
+                    .trim()
+                    .split(' ')
+                    .filter(function (t) { return t.length > 0; });
+            }
+
+            // Trim common word endings so "delays", "delayed" and "delay" all look the same
+            function stem(word) {
+                var t = word;
+                if (/^\d+$/.test(t)) return t;
+                if (t.length > 3 && /ies$/.test(t)) t = t.slice(0, -3) + 'y';
+                else if (t.length > 3 && /s$/.test(t) && !/(ss|us|is)$/.test(t)) t = t.slice(0, -1);
+                if (t.length > 5 && /ing$/.test(t)) t = t.slice(0, -3);
+                else if (t.length > 4 && /ed$/.test(t)) t = t.slice(0, -2);
+                if (t.length > 4 && /e$/.test(t)) t = t.slice(0, -1);
+                return t;
+            }
+            function stems(text) { return tokens(text).map(stem); }
+
+            // How many single-letter changes turn word a into word b (stops counting past "max")
+            function editDistance(a, b, max) {
+                if (Math.abs(a.length - b.length) > max) return max + 1;
+                var prev = [], cur = [], i, j;
+                for (j = 0; j <= b.length; j++) prev[j] = j;
+                for (i = 1; i <= a.length; i++) {
+                    cur = [i];
+                    var rowMin = i;
+                    for (j = 1; j <= b.length; j++) {
+                        var cost = a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1;
+                        cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost);
+                        if (i > 1 && j > 1 && a.charAt(i - 1) === b.charAt(j - 2) && a.charAt(i - 2) === b.charAt(j - 1)) {
+                            cur[j] = Math.min(cur[j], prevPrev[j - 2] + 1);   // two letters swapped
+                        }
+                        if (cur[j] < rowMin) rowMin = cur[j];
+                    }
+                    if (rowMin > max) return max + 1;
+                    var prevPrev = prev;
+                    prev = cur;
+                }
+                return prev[b.length];
+            }
+
+            // How well does one typed word match one word in a story?  1 = same, 0 = no match
+            function wordQuality(typed, storyWord) {
+                if (typed === storyWord) return 1;
+                if (/^\d+$/.test(typed)) return 0;                                   // numbers must match exactly
+                if (typed.length >= 3 && storyWord.indexOf(typed) === 0) return 0.8;  // start of a longer word
+                if (typed.length >= 6 && typed.charAt(0) === storyWord.charAt(0)) {
+                    var allowed = typed.length >= 9 ? 2 : 1;
+                    if (editDistance(typed, storyWord, allowed) <= allowed) return 0.5;  // a typo
+                }
+                return 0;
+            }
+
+            // Best score for one typed word anywhere in a story
+            function scoreWord(typed, entry) {
+                var best = 0;
+                for (var field in FIELD_WEIGHT) {
+                    var words = entry.fields[field];
+                    var q = 0;
+                    for (var i = 0; i < words.length && q < 1; i++) {
+                        var w = wordQuality(typed, words[i]);
+                        if (w > q) q = w;
+                    }
+                    if (q * FIELD_WEIGHT[field] > best) best = q * FIELD_WEIGHT[field];
+                }
+                return best;
+            }
+
+            // Best score for an exact run of words ("london ambulance service") in a story
+            function scorePhrase(phrase, entry) {
+                var best = 0;
+                for (var field in FIELD_WEIGHT) {
+                    var words = entry.fields[field];
+                    for (var i = 0; i + phrase.length <= words.length; i++) {
+                        var ok = true;
+                        for (var k = 0; k < phrase.length; k++) {
+                            if (words[i + k] !== phrase[k]) { ok = false; break; }
+                        }
+                        if (ok) { if (FIELD_WEIGHT[field] > best) best = FIELD_WEIGHT[field]; break; }
+                    }
+                }
+                return best;
+            }
+
+            function buildSearchIndex(storiesData, jargonData) {
+                var list = (storiesData && Array.isArray(storiesData.stories)) ? storiesData.stories : [];
+                searchIndex = list.filter(function (s) { return s && s.headline; }).map(function (story) {
+                    return {
+                        story: story,
+                        fields: {
+                            head: stems(story.headline),
+                            kw: stems((Array.isArray(story.keywords) ? story.keywords : []).join(' zzsep ')),
+                            meta: stems([story.region, story.source, story.date].join(' zzsep ')),
+                            text: stems([story.body, story.why].join(' zzsep '))
+                        }
+                    };
+                });
+
+                jargonMap = {};
+                var groups = (jargonData && Array.isArray(jargonData.groups)) ? jargonData.groups : [];
+                groups.forEach(function (group) {
+                    if (!Array.isArray(group)) return;
+                    var terms = group
+                        .filter(function (term) { return typeof term === 'string' && term.trim(); })
+                        .map(function (term) { return { stems: stems(term), label: term.trim() }; })
+                        .filter(function (term) { return term.stems.length > 0; });
+                    terms.forEach(function (term) {
+                        var key = term.stems.join(' ');
+                        jargonMap[key] = (jargonMap[key] || []).concat(terms);
+                    });
+                });
+            }
+
+            function loadSearchData() {
+                if (searchLoading) return searchLoading;
+                var getJson = function (url) {
+                    return fetch(url + '?t=' + Date.now(), { cache: 'no-store' }).then(function (r) {
+                        if (!r.ok) throw new Error('HTTP ' + r.status);
+                        return r.json();
+                    });
+                };
+                searchLoading = Promise.all([
+                    getJson('social/stories.json'),
+                    getJson('social/jargon.json').catch(function () { return { groups: [] }; })   // search still works without the jargon list
+                ]).then(function (both) {
+                    buildSearchIndex(both[0], both[1]);
+                }).catch(function (error) {
+                    searchLoading = null;   // lets them try again
+                    throw error;
+                });
+                return searchLoading;
+            }
+
+            // Break what was typed into "units". A unit is either one word,
+            // or a piece of jargon together with everything that means the same.
+            function buildUnits(query) {
+                var typed = stems(query);
+                var units = [];
+                var i = 0;
+                while (i < typed.length) {
+                    var found = null;
+                    for (var len = Math.min(4, typed.length - i); len >= 1 && !found; len--) {
+                        var key = typed.slice(i, i + len).join(' ');
+                        if (jargonMap[key]) found = { key: key, len: len, terms: jargonMap[key] };
+                    }
+                    if (found) {
+                        units.push({ word: found.len === 1 ? typed[i] : null, phraseKey: found.key, terms: found.terms });
+                        i += found.len;
+                    } else {
+                        if (!STOP_WORDS[typed[i]] || typed.length === 1) units.push({ word: typed[i], terms: [] });
+                        i++;
+                    }
+                }
+                return units;
+            }
+
+            function runSearch(query) {
+                var units = buildUnits(query);
+                if (units.length === 0) return { results: [], also: [] };
+
+                var also = [];
+                units.forEach(function (unit) {
+                    unit.terms.forEach(function (term) {
+                        if (term.stems.join(' ') !== unit.phraseKey && also.indexOf(term.label) === -1) also.push(term.label);
+                    });
+                });
+
+                var results = [];
+                searchIndex.forEach(function (entry, position) {
+                    var total = 0;
+                    for (var u = 0; u < units.length; u++) {
+                        var unit = units[u];
+                        var best = unit.word ? scoreWord(unit.word, entry) : 0;
+                        for (var t = 0; t < unit.terms.length; t++) {
+                            var sc = scorePhrase(unit.terms[t].stems, entry);
+                            if (sc > best) best = sc;
+                        }
+                        if (best === 0) return;      // every part of the search must be found
+                        total += best;
+                    }
+                    results.push({ entry: entry, score: total, position: position });
+                });
+
+                results.sort(function (a, b) { return (b.score - a.score) || (a.position - b.position); });
+                return { results: results.slice(0, 30), also: also.slice(0, 6) };
+            }
+
+            function showSearch(query) {
+                var found = runSearch(query);
+                var html = '';
+                if (found.results.length === 0) {
+                    html += '<div class="news-message"><i class="bi bi-search"></i>' +
+                            '<div>No stories found for <strong>' + escapeHtml(query) + '</strong>.<br>Try a different word, or a shorter one.</div></div>';
+                } else {
+                    html += '<p class="news-search-summary"><strong>' + found.results.length +
+                            (found.results.length === 1 ? ' story' : ' stories') + '</strong> found for <strong>' + escapeHtml(query) + '</strong>.';
+                    if (found.also.length > 0) {
+                        html += ' Also looked for: ' + escapeHtml(found.also.join(', ')) + '.';
+                    }
+                    html += '</p><div class="news-list">';
+                    found.results.forEach(function (r) { html += storyCard(r.entry.story, 0, tidyDate(r.entry.story.date)); });
+                    html += '</div>';
+                }
+                searchResults.innerHTML = html;
+            }
+
+            function setSearchMode(on) {
+                searchResults.style.display = on ? 'block' : 'none';
+                content.style.display = on ? 'none' : '';
+                paramindBox.style.display = on ? 'none' : '';
+            }
+
+            function onSearchChanged() {
+                var query = searchInput.value.trim();
+                searchBox.classList.toggle('has-text', searchInput.value.length > 0);
+                if (query.length < 2) {
+                    setSearchMode(false);
+                    return;
+                }
+                setSearchMode(true);
+                if (!searchIndex) {
+                    searchResults.innerHTML = '<div class="loading-spinner"><div class="spinner-border" role="status"><span class="visually-hidden">Searching…</span></div></div>';
+                }
+                loadSearchData()
+                    .then(function () {
+                        // Only show the answer if the box still says what we searched for
+                        if (searchInput.value.trim() === query) showSearch(query);
+                    })
+                    .catch(function (error) {
+                        console.warn('Paramedic news: search could not load', error);
+                        searchResults.innerHTML = '<div class="news-message"><i class="bi bi-wifi-off"></i><div>Sorry, the search could not be loaded. Please check your connection and try again.</div></div>';
+                    });
+            }
+
+            searchInput.addEventListener('input', function () {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(onSearchChanged, 200);
+            });
+            searchInput.addEventListener('focus', function () { loadSearchData().catch(function () {}); });
+            searchInput.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') { event.preventDefault(); searchInput.blur(); }   // hides the phone keyboard
+            });
+            searchClear.addEventListener('click', function () {
+                searchInput.value = '';
+                onSearchChanged();
+                searchInput.focus();
+            });
+
+            // The "?t=" on the end makes sure we always get the newest file
+            fetch('social/latest.json?t=' + Date.now(), { cache: 'no-store' })
+                .then(function (response) {
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    return response.json();
+                })
+                .then(function (data) {
+                    render(data);
+                    var published = (data && data.published) ? new Date(data.published) : null;
+                    if (published && isNaN(published.getTime())) published = null;
+                    loadParamindNews(published);
+                })
+                .catch(function (error) {
+                    console.warn('Paramedic news: could not load the latest stories', error);
+                    showMessage('bi-wifi-off', 'Sorry, the news could not be loaded. Please check your connection and try again.');
+                    loadParamindNews(null);
+                });
+        })();
+    </script>
+</body>
+</html>
