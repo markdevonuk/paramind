@@ -123,6 +123,8 @@
             margin: 0 0 1rem 0.25rem;
         }
         .news-date i { color: var(--color-teal); margin-right: 0.35rem; }
+        .news-date--more { margin-top: 1.75rem; }
+        .news-earlier-body .news-date--more:first-child { margin-top: 0; }
 
         /* Story cards */
         .news-list { display: flex; flex-direction: column; gap: 1rem; }
@@ -212,7 +214,7 @@
         .news-card { scroll-margin-top: 80px; }
         .news-card.news-card--target { box-shadow: 0 0 0 3px rgba(53, 176, 200, 0.45); }
 
-        /* Earlier news: one fold-out row per previous round-up */
+        /* Earlier news: one fold-out row per previous month */
         .news-earlier-title {
             font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 1.25rem;
@@ -350,10 +352,11 @@
         // PARAMEDIC NEWS
         // 1. Reads social/latest.json (the newest news round-up) and
         //    draws one card per story. No login needed.
-        //    Previous round-ups are listed under "Earlier news".
+        //    The rest of this month's round-ups follow underneath;
+        //    previous months are listed under "Earlier news".
         // 2. Reads Paramind's own news articles from Firestore
-        //    ("paramindNews") and shows any that were saved AFTER the
-        //    latest round-up was published, above the stories.
+        //    ("paramindNews") and shows any that were saved during
+        //    the month on the page, above the stories.
         // ============================================================
         (function () {
             'use strict';
@@ -473,35 +476,129 @@
 
                 var html = '';
                 if (data.date) {
-                    html += '<p class="news-date"><i class="bi bi-calendar3"></i>' + escapeHtml(data.date) + '</p>';
+                    html += '<p class="news-date"><i class="bi bi-calendar3"></i>' + escapeHtml(tidyDate(data.date)) + '</p>';
                 }
                 html += '<div class="news-list">';
                 stories.forEach(function (story, index) { html += storyCard(story, index + 1); });
                 html += '</div>';
+
+                // The rest of this month's round-ups are added here once they have loaded
+                var thisMonth = monthOf(data.folder);
+                var earlier = Array.isArray(data.earlier) ? data.earlier.filter(function (e) {
+                    return e && /^\d{4}-\d{2}-\d{2}$/.test(e.folder || '');
+                }) : [];
+                var moreThisMonth = thisMonth && earlier.some(function (e) { return monthOf(e.folder) === thisMonth; });
+                if (moreThisMonth) {
+                    html += '<div id="newsThisMonth"><div class="loading-spinner"><div class="spinner-border spinner-border-sm" role="status"></div></div></div>';
+                }
+
                 html += '<p class="news-footnote">Summaries are written by Paramind from the sources shown. ' +
                         'Follow the link on each story to read the original.</p>';
 
-                html += earlierSection(data.earlier);
+                html += earlierSection(earlier, thisMonth);
 
                 content.innerHTML = html;
                 wireEarlier();
                 jumpToTarget();
+                if (moreThisMonth) fillThisMonth(thisMonth, data.folder);
+            }
+
+            // ---- Dates ----
+            var MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+                               'August', 'September', 'October', 'November', 'December'];
+
+            // "2026-11-27" -> "2026-11"
+            function monthOf(folder) {
+                return /^\d{4}-\d{2}-\d{2}$/.test(folder || '') ? folder.slice(0, 7) : '';
+            }
+
+            // "2026-11" -> "November 2026"
+            function monthName(month) {
+                var name = MONTH_NAMES[parseInt(month.slice(5, 7), 10) - 1];
+                return name ? name + ' ' + month.slice(0, 4) : month;
+            }
+
+            // The news run writes its dates in a few different styles. This makes them all match:
+            //   "Thursday 26 – Friday 27 November 2026" -> "26–27 November 2026"
+            //   "31 October – 2 November 2026"          -> unchanged
+            function tidyDate(text) {
+                return String(text == null ? '' : text)
+                    .replace(/\b(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b,?\s*/gi, '')
+                    .replace(/^(\d{1,2})\s*[–-]\s*(\d{1,2}\s)/, '$1–$2')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+            }
+
+            // ---- Every story from every round-up (social/stories.json), downloaded once ----
+            var allStoriesLoading = null;
+            function loadAllStories() {
+                if (allStoriesLoading) return allStoriesLoading;
+                allStoriesLoading = fetch('social/stories.json?t=' + Date.now(), { cache: 'no-store' })
+                    .then(function (response) {
+                        if (!response.ok) throw new Error('HTTP ' + response.status);
+                        return response.json();
+                    })
+                    .then(function (file) {
+                        var list = (file && Array.isArray(file.stories)) ? file.stories : [];
+                        return list.filter(function (s) { return s && s.headline && monthOf(s.folder); });
+                    })
+                    .catch(function (error) {
+                        allStoriesLoading = null;   // lets them try again
+                        throw error;
+                    });
+                return allStoriesLoading;
+            }
+
+            // All the stories for one month, as a date line then cards for each round-up (newest first).
+            // "skipFolder" leaves out one round-up (the latest one, which is already on the page).
+            function monthHtml(list, month, skipFolder) {
+                var html = '';
+                var lastFolder = '';
+                var open = false;
+                list.forEach(function (story) {
+                    if (monthOf(story.folder) !== month || story.folder === skipFolder) return;
+                    if (story.folder !== lastFolder) {
+                        if (open) html += '</div>';
+                        html += '<p class="news-date news-date--more"><i class="bi bi-calendar3"></i>' + escapeHtml(tidyDate(story.date)) + '</p>';
+                        html += '<div class="news-list">';
+                        open = true;
+                        lastFolder = story.folder;
+                    }
+                    html += storyCard(story, 0);
+                });
+                if (open) html += '</div>';
+                return html;
+            }
+
+            // ---- The rest of this month, shown under the latest round-up ----
+            function fillThisMonth(month, latestFolder) {
+                var box = document.getElementById('newsThisMonth');
+                if (!box) return;
+                loadAllStories()
+                    .then(function (list) { box.innerHTML = monthHtml(list, month, latestFolder); })
+                    .catch(function (error) {
+                        console.warn('Paramedic news: could not load the rest of this month', error);
+                        box.innerHTML = '<div class="news-message" style="padding:1rem;">Sorry, the rest of this month\'s stories could not be loaded. Please try again.</div>';
+                    });
             }
 
             // ---- Earlier news ----
-            // latest.json carries a list of previous round-ups: [{ folder, date }].
-            // Each one is a fold-out row; its stories are only fetched when opened.
-            function earlierSection(earlier) {
-                if (!Array.isArray(earlier)) return '';
-                var rows = earlier.filter(function (e) {
-                    return e && /^\d{4}-\d{2}-\d{2}$/.test(e.folder || '') && e.date;
+            // One fold-out row per previous month. latest.json carries the list of previous
+            // round-ups ([{ folder, date }]); the months come from their folder names.
+            // A month's stories are only fetched when its row is opened.
+            function earlierSection(earlier, thisMonth) {
+                var months = [];
+                earlier.forEach(function (e) {
+                    var month = monthOf(e.folder);
+                    if (month && month !== thisMonth && months.indexOf(month) === -1) months.push(month);
                 });
-                if (rows.length === 0) return '';
+                if (months.length === 0) return '';
+                months.sort().reverse();   // newest month first
 
                 var html = '<h2 class="news-earlier-title">Earlier news</h2>';
-                rows.forEach(function (e) {
-                    html += '<details class="news-earlier" data-folder="' + escapeHtml(e.folder) + '">' +
-                                '<summary><span>' + escapeHtml(e.date) + '</span><i class="bi bi-chevron-down"></i></summary>' +
+                months.forEach(function (month) {
+                    html += '<details class="news-earlier" data-month="' + escapeHtml(month) + '">' +
+                                '<summary><span>' + escapeHtml(monthName(month)) + '</span><i class="bi bi-chevron-down"></i></summary>' +
                                 '<div class="news-earlier-body"></div>' +
                             '</details>';
                 });
@@ -517,22 +614,14 @@
                         var body = row.querySelector('.news-earlier-body');
                         body.innerHTML = '<div class="loading-spinner"><div class="spinner-border spinner-border-sm" role="status"></div></div>';
 
-                        fetch('social/' + row.getAttribute('data-folder') + '/content.json')
-                            .then(function (response) {
-                                if (!response.ok) throw new Error('HTTP ' + response.status);
-                                return response.json();
-                            })
-                            .then(function (old) {
-                                var stories = (old && Array.isArray(old.stories)) ? old.stories : [];
-                                stories = stories.filter(function (s) { return s && s.headline; });
-                                if (stories.length === 0) throw new Error('no stories');
-                                var html = '<div class="news-list">';
-                                stories.forEach(function (story) { html += storyCard(story, 0); });
-                                html += '</div>';
+                        loadAllStories()
+                            .then(function (list) {
+                                var html = monthHtml(list, row.getAttribute('data-month'), '');
+                                if (!html) throw new Error('no stories');
                                 body.innerHTML = html;
                             })
                             .catch(function (error) {
-                                console.warn('Paramedic news: could not load an earlier round-up', error);
+                                console.warn('Paramedic news: could not load an earlier month', error);
                                 row.removeAttribute('data-loaded');   // lets them try again
                                 body.innerHTML = '<div class="news-message" style="padding:1rem;">Sorry, these stories could not be loaded. Please try again.</div>';
                             });
@@ -540,9 +629,19 @@
                 });
             }
 
+            // A date as its UK month, e.g. "2026-11"
+            function ukMonth(when) {
+                try {
+                    return when.toLocaleDateString('en-CA', { timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit' }).slice(0, 7);
+                } catch (e) {
+                    return when.toISOString().slice(0, 7);
+                }
+            }
+
             // ---- Paramind's own news articles (Firestore) ----
-            // Shown only if saved after the latest round-up was published.
-            function loadParamindNews(roundupPublished) {
+            // Shown if saved during the month on the page (the month of the latest round-up),
+            // to match the stories, which now cover the whole month. "thisMonth" is e.g. "2026-11".
+            function loadParamindNews(thisMonth) {
                 if (typeof firebase === 'undefined' || !firebase.firestore) return;
                 try {
                     if (!firebase.apps || !firebase.apps.length) {
@@ -560,7 +659,7 @@
 
                 firebase.firestore().collection('paramindNews')
                     .orderBy('publishedAt', 'desc')
-                    .limit(5)
+                    .limit(20)
                     .get()
                     .then(function (snap) {
                         var html = '';
@@ -569,7 +668,7 @@
                             var item = docSnap.data() || {};
                             if (!item.headline) return;
                             var when = (item.publishedAt && item.publishedAt.toDate) ? item.publishedAt.toDate() : null;
-                            if (when && roundupPublished && when.getTime() <= roundupPublished.getTime()) return;
+                            if (when && thisMonth && ukMonth(when) < thisMonth) return;   // from an earlier month
                             number++;
                             html += paramindCard(item, number);
                         });
@@ -813,7 +912,7 @@
                         html += ' Also looked for: ' + escapeHtml(found.also.join(', ')) + '.';
                     }
                     html += '</p><div class="news-list">';
-                    found.results.forEach(function (r) { html += storyCard(r.entry.story, 0, r.entry.story.date); });
+                    found.results.forEach(function (r) { html += storyCard(r.entry.story, 0, tidyDate(r.entry.story.date)); });
                     html += '</div>';
                 }
                 searchResults.innerHTML = html;
@@ -869,9 +968,7 @@
                 })
                 .then(function (data) {
                     render(data);
-                    var published = (data && data.published) ? new Date(data.published) : null;
-                    if (published && isNaN(published.getTime())) published = null;
-                    loadParamindNews(published);
+                    loadParamindNews(monthOf(data && data.folder) || null);
                 })
                 .catch(function (error) {
                     console.warn('Paramedic news: could not load the latest stories', error);
