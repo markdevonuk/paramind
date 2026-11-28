@@ -353,10 +353,11 @@
         // PARAMEDIC NEWS
         // 1. Reads social/latest.json (the newest news round-up) and
         //    draws one card per story. No login needed.
-        //    Previous round-ups are listed under "Earlier news".
+        //    The rest of this month's round-ups follow underneath;
+        //    previous months are listed under "Earlier news".
         // 2. Reads Paramind's own news articles from Firestore
-        //    ("paramindNews") and shows any that were saved AFTER the
-        //    latest round-up was published, above the stories.
+        //    ("paramindNews") and shows any that were saved during
+        //    the month on the page, above the stories.
         // ============================================================
         (function () {
             'use strict';
@@ -629,9 +630,19 @@
                 });
             }
 
+            // A date as its UK month, e.g. "2026-11"
+            function ukMonth(when) {
+                try {
+                    return when.toLocaleDateString('en-CA', { timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit' }).slice(0, 7);
+                } catch (e) {
+                    return when.toISOString().slice(0, 7);
+                }
+            }
+
             // ---- Paramind's own news articles (Firestore) ----
-            // Shown only if saved after the latest round-up was published.
-            function loadParamindNews(roundupPublished) {
+            // Shown if saved during the month on the page (the month of the latest round-up),
+            // to match the stories, which now cover the whole month. "thisMonth" is e.g. "2026-11".
+            function loadParamindNews(thisMonth) {
                 if (typeof firebase === 'undefined' || !firebase.firestore) return;
                 try {
                     if (!firebase.apps || !firebase.apps.length) {
@@ -649,7 +660,7 @@
 
                 firebase.firestore().collection('paramindNews')
                     .orderBy('publishedAt', 'desc')
-                    .limit(5)
+                    .limit(20)
                     .get()
                     .then(function (snap) {
                         var html = '';
@@ -658,7 +669,7 @@
                             var item = docSnap.data() || {};
                             if (!item.headline) return;
                             var when = (item.publishedAt && item.publishedAt.toDate) ? item.publishedAt.toDate() : null;
-                            if (when && roundupPublished && when.getTime() <= roundupPublished.getTime()) return;
+                            if (when && thisMonth && ukMonth(when) < thisMonth) return;   // from an earlier month
                             number++;
                             html += paramindCard(item, number);
                         });
@@ -958,9 +969,7 @@
                 })
                 .then(function (data) {
                     render(data);
-                    var published = (data && data.published) ? new Date(data.published) : null;
-                    if (published && isNaN(published.getTime())) published = null;
-                    loadParamindNews(published);
+                    loadParamindNews(monthOf(data && data.folder) || null);
                 })
                 .catch(function (error) {
                     console.warn('Paramedic news: could not load the latest stories', error);
